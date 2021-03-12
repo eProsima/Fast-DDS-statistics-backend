@@ -17,8 +17,8 @@
  * @file types.hpp
  */
 
-#ifndef EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
-#define EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 
 #include <nlohmann-json/json.hpp>
 
@@ -91,18 +91,12 @@ enum EntityKind
     TOPIC,
 
     /// DDS Domain Participant
-    /// Store the Domain Participant Qos
-    /// Store the Domain Participant Statistic data
     PARTICIPANT,
 
     /// DDS DataWriter
-    /// Store the DataWriter Qos
-    /// Store the DataWriter Statistic data
     DATAWRITER,
 
     /// DDS DataReader
-    /// Store the DataReader Qos
-    /// Store the DataReader Statistic data
     DATAREADER,
 
     /// Physical locator that a communication is using (IP + port || SHM + port)
@@ -143,10 +137,10 @@ enum DataKind
     /// Latency between Locators pair
     NETWORK_LATENCY,
 
-    /// Throughput (Mb/s) sent by a DataWriter
+    /// Amount of data [Mb/s] sent by a DataWriter
     PUBLICATION_THROUGHPUT,
 
-    /// Throughput (Mb/s) by a DataReader
+    /// Amount of data [Mb/s] received by a DataReader
     SUBSCRIPTION_THROUGHPUT,
 
     /// Amount of packets sent from a DDS Entity to a Locator
@@ -173,7 +167,7 @@ enum DataKind
     /// Amount of NACKFRAGs that each non discovery DataReader/DomainParticipant sends
     NACKFRAG_COUNT,
 
-    /// Amount of GAPs sub-messages resent from a DataWriter/DomainParticipant
+    /// Amount of GAPs sub-messages sent from a DataWriter/DomainParticipant
     GAP_COUNT,
 
     /// Amount of DATA/DATAFRAG sub-messages that each non discovery DataWriter sends
@@ -186,14 +180,14 @@ enum DataKind
     EDP_PACKETS,
 
     /// Time when a DDS Entity discovers another DDS entity
-    DISCOVERED_ENTITY,
+    DISCOVERY_TIME,
 
     /// Amount of DATA/DATAFRAG sub-messages needed to send a single sample
     SAMPLE_DATAS,
 };
 
 /*
- * Available statistics operation to be perform on the raw data.
+ * Available statistics operations to be performed on the raw data.
  */
 enum StatisticKind
 {
@@ -226,4 +220,4 @@ enum StatisticKind
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
+#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
