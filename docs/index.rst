@@ -11,6 +11,16 @@
 
    /formalia/titlepage.rst
 
+.. _index_installation:
+
+.. toctree::
+   :caption: Installation Manual
+   :maxdepth: 2
+   :numbered: 5
+   :hidden:
+
+   /installation/cmake_options
+
 .. _index_statistics_backend:
 
 .. toctree::
