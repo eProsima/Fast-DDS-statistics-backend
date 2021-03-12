@@ -52,7 +52,7 @@ public:
 
     /*!
      * This method is called when a new Topic is discovered by the library.
-     * 
+     *
      * @param domain_id Entity ID of the domain in which the topic has been discovered.
      * @param topic_id Entity ID of the discovered topic.
      */
@@ -67,7 +67,7 @@ public:
     /*!
      * This method is called when a new DomainParticipant is discovered by the library,
      * or a previously discovered DomainParticipant changes its QOS or is removed.
-     * 
+     *
      * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
      * @param participant_id Entity ID of the discovered DomainParticipant.
      * @param status The status of the discovered DomainParticipants.
@@ -85,7 +85,7 @@ public:
     /*!
      * This method is called when a new DataReader is discovered by the library,
      * or a previously discovered DataReader changes its QOS or is removed.
-     * 
+     *
      * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
      * @param datareader_id Entity ID of the discovered DataReader.
      * @param status The status of the discovered DataReaders.
@@ -103,7 +103,7 @@ public:
     /*!
      * This method is called when a new DataWriter is discovered by the library,
      * or a previously discovered DataWriter changes its QOS or is removed.
-     * 
+     *
      * @param domain_id Entity ID of the domain in which the DataWriter has been discovered.
      * @param datawriter_id Entity ID of the discovered DataWriter.
      * @param status The status of the discovered DataWriters.
@@ -120,7 +120,7 @@ public:
 
     /*!
      * This method is called when a new data sample is available.
-     * 
+     *
      * @param domain_id Entity ID of the domain to which the data belongs.
      * @param entity_id Entity ID of the entity to which the data refers.
      * @param data_kind Data kind of the received data.

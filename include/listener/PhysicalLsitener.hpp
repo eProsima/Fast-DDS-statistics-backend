@@ -36,7 +36,7 @@ public:
 
     /*!
      * This method is called when a new Host is discovered by the library.
-     * 
+     *
      * @param participant_id Entity ID of the participant that discovered the Host.
      * @param host_id Entity ID of the discovered Host.
      */
@@ -50,7 +50,7 @@ public:
 
     /*!
      * This method is called when a new User is discovered by the library.
-     * 
+     *
      * @param participant_id Entity ID of the participant that discovered the User.
      * @param user_id Entity ID of the discovered User.
      */
@@ -64,7 +64,7 @@ public:
 
     /*!
      * This method is called when a new Process is discovered by the library.
-     * 
+     *
      * @param participant_id Entity ID of the participant that discovered the Process.
      * @param process_id Entity ID of the discovered Process.
      */
@@ -78,7 +78,7 @@ public:
 
     /*!
      * This method is called when a new Locator is discovered by the library.
-     * 
+     *
      * @param participant_id Entity ID of the participant that discovered the Locator.
      * @param locator_id Entity ID of the discovered Locator.
      */
@@ -89,6 +89,7 @@ public:
         static_cast<void>(participant_id);
         static_cast<void>(locator_id);
     }
+
 };
 
 } // namespace statistics_backend
