@@ -57,9 +57,17 @@ endif()
 # Documentation
 ###############################################################################
 option(BUILD_DOCUMENTATION "Generate documentation" ON)
+option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
 if (BUILD_DOCUMENTATION)
+    if(BUILD_DOCUMENTATION_TESTS)
+        # CTest needs to be included here, otherwise it is not possible to run the tests from the root
+        # of the build directory
+        enable_testing()
+        include(CTest)
+    endif()
     add_subdirectory(docs)
 endif()
+
 
 ###############################################################################
 # Installation paths

@@ -149,12 +149,8 @@ set(CPACK_COMPONENT_backend-sphinx_DESCRIPTION
     "eProsima Fast DDS Statistics Backend documentation in ${INTERNAL_BUILDER} format")
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} ${INTERNAL_BUILDER})
 
-# # Option to compile documentation tests
-# option(COMPILE_TESTS "Compile Fast DDS-docs tests" ON)
-# if(COMPILE_TESTS)
-#     # CTest needs to be included here, otherwise it is not possible to run the tests from the root
-#     # of the build directory
-#     enable_testing()
-#     include(CTest)
-#     add_subdirectory(code)
-# endif()
+# Add tests if required
+if(BUILD_DOCUMENTATION_TESTS)
+    message(STATUS "Adding documentation tests")
+    add_subdirectory(test)
+endif()

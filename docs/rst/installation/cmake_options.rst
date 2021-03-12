@@ -20,7 +20,7 @@ CMake options
         - ``ON``
     *   - :class:`FASTDDS_STATISTICS_BACKEND_DOCS_BUILDER`
         - Select the sphinx builder used to |br|
-          build de documentation.
+          build the documentation.
         - ``html`` ``dirhtml`` ``singlehtml`` ``pickle`` |br|
           ``json`` ``htmlhelp`` ``qthelp`` ``applehelp`` |br|
           ``devhelp`` ``epub`` ``epub3`` ``latex`` ``text`` |br|
@@ -28,3 +28,7 @@ CMake options
           ``xml`` ``pseudoxml`` ``pdf`` ``latexpdf`` |br|
           ``latexpdfja`` ``info``
         - ``html``
+    *   - :class:`BUILD_DOCUMENTATION_TESTS`
+        - Build the library documentation tests
+        - ``ON`` ``OFF``
+        - ``OFF``

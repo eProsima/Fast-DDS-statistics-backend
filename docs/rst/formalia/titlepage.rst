@@ -4,7 +4,7 @@
     eProsima Fast DDS Statistics Backend Documentation
   </h1>
 
-.. image:: /figures/logo.png
+.. image:: /rst/figures/logo.png
   :height: 100px
   :width: 100px
   :align: left

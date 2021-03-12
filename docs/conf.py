@@ -123,7 +123,7 @@ def configure_doxyfile(
 
 script_path = os.path.abspath(pathlib.Path(__file__).parent.absolute())
 # Project directories
-project_source_docs_dir = os.path.abspath('{}'.format(script_path))
+project_source_docs_dir = os.path.abspath('{}/rst'.format(script_path))
 project_binary_dir = os.path.abspath('{}/../build'.format(script_path))
 project_binary_docs_dir = os.path.abspath(
     '{}/docs'.format(project_binary_dir)
@@ -191,7 +191,7 @@ try:
 
     # spelling_word_list_filename = 'spelling_wordlist.txt'
     spelling_word_list_filename = [
-        'spelling_wordlist.txt',
+        'rst/spelling_wordlist.txt',
     ]
 
     from sphinxcontrib.spelling.filters import ContractionFilter
@@ -332,10 +332,10 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['rst/_static']
 
 html_context = {
-        'css_files': select_css(script_path),
+        'css_files': select_css(project_source_docs_dir),
         }
 
 

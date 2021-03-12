@@ -1,6 +1,6 @@
 .. eProsima Fast DDS Statistics Backend documentation master file.
 
-.. include:: formalia/titlepage.rst
+.. include:: rst/formalia/titlepage.rst
 
 .. _index_introduction:
 
@@ -9,7 +9,7 @@
    :maxdepth: 2
    :hidden:
 
-   /formalia/titlepage.rst
+   /rst/formalia/titlepage.rst
 
 .. _index_installation:
 
@@ -19,7 +19,7 @@
    :numbered: 5
    :hidden:
 
-   /installation/cmake_options
+   /rst/installation/cmake_options
 
 .. _index_statistics_backend:
 
@@ -29,7 +29,7 @@
    :numbered: 5
    :hidden:
 
-   /api-reference/api_reference
+   /rst/api-reference/api_reference
 
 .. _index_notes:
 
@@ -38,4 +38,4 @@
    :maxdepth: 2
    :hidden:
 
-   /notes/notes
+   /rst/notes/notes
