@@ -16,8 +16,8 @@
  * @file Exception.hpp
  */
 
-#ifndef _FASTDDS_STATISTICS_BACKEND_EXCEPTION_HPP_
-#define _FASTDDS_STATISTICS_BACKEND_EXCEPTION_HPP_
+#ifndef _EPROSIMA_STATISTICS_BACKEND_EXCEPTION_HPP_
+#define _EPROSIMA_STATISTICS_BACKEND_EXCEPTION_HPP_
 
 #include <exception>
 #include <string>
@@ -26,7 +26,7 @@ namespace eprosima {
 namespace statistics_backend {
 
 /**
- * @brief Base class for all exceptions thrown by the FastDDS statistics backend module.
+ * @brief Base class for all exceptions thrown by the eProsima statistics backend module.
  * 
  */
 class Exception : public std::exception
@@ -253,4 +253,4 @@ public:
 } // namespace eprosima
 
     
-#endif //_FASTDDS_STATISTICS_BACKEND_EXCEPTION_HPP_
+#endif //_EPROSIMA_STATISTICS_BACKEND_EXCEPTION_HPP_
