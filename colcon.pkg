@@ -1,0 +1,5 @@
+{
+    "name": "fastdds-statistics-backend",
+    "type": "cmake",
+    "build-dependencies": ["fastrtps"]
+}
