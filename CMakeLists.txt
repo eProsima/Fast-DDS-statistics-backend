@@ -54,6 +54,22 @@ else()
 endif()
 
 ###############################################################################
+# Documentation
+###############################################################################
+option(BUILD_DOCUMENTATION "Generate documentation" ON)
+option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
+if (BUILD_DOCUMENTATION)
+    if(BUILD_DOCUMENTATION_TESTS)
+        # CTest needs to be included here, otherwise it is not possible to run the tests from the root
+        # of the build directory
+        enable_testing()
+        include(CTest)
+    endif()
+    add_subdirectory(docs)
+endif()
+
+
+###############################################################################
 # Installation paths
 ###############################################################################
 set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
@@ -69,7 +85,6 @@ set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
 # unless the library was explicitly added as a static library.
 option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 
-
 ###############################################################################
 # Install headers
 ###############################################################################
@@ -79,8 +94,7 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include
     COMPONENT headers
     FILES_MATCHING
     PATTERN "*.h"
-    PATTERN "*.hpp"
-    )
+    PATTERN "*.hpp")
 
 get_property(${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES GLOBAL PROPERTY ${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES_PROPERTY)
 set(${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES ${${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES} ${PROJECT_SOURCE_DIR}/include)
