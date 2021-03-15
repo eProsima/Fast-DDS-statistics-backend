@@ -38,7 +38,7 @@ public:
         //! @brief The change in total_count since the last time the listener was called
         int32_t total_count_change = 0;
 
-        //! @brief The number of currently iscovered entities
+        //! @brief The number of currently discovered entities
         int32_t current_count = 0;
 
         //! @brief The change in current_count since the last time the listener was called
