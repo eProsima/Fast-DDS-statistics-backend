@@ -21,6 +21,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 
 #include <nlohmann-json/json.hpp>
+#include <types/Bitmask.hpp>
 
 #include <string>
 
@@ -73,7 +74,7 @@ using Qos = nlohmann::json;
 /**
  * Indicates the Type of an Entity in Statistics Backend structure
  */
-enum EntityKind
+enum class EntityKind
 {
     /// Host/Machine where a participant is allocated
     HOST,
@@ -128,68 +129,81 @@ enum EntityKind
  *     | DISCOVERED_ENTITY       | DDSEntity         | DDSEntity     | 2            | Time        |
  *     | SAMPLE_DATAS            | DataWriter        |               | 1            | EntityData  |
  */
-enum DataKind
+enum class DataKind : int32_t
 {
     /// Latency between a write operation (writer side) and data available
     /// (notification to user in reader side)
-    FASTDDS_LATENCY,
+    FASTDDS_LATENCY             = 1 << 0,
 
     /// Latency between Locators pair
-    NETWORK_LATENCY,
+    NETWORK_LATENCY             = 1 << 1,
 
     /// Amount of data [Mb/s] sent by a DataWriter
-    PUBLICATION_THROUGHPUT,
+    PUBLICATION_THROUGHPUT      = 1 << 2,
 
     /// Amount of data [Mb/s] received by a DataReader
-    SUBSCRIPTION_THROUGHPUT,
+    SUBSCRIPTION_THROUGHPUT     = 1 << 3,
 
     /// Amount of packets sent from a DDS Entity to a Locator
-    RTPS_PACKETS_SENT,
+    RTPS_PACKETS_SENT           = 1 << 4,
 
     /// Amount of bytes sent from a DDS Entity to a Locator
-    RTPS_BYTES_SENT,
+    RTPS_BYTES_SENT             = 1 << 5,
 
     /// Amount of packets lost from a DDS Entity to a Locator
-    RTPS_PACKETS_LOST,
+    RTPS_PACKETS_LOST           = 1 << 6,
 
     /// Amount of bytes lost from a DDS Entity to a Locator
-    RTPS_BYTES_LOST,
+    RTPS_BYTES_LOST             = 1 << 7,
 
     /// Amount of DATA/DATAFRAG sub-messages resent from a DataWriter/DomainParticipant
-    RESENT_DATA,
+    RESENT_DATA                 = 1 << 8,
 
     /// Amount of HEARTBEATs that each non discovery DataWriter/DomainParticipant sends
-    HEARTBEAT_COUNT,
+    HEARTBEAT_COUNT             = 1 << 9,
 
     /// Amount of ACKNACKs that each non discovery DataReader/DomainParticipant sends
-    ACKNACK_COUNT,
+    ACKNACK_COUNT               = 1 << 10,
 
     /// Amount of NACKFRAGs that each non discovery DataReader/DomainParticipant sends
-    NACKFRAG_COUNT,
+    NACKFRAG_COUNT              = 1 << 11,
 
     /// Amount of GAPs sub-messages sent from a DataWriter/DomainParticipant
-    GAP_COUNT,
+    GAP_COUNT                   = 1 << 12,
 
     /// Amount of DATA/DATAFRAG sub-messages that each non discovery DataWriter sends
-    DATA_COUNT,
+    DATA_COUNT                  = 1 << 13,
 
     /// Amount of PDP packets sent by Participant
-    PDP_PACKETS,
+    PDP_PACKETS                 = 1 << 14,
 
     /// Amount of EDP packets sent by Participant
-    EDP_PACKETS,
+    EDP_PACKETS                 = 1 << 15,
 
     /// Time when a DDS Entity discovers another DDS entity
-    DISCOVERY_TIME,
+    DISCOVERY_TIME              = 1 << 16,
 
     /// Amount of DATA/DATAFRAG sub-messages needed to send a single sample
-    SAMPLE_DATAS,
+    SAMPLE_DATAS                = 1 << 17,
 };
+
+/**
+ * @brief Bitmask of data kinds
+ * 
+ * values of DataKind can be combined with the '|' operator to build the mask:
+ * 
+ * \code cpp
+ *     DataKindMask mask = DataKind::PUBLICATION_THROUGHPUT | DataKind::SUBSCRIPTION_THROUGHPUT;
+ * \endcode
+ * 
+ * \sa Bitmask
+ */
+using DataKindMask = Bitmask<DataKind>;
 
 /*
  * Available statistics operations to be performed on the raw data.
  */
-enum StatisticKind
+enum class StatisticKind
 {
     /// Non accumulative kind, it chooses a data point between the set given.
     /// Implemented to take the first data in set : [0]
@@ -216,6 +230,7 @@ enum StatisticKind
     /// Summation of the values in the set
     SUM
 };
+
 
 } //namespace statistics_backend
 } //namespace eprosima
