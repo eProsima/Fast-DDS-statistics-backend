@@ -21,6 +21,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 
 #include <nlohmann-json/json.hpp>
+#include <types/Bitmask.hpp>
 
 #include <string>
 
@@ -73,7 +74,7 @@ using Qos = nlohmann::json;
 /**
  * Indicates the Type of an Entity in Statistics Backend structure
  */
-enum EntityKind
+enum class EntityKind
 {
     /// Host/Machine where a participant is allocated
     HOST,
@@ -128,7 +129,7 @@ enum EntityKind
  *     | DISCOVERED_ENTITY       | DDSEntity         | DDSEntity     | 2            | Time        |
  *     | SAMPLE_DATAS            | DataWriter        |               | 1            | EntityData  |
  */
-enum DataKind
+enum class DataKind : int32_t
 {
     /// Latency between a write operation (writer side) and data available
     /// (notification to user in reader side)
@@ -186,13 +187,23 @@ enum DataKind
     SAMPLE_DATAS                = 1 << 17,
 };
 
-/// Bitmask of data kinds, that can be constructed combining values of DataKind with the '|' operator.
-using DataKindMask = int32_t;
+/**
+ * @brief Bitmask of data kinds
+ * 
+ * values of DataKind can be combined with the '|' operator to build the mask:
+ * 
+ * \code cpp
+ *     DataKindMask mask = DataKind::PUBLICATION_THROUGHPUT | DataKind::SUBSCRIPTION_THROUGHPUT;
+ * \endcode
+ * 
+ * \sa Bitmask
+ */
+using DataKindMask = Bitmask<DataKind>;
 
 /*
  * Available statistics operations to be performed on the raw data.
  */
-enum StatisticKind
+enum class StatisticKind
 {
     /// Non accumulative kind, it chooses a data point between the set given.
     /// Implemented to take the first data in set : [0]
@@ -219,6 +230,7 @@ enum StatisticKind
     /// Summation of the values in the set
     SUM
 };
+
 
 } //namespace statistics_backend
 } //namespace eprosima

@@ -19,6 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_CALLBACKMASK_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_CALLBACKMASK_HPP_
 
+#include <types/Bitmask.hpp>
+
 #include <cstdint>
 
 namespace eprosima {
@@ -28,12 +30,11 @@ namespace statistics_backend {
  * Each value indentifies one of the user callbacks available on the library.
  * These values can be combined with the '|' operator to form a mask
  * and configure which events are going to be notified to the user.
+ * 
+ * \sa CallbackMask
  */
-enum CallbackKind
+enum class CallbackKind : int32_t
 {
-    /// Value representing no callback
-    NONE                        = 0,
-
     /// Represents the on_topic_discovery() callback
     ON_TOPIC_DISCOVERY          = 1 << 0,
 
@@ -62,8 +63,18 @@ enum CallbackKind
     ON_DATA_AVAILABLE           = 1 << 8
 };
 
-/// Bitmask of callback kinds, that can be constructed combining values of CallbackKind with the '|' operator.
-using CallbackMask = int32_t;
+/**
+ * @brief Bitmask of callback kinds
+ * 
+ * values of CallbackKind can be combined with the '|' operator to build the mask:
+ * 
+ * \code cpp
+ *     CallbackMask mask = CallbackKind::ON_DATAWRITER_DISCOVERY | CallbackKind::ON_DATAREADER_DISCOVERY;
+ * \endcode
+ * 
+ * \sa Bitmask
+ */
+using CallbackMask = Bitmask<CallbackKind>;
 
 
 } // namespace statistics_backend
