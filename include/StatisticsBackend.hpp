@@ -24,6 +24,8 @@
 #include <listener/CallbackMask.hpp>
 #include <types/types.hpp>
 
+#include <chrono>
+
 namespace eprosima {
 namespace statistics_backend {
 
@@ -46,38 +48,7 @@ public:
      * \sa get_data()
      *
      */
-    using StatisticData = std::pair<time_t, double>;
-
-    /**
-     * Enumeration of available statistics operation to be perform on the raw data.
-     */
-    enum StatisticKind
-    {
-        /// No statistic, use raw data samples
-        NONE,
-
-        /// Numerical mean of the data samples
-        MEAN,
-
-        /// Standard Deviation of the data samples
-        STANDARD_DEVIATION,
-
-        /// Maximum value of the data samples
-        MAX,
-
-        /// Minimum value of the data samples
-        MIN,
-
-        /// Median value of the data samples
-        MEDIAN,
-
-        /// Amount of data samples
-        COUNT,
-
-        /// Sum of the data sample values
-        SUM
-    };
-
+    using StatisticData = std::pair<Time, double>;
 
     /**
      * @brief Set the listener for the physical domain events.
@@ -95,51 +66,64 @@ public:
 
     /**
      * @brief Starts monitoring on a given domain
+     * 
+     * This method creates a new statistics DomainParticipant that starts monitoring
+     * the requested domain ID.
      *
      * @param domain The domain ID of the DDS domain to monitor
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
+     * @return The ID of the created statistics DomainParticipant.
      */
-    static void init_monitor(
+    static EntityId init_monitor(
             DomainId domain,
             DomainListener* domain_listener = nullptr,
-            CallbackMask callback_mask = CallbackKind::NONE,
-            DataKindMask data_mask = DataKind::NONE);
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief ????????
+     * @brief Starts monitoring the domain corresponding to a server
      *
-     * @param discovery_server_locators ????????
+     * This method creates a new statistics DomainParticipant that starts monitoring
+     * the domain of the server with the given locator.
+     * 
+     * @param discovery_server_locators The locator of the server whose domain is to be monitored
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
+     * @return The ID of the created statistics DomainParticipant.
      */
-    static void init_monitor(
+    static EntityId init_monitor(
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
-            CallbackMask callback_mask = CallbackKind::NONE,
-            DataKindMask data_mask = DataKind::NONE);
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
 
     /**
      * @brief Get all the entities of a given type related to another entity
      *
-     * @param entity_id The ID of the origin entity from we are searching
-     * @param entity_type The type of entities we are looking for
+     * @param entity_id The ID of the entity to which the resulting entities are related
+     * @param entity_type The type of entities for which the search is performed
      * @return All entities of type \c entity_type that are related to \c entity_id
      */
     static std::vector<EntityId> get_entities(
             EntityId entity_id,
             EntityKind entity_type);
 
-    // Is still needed????????
+    /**
+     * @brief Returns the entity kind of a given id.
+     * 
+     * @param entity_id The ID of the entity whose type is requested
+     * @return EntityKind of \c entity_id.
+     */
     static EntityKind get_type(
             EntityId entity_id);
 
     /**
      * @brief Get the QoS of a given entity
      *
-     * @param entity_id The entity for which we want to retrieve the QoS
+     * @param entity_id The entity for which the QoS are retrieved
      * @return Qos object describing the entity's QoS
      */
     static Qos get_qos(
@@ -148,14 +132,10 @@ public:
     /**
      * @brief Get the name of a given entity
      *
-     * @param entity_id The entity for which we want to retrieve the name
+     * @param entity_id The entity for whichthe name is retrieved
      * @return a string representing the name of the entity
      */
     static std::string get_name(
-            EntityId entity_id);
-
-    // What is a summary?????????
-    static StatisticsSummary get_summary(
             EntityId entity_id);
 
     /**
@@ -183,13 +163,13 @@ public:
      *
      * \sa StatisticsBackend
      *
-     * @param data_type The type of the measure being requested
+     * @param data_type The type of the measurement being requested
      * @param entity_id_source Id of the source entity of the requested data
      * @param entity_id_target Id of the target entity of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
-     * @param t_from starting time of the returned measures.
-     * @param t_to ending time of the returned measures.
+     * @param t_from Starting time of the returned measures.
+     * @param t_to Ending time of the returned measures.
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticData> get_data(
@@ -197,9 +177,9 @@ public:
             EntityId entity_id_source,
             EntityId entity_id_target,
             uint16_t bins = 0,
-            StatisticKind statistic = NONE,
-            Time t_from = INIT_TIME,
-            Time t_to = NOW_TIME);
+            StatisticKind statistic = StatisticKind::NONE,
+            Time t_from = Time(),
+            Time t_to = std::chrono::system_clock::now());
 
     /**
      * @brief Provides access to the data measured during the monitoring.
@@ -226,21 +206,21 @@ public:
      *
      * \sa StatisticsBackend
      *
-     * @param data_type The type of the measure being requested
+     * @param data_type The type of the measurement being requested
      * @param entity_id Id of the entity of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
-     * @param t_from starting time of the returned measures.
-     * @param t_to ending time of the returned measures.
+     * @param t_from Starting time of the returned measures.
+     * @param t_to Ending time of the returned measures.
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticData> get_data(
             DataKind data_type,
             EntityId entity_id,
             uint16_t bins = 0,
-            StatisticKind statistic = NONE,
-            Time t_from = INIT_TIME,
-            Time t_to = NOW_TIME);
+            StatisticKind statistic = StatisticKind::NONE,
+            Time t_from = Time(),
+            Time t_to = std::chrono::system_clock::now());
 
     /**
      * @brief Get the topology graph

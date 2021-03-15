@@ -39,7 +39,7 @@ using EntityId = std::string;
 using Qos = nlohmann::json;
 
 /**
- * Topology graph tree structure
+ * Topology graph tree structure.  Please refer to https://nlohmann.github.io/json/doxygen/index.html
  */
 using Graph = nlohmann::json;
 
@@ -47,6 +47,11 @@ using Graph = nlohmann::json;
  * Type DDS Domain IDs
  */
 using DomainId = uint32_t;
+
+/**
+ * Type used to represent time points
+ */
+using Time = std::chrono::time_point<std::chrono::system_clock>;
 
 
 /*

@@ -103,12 +103,12 @@ public:
         return (mask_ & v) == v;
     }
 
-    static Bitmask none()
+    static constexpr Bitmask none()
     {
         return Bitmask(0);
     }
 
-    static Bitmask all()
+    static constexpr Bitmask all()
     {
         return Bitmask(static_cast<underlying_type>(-1));
     }
