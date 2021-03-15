@@ -38,6 +38,38 @@ using EntityId = std::string;
  */
 using Qos = nlohmann::json;
 
+/**
+ * Topology graph tree structure.  Please refer to https://nlohmann.github.io/json/doxygen/index.html
+ */
+using Graph = nlohmann::json;
+
+/**
+ * Type DDS Domain IDs
+ */
+using DomainId = uint32_t;
+
+/**
+ * Type used to represent time points
+ */
+using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
+
+
+/**
+ * @brief Type of the data returned by the backend.
+ *
+ * The first field represents the time at which the data was recorded.
+ * This can be the time of the raw data point if no bins are being used,
+ * or the starting time of the bin (see get_data()).
+ *
+ * The second field represents the data value itself.
+ * This will be the value of the calculated statistic, or the raw data
+ * if no statistic has been requested (see get_data()).
+ *
+ * \sa get_data()
+ *
+ */
+using StatisticData = std::pair<Timestamp, double>;
+
 /*
  * Schema for Entities kinds store in Backend
  *                  *
@@ -131,6 +163,9 @@ enum class EntityKind
  */
 enum class DataKind : int32_t
 {
+    /// Represents no valid data kind
+    NONE                        = 0,
+
     /// Latency between a write operation (writer side) and data available
     /// (notification to user in reader side)
     FASTDDS_LATENCY             = 1 << 0,
@@ -192,7 +227,7 @@ enum class DataKind : int32_t
  * 
  * values of DataKind can be combined with the '|' operator to build the mask:
  * 
- * \code cpp
+ * \code{.cpp}
  *     DataKindMask mask = DataKind::PUBLICATION_THROUGHPUT | DataKind::SUBSCRIPTION_THROUGHPUT;
  * \endcode
  * 

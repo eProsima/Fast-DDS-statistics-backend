@@ -32,16 +32,36 @@ public:
 
     struct Status
     {
-        //! @brief Total cumulative count of the entities discovered so far
+        /**
+         * @brief Total cumulative count of the entities discovered so far
+         * 
+         * This value increases monotonically with every new discovered entity.
+         */
         int32_t total_count = 0;
 
-        //! @brief The change in total_count since the last time the listener was called
+        /**
+         * @brief The change in total_count since the last time the listener was called
+         * 
+         * This value can be positive, negative or zero, depending on the entity being
+         * discovered, undiscovered or only the QoS of the entity being changed
+         * since the last time the listener was called.
+         */
         int32_t total_count_change = 0;
 
-        //! @brief The number of currently discovered entities
+        /**
+         * @brief The number of currently discovered entities
+         * 
+         * This value can only be positive or zero.
+         */
         int32_t current_count = 0;
 
-        //! @brief The change in current_count since the last time the listener was called
+        /**
+         * @brief The change in current_count since the last time the listener was called
+         * 
+         * This value can be positive, negative or zero, depending on the entity being
+         * discovered, undiscovered or only the QoS of the entity being changed
+         * since the last time the listener was called.
+         */
         int32_t current_count_change = 0;
     };
 

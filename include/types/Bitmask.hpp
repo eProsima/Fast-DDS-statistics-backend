@@ -34,7 +34,7 @@ namespace statistics_backend {
  * Bitwise operations are defined between masks of the same type, between
  * a mask and its companion ennumeration, and between enumerated values.
  * 
- * \code cpp
+ * \code{.cpp}
  *     enum my_enum
  *     {
  *         RED    = 1 << 0,
@@ -103,12 +103,12 @@ public:
         return (mask_ & v) == v;
     }
 
-    static Bitmask none()
+    static constexpr Bitmask none()
     {
         return Bitmask(0);
     }
 
-    static Bitmask all()
+    static constexpr Bitmask all()
     {
         return Bitmask(static_cast<underlying_type>(-1));
     }
