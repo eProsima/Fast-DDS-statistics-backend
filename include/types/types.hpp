@@ -38,6 +38,12 @@ using EntityId = std::string;
  */
 using Qos = nlohmann::json;
 
+/**
+ * Type DDS Domain IDs
+ */
+using DomainId = uint32_t;
+
+
 /*
  * Schema for Entities kinds store in Backend
  *                  *
@@ -131,6 +137,9 @@ enum class EntityKind
  */
 enum class DataKind : int32_t
 {
+    /// Represents no valid data kind
+    NONE                        = 0,
+
     /// Latency between a write operation (writer side) and data available
     /// (notification to user in reader side)
     FASTDDS_LATENCY             = 1 << 0,
