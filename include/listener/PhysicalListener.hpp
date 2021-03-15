@@ -25,14 +25,14 @@
 namespace eprosima {
 namespace statistics_backend {
 
-class PhysicalLsitener : public DomainListener
+class PhysicalListener : public DomainListener
 {
 public:
 
     /**
      * @brief Virtual destructor
      */
-    virtual ~PhysicalLsitener() = default;
+    virtual ~PhysicalListener() = default;
 
     /*!
      * This method is called when a new Host is discovered by the library.
