@@ -68,7 +68,7 @@ enum class CallbackKind : int32_t
  * 
  * values of CallbackKind can be combined with the '|' operator to build the mask:
  * 
- * \code cpp
+ * \code{.cpp}
  *     CallbackMask mask = CallbackKind::ON_DATAWRITER_DISCOVERY | CallbackKind::ON_DATAREADER_DISCOVERY;
  * \endcode
  * 

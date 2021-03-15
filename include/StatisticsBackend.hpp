@@ -35,22 +35,6 @@ class StatisticsBackend
 public:
 
     /**
-     * @brief Type of the data returned by the backend.
-     *
-     * The first field represents the time at which the data was recorded.
-     * This can be the time of the raw data point if no bins are being used,
-     * or the starting time of the bin (see get_data()).
-     *
-     * The second field represents the data value itself.
-     * This will be the value of the calculated statistic, or the raw data
-     * if no statistic has been requested (see get_data()).
-     *
-     * \sa get_data()
-     *
-     */
-    using StatisticData = std::pair<Time, double>;
-
-    /**
      * @brief Set the listener for the physical domain events.
      *
      * Any physical listener already configured will be replaced by the new one.
@@ -88,7 +72,7 @@ public:
      * This method creates a new statistics DomainParticipant that starts monitoring
      * the domain of the server with the given locator.
      * 
-     * @param discovery_server_locators The locator of the server whose domain is to be monitored
+     * @param discovery_server_locators The locator of the server whose domain is to be monitored, formatted as "IPV4address:port"
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
@@ -132,7 +116,7 @@ public:
     /**
      * @brief Get the name of a given entity
      *
-     * @param entity_id The entity for whichthe name is retrieved
+     * @param entity_id The entity for which the name is retrieved
      * @return a string representing the name of the entity
      */
     static std::string get_name(
@@ -178,8 +162,8 @@ public:
             EntityId entity_id_target,
             uint16_t bins = 0,
             StatisticKind statistic = StatisticKind::NONE,
-            Time t_from = Time(),
-            Time t_to = std::chrono::system_clock::now());
+            Timestamp t_from = Timestamp(),
+            Timestamp t_to = std::chrono::system_clock::now());
 
     /**
      * @brief Provides access to the data measured during the monitoring.
@@ -219,8 +203,8 @@ public:
             EntityId entity_id,
             uint16_t bins = 0,
             StatisticKind statistic = StatisticKind::NONE,
-            Time t_from = Time(),
-            Time t_to = std::chrono::system_clock::now());
+            Timestamp t_from = Timestamp(),
+            Timestamp t_to = std::chrono::system_clock::now());
 
     /**
      * @brief Get the topology graph
