@@ -34,17 +34,17 @@ public:
 
     /**
      * @brief Type of the data returned by the backend.
-     * 
+     *
      * The first field represents the time at which the data was recorded.
      * This can be the time of the raw data point if no bins are being used,
      * or the starting time of the bin (see get_data()).
-     * 
+     *
      * The second field represents the data value itself.
      * This will be the value of the calculated statistic, or the raw data
      * if no statistic has been requested (see get_data()).
-     * 
+     *
      * \sa get_data()
-     * 
+     *
      */
     using StatisticData = std::pair<time_t, double>;
 
@@ -61,19 +61,19 @@ public:
 
         /// Standard Deviation of the data samples
         STANDARD_DEVIATION,
-        
+
         /// Maximum value of the data samples
         MAX,
-        
+
         /// Minimum value of the data samples
         MIN,
-        
+
         /// Median value of the data samples
         MEDIAN,
-        
+
         /// Amount of data samples
         COUNT,
-        
+
         /// Sum of the data sample values
         SUM
     };
@@ -81,21 +81,21 @@ public:
 
     /**
      * @brief Set the listener for the physical domain events.
-     * 
+     *
      * Any physical listener already configured will be replaced by the new one.
      * The provided pointer to the listener can be null, in which case,
      * any physical listener already configured will be removed.
-     * 
+     *
      * @param listener the listener with the callback implementations.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      */
     static void set_physical_listener(
-        PhysicalListener* listener,
-        CallbackMask callback_mask);
+            PhysicalListener* listener,
+            CallbackMask callback_mask);
 
     /**
      * @brief Starts monitoring on a given domain
-     * 
+     *
      * @param domain The domain ID of the DDS domain to monitor
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
@@ -109,7 +109,7 @@ public:
 
     /**
      * @brief ????????
-     * 
+     *
      * @param discovery_server_locators ????????
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
@@ -123,7 +123,7 @@ public:
 
     /**
      * @brief Get all the entities of a given type related to another entity
-     * 
+     *
      * @param entity_id The ID of the origin entity from we are searching
      * @param entity_type The type of entities we are looking for
      * @return All entities of type \c entity_type that are related to \c entity_id
@@ -138,7 +138,7 @@ public:
 
     /**
      * @brief Get the QoS of a given entity
-     * 
+     *
      * @param entity_id The entity for which we want to retrieve the QoS
      * @return Qos object describing the entity's QoS
      */
@@ -147,7 +147,7 @@ public:
 
     /**
      * @brief Get the name of a given entity
-     * 
+     *
      * @param entity_id The entity for which we want to retrieve the name
      * @return a string representing the name of the entity
      */
@@ -160,29 +160,29 @@ public:
 
     /**
      * @brief Provides access to the data measured during the monitoring.
-     * 
+     *
      * Use this method for data types that relate to two entities,
      * as described in DataType.
-     * 
+     *
      * For data types that relate to a single entity,
      * use the overloaded method that takes a single entity as argument.
-     * 
+     *
      * \par Measurement time and intervals
-     * 
+     *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
      * This time interval is further divided int \c bin segments of equal length,
      * and a measurement is returned for each segment.
-     * 
+     *
      * If \c bin is zero, no statistic is calculated and the raw data values in the requested
      * time interval are returned
-     * 
+     *
      * \par Statistics
-     * 
+     *
      * The kind of statistic calculated for each \c bin segment is indicated by \c statistic.
      * In this implementation, if \c statistic is \c NONE, the first raw data point in the segment is returned.
-     * 
+     *
      * \sa StatisticsBackend
-     * 
+     *
      * @param data_type The type of the measure being requested
      * @param entity_id_source Id of the source entity of the requested data
      * @param entity_id_target Id of the target entity of the requested data
@@ -203,29 +203,29 @@ public:
 
     /**
      * @brief Provides access to the data measured during the monitoring.
-     * 
+     *
      * Use this method for data types that relate to a single entity,
      * as described in DataType.
-     * 
+     *
      * For data types that relate to two entities,
      * use the overloaded method that takes a source and a target entity as arguments.
-     * 
+     *
      * \par Measurement time and intervals
-     * 
+     *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
      * This time interval is further divided int \c bin segments of equal length,
      * and a measurement is returned for each segment.
-     * 
+     *
      * If \c bin is zero, no statistic is calculated and the raw data values in the requested
      * time interval are returned
-     * 
+     *
      * \par Statistics
-     * 
+     *
      * The kind of statistic calculated for each \c bin segment is indicated by \c statistic.
      * In this implementation, if \c statistic is \c NONE, the first raw data point in the segment is returned.
-     * 
+     *
      * \sa StatisticsBackend
-     * 
+     *
      * @param data_type The type of the measure being requested
      * @param entity_id Id of the entity of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
@@ -243,8 +243,8 @@ public:
             Time t_to = NOW_TIME);
 
     /**
-     * @brief Get the topology graph 
-     * 
+     * @brief Get the topology graph
+     *
      * @return Graph object describing the complete topology of the entities
      */
     static Graph get_graph();
@@ -263,7 +263,6 @@ protected:
         static StatisticsBackend instance;
         return &instance;
     }
-
 
 };
 
