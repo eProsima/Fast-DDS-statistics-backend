@@ -31,7 +31,7 @@ namespace statistics_backend {
  * have been constructed so that a single bit is set for each enum value.
  * The enumerated values can be seen as the names of the bits in the bitmask.
  * 
- * bitwise operations are defined between masks of the same type, between
+ * Bitwise operations are defined between masks of the same type, between
  * a mask and its companion ennumeration, and between enumerated values.
  * 
  * \code cpp
@@ -58,7 +58,7 @@ namespace statistics_backend {
  *     bool is_red = white_mask.is_set(RED);
  * \endcode
  * 
- * @tparam E The enumerated type for which to construct the bitmask
+ * @tparam E The enumerated type for which the bitmask is constructed
  */
 template <typename E>
 class Bitmask
