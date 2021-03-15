@@ -50,7 +50,7 @@ public:
 
     /**
      * @brief Starts monitoring on a given domain
-     * 
+     *
      * This method creates a new statistics DomainParticipant that starts monitoring
      * the requested domain ID.
      *
@@ -71,7 +71,7 @@ public:
      *
      * This method creates a new statistics DomainParticipant that starts monitoring
      * the domain of the server with the given locator.
-     * 
+     *
      * @param discovery_server_locators The locator of the server whose domain is to be monitored, formatted as "IPV4address:port"
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
@@ -81,6 +81,58 @@ public:
     static EntityId init_monitor(
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
+
+    /**
+     * @brief Restarts a given monitor
+     *
+     * This method restarts a domain monitor.
+     *
+     * @param monitor_id The entity ID of the monitor to restart.
+     */
+    static void init_monitor(
+            EntityId monitor_id);
+
+     /**
+     * @brief Stops a given monitor
+     *
+     * This method stops a domain monitor. After stopping, the statistical data related to the
+     * domain is still accessible.
+     *
+     * @param monitor_id The entity ID of the monitor to stop.
+     */
+    static void stop_monitor(
+            EntityId monitor_id);
+
+    /**
+     * @brief Clear the data of a domain given its monitor
+     *
+     * This method clear all the data related to a domain given its monitor monitor.
+     * If the monitor is still active (meaning it has not being stopped), this functions takes no
+     * effect. After clearing, the statistical data related to the domain is deleted and therefore
+     * no longer accessible.
+     *
+     * @param monitor_id The entity ID of the monitor to stop.
+     */
+    static void clear_monitor(
+            EntityId monitor_id);
+
+    /**
+     * @brief Set the listener of a monitor for the domain events.
+     *
+     * Any domain listener already configured will be replaced by the new one.
+     * The provided pointer to the listener can be null, in which case,
+     * any domain listener already configured will be removed.
+     *
+     * @param monitor_id The entity ID of the monitor.
+     * @param listener the listener with the callback implementations.
+     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored
+     */
+    static void set_domain_listener(
+            EntityId monitor_id,
+            DomainListener* listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none());
 
@@ -96,8 +148,21 @@ public:
             EntityKind entity_type);
 
     /**
+     * @brief Returns whether the entity is active.
+     *
+     * For monitors, active means that no call to stop_monitor() has been performed since the last
+     * time the monitor was activated. For the rest of entities, active means that there is
+     * statistical data beng reported whithin the entity.
+     *
+     * @param entity_id The ID of the entity whose activeness is requested
+     * @return true if active, false otherwise.
+     */
+    static bool is_active(
+            EntityId entity_id);
+
+    /**
      * @brief Returns the entity kind of a given id.
-     * 
+     *
      * @param entity_id The ID of the entity whose type is requested
      * @return EntityKind of \c entity_id.
      */

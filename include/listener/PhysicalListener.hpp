@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file PhysicalLsitener.hpp
+ * @file PhysicalListener.hpp
  */
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_

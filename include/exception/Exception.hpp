@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file StatisticsBackendException.hpp
+ * @file Exception.hpp
  */
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
