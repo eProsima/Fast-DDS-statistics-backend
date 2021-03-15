@@ -135,26 +135,26 @@ enum class EntityKind
 /**
  * Indicates the Type of Data stored by the Backend
  *
- *     | Signature               | Entities source   | Entity target | No. entities | Data Type   |
- *     |-------------------------|-------------------|---------------|--------------|-------------|
- *     | FASTDDS_LATENCY         | DataWriter        | DataReader    | 2            | EntityData  |
- *     | NETWORK_LATENCY         | Locator           | Locator       | 2            | EntityData  |
- *     | PUBLICATION_THROUGHPUT  | DataWriter        |               | 1            | EntityData  |
- *     | SUBSCRIPTION_THROUGHPUT | DataReader        |               | 1            | EntityData  |
- *     | RTPS_PACKETS_SENT       | DataWriter        | Locator       | 2            | EntityCount |
- *     | RTPS_BYTES_SENT         | DataWriter        | Locator       | 2            | ByteCount   |
- *     | RTPS_PACKETS_LOST       | DataWriter        | Locator       | 2            | EntityCount |
- *     | RTPS_BYTES_LOST         | DataWriter        | Locator       | 2            | ByteCount   |
- *     | RESENT_DATA             | DataWriter        |               | 1            | EntityCount |
- *     | HEARTBEAT_COUNT         | DataWriter        |               | 1            | EntityCount |
- *     | ACKNACK_COUNT           | DataReader        |               | 1            | EntityCount |
- *     | NACKFRAG_COUNT          | DataReader        |               | 1            | EntityCount |
- *     | GAP_COUNT               | DataWriter        |               | 1            | EntityCount |
- *     | DATA_COUNT              | DataWriter        |               | 1            | EntityCount |
- *     | PDP_PACKETS             | DomainParticipant |               | 1            | EntityCount |
- *     | EDP_PACKETS             | DomainParticipant |               | 1            | EntityCount |
- *     | DISCOVERED_ENTITY       | DDSEntity         | DDSEntity     | 2            | Time        |
- *     | SAMPLE_DATAS            | DataWriter        |               | 1            | EntityData  |
+ *     | Signature               | Entities source   | Entity target | No. entities |
+ *     |-------------------------|-------------------|---------------|--------------|
+ *     | FASTDDS_LATENCY         | DataWriter        | DataReader    | 2            |
+ *     | NETWORK_LATENCY         | Locator           | Locator       | 2            |
+ *     | PUBLICATION_THROUGHPUT  | DataWriter        |               | 1            |
+ *     | SUBSCRIPTION_THROUGHPUT | DataReader        |               | 1            |
+ *     | RTPS_PACKETS_SENT       | DataWriter        | Locator       | 2            |
+ *     | RTPS_BYTES_SENT         | DataWriter        | Locator       | 2            |
+ *     | RTPS_PACKETS_LOST       | DataWriter        | Locator       | 2            |
+ *     | RTPS_BYTES_LOST         | DataWriter        | Locator       | 2            |
+ *     | RESENT_DATA             | DataWriter        |               | 1            |
+ *     | HEARTBEAT_COUNT         | DataWriter        |               | 1            |
+ *     | ACKNACK_COUNT           | DataReader        |               | 1            |
+ *     | NACKFRAG_COUNT          | DataReader        |               | 1            |
+ *     | GAP_COUNT               | DataWriter        |               | 1            |
+ *     | DATA_COUNT              | DataWriter        |               | 1            |
+ *     | PDP_PACKETS             | DomainParticipant |               | 1            |
+ *     | EDP_PACKETS             | DomainParticipant |               | 1            |
+ *     | DISCOVERED_ENTITY       | DDSEntity         | DDSEntity     | 2            |
+ *     | SAMPLE_DATAS            | DataWriter        |               | 1            |
  */
 enum class DataKind : int32_t
 {

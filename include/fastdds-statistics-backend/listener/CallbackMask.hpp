@@ -27,7 +27,7 @@ namespace eprosima {
 namespace statistics_backend {
 
 /**
- * Each value indentifies one of the user callbacks available on the library.
+ * Each value identifies one of the user callbacks available on the library.
  * These values can be combined with the '|' operator to form a mask
  * and configure which events are going to be notified to the user.
  *

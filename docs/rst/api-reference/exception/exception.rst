@@ -1,4 +1,3 @@
-
 .. _api_exception_exception:
 
 .. rst-class:: api-ref
