@@ -39,6 +39,11 @@ using EntityId = std::string;
 using Qos = nlohmann::json;
 
 /**
+ * Topology graph tree structure
+ */
+using Graph = nlohmann::json;
+
+/**
  * Type DDS Domain IDs
  */
 using DomainId = uint32_t;

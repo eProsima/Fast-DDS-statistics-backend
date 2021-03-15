@@ -242,6 +242,13 @@ public:
             Time t_from = INIT_TIME,
             Time t_to = NOW_TIME);
 
+    /**
+     * @brief Get the topology graph 
+     * 
+     * @return Graph object describing the complete topology of the entities
+     */
+    static Graph get_graph();
+
 protected:
 
     StatisticsBackend()
