@@ -26,14 +26,14 @@ namespace statistics_backend {
 
 /**
  * @brief Generic bitmask for an enumerated type
- * 
+ *
  * This class can be used as a companion bitmask of any enumerated type whose values
  * have been constructed so that a single bit is set for each enum value.
  * The enumerated values can be seen as the names of the bits in the bitmask.
- * 
+ *
  * Bitwise operations are defined between masks of the same type, between
- * a mask and its companion ennumeration, and between enumerated values.
- * 
+ * a mask and its companion enumeration, and between enumerated values.
+ *
  * \code{.cpp}
  *     enum my_enum
  *     {
@@ -41,23 +41,23 @@ namespace statistics_backend {
  *         GREEN  = 1 << 1,
  *         BLUE   = 1 << 2
  *     };
- * 
+ *
  *     // Combine enumerated labels to create a mask
  *     Bitmask<my_enum> yellow_mask = RED | GREEN;
- * 
+ *
  *     // Combine a mask with a value to create a new mask
  *     Bitmask<my_enum> white_mask = yellow_mask | BLUE;
- * 
+ *
  *     // Flip all the bits in the mask
  *     Bitmask<my_enum> black_mask = ~white_mask;
- * 
+ *
  *     // Set a bit in the mask
  *     black_mask.set(RED);
- * 
+ *
  *     // Test if a bit is set in the mask
  *     bool is_red = white_mask.is_set(RED);
  * \endcode
- * 
+ *
  * @tparam E The enumerated type for which the bitmask is constructed
  */
 template <typename E>

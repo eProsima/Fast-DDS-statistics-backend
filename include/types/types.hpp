@@ -68,7 +68,7 @@ using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
  * \sa get_data()
  *
  */
-using StatisticData = std::pair<Timestamp, double>;
+using StatisticsData = std::pair<Timestamp, double>;
 
 /*
  * Schema for Entities kinds store in Backend
@@ -224,13 +224,13 @@ enum class DataKind : int32_t
 
 /**
  * @brief Bitmask of data kinds
- * 
+ *
  * values of DataKind can be combined with the '|' operator to build the mask:
- * 
+ *
  * \code{.cpp}
  *     DataKindMask mask = DataKind::PUBLICATION_THROUGHPUT | DataKind::SUBSCRIPTION_THROUGHPUT;
  * \endcode
- * 
+ *
  * \sa Bitmask
  */
 using DataKindMask = Bitmask<DataKind>;

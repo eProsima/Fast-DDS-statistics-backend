@@ -222,7 +222,7 @@ public:
      * @param t_to Ending time of the returned measures.
      * @return a vector of \c bin elements with the values of the requested statistic
      */
-    static std::vector<StatisticData> get_data(
+    static std::vector<StatisticsData> get_data(
             DataKind data_type,
             EntityId entity_id_source,
             EntityId entity_id_target,
@@ -264,7 +264,7 @@ public:
      * @param t_to Ending time of the returned measures.
      * @return a vector of \c bin elements with the values of the requested statistic
      */
-    static std::vector<StatisticData> get_data(
+    static std::vector<StatisticsData> get_data(
             DataKind data_type,
             EntityId entity_id,
             uint16_t bins = 0,
