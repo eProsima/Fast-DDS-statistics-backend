@@ -1,0 +1,132 @@
+{
+    "hosts":
+    [
+        {
+            "entity_id": "ce7bd909-324f-4181-9b31-180531059005",
+            "name": "example_host",
+            "users":
+            [
+                {
+                    "entity_id": "7050d86e-104b-46bf-a793-43c0daa5e2d0",
+                    "name": "example_user",
+                    "processes":
+                    [
+                        {
+                            "entity_id": "9a6b71c1-2fca-43da-a936-7f04a487cca7",
+                            "name": "example_process_1",
+                            "pid": "9564",
+                            "participants":
+                            [
+                                "28d2398c-c3b2-45c0-bd08-88cbd3d127a4"
+                            ]
+                        },
+                        {
+                            "entity_id": "e88f1576-1c80-4bb7-bc92-e09d2cd27977",
+                            "name": "example_process_2",
+                            "pid": "9565",
+                            "participants":
+                            [
+                                "4157b5c0-4a58-415b-a2bc-8aa9123fb635"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "locators":
+    [
+        {
+            "entity_id": "e73adaa2-8cd6-4103-abdd-ae7ce9a3e974",
+            "name": "127.0.0.1:7412",
+            "datareaders":
+            [
+            ],
+            "datawriters":
+            [
+                "0972d316-df00-46a7-b260-9238c234c46f"
+            ]
+        },
+        {
+            "entity_id": "a6603450-c0e0-4e28-ae74-670af76e94db",
+            "name": "127.0.0.1:7414",
+            "datareaders":
+            [
+                "7c7d899d-db5c-4a49-8d7f-81fda25511f4"
+            ],
+            "datawriters":
+            [
+            ]
+        }
+    ],
+    "domains":
+    [
+        {
+            "entity_id": "fb5b40dc-1679-42b9-9d1a-1f26a7add63f",
+            "name": "0",
+            "participants":
+            [
+                {
+                    "entity_id": "28d2398c-c3b2-45c0-bd08-88cbd3d127a4",
+                    "name": "participant_1",
+                    "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1",
+                    "process": "28d2398c-c3b2-45c0-bd08-88cbd3d127a4",
+                    "datareaders":
+                    [
+                    ],
+                    "datawriters":
+                    [
+                        {
+                            "entity_id": "0972d316-df00-46a7-b260-9238c234c46f",
+                            "name": "datawriter_1",
+                            "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03",
+                            "topic": "746fd666-c0f3-4ba4-b8d6-18cdd7ce4af9",
+                            "locators":
+                            [
+                                "e73adaa2-8cd6-4103-abdd-ae7ce9a3e974"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "entity_id": "4157b5c0-4a58-415b-a2bc-8aa9123fb635",
+                    "name": "participant_2",
+                    "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
+                    "process": "4157b5c0-4a58-415b-a2bc-8aa9123fb635",
+                    "datareaders":
+                    [
+                        {
+                            "entity_id": "7c7d899d-db5c-4a49-8d7f-81fda25511f4",
+                            "name": "datareader_1",
+                            "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04",
+                            "topic": "746fd666-c0f3-4ba4-b8d6-18cdd7ce4af9",
+                            "locators":
+                            [
+                                "a6603450-c0e0-4e28-ae74-670af76e94db"
+                            ]
+                        }
+                    ],
+                    "datawriters":
+                    [
+                    ]
+                }
+            ],
+            "topics":
+            [
+                {
+                    "entity_id": "746fd666-c0f3-4ba4-b8d6-18cdd7ce4af9",
+                    "name": "example_topic",
+                    "data_type": "example_data_type",
+                    "datareaders":
+                    [
+                        "7c7d899d-db5c-4a49-8d7f-81fda25511f4"
+                    ],
+                    "datawriters":
+                    [
+                        "0972d316-df00-46a7-b260-9238c234c46f"
+                    ]
+                }
+            ]
+        }
+    ]
+}
