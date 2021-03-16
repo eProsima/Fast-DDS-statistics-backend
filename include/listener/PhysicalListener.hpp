@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file PhysicalLsitener.hpp
+ * @file PhysicalListener.hpp
  */
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
@@ -35,7 +35,7 @@ public:
     virtual ~PhysicalListener() = default;
 
     /*!
-     * This method is called when a new Host is discovered by the library.
+     * This function is called when a new Host is discovered by the library.
      *
      * @param participant_id Entity ID of the participant that discovered the Host.
      * @param host_id Entity ID of the discovered Host.
@@ -49,7 +49,7 @@ public:
     }
 
     /*!
-     * This method is called when a new User is discovered by the library.
+     * This function is called when a new User is discovered by the library.
      *
      * @param participant_id Entity ID of the participant that discovered the User.
      * @param user_id Entity ID of the discovered User.
@@ -63,7 +63,7 @@ public:
     }
 
     /*!
-     * This method is called when a new Process is discovered by the library.
+     * This function is called when a new Process is discovered by the library.
      *
      * @param participant_id Entity ID of the participant that discovered the Process.
      * @param process_id Entity ID of the discovered Process.
@@ -77,7 +77,7 @@ public:
     }
 
     /*!
-     * This method is called when a new Locator is discovered by the library.
+     * This function is called when a new Locator is discovered by the library.
      *
      * @param participant_id Entity ID of the participant that discovered the Locator.
      * @param locator_id Entity ID of the discovered Locator.

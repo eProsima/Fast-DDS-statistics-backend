@@ -30,7 +30,7 @@ namespace statistics_backend {
  * Each value indentifies one of the user callbacks available on the library.
  * These values can be combined with the '|' operator to form a mask
  * and configure which events are going to be notified to the user.
- * 
+ *
  * \sa CallbackMask
  */
 enum class CallbackKind : int32_t
@@ -65,13 +65,13 @@ enum class CallbackKind : int32_t
 
 /**
  * @brief Bitmask of callback kinds
- * 
+ *
  * values of CallbackKind can be combined with the '|' operator to build the mask:
- * 
+ *
  * \code{.cpp}
  *     CallbackMask mask = CallbackKind::ON_DATAWRITER_DISCOVERY | CallbackKind::ON_DATAREADER_DISCOVERY;
  * \endcode
- * 
+ *
  * \sa Bitmask
  */
 using CallbackMask = Bitmask<CallbackKind>;

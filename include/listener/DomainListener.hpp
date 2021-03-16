@@ -34,14 +34,14 @@ public:
     {
         /**
          * @brief Total cumulative count of the entities discovered so far
-         * 
+         *
          * This value increases monotonically with every new discovered entity.
          */
         int32_t total_count = 0;
 
         /**
          * @brief The change in total_count since the last time the listener was called
-         * 
+         *
          * This value can be positive, negative or zero, depending on the entity being
          * discovered, undiscovered or only the QoS of the entity being changed
          * since the last time the listener was called.
@@ -50,14 +50,14 @@ public:
 
         /**
          * @brief The number of currently discovered entities
-         * 
+         *
          * This value can only be positive or zero.
          */
         int32_t current_count = 0;
 
         /**
          * @brief The change in current_count since the last time the listener was called
-         * 
+         *
          * This value can be positive, negative or zero, depending on the entity being
          * discovered, undiscovered or only the QoS of the entity being changed
          * since the last time the listener was called.
@@ -71,7 +71,7 @@ public:
     virtual ~DomainListener() = default;
 
     /*!
-     * This method is called when a new Topic is discovered by the library.
+     * This function is called when a new Topic is discovered by the library.
      *
      * @param domain_id Entity ID of the domain in which the topic has been discovered.
      * @param topic_id Entity ID of the discovered topic.
@@ -85,7 +85,7 @@ public:
     }
 
     /*!
-     * This method is called when a new DomainParticipant is discovered by the library,
+     * This function is called when a new DomainParticipant is discovered by the library,
      * or a previously discovered DomainParticipant changes its QOS or is removed.
      *
      * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
@@ -103,7 +103,7 @@ public:
     }
 
     /*!
-     * This method is called when a new DataReader is discovered by the library,
+     * This function is called when a new DataReader is discovered by the library,
      * or a previously discovered DataReader changes its QOS or is removed.
      *
      * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
@@ -121,7 +121,7 @@ public:
     }
 
     /*!
-     * This method is called when a new DataWriter is discovered by the library,
+     * This function is called when a new DataWriter is discovered by the library,
      * or a previously discovered DataWriter changes its QOS or is removed.
      *
      * @param domain_id Entity ID of the domain in which the DataWriter has been discovered.
@@ -139,7 +139,7 @@ public:
     }
 
     /*!
-     * This method is called when a new data sample is available.
+     * This function is called when a new data sample is available.
      *
      * @param domain_id Entity ID of the domain to which the data belongs.
      * @param entity_id Entity ID of the entity to which the data refers.
