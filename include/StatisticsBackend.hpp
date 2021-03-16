@@ -51,7 +51,7 @@ public:
     /**
      * @brief Starts monitoring on a given domain
      *
-     * This method creates a new statistics DomainParticipant that starts monitoring
+     * This function creates a new statistics DomainParticipant that starts monitoring
      * the requested domain ID.
      *
      * @param domain The domain ID of the DDS domain to monitor
@@ -69,7 +69,7 @@ public:
     /**
      * @brief Starts monitoring the domain corresponding to a server
      *
-     * This method creates a new statistics DomainParticipant that starts monitoring
+     * This function creates a new statistics DomainParticipant that starts monitoring
      * the domain of the server with the given locator.
      *
      * @param discovery_server_locators The locator of the server whose domain is to be monitored, formatted as "IPV4address:port"
@@ -87,7 +87,7 @@ public:
     /**
      * @brief Restarts a given monitor
      *
-     * This method restarts a domain monitor. If the monitor is still active (meaning it has not
+     * This function restarts a domain monitor. If the monitor is still active (meaning it has not
      * being stopped), this function takes no effect.
      *
      * @param monitor_id The entity ID of the monitor to restart.
@@ -98,7 +98,7 @@ public:
      /**
      * @brief Stops a given monitor
      *
-     * This method stops a domain monitor. After stopping, the statistical data related to the
+     * This function stops a domain monitor. After stopping, the statistical data related to the
      * domain is still accessible.
      *
      * @param monitor_id The entity ID of the monitor to stop.
@@ -109,7 +109,7 @@ public:
     /**
      * @brief Clear the data of a domain given its monitor
      *
-     * This method clears all the data related to a domain given its monitor ID.
+     * This function clears all the data related to a domain given its monitor ID.
      * If the monitor is still active (meaning it has not being stopped), this functions takes no
      * effect. After clearing, the statistical data related to the domain is deleted and therefore
      * no longer accessible.
@@ -191,11 +191,11 @@ public:
     /**
      * @brief Provides access to the data measured during the monitoring.
      *
-     * Use this method for data types that relate to two entities,
+     * Use this function for data types that relate to two entities,
      * as described in DataType.
      *
      * For data types that relate to a single entity,
-     * use the overloaded method that takes a single entity as argument.
+     * use the overloaded function that takes a single entity as argument.
      *
      * \par Measurement time and intervals
      *
@@ -234,11 +234,11 @@ public:
     /**
      * @brief Provides access to the data measured during the monitoring.
      *
-     * Use this method for data types that relate to a single entity,
+     * Use this function for data types that relate to a single entity,
      * as described in DataType.
      *
      * For data types that relate to two entities,
-     * use the overloaded method that takes a source and a target entity as arguments.
+     * use the overloaded function that takes a source and a target entity as arguments.
      *
      * \par Measurement time and intervals
      *
