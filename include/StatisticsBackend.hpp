@@ -87,7 +87,8 @@ public:
     /**
      * @brief Restarts a given monitor
      *
-     * This method restarts a domain monitor.
+     * This method restarts a domain monitor. If the monitor is still active (meaning it has not
+     * being stopped), this function takes no effect.
      *
      * @param monitor_id The entity ID of the monitor to restart.
      */
@@ -108,7 +109,7 @@ public:
     /**
      * @brief Clear the data of a domain given its monitor
      *
-     * This method clear all the data related to a domain given its monitor monitor.
+     * This method clears all the data related to a domain given its monitor ID.
      * If the monitor is still active (meaning it has not being stopped), this functions takes no
      * effect. After clearing, the statistical data related to the domain is deleted and therefore
      * no longer accessible.
@@ -152,7 +153,7 @@ public:
      *
      * For monitors, active means that no call to stop_monitor() has been performed since the last
      * time the monitor was activated. For the rest of entities, active means that there is
-     * statistical data beng reported whithin the entity.
+     * statistical data being reported whithin the entity.
      *
      * @param entity_id The ID of the entity whose activeness is requested
      * @return true if active, false otherwise.
