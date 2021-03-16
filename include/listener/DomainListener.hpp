@@ -75,13 +75,16 @@ public:
      *
      * @param domain_id Entity ID of the domain in which the topic has been discovered.
      * @param topic_id Entity ID of the discovered topic.
+     * @param status The status of the discovered topic.
      */
     virtual void on_topic_discovery(
             EntityId domain_id,
-            EntityId topic_id)
+            EntityId topic_id,
+            const Status& status)
     {
         static_cast<void>(domain_id);
         static_cast<void>(topic_id);
+        static_cast<void>(status);
     }
 
     /*!
@@ -92,7 +95,7 @@ public:
      * @param participant_id Entity ID of the discovered DomainParticipant.
      * @param status The status of the discovered DomainParticipants.
      */
-    virtual void on_participant_dicovery(
+    virtual void on_participant_discovery(
             EntityId domain_id,
             EntityId participant_id,
             const Status& status)
