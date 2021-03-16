@@ -87,17 +87,17 @@ set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 ###############################################################################
 # Documentation
 ###############################################################################
-option(BUILD_DOCUMENTATION "Generate documentation" ON)
-option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
-if (BUILD_DOCUMENTATION)
-    if(BUILD_DOCUMENTATION_TESTS)
-        # CTest needs to be included here, otherwise it is not possible to run the tests from the root
-        # of the build directory
-        enable_testing()
-        include(CTest)
-    endif()
-    add_subdirectory(docs)
-endif()
+# option(BUILD_DOCUMENTATION "Generate documentation" ON)
+# option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
+# if (BUILD_DOCUMENTATION)
+#     if(BUILD_DOCUMENTATION_TESTS)
+#         # CTest needs to be included here, otherwise it is not possible to run the tests from the root
+#         # of the build directory
+#         enable_testing()
+#         include(CTest)
+#     endif()
+#     add_subdirectory(docs)
+# endif()
 
 ###############################################################################
 # Default shared libraries
@@ -122,3 +122,18 @@ if(MSVC OR MSVC_IDE)
 endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/packaging/eProsimaPackaging.cmake)
+
+get_property(${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES GLOBAL PROPERTY ${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES_PROPERTY)
+set(${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES ${${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES} ${PROJECT_SOURCE_DIR}/include)
+set_property(GLOBAL PROPERTY ${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES_PROPERTY ${${PROJECT_NAME}_PUBLIC_HEADERS_DIRECTORIES})
+
+###############################################################################
+# Compile MOCK
+###############################################################################
+message(STATUS "Configuring MOCK ...")
+
+# add_library (StaticSimpleMock StatisticsBackend.cpp)
+# target_include_directories (StaticSimpleMock PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+include_directories("include")
+add_subdirectory(src/mock/static_mock/static_mock_simple)
