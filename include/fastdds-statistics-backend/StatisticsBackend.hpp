@@ -146,8 +146,8 @@ public:
      * @return All entities of type \c entity_type that are related to \c entity_id
      */
     static std::vector<EntityId> get_entities(
-            EntityId entity_id,
-            EntityKind entity_type);
+            EntityKind entity_type,
+            EntityId entity_id = ID_ALL);
 
     /**
      * @brief Returns whether the entity is active.

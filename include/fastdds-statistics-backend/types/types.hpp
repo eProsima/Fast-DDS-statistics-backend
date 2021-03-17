@@ -54,6 +54,11 @@ using DomainId = uint32_t;
  */
 using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
+/**
+ * Specific Id to reference all existing entities
+ */
+const EntityId ID_ALL = "-1";
+
 
 /**
  * @brief Type of the data returned by the backend.
