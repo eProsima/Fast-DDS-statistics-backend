@@ -19,7 +19,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_CALLBACKMASK_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_CALLBACKMASK_HPP_
 
-#include <types/Bitmask.hpp>
+#include <fastdds-statistics-backend/types/Bitmask.hpp>
 
 #include <cstdint>
 

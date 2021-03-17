@@ -19,6 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
+
 #include <exception>
 #include <string>
 
@@ -29,7 +31,7 @@ namespace statistics_backend {
  * @brief Base class for all exceptions thrown by the eProsima statistics backend library.
  *
  */
-class Exception : public std::exception
+class FASTDDS_STATISTICS_BACKEND_DllAPI Exception : public std::exception
 {
 
 public:
@@ -83,7 +85,7 @@ protected:
 /**
  * @brief Exception to signal a generic error that falls in no other specific category
  */
-class Error : public Exception
+class FASTDDS_STATISTICS_BACKEND_DllAPI Error : public Exception
 {
 
 public:
@@ -125,7 +127,7 @@ public:
 /**
  * @brief Exception to signal that an operation is not supported
  */
-class Unsupported : public Exception
+class FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported : public Exception
 {
 
 public:
@@ -167,7 +169,7 @@ public:
 /**
  * @brief Exception to signal that an operation has been called with an invalid parameter
  */
-class BadParameter : public Exception
+class FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter : public Exception
 {
 
 public:
@@ -209,7 +211,7 @@ public:
 /**
  * @brief Exception to signal that an operation found no data to return
  */
-class NoData : public Exception
+class FASTDDS_STATISTICS_BACKEND_DllAPI NoData : public Exception
 {
 
 public:

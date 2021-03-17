@@ -21,9 +21,10 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 
 #include <nlohmann-json/json.hpp>
-#include <types/Bitmask.hpp>
+#include <fastdds-statistics-backend/types/Bitmask.hpp>
 
 #include <string>
+#include <chrono>
 
 namespace eprosima {
 namespace statistics_backend {
