@@ -20,6 +20,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
 
+#include <type_traits>
 
 namespace eprosima {
 namespace statistics_backend {
