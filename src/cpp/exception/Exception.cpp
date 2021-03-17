@@ -16,7 +16,7 @@
  * @file Exception.cpp
  */
 
-#include <exception/StatisticsBackendException.hpp>
+#include <fastdds-statistics-backend/exception/Exception.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

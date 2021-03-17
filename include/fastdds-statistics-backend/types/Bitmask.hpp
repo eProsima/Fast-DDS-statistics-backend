@@ -179,12 +179,6 @@ public:
         return result ^= other;
     }
 
-    Bitmask<E> operator| (const Bitmask& other) const
-    {
-        Bitmask result = *this;
-        return result |= other;
-    }
-
     Bitmask<E> operator~ () const
     {
         Bitmask result(~mask_);

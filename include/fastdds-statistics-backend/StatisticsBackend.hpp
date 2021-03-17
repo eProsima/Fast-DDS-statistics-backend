@@ -19,17 +19,18 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 
-#include <listener/DomainListener.hpp>
-#include <listener/PhysicalListener.hpp>
-#include <listener/CallbackMask.hpp>
-#include <types/types.hpp>
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
+#include <fastdds-statistics-backend/listener/DomainListener.hpp>
+#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
+#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
 
 #include <chrono>
 
 namespace eprosima {
 namespace statistics_backend {
 
-class StatisticsBackend
+class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
 public:
@@ -227,9 +228,9 @@ public:
             EntityId entity_id_source,
             EntityId entity_id_target,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE,
             Timestamp t_from = Timestamp(),
-            Timestamp t_to = std::chrono::system_clock::now());
+            Timestamp t_to = std::chrono::system_clock::now(),
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Provides access to the data measured during the monitoring.
@@ -268,9 +269,9 @@ public:
             DataKind data_type,
             EntityId entity_id,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE,
             Timestamp t_from = Timestamp(),
-            Timestamp t_to = std::chrono::system_clock::now());
+            Timestamp t_to = std::chrono::system_clock::now(),
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Get the topology graph

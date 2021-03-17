@@ -20,22 +20,26 @@ file(GLOB_RECURSE HPP_FILES "${PROJECT_SOURCE_DIR}/include/**/*.h*")
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(PROJECT_SOURCE_DOCS_DIR ${PROJECT_SOURCE_DIR}/docs)
 set(PROJECT_BINARY_DOCS_DIR ${PROJECT_BINARY_DIR}/docs)
+set(DOCS_OUTPUT_HTML_DIR ${PROJECT_BINARY_DOCS_DIR}/html)
 
 find_package(Doxygen REQUIRED)
-# Create doxygen directories
-add_custom_target(doc-dirs
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DOCS_DIR}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DOCS_DIR}/doxygen
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DOCS_DIR}/html
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DOCS_DIR}/doxygen/html
-    COMMENT "Creating documentation directories" VERBATIM)
-
 # Doxygen related variables
 set(DOXYGEN_INPUT_DIR "${PROJECT_INCLUDE_DIR}")
 set(DOXYGEN_OUTPUT_DIR "${PROJECT_BINARY_DOCS_DIR}/doxygen")
-set(DOXYGEN_INDEX_FILE "${PROJECT_BINARY_DOCS_DIR}/doxygen/xml/index.xml")
+set(DOXYGEN_OUTPUT_XML_DIR "${DOXYGEN_OUTPUT_DIR}/xml")
+set(DOXYGEN_OUTPUT_HTML_DIR "${DOXYGEN_OUTPUT_DIR}/html")
+set(DOXYGEN_INDEX_FILE "${DOXYGEN_OUTPUT_XML_DIR}/index.xml")
 set(DOXYFILE_IN "${CMAKE_CURRENT_SOURCE_DIR}/doxygen-config.in")
 set(DOXYFILE_OUT ${PROJECT_BINARY_DOCS_DIR}/doxygen-config)
+
+# Create doxygen directories
+add_custom_target(doc-dirs
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DOCS_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOCS_OUTPUT_HTML_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_XML_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_HTML_DIR}
+    COMMENT "Creating documentation directories" VERBATIM)
 
 # Configure doxygen
 configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
@@ -54,8 +58,8 @@ add_custom_target(doxygen ALL
 add_dependencies(doxygen doc-dirs)
 
 # Install doxygen generated XML files
-install(DIRECTORY ${DOXYGEN_OUTPUT_DIR}/xml
-    DESTINATION docs/doxygen
+install(DIRECTORY ${DOXYGEN_OUTPUT_XML_DIR}
+    DESTINATION docs/${PROJECT_NAME}/doxygen
     COMPONENT backend-doxygen)
 set(CPACK_COMPONENT_backend-doxygen_DISPLAY_NAME "Fast DDS Statistics Backend doxygen")
 set(CPACK_COMPONENT_backend-doxygen_DESCRIPTION
@@ -67,7 +71,7 @@ set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} doxygen)
 ####################################################################################################
 
 # Find sphinx
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 find_package(Sphinx REQUIRED)
 
 # Users can specify the sphinx builder with -DFASTDDS_STATISTICS_BACKEND_DOCS_BUILDER. This option
@@ -118,7 +122,7 @@ add_custom_target(Sphinx ALL
     COMMAND
     ${SPHINX_EXECUTABLE} -b ${INTERNAL_BUILDER}
     # Tell Breathe where to find the Doxygen output
-    -D breathe_projects.fastdds-statistics-backend=${DOXYGEN_OUTPUT_DIR}/xml
+    -D breathe_projects.fastdds-statistics-backend=${DOXYGEN_OUTPUT_XML_DIR}
     -d "${PROJECT_BINARY_DOCS_DIR}/doctrees"
     ${PROJECT_SOURCE_DOCS_DIR}
     ${PROJECT_BINARY_DOCS_DIR}/${INTERNAL_BUILDER}
@@ -141,7 +145,7 @@ endif()
 
 # Install the generated docs
 install(DIRECTORY ${PROJECT_BINARY_DOCS_DIR}/${INTERNAL_BUILDER}
-    DESTINATION docs/${PROJECT_NAME}
+    DESTINATION docs/${PROJECT_NAME}/sphinx
     COMPONENT backend-sphinx
     PATTERN ".buildinfo" EXCLUDE)
 set(CPACK_COMPONENT_backend-sphinx_DISPLAY_NAME "Fast DDS Statistics Backend Sphinx")

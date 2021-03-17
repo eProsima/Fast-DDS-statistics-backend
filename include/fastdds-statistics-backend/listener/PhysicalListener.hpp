@@ -19,13 +19,14 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
 
-#include <types/types.hpp>
-#include <listener/DomainListener.hpp>
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
+#include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/listener/DomainListener.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
 
-class PhysicalListener : public DomainListener
+class FASTDDS_STATISTICS_BACKEND_DllAPI PhysicalListener : public DomainListener
 {
 public:
 

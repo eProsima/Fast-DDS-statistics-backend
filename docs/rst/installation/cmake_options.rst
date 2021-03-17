@@ -32,3 +32,11 @@ CMake options
         - Build the library documentation tests
         - ``ON`` ``OFF``
         - ``OFF``
+    *   - :class:`BUILD_SHARED_LIBS`
+        - Builds internal libraries as shared libraries, i.e. |br|
+          causes add_library() CMake function to create |br|
+          shared libraries if on. All libraries are built |br|
+          shared unless the library was explicitly added as |br|
+          a static library.
+        - ``ON`` ``OFF``
+        - ``ON``
