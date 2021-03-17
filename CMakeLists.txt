@@ -21,7 +21,6 @@ cmake_policy(VERSION 3.5...3.13)
 ###############################################################################
 # Version
 ###############################################################################
-#If not set, copy over product version from configure.ac
 set(PRODUCT_MAJOR_VERSION 0)
 set(PRODUCT_MINOR_VERSION 1)
 set(PRODUCT_PATCH_VERSION 0)
@@ -40,7 +39,7 @@ set(PROJECT_NAME_LARGE "Fast DDS Statistics Backend")
 string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
 set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "C++ library for bridging Fast DDS statistics module data")
 set(${PROJECT_NAME}_DESCRIPTION
-    "eProsima ${PROJECT_NAME_LARGE} library provides an simple and easy-to-use API for interacting with data from Fast DDS statistics module")
+    "eProsima ${PROJECT_NAME_LARGE} library provides a simple and easy-to-use API for interacting with data from Fast DDS statistics module")
 
 message(STATUS "Configuring ${PROJECT_NAME_LARGE}")
 message(STATUS "Version: ${PROJECT_VERSION}")
