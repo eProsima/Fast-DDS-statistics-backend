@@ -165,3 +165,9 @@ message(STATUS "Configuring MOCK ...")
 
 include_directories("include")
 add_subdirectory(src/mock/static_mock/static_mock_simple)
+
+include_directories("include")
+add_subdirectory(src/mock/static_mock/static_mock_complex)
+
+
+

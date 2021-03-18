@@ -18,8 +18,8 @@
 
 #include <types/types.hpp>
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
@@ -41,42 +41,7 @@ protected:
     ~EntityCollector();
 };
 
-class Entity
-{
-public:
-    Entity(EntityId id, std::string name)
-        : id_(id)
-        , name_(name)
-    {}
-
-    virtual std::vector<EntityId> get_entities(
-        EntityId entity_id,
-        EntityKind entity_type);
-
-    virtual Qos get_qos(
-        EntityId entity_id);
-
-    std::string get_name(
-            EntityId entity_id)
-    {
-        return name_;
-    }
-
-    // Variables
-    EntityId id_;
-    std::string name_;
-};
-
-class Host : public Entity
-{};
-
-class User : public Entity
-{};
-
-class Process : public Entity
-{};
-
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_

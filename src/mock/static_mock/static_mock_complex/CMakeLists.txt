@@ -13,7 +13,11 @@
 # limitations under the License.
 
 # include_directories(${MyProject_SOURCE_DIR}/LibProject/inc)
-add_library(StaticMockComplex StatisticsBackend.cpp)
+set(STATIC_MOCK_COMPLEX_SOURCE
+    StatisticsBackend.cpp
+    entities/Entity.cpp
+    entities/Host.cpp)
+add_library(StaticMockComplex ${STATIC_MOCK_COMPLEX_SOURCE})
 
 target_compile_definitions(StaticMockComplex PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
