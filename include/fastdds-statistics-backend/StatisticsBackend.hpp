@@ -24,6 +24,7 @@
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
 #include <fastdds-statistics-backend/listener/CallbackMask.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
 
 #include <chrono>
 
@@ -147,7 +148,7 @@ public:
      */
     static std::vector<EntityId> get_entities(
             EntityKind entity_type,
-            EntityId entity_id = ID_ALL);
+            EntityId entity_id = EntityId::all());
 
     /**
      * @brief Returns whether the entity is active.
