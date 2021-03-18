@@ -2,6 +2,8 @@
 
 <a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
 
+![Ubuntu CI](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/main.yml/badge.svg?branch=main)
+
 *eProsima Fast DDS Statistics Backend* is a C++ library that provides collection and procession the statistics measurements reported by *Fast DDS Statistics Module*.
 The Backend provides a easy-to-use and user friendly API that abstracts the details of receiving and processing
 *Fast DDS* statistical data, so that applications can focus on providing great user experiences.
