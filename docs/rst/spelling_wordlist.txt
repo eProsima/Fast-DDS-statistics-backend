@@ -1,6 +1,15 @@
 backend
 Backend
+bitmask
+Bitmask
+Bitwise
 CMake
+datareader
+datawriter
+destructor
 eProsima
+monitorization
+monitorizations
 Qos
+QoS
 Subclassed

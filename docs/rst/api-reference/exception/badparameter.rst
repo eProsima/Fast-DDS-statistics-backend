@@ -1,4 +1,3 @@
-
 .. _api_exception_badparameter:
 
 .. rst-class:: api-ref

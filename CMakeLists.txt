@@ -85,6 +85,19 @@ set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
 set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 
 ###############################################################################
+# Default shared libraries
+###############################################################################
+# Global flag to cause add_library() to create shared libraries if on.
+# If set to true, this will cause all libraries to be built shared
+# unless the library was explicitly added as a static library.
+option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+
+###############################################################################
+# Compile library.
+###############################################################################
+add_subdirectory(src/cpp)
+
+###############################################################################
 # Documentation
 ###############################################################################
 option(BUILD_DOCUMENTATION "Generate documentation" ON)
@@ -100,25 +113,12 @@ if (BUILD_DOCUMENTATION)
 endif()
 
 ###############################################################################
-# Default shared libraries
-###############################################################################
-# Global flag to cause add_library() to create shared libraries if on.
-# If set to true, this will cause all libraries to be built shared
-# unless the library was explicitly added as a static library.
-option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
-
-###############################################################################
-# Compile library.
-###############################################################################
-add_subdirectory(src/cpp)
-
-###############################################################################
 # Packaging
 ###############################################################################
 set(CPACK_COMPONENTS_ALL headers)
 
 if(MSVC OR MSVC_IDE)
-    set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} libraries_${MSVC_ARCH})
+set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} libraries_${MSVC_ARCH})
 endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/packaging/eProsimaPackaging.cmake)

@@ -17,3 +17,7 @@ Description
 *eProsima Fast DDS Statistics Backend* is a C++ library to collect data from the *Fast DDS Statistics module*, and
 generate statistical information to be used by applications.
 
+.. warning::
+  This library is in the early stages of development.
+  For this reason, the API should not be considered stable, as API breaks may occur before the first official release.
+  Furthermore, several features may not be implemented yet.

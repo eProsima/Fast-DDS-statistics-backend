@@ -1,4 +1,3 @@
-
 .. _api_exception_nodata:
 
 .. rst-class:: api-ref

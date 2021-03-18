@@ -165,7 +165,7 @@ public:
      *
      * For monitors, active means that no call to stop_monitor() has been performed since the last
      * time the monitor was activated. For the rest of entities, active means that there is
-     * statistical data being reported whithin the entity.
+     * statistical data being reported within the entity.
      *
      * @param entity_id The ID of the entity whose activeness is requested
      * @return true if active, false otherwise.
@@ -220,9 +220,9 @@ public:
      * @param entity_id_source Id of the source entity of the requested data
      * @param entity_id_target Id of the target entity of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
-     * @param statistic Statistic to calculate for each of the bins
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
+     * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticsData> get_data(
@@ -262,9 +262,9 @@ public:
      * @param data_type The type of the measurement being requested
      * @param entity_id Id of the entity of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
-     * @param statistic Statistic to calculate for each of the bins
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
+     * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticsData> get_data(
@@ -293,17 +293,7 @@ public:
             EntityId entity_id_source,
             EntityId entity_id_target,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE)
-    {
-        return get_data(
-                data_type,
-                entity_id_source,
-                entity_id_target,
-                bins,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic);
-    }
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Overload of get_data method without time arguments
@@ -321,11 +311,7 @@ public:
             DataKind data_type,
             EntityId entity_id,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE)
-    {
-        return get_data(data_type, entity_id, bins, Timestamp(), std::chrono::system_clock::now(), statistic);
-    }
-
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Get the topology graph

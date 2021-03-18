@@ -29,6 +29,10 @@
    :numbered: 5
    :hidden:
 
+   /rst/statistics_backend
+   /rst/listeners/listeners_index
+   /rst/types/types_index
+   /rst/full_example
    /rst/api-reference/api_reference
 
 .. _index_notes:
