@@ -90,7 +90,7 @@ EntityId StatisticsBackend::init_monitor(
     return "DISCOVERY SERVER MONITOR";
 }
 
-std::vector<EntityId> get_entities(
+std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {

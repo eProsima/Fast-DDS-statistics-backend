@@ -90,7 +90,7 @@ EntityId StatisticsBackend::init_monitor(
     return "DISCOVERY SERVER MONITOR";
 }
 
-std::vector<EntityId> get_entities(
+std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
@@ -150,7 +150,7 @@ Info StatisticsBackend::get_info(
 {
     std::cout << "CONGRATULATIONS, you have asked for info from " << entity_id << std::endl;
     Info json_obj = R"({
-        qos:{
+        "qos":{
             "data_sharing":
             {
                 "domain_ids":
