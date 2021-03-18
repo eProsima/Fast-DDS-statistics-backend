@@ -7,7 +7,7 @@
 [![Issues](https://img.shields.io/github/issues/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/issues)
 [![Forks](https://img.shields.io/github/forks/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/network/members)
 [![Stars](https://img.shields.io/github/stars/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-RTPS/stargazers)
-![Ubuntu CI](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/main.yml/badge.svg?branch=main)
+[![ubuntu](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/main.yml)
 
 *eProsima Fast DDS Statistics Backend* is a C++ library that provides collection and procession the statistics measurements reported by *Fast DDS Statistics Module*.
 The Backend provides a easy-to-use and user friendly API that abstracts the details of receiving and processing
