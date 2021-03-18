@@ -55,7 +55,7 @@ EntityId StatisticsBackend::init_monitor(
     return "";
 }
 
-void StatisticsBackend::init_monitor(
+void StatisticsBackend::restart_monitor(
         EntityId monitor_id)
 {
     static_cast<void>(monitor_id);

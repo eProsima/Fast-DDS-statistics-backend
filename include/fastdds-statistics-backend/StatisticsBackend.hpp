@@ -47,7 +47,7 @@ public:
      */
     static void set_physical_listener(
             PhysicalListener* listener,
-            CallbackMask callback_mask);
+            CallbackMask callback_mask = CallbackMask::all());
 
     /**
      * @brief Starts monitoring on a given domain
@@ -93,7 +93,7 @@ public:
      *
      * @param monitor_id The entity ID of the monitor to restart.
      */
-    static void init_monitor(
+    static void restart_monitor(
             EntityId monitor_id);
 
      /**
@@ -272,6 +272,58 @@ public:
             Timestamp t_from = Timestamp(),
             Timestamp t_to = std::chrono::system_clock::now(),
             StatisticKind statistic = StatisticKind::NONE);
+
+    /**
+     * @brief Overload of get_data method without time arguments
+     *
+     * It calls the get_data method with the default time arguments.
+     * It is used to set the \c statistic argument with default time values.
+     *
+     * @param data_type The type of the measurement being requested
+     * @param entity_id_source Id of the source entity of the requested data
+     * @param entity_id_target Id of the target entity of the requested data
+     * @param bins Number of time intervals in which the measurement time is divided
+     * @param statistic Statistic to calculate for each of the bins
+     * @return a vector of \c bin elements with the values of the requested statistic
+     */
+    static std::vector<StatisticsData> get_data(
+            DataKind data_type,
+            EntityId entity_id_source,
+            EntityId entity_id_target,
+            uint16_t bins = 0,
+            StatisticKind statistic = StatisticKind::NONE)
+    {
+        return get_data(
+                data_type,
+                entity_id_source,
+                entity_id_target,
+                bins,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic);
+    }
+
+    /**
+     * @brief Overload of get_data method without time arguments
+     *
+     * It calls the get_data method with the default time arguments.
+     * It is used to set the \c statistic argument with default time values.
+     *
+     * @param data_type The type of the measurement being requested
+     * @param entity_id Id of the entity of the requested data
+     * @param bins Number of time intervals in which the measurement time is divided
+     * @param statistic Statistic to calculate for each of the bins
+     * @return a vector of \c bin elements with the values of the requested statistic
+     */
+    static std::vector<StatisticsData> get_data(
+            DataKind data_type,
+            EntityId entity_id,
+            uint16_t bins = 0,
+            StatisticKind statistic = StatisticKind::NONE)
+    {
+        return get_data(data_type, entity_id, bins, Timestamp(), std::chrono::system_clock::now(), statistic);
+    }
+
 
     /**
      * @brief Get the topology graph
