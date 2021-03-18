@@ -15,9 +15,10 @@ CMake options
         - Possible values
         - Default
     *   - :class:`BUILD_DOCUMENTATION`
-        - Build the library documentation
+        - Build the library documentation. Set to ``ON`` if |br|
+          :class:`BUILD_DOCUMENTATION_TESTS` is set to ``ON``.
         - ``ON`` ``OFF``
-        - ``ON``
+        - ``OFF``
     *   - :class:`FASTDDS_STATISTICS_BACKEND_DOCS_BUILDER`
         - Select the sphinx builder used to |br|
           build the documentation.
@@ -29,7 +30,8 @@ CMake options
           ``latexpdfja`` ``info``
         - ``html``
     *   - :class:`BUILD_DOCUMENTATION_TESTS`
-        - Build the library documentation tests
+        - Build the library documentation tests. Setting this |br|
+          ``ON`` will set :class:`BUILD_DOCUMENTATION` to ``ON``
         - ``ON`` ``OFF``
         - ``OFF``
     *   - :class:`BUILD_SHARED_LIBS`
