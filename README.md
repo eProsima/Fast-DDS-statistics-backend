@@ -40,6 +40,8 @@ sudo apt install -y \
 ### Build and install
 
 ```bash
+# Change directory to the location where the colcon workspace will be created
+cd <path_to_ws>
 # Create workspace directory
 mkdir -p fastdds_statistics_backend_ws/src
 cd fastdds_statistics_backend_ws
@@ -74,7 +76,7 @@ sudo apt install -y \
 
 #### Virtual environment
 
-This tutorial will create a python3 virtual environment to avoid pollution user's python installation.
+This tutorial will create a python3 virtual environment to avoid polluting user's python installation.
 
 ```bash
 # Change directory to the root of the colcon workspace
