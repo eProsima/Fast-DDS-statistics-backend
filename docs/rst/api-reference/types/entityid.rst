@@ -8,3 +8,4 @@ EntityId
 
 .. doxygenclass:: eprosima::statistics_backend::EntityId
     :project: fastdds-statistics-backend
+    :members:

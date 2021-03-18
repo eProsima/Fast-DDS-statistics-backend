@@ -147,7 +147,7 @@ public:
      * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it
      *
      * Use case: To get all host in the system, use arguments HOST and EntityId::all()
-     * Use case: To get all locators from a participant with id <X>, use arguments LOCATOR and <X>, this will
+     * Use case: To get all locators from a participant with id X, use arguments LOCATOR and X, this will
      *  get all the locators that are connected with the endpoints this participant has.
      *
      * In case the \c entity_id is not specified, all entities of type \c entity_type are returned

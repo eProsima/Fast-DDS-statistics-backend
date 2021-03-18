@@ -24,14 +24,12 @@
 namespace eprosima {
 namespace statistics_backend {
 
-using std::string;
-
-class FASTDDS_STATISTICS_BACKEND_DllAPI EntityId : public string
+class FASTDDS_STATISTICS_BACKEND_DllAPI EntityId : public std::string
 {
 public:
 
     // Inherit std::string constructors
-    using string::string;
+    using std::string::string;
 
     /**
      * @brief Return the EntityId to refer all entities at once

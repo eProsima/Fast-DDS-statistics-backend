@@ -22,9 +22,8 @@
 
 #include <nlohmann-json/json.hpp>
 #include <fastdds-statistics-backend/types/Bitmask.hpp>
-#include <types/EntityId.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <string>
 #include <chrono>
 
 namespace eprosima {
