@@ -293,17 +293,7 @@ public:
             EntityId entity_id_source,
             EntityId entity_id_target,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE)
-    {
-        return get_data(
-                data_type,
-                entity_id_source,
-                entity_id_target,
-                bins,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic);
-    }
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Overload of get_data method without time arguments
@@ -321,11 +311,7 @@ public:
             DataKind data_type,
             EntityId entity_id,
             uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE)
-    {
-        return get_data(data_type, entity_id, bins, Timestamp(), std::chrono::system_clock::now(), statistic);
-    }
-
+            StatisticKind statistic = StatisticKind::NONE);
 
     /**
      * @brief Get the topology graph

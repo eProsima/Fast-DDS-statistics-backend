@@ -151,6 +151,38 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     return std::vector<StatisticsData>();
 }
 
+std::vector<StatisticsData> StatisticsBackend::get_data(
+        DataKind data_type,
+        EntityId entity_id_source,
+        EntityId entity_id_target,
+        uint16_t bins,
+        StatisticKind statistic)
+{
+    return get_data(
+            data_type,
+            entity_id_source,
+            entity_id_target,
+            bins,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic);
+}
+
+std::vector<StatisticsData> StatisticsBackend::get_data(
+        DataKind data_type,
+        EntityId entity_id,
+        uint16_t bins,
+        StatisticKind statistic)
+{
+    return get_data(
+        data_type,
+        entity_id,
+        bins,
+        Timestamp(),
+        std::chrono::system_clock::now(),
+        statistic);
+}
+
 Graph StatisticsBackend::get_graph()
 {
     return Graph();
