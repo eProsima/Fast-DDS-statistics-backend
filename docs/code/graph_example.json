@@ -70,7 +70,7 @@
                     "entity_id": "28d2398c-c3b2-45c0-bd08-88cbd3d127a4",
                     "name": "participant_1",
                     "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1",
-                    "process": "28d2398c-c3b2-45c0-bd08-88cbd3d127a4",
+                    "process": "9a6b71c1-2fca-43da-a936-7f04a487cca7",
                     "datareaders":
                     [
                     ],
@@ -92,7 +92,7 @@
                     "entity_id": "4157b5c0-4a58-415b-a2bc-8aa9123fb635",
                     "name": "participant_2",
                     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
-                    "process": "4157b5c0-4a58-415b-a2bc-8aa9123fb635",
+                    "process": "e88f1576-1c80-4bb7-bc92-e09d2cd27977",
                     "datareaders":
                     [
                         {

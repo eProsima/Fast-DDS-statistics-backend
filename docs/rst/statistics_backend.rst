@@ -10,9 +10,9 @@ a *Fast DDS* network using *Fast DDS* Statistics module.
 It provides the API necessary for starting and stopping monitorizations on a given domain or *Fast DDS* Discovery Server
 network, as well as the functions to extract statistics information about said monitorizations.
 
-*Fast DDS Statistics Backend* can monitor several DDS domains and *Fast DDS* Discovery Server network at the same time,
+*Fast DDS Statistics Backend* can monitor several DDS domains and *Fast DDS* Discovery Server networks at the same time,
 notifying applications about changes in the network and arrival of new statistics data using two listeners which
-contain a set of callback that the application implements.
+contain a set of callbacks that the application implements.
 
 .. _statistics_backend_init:
 
@@ -42,8 +42,8 @@ functionality.
    :end-before: //!
    :dedent: 8
 
-In addition, |init_monitor-api| allows for specifying which monitorization event should be notified.
-This is done by setting a |CallbackMask-api| where the active callback from the listener are specified.
+In addition, |init_monitor-api| allows for specifying which monitorization events should be notified.
+This is done by setting a |CallbackMask-api| where the active callbacks from the listener are specified.
 Moreover, a mask on statistics data kind of interest can be set creating a |DataKindMask-api|
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
@@ -136,14 +136,16 @@ Retrieve statistical data
     This feature is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
-*Fast DDS Statistics Backend* provides to overloads of |get_data-api| to retrieve statistical data of a given
+*Fast DDS Statistics Backend* provides two overloads of |get_data-api| to retrieve statistical data of a given
 |DataKind-api| within a time frame.
-The result of this operation is a set of |StatisticsData-api| elements of length equal to the number of specified bins,
-which have an equal size of :math:`(t_to - t_from)/(# of bins)`.
-Each of this bins contains the result of applying a given |StatisticKind-api| to all the the data points in it.
+This time interval is evenly divided into the specified number of bins, each one with size
+:math:`(t_to - t_from)/(# of bins)`.
+For each of these bins, a new |StatisticsData-api| value is calculated applying the given |StatisticKind-api| to all the
+data points in it.
+The result is a collection of |StatisticsData-api| elements with size equal to the number of specified bins.
 
 Depending on the |DataKind-api|, the data is related to one or two entities, e.g. |FASTDDS_LATENCY-api| measures the
-latency between a write operation on the data writer side and notification to the user when the data is available in
+latency between a write operation on the data writer side and the notification to the user when the data is available in
 reader side, whereas |HEARTBEAT_COUNT-api| contains the amount of sent HEARTBEATs.
 Because of this difference, |get_data-api| can take either one or two |EntityId-api| related to the |DataKind-api| in
 question.
