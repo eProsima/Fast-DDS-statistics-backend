@@ -115,6 +115,31 @@ colcon build
 
 Once the build completes, the generated documentation can be found in `<path_to_ws>/fastdds_statistics_backend_ws/install/fastdds-statistics-backend/docs/fastdds-statistics-backend/sphinx/html/index.html`
 
+##### Simulating the Read The Docs build
+
+Read the Docs generates the documentation using Sphinx and [conf.py](docs/conf.py).
+This means that it does not execute any colcon or CMake commands.
+[conf.py](docs/conf.py) provides some extra logic to generate the Doxygen documentation when running on a Read the Docs environment.
+This is done by means of the environment variable `READTHEDOCS`. When this variable is set to `True`, [conf.py](docs/conf.py) will detect the Read The Docs environment and act accordingly.
+Simulating the ReadTheDocs operation can be achieved from within the repository, independently from the `colcon` build.
+To do that, make sure there is no `build` directory on the repository's root directory.
+Then, set `READTHEDOCS` and run sphinx:
+
+```bash
+# Source the python virtual environment
+source <path_to_ws>/fastdds_statistics_backend_venv/bin/activate
+# Change directories to the repository directory
+cd <path_to_ws>/src/fastdds-statistics-backend
+# Make sure that the are no build directories
+rm -rf build
+# Run sphinx
+READTHEDOCS=True sphinx-build \
+    -b html \
+    -D breathe_projects.FastDDS=<abs_path_to_ws>/src/fastdds-statistics-backend/build/doxygen/xml \
+    -d <abs_path_to_ws>/src/fastdds-statistics-backend/build/doctrees \
+    docs <abs_path_to_ws>/src/fastdds-statistics-backend/build/html
+```
+
 #### Troubleshooting
 
 Python versions 3.7 and newer produce `Duplicate declaration` and `Error when parsing function declaration` warnings when building the documentation.
