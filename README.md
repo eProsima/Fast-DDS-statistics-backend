@@ -121,8 +121,8 @@ Read the Docs generates the documentation using Sphinx and [conf.py](docs/conf.p
 This means that it does not execute any colcon or CMake commands.
 [conf.py](docs/conf.py) provides some extra logic to generate the Doxygen documentation when running on a Read the Docs environment.
 This is done by means of the environment variable `READTHEDOCS`. When this variable is set to `True`, [conf.py](docs/conf.py) will detect the Read The Docs environment and act accordingly.
-Simulate the ReadTheDocs operation can be done from with the repository, independently from the `colcon` build.
-To do that, make sure there is no `build` directory on the repositories root directory.
+Simulating the ReadTheDocs operation can be achieved from within the repository, independently from the `colcon` build.
+To do that, make sure there is no `build` directory on the repository's root directory.
 Then, set `READTHEDOCS` and run sphinx:
 
 ```bash
