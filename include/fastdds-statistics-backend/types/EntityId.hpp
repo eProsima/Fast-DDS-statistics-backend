@@ -19,6 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
+
 #include <string>
 
 namespace eprosima {

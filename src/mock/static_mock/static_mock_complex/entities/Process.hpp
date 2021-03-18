@@ -16,7 +16,6 @@
  * @file Process.hpp
  */
 
-#include <types/types.hpp>
 #include "Entity.hpp"
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_PROCESS_HPP_

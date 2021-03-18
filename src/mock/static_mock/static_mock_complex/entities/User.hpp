@@ -16,7 +16,6 @@
  * @file User.hpp
  */
 
-#include <types/types.hpp>
 #include "Entity.hpp"
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_USER_HPP_

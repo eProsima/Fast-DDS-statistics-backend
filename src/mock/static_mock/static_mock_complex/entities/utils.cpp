@@ -16,7 +16,7 @@
  * @file utils.cpp
  */
 
-#include <types/types.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
 #include "utils.hpp"
 
 namespace eprosima {

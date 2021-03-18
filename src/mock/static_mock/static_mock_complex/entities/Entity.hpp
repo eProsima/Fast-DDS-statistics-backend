@@ -16,7 +16,7 @@
  * @file Entity.hpp
  */
 
-#include <types/types.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
@@ -35,7 +35,7 @@ public:
     virtual std::vector<EntityId> get_entities(
         const EntityKind entity_type) const;
 
-    virtual Qos get_qos() const;
+    virtual Info get_info() const;
 
     std::string name() const
     {
