@@ -82,7 +82,11 @@ set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
 set(LIB_INSTALL_DIR lib${LIB_SUFFIX}/ CACHE PATH "Installation directory for libraries")
 set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
-set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
 
 ###############################################################################
 # Default shared libraries
@@ -115,6 +119,13 @@ endif()
 ###############################################################################
 # Packaging
 ###############################################################################
+# Install license
+install(FILES ${PROJECT_SOURCE_DIR}/LICENSE
+    DESTINATION ${LICENSE_INSTALL_DIR}
+    COMPONENT licenses
+    )
+set(CPACK_COMPONENT_LICENSES_HIDDEN 1)
+
 set(CPACK_COMPONENTS_ALL headers)
 
 if(MSVC OR MSVC_IDE)
