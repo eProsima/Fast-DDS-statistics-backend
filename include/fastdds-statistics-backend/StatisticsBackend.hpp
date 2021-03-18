@@ -172,21 +172,12 @@ public:
             EntityId entity_id);
 
     /**
-     * @brief Get the QoS of a given entity
+     * @brief Get the meta information of a given entity
      *
-     * @param entity_id The entity for which the QoS are retrieved
-     * @return Qos object describing the entity's QoS
+     * @param entity_id The entity for which the meta information is retrieved
+     * @return Info object describing the entity's meta information
      */
-    static Qos get_qos(
-            EntityId entity_id);
-
-    /**
-     * @brief Get the name of a given entity
-     *
-     * @param entity_id The entity for which the name is retrieved
-     * @return a string representing the name of the entity
-     */
-    static std::string get_name(
+    static Info get_info(
             EntityId entity_id);
 
     /**

@@ -35,9 +35,9 @@ namespace statistics_backend {
 using EntityId = std::string;
 
 /**
- * Qos tree structure. Please refer to https://nlohmann.github.io/json/doxygen/index.html
+ * Info tree structure. Please refer to https://nlohmann.github.io/json/doxygen/index.html
  */
-using Qos = nlohmann::json;
+using Info = nlohmann::json;
 
 /**
  * Topology graph tree structure.  Please refer to https://nlohmann.github.io/json/doxygen/index.html
