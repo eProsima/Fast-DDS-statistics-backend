@@ -1,4 +1,4 @@
-name: Test Fast DDS Statistics Backend
+name: ubuntu
 
 on:
   pull_request:
