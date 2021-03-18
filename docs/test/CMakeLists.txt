@@ -12,12 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_executable(
+    ${PROJECT_NAME}-test
+    ${PROJECT_SOURCE_DOCS_DIR}/code/StatisticsBackendTests.cpp
+    )
+target_include_directories(
+    ${PROJECT_NAME}-test
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    )
+target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+
 ####################################################################################################
 # Add tests
 ####################################################################################################
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/grep.py
     ${CMAKE_CURRENT_BINARY_DIR}/grep.py COPYONLY)
+
+configure_file(${PROJECT_SOURCE_DOCS_DIR}/code/graph_example.json
+    ${CMAKE_CURRENT_BINARY_DIR}/graph_example.json COPYONLY)
 
 find_package(Python COMPONENTS Interpreter Development)
 if(NOT(${Python_FOUND} AND (${Python_VERSION} VERSION_GREATER "3.6")))
@@ -52,3 +67,5 @@ add_test(NAME documentation.spell_check
     -d "${PROJECT_BINARY_DOCS_DIR}/doctrees"
     ${PROJECT_SOURCE_DOCS_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/spelling)
+
+add_test(NAME documentation.get_graph_parse COMMAND ${PROJECT_NAME}-test get_graph_parse)

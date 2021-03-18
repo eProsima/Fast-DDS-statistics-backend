@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <fastdds-statistics-backend/include/StatisticsBackend.hpp>
-#include <fastdds-statistics-backend/include/types/types.hpp>
-#include <fastdds-statistics-backend/include/types/Bitmask.hpp>
-#include <fastdds-statistics-backend/include/listener/DomainListener.hpp>
-#include <fastdds-statistics-backend/include/listener/PhysicalListener.hpp>
-#include <fastdds-statistics-backend/include/listener/CallbackMask.hpp>
+#include <fastdds-statistics-backend/StatisticsBackend.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/types/Bitmask.hpp>
+#include <fastdds-statistics-backend/listener/DomainListener.hpp>
+#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
+#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
 
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 
 using namespace eprosima::statistics_backend;
 
@@ -167,12 +169,17 @@ void get_data_examples()
     }
 }
 
-void get_graph_examples()
+int get_graph_examples(uint8_t test)
 {
+    if (test == 1)
     {
         //CONF-GET-GRAPH-EXAMPLE
         Graph graph = StatisticsBackend::get_graph();
         //!--
+
+        // Load the file to test whether the snippet works on the example
+        std::ifstream file_example("graph_example.json");
+        graph = Graph::parse(file_example);
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
         // Iterate over hosts
@@ -221,7 +228,9 @@ void get_graph_examples()
             }
         }
         //!--
+        return 0;
     }
+    return 0;
 }
 
 void get_entities_example()
@@ -259,6 +268,7 @@ void get_name_example()
         //CONF-GET-NAME-EXAMPLE
         std::string name = StatisticsBackend::get_name(entity_id);
         //!--
+        static_cast<void>(name);
     }
 }
 
@@ -269,6 +279,7 @@ void get_type_example()
         //CONF-GET-TYPE-EXAMPLE
         EntityKind kind = StatisticsBackend::get_type(entity_id);
         //!--
+        static_cast<void>(kind);
     }
 }
 
@@ -279,6 +290,7 @@ void is_active_example()
         //CONF-IS-ACTIVE-EXAMPLE
         bool active = StatisticsBackend::is_active(entity_id);
         //!--
+        static_cast<void>(active);
     }
 }
 
@@ -286,5 +298,15 @@ int main(
         int argc,
         const char** argv)
 {
+    if (argc != 2)
+    {
+        std::cout << "Wrong number of arguments" << std::endl;
+        return 1;
+    }
+
+    if (strncmp(argv[1], "get_graph_parse", 15) == 0)
+    {
+        return get_graph_examples(1);
+    }
     return 0;
 }

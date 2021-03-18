@@ -194,20 +194,19 @@ Running the previous snippet on the given example should output:
 
 .. code-block:: text
 
-    Host name: example_host
-        User name: example_user
-            Process name: example_process_1
-            Process PID:  9564
-                Participant name: participant_1
-                Participant GUID: 01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1
-                    Datawriter name: datawriter_1
-                    Datawriter GUID: 01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03
-            Process name: example_process_2
-            Process PID:  9565
-                Participant name: participant_2
-                Participant GUID: 01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1
-                    Datareader name: datareader_1
-                    Datareader GUID: 01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04
+    User name: "example_user"
+        Process name: "example_process_1"
+        Process PID:  "9564"
+            Participant name: "participant_1"
+            Participant GUID: "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1"
+                Datawriter name: "datawriter_1"
+                Datawriter GUID: "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03"
+        Process name: "example_process_2"
+        Process PID:  "9565"
+            Participant name: "participant_2"
+            Participant GUID: "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1"
+                Datareader name: "datareader_1"
+                Datareader GUID: "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04"
 
 For more information about the operations available with ``Graph`` objects, please refer to |Graph-api|.
 
