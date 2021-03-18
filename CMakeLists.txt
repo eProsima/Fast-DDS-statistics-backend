@@ -104,9 +104,10 @@ add_subdirectory(src/cpp)
 ###############################################################################
 # Documentation
 ###############################################################################
-option(BUILD_DOCUMENTATION "Generate documentation" ON)
+option(BUILD_DOCUMENTATION "Generate documentation" OFF)
 option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
-if (BUILD_DOCUMENTATION)
+if(BUILD_DOCUMENTATION OR BUILD_DOCUMENTATION_TESTS)
+    set(BUILD_DOCUMENTATION ON)
     if(BUILD_DOCUMENTATION_TESTS)
         # CTest needs to be included here, otherwise it is not possible to run the tests from the root
         # of the build directory
