@@ -15,7 +15,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DLL_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DLL_HPP_
 
-#include "config.h"
+// TODO(paris) it must be uncommented with config.h is built
+// #include "config.h"
 
 // normalize macros
 #if !defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK) && !defined(FASTDDS_STATISTICS_BACKEND_STATIC_LINK) \

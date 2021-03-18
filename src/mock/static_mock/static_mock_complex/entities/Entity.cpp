@@ -17,9 +17,9 @@
 namespace eprosima {
 namespace statistics_backend {
 
-Qos Entity::get_qos() const
+Info Entity::get_info() const
 {
-    Qos json_obj;
+    Info json_obj;
 
     json_obj["QoS"] = "Entity without QoS";
     json_obj["id"] = id_;

@@ -16,7 +16,7 @@
  * @file Entity.hpp
  */
 
-#include <types/types.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
 #include "Entity.hpp"
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_UTILS_HPP_

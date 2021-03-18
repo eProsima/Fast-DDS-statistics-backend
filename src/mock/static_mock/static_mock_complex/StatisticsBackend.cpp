@@ -17,10 +17,10 @@
 #include <vector>
 #include <iostream>
 
-#include <types/types.hpp>
-#include <StatisticsBackend.hpp>
-#include <listener/DomainListener.hpp>
-#include <listener/PhysicalListener.hpp>
+#include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/StatisticsBackend.hpp>
+#include <fastdds-statistics-backend/listener/DomainListener.hpp>
+#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -145,19 +145,137 @@ std::vector<EntityId> get_entities(
     return result;
 }
 
-Qos StatisticsBackend::get_qos(
+Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
-    std::cout << "CONGRATULATIONS, you have asked for qos from " << entity_id << std::endl;
+    std::cout << "CONGRATULATIONS, you have asked for info from " << entity_id << std::endl;
 
-    Qos json_obj = R"({
-        "DurabilityQosPolicy": "TRANSIENT_LOCAL_DURABILITY_QOS",
-        "DeadlineQosPolicy": "5ms",
-        "LivelinessQosPolicy": {
-            "kind": "AUTOMATIC_LIVELINES_QOS",
-            "lease_duration": "c_TimeInfinite",
-            "announcement_period": "c_TimeInfinite"
-        }
+    Info json_obj = R"({
+        "data_sharing":
+        {
+            "domain_ids":
+            [
+                0
+            ],
+            "kind": "AUTO",
+            "max_domains": 1,
+            "shm_directory": "/dev/shm"
+        },
+        "deadline":
+        {
+            "period":
+            {
+                "nanoseconds": 50,
+                "seconds": 10
+            }
+        },
+        "destination_order":
+        {
+            "kind": "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS"
+        },
+        "disable_positive_acks":
+        {
+            "duration":
+            {
+                "nanoseconds": 100,
+                "seconds": 0
+            },
+            "enabled": true
+        },
+        "durability":
+        {
+            "kind": "VOLATILE_DURABILITY_QOS"
+        },
+        "durability_service":
+        {
+            "history_depth": "1",
+            "history_kind": "KEEP_LAST_HISTORY_QOS",
+            "max_instances": "30",
+            "max_samples": "3000",
+            "max_samples_per_instance": "100",
+            "service_cleanup_delay":
+            {
+                "nanoseconds": 0,
+                "seconds": 5
+            }
+        },
+        "group_data": "9d46781410ff",
+        "latency_budget":
+        {
+            "duration":
+            {
+                "nanoseconds": 50,
+                "seconds": 10
+            }
+        },
+        "lifespan":
+        {
+            "duration":
+            {
+                "nanoseconds": 0,
+                "seconds": 10000
+            }
+        },
+        "liveliness":
+        {
+            "announcement_period":
+            {
+                "nanoseconds": 0,
+                "seconds": 3
+            },
+            "lease_duration":
+            {
+                "nanoseconds": 0,
+                "seconds": 10
+            },
+            "kind": "AUTOMATIC_LIVELINESS_QOS"
+        },
+        "ownership":
+        {
+            "kind": "SHARED_OWNERSHIP_QOS"
+        },
+        "partition":
+        [
+            "partition_1",
+            "partition_2"
+        ],
+        "presentation":
+        {
+            "access_scope": "INSTANCE_PRESENTATION_QOS",
+            "coherent_access": false,
+            "ordered_access": false
+        },
+        "reliability":
+        {
+            "kind": "RELIABLE_RELIABILITY_QOS",
+            "max_blocking_time":
+            {
+                "nanoseconds": 0,
+                "seconds": 3
+            }
+        },
+        "representation":
+        [
+        ],
+        "time_based_filter":
+        {
+            "minimum_separation":
+            {
+                "seconds": 12,
+                "nanoseconds": 0
+            }
+        },
+        "topic_data": "5b33419a",
+        "type_consistency":
+        {
+            "force_type_validation": false,
+            "ignore_member_names": false,
+            "ignore_sequence_bounds": true,
+            "ignore_string_bounds": true,
+            "kind": "DISALLOW_TYPE_COERCION",
+            "prevent_type_widening": false
+        },
+        "user_data": "ff00"
     })"_json;
 
     json_obj["id"] = entity_id;
@@ -165,33 +283,26 @@ Qos StatisticsBackend::get_qos(
     return json_obj;
 }
 
-std::string StatisticsBackend::get_name(
-        EntityId entity_id)
-{
-    std::cout << "CONGRATULATIONS, you have asked for the name of " << entity_id << std::endl;
-
-    return entity_id + "_name";
-}
-
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
         EntityId entity_id_source,
         EntityId entity_id_target,
         uint16_t bins,
-        StatisticKind statistic,
         Timestamp t_from,
-        Timestamp t_to)
+        Timestamp t_to,
+        StatisticKind statistic)
 {
-    return get_data(data_type, entity_id_source + entity_id_target, bins, statistic, t_from, t_to);
+    static_cast<void>(entity_id_target);
+    return get_data(data_type, entity_id_source, bins, t_from, t_to, statistic);
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
         EntityId entity_id,
         uint16_t bins,
-        StatisticKind statistic,
         Timestamp t_from,
-        Timestamp t_to)
+        Timestamp t_to,
+        StatisticKind statistic)
 {
     std::cout << "CONGRATULATIONS, you have asked for the data of " << entity_id << std::endl;
 

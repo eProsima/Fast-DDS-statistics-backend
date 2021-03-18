@@ -13,10 +13,20 @@
 # limitations under the License.
 
 # include_directories(${MyProject_SOURCE_DIR}/LibProject/inc)
+
+cmake_minimum_required(VERSION 2.8.12)
+
+if(NOT CMAKE_VERSION VERSION_LESS 3.0)
+    cmake_policy(SET CMP0048 NEW)
+endif()
+
+project(StaticMockComplex)
+
 set(STATIC_MOCK_COMPLEX_SOURCE
-    StatisticsBackend.cpp
-    entities/Entity.cpp
-    entities/Host.cpp)
+    StatisticsBackend.cpp)
+    # entities/utils.cpp
+    # entities/Entity.cpp
+    # entities/Host.cpp)
 add_library(StaticMockComplex ${STATIC_MOCK_COMPLEX_SOURCE})
 
 target_compile_definitions(StaticMockComplex PRIVATE
