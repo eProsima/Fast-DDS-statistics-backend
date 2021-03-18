@@ -24,6 +24,7 @@
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
 #include <fastdds-statistics-backend/listener/CallbackMask.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
 
 #include <chrono>
 
@@ -141,13 +142,23 @@ public:
     /**
      * @brief Get all the entities of a given type related to another entity
      *
-     * @param entity_id The ID of the entity to which the resulting entities are related
+     * Get all the entity ids for every entity of kind \c entity_type that is connected with entity \c entity_id
+     * Connection between entities means they are directly connected by a contained/connect relation
+     * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it
+     *
+     * Use case: To get all host in the system, use arguments HOST and EntityId::all()
+     * Use case: To get all locators from a participant with id X, use arguments LOCATOR and X, this will
+     *  get all the locators that are connected with the endpoints this participant has.
+     *
+     * In case the \c entity_id is not specified, all entities of type \c entity_type are returned
+     *
      * @param entity_type The type of entities for which the search is performed
+     * @param entity_id The ID of the entity to which the resulting entities are related
      * @return All entities of type \c entity_type that are related to \c entity_id
      */
     static std::vector<EntityId> get_entities(
-            EntityId entity_id,
-            EntityKind entity_type);
+            EntityKind entity_type,
+            EntityId entity_id = EntityId::all());
 
     /**
      * @brief Returns whether the entity is active.

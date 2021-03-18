@@ -86,11 +86,11 @@ void StatisticsBackend::set_domain_listener(
 }
 
 std::vector<EntityId> StatisticsBackend::get_entities(
-        EntityId entity_id,
-        EntityKind entity_type)
+        EntityKind entity_type,
+        EntityId entity_id)
 {
-    static_cast<void>(entity_id);
     static_cast<void>(entity_type);
+    static_cast<void>(entity_id);
     return std::vector<EntityId>();
 }
 

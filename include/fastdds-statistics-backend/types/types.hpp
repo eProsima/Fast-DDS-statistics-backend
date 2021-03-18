@@ -22,17 +22,12 @@
 
 #include <nlohmann-json/json.hpp>
 #include <fastdds-statistics-backend/types/Bitmask.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <string>
 #include <chrono>
 
 namespace eprosima {
 namespace statistics_backend {
-
-/**
- * Type for unique identifier of Entities
- */
-using EntityId = std::string;
 
 /**
  * Info tree structure. Please refer to https://nlohmann.github.io/json/doxygen/index.html
@@ -53,7 +48,6 @@ using DomainId = uint32_t;
  * Type used to represent time points
  */
 using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
-
 
 /**
  * @brief Type of the data returned by the backend.
