@@ -21,10 +21,7 @@
 import os
 import pathlib
 import re
-import shutil
 import subprocess
-
-import git
 
 import requests
 
@@ -58,6 +55,7 @@ def get_version(cmakelists):
                     'patch' in version):
                 break
     return version
+
 
 def download_css(html_css_dir):
     """
@@ -110,11 +108,12 @@ def select_css(html_css_dir):
     common_css = '_static/css/eprosima_rtd_theme.css'
     local_css = '_static/css/fiware_readthedocs.css'
     if download_css(html_css_dir):
-        print('Appliying common CSS style file: {}'.format(common_css))
+        print('Applying common CSS style file: {}'.format(common_css))
         return [common_css]
     else:
-        print('Appliying local CSS style file: {}'.format(local_css))
+        print('Applying local CSS style file: {}'.format(local_css))
         return [local_css]
+
 
 def configure_doxyfile(
     doxyfile_in,
@@ -166,7 +165,7 @@ doxygen_html = os.path.abspath(
 
 # Doxyfile
 doxyfile_in = os.path.abspath(
-    '{}/doxygen-config.in'.format(project_source_docs_dir)
+    '{}/doxygen-config.in'.format(script_path)
 )
 doxyfile_out = os.path.abspath(
     '{}/doxygen-config'.format(project_binary_docs_dir)
@@ -174,8 +173,8 @@ doxyfile_out = os.path.abspath(
 
 # Header files
 input_dir = os.path.abspath(
-    '{}/../include'.format(
-        project_source_docs_dir
+    '{}/../include/fastdds-statistics-backend'.format(
+        script_path
     )
 )
 
@@ -186,6 +185,11 @@ if read_the_docs_build:
 
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
     os.makedirs(os.path.dirname(doxygen_html), exist_ok=True)
+
+    # Create a COLCON_IGNORE file just in case
+    open(
+        os.path.abspath('{}/COLCON_IGNORE'.format(project_binary_dir)), 'w'
+    ).close()
 
     # Configure Doxyfile
     configure_doxyfile(
