@@ -108,18 +108,11 @@ EntityKind StatisticsBackend::get_type(
     return EntityKind::HOST;
 }
 
-Qos StatisticsBackend::get_qos(
+Info StatisticsBackend::get_info(
             EntityId entity_id)
 {
     static_cast<void>(entity_id);
-    return Qos();
-}
-
-std::string StatisticsBackend::get_name(
-            EntityId entity_id)
-{
-    static_cast<void>(entity_id);
-    return "";
+    return Info();
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
