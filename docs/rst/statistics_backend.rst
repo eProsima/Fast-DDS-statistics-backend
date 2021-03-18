@@ -19,6 +19,10 @@ contain a set of callback that the application implements.
 Initialize a monitor
 --------------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 |StatisticsBackend-api| provides two overloads of |init_monitor-api| that can be used to start a monitorization on a
 DDS domain or a *Fast DDS* Discovery Server network.
 
@@ -53,6 +57,10 @@ Moreover, a mask on statistics data kind of interest can be set creating a |Data
 Stop and restart a monitor
 --------------------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 *Fast DDS Statistics Backend* allows for a monitorization to be stopped and restarted at any time.
 Stopping a monitorization merely means that the internal statistics DataReaders are disabled, but the already received
 data is still accessible to applications through the query API (see :ref:`statistics_backend_get_data`).
@@ -73,6 +81,10 @@ Is is important to note that:
 Clear all data related to a monitor
 -----------------------------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 In case applications are no longer interested in statistical data of a given DDS domain or *Fast DDS* Discovery Server
 network, it is possible to delete said data completely.
 To do so, the corresponding monitor needs to be stopped before the |clear_monitor-api| operation can be performed.
@@ -87,6 +99,10 @@ To do so, the corresponding monitor needs to be stopped before the |clear_monito
 
 Set listeners
 -------------
+
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 As explained in :ref:`listeners`, each *Fast DDS Statistics Backend* monitor has two listeners:
 
@@ -115,6 +131,10 @@ monitor at any time.
 
 Retrieve statistical data
 -------------------------
+
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 *Fast DDS Statistics Backend* provides to overloads of |get_data-api| to retrieve statistical data of a given
 |DataKind-api| within a time frame.
@@ -151,6 +171,10 @@ and :ref:`types_statistic_kind` respectively.
 
 Get entities' graph
 -------------------
+
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 *Fast DDS Statistics Backend* allows to retrieve the entire graph of entities for which the singleton holds statistics
 data.
@@ -215,6 +239,10 @@ For more information about the operations available with ``Graph`` objects, plea
 Get entities of a given kind related to another entity
 ------------------------------------------------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 The |StatisticsBackend-api| singleton can be queried about all the entities of a given |EntityKind-api| that are related
 to any entity. For example, |get_entities-api| function can be used to retrieve all the |PARTICIPANT-api| running on a
 given |HOST-api|.
@@ -229,6 +257,10 @@ given |HOST-api|.
 
 Get entity QoS
 --------------
+
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 *Fast DDS Statistics Backend* includes the possibility of retrieving the QoS settings of the DDS entities present in the
 network.
@@ -274,6 +306,10 @@ DataWriter QoS example
 Get entity name
 ---------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 All the *Fast DDS Statistics Backend* entities have a name.
 Such name can be retrieved given the |EntityId-api| of the entity.
 
@@ -292,6 +328,10 @@ Such name can be retrieved given the |EntityId-api| of the entity.
 Get entity type
 ---------------
 
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 Is is also possible to retrieve the |EntityKind-api| of an entity given its |EntityId-api|:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
@@ -305,6 +345,10 @@ Is is also possible to retrieve the |EntityKind-api| of an entity given its |Ent
 
 Check whether an entity is active
 ---------------------------------
+
+.. warning::
+    This feature is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 Unless |clear_monitor-api| is called for a monitor, *Fast DDS Statistics Backend* keeps the statistical data record of
 all the entities that have at some point been detected by a monitor.
