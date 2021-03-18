@@ -5,7 +5,7 @@
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`
 .. |get_data-api| replace:: :cpp:func:`get_data()<eprosima::statistics_backend::StatisticsBackend::get_data>`
 .. |get_entities-api| replace:: :cpp:func:`get_entities()<eprosima::statistics_backend::StatisticsBackend::get_entities>`
-.. |get_qos-api| replace:: :cpp:func:`get_qos()<eprosima::statistics_backend::StatisticsBackend::get_qos>`
+.. |get_info-api| replace:: :cpp:func:`get_info()<eprosima::statistics_backend::StatisticsBackend::get_info>`
 .. |is_active-api| replace:: :cpp:func:`is_active()<eprosima::statistics_backend::StatisticsBackend::is_active>`
 
 .. |DomainListener-api| replace:: :cpp:class:`DomainListener<eprosima::statistics_backend::DomainListener>`
@@ -20,7 +20,7 @@
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
 .. |EntityKind-api| replace:: :cpp:type:`EntityKind<eprosima::statistics_backend::EntityKind>`
 .. |EntityId-api| replace:: :cpp:type:`EntityId<eprosima::statistics_backend::EntityId>`
-.. |Qos-api| replace:: :cpp:type:`Qos<eprosima::statistics_backend::Qos>`
+.. |Info-api| replace:: :cpp:type:`Info<eprosima::statistics_backend::Info>`
 .. |Graph-api| replace:: :cpp:type:`Graph<eprosima::statistics_backend::Graph>`
 .. |USER-api| replace:: :cpp:enumerator:`USER<eprosima::statistics_backend::EntityKind::USER>`
 .. |HOST-api| replace:: :cpp:enumerator:`HOST<eprosima::statistics_backend::EntityKind::HOST>`

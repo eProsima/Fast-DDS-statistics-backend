@@ -253,18 +253,20 @@ given |HOST-api|.
     :end-before: //!
     :dedent: 8
 
-.. _statistics_backend_get_qos:
+.. _statistics_backend_get_info:
 
-Get entity QoS
---------------
+Get entity meta information
+---------------------------
 
 .. warning::
     This feature is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
-*Fast DDS Statistics Backend* includes the possibility of retrieving the QoS settings of the DDS entities present in the
-network.
-This operation returns a |Qos-api| object.
+*Fast DDS Statistics Backend* includes the possibility of retrieving the meta information of any given entities present
+in the network.
+Depending on the |EntityKind-api|, the returned tree contains merely the ``name``, or extra information such as ``pid``,
+``qos``, or ``data_type``.
+|get_info-api| returns a |Info-api| object.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -272,56 +274,77 @@ This operation returns a |Qos-api| object.
     :end-before: //!
     :dedent: 8
 
-.. important::
+.. _statistics_backend_get_info_host:
 
-    |get_qos-api| can only be called for entities which |EntityKind-api| is |PARTICIPANT-api|, |DATAWRITER-api|, or
-    |DATAREADER-api|.
+Host Info example
+^^^^^^^^^^^^^^^^^
 
-.. _statistics_backend_get_qos_participant:
+.. literalinclude:: /code/host_info_example.json
+    :language: JSON
 
-Participant QoS example
+.. _statistics_backend_get_info_user:
+
+User Info example
+^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /code/user_info_example.json
+    :language: JSON
+
+.. _statistics_backend_get_info_process:
+
+Process Info example
+^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /code/process_info_example.json
+    :language: JSON
+
+.. _statistics_backend_get_info_locator:
+
+Locator Info example
+^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /code/locator_info_example.json
+    :language: JSON
+
+.. _statistics_backend_get_info_domain:
+
+Domain Info example
+^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /code/domain_info_example.json
+    :language: JSON
+
+.. _statistics_backend_get_info_participant:
+
+Participant Info example
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: /code/participant_info_example.json
+    :language: JSON
+
+.. _statistics_backend_get_info_datareader:
+
+DataReader Info example
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: /code/participant_qos_example.json
+.. literalinclude:: /code/datareader_info_example.json
     :language: JSON
 
-.. _statistics_backend_get_qos_datareader:
+.. _statistics_backend_get_info_datawriter:
 
-DataReader QoS example
-^^^^^^^^^^^^^^^^^^^^^^
+DataWriter Info example
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: /code/datareader_qos_example.json
+.. literalinclude:: /code/datawriter_info_example.json
     :language: JSON
 
-.. _statistics_backend_get_qos_datawriter:
+.. _statistics_backend_get_info_topic:
 
-DataWriter QoS example
-^^^^^^^^^^^^^^^^^^^^^^
+Topic Info example
+^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: /code/datawriter_qos_example.json
+.. literalinclude:: /code/topic_info_example.json
     :language: JSON
-
-.. _statistics_backend_get_name:
-
-Get entity name
----------------
-
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
-
-All the *Fast DDS Statistics Backend* entities have a name.
-Such name can be retrieved given the |EntityId-api| of the entity.
-
-.. literalinclude:: /code/StatisticsBackendTests.cpp
-    :language: c++
-    :start-after: //CONF-GET-NAME-EXAMPLE
-    :end-before: //!
-    :dedent: 8
-
-.. warning::
-    The entity names are not guaranteed to be unique.
-    For a unique identifier for the entity, please use its |EntityId-api|.
 
 .. _statistics_backend_get_type:
 

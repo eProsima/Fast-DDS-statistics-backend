@@ -247,28 +247,29 @@ void get_entities_example()
     }
 }
 
-void get_qos_example()
+void get_info_example()
 {
     {
+        EntityId host_id;
+        EntityId user_id;
+        EntityId process_id;
+        EntityId locator_id;
+        EntityId domain_id;
         EntityId participant_id;
         EntityId datawriter_id;
         EntityId datareader_id;
+        EntityId topic_id;
         //CONF-GET-QOS-EXAMPLE
-        Qos participant_qos = StatisticsBackend::get_qos(participant_id);
-        Qos datareader_qos = StatisticsBackend::get_qos(datareader_id);
-        Qos datawriter_qos = StatisticsBackend::get_qos(datawriter_id);
+        Info host_info = StatisticsBackend::get_info(host_id);
+        Info user_info = StatisticsBackend::get_info(user_id);
+        Info process_info = StatisticsBackend::get_info(process_id);
+        Info locator_info = StatisticsBackend::get_info(locator_id);
+        Info domain_info = StatisticsBackend::get_info(domain_id);
+        Info participant_info = StatisticsBackend::get_info(participant_id);
+        Info datareader_info = StatisticsBackend::get_info(datareader_id);
+        Info datawriter_info = StatisticsBackend::get_info(datawriter_id);
+        Info topic_info = StatisticsBackend::get_info(topic_id);
         //!--
-    }
-}
-
-void get_name_example()
-{
-    {
-        EntityId entity_id;
-        //CONF-GET-NAME-EXAMPLE
-        std::string name = StatisticsBackend::get_name(entity_id);
-        //!--
-        static_cast<void>(name);
     }
 }
 
