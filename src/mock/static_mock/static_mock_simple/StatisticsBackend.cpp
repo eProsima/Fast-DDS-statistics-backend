@@ -127,11 +127,11 @@ std::vector<EntityId> get_entities(
             break;
 
         case EntityKind::DATAWRITER:
-            result.push_back("WRITER_0");
+            result.push_back("Writer_0");
             break;
 
         case EntityKind::DATAREADER:
-            result.push_back("READER_0");
+            result.push_back("Reader_0");
             break;
 
         case EntityKind::LOCATOR:
@@ -150,134 +150,136 @@ Info StatisticsBackend::get_info(
 {
     std::cout << "CONGRATULATIONS, you have asked for info from " << entity_id << std::endl;
     Info json_obj = R"({
-        "data_sharing":
-        {
-            "domain_ids":
+        qos:{
+            "data_sharing":
+            {
+                "domain_ids":
+                [
+                    0
+                ],
+                "kind": "AUTO",
+                "max_domains": 1,
+                "shm_directory": "/dev/shm"
+            },
+            "deadline":
+            {
+                "period":
+                {
+                    "nanoseconds": 50,
+                    "seconds": 10
+                }
+            },
+            "destination_order":
+            {
+                "kind": "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS"
+            },
+            "disable_positive_acks":
+            {
+                "duration":
+                {
+                    "nanoseconds": 100,
+                    "seconds": 0
+                },
+                "enabled": true
+            },
+            "durability":
+            {
+                "kind": "VOLATILE_DURABILITY_QOS"
+            },
+            "durability_service":
+            {
+                "history_depth": "1",
+                "history_kind": "KEEP_LAST_HISTORY_QOS",
+                "max_instances": "30",
+                "max_samples": "3000",
+                "max_samples_per_instance": "100",
+                "service_cleanup_delay":
+                {
+                    "nanoseconds": 0,
+                    "seconds": 5
+                }
+            },
+            "group_data": "9d46781410ff",
+            "latency_budget":
+            {
+                "duration":
+                {
+                    "nanoseconds": 50,
+                    "seconds": 10
+                }
+            },
+            "lifespan":
+            {
+                "duration":
+                {
+                    "nanoseconds": 0,
+                    "seconds": 10000
+                }
+            },
+            "liveliness":
+            {
+                "announcement_period":
+                {
+                    "nanoseconds": 0,
+                    "seconds": 3
+                },
+                "lease_duration":
+                {
+                    "nanoseconds": 0,
+                    "seconds": 10
+                },
+                "kind": "AUTOMATIC_LIVELINESS_QOS"
+            },
+            "ownership":
+            {
+                "kind": "SHARED_OWNERSHIP_QOS"
+            },
+            "partition":
             [
-                0
+                "partition_1",
+                "partition_2"
             ],
-            "kind": "AUTO",
-            "max_domains": 1,
-            "shm_directory": "/dev/shm"
-        },
-        "deadline":
-        {
-            "period":
+            "presentation":
             {
-                "nanoseconds": 50,
-                "seconds": 10
-            }
-        },
-        "destination_order":
-        {
-            "kind": "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS"
-        },
-        "disable_positive_acks":
-        {
-            "duration":
-            {
-                "nanoseconds": 100,
-                "seconds": 0
+                "access_scope": "INSTANCE_PRESENTATION_QOS",
+                "coherent_access": false,
+                "ordered_access": false
             },
-            "enabled": true
-        },
-        "durability":
-        {
-            "kind": "VOLATILE_DURABILITY_QOS"
-        },
-        "durability_service":
-        {
-            "history_depth": "1",
-            "history_kind": "KEEP_LAST_HISTORY_QOS",
-            "max_instances": "30",
-            "max_samples": "3000",
-            "max_samples_per_instance": "100",
-            "service_cleanup_delay":
+            "reliability":
             {
-                "nanoseconds": 0,
-                "seconds": 5
-            }
-        },
-        "group_data": "9d46781410ff",
-        "latency_budget":
-        {
-            "duration":
-            {
-                "nanoseconds": 50,
-                "seconds": 10
-            }
-        },
-        "lifespan":
-        {
-            "duration":
-            {
-                "nanoseconds": 0,
-                "seconds": 10000
-            }
-        },
-        "liveliness":
-        {
-            "announcement_period":
-            {
-                "nanoseconds": 0,
-                "seconds": 3
+                "kind": "RELIABLE_RELIABILITY_QOS",
+                "max_blocking_time":
+                {
+                    "nanoseconds": 0,
+                    "seconds": 3
+                }
             },
-            "lease_duration":
+            "representation":
+            [
+            ],
+            "time_based_filter":
             {
-                "nanoseconds": 0,
-                "seconds": 10
+                "minimum_separation":
+                {
+                    "seconds": 12,
+                    "nanoseconds": 0
+                }
             },
-            "kind": "AUTOMATIC_LIVELINESS_QOS"
-        },
-        "ownership":
-        {
-            "kind": "SHARED_OWNERSHIP_QOS"
-        },
-        "partition":
-        [
-            "partition_1",
-            "partition_2"
-        ],
-        "presentation":
-        {
-            "access_scope": "INSTANCE_PRESENTATION_QOS",
-            "coherent_access": false,
-            "ordered_access": false
-        },
-        "reliability":
-        {
-            "kind": "RELIABLE_RELIABILITY_QOS",
-            "max_blocking_time":
+            "topic_data": "5b33419a",
+            "type_consistency":
             {
-                "nanoseconds": 0,
-                "seconds": 3
-            }
-        },
-        "representation":
-        [
-        ],
-        "time_based_filter":
-        {
-            "minimum_separation":
-            {
-                "seconds": 12,
-                "nanoseconds": 0
-            }
-        },
-        "topic_data": "5b33419a",
-        "type_consistency":
-        {
-            "force_type_validation": false,
-            "ignore_member_names": false,
-            "ignore_sequence_bounds": true,
-            "ignore_string_bounds": true,
-            "kind": "DISALLOW_TYPE_COERCION",
-            "prevent_type_widening": false
-        },
-        "user_data": "ff00"
+                "force_type_validation": false,
+                "ignore_member_names": false,
+                "ignore_sequence_bounds": true,
+                "ignore_string_bounds": true,
+                "kind": "DISALLOW_TYPE_COERCION",
+                "prevent_type_widening": false
+            },
+            "user_data": "ff00"
+        }
     })"_json;
 
-    json_obj["id"] = entity_id;
+    json_obj["name"] = entity_id;
 
     return json_obj;
 }
