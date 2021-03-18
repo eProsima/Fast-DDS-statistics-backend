@@ -236,9 +236,20 @@ int get_graph_examples(uint8_t test)
 void get_entities_example()
 {
     {
+        //CONF-GET-ENTITIES-ALL-EXAMPLE
+        // Get all hosts
+        std::vector<EntityId> hosts = StatisticsBackend::get_entities(EntityKind::HOST);
+        for (EntityId host : hosts)
+        {
+            std::cout << "Host ID: " << host << std::endl;
+        }
+        //!--
+    }
+    {
         EntityId host_id;
         //CONF-GET-ENTITIES-EXAMPLE
-        std::vector<EntityId> participants = StatisticsBackend::get_entities(host_id, EntityKind::PARTICIPANT);
+        // Get all participants running in a host
+        std::vector<EntityId> participants = StatisticsBackend::get_entities(EntityKind::PARTICIPANT, host_id);
         for (EntityId participant : participants)
         {
             std::cout << "Participant ID: " << participant << std::endl;
