@@ -17,20 +17,7 @@ jobs:
         with:
           path: src/Fast-DDS-statistics-backend
 
-      - name: Install apt packages
-        run: |
-          sudo apt -y install \
-            doxygen \
-            graphviz \
-            imagemagick \
-            python3 \
-            python3-pip \
-            python3-sphinxcontrib.spelling \
-            python3-venv \
-            software-properties-common \
-            wget \
-            libasio-dev \
-            libtinyxml2-dev
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
       - name: Install python dependencies
         run: |
