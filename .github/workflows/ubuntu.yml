@@ -18,21 +18,7 @@ jobs:
           path: src/Fast-DDS-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install python dependencies
-        run: |
-          sudo pip3 install -U \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            colcon-common-extensions==0.2.1 \
-            colcon-mixin==0.1.8 \
-            vcstool==0.2.7 \
-            GitPython==3.1.1 \
-            setuptools==46.1.3
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch Fast DDS dependencies
         run: |

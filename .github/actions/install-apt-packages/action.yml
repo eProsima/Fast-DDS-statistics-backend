@@ -3,7 +3,8 @@ description: 'Install necessary apt packages'
 runs:
   using: "composite"
   steps:
-    - run: |
+    - id: install-apt-packages
+      run: |
         sudo apt -y install \
           doxygen \
           graphviz \
