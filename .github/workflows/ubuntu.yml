@@ -19,11 +19,7 @@ jobs:
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
-
-      - name: Fetch Fast DDS dependencies
-        run: |
-          wget https://raw.githubusercontent.com/eProsima/Fast-DDS/master/fastrtps.repos
-          vcs import src < fastrtps.repos
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
       - name: Build workspace
         run: |
