@@ -21,13 +21,21 @@ jobs:
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
+      - name: Update colcon mixin
+        run: |
+          colcon mixin add default \
+            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+          colcon mixin update default
+        continue-on-error: true
+
       - name: Build workspace
         run: |
+
           cat src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
           colcon build \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
-            --build-args --mixin coverage-gcc
+            --mixin coverage-gcc
 
       - name: Run tests
         run: |
@@ -35,6 +43,13 @@ jobs:
           colcon test \
             --packages-select fastdds-statistics-backend \
             --event-handlers=console_direct+
+
+      - name: Generate coverage report
+        run: |
+          gcovr \
+          --root src/Fast-DDS-statistics-backend/ \
+          --object-directory build/fastdds-statistics-backend \
+          --exclude='.*nlohmann-json/.*'
 
       - name: Upload Logs
         uses: actions/upload-artifact@v1
