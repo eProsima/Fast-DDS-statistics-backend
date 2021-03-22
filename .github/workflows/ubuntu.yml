@@ -24,10 +24,17 @@ jobs:
       - name: Build workspace
         run: |
           cat src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
-          colcon build --event-handlers=console_direct+ --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
+          colcon build \
+            --event-handlers=console_direct+ \
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
+            --build-args --mixin coverage-gcc
 
       - name: Run tests
-        run: source install/setup.bash && colcon test --packages-select fastdds-statistics-backend --event-handlers=console_direct+
+        run: |
+          source install/setup.bash && \
+          colcon test \
+            --packages-select fastdds-statistics-backend \
+            --event-handlers=console_direct+
 
       - name: Upload Logs
         uses: actions/upload-artifact@v1
