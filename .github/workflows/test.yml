@@ -1,4 +1,4 @@
-name: ubuntu
+name: test
 
 on:
   workflow_dispatch:
@@ -10,8 +10,11 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  test:
+  ubuntu:
     runs-on: ubuntu-latest
+    environment:
+      name: codecov
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,10 +49,32 @@ jobs:
 
       - name: Generate coverage report
         run: |
+          cp src/Fast-DDS-statistics-backend/codecov.yml .
+          mkdir coverage-report
           gcovr \
           --root src/Fast-DDS-statistics-backend/ \
           --object-directory build/fastdds-statistics-backend \
-          --exclude='.*nlohmann-json/.*'
+          --output coverage-report/coverage.xml \
+          --xml-pretty \
+          --exclude='.*nlohmann-json/.*' \
+          --exclude='.*docs/.*' \
+          --exclude='.*github/.*' \
+          --exclude-unreachable-branches
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: coverage-report
+          path: coverage-report/
+        if: always()
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage-report/coverage.xml
+          root_dir: src/Fast-DDS-statistics-backend
+          fail_ci_if_error: true
 
       - name: Upload Logs
         uses: actions/upload-artifact@v1
