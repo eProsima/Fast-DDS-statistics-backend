@@ -44,7 +44,8 @@ jobs:
           source install/setup.bash && \
           colcon test \
             --packages-select fastdds-statistics-backend \
-            --event-handlers=console_direct+
+            --event-handlers=console_direct+ \
+            --return-code-on-test-failure
 
       - name: Generate coverage report
         run: |
