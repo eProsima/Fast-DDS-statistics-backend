@@ -40,16 +40,22 @@ jobs:
         with:
           name: colcon-ws-build-backend
           path: build/fastdds-statistics-backend
+          if-no-files-found: error
+          retention-days: 1
 
       - uses: actions/upload-artifact@master
         with:
           name: colcon-ws-install
           path: install
+          if-no-files-found: error
+          retention-days: 1
 
       - uses: actions/upload-artifact@master
         with:
           name: colcon-ws-log
           path: log
+          if-no-files-found: error
+          retention-days: 1
 
   ubuntu-test:
     needs: ubuntu-build
