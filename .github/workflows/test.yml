@@ -39,7 +39,7 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: colcon-ws-build-backend
-          path: build/Fast-DDS-statistics-backend
+          path: build/fastdds-statistics-backend
 
       - uses: actions/upload-artifact@master
         with:
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: colcon-ws-build-backend
-          path: build/Fast-DDS-statistics-backend
+          path: build/fastdds-statistics-backend
 
       - uses: actions/download-artifact@master
         with:
@@ -135,7 +135,7 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: colcon-ws-build-backend
-          path: build/Fast-DDS-statistics-backend
+          path: build/fastdds-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
@@ -146,5 +146,5 @@ jobs:
 
       - name: Run clang-tidy
         run: |
-          cd build/Fast-DDS-statistics-backend
+          cd build/fastdds-statistics-backend
           run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus'
