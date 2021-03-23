@@ -10,11 +10,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
-    environment:
-      name: codecov
-
+  ubuntu-build:
     steps:
       - uses: actions/checkout@v2
         with:
@@ -38,6 +34,25 @@ jobs:
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
             --mixin coverage-gcc asan-gcc
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: colcon-ws
+          path: .
+
+  ubuntu-test:
+    needs: ubuntu-build
+    runs-on: ubuntu-latest
+    environment:
+      name: codecov
+
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws
+          path: .
 
       - name: Run tests
         run: |
@@ -81,3 +96,18 @@ jobs:
           name: colcon-logs-ubuntu
           path: log/
         if: always()
+
+  clang-tidy:
+    needs: ubuntu-build
+    runs-on: ubuntu-latest
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws
+          path: .
+      - name: Run clang-tidy
+        run: |
+          cd build/Fast-DDS-statistics-backend
+          run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus'
