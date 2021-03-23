@@ -11,6 +11,7 @@ on:
 
 jobs:
   ubuntu-build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,6 +47,7 @@ jobs:
     environment:
       name: codecov
 
+    steps:
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
@@ -100,6 +102,7 @@ jobs:
   clang-tidy:
     needs: ubuntu-build
     runs-on: ubuntu-latest
+    steps:
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
