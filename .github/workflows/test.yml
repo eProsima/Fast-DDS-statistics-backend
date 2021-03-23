@@ -38,8 +38,18 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: colcon-ws
-          path: .
+          name: colcon-ws-build-backend
+          path: build/Fast-DDS-statistics-backend
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: colcon-ws-install
+          path: install
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: colcon-ws-log
+          path: log
 
   ubuntu-test:
     needs: ubuntu-build
@@ -48,13 +58,28 @@ jobs:
       name: codecov
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/Fast-DDS-statistics-backend
+
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws-build-backend
+          path: build/Fast-DDS-statistics-backend
+
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws-install
+          path: install
+
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws-log
+          path: log
+
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
-      - uses: actions/download-artifact@master
-        with:
-          name: colcon-ws
-          path: .
 
       - name: Run tests
         run: |
@@ -103,13 +128,22 @@ jobs:
     needs: ubuntu-build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/Fast-DDS-statistics-backend
+
+      - uses: actions/download-artifact@master
+        with:
+          name: colcon-ws-build-backend
+          path: build/Fast-DDS-statistics-backend
+
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
-      - uses: actions/download-artifact@master
-        with:
-          name: colcon-ws
-          path: .
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+
       - name: Run clang-tidy
         run: |
           cd build/Fast-DDS-statistics-backend
