@@ -16,5 +16,6 @@ runs:
           software-properties-common \
           wget \
           libasio-dev \
-          libtinyxml2-dev
+          libtinyxml2-dev \
+          clang-tidy
       shell: bash
