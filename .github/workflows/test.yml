@@ -37,8 +37,7 @@ jobs:
           colcon build \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
-            --mixin coverage-gcc \
-            --mixin asan-gcc
+            --mixin coverage-gcc asan-gcc
 
       - name: Run tests
         run: |
