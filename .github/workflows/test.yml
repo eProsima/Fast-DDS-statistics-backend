@@ -139,20 +139,22 @@ jobs:
           source install/local_setup.bash
           cd src/Fast-DDS-statistics-backend
           MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp')
+          cat "Modified: ${MODIFIED_FILES}"
           if [[ -z "${MODIFIED_FILES}" ]]
           then
             touch empty.hpp
             MODIFIED_FILES=empty.hpp
           fi
+          cat "Modified: ${MODIFIED_FILES}"
           ament_uncrustify \
             -c ../../uncrustify.cfg \
             --language CPP \
             --xunit-file ../../build/uncrustify_results.xml
             ${MODIFIED_FILES}
+        continue-on-error: true
 
       - name: Upload uncrustify results
         uses: actions/upload-artifact@v1
         with:
           name: uncrustify_results
           path: build/uncrustify_results.xml
-        if: failure()
