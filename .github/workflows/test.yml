@@ -105,3 +105,50 @@ jobs:
         run: |
           cd build/fastdds-statistics-backend
           run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus'
+
+  uncrustify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/Fast-DDS-statistics-backend
+
+      - uses: actions/checkout@v2
+        with:
+          repository: ament/ament_lint.git
+          path: src/ament_lint
+
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+
+      - name: Build ament_uncrustify
+        run: colcon build --packages-up-to ament_uncrustify
+
+      - name: Fetch uncrustify config file
+        run: |
+          curl \
+            -l https://raw.githubusercontent.com/eProsima/cpp-style/master/uncrustify.cfg \
+            -o uncrustify.cfg
+
+      - name: Check style
+        run: |
+          source install/local_setup.bash
+          cd src/Fast-DDS-statistics-backend
+          MODIFIED_FILES=$(git diff --name-only $GITHUB_BASE_REF $GITHUB_HEAD_REF)
+          if [[ -z "${MODIFIED_FILES}" ]]
+          then
+            touch empty.hpp
+            MODIFIED_FILES=empty.hpp
+          fi
+          ament_uncrustify \
+            -c ../../uncrustify.cfg \
+            --language CPP \
+            --xunit-file ../../build/uncrustify_results.xml
+            ${MODIFIED_FILES}
+
+      - name: Upload uncrustify results
+        uses: actions/upload-artifact@v1
+        with:
+          name: uncrustify_results
+          path: build/uncrustify_results.xml
+        if: failure()
