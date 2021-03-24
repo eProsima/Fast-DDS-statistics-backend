@@ -121,6 +121,18 @@ jobs:
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
+      - name: Install uncrustify
+        run: |
+          git clone https://github.com/uncrustify/uncrustify.git \
+            --branch uncrustify-0.71.0 \
+            --single-branch uncrustify
+          mkdir -p uncrustify/build
+          cd uncrustify/build
+          cmake ..
+          sudo cmake --build . --target install
+          cd ../..
+          sudo rm -rf uncrustify
+
       - name: Clone ament_lint
         run: |
           git clone https://github.com/ament/ament_lint.git src/ament_lint
@@ -142,16 +154,14 @@ jobs:
       - name: Check difference
         run: |
           cd src/Fast-DDS-statistics-backend
-          echo "Modified: ${MODIFIED_FILES}"
           if [[ -z "${MODIFIED_FILES}" ]]
           then
             touch empty.hpp
-            MODIFIED_FILES=empty.hpp >> $GITHUB_ENV
+            echo "MODIFIED_FILES=empty.hpp" >> $GITHUB_ENV
           fi
 
       - name: Check style
         run: |
-          echo "Modified: ${MODIFIED_FILES}"
           source install/local_setup.bash
           cd src/Fast-DDS-statistics-backend
           ament_uncrustify \
