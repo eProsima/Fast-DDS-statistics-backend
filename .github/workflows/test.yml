@@ -134,18 +134,26 @@ jobs:
             -l https://raw.githubusercontent.com/eProsima/cpp-style/master/uncrustify.cfg \
             -o uncrustify.cfg
 
-      - name: Check style
+      - name: Get difference
         run: |
-          source install/local_setup.bash
           cd src/Fast-DDS-statistics-backend
-          MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp')
+          MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp') >> $GITHUB_ENV
+
+      - name: Check difference
+        run: |
+          cd src/Fast-DDS-statistics-backend
           cat "Modified: ${MODIFIED_FILES}"
           if [[ -z "${MODIFIED_FILES}" ]]
           then
             touch empty.hpp
-            MODIFIED_FILES=empty.hpp
+            MODIFIED_FILES=empty.hpp >> $GITHUB_ENV
           fi
+
+      - name: Check style
+        run: |
           cat "Modified: ${MODIFIED_FILES}"
+          source install/local_setup.bash
+          cd src/Fast-DDS-statistics-backend
           ament_uncrustify \
             -c ../../uncrustify.cfg \
             --language CPP \
