@@ -113,6 +113,11 @@ jobs:
         with:
           path: src/Fast-DDS-statistics-backend
 
+      - name: Fetch all branches and tags
+        run: |
+          cd src/Fast-DDS-statistics-backend
+          git fetch --prune --unshallow
+
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
