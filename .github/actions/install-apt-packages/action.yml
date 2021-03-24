@@ -18,5 +18,6 @@ runs:
           libasio-dev \
           libtinyxml2-dev \
           clang-tidy \
-          curl
+          curl \
+          grep
       shell: bash

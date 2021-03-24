@@ -136,7 +136,9 @@ jobs:
 
       - name: Get difference
         run: |
+          pwd
           cd src/Fast-DDS-statistics-backend
+          git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF}
           MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp') >> $GITHUB_ENV
 
       - name: Check difference
