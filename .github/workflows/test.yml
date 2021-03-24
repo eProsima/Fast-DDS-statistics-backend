@@ -133,7 +133,7 @@ jobs:
         run: |
           source install/local_setup.bash
           cd src/Fast-DDS-statistics-backend
-          MODIFIED_FILES=$(git diff --name-only $GITHUB_BASE_REF $GITHUB_HEAD_REF)
+          MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp')
           if [[ -z "${MODIFIED_FILES}" ]]
           then
             touch empty.hpp
