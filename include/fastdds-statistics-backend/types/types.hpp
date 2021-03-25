@@ -103,6 +103,9 @@ using StatisticsData = std::pair<Timestamp, double>;
  */
 enum class EntityKind
 {
+    /// Invalid entity kind
+    INVALID,
+
     /// Host/Machine where a participant is allocated
     HOST,
 
