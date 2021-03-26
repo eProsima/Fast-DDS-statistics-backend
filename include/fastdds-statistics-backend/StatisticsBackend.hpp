@@ -31,6 +31,12 @@
 namespace eprosima {
 namespace statistics_backend {
 
+namespace database {
+
+class Database;
+
+} // namespace database
+
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
@@ -334,6 +340,9 @@ protected:
         static StatisticsBackend instance;
         return &instance;
     }
+
+    //! Reference to the Database
+    database::Database* database_;
 
 };
 
