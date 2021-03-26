@@ -154,7 +154,7 @@ struct DDSEntity : Entity
 {
     DDSEntity(
             EntityKind entity_kind = EntityKind::INVALID)
-        : Entity(kind)
+        : Entity(entity_kind)
     {
     }
 
@@ -233,7 +233,7 @@ struct DDSEndpoint : DDSEntity
 {
     DDSEndpoint(
             EntityKind entity_kind = EntityKind::INVALID)
-        : DDSEntity(kind)
+        : DDSEntity(entity_kind)
     {
     }
 
