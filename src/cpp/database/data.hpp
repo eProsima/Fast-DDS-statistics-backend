@@ -38,7 +38,7 @@ namespace database {
 using Qos = nlohmann::json;
 
 /*
- * Base class for all data strutures related to DDS entities
+ * Base struct for all data strutures related to DDS entities
  */
 struct DDSEntityData
 {
@@ -88,7 +88,7 @@ struct DomainParticipantData : DDSEntityData
 };
 
 /*
- * Base class for data related to DDS endpoints (data readers and writers)
+ * Base struct for data related to DDS endpoints (data readers and writers)
  */
 struct DDSEndpointData : DDSEntityData
 {
@@ -141,7 +141,7 @@ struct DataReaderData : DDSEndpointData
 };
 
 /*
- * Base class for data related to RTPS
+ * Base struct for data related to RTPS
  */
 struct RTPSData
 {
