@@ -27,6 +27,7 @@
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
 #include <chrono>
+#include <string>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -325,6 +326,27 @@ public:
      * @return Graph object describing the complete topology of the entities
      */
     static Graph get_graph();
+
+    /**
+     * @brief Get a dump of the database
+     *
+     * @return DatabaseDump object representing the backend database
+     */
+    static DatabaseDump dump_database();
+
+    /**
+     * @brief Dump Fast DDS Statistics Backend's database to a file
+     *
+     * @param filename The name of the file where the database is dumped
+     */
+    static void dump_database(std::string filename);
+
+    /**
+     * @brief Load Fast DDS Statistics Backend's database from a file
+     *
+     * @param filename The name of the file from which where the database is loaded
+     */
+    static void load_database(std::string filename);
 
 protected:
 
