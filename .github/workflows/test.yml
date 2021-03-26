@@ -83,6 +83,13 @@ jobs:
           path: log/
         if: always()
 
+      - name: Upload documentation
+        uses: actions/upload-artifact@v1
+        with:
+          name: Documentation HTML
+          path: install/fastdds-statistics-backend/docs/fastdds-statistics-backend/sphinx/html/
+        if: always()
+
   clang-tidy:
     runs-on: ubuntu-latest
     steps:
