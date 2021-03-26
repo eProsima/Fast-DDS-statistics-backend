@@ -30,6 +30,14 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+struct User;
+struct Process;
+struct DomainParticipant;
+struct Topic;
+struct DataReader;
+struct DataWriter;
+struct Locator;
+
 /*
  * Base struct for all the database possible entities.
  *
@@ -39,6 +47,12 @@ namespace database {
  */
 struct Entity
 {
+    Entity(
+            EntityKind entity_kind = EntityKind::INVALID)
+        : kind(entity_kind)
+    {
+    }
+
     //! The unique identification of the entity
     EntityId id;
 
@@ -54,6 +68,11 @@ struct Entity
  */
 struct Host : Entity
 {
+    Host()
+        : Entity(EntityKind::HOST)
+    {
+    }
+
     /*
      * Collection of users within the host which are involved in the communication.
      * The collection is order by EntityId of the user nodes.
@@ -66,6 +85,11 @@ struct Host : Entity
  */
 struct User : Entity
 {
+    User()
+        : Entity(EntityKind::USER)
+    {
+    }
+
     //! Reference to the Host in which this user runs
     Host* host;
 
@@ -81,6 +105,11 @@ struct User : Entity
  */
 struct Process : Entity
 {
+    Process()
+        : Entity(EntityKind::PROCESS)
+    {
+    }
+
     //! The PID of the process
     std::string pid;
 
@@ -100,6 +129,11 @@ struct Process : Entity
  */
 struct Domain : Entity
 {
+    Domain()
+        : Entity(EntityKind::DOMAIN)
+    {
+    }
+
     /*
      * Collection of Topics within the Domain which are either published, subscribed, or both.
      * The collection is order by EntityId of the Topic nodes.
@@ -118,6 +152,12 @@ struct Domain : Entity
  */
 struct DDSEntity : Entity
 {
+    DDSEntity(
+            EntityKind entity_kind = EntityKind::INVALID)
+        : Entity(kind)
+    {
+    }
+
     //! Quality of Service configuration of the entities in a tree structure.
     Qos qos;
 
@@ -130,6 +170,11 @@ struct DDSEntity : Entity
  */
 struct DomainParticipant : DDSEntity
 {
+    DomainParticipant()
+        : DDSEntity(EntityKind::PARTICIPANT)
+    {
+    }
+
     //! Reference to the Process in which this DomainParticipant runs.
     Process* process;
 
@@ -157,6 +202,11 @@ struct DomainParticipant : DDSEntity
  */
 struct Topic : Entity
 {
+    Topic()
+        : Entity(EntityKind::TOPIC)
+    {
+    }
+
     //! The data type name of the topic
     std::string data_type;
 
@@ -181,6 +231,12 @@ struct Topic : Entity
  */
 struct DDSEndpoint : DDSEntity
 {
+    DDSEndpoint(
+            EntityKind entity_kind = EntityKind::INVALID)
+        : DDSEntity(kind)
+    {
+    }
+
     //! Reference to the DomainParticipant in which this Endpoint runs.
     DomainParticipant* participant;
 
@@ -199,6 +255,11 @@ struct DDSEndpoint : DDSEntity
  */
 struct DataReader : DDSEndpoint
 {
+    DataReader()
+        : DDSEndpoint(EntityKind::DATAREADER)
+    {
+    }
+
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderData data;
 };
@@ -208,6 +269,11 @@ struct DataReader : DDSEndpoint
  */
 struct DataWriter : DDSEndpoint
 {
+    DataWriter()
+        : DDSEndpoint(EntityKind::DATAWRITER)
+    {
+    }
+
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterData data;
 };
@@ -218,6 +284,11 @@ struct DataWriter : DDSEndpoint
  */
 struct Locator : Entity
 {
+    Locator()
+        : Entity(EntityKind::LOCATOR)
+    {
+    }
+
     /*
      * Collection of DataReaders using this locator.
      * The collection is order by EntityId of the DataReader nodes.
