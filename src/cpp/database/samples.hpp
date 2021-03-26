@@ -26,11 +26,29 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+/**
+ * Enumeration for the type of sample
+ */
+enum StatisticsSampleKind
+{
+    INVALID,
+    ENTITY_DATA_SAMPLE,
+    ENTITY_COUNT_SAMPLE,
+    BYTE_COUNT_SAMPLE,
+};
+
 /*
  * Base class for all statistics samples. It adds the timepoint for the sample
  */
 struct StatisticsSample
 {
+    StatisticsSample(
+            StatisticsSampleKind sample_kind = StatisticsSampleKind::INVALID)
+        : kind(sample_kind)
+    {
+    }
+
+    StatisticsSampleKind kind;
     std::chrono::steady_clock::time_point src_ts;
 };
 
@@ -39,6 +57,11 @@ struct StatisticsSample
  */
 struct EntityDataSample : StatisticsSample
 {
+    EntityDataSample()
+        : StatisticsSample(StatisticsSampleKind::ENTITY_DATA_SAMPLE)
+    {
+    }
+
     double data;
 };
 
@@ -47,6 +70,11 @@ struct EntityDataSample : StatisticsSample
  */
 struct EntityCountSample : StatisticsSample
 {
+    EntityCountSample()
+        : StatisticsSample(StatisticsSampleKind::ENTITY_COUNT_SAMPLE)
+    {
+    }
+
     uint64_t count;
 };
 
@@ -55,6 +83,11 @@ struct EntityCountSample : StatisticsSample
  */
 struct ByteCountSample : StatisticsSample
 {
+    ByteCountSample()
+        : StatisticsSample(StatisticsSampleKind::BYTE_COUNT_SAMPLE)
+    {
+    }
+
     uint64_t count;
     int16_t magnitude_order;
 };
