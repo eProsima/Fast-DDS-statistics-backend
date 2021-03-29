@@ -48,8 +48,10 @@ struct Locator;
 struct Entity
 {
     Entity(
-            EntityKind entity_kind = EntityKind::INVALID)
+            EntityKind entity_kind = EntityKind::INVALID,
+            std::string entity_name = "INVALID")
         : kind(entity_kind)
+        , name(entity_name)
     {
     }
 
@@ -68,8 +70,9 @@ struct Entity
  */
 struct Host : Entity
 {
-    Host()
-        : Entity(EntityKind::HOST)
+    Host(
+            std::string host_name)
+        : Entity(EntityKind::HOST, host_name)
     {
     }
 
@@ -85,8 +88,11 @@ struct Host : Entity
  */
 struct User : Entity
 {
-    User()
-        : Entity(EntityKind::USER)
+    User(
+            std::string user_name,
+            std::shared_ptr<Host> user_host)
+        : Entity(EntityKind::USER, user_name)
+        , host(user_host)
     {
     }
 
@@ -105,8 +111,13 @@ struct User : Entity
  */
 struct Process : Entity
 {
-    Process()
-        : Entity(EntityKind::PROCESS)
+    Process(
+            std::string process_name,
+            std::string process_id,
+            std::shared_ptr<User> process_user)
+        : Entity(EntityKind::PROCESS, process_name)
+        , pid(process_id)
+        , user(process_user)
     {
     }
 
@@ -129,8 +140,9 @@ struct Process : Entity
  */
 struct Domain : Entity
 {
-    Domain()
-        : Entity(EntityKind::DOMAIN)
+    Domain(
+            std::string domain_name)
+        : Entity(EntityKind::DOMAIN, domain_name)
     {
     }
 
@@ -153,8 +165,13 @@ struct Domain : Entity
 struct DDSEntity : Entity
 {
     DDSEntity(
-            EntityKind entity_kind = EntityKind::INVALID)
-        : Entity(entity_kind)
+            EntityKind entity_kind = EntityKind::INVALID,
+            std::string dds_entity_name = "INVALID",
+            Qos dds_entity_qos = {},
+            std::string dds_entity_guid = "|GUID UNKNOWN|")
+        : Entity(entity_kind, dds_entity_name)
+        , qos(dds_entity_qos)
+        , guid(dds_entity_guid)
     {
     }
 
@@ -170,8 +187,15 @@ struct DDSEntity : Entity
  */
 struct DomainParticipant : DDSEntity
 {
-    DomainParticipant()
-        : DDSEntity(EntityKind::PARTICIPANT)
+    DomainParticipant(
+            std::string participant_name,
+            Qos participant_qos,
+            std::string participant_guid,
+            std::shared_ptr<Process> participant_process,
+            std::shared_ptr<Domain> participant_domain)
+        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid)
+        , process(participant_process)
+        , domain(participant_domain)
     {
     }
 
@@ -202,8 +226,13 @@ struct DomainParticipant : DDSEntity
  */
 struct Topic : Entity
 {
-    Topic()
-        : Entity(EntityKind::TOPIC)
+    Topic(
+            std::string topic_name,
+            std::string topic_type,
+            std::shared_ptr<Domain> topic_domain)
+        : Entity(EntityKind::TOPIC, topic_name)
+        , data_type(topic_type)
+        , domain(topic_domain)
     {
     }
 
@@ -232,8 +261,15 @@ struct Topic : Entity
 struct DDSEndpoint : DDSEntity
 {
     DDSEndpoint(
-            EntityKind entity_kind = EntityKind::INVALID)
-        : DDSEntity(entity_kind)
+            EntityKind entity_kind = EntityKind::INVALID,
+            std::string endpoint_name = "INVALID",
+            Qos endpoint_qos = {},
+            std::string endpoint_guid = "|GUID UNKNOWN|",
+            std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
+            std::shared_ptr<Topic> endpoint_topic = nullptr)
+        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
+        , participant(endpoint_participant)
+        , topic(endpoint_topic)
     {
     }
 
@@ -255,8 +291,15 @@ struct DDSEndpoint : DDSEntity
  */
 struct DataReader : DDSEndpoint
 {
-    DataReader()
-        : DDSEndpoint(EntityKind::DATAREADER)
+    DataReader(
+            std::string datareader_name,
+            Qos datareader_qos,
+            std::string datareader_guid,
+            std::shared_ptr<DomainParticipant> datareader_participant,
+            std::shared_ptr<Topic> datareader_topic
+            )
+        : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
+                datareader_topic)
     {
     }
 
@@ -269,8 +312,15 @@ struct DataReader : DDSEndpoint
  */
 struct DataWriter : DDSEndpoint
 {
-    DataWriter()
-        : DDSEndpoint(EntityKind::DATAWRITER)
+    DataWriter(
+            std::string datawriter_name,
+            Qos datawriter_qos,
+            std::string datawriter_guid,
+            std::shared_ptr<DomainParticipant> datawriter_participant,
+            std::shared_ptr<Topic> datawriter_topic
+            )
+        : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
+                datawriter_topic)
     {
     }
 
@@ -284,8 +334,9 @@ struct DataWriter : DDSEndpoint
  */
 struct Locator : Entity
 {
-    Locator()
-        : Entity(EntityKind::LOCATOR)
+    Locator(
+            std::string locator_name)
+        : Entity(EntityKind::LOCATOR, locator_name)
     {
     }
 
