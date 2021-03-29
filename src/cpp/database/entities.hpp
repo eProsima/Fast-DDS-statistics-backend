@@ -78,7 +78,7 @@ struct Host : Entity
 
     /*
      * Collection of users within the host which are involved in the communication.
-     * The collection is order by EntityId of the user nodes.
+     * The collection is ordered by the EntityId of the user nodes.
      */
     std::map<EntityId, std::shared_ptr<User>> users;
 };
@@ -101,7 +101,7 @@ struct User : Entity
 
     /*
      * Collection of processes within the host which are involved in the communication.
-     * The collection is order by EntityId of the process nodes.
+     * The collection is ordered by the EntityId of the process nodes.
      */
     std::map<EntityId, std::shared_ptr<Process>> processes;
 };
@@ -129,7 +129,7 @@ struct Process : Entity
 
     /*
      * Collection of DomainParticipant within the process which are involved in the communication.
-     * The collection is order by EntityId of the DomainParticipant nodes.
+     * The collection is ordered by the EntityId of the DomainParticipant nodes.
      */
     std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
 };
@@ -148,13 +148,13 @@ struct Domain : Entity
 
     /*
      * Collection of Topics within the Domain which are either published, subscribed, or both.
-     * The collection is order by EntityId of the Topic nodes.
+     * The collection is ordered by the EntityId of the Topic nodes.
      */
     std::map<EntityId, std::shared_ptr<Topic>> topics;
 
     /*
      * Collection of DomainParticipant within the Domain which are involved in the communication.
-     * The collection is order by EntityId of the DomainParticipant nodes.
+     * The collection is ordered by the EntityId of the DomainParticipant nodes.
      */
     std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
 };
@@ -207,13 +207,13 @@ struct DomainParticipant : DDSEntity
 
     /*
      * Collection of DataReaders within the DomainParticipant which are involved in the communication.
-     * The collection is order by EntityId of the DataReader nodes.
+     * The collection is ordered by the EntityId of the DataReader nodes.
      */
     std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters within the DomainParticipant which are involved in the communication.
-     * The collection is order by EntityId of the DataWriter nodes.
+     * The collection is ordered by the EntityId of the DataWriter nodes.
      */
     std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 
@@ -244,13 +244,13 @@ struct Topic : Entity
 
     /*
      * Collection of Datareaders subscribing to this topic.
-     * The collection is order by EntityId of the Datareader nodes.
+     * The collection is ordered by the EntityId of the Datareader nodes.
      */
     std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters publishind in this topic.
-     * The collection is order by EntityId of the DataWriter nodes.
+     * The collection is ordered by the EntityId of the DataWriter nodes.
      */
     std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 };
@@ -281,7 +281,7 @@ struct DDSEndpoint : DDSEntity
 
     /*
      * Collection of Locators related to this endpoint.
-     * The collection is order by EntityId of the Locator nodes.
+     * The collection is ordered by the EntityId of the Locator nodes.
      */
     std::map<EntityId, std::shared_ptr<Locator>> locators;
 };
@@ -342,13 +342,13 @@ struct Locator : Entity
 
     /*
      * Collection of DataReaders using this locator.
-     * The collection is order by EntityId of the DataReader nodes.
+     * The collection is ordered by the EntityId of the DataReader nodes.
      */
     std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters using this locator.
-     * The collection is order by EntityId of the DataWriter nodes.
+     * The collection is ordered by the EntityId of the DataWriter nodes.
      */
     std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 

@@ -171,7 +171,7 @@ struct RTPSData
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
      * This is done to speed up the calculation of the entries in rtps_bytes_sent
      */
-    EntityCountSample last_reported_rtps_bytes_sent_count;
+    ByteCountSample last_reported_rtps_bytes_sent_count;
 
     /*
      * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
@@ -199,7 +199,7 @@ struct RTPSData
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
      * This is done to speed up the calculation of the entries in rtps_bytes_lost
      */
-    EntityCountSample last_reported_rtps_bytes_lost_count;
+    ByteCountSample last_reported_rtps_bytes_lost_count;
 };
 
 /*

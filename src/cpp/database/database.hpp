@@ -81,9 +81,9 @@ public:
      * @param entity_id_target Id of the target entity of the requested data
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
-     * @return A vector of pointers to StatisticSamples. User must NOT modify the elements
+     * @return A vector of pointers to StatisticSamples.
      */
-    std::vector<StatisticsSample*> select(
+    std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id_source,
             EntityId entity_id_target,
@@ -109,9 +109,9 @@ public:
      * @param entity_id Id of entity of the requested data
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
-     * @return A vector of pointers to StatisticSamples. User must NOT modify the elements
+     * @return A vector of pointers to StatisticSamples.
      */
-    std::vector<StatisticsSample*> select(
+    std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id,
             Timestamp t_from,
@@ -123,7 +123,7 @@ public:
      * @param entity_id constant reference to the EntityId of the retrieved entity
      * @return A constant shared pointer to the Entity
      */
-    const std::shared_ptr<Entity> get_entity(
+    const std::shared_ptr<const Entity> get_entity(
             const EntityId& entity_id) const;
 
     /**
@@ -134,7 +134,7 @@ public:
      * @param entity_kind The EntityKind of the fetched entities
      * @return A constant vector of shared pointers to the entities
      */
-    const std::vector<std::shared_ptr<Entity>> get_entities(
+    const std::vector<std::shared_ptr<const Entity>> get_entities(
             EntityKind entity_kind,
             const EntityId& entity_id) const;
 
