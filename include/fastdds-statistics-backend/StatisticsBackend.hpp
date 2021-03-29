@@ -103,7 +103,7 @@ public:
     static void restart_monitor(
             EntityId monitor_id);
 
-     /**
+    /**
      * @brief Stops a given monitor
      *
      * This function stops a domain monitor. After stopping, the statistical data related to the
