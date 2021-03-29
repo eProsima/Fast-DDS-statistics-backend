@@ -77,7 +77,7 @@ struct Host : Entity
      * Collection of users within the host which are involved in the communication.
      * The collection is order by EntityId of the user nodes.
      */
-    std::map<EntityId, User*> users;
+    std::map<EntityId, std::shared_ptr<User>> users;
 };
 
 /*
@@ -91,13 +91,13 @@ struct User : Entity
     }
 
     //! Reference to the Host in which this user runs
-    Host* host;
+    std::shared_ptr<Host> host;
 
     /*
      * Collection of processes within the host which are involved in the communication.
      * The collection is order by EntityId of the process nodes.
      */
-    std::map<EntityId, Process*> processes;
+    std::map<EntityId, std::shared_ptr<Process>> processes;
 };
 
 /*
@@ -114,13 +114,13 @@ struct Process : Entity
     std::string pid;
 
     //! Reference to the User in which this process runs.
-    User* user;
+    std::shared_ptr<User> user;
 
     /*
      * Collection of DomainParticipant within the process which are involved in the communication.
      * The collection is order by EntityId of the DomainParticipant nodes.
      */
-    std::map<EntityId, DomainParticipant*> participants;
+    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
 };
 
 /*
@@ -138,13 +138,13 @@ struct Domain : Entity
      * Collection of Topics within the Domain which are either published, subscribed, or both.
      * The collection is order by EntityId of the Topic nodes.
      */
-    std::map<EntityId, Topic*> topics;
+    std::map<EntityId, std::shared_ptr<Topic>> topics;
 
     /*
      * Collection of DomainParticipant within the Domain which are involved in the communication.
      * The collection is order by EntityId of the DomainParticipant nodes.
      */
-    std::map<EntityId, DomainParticipant*> participants;
+    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
 };
 
 /*
@@ -176,22 +176,22 @@ struct DomainParticipant : DDSEntity
     }
 
     //! Reference to the Process in which this DomainParticipant runs.
-    Process* process;
+    std::shared_ptr<Process> process;
 
     //! Reference to the Domain in which this DomainParticipant runs.
-    Domain* domain;
+    std::shared_ptr<Domain> domain;
 
     /*
      * Collection of DataReaders within the DomainParticipant which are involved in the communication.
      * The collection is order by EntityId of the DataReader nodes.
      */
-    std::map<EntityId, DataReader*> data_readers;
+    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters within the DomainParticipant which are involved in the communication.
      * The collection is order by EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, DataWriter*> data_writers;
+    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantData data;
@@ -211,19 +211,19 @@ struct Topic : Entity
     std::string data_type;
 
     //! Reference to the Domain in which this topic is published/subscribed.
-    Domain* domain;
+    std::shared_ptr<Domain> domain;
 
     /*
      * Collection of Datareaders subscribing to this topic.
      * The collection is order by EntityId of the Datareader nodes.
      */
-    std::map<EntityId, DataReader*> data_readers;
+    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters publishind in this topic.
      * The collection is order by EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, DataWriter*> data_writers;
+    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 };
 
 /*
@@ -238,16 +238,16 @@ struct DDSEndpoint : DDSEntity
     }
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
-    DomainParticipant* participant;
+    std::shared_ptr<DomainParticipant> participant;
 
     //! Reference to the Domain in which this endpoint publishes/subscribes.
-    Topic* topic;
+    std::shared_ptr<Topic> topic;
 
     /*
      * Collection of Locators related to this endpoint.
      * The collection is order by EntityId of the Locator nodes.
      */
-    std::map<EntityId, Locator*> locators;
+    std::map<EntityId, std::shared_ptr<Locator>> locators;
 };
 
 /*
@@ -293,13 +293,13 @@ struct Locator : Entity
      * Collection of DataReaders using this locator.
      * The collection is order by EntityId of the DataReader nodes.
      */
-    std::map<EntityId, DataReader*> data_readers;
+    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters using this locator.
      * The collection is order by EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, DataWriter*> data_writers;
+    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this locator.
     LocatorData data;

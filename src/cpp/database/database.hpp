@@ -153,60 +153,60 @@ public:
 protected:
 
     //! Collection of Hosts sorted by EntityId
-    std::map<EntityId, Host*> hosts_;
+    std::map<EntityId, std::shared_ptr<Host>> hosts_;
 
     //! Collection of Users sorted by EntityId
-    std::map<EntityId, User*> users_;
+    std::map<EntityId, std::shared_ptr<User>> users_;
 
     //! Collection of Processes sorted by EntityId
-    std::map<EntityId, Process*> processes_;
+    std::map<EntityId, std::shared_ptr<Process>> processes_;
 
     //! Collection of Locators sorted by EntityId
-    std::map<EntityId, Locator*> locators_;
+    std::map<EntityId, std::shared_ptr<Locator>> locators_;
 
     //! Collection of Domains sorted by EntityId
-    std::map<EntityId, Domain*> domains_;
+    std::map<EntityId, std::shared_ptr<Domain>> domains_;
 
     /**
      * Collection of DomainParticipants sorted by EntityId of the domain to which they belong
      *
      * Each value in the collection is in turn a map of the actual DomainParticipants sorted by EntityId
      */
-    std::map<EntityId, std::map<EntityId, DomainParticipant*>> participants_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants_;
 
     /**
      * Collection of DataWriters sorted by EntityId of the domain to which they belong
      *
      * Each value in the collection is in turn a map of the actual DataWriters sorted by EntityId
      */
-    std::map<EntityId, std::map<EntityId, DataWriter*>> datawriters_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>> datawriters_;
 
     /**
      * Collection of DataReaders sorted by EntityId of the domain to which they belong
      *
      * Each value in the collection is in turn a map of the actual DataReaders sorted by EntityId
      */
-    std::map<EntityId, std::map<EntityId, DataReader*>> datareaders_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>> datareaders_;
 
     /**
      * Collection of Topics sorted by EntityId of the domain to which they belong
      *
      * Each value in the collection is in turn a map of the actual Topics sorted by EntityId
      */
-    std::map<EntityId, std::map<EntityId, Topic*>> topics_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
 
     /* Collections with duplicated information used to speed up searches */
     //! Domains sorted by process EntityId
-    std::map<EntityId, Domain*> domains_by_process_;
+    std::map<EntityId, std::shared_ptr<Domain>> domains_by_process_;
 
     //! Processes sorted by domain EntityId
-    std::map<EntityId, Process*> processes_by_domain_;
+    std::map<EntityId, std::shared_ptr<Process>> processes_by_domain_;
 
     //! DomainParticipants sorted by locator EntityId
-    std::map<EntityId, DomainParticipant*> participants_by_locator_;
+    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants_by_locator_;
 
     //! Locators sorted by participant EntityId
-    std::map<EntityId, Locator*> locators_by_participant_;
+    std::map<EntityId, std::shared_ptr<Locator>> locators_by_participant_;
 };
 
 } //namespace database
