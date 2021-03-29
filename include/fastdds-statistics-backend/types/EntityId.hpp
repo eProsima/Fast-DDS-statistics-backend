@@ -19,30 +19,85 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
+
+#include <iostream>
 #include <string>
 
 namespace eprosima {
 namespace statistics_backend {
 
-class FASTDDS_STATISTICS_BACKEND_DllAPI EntityId : public std::string
+class EntityId
 {
 public:
 
-    // Inherit std::string constructors
-    using std::string::string;
+    EntityId();
 
     /**
-     * @brief Return the EntityId to refer all entities at once
+     * @brief Get the EntityId to refer all entities at once
      * @return An ID that refers all entities.
      */
-    static EntityId all()
-    {
-        return EntityId(ENTITY_ID_ALL);
-    }
+    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId all();
+
+    /**
+     * @brief Get an invalid EntityId
+     * @return An ID that is invalid
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId invalid();
+
+    /**
+     * @brief Check whether an EntityId is valid
+     * @return An true if valid, false otherwise
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool valid();
+
+    /**
+     * @brief Invalidate an EntityId
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate();
+
+    const std::string& str() const;
+
+    const char* c_str() const;
+
+    bool operator <(
+            EntityId& entity_id);
+
+    bool operator <=(
+            EntityId& entity_id);
+
+    bool operator >(
+            EntityId& entity_id);
+
+    bool operator >=(
+            EntityId& entity_id);
+
+    bool operator ==(
+            EntityId& entity_id);
+
+    bool operator !=(
+            EntityId& entity_id);
 
 private:
-    static constexpr const char * ENTITY_ID_ALL = "*";
+
+    EntityId(
+            const char* const entity_id);
+
+    std::string entity_id_;
+
+    //! Invalid EntityID
+    static constexpr const char* ENTITY_ID_INVALID = "INVALID";
+
+    //! EntityId representing all entities
+    static constexpr const char* ENTITY_ID_ALL = "*";
 };
+
+inline std::ostream& operator <<(
+        std::ostream& output,
+        const EntityId& entity_id)
+{
+    return output << entity_id.str();
+}
 
 } // namespace statistics_backend
 } // namespace eprosima
