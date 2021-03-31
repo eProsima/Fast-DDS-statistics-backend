@@ -18,13 +18,13 @@ namespace eprosima {
 namespace statistics_backend {
 
 EntityId::EntityId()
-    : entity_id_("uuid")
+    : value_(invalid().value())
 {
 }
 
 EntityId::EntityId(
-        const char* const entity_id)
-    : entity_id_(entity_id)
+        const int64_t value)
+    : value_(value)
 {
 }
 
@@ -40,58 +40,17 @@ EntityId EntityId::invalid()
 
 bool EntityId::valid()
 {
-    return (entity_id_ == ENTITY_ID_INVALID);
+    return (value_ == ENTITY_ID_INVALID);
 }
 
 void EntityId::invalidate()
 {
-    entity_id_ = ENTITY_ID_INVALID;
+    value_ = ENTITY_ID_INVALID;
 }
 
-const std::string& EntityId::str() const
+int64_t EntityId::value() const
 {
-    return entity_id_;
-}
-
-const char* EntityId::c_str() const
-{
-    return entity_id_.c_str();
-}
-
-bool EntityId::operator <(
-        EntityId& entity_id)
-{
-    return entity_id_ < entity_id.str();
-}
-
-bool EntityId::operator <=(
-        EntityId& entity_id)
-{
-    return entity_id_ <= entity_id.str();
-}
-
-bool EntityId::operator >(
-        EntityId& entity_id)
-{
-    return entity_id_ > entity_id.str();
-}
-
-bool EntityId::operator >=(
-        EntityId& entity_id)
-{
-    return entity_id_ >= entity_id.str();
-}
-
-bool EntityId::operator ==(
-        EntityId& entity_id)
-{
-    return entity_id_ == entity_id.str();
-}
-
-bool EntityId::operator !=(
-        EntityId& entity_id)
-{
-    return entity_id_ != entity_id.str();
+    return value_;
 }
 
 } // namespace statistics_backend

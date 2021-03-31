@@ -44,6 +44,8 @@ void init_monitor_examples()
         // address 127.0.0.1 and port 11811. The monitor has no listener associated
         EntityId disc_server_monitor_id = StatisticsBackend::init_monitor("127.0.0.1:11811");
         //!--
+        static_cast<void>(domain_monitor_id);
+        static_cast<void>(disc_server_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-LISTENER-EXAMPLE
@@ -51,6 +53,7 @@ void init_monitor_examples()
         CustomDomainListener domain_listener;
         EntityId domain_monitor_id = StatisticsBackend::init_monitor(0, &domain_listener);
         //!--
+        static_cast<void>(domain_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-MASKS-EXAMPLE
@@ -64,6 +67,7 @@ void init_monitor_examples()
         CustomDomainListener domain_listener;
         EntityId domain_monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, datakind_mask);
         //!--
+        static_cast<void>(domain_monitor_id);
     }
 }
 

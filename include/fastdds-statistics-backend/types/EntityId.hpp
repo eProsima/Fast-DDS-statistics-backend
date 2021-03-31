@@ -31,6 +31,9 @@ class EntityId
 {
 public:
 
+    /**
+     * @brief Instantiate an EntityId. The internal value is set to EntityId::invalid
+     */
     EntityId();
 
     /**
@@ -46,57 +49,88 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId invalid();
 
     /**
+     * @brief Invalidate an EntityId
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate();
+
+    /**
      * @brief Check whether an EntityId is valid
      * @return An true if valid, false otherwise
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI bool valid();
 
     /**
-     * @brief Invalidate an EntityId
+     * @brief Get the internal value of the EntityId
+     * @return An int64_t with the representing internal value
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate();
+    int64_t value() const;
 
-    const std::string& str() const;
+protected:
 
-    const char* c_str() const;
-
-    bool operator <(
-            EntityId& entity_id);
-
-    bool operator <=(
-            EntityId& entity_id);
-
-    bool operator >(
-            EntityId& entity_id);
-
-    bool operator >=(
-            EntityId& entity_id);
-
-    bool operator ==(
-            EntityId& entity_id);
-
-    bool operator !=(
-            EntityId& entity_id);
-
-private:
-
+    /**
+     * @brief Instantiate an EntityId from an integer.
+     * @param value The value to use as internal value on the EntityId
+     */
     EntityId(
-            const char* const entity_id);
+            int64_t const value);
 
-    std::string entity_id_;
+    //! The internal value of the EntityId
+    int64_t value_;
 
     //! Invalid EntityID
-    static constexpr const char* ENTITY_ID_INVALID = "INVALID";
+    static constexpr int64_t ENTITY_ID_INVALID = -1;
 
     //! EntityId representing all entities
-    static constexpr const char* ENTITY_ID_ALL = "*";
+    static constexpr int64_t ENTITY_ID_ALL = 0;
 };
 
 inline std::ostream& operator <<(
         std::ostream& output,
         const EntityId& entity_id)
 {
-    return output << entity_id.str();
+    return output << entity_id.value();
+}
+
+inline bool operator <(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() < entity_id_2.value();
+}
+
+inline bool operator <=(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() <= entity_id_2.value();
+}
+
+inline bool operator >(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() > entity_id_2.value();
+}
+
+inline bool operator >=(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() >= entity_id_2.value();
+}
+
+inline bool operator ==(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() == entity_id_2.value();
+}
+
+inline bool operator !=(
+        const EntityId& entity_id_1,
+        const EntityId& entity_id_2)
+{
+    return entity_id_1.value() != entity_id_2.value();
 }
 
 } // namespace statistics_backend
