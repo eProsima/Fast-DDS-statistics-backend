@@ -10,6 +10,8 @@ destructor
 eProsima
 monitorization
 monitorizations
+ostream
+OStream
 Qos
 QoS
 Subclassed

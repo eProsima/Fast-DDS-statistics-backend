@@ -20,6 +20,7 @@
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
 .. |EntityKind-api| replace:: :cpp:type:`EntityKind<eprosima::statistics_backend::EntityKind>`
 .. |EntityId-api| replace:: :cpp:type:`EntityId<eprosima::statistics_backend::EntityId>`
+.. |EntityIds-api| replace:: :cpp:type:`EntityIds<eprosima::statistics_backend::EntityId>`
 .. |Info-api| replace:: :cpp:type:`Info<eprosima::statistics_backend::Info>`
 .. |Graph-api| replace:: :cpp:type:`Graph<eprosima::statistics_backend::Graph>`
 .. |USER-api| replace:: :cpp:enumerator:`USER<eprosima::statistics_backend::EntityKind::USER>`

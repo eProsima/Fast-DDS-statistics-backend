@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <fastdds-statistics-backend/StatisticsBackend.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/Bitmask.hpp>
 #include <fastdds-statistics-backend/listener/DomainListener.hpp>
@@ -307,6 +308,59 @@ void is_active_example()
         bool active = StatisticsBackend::is_active(entity_id);
         //!--
         static_cast<void>(active);
+    }
+}
+
+void entity_id()
+{
+    {
+        //ENTITYID-ALL-EXAMPLE
+        EntityId all = EntityId::all();
+        //!--
+        static_cast<void>(all);
+    }
+    {
+        //ENTITYID-INVALID-EXAMPLE
+        EntityId invalid = EntityId::invalid();
+        //!--
+        static_cast<void>(invalid);
+    }
+    {
+        //ENTITYID-INVALIDATE-EXAMPLE
+        EntityId entity_id;
+        entity_id.invalidate();
+        //!--
+        static_cast<void>(entity_id);
+    }
+    {
+        //ENTITYID-VALID-EXAMPLE
+        EntityId entity_id;
+        bool check = entity_id.valid();
+        //!--
+        static_cast<void>(entity_id);
+        static_cast<void>(check);
+    }
+    {
+        //ENTITYID-COMPARE-EXAMPLE
+        EntityId entity_id_1;
+        EntityId entity_id_2;
+        bool check = entity_id_1 < entity_id_2;
+        check = entity_id_1 <= entity_id_2;
+        check = entity_id_1 > entity_id_2;
+        check = entity_id_1 >= entity_id_2;
+        check = entity_id_1 == entity_id_2;
+        check = entity_id_1 != entity_id_2;
+        //!--
+        static_cast<void>(entity_id_1);
+        static_cast<void>(entity_id_2);
+        static_cast<void>(check);
+    }
+    {
+        //ENTITYID-OSTREAM-EXAMPLE
+        EntityId entity_id;
+        std::cout << "EntityId: " << entity_id << std::endl;
+        //!--
+        static_cast<void>(entity_id);
     }
 }
 

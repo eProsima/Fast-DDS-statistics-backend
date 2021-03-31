@@ -84,6 +84,11 @@ protected:
     static constexpr int64_t ENTITY_ID_ALL = 0;
 };
 
+/**
+ * @brief Serialize an EntityId to std::ostream
+ * @param output The output std::ostream
+ * @param entity_id The EntityId to serialize
+ */
 inline std::ostream& operator <<(
         std::ostream& output,
         const EntityId& entity_id)
@@ -91,6 +96,11 @@ inline std::ostream& operator <<(
     return output << entity_id.value();
 }
 
+/**
+ * @brief Check whether an EntityId is smaller than another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator <(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
@@ -98,6 +108,11 @@ inline bool operator <(
     return entity_id_1.value() < entity_id_2.value();
 }
 
+/**
+ * @brief Check whether an EntityId is smaller or equal than another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator <=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
@@ -105,6 +120,11 @@ inline bool operator <=(
     return entity_id_1.value() <= entity_id_2.value();
 }
 
+/**
+ * @brief Check whether an EntityId is greater than another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator >(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
@@ -112,6 +132,11 @@ inline bool operator >(
     return entity_id_1.value() > entity_id_2.value();
 }
 
+/**
+ * @brief Check whether an EntityId is greater or equal than another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator >=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
@@ -119,6 +144,11 @@ inline bool operator >=(
     return entity_id_1.value() >= entity_id_2.value();
 }
 
+/**
+ * @brief Check whether an EntityId is equal to another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator ==(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
@@ -126,6 +156,11 @@ inline bool operator ==(
     return entity_id_1.value() == entity_id_2.value();
 }
 
+/**
+ * @brief Check whether an EntityId is different than another one
+ * @param entity_id_1 The left-side of the operation
+ * @param entity_id_2 The right-side of the operation
+ */
 inline bool operator !=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
