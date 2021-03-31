@@ -50,6 +50,11 @@ using DomainId = uint32_t;
 using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
 /**
+ * Type representing the database in a tree structure
+ */
+using DatabaseDump = nlohmann::json;
+
+/**
  * @brief Type of the data returned by the backend.
  *
  * The first field represents the time at which the data was recorded.
