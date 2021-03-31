@@ -50,14 +50,17 @@ public:
 
     /**
      * @brief Invalidate an EntityId
+     *
+     * @post
+     *     is_valid() returns false
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate();
 
     /**
      * @brief Check whether an EntityId is valid
-     * @return An true if valid, false otherwise
+     * @return True if valid, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool valid();
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid();
 
     /**
      * @brief Get the internal value of the EntityId

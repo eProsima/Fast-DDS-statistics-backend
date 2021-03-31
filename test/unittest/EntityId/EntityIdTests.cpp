@@ -46,18 +46,18 @@ TEST(entityid, invalid)
 TEST(entityid, invalidate)
 {
     EntityIdTest entity_id(1);
-    EXPECT_TRUE(entity_id.valid());
+    EXPECT_TRUE(entity_id.is_valid());
     entity_id.invalidate();
-    EXPECT_FALSE(entity_id.valid());
+    EXPECT_FALSE(entity_id.is_valid());
 }
 
 TEST(entityid, valid)
 {
-    EXPECT_FALSE(EntityId().valid());
-    EXPECT_FALSE(EntityId::invalid().valid());
-    EXPECT_TRUE(EntityIdTest(0).valid());
-    EXPECT_TRUE(EntityIdTest(1).valid());
-    EXPECT_FALSE(EntityIdTest(-5).valid());
+    EXPECT_FALSE(EntityId().is_valid());
+    EXPECT_FALSE(EntityId::invalid().is_valid());
+    EXPECT_TRUE(EntityIdTest(0).is_valid());
+    EXPECT_TRUE(EntityIdTest(1).is_valid());
+    EXPECT_FALSE(EntityIdTest(-5).is_valid());
 }
 
 TEST(entityid, value)

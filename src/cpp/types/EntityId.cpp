@@ -38,7 +38,7 @@ EntityId EntityId::invalid()
     return EntityId(ENTITY_ID_INVALID);
 }
 
-bool EntityId::valid()
+bool EntityId::is_valid()
 {
     return (value_ >= 0);
 }

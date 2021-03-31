@@ -336,7 +336,7 @@ void entity_id()
     {
         //ENTITYID-VALID-EXAMPLE
         EntityId entity_id;
-        bool check = entity_id.valid();
+        bool check = entity_id.is_valid();
         //!--
         static_cast<void>(entity_id);
         static_cast<void>(check);
