@@ -22,7 +22,6 @@
 #include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 
 #include <ostream>
-#include <string>
 
 namespace eprosima {
 namespace statistics_backend {

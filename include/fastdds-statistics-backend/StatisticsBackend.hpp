@@ -31,6 +31,12 @@
 namespace eprosima {
 namespace statistics_backend {
 
+namespace database {
+
+class Database;
+
+} // namespace database
+
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
@@ -97,7 +103,7 @@ public:
     static void restart_monitor(
             EntityId monitor_id);
 
-     /**
+    /**
      * @brief Stops a given monitor
      *
      * This function stops a domain monitor. After stopping, the statistical data related to the
@@ -334,6 +340,9 @@ protected:
         static StatisticsBackend instance;
         return &instance;
     }
+
+    //! Reference to the Database
+    database::Database* database_;
 
 };
 
