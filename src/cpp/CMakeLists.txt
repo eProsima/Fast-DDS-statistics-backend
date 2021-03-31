@@ -22,6 +22,7 @@ file(GLOB_RECURSE ALL_HEADERS
 set(${PROJECT_NAME}_SOURCES
     ${ALL_HEADERS}
     exception/Exception.cpp
+    types/EntityId.cpp
     StatisticsBackend.cpp
     )
 

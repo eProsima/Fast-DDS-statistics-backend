@@ -21,6 +21,7 @@ jobs:
           path: src/Fast-DDS-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
@@ -58,6 +59,7 @@ jobs:
           --xml-pretty \
           --exclude='.*nlohmann-json/.*' \
           --exclude='.*docs/.*' \
+          --exclude='.*test/.*' \
           --exclude='.*github/.*' \
           --exclude-unreachable-branches
 
@@ -98,6 +100,7 @@ jobs:
           path: src/Fast-DDS-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
@@ -156,7 +159,7 @@ jobs:
       - name: Get difference
         run: |
           cd src/Fast-DDS-statistics-backend
-          echo "MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp')" >> $GITHUB_ENV
+          echo "MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp' | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Check difference
         run: |
