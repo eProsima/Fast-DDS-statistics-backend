@@ -18,7 +18,7 @@ namespace eprosima {
 namespace statistics_backend {
 
 EntityId::EntityId()
-    : value_(invalid().value())
+    : value_(ENTITY_ID_INVALID)
 {
 }
 
