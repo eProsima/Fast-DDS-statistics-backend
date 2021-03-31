@@ -21,6 +21,7 @@ jobs:
           path: src/Fast-DDS-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
@@ -98,6 +99,7 @@ jobs:
           path: src/Fast-DDS-statistics-backend
 
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
       - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
