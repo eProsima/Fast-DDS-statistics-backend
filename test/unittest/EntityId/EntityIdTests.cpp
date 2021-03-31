@@ -24,11 +24,13 @@ using namespace eprosima::statistics_backend;
 class EntityIdTest : public EntityId
 {
 public:
+
     EntityIdTest(
             int64_t value)
         : EntityId(value)
     {
     }
+
 };
 
 TEST(entityid, all)
@@ -130,7 +132,9 @@ TEST(entityid, operator_different)
 }
 
 
-int main(int argc, char** argv)
+int main(
+        int argc,
+        char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

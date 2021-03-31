@@ -174,7 +174,8 @@ void get_data_examples()
     }
 }
 
-int get_graph_examples(uint8_t test)
+int get_graph_examples(
+        uint8_t test)
 {
     if (test == 1)
     {
