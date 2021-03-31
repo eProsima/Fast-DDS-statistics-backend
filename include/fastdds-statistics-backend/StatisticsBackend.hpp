@@ -339,14 +339,16 @@ public:
      *
      * @param filename The name of the file where the database is dumped
      */
-    static void dump_database(std::string filename);
+    static void dump_database(
+            std::string filename);
 
     /**
      * @brief Load Fast DDS Statistics Backend's database from a file
      *
      * @param filename The name of the file from which where the database is loaded
      */
-    static void load_database(std::string filename);
+    static void load_database(
+            std::string filename);
 
 protected:
 
