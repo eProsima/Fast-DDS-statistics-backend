@@ -13,16 +13,16 @@
 # limitations under the License.
 
 add_executable(
-    ${PROJECT_NAME}-test
+    ${PROJECT_NAME}-documentation-test
     ${PROJECT_SOURCE_DOCS_DIR}/code/StatisticsBackendTests.cpp
     )
 target_include_directories(
-    ${PROJECT_NAME}-test
+    ${PROJECT_NAME}-documentation-test
     PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src/cpp
     )
-target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}-documentation-test ${PROJECT_NAME})
 
 ####################################################################################################
 # Add tests
@@ -68,4 +68,4 @@ add_test(NAME documentation.spell_check
     ${PROJECT_SOURCE_DOCS_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/spelling)
 
-add_test(NAME documentation.get_graph_parse COMMAND ${PROJECT_NAME}-test get_graph_parse)
+add_test(NAME documentation.get_graph_parse COMMAND ${PROJECT_NAME}-documentation-test get_graph_parse)

@@ -23,7 +23,7 @@ EntityId::EntityId()
 }
 
 EntityId::EntityId(
-        const int64_t value)
+        int64_t value)
     : value_(value)
 {
 }
@@ -40,7 +40,7 @@ EntityId EntityId::invalid()
 
 bool EntityId::valid()
 {
-    return (value_ == ENTITY_ID_INVALID);
+    return (value_ >= 0);
 }
 
 void EntityId::invalidate()

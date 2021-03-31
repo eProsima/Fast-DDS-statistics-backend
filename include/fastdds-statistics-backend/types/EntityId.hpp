@@ -21,7 +21,7 @@
 
 #include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 
-#include <iostream>
+#include <ostream>
 #include <string>
 
 namespace eprosima {
@@ -72,7 +72,7 @@ protected:
      * @param value The value to use as internal value on the EntityId
      */
     EntityId(
-            int64_t const value);
+            int64_t value);
 
     //! The internal value of the EntityId
     int64_t value_;
