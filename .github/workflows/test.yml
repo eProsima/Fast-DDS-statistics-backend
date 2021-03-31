@@ -59,6 +59,7 @@ jobs:
           --xml-pretty \
           --exclude='.*nlohmann-json/.*' \
           --exclude='.*docs/.*' \
+          --exclude='.*test/.*' \
           --exclude='.*github/.*' \
           --exclude-unreachable-branches
 
