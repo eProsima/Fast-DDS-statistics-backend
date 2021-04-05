@@ -34,9 +34,11 @@ class MessageSerializer
 {
 
 public:
+
     using Message = nlohmann::ordered_json;
 
 protected:
+
     using StatisticsData = eprosima::fastdds::statistics::Data;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
@@ -57,12 +59,12 @@ protected:
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) = 0;
+            void* data,
+            Message& message) = 0;
 
     virtual void deserialize(
-        void* data,
-        const Message& message) = 0;
+            void* data,
+            const Message& message) = 0;
 };
 
 class GuidMessageSerializer : public MessageSerializer
@@ -70,20 +72,22 @@ class GuidMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         message["guid_prefix"] = static_cast<StatisticsGuid*>(data)->guidPrefix().value();
         message["entityId"] = static_cast<StatisticsGuid*>(data)->guidPrefix().value();
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
-        static_cast<StatisticsGuid*>(data)->guidPrefix().value(message.at("guid_prefix").get<std::array<uint8_t, 12>>());
+        static_cast<StatisticsGuid*>(data)->guidPrefix().value(message.at("guid_prefix").get<std::array<uint8_t,
+                12>>());
         static_cast<StatisticsGuid*>(data)->entityId().value(message.at("entityId").get<std::array<uint8_t, 4>>());
     }
+
 };
 
 class LocatorMessageSerializer : public MessageSerializer
@@ -91,8 +95,8 @@ class LocatorMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         message["kind"] = static_cast<StatisticsLocator*>(data)->kind();
         message["port"] = static_cast<StatisticsLocator*>(data)->port();
@@ -100,13 +104,14 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         static_cast<StatisticsLocator*>(data)->kind(message.at("kind").get<int32_t>());
         static_cast<StatisticsLocator*>(data)->port(message.at("port").get<uint32_t>());
         static_cast<StatisticsLocator*>(data)->address(message.at("address").get<std::array<uint8_t, 16>>());
     }
+
 };
 
 class SequenceNumberMessageSerializer : public MessageSerializer
@@ -114,20 +119,21 @@ class SequenceNumberMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         message["high"] = static_cast<StatisticsSequenceNumber*>(data)->high();
         message["low"] = static_cast<StatisticsSequenceNumber*>(data)->low();
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         static_cast<StatisticsSequenceNumber*>(data)->high(message.at("high").get<int32_t>());
         static_cast<StatisticsSequenceNumber*>(data)->low(message.at("low").get<uint32_t>());
     }
+
 };
 
 class SampleIdentityMessageSerializer : public MessageSerializer
@@ -135,24 +141,28 @@ class SampleIdentityMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         GuidMessageSerializer guid_serializer;
         guid_serializer.serialize(&static_cast<StatisticsSampleIdentity*>(data)->writer_guid(), message["writer_guid"]);
         SequenceNumberMessageSerializer sn_serializer;
-        sn_serializer.serialize(&static_cast<StatisticsSampleIdentity*>(data)->sequence_number(), message["sequence_number"]);
+        sn_serializer.serialize(&static_cast<StatisticsSampleIdentity*>(data)->sequence_number(),
+                message["sequence_number"]);
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         GuidMessageSerializer guid_serializer;
-        guid_serializer.deserialize(&static_cast<StatisticsSampleIdentity*>(data)->writer_guid(), message.at("writer_guid"));
+        guid_serializer.deserialize(&static_cast<StatisticsSampleIdentity*>(data)->writer_guid(),
+                message.at("writer_guid"));
         SequenceNumberMessageSerializer sn_serializer;
-        sn_serializer.deserialize(&static_cast<StatisticsSampleIdentity*>(data)->sequence_number(), message.at("sequence_number"));
+        sn_serializer.deserialize(&static_cast<StatisticsSampleIdentity*>(data)->sequence_number(),
+                message.at("sequence_number"));
     }
+
 };
 
 class WriterReaderDataMessageSerializer : public MessageSerializer
@@ -160,8 +170,8 @@ class WriterReaderDataMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsWriterReaderData inner_data = static_cast<StatisticsData*>(data)->writer_reader_data();
 
@@ -172,8 +182,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsWriterReaderData inner_data;
 
@@ -184,6 +194,7 @@ public:
 
         static_cast<StatisticsData*>(data)->writer_reader_data(inner_data);
     }
+
 };
 
 class Locator2LocatorDataMessageSerializer : public MessageSerializer
@@ -191,8 +202,8 @@ class Locator2LocatorDataMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsLocator2LocatorData inner_data = static_cast<StatisticsData*>(data)->locator2locator_data();
 
@@ -203,8 +214,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsLocator2LocatorData inner_data;
 
@@ -215,6 +226,7 @@ public:
 
         static_cast<StatisticsData*>(data)->locator2locator_data(inner_data);
     }
+
 };
 
 class EntityDataMessageSerializer : public MessageSerializer
@@ -222,8 +234,8 @@ class EntityDataMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsEntityData inner_data = static_cast<StatisticsData*>(data)->entity_data();
 
@@ -233,8 +245,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsEntityData inner_data;
 
@@ -244,6 +256,7 @@ public:
 
         static_cast<StatisticsData*>(data)->entity_data(inner_data);
     }
+
 };
 
 class EntityCountMessageSerializer : public MessageSerializer
@@ -251,8 +264,8 @@ class EntityCountMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsEntityCount inner_data = static_cast<StatisticsData*>(data)->entity_count();
 
@@ -262,8 +275,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsEntityCount inner_data;
 
@@ -273,6 +286,7 @@ public:
 
         static_cast<StatisticsData*>(data)->entity_count(inner_data);
     }
+
 };
 
 class DiscoveryTimeMessageSerializer : public MessageSerializer
@@ -280,8 +294,8 @@ class DiscoveryTimeMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsDiscoveryTime inner_data = static_cast<StatisticsData*>(data)->discovery_time();
 
@@ -292,8 +306,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsDiscoveryTime inner_data;
 
@@ -304,6 +318,7 @@ public:
 
         static_cast<StatisticsData*>(data)->discovery_time(inner_data);
     }
+
 };
 
 class Entity2LocatorTrafficMessageSerializer : public MessageSerializer
@@ -311,8 +326,8 @@ class Entity2LocatorTrafficMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsEntity2LocatorTraffic inner_data = static_cast<StatisticsData*>(data)->entity2locator_traffic();
 
@@ -326,8 +341,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsEntity2LocatorTraffic inner_data;
 
@@ -341,6 +356,7 @@ public:
 
         static_cast<StatisticsData*>(data)->entity2locator_traffic(inner_data);
     }
+
 };
 
 class SampleIdentityCountMessageSerializer : public MessageSerializer
@@ -348,8 +364,8 @@ class SampleIdentityCountMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsSampleIdentityCount inner_data = static_cast<StatisticsData*>(data)->sample_identity_count();
 
@@ -359,8 +375,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsSampleIdentityCount inner_data;
 
@@ -370,6 +386,7 @@ public:
 
         static_cast<StatisticsData*>(data)->sample_identity_count(inner_data);
     }
+
 };
 
 class PhysicalDataMessageSerializer : public MessageSerializer
@@ -377,8 +394,8 @@ class PhysicalDataMessageSerializer : public MessageSerializer
 public:
 
     virtual void serialize(
-        void* data,
-        Message& message) override
+            void* data,
+            Message& message) override
     {
         StatisticsPhysicalData inner_data = static_cast<StatisticsData*>(data)->physical_data();
 
@@ -390,8 +407,8 @@ public:
     }
 
     virtual void deserialize(
-        void* data,
-        const Message& message) override
+            void* data,
+            const Message& message) override
     {
         StatisticsPhysicalData inner_data;
 
@@ -403,6 +420,7 @@ public:
 
         static_cast<StatisticsData*>(data)->physical_data(inner_data);
     }
+
 };
 
 

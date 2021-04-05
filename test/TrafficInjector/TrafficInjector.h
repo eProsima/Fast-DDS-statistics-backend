@@ -67,16 +67,16 @@ class TrafficInjector
         }
 
     private:
+
         TrafficInjector* injector_;
     };
-
 
 public:
 
     TrafficInjector()
     {
         participant_ = DomainParticipantFactory::get_instance()->create_participant(
-                0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
+            0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
         publisher_ = participant_->create_publisher(eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT);
     }
 
@@ -606,13 +606,15 @@ private:
             }
 
             event_kinds_[str] = kind;
-            Topic* topic = participant_->create_topic(topic_name, data_types_[kind]->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+            Topic* topic = participant_->create_topic(topic_name,
+                            data_types_[kind]->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             if (!topic)
             {
                 throw std::runtime_error("Error creating topic");
             }
             StatisticsWriterListener listener(this);
-            DataWriter* writer = publisher_->create_datawriter(topic, eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT, &listener);
+            DataWriter* writer = publisher_->create_datawriter(topic, eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+                            &listener);
             if (!writer)
             {
                 throw std::runtime_error("Error creating writer");
@@ -631,13 +633,14 @@ private:
         }
     }
 
-    void send_message(const MessageSerializer::Message& msg)
+    void send_message(
+            const MessageSerializer::Message& msg)
     {
         StatisticsEventKind kind = event_kinds_[msg.at("event_kind").get<std::string>()];
         StatisticsData data;
 
         std::cout << "Simulating statistics message [" << msg << "]" << std::endl;
-        switch(kind)
+        switch (kind)
         {
             case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
                 serializers_[kind]->deserialize(&data, msg.at("WriterReaderData"));
