@@ -56,17 +56,17 @@ std::vector<EntityId> Participant::get_entities(
     }
 }
 
-void Participant::add_endpoint(const Endpoint* endpoint)
+void Participant::add_endpoint(const EntityPointer endpoint)
 {
     endpoints_[endpoint->id()] = endpoint;
 }
 
-void Participant::domain(const Domain* domain)
+void Participant::domain(const EntityPointer domain)
 {
     domain_ = domain;
 }
 
-void Participant::process(const Process* process)
+void Participant::process(const EntityPointer process)
 {
     process_ = process;
 }

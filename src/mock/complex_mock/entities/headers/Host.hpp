@@ -16,24 +16,24 @@
  * @file Host.hpp
  */
 
-#include "Entity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_HOST_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_HOST_HPP_
 
+#include "Entity.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
-
-class User;
 
 class Host : public Entity
 {
 public:
 
+    using Entity::Entity;
+
     std::vector<EntityId> get_entities(
         const EntityKind entity_type) const override;
 
-    void add_user(const User* user);
+    void add_user(EntityPointer user);
 
     EntityKind kind() const
     {
@@ -41,8 +41,10 @@ public:
     }
 
 private:
-    std::map<EntityId, const Entity*> users_;
+    std::map<EntityId, EntityPointer> users_;
 };
+
+using HostPointer = std::shared_ptr<Host>;
 
 } // namespace statistics_backend
 } // namespace eprosima

@@ -16,29 +16,27 @@
  * @file Participant.hpp
  */
 
-#include "DDSEntity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_PARTICIPANT_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_PARTICIPANT_HPP_
 
+#include "DDSEntity.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
-
-class Process;
-class Domain;
-class Endpoint;
 
 class Participant : public DDSEntity
 {
 public:
 
+    using DDSEntity::DDSEntity;
+
     std::vector<EntityId> get_entities(
-        EntityKind entity_type) const override;
+        const EntityKind entity_type) const override;
 
-    void add_endpoint(const Endpoint* endpoint);
+    void add_endpoint(EntityPointer endpoint);
 
-    void process(const Process* process);
-    void domain(const Domain* domain);
+    void process(EntityPointer process);
+    void domain(EntityPointer domain);
 
     EntityKind kind() const
     {
@@ -46,10 +44,12 @@ public:
     }
 
 private:
-    std::map<EntityId, const Entity*> endpoints_;
-    const Process* process_;
-    const Domain* domain_;
+    std::map<EntityId, EntityPointer> endpoints_;
+    EntityPointer process_;
+    EntityPointer domain_;
 };
+
+using ParticipantPointer = std::shared_ptr<Participant>;
 
 } // namespace statistics_backend
 } // namespace eprosima

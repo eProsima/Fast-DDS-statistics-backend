@@ -16,24 +16,24 @@
  * @file Locator.hpp
  */
 
-#include "Entity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_LOCATOR_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_LOCATOR_HPP_
 
+#include "Entity.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
-
-class Endpoint;
 
 class Locator : public Entity
 {
 public:
 
-    std::vector<EntityId> get_entities(
-        EntityKind entity_type) const override;
+    using Entity::Entity;
 
-    void add_endpoint(const Endpoint* endpoint);
+    std::vector<EntityId> get_entities(
+        const EntityKind entity_type) const override;
+
+    void add_endpoint(EntityPointer endpoint);
 
     EntityKind kind() const
     {
@@ -41,8 +41,10 @@ public:
     }
 
 private:
-    std::map<EntityId, const Entity*> endpoints_;
+    std::map<EntityId, EntityPointer> endpoints_;
 };
+
+using LocatorPointer = std::shared_ptr<Locator>;
 
 } // namespace statistics_backend
 } // namespace eprosima

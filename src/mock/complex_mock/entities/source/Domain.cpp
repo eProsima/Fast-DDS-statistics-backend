@@ -51,12 +51,34 @@ std::vector<EntityId> Domain::get_entities(
     }
 }
 
-void Domain::add_participant(const Participant* participant)
+std::vector<EntityPointer> Domain::participants()
+{
+    std::vector<EntityPointer> pointers;
+    for (auto entity : participants_)
+    {
+        pointers.push_back(entity.second);
+    }
+
+    return pointers;
+}
+
+std::vector<EntityPointer> Domain::topics()
+{
+    std::vector<EntityPointer> pointers;
+    for (auto entity : topics_)
+    {
+        pointers.push_back(entity.second);
+    }
+
+    return pointers;
+}
+
+void Domain::add_participant(const EntityPointer participant)
 {
     participants_[participant->id()] = participant;
 }
 
-void Domain::add_topic(const Topic* topic)
+void Domain::add_topic(const EntityPointer topic)
 {
     topics_[topic->id()] = topic;
 }

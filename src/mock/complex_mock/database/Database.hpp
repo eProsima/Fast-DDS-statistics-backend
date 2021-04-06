@@ -24,7 +24,7 @@
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
-#include "headers/EntityPointer.hpp"
+#include "../entities/headers/Entity.hpp"
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENTITYCOLLECTOR_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENTITYCOLLECTOR_HPP_
@@ -44,8 +44,22 @@ public:
         return &instance;
     }
 
+    void listener(PhysicalListener* listener);
+
+    EntityId add_domain();
+
+    std::vector<EntityId> get_entities(
+        EntityKind entity_type,
+        EntityId entity_id);
+
+    Info get_info(EntityId entity_id);
+
+    std::map<EntityId, EntityPointer>& get_all_entities();
+
     void start();
     void stop();
+
+    int64_t next_id();
 
 protected:
 
@@ -53,27 +67,27 @@ protected:
 
     ~Database();
 
-    int64_t next_id();
-
-    void add_domain(EntityId domain);
-
-    void static generate_random_data();
-
     void generate_random_data_thread();
+
+    void add_entity(EntityPointer entity);
+
+    void add_entities(std::vector<EntityPointer> entities);
+
+    size_t count_domains();
 
 private:
 
     std::vector<EntityId> domains_;
     std::map<EntityId, EntityPointer> entities_;
     int64_t last_id_;
-
     PhysicalListener* listener_;
 
     std::thread generate_data_thread_;
-    std::mutex data_mutex_;
-    std::mutex run_mutex_;
+    std::recursive_mutex data_mutex_;
     std::atomic<bool> run_;
-    std::condition_variable cv_;
+
+    mutable std::condition_variable cv_;
+    mutable std::mutex run_mutex_;
 };
 
 } // namespace statistics_backend

@@ -164,6 +164,8 @@ message(STATUS "Configuring MOCK ...")
 # target_include_directories (StaticSimpleMock PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories("include")
-add_subdirectory(src/mock/static_mock_simple)
+
+# TODO rebase over new Entity id
+# add_subdirectory(src/mock/static_mock_simple)
 
 add_subdirectory(src/mock/complex_mock)

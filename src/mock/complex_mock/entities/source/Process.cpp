@@ -13,9 +13,7 @@
 // limitations under the License.
 
 #include "../utils.hpp"
-#include "../headers/User.hpp"
 #include "../headers/Process.hpp"
-#include "../headers/Participant.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -52,12 +50,12 @@ std::vector<EntityId> Process::get_entities(
     }
 }
 
-void Process::add_participant(const Participant* participant)
+void Process::add_participant(const EntityPointer participant)
 {
     participants_[participant->id()] = participant;
 }
 
-void Process::user(const User* user)
+void Process::user(const EntityPointer user)
 {
     user_ = user;
 }

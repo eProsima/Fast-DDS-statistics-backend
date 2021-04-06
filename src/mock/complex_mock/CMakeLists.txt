@@ -20,19 +20,37 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.0)
     cmake_policy(SET CMP0048 NEW)
 endif()
 
-project(StaticMockComplex)
+# Allow to use threads
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+project(ComplexMock)
 
 set(STATIC_MOCK_COMPLEX_SOURCE
-    StatisticsBackend.cpp)
-    # entities/utils.cpp
-    # entities/Entity.cpp
-    # entities/Host.cpp)
-add_library(StaticMockComplex ${STATIC_MOCK_COMPLEX_SOURCE})
 
-target_compile_definitions(StaticMockComplex PRIVATE
+    StatisticsBackend.cpp
+    EntityId.cpp
+
+    database/Database.cpp
+    database/RandomGenerator.cpp
+
+    entities/utils.cpp
+    entities/source/Entity.cpp
+    entities/source/Host.cpp
+    entities/source/User.cpp
+    entities/source/Process.cpp
+    entities/source/Domain.cpp
+    entities/source/Topic.cpp
+    entities/source/Participant.cpp
+    entities/source/Endpoint.cpp
+    entities/source/Locator.cpp
+    )
+
+add_library(ComplexMock ${STATIC_MOCK_COMPLEX_SOURCE})
+
+target_compile_definitions(ComplexMock PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
 )
-target_link_libraries(StaticMockComplex)
-install(TARGETS StaticMockComplex
-    RUNTIME DESTINATION Mock/StaticMockComplex/${BIN_INSTALL_DIR})
+target_link_libraries(ComplexMock)
+install(TARGETS ComplexMock
+    RUNTIME DESTINATION Mock/ComplexMock/${BIN_INSTALL_DIR})

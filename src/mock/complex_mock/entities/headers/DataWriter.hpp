@@ -24,19 +24,19 @@
 namespace eprosima {
 namespace statistics_backend {
 
-class Participant;
-class Topic;
-class Locator;
-
 class DataWriter : public Endpoint
 {
 public:
+
+    using Endpoint::Endpoint;
 
     EntityKind kind() const
     {
         return EntityKind::DATAWRITER;
     }
 };
+
+using DataWriterPointer = std::shared_ptr<DataWriter>;
 
 } // namespace statistics_backend
 } // namespace eprosima

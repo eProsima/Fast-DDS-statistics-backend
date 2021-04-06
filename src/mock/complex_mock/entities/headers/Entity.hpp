@@ -27,7 +27,7 @@ namespace statistics_backend {
 class Entity
 {
 public:
-    Entity(EntityId id, EntityKind kind, std::string name)
+    Entity(EntityId& id, std::string name)
         : id_(id)
         , name_(name)
     {
@@ -55,6 +55,8 @@ private:
     const EntityId id_;
     const std::string name_;
 };
+
+using EntityPointer = std::shared_ptr<Entity>;
 
 } // namespace statistics_backend
 } // namespace eprosima

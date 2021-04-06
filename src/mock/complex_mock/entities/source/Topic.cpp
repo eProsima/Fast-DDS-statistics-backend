@@ -52,12 +52,12 @@ std::vector<EntityId> Topic::get_entities(
     }
 }
 
-void Topic::add_endpoint(const Endpoint* endpoint)
+void Topic::add_endpoint(const EntityPointer endpoint)
 {
     endpoints_[endpoint->id()] = endpoint;
 }
 
-void Topic::domain(const Domain* domain)
+void Topic::domain(const EntityPointer domain)
 {
     domain_ = domain;
 }

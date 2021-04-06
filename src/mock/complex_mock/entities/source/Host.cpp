@@ -14,7 +14,6 @@
 
 #include "../utils.hpp"
 #include "../headers/Host.hpp"
-#include "../headers/User.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -46,7 +45,7 @@ std::vector<EntityId> Host::get_entities(
     }
 }
 
-void Host::add_user(const User* user)
+void Host::add_user(const EntityPointer user)
 {
     users_[user->id()] = user;
 }

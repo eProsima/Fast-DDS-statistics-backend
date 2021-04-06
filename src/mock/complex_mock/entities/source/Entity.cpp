@@ -23,9 +23,9 @@ Info Entity::get_info() const
     Info json_obj;
 
     json_obj["QoS"] = "Entity without QoS";
-    json_obj["id"] = entityId_to_string(id_);
-    json_obj["name"] = name_;
-    json_obj["kind"] = kind_;
+    json_obj["id"] = entityId_to_string(id());
+    json_obj["name"] = name();
+    json_obj["kind"] = kind();
 
 
     return json_obj;
@@ -34,8 +34,15 @@ Info Entity::get_info() const
 std::vector<EntityId> Entity::get_entities(
         const EntityKind entity_type) const
 {
+    static_cast<void>(entity_type);
     return std::vector<EntityId>();
 }
+
+EntityKind Entity::kind() const
+{
+    return EntityKind::INVALID;
+}
+
 
 } // namespace statistics_backend
 } // namespace eprosima

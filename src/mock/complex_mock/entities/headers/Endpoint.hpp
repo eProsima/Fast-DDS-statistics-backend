@@ -16,10 +16,10 @@
  * @file Endpoint.hpp
  */
 
-#include "DDSEntity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENDPOINT_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENDPOINT_HPP_
+
+#include "DDSEntity.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -28,19 +28,23 @@ class Endpoint : public DDSEntity
 {
 public:
 
+    using DDSEntity::DDSEntity;
+
     std::vector<EntityId> get_entities(
-        EntityKind entity_type) const override;
+        const EntityKind entity_type) const override;
 
-    void add_locator(const Locator* locator);
+    void add_locator(EntityPointer locator);
 
-    void participant(const Participant* participant);
-    void topic(const Topic* topic);
+    void participant(EntityPointer participant);
+    void topic(EntityPointer topic);
 
 private:
-    std::map<EntityId, const Entity*> locators_;
-    const Participant* participant_;
-    const Topic* topic_;
+    std::map<EntityId, EntityPointer> locators_;
+    EntityPointer participant_;
+    EntityPointer topic_;
 };
+
+using EndpointPointer = std::shared_ptr<Endpoint>;
 
 } // namespace statistics_backend
 } // namespace eprosima

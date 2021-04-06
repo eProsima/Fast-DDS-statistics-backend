@@ -16,11 +16,10 @@
  * @file DDSEntity.hpp
  */
 
-#include "../utils.hpp"
-#include "Entity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DDSENTITY_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DDSENTITY_HPP_
+
+#include "Entity.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -29,16 +28,9 @@ namespace statistics_backend {
 
 class DDSEntity : public Entity
 {
-    DDSEntity(
-        EntityId id,
-        EntityKind kind,
-        std::string name,
-        std::string guid)
-        : Entity(id, kind, name)
-        , guid_(DEFAULT_GUID)
-        , qos_(random_qos(id))
-    {
-    }
+public:
+
+    using Entity::Entity;
 
     Info get_info() const override
     {
@@ -64,10 +56,17 @@ class DDSEntity : public Entity
         return qos_;
     }
 
+    void qos(Info qos)
+    {
+        qos_ = qos;
+    }
+
 private:
     std::string guid_;
     Info qos_;
 };
+
+using DDSEntityPointer = std::shared_ptr<DDSEntity>;
 
 } // namespace statistics_backend
 } // namespace eprosima

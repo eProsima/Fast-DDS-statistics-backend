@@ -22,7 +22,7 @@
 #include <fastdds-statistics-backend/listener/DomainListener.hpp>
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
 
-#include "entities/Database.hpp"
+#include "database/Database.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -63,7 +63,7 @@ void StatisticsBackend::set_physical_listener(
     }
 
 
-    Database::get_instance()->listener = listener;
+    Database::get_instance()->listener(listener);
 
     static_cast<void>(callback_mask);
 }
@@ -77,12 +77,7 @@ EntityId StatisticsBackend::init_monitor(
 {
     std::cout << "CONGRATULATIONS, you have init a monitor in domain " << domain << std::endl;
 
-    Database::get_instance()->add_domain(EntityId());
-
-    static_cast<void>(domain_listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
-    return "DOMAIN MONITOR";
+    return init_monitor(std::to_string(domain), domain_listener, callback_mask, data_mask);
 }
 
 // DS are not implemented. It only allows to change between existint domains / DS
@@ -94,13 +89,13 @@ EntityId StatisticsBackend::init_monitor(
 {
     std::cout << "CONGRATULATIONS, you have init a monitor with locators " << discovery_server_locators << std::endl;
 
-    Database::get_instance()->domains.push_back(EntityId());
+    EntityId domain_id = Database::get_instance()->add_domain();
 
     static_cast<void>(discovery_server_locators);
     static_cast<void>(domain_listener);
     static_cast<void>(callback_mask);
     static_cast<void>(data_mask);
-    return "DISCOVERY SERVER MONITOR";
+    return domain_id;
 }
 
 // Uses the values in Database to get the entities
@@ -110,24 +105,7 @@ std::vector<EntityId> StatisticsBackend::get_entities(
 {
     std::cout << "CONGRATULATIONS, you have asked for entity " << entity_id << std::endl;
 
-    if (entity_id == EntityId::all())
-    {
-        // Ask for all entities of a kind
-        std::vector<EntityId> result;
-        for (auto entity : Database::get_instance()->entities)
-        {
-            if (entity.second->kind() == entity_type)
-            {
-                result.push_back(entity.first);
-            }
-        }
-        return result;
-    }
-    else
-    {
-        // Ask for entities of a kind from a specific entity
-        return Database::get_instance()->entities[entity_id]->get_entities(entity_type);
-    }
+    return Database::get_instance()->get_entities(entity_type, entity_id);
 }
 
 // Returns the info from an entity
@@ -136,7 +114,7 @@ Info StatisticsBackend::get_info(
 {
     std::cout << "CONGRATULATIONS, you have asked for info from " << entity_id << std::endl;
 
-    return Database::get_instance()->entities[entity_id]->get_info();
+    return Database::get_instance()->get_info(entity_id);
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(

@@ -13,10 +13,7 @@
 // limitations under the License.
 
 #include "../utils.hpp"
-#include "../headers/Topic.hpp"
 #include "../headers/Endpoint.hpp"
-#include "../headers/Participant.hpp"
-#include "../headers/Locator.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -55,17 +52,17 @@ std::vector<EntityId> Endpoint::get_entities(
     }
 }
 
-void Endpoint::add_locator(const Locator* locator)
+void Endpoint::add_locator(const EntityPointer locator)
 {
     locators_[locator->id()] = locator;
 }
 
-void Endpoint::participant(const Participant* participant)
+void Endpoint::participant(const EntityPointer participant)
 {
     participant_ = participant;
 }
 
-void Endpoint::topic(const Topic* topic)
+void Endpoint::topic(const EntityPointer topic)
 {
     topic_ = topic;
 }

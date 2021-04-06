@@ -46,7 +46,7 @@ std::vector<EntityId> Locator::get_entities(
     }
 }
 
-void Locator::add_endpoint(const Endpoint* endpoint)
+void Locator::add_endpoint(const EntityPointer endpoint)
 {
     endpoints_[endpoint->id()] = endpoint;
 }

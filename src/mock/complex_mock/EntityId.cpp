@@ -14,7 +14,7 @@
 
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include "Database.hpp"
+#include "database/Database.hpp"
 
 namespace eprosima {
 namespace statistics_backend {

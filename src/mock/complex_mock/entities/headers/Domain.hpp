@@ -16,26 +16,28 @@
  * @file Domain.hpp
  */
 
-#include "Entity.hpp"
-
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DOMAIN_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DOMAIN_HPP_
 
+#include "Entity.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
-
-class Participant;
-class Topic;
 
 class Domain : public Entity
 {
 public:
 
+    using Entity::Entity;
+
     std::vector<EntityId> get_entities(
         const EntityKind entity_type) const override;
 
-    void add_participant(const Participant* participant);
-    void add_topic(const Topic* topic);
+    std::vector<EntityPointer> participants();
+    std::vector<EntityPointer> topics();
+
+    void add_participant(EntityPointer participant);
+    void add_topic(EntityPointer topic);
 
     EntityKind kind() const
     {
@@ -43,9 +45,11 @@ public:
     }
 
 private:
-    std::map<EntityId, const Entity*> participants_;
-    std::map<EntityId, const Entity*> topics_;
+    std::map<EntityId, EntityPointer> participants_;
+    std::map<EntityId, EntityPointer> topics_;
 };
+
+using DomainPointer = std::shared_ptr<Domain>;
 
 } // namespace statistics_backend
 } // namespace eprosima
