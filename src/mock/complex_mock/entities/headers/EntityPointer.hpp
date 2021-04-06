@@ -12,39 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utils.hpp"
-#include "Host.hpp"
-#include "User.hpp"
+/**
+ * @file Entity.hpp
+ */
+
+#include "Entity.hpp"
+
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENTITYPOINTER_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENTITYPOINTER_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-std::vector<EntityId> Host::get_entities(
-    const EntityKind entity_type) const
+class EntityPointer : std::shared_ptr<Entity*>
 {
-    std::vector<EntityId> ids;
-
-    switch (entity_type)
-    {
-    case EntityKind::HOST:
-        return ids;
-
-    case EntityKind::USER:
-        return get_ids(users_);
-
-    case EntityKind::PROCESS:
-        return get_entities_related(users_, entity_type);
-
-    default:
-        return ids;
-    }
-}
-
-void Host::add_user(const User* user)
-{
-    users_[user->id()] = user;
-}
-
+};
 
 } // namespace statistics_backend
 } // namespace eprosima
+
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENTITYPOINTER_HPP_

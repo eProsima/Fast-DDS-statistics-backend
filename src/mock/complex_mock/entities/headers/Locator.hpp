@@ -13,33 +13,38 @@
 // limitations under the License.
 
 /**
- * @file Entity.hpp
+ * @file Locator.hpp
  */
 
 #include "Entity.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_HOST_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_HOST_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_LOCATOR_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_LOCATOR_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-class User;
+class Endpoint;
 
-class Host : public Entity
+class Locator : public Entity
 {
 public:
 
     std::vector<EntityId> get_entities(
-        const EntityKind entity_type) const override;
+        EntityKind entity_type) const override;
 
-    void add_user(const User* user);
+    void add_endpoint(const Endpoint* endpoint);
+
+    EntityKind kind() const
+    {
+        return EntityKind::LOCATOR;
+    }
 
 private:
-    std::map<EntityId, const Entity*> users_;
+    std::map<EntityId, const Entity*> endpoints_;
 };
 
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_HOST_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_LOCATOR_HPP_

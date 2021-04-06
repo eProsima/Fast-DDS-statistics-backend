@@ -13,37 +13,41 @@
 // limitations under the License.
 
 /**
- * @file Process.hpp
+ * @file Domain.hpp
  */
 
 #include "Entity.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_PROCESS_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_PROCESS_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DOMAIN_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DOMAIN_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-class User;
 class Participant;
+class Topic;
 
-class Process : public Entity
+class Domain : public Entity
 {
 public:
 
     std::vector<EntityId> get_entities(
-        EntityKind entity_type) const override;
+        const EntityKind entity_type) const override;
 
-    void add_participant(Participant* participant);
+    void add_participant(const Participant* participant);
+    void add_topic(const Topic* topic);
 
-    void user(User* user);
+    EntityKind kind() const
+    {
+        return EntityKind::DOMAIN;
+    }
 
 private:
-    std::map<EntityId, Participant *> participants_;
-    User* user;
+    std::map<EntityId, const Entity*> participants_;
+    std::map<EntityId, const Entity*> topics_;
 };
 
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_PROCESS_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DOMAIN_HPP_

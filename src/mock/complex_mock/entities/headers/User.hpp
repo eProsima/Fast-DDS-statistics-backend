@@ -18,8 +18,8 @@
 
 #include "Entity.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_USER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_USER_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_USER_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_USER_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
@@ -34,16 +34,21 @@ public:
     std::vector<EntityId> get_entities(
         EntityKind entity_type) const override;
 
-    void add_process(Process* process);
+    void add_process(const Process* process);
 
-    void host(Host* host);
+    void host(const Host* host);
+
+    EntityKind kind() const
+    {
+        return EntityKind::USER;
+    }
 
 private:
-    std::map<EntityId, Process *> processes_;
-    Host* host_;
+    std::map<EntityId, const Entity*> processes_;
+    const Host* host_;
 };
 
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_USER_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_USER_HPP_

@@ -13,33 +13,42 @@
 // limitations under the License.
 
 /**
- * @file utils.cpp
+ * @file Process.hpp
  */
 
-#include <fastdds-statistics-backend/types/types.hpp>
-#include "utils.hpp"
+#include "Entity.hpp"
+
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_PROCESS_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_PROCESS_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-std::vector<EntityId> get_ids(
-    const std::map<EntityId, const Entity*> map)
-{
-    return keys<EntityId, const Entity*>(map);
-}
+class User;
+class Participant;
 
-std::vector<EntityId> get_entities_related(
-    const std::map<EntityId, const Entity*> map,
-    const EntityKind entity_type)
+class Process : public Entity
 {
-    std::vector<EntityId> result;
-    for (auto entity : map)
+public:
+
+    std::vector<EntityId> get_entities(
+        EntityKind entity_type) const override;
+
+    void add_participant(const Participant* participant);
+
+    void user(const User* user);
+
+    EntityKind kind() const
     {
-        auto entities = entity.second->get_entities(entity_type);
-        result.insert(result.end(), entities.begin(), entities.end());
+        return EntityKind::PROCESS;
     }
-    return result;
-}
+
+private:
+    std::map<EntityId, const Entity*> participants_;
+    const User* user_;
+};
 
 } // namespace statistics_backend
 } // namespace eprosima
+
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_PROCESS_HPP_

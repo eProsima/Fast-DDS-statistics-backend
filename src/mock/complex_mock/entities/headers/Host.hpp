@@ -12,20 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @file Host.hpp
+ */
+
 #include "Entity.hpp"
+
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_HOST_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_HOST_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-Info Entity::get_info() const
+class User;
+
+class Host : public Entity
 {
-    Info json_obj;
+public:
 
-    json_obj["QoS"] = "Entity without QoS";
-    json_obj["id"] = id_;
+    std::vector<EntityId> get_entities(
+        const EntityKind entity_type) const override;
 
-    return json_obj;
-}
+    void add_user(const User* user);
+
+    EntityKind kind() const
+    {
+        return EntityKind::HOST;
+    }
+
+private:
+    std::map<EntityId, const Entity*> users_;
+};
 
 } // namespace statistics_backend
 } // namespace eprosima
+
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_HOST_HPP_

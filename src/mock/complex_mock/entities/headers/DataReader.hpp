@@ -13,35 +13,32 @@
 // limitations under the License.
 
 /**
- * @file Entity.hpp
+ * @file DataReader.hpp
  */
 
-#include <types/types.hpp>
+#include "Endpoint.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DATAREADER_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DATAREADER_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-class EntityCollector
+class Participant;
+class Topic;
+class Locator;
+
+class DataReader : public Endpoint
 {
 public:
 
-    static EntityCollector* get_instance()
+    EntityKind kind() const
     {
-        static EntityCollector instance;
-        return &instance;
+        return EntityKind::DATAREADER;
     }
-
-protected:
-
-    EntityCollector();
-
-    ~EntityCollector();
 };
 
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITYCOLLECTOR_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_DATAREADER_HPP_

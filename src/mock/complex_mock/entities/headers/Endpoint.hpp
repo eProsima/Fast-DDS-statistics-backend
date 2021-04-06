@@ -13,47 +13,36 @@
 // limitations under the License.
 
 /**
- * @file Entity.hpp
+ * @file Endpoint.hpp
  */
 
-#include <fastdds-statistics-backend/types/types.hpp>
+#include "DDSEntity.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENDPOINT_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENDPOINT_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
 
-class Entity
+class Endpoint : public DDSEntity
 {
 public:
-    Entity(EntityId id, std::string name)
-        : id_(id)
-        , name_(name)
-    {}
 
-    virtual std::vector<EntityId> get_entities(
-        const EntityKind entity_type) const;
+    std::vector<EntityId> get_entities(
+        EntityKind entity_type) const override;
 
-    virtual Info get_info() const;
+    void add_locator(const Locator* locator);
 
-    std::string name() const
-    {
-        return name_;
-    }
-
-    EntityId id() const
-    {
-        return id_;
-    }
+    void participant(const Participant* participant);
+    void topic(const Topic* topic);
 
 private:
-
-    const EntityId id_;
-    std::string name_;
+    std::map<EntityId, const Entity*> locators_;
+    const Participant* participant_;
+    const Topic* topic_;
 };
 
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_ENTITY_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_ENDPOINT_HPP_

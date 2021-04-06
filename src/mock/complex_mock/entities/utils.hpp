@@ -19,8 +19,8 @@
 #include <fastdds-statistics-backend/types/types.hpp>
 #include "Entity.hpp"
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_UTILS_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_UTILS_HPP_
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_UTILS_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_UTILS_HPP_
 
 namespace eprosima {
 namespace statistics_backend {
@@ -42,7 +42,15 @@ std::vector<EntityId> get_entities_related(
     const std::map<EntityId, const Entity*> map,
     const EntityKind entity_type);
 
+std::vector<EntityId> get_entities_kind(
+    const std::map<EntityId, const Entity*> map,
+    const EntityKind entity_type);
+
+std::string entityId_to_string(EntityId id);
+
+Info random_qos(EntityId seed);
+
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATICMOCKCOMPLEX_UTILS_HPP_
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_COMPLEXMOCK_UTILS_HPP_
