@@ -24,8 +24,8 @@ set(${PROJECT_NAME}_SOURCES
     exception/Exception.cpp
     types/EntityId.cpp
     StatisticsBackend.cpp
-    subscriber/types.cxx
-    subscriber/typesPubSubTypes.cxx
+    topic_types/types.cxx
+    topic_types/typesPubSubTypes.cxx
     )
 
 # Configure config file

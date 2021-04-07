@@ -20,8 +20,8 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_TRAFFICINJECTOR_HPP_
 
 #include <MessageSerializer.h>
-#include <subscriber/types.h>
-#include <subscriber/typesPubSubTypes.h>
+#include <topic_types/types.h>
+#include <topic_types/typesPubSubTypes.h>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
