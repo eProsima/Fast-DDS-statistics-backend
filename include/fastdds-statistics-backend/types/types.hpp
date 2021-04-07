@@ -20,7 +20,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
 
-#include <nlohmann-json/json.hpp>
+#include <fastdds-statistics-backend/nlohmann-json/json.hpp>
 #include <fastdds-statistics-backend/types/Bitmask.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
