@@ -36,6 +36,13 @@ public:
     EntityId();
 
     /**
+     * @brief Instantiate an EntityId from an integer.
+     * @param value The value to use as internal value on the EntityId
+     */
+    EntityId(
+            int64_t value);
+
+    /**
      * @brief Get the EntityId to refer all entities at once
      * @return An ID that refers all entities.
      */
@@ -68,13 +75,6 @@ public:
     int64_t value() const;
 
 protected:
-
-    /**
-     * @brief Instantiate an EntityId from an integer.
-     * @param value The value to use as internal value on the EntityId
-     */
-    EntityId(
-            int64_t value);
 
     //! The internal value of the EntityId
     int64_t value_;
