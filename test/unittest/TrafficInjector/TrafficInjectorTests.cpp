@@ -31,10 +31,28 @@ using namespace eprosima::statistics_backend;
 
 class StatisticsReaderListener : public eprosima::fastdds::dds::DataReaderListener
 {
+    std::map<std::string, bool> message_received_;
+
     void on_data_available(
             eprosima::fastdds::dds::DataReader* reader)
     {
-        std::cout << "Received a sample in topic " << reader->get_topicdescription()->get_name() << std::endl;
+        // Each message is only received once
+        ASSERT_TRUE(message_received_.find(reader->get_topicdescription()->get_name()) != message_received_.end());
+        ASSERT_FALSE(message_received_[reader->get_topicdescription()->get_name()]);
+        message_received_[reader->get_topicdescription()->get_name()] = true;
+    }
+
+public:
+    void register_topic(
+            std::string topic_name)
+    {
+        ASSERT_TRUE(message_received_.find(topic_name) == message_received_.end());
+        message_received_[topic_name] = false;
+    }
+
+    const std::map<std::string, bool> message_received() const
+    {
+        return message_received_;
     }
 
 };
@@ -72,6 +90,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -84,6 +103,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -96,6 +116,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -108,6 +129,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -120,6 +142,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -132,6 +155,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -144,6 +168,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -156,6 +181,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -168,6 +194,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -180,6 +207,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -192,6 +220,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -204,6 +233,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -216,6 +246,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -228,6 +259,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -240,6 +272,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -252,6 +285,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -264,6 +298,7 @@ public:
             Topic* topic = participant_->create_topic(topic_name,
                             type->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             topics_.insert(topic);
+            listener_.register_topic(topic_name);
             readers_.insert(subscriber_->create_datareader(topic, eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT,
                     &listener_));
         }
@@ -271,6 +306,12 @@ public:
 
     void TearDown()
     {
+        // Check that we received everything
+        for (auto it : listener_.message_received())
+        {
+            ASSERT_TRUE(it.second);
+        }
+
         for (auto reader : readers_)
         {
             subscriber_->delete_datareader(reader);
@@ -294,10 +335,8 @@ TEST_F(TrafficInjectorTests, Basic)
     TrafficInjector tf;
     tf.load(traffic_dump);
 
-
     while (tf.inject_next_message())
     {
-
     }
 }
 
