@@ -27,6 +27,6 @@ set(TRAFFIC_INJECTOR_TEST_LIST
 
 foreach(test_name ${TRAFFIC_INJECTOR_TEST_LIST})
     add_test(NAME TrafficInjector.${test_name}
-            COMMAND entityid_tests
-            --gtest_filter=TrafficInjector.${test_name}:*/TrafficInjector.${test_name}/*)
+            COMMAND TrafficInjectorTests
+            --gtest_filter=TrafficInjectorTests.${test_name}:*/TrafficInjectorTests.${test_name}/*)
 endforeach()
