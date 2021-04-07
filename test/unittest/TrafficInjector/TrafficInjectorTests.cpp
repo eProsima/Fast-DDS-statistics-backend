@@ -43,6 +43,7 @@ class StatisticsReaderListener : public eprosima::fastdds::dds::DataReaderListen
     }
 
 public:
+
     void register_topic(
             std::string topic_name)
     {
