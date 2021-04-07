@@ -19,7 +19,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 
-#include <fastdds-statistics-backend/subscriber/types.h>
+#include <subscriber/types.h>
 
 #include <nlohmann-json/json.hpp>
 

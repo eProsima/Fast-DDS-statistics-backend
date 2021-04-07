@@ -14,6 +14,7 @@
 
 add_executable(TrafficInjectorTests TrafficInjectorTests.cpp)
 target_include_directories(TrafficInjectorTests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/TrafficInjector
     ${GTEST_INCLUDE_DIRS})
 

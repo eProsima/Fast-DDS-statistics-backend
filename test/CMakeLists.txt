@@ -12,8 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT fastrtps_FOUND)
-    find_package(fastrtps REQUIRED)
-endif()
-
 add_subdirectory(unittest)
