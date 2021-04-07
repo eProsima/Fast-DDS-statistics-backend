@@ -1,0 +1,210 @@
+{
+    "traffic" : [
+        {
+            "event_kind" : "HISTORY2HISTORY_LATENCY",
+            "WriterReaderData" : {
+                "writer_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "reader_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "data" : 1.0
+            }
+        },
+        {
+            "event_kind" : "NETWORK_LATENCY",
+            "locator2locator_data" : {
+                "src_locator" : {
+                    "kind" : 10, 
+                    "port" : 10,
+                    "address" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+                },
+                "dst_locator" : {
+                    "kind" : 10, 
+                    "port" : 10,
+                    "address" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+                },
+                "data" : 1.0
+            }
+        },
+        {
+            "event_kind" : "PUBLICATION_THROUGHPUT",
+            "entity_data" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "data" : 1.0
+            }
+        },
+        {
+            "event_kind" : "SUBSCRIPTION_THROUGHPUT",
+            "entity_data" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "data" : 1.0
+            }
+        },
+        {
+            "event_kind" : "RTPS_SENT",
+            "entity2locator_traffic" : {
+                "src_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "dst_locator" : {
+                    "kind" : 10, 
+                    "port" : 10,
+                    "address" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+                },
+                "packet_count" : 11,
+                "byte_count" : 11,
+                "order" : 5
+            }
+        },
+        {
+            "event_kind" : "RTPS_LOST",
+            "entity2locator_traffic" : {
+                "src_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "dst_locator" : {
+                    "kind" : 10, 
+                    "port" : 10,
+                    "address" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+                },
+                "packet_count" : 12,
+                "byte_count" : 12,
+                "order" : 5
+            }
+        },
+        {
+            "event_kind" : "RESENT_DATAS",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 10
+            }
+        },
+        {
+            "event_kind" : "HEARTBEAT_COUNT",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 11
+            }
+        },
+        {
+            "event_kind" : "ACKNACK_COUNT",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 12
+            }
+        },
+        {
+            "event_kind" : "NACKFRAG_COUNT",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 13
+            }
+        },
+        {
+            "event_kind" : "GAP_COUNT",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 14
+            }
+        },
+        {
+            "event_kind" : "DATA_COUNT",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 15
+            }
+        },
+        {
+            "event_kind" : "PDP_PACKETS",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 16
+            }
+        },
+        {
+            "event_kind" : "EDP_PACKETS",
+            "entity_count" : {
+                "guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "count" : 17
+            }
+        },
+        {
+            "event_kind" : "DISCOVERED_ENTITY",
+            "discovery_time" : {
+                "local_participant_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "remote_entity_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "time" : 10
+            }
+        },
+        {
+            "event_kind" : "SAMPLE_DATAS",
+            "sample_identity_count" : {
+                "sample_id" : {
+                    "writer_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                    },
+                    "sequence_number" : {
+                        "high" : 10,
+                        "low" : 10
+                    }
+                },
+                "count" : 10
+            }
+        },
+        {
+            "event_kind" : "PHYSICAL_DATA",
+            "physical_data" : {
+                "participant_guid" : {
+                    "guid_prefix" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 
+                    "entityId" : [1, 2, 3, 4]
+                },
+                "host" : "host",
+                "user" : "user",
+                "process" : "process"
+            }
+        }
+    ]
+}

@@ -13,3 +13,4 @@
 # limitations under the License.
 
 add_subdirectory(EntityId)
+add_subdirectory(TrafficInjector)

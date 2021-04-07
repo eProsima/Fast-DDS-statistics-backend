@@ -24,6 +24,8 @@ set(${PROJECT_NAME}_SOURCES
     exception/Exception.cpp
     types/EntityId.cpp
     StatisticsBackend.cpp
+    topic_types/types.cxx
+    topic_types/typesPubSubTypes.cxx
     )
 
 # Configure config file
@@ -55,6 +57,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/listener>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/nlohmann-json>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/types>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/subscriber>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}>
         $<INSTALL_INTERFACE:include>
         )
