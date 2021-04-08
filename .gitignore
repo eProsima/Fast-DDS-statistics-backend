@@ -3,3 +3,6 @@
 build
 install
 log
+
+# Common CSS
+docs/rst/_static/css/eprosima_rtd_theme.css

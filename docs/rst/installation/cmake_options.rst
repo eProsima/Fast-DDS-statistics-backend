@@ -19,19 +19,19 @@ CMake options
           :class:`BUILD_DOCUMENTATION_TESTS` is set to ``ON``.
         - ``ON`` ``OFF``
         - ``OFF``
-    *   - :class:`FASTDDS_STATISTICS_BACKEND_DOCS_BUILDER`
-        - Select the sphinx builder used to |br|
-          build the documentation.
-        - ``html`` ``dirhtml`` ``singlehtml`` ``pickle`` |br|
-          ``json`` ``htmlhelp`` ``qthelp`` ``applehelp`` |br|
-          ``devhelp`` ``epub`` ``epub3`` ``latex`` ``text`` |br|
-          ``man`` ``texinfo`` ``gettext`` ``changes`` |br|
-          ``xml`` ``pseudoxml`` ``pdf`` ``latexpdf`` |br|
-          ``latexpdfja`` ``info``
-        - ``html``
+    *   - :class:`BUILD_LIBRARY_TESTS`
+        - Build the library tests.
+        - ``ON`` ``OFF``
+        - ``OFF``
     *   - :class:`BUILD_DOCUMENTATION_TESTS`
         - Build the library documentation tests. Setting this |br|
           ``ON`` will set :class:`BUILD_DOCUMENTATION` to ``ON``
+        - ``ON`` ``OFF``
+        - ``OFF``
+    *   - :class:`BUILD_TESTS`
+        - Build the library and documentation tests. Setting this |br|
+          ``ON`` will set :class:`BUILD_LIBRARY_TESTS` and |br|
+          :class:`BUILD_DOCUMENTATION_TESTS` to ``ON``
         - ``ON`` ``OFF``
         - ``OFF``
     *   - :class:`BUILD_SHARED_LIBS`
