@@ -39,8 +39,8 @@ public:
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
      */
-    void insert(
-            std::shared_ptr<Entity> entity);
+    EntityId insert(
+            const std::shared_ptr<Entity>& entity);
 
     /**
      * @brief Insert a new statistics sample into the database.
@@ -154,6 +154,9 @@ public:
 
 protected:
 
+    //! Generate an EntityId and increase the counter
+    EntityId generate_entity_id();
+
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
 
@@ -209,6 +212,8 @@ protected:
 
     //! Locators sorted by participant EntityId
     std::map<EntityId, std::shared_ptr<Locator>> locators_by_participant_;
+
+    int64_t last_id_;
 };
 
 } //namespace database

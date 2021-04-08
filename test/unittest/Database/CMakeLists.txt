@@ -12,6 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Database)
-add_subdirectory(EntityId)
-add_subdirectory(TrafficInjector)
+add_executable(database_tests DatabaseTests.cpp)
+
+target_include_directories(database_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(database_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(ENTITYID_TEST_LIST
+    insert_host)
+
+foreach(test_name ${ENTITYID_TEST_LIST})
+    add_test(NAME database.${test_name}
+            COMMAND database_tests
+            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+endforeach()
