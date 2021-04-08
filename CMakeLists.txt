@@ -47,8 +47,8 @@ message(STATUS "Version: ${PROJECT_VERSION}")
 ###############################################################################
 # Load external projects.
 ###############################################################################
-find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
+find_package(fastrtps REQUIRED)
 
 ###############################################################################
 # Test system configuration

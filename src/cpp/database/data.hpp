@@ -22,8 +22,8 @@
 
 #include "samples.hpp"
 
+#include <fastdds-statistics-backend/nlohmann-json/json.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
-#include <nlohmann-json/json.hpp>
 
 #include <chrono>
 #include <vector>
