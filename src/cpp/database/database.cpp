@@ -46,7 +46,6 @@ EntityId Database::insert(
             host->id = generate_entity_id();
             hosts_[host->id] = host;
             return host->id;
-            break;
         }
         case EntityKind::USER:
         {
@@ -96,6 +95,61 @@ EntityId Database::insert(
             /* Add user to host's users collection */
             user->host->users[user->id] = user;
             return user->id;
+        }
+        case EntityKind::PROCESS:
+        {
+            std::shared_ptr<Process> process = std::static_pointer_cast<Process>(entity);
+
+            /* Check that PID is not empty */
+            if (process->pid.empty())
+            {
+                throw BadParameter("Process PID cannot be empty");
+            }
+
+            /* Check that this is indeed a new process */
+            for (auto process_it: processes_)
+            {
+                if (process.get() == process_it.second.get())
+                {
+                    throw BadParameter("Process already exists in the database");
+                }
+            }
+
+            /* Check that user exits */
+            bool user_exists = false;
+            for (auto user_it : users_)
+            {
+                if (process->user.get() == user_it.second.get())
+                {
+                    user_exists = true;
+                    break;
+                }
+            }
+
+            if (!user_exists)
+            {
+                throw BadParameter("Parent user does not exist in the database");
+            }
+
+            /* Check that a process with the same pid does not exist in the user's collection */
+            for (auto process_it : process->user->processes)
+            {
+                if (process->pid == process_it.second->pid)
+                {
+                    throw BadParameter(
+                        "Another process with PID '" + process->pid
+                        + "' already exists in parent user collection");
+                }
+            }
+
+            /* Add process to processes collection */
+            process->participants.clear();
+            process->id = generate_entity_id();
+            processes_[process->id] = process;
+
+            /* Add process to user's processes collection */
+            process->user->processes[process->id] = process;
+            return process->id;
             break;
         }
         default:
