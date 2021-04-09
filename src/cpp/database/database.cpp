@@ -42,6 +42,7 @@ EntityId Database::insert(
             }
 
             /* Insert host in the database */
+            host->users.clear();
             host->id = generate_entity_id();
             hosts_[host->id] = host;
             return host->id;
@@ -88,6 +89,7 @@ EntityId Database::insert(
             }
 
             /* Add user to users collection */
+            user->processes.clear();
             user->id = generate_entity_id();
             users_[user->id] = user;
 
