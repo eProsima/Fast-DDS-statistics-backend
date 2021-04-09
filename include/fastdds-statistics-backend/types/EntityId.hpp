@@ -40,7 +40,28 @@ public:
      * @param value The value to use as internal value on the EntityId
      */
     EntityId(
-            int64_t value);
+            int64_t value) noexcept;
+
+    /**
+     * @brief Move constructor
+     * @param entity_id The moved EntityId
+     */
+    EntityId(
+            EntityId&& entity_id) noexcept = default;
+
+    /**
+     * @brief Copy constructor
+     * @param entity_id The copied EntityId
+     */
+    EntityId(
+            const EntityId& entity_id) noexcept = default;
+
+    /**
+     * @brief Assign operator
+     * @param entity_id The assigned EntityId
+     */
+    EntityId& operator=(
+            const EntityId& entity_id) noexcept = default;
 
     /**
      * @brief Get the EntityId to refer all entities at once

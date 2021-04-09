@@ -38,6 +38,10 @@ public:
     /**
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
+     * @throws eprosima::statistics_backend::BadParameter if the referenced parent entity does not
+     *         exist in the database.
+     * @throws eprosima::statistics_backend::BadParameter if the entity already exists in the
+     *         parent's collection.
      */
     EntityId insert(
             const std::shared_ptr<Entity>& entity);
@@ -155,7 +159,7 @@ public:
 protected:
 
     //! Generate an EntityId and increase the counter
-    EntityId generate_entity_id();
+    EntityId generate_entity_id() noexcept;
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
@@ -213,7 +217,11 @@ protected:
     //! Locators sorted by participant EntityId
     std::map<EntityId, std::shared_ptr<Locator>> locators_by_participant_;
 
-    int64_t last_id_;
+    /**
+     * The ID that will be assigned to the next entity.
+     * Used to guarantee a unique EntityId within the database instance
+     */
+    int64_t next_id_ = 0;
 };
 
 } //namespace database

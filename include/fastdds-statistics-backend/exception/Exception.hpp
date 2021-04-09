@@ -42,7 +42,7 @@ public:
      * @param message The message to be returned by what()
      */
     Exception(
-        const char* message);
+        const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Exception object
@@ -96,7 +96,7 @@ public:
      * @param message The message to be returned by what()
      */
     Error(
-        const char* message);
+        const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Error exception
@@ -138,7 +138,7 @@ public:
      * @param message The message to be returned by what()
      */
     Unsupported(
-        const char* message);
+        const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Unsupported exception
@@ -180,7 +180,7 @@ public:
      * @param message The message to be returned by what()
      */
     BadParameter(
-        const char* message);
+        const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::BadParameter exception
@@ -222,7 +222,7 @@ public:
      * @param message The message to be returned by what()
      */
     NoData(
-        const char* message);
+        const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::NoData exception

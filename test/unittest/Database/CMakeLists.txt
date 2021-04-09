@@ -22,7 +22,15 @@ target_link_libraries(database_tests PUBLIC
     gtest)
 
 set(ENTITYID_TEST_LIST
-    insert_host)
+    insert_host
+    insert_host_two
+    insert_host_duplicated
+    insert_user_valid
+    insert_user_two_valid
+    insert_user_duplicated
+    insert_user_wrong_host
+    insert_user_duplicated_name
+    insert_invalid)
 
 foreach(test_name ${ENTITYID_TEST_LIST})
     add_test(NAME database.${test_name}
