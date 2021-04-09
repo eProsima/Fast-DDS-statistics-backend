@@ -30,6 +30,14 @@ set(ENTITYID_TEST_LIST
     insert_user_duplicated
     insert_user_wrong_host
     insert_user_duplicated_name
+    insert_process_valid
+    insert_process_two_valid
+    insert_process_duplicated
+    insert_process_wrong_user
+    insert_process_empty_pid
+    insert_process_two_same_user_diff_pid
+    insert_process_two_same_user_same_pid
+    insert_process_two_diff_user_same_pid
     insert_invalid)
 
 foreach(test_name ${ENTITYID_TEST_LIST})

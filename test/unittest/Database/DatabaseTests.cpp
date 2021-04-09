@@ -37,6 +37,11 @@ public:
     {
         return users_;
     }
+
+    const std::map<EntityId, std::shared_ptr<Process>>& processes()
+    {
+        return processes_;
+    }
 };
 
 TEST(database, insert_host)
@@ -179,6 +184,210 @@ TEST(database, insert_user_duplicated_name)
     ASSERT_THROW(db.insert(user_2), BadParameter);
 }
 
+TEST(database, insert_process_valid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    std::shared_ptr<Host> host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    std::shared_ptr<User> user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process */
+    std::string process_name = "test_process";
+    std::string process_pid = "test_pid";
+    std::shared_ptr<Process> process = std::make_shared<Process>(process_name, process_pid, user);
+    EntityId process_id = db.insert(process);
+
+    /* Check that the process is correctly inserted in user */
+    ASSERT_EQ(user->processes.size(), 1);
+    ASSERT_EQ(user->processes[process_id].get(), process.get());
+
+    /* Check that the process is correctly inserted processes_s */
+    auto processes = db.processes();
+    ASSERT_EQ(processes.size(), 1);
+    ASSERT_NE(processes.find(process_id), processes.end());
+    ASSERT_EQ(process_name, processes[process_id]->name);
+    ASSERT_EQ(process_pid, processes[process_id]->pid);
+}
+
+TEST(database, insert_process_two_valid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert two processes */
+    std::string process_name = "test_process";
+    std::string process_name_2 = "test_process_2";
+    std::string process_pid = "test_pid";
+    std::string process_pid_2 = "test_pid_2";
+    auto process = std::make_shared<Process>(process_name, process_pid, user);
+    auto process_2 = std::make_shared<Process>(process_name_2, process_pid_2, user);
+    EntityId process_id = db.insert(process);
+    EntityId process_id_2 = db.insert(process_2);
+
+    /* Check that the processes are correctly inserted in user */
+    ASSERT_EQ(user->processes.size(), 2);
+    ASSERT_EQ(user->processes[process_id].get(), process.get());
+    ASSERT_EQ(user->processes[process_id_2].get(), process_2.get());
+
+    /* Check that the processes are correctly inserted processes_ */
+    auto processes = db.processes();
+    ASSERT_EQ(processes.size(), 2);
+    ASSERT_NE(processes.find(process_id), processes.end());
+    ASSERT_NE(processes.find(process_id_2), processes.end());
+    ASSERT_EQ(process_name, processes[process_id]->name);
+    ASSERT_EQ(process_name_2, processes[process_id_2]->name);
+}
+
+TEST(database, insert_process_duplicated)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process twice */
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    ASSERT_THROW(db.insert(process), BadParameter);
+}
+
+TEST(database, insert_process_wrong_user)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert process with a non-inserted user */
+    auto user_2 = std::make_shared<User>("non-inserter_user", host);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user_2);
+    ASSERT_THROW(db.insert(process), BadParameter);
+}
+
+TEST(database, insert_process_empty_pid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process with empty pid */
+    auto process = std::make_shared<Process>("test_user", "", user);
+    ASSERT_THROW(db.insert(process), BadParameter);
+}
+
+TEST(database, insert_process_two_same_user_diff_pid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process */
+    std::string process_pid = "test_pid";
+    std::string process_pid_2 = "test_pid_2";
+    auto process = std::make_shared<Process>("test_process", process_pid, user);
+    auto process_2 = std::make_shared<Process>("test_process", process_pid_2, user);
+    auto process_id = db.insert(process);
+    auto process_id_2 = db.insert(process_2);
+
+    /* Check that the processes are correctly inserted in user */
+    ASSERT_EQ(user->processes.size(), 2);
+    ASSERT_EQ(user->processes[process_id].get(), process.get());
+    ASSERT_EQ(user->processes[process_id_2].get(), process_2.get());
+
+    /* Check that the processes are correctly inserted processes_ */
+    auto processes = db.processes();
+    ASSERT_EQ(processes.size(), 2);
+    ASSERT_NE(processes.find(process_id), processes.end());
+    ASSERT_NE(processes.find(process_id_2), processes.end());
+    ASSERT_EQ(process_pid, processes[process_id]->pid);
+    ASSERT_EQ(process_pid_2, processes[process_id_2]->pid);
+}
+
+TEST(database, insert_process_two_same_user_same_pid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process */
+    std::string process_pid = "test_pid";
+    auto process = std::make_shared<Process>("test_process", process_pid, user);
+    db.insert(process);
+
+    /* Insert a process in the same user with a duplicated pid */
+    auto process_2 = std::make_shared<Process>("test_process", process_pid, user);
+    ASSERT_THROW(db.insert(process_2), BadParameter);
+}
+
+TEST(database, insert_process_two_diff_user_same_pid)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert two users */
+    auto user = std::make_shared<User>("test_user", host);
+    auto user_2 = std::make_shared<User>("test_user_2", host);
+    db.insert(user);
+    db.insert(user_2);
+
+    /* Insert a process */
+    std::string process_pid = "test_pid";
+    auto process = std::make_shared<Process>("test_process", process_pid, user);
+    auto process_id = db.insert(process);
+
+    /* Insert a process in the same user with a duplicated pid */
+    auto process_2 = std::make_shared<Process>("test_process", process_pid, user_2);
+    auto process_id_2 = db.insert(process_2);
+
+    /* Check that the processes are correctly inserted in user */
+    ASSERT_EQ(user->processes.size(), 1);
+    ASSERT_EQ(user_2->processes.size(), 1);
+    ASSERT_EQ(user->processes[process_id].get(), process.get());
+    ASSERT_EQ(user_2->processes[process_id_2].get(), process_2.get());
+
+    /* Check that the processes are correctly inserted processes_ */
+    auto processes = db.processes();
+    ASSERT_EQ(processes.size(), 2);
+    ASSERT_NE(processes.find(process_id), processes.end());
+    ASSERT_NE(processes.find(process_id_2), processes.end());
+    ASSERT_EQ(process_pid, processes[process_id]->pid);
+    ASSERT_EQ(process_pid, processes[process_id_2]->pid);
+}
 
 TEST(database, insert_invalid)
 {
