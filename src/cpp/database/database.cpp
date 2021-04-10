@@ -34,6 +34,12 @@ EntityId Database::insert(
         {
             std::shared_ptr<Host> host = std::static_pointer_cast<Host>(entity);
 
+            /* Check that host name is not empty */
+            if (host->name.empty())
+            {
+                throw BadParameter("Host name cannot be empty");
+            }
+
             /* Check that this is indeed a new host */
             for (auto host_it: hosts_)
             {

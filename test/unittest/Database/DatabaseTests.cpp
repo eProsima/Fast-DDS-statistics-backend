@@ -93,6 +93,14 @@ TEST(database, insert_host_duplicated)
     ASSERT_THROW(db.insert(host), BadParameter);
 }
 
+TEST(database, insert_host_empty_name)
+{
+    /* Insert a host with empty name */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("");
+    ASSERT_THROW(db.insert(host), BadParameter);
+}
+
 TEST(database, insert_user_valid)
 {
     /* Insert a host */

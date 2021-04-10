@@ -25,6 +25,7 @@ set(ENTITYID_TEST_LIST
     insert_host
     insert_host_two
     insert_host_duplicated
+    insert_host_empty_name
     insert_user_valid
     insert_user_two_valid
     insert_user_duplicated
