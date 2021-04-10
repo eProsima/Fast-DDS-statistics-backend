@@ -25,6 +25,7 @@
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 
+#include <shared_mutex>
 #include <memory>
 
 namespace eprosima {
@@ -222,6 +223,9 @@ protected:
      * Used to guarantee a unique EntityId within the database instance
      */
     int64_t next_id_ = 0;
+
+    //! Read-write synchronization mutex
+    mutable std::shared_timed_mutex mutex_;
 };
 
 } //namespace database

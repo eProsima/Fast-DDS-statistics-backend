@@ -18,6 +18,7 @@
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
+#include <mutex>  // For std::unique_lock
 
 namespace eprosima {
 namespace statistics_backend {
@@ -26,6 +27,7 @@ namespace database {
 EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     switch (entity->kind)
     {
         case EntityKind::HOST:
