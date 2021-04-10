@@ -42,6 +42,11 @@ public:
     {
         return processes_;
     }
+
+    const std::map<EntityId, std::shared_ptr<Domain>>& domains()
+    {
+        return domains_;
+    }
 };
 
 TEST(database, insert_host)
@@ -387,6 +392,68 @@ TEST(database, insert_process_two_diff_user_same_pid)
     ASSERT_NE(processes.find(process_id_2), processes.end());
     ASSERT_EQ(process_pid, processes[process_id]->pid);
     ASSERT_EQ(process_pid, processes[process_id_2]->pid);
+}
+
+TEST(database, insert_domain_valid)
+{
+    /* Insert a domain */
+    DataBaseTest db;
+    std::string domain_name = "test_domain";
+    auto domain = std::make_shared<Domain>(domain_name);
+    EntityId domain_id = db.insert(domain);
+
+    /* Check that the domain is inserted correctly */
+    auto domains = db.domains();
+    ASSERT_EQ(domains.size(), 1);
+    ASSERT_NE(domains.find(domain_id), domains.end());
+    ASSERT_EQ(domain_name, domains[domain_id]->name);
+}
+
+TEST(database, insert_domain_two_valid)
+{
+    /* Insert two domains */
+    DataBaseTest db;
+    std::string domain_name = "test_domain";
+    std::string domain_name_2 = "test_domain_2";
+    auto domain = std::make_shared<Domain>(domain_name);
+    auto domain_2 = std::make_shared<Domain>(domain_name_2);
+    EntityId domain_id = db.insert(domain);
+    EntityId domain_id_2 = db.insert(domain_2);
+
+    /* Check that the domains are inserted correctly */
+    auto domains = db.domains();
+    ASSERT_EQ(domains.size(), 2);
+    ASSERT_NE(domains.find(domain_id), domains.end());
+    ASSERT_NE(domains.find(domain_id_2), domains.end());
+    ASSERT_EQ(domain_name, domains[domain_id]->name);
+    ASSERT_EQ(domain_name_2, domains[domain_id_2]->name);
+}
+
+TEST(database, insert_domain_duplicated)
+{
+    /* Insert a domain twice */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    ASSERT_THROW(db.insert(domain), BadParameter);
+}
+
+TEST(database, insert_domain_empty_name)
+{
+    /* Insert a domain with empty name */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("");
+    ASSERT_THROW(db.insert(domain), BadParameter);
+}
+
+TEST(database, insert_domain_same_name)
+{
+    /* Insert two domains with same name */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_2 = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    ASSERT_THROW(db.insert(domain_2), BadParameter);
 }
 
 TEST(database, insert_invalid)
