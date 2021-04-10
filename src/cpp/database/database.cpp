@@ -154,6 +154,37 @@ EntityId Database::insert(
             return process->id;
             break;
         }
+        case EntityKind::DOMAIN:
+        {
+            std::shared_ptr<Domain> domain = std::static_pointer_cast<Domain>(entity);
+
+            /* Check that domain name is not empty */
+            if (domain->name.empty())
+            {
+                throw BadParameter("Domain name cannot be empty");
+            }
+
+            /* Check that this is indeed a new domain and that its name is unique */
+            for (auto domain_it: domains_)
+            {
+                if (domain.get() == domain_it.second.get())
+                {
+                   throw BadParameter("Domain already exists in the database");
+                }
+                if (domain->name == domain_it.second->name)
+                {
+                   throw BadParameter(
+                       "A Domain with name '" + domain->name + "' already exists in the database");
+                }
+            }
+
+            /* Insert domain in the database */
+            domain->topics.clear();
+            domain->participants.clear();
+            domain->id = generate_entity_id();
+            domains_[domain->id] = domain;
+            return domain->id;
+        }
         default:
         {
             break;
