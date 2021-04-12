@@ -213,7 +213,10 @@ protected:
     /**
      * Empty protected constructor so the struct cannot be instantiated
      */
-    RTPSData(){};
+    RTPSData() noexcept
+    {
+    }
+
 };
 
 /*
