@@ -19,6 +19,7 @@
 #include <fastdds-statistics-backend/types/types.hpp>
 
 #include <mutex>  // For std::unique_lock
+#include <iostream>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -247,6 +248,92 @@ EntityId Database::insert(
             /* Insert topic in the database */
             topics_[topic->domain->id][topic->id] = topic;
             return topic->id;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<DomainParticipant> participant = std::static_pointer_cast<DomainParticipant>(entity);
+
+            /* Check that name is not empty */
+            if (participant->name.empty())
+            {
+                throw BadParameter("Participant name cannot be empty");
+            }
+
+            /* Check that qos is not empty */
+            if (participant->qos.empty())
+            {
+                throw BadParameter("Participant QoS cannot be empty");
+            }
+
+            /* Check that GUID is not empty */
+            if (participant->guid.empty())
+            {
+                throw BadParameter("Participant GUID cannot be empty");
+            }
+
+            /* Check that domain exits */
+            bool domain_exists = false;
+            for (auto domain_it : domains_)
+            {
+                if (participant->domain.get() == domain_it.second.get())
+                {
+                    domain_exists = true;
+                    break;
+                }
+            }
+
+            if (!domain_exists)
+            {
+                throw BadParameter("Parent participant does not exist in the database");
+            }
+
+            /* Check that process exits */
+            bool process_exists = false;
+            for (auto process_it : processes_)
+            {
+                if (participant->process.get() == process_it.second.get())
+                {
+                    process_exists = true;
+                    break;
+                }
+            }
+
+            if (!process_exists)
+            {
+                throw BadParameter("Parent process does not exist in the database");
+            }
+
+            /* Check that this is indeed a new participant and that its GUID is unique in the domain */
+            for (auto participant_it: participants_[participant->domain->id])
+            {
+                if (participant.get() == participant_it.second.get())
+                {
+                   throw BadParameter("Participant already exists in the database");
+                }
+                if (participant->guid == participant_it.second->guid)
+                {
+                   throw BadParameter(
+                       "A participant with GUID '" + participant->guid +
+                       "' already exists in the database for the same domain");
+                }
+            }
+
+            /* Add participant to process' collection */
+            participant->data_readers.clear();
+            participant->data_writers.clear();
+            participant->data.clear();
+            participant->id = generate_entity_id();
+            participant->process->participants[participant->id] = participant;
+
+            /* Add participant to domain's collection */
+            participant->data_readers.clear();
+            participant->data_writers.clear();
+            participant->data.clear();
+            participant->domain->participants[participant->id] = participant;
+
+            /* Insert participant in the database */
+            participants_[participant->domain->id][participant->id] = participant;
+            return participant->id;
         }
         default:
         {
