@@ -733,7 +733,7 @@ TEST(database, insert_participant_two_valid)
 
     /* Check that the participants are inserted correctly inserted in participants_ */
     auto participants = db.participants();
-    ASSERT_EQ(participants.size(), 2);
+    ASSERT_EQ(participants.size(), 1);
     ASSERT_EQ(participants[domain_id].size(), 2);
     ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
     ASSERT_NE(participants[domain_id].find(participant_id_2), participants[domain_id].end());
@@ -779,7 +779,6 @@ TEST(database, insert_participant_wrong_domain)
 
     /* Insert a DomainParticipant in a non-inserted domain */
     auto domain_2 = std::make_shared<Domain>("test_domain_2");
-    db.insert(domain_2);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.part_qos, "01.02.03.04", process, domain_2);
     ASSERT_THROW(db.insert(participant), BadParameter);
@@ -800,7 +799,6 @@ TEST(database, insert_participant_wrong_process)
 
     /* Insert a DomainParticipant in a non-inserted process */
     auto process_2 = std::make_shared<Process>("test_process_2", "test_pid_2", user);
-    db.insert(process_2);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.part_qos, "01.02.03.04", process_2, domain);
     ASSERT_THROW(db.insert(participant), BadParameter);
@@ -921,7 +919,7 @@ TEST(database, insert_participant_two_diff_domain_same_guid)
     ASSERT_EQ(domain->participants.size(), 1);
     ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
     ASSERT_EQ(domain_2->participants.size(), 1);
-    ASSERT_EQ(domain->participants[participant_id_2].get(), participant_2.get());
+    ASSERT_EQ(domain_2->participants[participant_id_2].get(), participant_2.get());
 
     /* Check that the participants are inserted correctly inserted in participants_ */
     auto participants = db.participants();
