@@ -58,29 +58,25 @@ public:
         return participants_;
     }
 
-    Qos part_qos = R"(
-        "{
-            "available_builtin_endpoints": 3135,
-            "lease_duration":
+    Qos part_qos = {
+        {"available_builtin_endpoints", 3135},
+        {"lease_duration", {
+            {"nanoseconds", 0},
+            {"seconds", 3}
+        }},
+        {"properties", {
             {
-                "nanoseconds": 0,
-                "seconds": 3
+                {"name", "PARTICIPANT_TYPE"},
+                {"value", "CLIENT"}
             },
-            "properties":
-            [
-                {
-                    "name": "PARTICIPANT_TYPE",
-                    "value": "CLIENT"
-                },
-                {
-                    "name": "DS_VERSION",
-                    "value": "2.0"
-                }
-            ],
-            "user_data": "656e636c6176653d2f3b00",
-            "vendor_id": "010f"
-        }
-    )"_json;
+            {
+                {"name", "DS_VERSION"},
+                {"value", "2.0"}
+            }
+        }},
+        {"user_data", "656e636c6176653d2f3b00"},
+        {"vendor_id", "010f"}
+    };
 };
 
 TEST(database, insert_host)

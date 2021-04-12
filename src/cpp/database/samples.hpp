@@ -40,6 +40,8 @@ struct StatisticsSample
     {
     }
 
+    virtual void clear();
+
     DataKind kind;
     std::chrono::steady_clock::time_point src_ts;
 };
@@ -55,6 +57,8 @@ struct EntityDataSample : StatisticsSample
     {
     }
 
+    void clear() final;
+
     double data;
 };
 
@@ -69,6 +73,8 @@ struct EntityCountSample : StatisticsSample
     {
     }
 
+    void clear() final;
+
     uint64_t count;
 };
 
@@ -82,6 +88,8 @@ struct ByteCountSample : StatisticsSample
         : StatisticsSample(sample_kind)
     {
     }
+
+    void clear() final;
 
     uint64_t count;
     int16_t magnitude_order;

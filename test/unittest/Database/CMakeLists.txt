@@ -12,6 +12,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+###############################################################################
+# Sample tests
+###############################################################################
+
+add_executable(sample_tests SampleTests.cpp)
+
+target_include_directories(sample_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(sample_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(SAMPLES_TEST_LIST
+    statistics_sample_clear
+    entitydata_sample_clear
+    entitycount_sample_clear
+    bytecount_sample_clear
+)
+
+foreach(test_name ${SAMPLES_TEST_LIST})
+    add_test(NAME database.${test_name}
+            COMMAND sample_tests
+            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+endforeach()
+
+###############################################################################
+# Data tests
+###############################################################################
+
+add_executable(data_tests DataTests.cpp)
+
+target_include_directories(data_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(data_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(DATA_TEST_LIST
+    domainparticipant_data_clear
+    datareader_data_clear
+    datawriter_data_clear
+    locator_data_clear
+)
+
+foreach(test_name ${DATA_TEST_LIST})
+    add_test(NAME database.${test_name}
+            COMMAND data_tests
+            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+endforeach()
+
+###############################################################################
+# Database tests
+###############################################################################
+
 add_executable(database_tests DatabaseTests.cpp)
 
 target_include_directories(database_tests PRIVATE
@@ -21,7 +77,7 @@ target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
     gtest)
 
-set(ENTITYID_TEST_LIST
+set(DATABASE_TEST_LIST
     # Insert Host test
     insert_host
     insert_host_two
@@ -70,7 +126,7 @@ set(ENTITYID_TEST_LIST
     insert_participant_two_diff_domain_same_guid
     insert_invalid)
 
-foreach(test_name ${ENTITYID_TEST_LIST})
+foreach(test_name ${DATABASE_TEST_LIST})
     add_test(NAME database.${test_name}
             COMMAND database_tests
             --gtest_filter=database.${test_name}:*/database.${test_name}/*)
