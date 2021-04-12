@@ -191,6 +191,63 @@ EntityId Database::insert(
             domains_[domain->id] = domain;
             return domain->id;
         }
+        case EntityKind::TOPIC:
+        {
+            std::shared_ptr<Topic> topic = std::static_pointer_cast<Topic>(entity);
+
+            /* Check that topic name is not empty */
+            if (topic->name.empty())
+            {
+                throw BadParameter("Topic name cannot be empty");
+            }
+
+            /* Check that topic data type is not empty */
+            if (topic->data_type.empty())
+            {
+                throw BadParameter("Topic data type cannot be empty");
+            }
+
+            /* Check that domain exits */
+            bool domain_exists = false;
+            for (auto domain_it : domains_)
+            {
+                if (topic->domain.get() == domain_it.second.get())
+                {
+                    domain_exists = true;
+                    break;
+                }
+            }
+
+            if (!domain_exists)
+            {
+                throw BadParameter("Parent domain does not exist in the database");
+            }
+
+            /* Check that this is indeed a new topic and that its name is unique in the domain */
+            for (auto topic_it: topics_[topic->domain->id])
+            {
+                if (topic.get() == topic_it.second.get())
+                {
+                   throw BadParameter("Topic already exists in the database");
+                }
+                if (topic->name == topic_it.second->name)
+                {
+                   throw BadParameter(
+                       "A topic with name '" + topic->name +
+                       "' already exists in the database for the same domain");
+                }
+            }
+
+            /* Add topic to domain's collection */
+            topic->data_readers.clear();
+            topic->data_writers.clear();
+            topic->id = generate_entity_id();
+            domains_[topic->domain->id]->topics[topic->id] = topic;
+
+            /* Insert topic in the database */
+            topics_[topic->domain->id][topic->id] = topic;
+            return topic->id;
+        }
         default:
         {
             break;
