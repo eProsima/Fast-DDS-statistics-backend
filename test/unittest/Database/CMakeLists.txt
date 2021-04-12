@@ -22,15 +22,18 @@ target_link_libraries(database_tests PUBLIC
     gtest)
 
 set(ENTITYID_TEST_LIST
+    # Insert Host test
     insert_host
     insert_host_two
     insert_host_duplicated
     insert_host_empty_name
+    # Insert User tests
     insert_user_valid
     insert_user_two_valid
     insert_user_duplicated
     insert_user_wrong_host
     insert_user_duplicated_name
+    # Insert Process tests
     insert_process_valid
     insert_process_two_valid
     insert_process_duplicated
@@ -39,11 +42,21 @@ set(ENTITYID_TEST_LIST
     insert_process_two_same_user_diff_pid
     insert_process_two_same_user_same_pid
     insert_process_two_diff_user_same_pid
+    # Insert Domain tests
     insert_domain_valid
     insert_domain_two_valid
     insert_domain_duplicated
     insert_domain_empty_name
     insert_domain_same_name
+    # Insert Topic tests
+    insert_topic_valid
+    insert_topic_two_valid
+    insert_topic_duplicated
+    insert_topic_wrong_domain
+    insert_topic_empty_name
+    insert_topic_empty_datatype
+    insert_topic_two_same_domain_same_name
+    insert_topic_two_same_domain_diff_name_same_type
     insert_invalid)
 
 foreach(test_name ${ENTITYID_TEST_LIST})
