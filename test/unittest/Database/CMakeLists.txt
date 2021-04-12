@@ -57,6 +57,17 @@ set(ENTITYID_TEST_LIST
     insert_topic_empty_datatype
     insert_topic_two_same_domain_same_name
     insert_topic_two_same_domain_diff_name_same_type
+    # Insert DomainParticipant tests
+    insert_participant_valid
+    insert_participant_two_valid
+    insert_participant_duplicated
+    insert_participant_wrong_domain
+    insert_participant_wrong_process
+    insert_participant_empty_name
+    insert_participant_empty_qos
+    insert_participant_empty_guid
+    insert_participant_two_same_domain_same_guid
+    insert_participant_two_diff_domain_same_guid
     insert_invalid)
 
 foreach(test_name ${ENTITYID_TEST_LIST})

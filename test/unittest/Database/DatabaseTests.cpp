@@ -52,6 +52,35 @@ public:
     {
         return topics_;
     }
+
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants()
+    {
+        return participants_;
+    }
+
+    Qos part_qos = R"(
+        "{
+            "available_builtin_endpoints": 3135,
+            "lease_duration":
+            {
+                "nanoseconds": 0,
+                "seconds": 3
+            },
+            "properties":
+            [
+                {
+                    "name": "PARTICIPANT_TYPE",
+                    "value": "CLIENT"
+                },
+                {
+                    "name": "DS_VERSION",
+                    "value": "2.0"
+                }
+            ],
+            "user_data": "656e636c6176653d2f3b00",
+            "vendor_id": "010f"
+        }
+    )"_json;
 };
 
 TEST(database, insert_host)
@@ -626,6 +655,291 @@ TEST(database, insert_topic_two_same_domain_diff_name_same_type)
     ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->name);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id_2]->data_type);
+}
+
+TEST(database, insert_participant_valid)
+{
+    /* Insert a host, user, and process */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+
+    /* Insert a domain */
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    /* Insert a DomainParticipant */
+    std::string part_name = "test_participant";
+    std::string part_guid = "01.02.03.04";
+    auto participant = std::make_shared<DomainParticipant>(
+        part_name, db.part_qos, part_guid, process, domain);
+    auto participant_id = db.insert(participant);
+
+    /* Check that the participant is correctly inserted in process */
+    ASSERT_EQ(process->participants.size(), 1);
+    ASSERT_EQ(process->participants[participant_id].get(), participant.get());
+
+    /* Check that the participant is correctly inserted in domain */
+    ASSERT_EQ(domain->participants.size(), 1);
+    ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
+
+    /* Check that the participant is inserted correctly inserted in participants_ */
+    auto participants = db.participants();
+    ASSERT_EQ(participants.size(), 1);
+    ASSERT_EQ(participants[domain_id].size(), 1);
+    ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
+    ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
+    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
+}
+
+TEST(database, insert_participant_two_valid)
+{
+    /* Insert a host, user, and process */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+
+    /* Insert a domain */
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    /* Insert two DomainParticipants */
+    std::string part_name = "test_participant";
+    std::string part_guid = "01.02.03.04";
+    auto participant = std::make_shared<DomainParticipant>(
+        part_name, db.part_qos, part_guid, process, domain);
+    auto participant_id = db.insert(participant);
+
+    std::string part_name_2 = "test_participant_2";
+    std::string part_guid_2 = "01.02.03.04.05";
+    auto participant_2 = std::make_shared<DomainParticipant>(
+        part_name_2, db.part_qos, part_guid_2, process, domain);
+    auto participant_id_2 = db.insert(participant_2);
+
+    /* Check that the participants are correctly inserted in process */
+    ASSERT_EQ(process->participants.size(), 2);
+    ASSERT_EQ(process->participants[participant_id].get(), participant.get());
+    ASSERT_EQ(process->participants[participant_id_2].get(), participant_2.get());
+
+    /* Check that the participants are correctly inserted in domain */
+    ASSERT_EQ(domain->participants.size(), 2);
+    ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
+    ASSERT_EQ(domain->participants[participant_id_2].get(), participant_2.get());
+
+    /* Check that the participants are inserted correctly inserted in participants_ */
+    auto participants = db.participants();
+    ASSERT_EQ(participants.size(), 2);
+    ASSERT_EQ(participants[domain_id].size(), 2);
+    ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
+    ASSERT_NE(participants[domain_id].find(participant_id_2), participants[domain_id].end());
+    ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
+    ASSERT_EQ(part_name_2, participants[domain_id][participant_id_2]->name);
+    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
+    ASSERT_EQ(part_guid_2, participants[domain_id][participant_id_2]->guid);
+}
+
+TEST(database, insert_participant_duplicated)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant */
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.part_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_wrong_domain)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant in a non-inserted domain */
+    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    db.insert(domain_2);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.part_qos, "01.02.03.04", process, domain_2);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_wrong_process)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant in a non-inserted process */
+    auto process_2 = std::make_shared<Process>("test_process_2", "test_pid_2", user);
+    db.insert(process_2);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.part_qos, "01.02.03.04", process_2, domain);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_empty_name)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant with an empty name */
+    auto participant = std::make_shared<DomainParticipant>(
+        "", db.part_qos, "01.02.03.04", process, domain);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_empty_qos)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant with an empty name */
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", Qos(), "01.02.03.04", process, domain);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_empty_guid)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert a DomainParticipant with an empty name */
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.part_qos, "", process, domain);
+    ASSERT_THROW(db.insert(participant), BadParameter);
+}
+
+TEST(database, insert_participant_two_same_domain_same_guid)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+
+    /* Insert two DomainParticipants with same domain and guid */
+    std::string part_guid = "01.02.03.04";
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.part_qos, part_guid, process, domain);
+    auto participant_2 = std::make_shared<DomainParticipant>(
+        "test_participant_2", db.part_qos, part_guid, process, domain);
+    db.insert(participant);
+    ASSERT_THROW(db.insert(participant_2), BadParameter);
+}
+
+TEST(database, insert_participant_two_diff_domain_same_guid)
+{
+    /* Insert a host, user, process, and domain */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    auto domain_id_2 = db.insert(domain_2);
+
+    /* Insert two DomainParticipants with different domain and same guid */
+    std::string part_name = "test_participant";
+    std::string part_name_2 = "test_participant_2";
+    std::string part_guid = "01.02.03.04";
+    auto participant = std::make_shared<DomainParticipant>(
+        part_name, db.part_qos, part_guid, process, domain);
+    auto participant_2 = std::make_shared<DomainParticipant>(
+        part_name_2, db.part_qos, part_guid, process, domain_2);
+    auto participant_id = db.insert(participant);
+    auto participant_id_2 = db.insert(participant_2);
+
+    /* Check that the participants are correctly inserted in process */
+    ASSERT_EQ(process->participants.size(), 2);
+    ASSERT_EQ(process->participants[participant_id].get(), participant.get());
+    ASSERT_EQ(process->participants[participant_id_2].get(), participant_2.get());
+
+    /* Check that the participants are correctly inserted in domain */
+    ASSERT_EQ(domain->participants.size(), 1);
+    ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
+    ASSERT_EQ(domain_2->participants.size(), 1);
+    ASSERT_EQ(domain->participants[participant_id_2].get(), participant_2.get());
+
+    /* Check that the participants are inserted correctly inserted in participants_ */
+    auto participants = db.participants();
+    ASSERT_EQ(participants.size(), 2);
+    ASSERT_EQ(participants[domain_id].size(), 1);
+    ASSERT_EQ(participants[domain_id_2].size(), 1);
+    ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
+    ASSERT_NE(participants[domain_id_2].find(participant_id_2), participants[domain_id_2].end());
+    ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
+    ASSERT_EQ(part_name_2, participants[domain_id_2][participant_id_2]->name);
+    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(db.part_qos, participants[domain_id_2][participant_id_2]->qos);
+    ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
+    ASSERT_EQ(part_guid, participants[domain_id_2][participant_id_2]->guid);
 }
 
 TEST(database, insert_invalid)
