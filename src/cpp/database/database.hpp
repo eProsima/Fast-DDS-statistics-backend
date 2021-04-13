@@ -22,9 +22,11 @@
 
 #include "entities.hpp"
 
+#include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 
+#include <atomic>
 #include <shared_mutex>
 #include <memory>
 
@@ -157,10 +159,130 @@ public:
             EntityKind entity_type,
             const EntityId& entity_id) const;
 
+    /**
+     *  @brief Generate an EntityId that is unique for the database
+     *
+     * @return The unique EntityId
+     */
+    EntityId generate_entity_id() noexcept;
+
 protected:
 
-    //! Generate an EntityId and increase the counter
-    EntityId generate_entity_id() noexcept;
+    /**
+     * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
+     * a.k.a DataReader or DataWriter.
+     *
+     * @tparam T The DDSEndpoint-derived class name. Only DataReader and DataWriter are allowed.
+     * @return The corresponding internal collection, a.k.a datareaders_ or datawriters_
+     */
+    template<typename T>
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
+
+    /**
+     * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter
+     *
+     * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
+     * @param endpoint
+     * @return The EntityId of the inserted DDSEndpoint
+     */
+    template<typename T>
+    EntityId insert_ddsendpoint(std::shared_ptr<T>& endpoint)
+    {
+        /* Check that name is not empty */
+        if (endpoint->name.empty())
+        {
+            throw BadParameter("Endpoint name cannot be empty");
+        }
+
+        /* Check that qos is not empty */
+        if (endpoint->qos.empty())
+        {
+            throw BadParameter("Endpoint QoS cannot be empty");
+        }
+
+        /* Check that GUID is not empty */
+        if (endpoint->guid.empty())
+        {
+            throw BadParameter("Endpoint GUID cannot be empty");
+        }
+
+        /* Check that locators is not empty */
+        if (endpoint->locators.empty())
+        {
+            throw BadParameter("Endpoint locators cannot be empty");
+        }
+
+        /* Check that participant exits */
+        bool participant_exists = false;
+        for (auto participant_it : participants_[endpoint->participant->domain->id])
+        {
+            if (endpoint->participant.get() == participant_it.second.get())
+            {
+                participant_exists = true;
+                break;
+            }
+        }
+
+        if (!participant_exists)
+        {
+            throw BadParameter("Parent participant does not exist in the database");
+        }
+
+        /* Check that topic exits */
+        bool topic_exists = false;
+        for (auto topic_it : topics_[endpoint->topic->domain->id])
+        {
+            if (endpoint->topic.get() == topic_it.second.get())
+            {
+                topic_exists = true;
+                break;
+            }
+        }
+
+        if (!topic_exists)
+        {
+            throw BadParameter("Parent topic does not exist in the database");
+        }
+
+        /* Check that this is indeed a new endpoint and that its GUID is unique */
+        for (auto endpoints_it: dds_endpoints<T>())
+        {
+            for (auto endpoint_it : endpoints_it.second)
+            {
+                if (endpoint.get() == endpoint_it.second.get())
+                {
+                    throw BadParameter("Endpoint already exists in the database");
+                }
+                if (endpoint->guid == endpoint_it.second->guid)
+                {
+                    throw BadParameter(
+                        "An endpoint with GUID '" + endpoint->guid + "' already exists in the database");
+                }
+            }
+        }
+
+
+        /* Add endpoint to participant' collection */
+        endpoint->id = generate_entity_id();
+        (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
+
+        /* Check x_by_y_ collections */
+        for (auto locator_it : endpoint->locators)
+        {
+            // Add reader's locators to locators_by_participant_
+            locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
+            // Add reader's participant to participants_by_locator_
+            participants_by_locator_[locator_it.first][endpoint->participant->id] = endpoint->participant;
+        }
+
+        /* Add endpoint to topics's collection */
+        endpoint->data.clear();
+        (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
+
+        /* Insert endpoint in the database */
+        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
+        return endpoint->id;
+    }
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
@@ -207,22 +329,22 @@ protected:
 
     /* Collections with duplicated information used to speed up searches */
     //! Domains sorted by process EntityId
-    std::map<EntityId, std::shared_ptr<Domain>> domains_by_process_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>> domains_by_process_;
 
     //! Processes sorted by domain EntityId
-    std::map<EntityId, std::shared_ptr<Process>> processes_by_domain_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>> processes_by_domain_;
 
     //! DomainParticipants sorted by locator EntityId
-    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants_by_locator_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants_by_locator_;
 
     //! Locators sorted by participant EntityId
-    std::map<EntityId, std::shared_ptr<Locator>> locators_by_participant_;
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>> locators_by_participant_;
 
     /**
      * The ID that will be assigned to the next entity.
      * Used to guarantee a unique EntityId within the database instance
      */
-    int64_t next_id_ = 0;
+    std::atomic<int64_t> next_id_{0};
 
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;

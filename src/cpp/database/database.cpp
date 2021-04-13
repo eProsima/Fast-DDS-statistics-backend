@@ -284,7 +284,7 @@ EntityId Database::insert(
 
             if (!domain_exists)
             {
-                throw BadParameter("Parent participant does not exist in the database");
+                throw BadParameter("Parent domain does not exist in the database");
             }
 
             /* Check that process exits */
@@ -335,6 +335,16 @@ EntityId Database::insert(
             participants_[participant->domain->id][participant->id] = participant;
             return participant->id;
         }
+        case EntityKind::DATAREADER:
+        {
+            auto data_reader = std::static_pointer_cast<DataReader>(entity);
+            return insert_ddsendpoint<DataReader>(data_reader);
+        }
+        case EntityKind::DATAWRITER:
+        {
+            auto data_writer = std::static_pointer_cast<DataWriter>(entity);
+            return insert_ddsendpoint<DataWriter>(data_writer);
+        }
         default:
         {
             break;
@@ -346,6 +356,18 @@ EntityId Database::insert(
 EntityId Database::generate_entity_id() noexcept
 {
     return EntityId(next_id_++);
+}
+
+template<>
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::dds_endpoints<DataReader>()
+{
+    return datareaders_;
+}
+
+template<>
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
+{
+    return datawriters_;
 }
 
 } //namespace database
