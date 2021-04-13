@@ -23,6 +23,7 @@ set(${PROJECT_NAME}_SOURCES
     ${ALL_HEADERS}
     database/data.cpp
     database/database.cpp
+    database/entities.cpp
     database/samples.cpp
     exception/Exception.cpp
     types/EntityId.cpp

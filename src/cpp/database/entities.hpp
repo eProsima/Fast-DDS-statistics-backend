@@ -199,6 +199,9 @@ struct DomainParticipant : DDSEntity
     {
     }
 
+    template<typename T>
+    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
+
     //! Reference to the Process in which this DomainParticipant runs.
     std::shared_ptr<Process> process;
 
@@ -221,6 +224,7 @@ struct DomainParticipant : DDSEntity
     DomainParticipantData data;
 };
 
+
 /*
  * Topic entities hold data about the topics involved in the communication.
  */
@@ -235,6 +239,9 @@ struct Topic : Entity
         , domain(topic_domain)
     {
     }
+
+    template<typename T>
+    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
 
     //! The data type name of the topic
     std::string data_type;
