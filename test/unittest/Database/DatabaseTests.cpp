@@ -20,6 +20,7 @@
 
 #include "gtest/gtest.h"
 
+#include <memory>
 #include <string>
 
 using namespace eprosima::statistics_backend;
@@ -58,7 +59,23 @@ public:
         return participants_;
     }
 
-    Qos part_qos = {
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant()
+    {
+        return locators_by_participant_;
+    }
+
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants_by_locator()
+    {
+        return participants_by_locator_;
+    }
+
+    template<typename T>
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& get_dds_endpoints()
+    {
+        return dds_endpoints<T>();
+    }
+
+    Qos test_qos = {
         {"available_builtin_endpoints", 3135},
         {"lease_duration", {
             {"nanoseconds", 0},
@@ -78,6 +95,436 @@ public:
         {"vendor_id", "010f"}
     };
 };
+
+template<typename T>
+void insert_ddsendpoint_valid()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    // Create a locator for the endpoint
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    auto endpoint_id = db.insert(endpoint);
+
+    /* Check that the endpoint is correctly inserted in participant */
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+
+    /* Check that the endpoint is correctly inserted in topic */
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+
+    /* Check x_by_y_ collections */
+    auto locators_by_participant = db.locators_by_participant();
+    auto participants_by_locator = db.participants_by_locator();
+    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size());
+    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
+    for (auto locator_it : endpoint->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+
+    /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
+    auto endpoints = db.get_dds_endpoints<T>();
+    ASSERT_EQ(endpoints.size(), 1);
+    ASSERT_EQ(endpoints[domain_id].size(), 1);
+    ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
+    ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
+    ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
+    ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
+}
+
+template<typename T>
+void insert_ddsendpoint_two_valid()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert two DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    auto endpoint_id = db.insert(endpoint);
+
+    std::string endpoint_name_2 = "test_endpoint_2";
+    std::string endpoint_guid_2 = "test_guid_2";
+    auto endpoint_2 = std::make_shared<T>(
+        endpoint_name_2, db.test_qos, endpoint_guid_2, participant, topic);
+    auto locator_2 = std::make_shared<Locator>("test_locator_2");
+    locator_2->id = db.generate_entity_id();
+    endpoint_2->locators[locator_2->id] = locator_2;
+    auto endpoint_id_2 = db.insert(endpoint_2);
+
+    /* Check that the endpoints are correctly inserted in participant */
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 2);
+    ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+    ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
+
+    /* Check that the endpoints are correctly inserted in topic */
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 2);
+    ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+    ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
+
+    /* Check x_by_y_ collections */
+    auto locators_by_participant = db.locators_by_participant();
+    auto participants_by_locator = db.participants_by_locator();
+    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size() * 2);
+    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
+    ASSERT_EQ(participants_by_locator[locator_2->id].size(), endpoint_2->locators.size());
+    for (auto locator_it : endpoint->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+
+    for (auto locator_it : endpoint_2->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+
+    /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
+    auto endpoints = db.get_dds_endpoints<T>();
+    ASSERT_EQ(endpoints.size(), 1);
+    ASSERT_EQ(endpoints[domain_id].size(), 2);
+    ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
+    ASSERT_NE(endpoints[domain_id].find(endpoint_id_2), endpoints[domain_id].end());
+    ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
+    ASSERT_EQ(endpoint_name_2, endpoints[domain_id][endpoint_id_2]->name);
+    ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
+    ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id_2]->qos);
+    ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
+    ASSERT_EQ(endpoint_guid_2, endpoints[domain_id][endpoint_id_2]->guid);
+}
+
+template<typename T>
+void insert_ddsendpoint_duplicated()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint twice */
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, "test_guid", participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    db.insert(endpoint);
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_wrong_participant()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted participant */
+    auto participant_2 = std::make_shared<DomainParticipant>(
+        "test_participant_2", db.test_qos, "01.02.03.04.05", process, domain);
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, "test_guid", participant_2, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_wrong_topic()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted topic */
+    auto topic_2 = std::make_shared<Topic>("test_topic_name_2", "test_topic_type_2", domain);
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, "test_guid", participant, topic_2);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_empty_name()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted topic */
+    auto endpoint = std::make_shared<T>(
+        "", db.test_qos, "test_guid", participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_empty_qos()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted topic */
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", Qos(), "test_guid", participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_empty_guid()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted topic */
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, "", participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_empty_locators()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint with a non-inserted topic */
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, "test_guid", participant, topic);
+    ASSERT_THROW(db.insert(endpoint), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_two_same_domain_same_guid()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert two DDSEndpoints with same GUID */
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    db.insert(endpoint);
+
+    auto endpoint_2 = std::make_shared<T>(
+        "test_endpoint_2", db.test_qos, endpoint_guid, participant, topic);
+    endpoint_2->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint_2), BadParameter);
+}
+
+template<typename T>
+void insert_ddsendpoint_two_diff_domain_same_guid()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+     db.insert(domain);
+    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    db.insert(domain_2);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto participant_2 = std::make_shared<DomainParticipant>(
+        "test_participant_2", db.test_qos, "01.02.03.04.05", process, domain_2);
+    db.insert(participant_2);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    auto topic_2 = std::make_shared<Topic>("test_topic_name_2", "test_topic_type_2", domain_2);
+    db.insert(topic);
+    db.insert(topic_2);
+
+    /* Insert two DDSEndpoints with same GUID */
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    locator->id = db.generate_entity_id();
+    endpoint->locators[locator->id] = locator;
+    db.insert(endpoint);
+
+    auto endpoint_2 = std::make_shared<T>(
+        "test_endpoint_2", db.test_qos, endpoint_guid, participant_2, topic_2);
+    endpoint_2->locators[locator->id] = locator;
+    ASSERT_THROW(db.insert(endpoint_2), BadParameter);
+}
+
 
 TEST(database, insert_host)
 {
@@ -672,7 +1119,7 @@ TEST(database, insert_participant_valid)
     std::string part_name = "test_participant";
     std::string part_guid = "01.02.03.04";
     auto participant = std::make_shared<DomainParticipant>(
-        part_name, db.part_qos, part_guid, process, domain);
+        part_name, db.test_qos, part_guid, process, domain);
     auto participant_id = db.insert(participant);
 
     /* Check that the participant is correctly inserted in process */
@@ -689,7 +1136,7 @@ TEST(database, insert_participant_valid)
     ASSERT_EQ(participants[domain_id].size(), 1);
     ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
-    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
 }
 
@@ -712,13 +1159,13 @@ TEST(database, insert_participant_two_valid)
     std::string part_name = "test_participant";
     std::string part_guid = "01.02.03.04";
     auto participant = std::make_shared<DomainParticipant>(
-        part_name, db.part_qos, part_guid, process, domain);
+        part_name, db.test_qos, part_guid, process, domain);
     auto participant_id = db.insert(participant);
 
     std::string part_name_2 = "test_participant_2";
     std::string part_guid_2 = "01.02.03.04.05";
     auto participant_2 = std::make_shared<DomainParticipant>(
-        part_name_2, db.part_qos, part_guid_2, process, domain);
+        part_name_2, db.test_qos, part_guid_2, process, domain);
     auto participant_id_2 = db.insert(participant_2);
 
     /* Check that the participants are correctly inserted in process */
@@ -739,7 +1186,7 @@ TEST(database, insert_participant_two_valid)
     ASSERT_NE(participants[domain_id].find(participant_id_2), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(part_name_2, participants[domain_id][participant_id_2]->name);
-    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
     ASSERT_EQ(part_guid_2, participants[domain_id][participant_id_2]->guid);
 }
@@ -759,7 +1206,7 @@ TEST(database, insert_participant_duplicated)
 
     /* Insert a DomainParticipant */
     auto participant = std::make_shared<DomainParticipant>(
-        "test_participant", db.part_qos, "01.02.03.04", process, domain);
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
     db.insert(participant);
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
@@ -780,7 +1227,7 @@ TEST(database, insert_participant_wrong_domain)
     /* Insert a DomainParticipant in a non-inserted domain */
     auto domain_2 = std::make_shared<Domain>("test_domain_2");
     auto participant = std::make_shared<DomainParticipant>(
-        "test_participant", db.part_qos, "01.02.03.04", process, domain_2);
+        "test_participant", db.test_qos, "01.02.03.04", process, domain_2);
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
@@ -800,7 +1247,7 @@ TEST(database, insert_participant_wrong_process)
     /* Insert a DomainParticipant in a non-inserted process */
     auto process_2 = std::make_shared<Process>("test_process_2", "test_pid_2", user);
     auto participant = std::make_shared<DomainParticipant>(
-        "test_participant", db.part_qos, "01.02.03.04", process_2, domain);
+        "test_participant", db.test_qos, "01.02.03.04", process_2, domain);
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
@@ -819,7 +1266,7 @@ TEST(database, insert_participant_empty_name)
 
     /* Insert a DomainParticipant with an empty name */
     auto participant = std::make_shared<DomainParticipant>(
-        "", db.part_qos, "01.02.03.04", process, domain);
+        "", db.test_qos, "01.02.03.04", process, domain);
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
@@ -857,7 +1304,7 @@ TEST(database, insert_participant_empty_guid)
 
     /* Insert a DomainParticipant with an empty name */
     auto participant = std::make_shared<DomainParticipant>(
-        "test_participant", db.part_qos, "", process, domain);
+        "test_participant", db.test_qos, "", process, domain);
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
@@ -877,9 +1324,9 @@ TEST(database, insert_participant_two_same_domain_same_guid)
     /* Insert two DomainParticipants with same domain and guid */
     std::string part_guid = "01.02.03.04";
     auto participant = std::make_shared<DomainParticipant>(
-        "test_participant", db.part_qos, part_guid, process, domain);
+        "test_participant", db.test_qos, part_guid, process, domain);
     auto participant_2 = std::make_shared<DomainParticipant>(
-        "test_participant_2", db.part_qos, part_guid, process, domain);
+        "test_participant_2", db.test_qos, part_guid, process, domain);
     db.insert(participant);
     ASSERT_THROW(db.insert(participant_2), BadParameter);
 }
@@ -904,9 +1351,9 @@ TEST(database, insert_participant_two_diff_domain_same_guid)
     std::string part_name_2 = "test_participant_2";
     std::string part_guid = "01.02.03.04";
     auto participant = std::make_shared<DomainParticipant>(
-        part_name, db.part_qos, part_guid, process, domain);
+        part_name, db.test_qos, part_guid, process, domain);
     auto participant_2 = std::make_shared<DomainParticipant>(
-        part_name_2, db.part_qos, part_guid, process, domain_2);
+        part_name_2, db.test_qos, part_guid, process, domain_2);
     auto participant_id = db.insert(participant);
     auto participant_id_2 = db.insert(participant_2);
 
@@ -930,10 +1377,76 @@ TEST(database, insert_participant_two_diff_domain_same_guid)
     ASSERT_NE(participants[domain_id_2].find(participant_id_2), participants[domain_id_2].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(part_name_2, participants[domain_id_2][participant_id_2]->name);
-    ASSERT_EQ(db.part_qos, participants[domain_id][participant_id]->qos);
-    ASSERT_EQ(db.part_qos, participants[domain_id_2][participant_id_2]->qos);
+    ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
+    ASSERT_EQ(db.test_qos, participants[domain_id_2][participant_id_2]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
     ASSERT_EQ(part_guid, participants[domain_id_2][participant_id_2]->guid);
+}
+
+TEST(database, insert_ddsendpoint_valid)
+{
+    insert_ddsendpoint_valid<DataReader>();
+    insert_ddsendpoint_valid<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_two_valid)
+{
+    insert_ddsendpoint_two_valid<DataReader>();
+    insert_ddsendpoint_two_valid<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_duplicated)
+{
+    insert_ddsendpoint_duplicated<DataReader>();
+    insert_ddsendpoint_duplicated<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_wrong_participant)
+{
+    insert_ddsendpoint_wrong_participant<DataReader>();
+    insert_ddsendpoint_wrong_participant<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_wrong_topic)
+{
+    insert_ddsendpoint_wrong_topic<DataReader>();
+    insert_ddsendpoint_wrong_topic<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_empty_name)
+{
+    insert_ddsendpoint_empty_name<DataReader>();
+    insert_ddsendpoint_empty_name<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_empty_qos)
+{
+    insert_ddsendpoint_empty_qos<DataReader>();
+    insert_ddsendpoint_empty_qos<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_empty_guid)
+{
+    insert_ddsendpoint_empty_guid<DataReader>();
+    insert_ddsendpoint_empty_guid<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_empty_locators)
+{
+    insert_ddsendpoint_empty_locators<DataReader>();
+    insert_ddsendpoint_empty_locators<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_two_same_domain_same_guid)
+{
+    insert_ddsendpoint_two_same_domain_same_guid<DataReader>();
+    insert_ddsendpoint_two_same_domain_same_guid<DataWriter>();
+}
+
+TEST(database, insert_ddsendpoint_two_diff_domain_same_guid)
+{
+    insert_ddsendpoint_two_diff_domain_same_guid<DataReader>();
+    insert_ddsendpoint_two_diff_domain_same_guid<DataWriter>();
 }
 
 TEST(database, insert_invalid)

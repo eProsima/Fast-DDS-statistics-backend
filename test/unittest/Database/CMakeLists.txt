@@ -124,6 +124,18 @@ set(DATABASE_TEST_LIST
     insert_participant_empty_guid
     insert_participant_two_same_domain_same_guid
     insert_participant_two_diff_domain_same_guid
+    # Insert DDSEndpoint tests
+    insert_ddsendpoint_valid
+    insert_ddsendpoint_two_valid
+    insert_ddsendpoint_duplicated
+    insert_ddsendpoint_wrong_participant
+    insert_ddsendpoint_wrong_topic
+    insert_ddsendpoint_empty_name
+    insert_ddsendpoint_empty_qos
+    insert_ddsendpoint_empty_guid
+    insert_ddsendpoint_empty_locators
+    insert_ddsendpoint_two_same_domain_same_guid
+    insert_ddsendpoint_two_diff_domain_same_guid
     insert_invalid)
 
 foreach(test_name ${DATABASE_TEST_LIST})
