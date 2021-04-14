@@ -46,10 +46,9 @@ public:
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      */
-    template <typename T>
     void insert(
             const EntityId& entity_id,
-            T sample);
+            StatisticsSample sample);
 
     /**
      * @brief Erase all the data related to a domain
