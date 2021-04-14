@@ -61,7 +61,7 @@ TEST(database, datareader_data_clear)
 
     // DDSEntityData
     data.discovered_entity[EntityId(1)] = {std::pair<std::chrono::steady_clock::time_point, bool>(
-        std::chrono::steady_clock::now(), true)};
+                                               std::chrono::steady_clock::now(), true)};
 
     // DDSEndpointData
     data.history2history_latency[EntityId(1)].push_back(data_sample);
@@ -96,7 +96,7 @@ TEST(database, datawriter_data_clear)
 
     // DDSEntityData
     data.discovered_entity[EntityId(1)] = {std::pair<std::chrono::steady_clock::time_point, bool>(
-        std::chrono::steady_clock::now(), true)};
+                                               std::chrono::steady_clock::now(), true)};
 
     // DDSEndpointData
     data.history2history_latency[EntityId(1)].push_back(data_sample);

@@ -60,14 +60,14 @@ public:
      * @brief Copy assignment operator
      * @param entity_id The assigned EntityId
      */
-    EntityId& operator=(
+    EntityId& operator =(
             const EntityId& entity_id) noexcept = default;
 
     /**
      * @brief Mode assignment operator
      * @param entity_id The assigned EntityId
      */
-    EntityId& operator=(
+    EntityId& operator =(
             EntityId&& entity_id) noexcept = default;
 
     /**

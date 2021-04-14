@@ -46,7 +46,7 @@ EntityId Database::insert(
             {
                 if (host.get() == host_it.second.get())
                 {
-                   throw BadParameter("Host already exists in the database");
+                    throw BadParameter("Host already exists in the database");
                 }
             }
 
@@ -97,8 +97,8 @@ EntityId Database::insert(
                 if (user->name == user_it.second->name)
                 {
                     throw BadParameter(
-                        "Another User with name '" + user->name
-                        + "' already exists in parent host collection");
+                              "Another User with name '" + user->name
+                              + "' already exists in parent host collection");
                 }
             }
 
@@ -158,8 +158,8 @@ EntityId Database::insert(
                 if (process->pid == process_it.second->pid)
                 {
                     throw BadParameter(
-                        "Another process with PID '" + process->pid
-                        + "' already exists in parent user collection");
+                              "Another process with PID '" + process->pid
+                              + "' already exists in parent user collection");
                 }
             }
 
@@ -188,12 +188,12 @@ EntityId Database::insert(
             {
                 if (domain.get() == domain_it.second.get())
                 {
-                   throw BadParameter("Domain already exists in the database");
+                    throw BadParameter("Domain already exists in the database");
                 }
                 if (domain->name == domain_it.second->name)
                 {
-                   throw BadParameter(
-                       "A Domain with name '" + domain->name + "' already exists in the database");
+                    throw BadParameter(
+                              "A Domain with name '" + domain->name + "' already exists in the database");
                 }
             }
 
@@ -241,13 +241,13 @@ EntityId Database::insert(
             {
                 if (topic.get() == topic_it.second.get())
                 {
-                   throw BadParameter("Topic already exists in the database");
+                    throw BadParameter("Topic already exists in the database");
                 }
                 if (topic->name == topic_it.second->name)
                 {
-                   throw BadParameter(
-                       "A topic with name '" + topic->name +
-                       "' already exists in the database for the same domain");
+                    throw BadParameter(
+                              "A topic with name '" + topic->name +
+                              "' already exists in the database for the same domain");
                 }
             }
 
@@ -332,8 +332,8 @@ EntityId Database::insert(
                     if (participant->guid == participant_it.second->guid)
                     {
                         throw BadParameter(
-                            "A participant with GUID '" + participant->guid +
-                            "' already exists in the database for the same domain");
+                                  "A participant with GUID '" + participant->guid +
+                                  "' already exists in the database for the same domain");
                     }
                 }
             }

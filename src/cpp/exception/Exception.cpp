@@ -86,6 +86,5 @@ NoData::NoData(
 {
 }
 
-
 } // namespace statistics_backend
 } // namespace eprosima

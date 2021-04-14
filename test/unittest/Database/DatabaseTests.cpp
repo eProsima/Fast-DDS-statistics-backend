@@ -29,6 +29,7 @@ using namespace eprosima::statistics_backend::database;
 class DataBaseTest : public Database
 {
 public:
+
     const std::map<EntityId, std::shared_ptr<Host>>& hosts()
     {
         return hosts_;
@@ -88,19 +89,19 @@ public:
     Qos test_qos = {
         {"available_builtin_endpoints", 3135},
         {"lease_duration", {
-            {"nanoseconds", 0},
-            {"seconds", 3}
-        }},
+             {"nanoseconds", 0},
+             {"seconds", 3}
+         }},
         {"properties", {
-            {
-                {"name", "PARTICIPANT_TYPE"},
-                {"value", "CLIENT"}
-            },
-            {
-                {"name", "DS_VERSION"},
-                {"value", "2.0"}
-            }
-        }},
+             {
+                 {"name", "PARTICIPANT_TYPE"},
+                 {"value", "CLIENT"}
+             },
+             {
+                 {"name", "DS_VERSION"},
+                 {"value", "2.0"}
+             }
+         }},
         {"user_data", "656e636c6176653d2f3b00"},
         {"vendor_id", "010f"}
     };
@@ -506,7 +507,7 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
     auto domain = std::make_shared<Domain>("test_domain");
-     db.insert(domain);
+    db.insert(domain);
     auto domain_2 = std::make_shared<Domain>("test_domain_2");
     db.insert(domain_2);
     auto participant = std::make_shared<DomainParticipant>(
@@ -534,7 +535,6 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     endpoint_2->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint_2), BadParameter);
 }
-
 
 TEST(database, insert_host)
 {

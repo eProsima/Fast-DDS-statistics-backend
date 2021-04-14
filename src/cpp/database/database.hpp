@@ -191,7 +191,8 @@ protected:
      * @return The EntityId of the inserted DDSEndpoint
      */
     template<typename T>
-    EntityId insert_ddsendpoint(std::shared_ptr<T>& endpoint)
+    EntityId insert_ddsendpoint(
+            std::shared_ptr<T>& endpoint)
     {
         /* Check that name is not empty */
         if (endpoint->name.empty())
@@ -261,7 +262,7 @@ protected:
                 if (endpoint->guid == endpoint_it.second->guid)
                 {
                     throw BadParameter(
-                        "An endpoint with GUID '" + endpoint->guid + "' already exists in the database");
+                              "An endpoint with GUID '" + endpoint->guid + "' already exists in the database");
                 }
             }
         }
