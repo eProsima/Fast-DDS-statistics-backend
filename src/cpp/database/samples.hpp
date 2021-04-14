@@ -166,6 +166,7 @@ struct PublicationThroughputSample : EntityDataSample
         : EntityDataSample(DataKind::PUBLICATION_THROUGHPUT)
     {
     }
+
 };
 
 /*
@@ -177,6 +178,7 @@ struct SubscriptionThroughputSample : EntityDataSample
         : EntityDataSample(DataKind::SUBSCRIPTION_THROUGHPUT)
     {
     }
+
 };
 
 /*
@@ -238,6 +240,7 @@ struct ResentDataSample : EntityCountSample
         : EntityCountSample(DataKind::RESENT_DATA)
     {
     }
+
 };
 
 /*
@@ -249,6 +252,7 @@ struct HeartbeatCountSample : EntityCountSample
         : EntityCountSample(DataKind::HEARTBEAT_COUNT)
     {
     }
+
 };
 
 /*
@@ -260,6 +264,7 @@ struct AcknackCountSample : EntityCountSample
         : EntityCountSample(DataKind::ACKNACK_COUNT)
     {
     }
+
 };
 
 /*
@@ -271,6 +276,7 @@ struct NackfragCountSample : EntityCountSample
         : EntityCountSample(DataKind::NACKFRAG_COUNT)
     {
     }
+
 };
 
 /*
@@ -282,6 +288,7 @@ struct GapCountSample : EntityCountSample
         : EntityCountSample(DataKind::GAP_COUNT)
     {
     }
+
 };
 
 /*
@@ -293,6 +300,7 @@ struct DataCountSample : EntityCountSample
         : EntityCountSample(DataKind::DATA_COUNT)
     {
     }
+
 };
 
 /*
@@ -304,6 +312,7 @@ struct PdpCountSample : EntityCountSample
         : EntityCountSample(DataKind::PDP_PACKETS)
     {
     }
+
 };
 
 /*
@@ -315,6 +324,7 @@ struct EdpCountSample : EntityCountSample
         : EntityCountSample(DataKind::EDP_PACKETS)
     {
     }
+
 };
 
 /*

@@ -152,7 +152,7 @@ public:
 
     /**
      * Get all entities of a given EntityKind containing the provided attribute
-     * 
+     *
      * If the given EntityKind does not contain an attribute of the provided type,
      * BadParameter is thrown.
      *
