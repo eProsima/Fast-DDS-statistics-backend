@@ -667,6 +667,18 @@ TEST(database, insert_user_wrong_host)
     ASSERT_THROW(db.insert(user), BadParameter);
 }
 
+TEST(database, insert_user_empty_name)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    std::shared_ptr<Host> host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user with empty name */
+    std::shared_ptr<User> user = std::make_shared<User>("", host);
+    ASSERT_THROW(db.insert(user), BadParameter);
+}
+
 TEST(database, insert_user_duplicated_name)
 {
     /* Insert a host */
@@ -782,6 +794,22 @@ TEST(database, insert_process_wrong_user)
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 
+TEST(database, insert_process_empty_name)
+{
+    /* Insert a host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+
+    /* Insert a user */
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+
+    /* Insert a process with empty pid */
+    auto process = std::make_shared<Process>("", "test_pid", user);
+    ASSERT_THROW(db.insert(process), BadParameter);
+}
+
 TEST(database, insert_process_empty_pid)
 {
     /* Insert a host */
@@ -794,7 +822,7 @@ TEST(database, insert_process_empty_pid)
     db.insert(user);
 
     /* Insert a process with empty pid */
-    auto process = std::make_shared<Process>("test_user", "", user);
+    auto process = std::make_shared<Process>("test_process", "", user);
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 

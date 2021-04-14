@@ -60,6 +60,12 @@ EntityId Database::insert(
         {
             std::shared_ptr<User> user = std::static_pointer_cast<User>(entity);
 
+            /* Check that user name is not empty */
+            if (user->name.empty())
+            {
+                throw BadParameter("User name cannot be empty");
+            }
+
             /* Check that this is indeed a new user */
             for (auto user_it: users_)
             {
@@ -108,6 +114,12 @@ EntityId Database::insert(
         case EntityKind::PROCESS:
         {
             std::shared_ptr<Process> process = std::static_pointer_cast<Process>(entity);
+
+            /* Check that process name is not empty */
+            if (process->name.empty())
+            {
+                throw BadParameter("Process name cannot be empty");
+            }
 
             /* Check that PID is not empty */
             if (process->pid.empty())
