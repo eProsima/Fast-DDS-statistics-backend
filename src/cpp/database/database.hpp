@@ -150,24 +150,6 @@ public:
             EntityKind entity_type,
             const EntityId& entity_id) const;
 
-    /**
-     * Get all entities of a given EntityKind containing the provided attribute
-     *
-     * If the given EntityKind does not contain an attribute of the provided type,
-     * BadParameter is thrown.
-     *
-     * @param entity_kind The EntityKind of the fetched entities
-     * @param attribute The attribute of the entities to search for
-     * @return A vector containing the EntityIds of the entities
-     */
-    template <typename T>
-    std::vector<EntityId> get_entities_with_attribute(
-            EntityKind entity_kind,
-            const T& attribute) const
-    {
-        throw BadParameter();
-    }
-
 protected:
 
     //! Collection of Hosts sorted by EntityId
