@@ -167,7 +167,7 @@ enum class EntityKind
 enum class DataKind : int32_t
 {
     /// Represents no valid data kind
-    NONE                        = 0,
+    INVALID                     = 0,
 
     /// Latency between a write operation (writer side) and data available
     /// (notification to user in reader side)
