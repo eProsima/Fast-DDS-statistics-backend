@@ -33,7 +33,7 @@ public:
     /**
      * @brief Instantiate an EntityId. The internal value is set to EntityId::invalid
      */
-    EntityId();
+    EntityId() noexcept;
 
     /**
      * @brief Instantiate an EntityId from an integer.
@@ -57,11 +57,18 @@ public:
             const EntityId& entity_id) noexcept = default;
 
     /**
-     * @brief Assign operator
+     * @brief Copy assignment operator
      * @param entity_id The assigned EntityId
      */
     EntityId& operator=(
             const EntityId& entity_id) noexcept = default;
+
+    /**
+     * @brief Mode assignment operator
+     * @param entity_id The assigned EntityId
+     */
+    EntityId& operator=(
+            EntityId&& entity_id) noexcept = default;
 
     /**
      * @brief Get the EntityId to refer all entities at once
