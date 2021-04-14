@@ -94,6 +94,7 @@ Comparison operations
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
     :start-after: //ENTITYID-COMPARE-EXAMPLE
+    :lines: 1-3,5,7,9,11,13-
     :end-before: //!
     :dedent: 8
 

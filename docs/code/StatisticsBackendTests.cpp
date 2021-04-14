@@ -346,10 +346,15 @@ void entity_id()
         EntityId entity_id_1;
         EntityId entity_id_2;
         bool check = entity_id_1 < entity_id_2;
+        static_cast<void>(check);
         check = entity_id_1 <= entity_id_2;
+        static_cast<void>(check);
         check = entity_id_1 > entity_id_2;
+        static_cast<void>(check);
         check = entity_id_1 >= entity_id_2;
+        static_cast<void>(check);
         check = entity_id_1 == entity_id_2;
+        static_cast<void>(check);
         check = entity_id_1 != entity_id_2;
         //!--
         static_cast<void>(entity_id_1);
