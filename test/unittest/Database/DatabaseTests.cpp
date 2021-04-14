@@ -1404,9 +1404,9 @@ TEST(database, insert_participant_two_diff_domain_same_guid)
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
     auto domain = std::make_shared<Domain>("test_domain");
-    auto domain_id = db.insert(domain);
+    db.insert(domain);
     auto domain_2 = std::make_shared<Domain>("test_domain_2");
-    auto domain_id_2 = db.insert(domain_2);
+    db.insert(domain_2);
 
     /* Insert two DomainParticipants with different domain and same guid */
     std::string part_name = "test_participant";
@@ -1416,33 +1416,8 @@ TEST(database, insert_participant_two_diff_domain_same_guid)
         part_name, db.test_qos, part_guid, process, domain);
     auto participant_2 = std::make_shared<DomainParticipant>(
         part_name_2, db.test_qos, part_guid, process, domain_2);
-    auto participant_id = db.insert(participant);
-    auto participant_id_2 = db.insert(participant_2);
-
-    /* Check that the participants are correctly inserted in process */
-    ASSERT_EQ(process->participants.size(), 2);
-    ASSERT_EQ(process->participants[participant_id].get(), participant.get());
-    ASSERT_EQ(process->participants[participant_id_2].get(), participant_2.get());
-
-    /* Check that the participants are correctly inserted in domain */
-    ASSERT_EQ(domain->participants.size(), 1);
-    ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
-    ASSERT_EQ(domain_2->participants.size(), 1);
-    ASSERT_EQ(domain_2->participants[participant_id_2].get(), participant_2.get());
-
-    /* Check that the participants are inserted correctly inserted in participants_ */
-    auto participants = db.participants();
-    ASSERT_EQ(participants.size(), 2);
-    ASSERT_EQ(participants[domain_id].size(), 1);
-    ASSERT_EQ(participants[domain_id_2].size(), 1);
-    ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
-    ASSERT_NE(participants[domain_id_2].find(participant_id_2), participants[domain_id_2].end());
-    ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
-    ASSERT_EQ(part_name_2, participants[domain_id_2][participant_id_2]->name);
-    ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
-    ASSERT_EQ(db.test_qos, participants[domain_id_2][participant_id_2]->qos);
-    ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
-    ASSERT_EQ(part_guid, participants[domain_id_2][participant_id_2]->guid);
+    db.insert(participant);
+    ASSERT_THROW(db.insert(participant_2), BadParameter);
 }
 
 TEST(database, insert_ddsendpoint_valid)

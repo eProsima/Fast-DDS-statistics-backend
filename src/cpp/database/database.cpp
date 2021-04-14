@@ -315,18 +315,26 @@ EntityId Database::insert(
                 throw BadParameter("Parent process does not exist in the database");
             }
 
-            /* Check that this is indeed a new participant and that its GUID is unique in the domain */
-            for (auto participant_it: participants_[participant->domain->id])
+            /* Check that this is indeed a new participant and that its GUID is unique */
+            for (auto domain_it : participants_)
             {
-                if (participant.get() == participant_it.second.get())
+                for (auto participant_it : domain_it.second)
                 {
-                   throw BadParameter("Participant already exists in the database");
-                }
-                if (participant->guid == participant_it.second->guid)
-                {
-                   throw BadParameter(
-                       "A participant with GUID '" + participant->guid +
-                       "' already exists in the database for the same domain");
+                    // Check the participant in the domain
+                    if (participant_it.second->domain->id == participant->domain->id)
+                    {
+                        if (participant.get() == participant_it.second.get())
+                        {
+                            throw BadParameter("Participant already exists in the database");
+                        }
+                    }
+                    // Check GUID uniqueness
+                    if (participant->guid == participant_it.second->guid)
+                    {
+                        throw BadParameter(
+                            "A participant with GUID '" + participant->guid +
+                            "' already exists in the database for the same domain");
+                    }
                 }
             }
 
