@@ -69,6 +69,16 @@ public:
         return participants_by_locator_;
     }
 
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>>& domains_by_process()
+    {
+        return domains_by_process_;
+    }
+
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>>& processes_by_domain()
+    {
+        return processes_by_domain_;
+    }
+
     template<typename T>
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& get_dds_endpoints()
     {
@@ -1109,7 +1119,7 @@ TEST(database, insert_participant_valid)
     auto user = std::make_shared<User>("test_user", host);
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
-    db.insert(process);
+    auto process_id = db.insert(process);
 
     /* Insert a domain */
     auto domain = std::make_shared<Domain>("test_domain");
@@ -1138,6 +1148,18 @@ TEST(database, insert_participant_valid)
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
+
+    /* Check that domain is inserted correctly in domains_by_process_ */
+    auto domains_by_process = db.domains_by_process();
+    ASSERT_EQ(domains_by_process.size(), 1);
+    ASSERT_EQ(domains_by_process[process_id].size(), 1);
+    ASSERT_EQ(domains_by_process[process_id][domain_id].get(), domain.get());
+
+    /* Check that domain is inserted correctly in processes_by_domain_ */
+    auto processes_by_domain = db.processes_by_domain();
+    ASSERT_EQ(processes_by_domain.size(), 1);
+    ASSERT_EQ(processes_by_domain[domain_id].size(), 1);
+    ASSERT_EQ(processes_by_domain[domain_id][process_id].get(), process.get());
 }
 
 TEST(database, insert_participant_two_valid)
@@ -1149,7 +1171,7 @@ TEST(database, insert_participant_two_valid)
     auto user = std::make_shared<User>("test_user", host);
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
-    db.insert(process);
+    auto process_id = db.insert(process);
 
     /* Insert a domain */
     auto domain = std::make_shared<Domain>("test_domain");
@@ -1189,6 +1211,18 @@ TEST(database, insert_participant_two_valid)
     ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
     ASSERT_EQ(part_guid_2, participants[domain_id][participant_id_2]->guid);
+
+    /* Check that domain is inserted correctly in domains_by_process_ */
+    auto domains_by_process = db.domains_by_process();
+    ASSERT_EQ(domains_by_process.size(), 1);
+    ASSERT_EQ(domains_by_process[process_id].size(), 1);
+    ASSERT_EQ(domains_by_process[process_id][domain_id].get(), domain.get());
+
+    /* Check that domain is inserted correctly in processes_by_domain_ */
+    auto processes_by_domain = db.processes_by_domain();
+    ASSERT_EQ(processes_by_domain.size(), 1);
+    ASSERT_EQ(processes_by_domain[domain_id].size(), 1);
+    ASSERT_EQ(processes_by_domain[domain_id][process_id].get(), process.get());
 }
 
 TEST(database, insert_participant_duplicated)

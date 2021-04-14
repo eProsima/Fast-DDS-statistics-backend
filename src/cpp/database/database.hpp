@@ -261,12 +261,11 @@ protected:
             }
         }
 
-
         /* Add endpoint to participant' collection */
         endpoint->id = generate_entity_id();
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
-        /* Check x_by_y_ collections */
+        /* Add to x_by_y_ collections */
         for (auto locator_it : endpoint->locators)
         {
             // Add reader's locators to locators_by_participant_

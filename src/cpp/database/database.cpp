@@ -331,6 +331,12 @@ EntityId Database::insert(
             participant->data.clear();
             participant->domain->participants[participant->id] = participant;
 
+            /* Add reader's locators to domains_by_process_ */
+            domains_by_process_[participant->process->id][participant->domain->id] = participant->domain;
+
+            /* Add reader's participant to processes_by_domain_ */
+            processes_by_domain_[participant->domain->id][participant->process->id] = participant->process;
+
             /* Insert participant in the database */
             participants_[participant->domain->id][participant->id] = participant;
             return participant->id;
