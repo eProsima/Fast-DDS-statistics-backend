@@ -41,10 +41,15 @@ public:
     /**
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
-     * @throws eprosima::statistics_backend::BadParameter if the referenced parent entity does not
-     *         exist in the database.
-     * @throws eprosima::statistics_backend::BadParameter if the entity already exists in the
-     *         parent's collection.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *             * If the entity already exists in the database
+     *             * If the parent entity does not exist in the database
+     *             * If the entity name is empty
+     *             * Depending on the type of entity, if some other identifier is empty
+     *             * For entities with GUID, if the GUID is not unique
+     *             * For entities with QoS, if the QoS is empty
+     *             * For entities with locators, if the locators' collection is empty
+     * @return The EntityId of the inserted entity
      */
     EntityId insert(
             const std::shared_ptr<Entity>& entity);
