@@ -137,7 +137,14 @@ set(DATABASE_TEST_LIST
     insert_ddsendpoint_empty_locators
     insert_ddsendpoint_two_same_domain_same_guid
     insert_ddsendpoint_two_diff_domain_same_guid
-    insert_invalid)
+    # Insert invalid
+    insert_invalid
+    # Link participant with process
+    link_participant_with_process_unlinked
+    link_participant_with_process_wrong_participant
+    link_participant_with_process_wrong_process
+    link_participant_with_process_linked_participant
+)
 
 foreach(test_name ${DATABASE_TEST_LIST})
     add_test(NAME database.${test_name}

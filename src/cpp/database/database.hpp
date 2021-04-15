@@ -67,6 +67,26 @@ public:
             const StatisticsSample& sample);
 
     /**
+     * @brief Create the link between a participant and a process
+     *
+     * This operation entails:
+     *     1. Add reference to process to the participant
+     *     2. Add the participant to the process' list of participants
+     *     3. Add entry to domains_by_process_
+     *     4. Add entry to processes_by_domain_
+     *
+     * @param participant_id Then EntityId of the participant
+     * @param process_id Then EntityId of the process
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The participant is already linked with a process
+     *            * The participant does not exist in the database
+     *            * The process does not exist in the database
+     */
+    void link_participant_with_process(
+            const EntityId& participant_id,
+            const EntityId& process_id);
+
+    /**
      * @brief Erase all the data related to a domain
      *
      * After the operation, the domain_id becomes invalid.

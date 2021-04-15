@@ -327,19 +327,12 @@ EntityId Database::insert(
             participant->data_writers.clear();
             participant->data.clear();
             participant->id = generate_entity_id();
-            // participant->process->participants[participant->id] = participant;
 
             /* Add participant to domain's collection */
             participant->data_readers.clear();
             participant->data_writers.clear();
             participant->data.clear();
             participant->domain->participants[participant->id] = participant;
-
-            // /* Add reader's locators to domains_by_process_ */
-            // domains_by_process_[participant->process->id][participant->domain->id] = participant->domain;
-
-            // /* Add reader's participant to processes_by_domain_ */
-            // processes_by_domain_[participant->domain->id][participant->process->id] = participant->process;
 
             /* Insert participant in the database */
             participants_[participant->domain->id][participant->id] = participant;
@@ -361,6 +354,62 @@ EntityId Database::insert(
         }
     }
     return EntityId();
+}
+
+void Database::link_participant_with_process(
+        const EntityId& participant_id,
+        const EntityId& process_id)
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    /* Get the participant and the domain */
+    EntityId domain_id;
+    std::map<EntityId, std::shared_ptr<DomainParticipant>>::iterator participant_it;
+    bool participant_exists = false;
+    for (auto domain_it : participants_)
+    {
+        participant_it = domain_it.second.find(participant_id);
+        if (participant_it != domain_it.second.end())
+        {
+            participant_exists = true;
+            domain_id = domain_it.first;
+            break;
+        }
+    }
+
+    /* Check that the participant exists */
+    if (!participant_exists)
+    {
+        throw BadParameter("EntityId " + std::to_string(
+                          participant_id.value()) + " does not identify a known participant");
+    }
+    /* Verify that participant does not have a link already */
+    else if (participant_it->second->process)
+    {
+        throw BadParameter("Participant with ID " + std::to_string(
+                          participant_id.value()) + " in already linked with a process");
+    }
+
+    /* Get the process */
+    auto process_it = processes_.find(process_id);
+    if (process_it == processes_.end())
+    {
+        throw BadParameter("EntityId " + std::to_string(process_id.value()) + " does not identify a known process");
+    }
+
+    /* Add reference to process to the participant */
+    participant_it->second->process = process_it->second;
+
+    /* Add the participant to the process' list of participants */
+    // Not storing the std::shared_ptr<DomainParticipant> in a local variable results in the participant_it->second
+    // being moved when inserting it into the map. This causes a SEGFAULT later on when accessing to it.
+    auto participant = participant_it->second;
+    process_it->second->participants[participant_it->first] = participant;
+
+    /* Add entry to domains_by_process_ */
+    domains_by_process_[process_it->first][domain_id] = participant_it->second->domain;
+
+    /* Add entry to processes_by_domain_ */
+    processes_by_domain_[domain_id][process_it->first] = process_it->second;
 }
 
 EntityId Database::generate_entity_id() noexcept
