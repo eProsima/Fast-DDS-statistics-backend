@@ -27,6 +27,10 @@
 #include <queue>
 #include <thread>
 
+#include "fastdds/rtps/common/Guid.h"
+#include "fastdds/rtps/common/Locator.h"
+#include "fastdds/rtps/common/SequenceNumber.h"
+
 #include <database/database.hpp>
 #include <database/entities.hpp>
 #include <topic_types/types.h>
@@ -45,6 +49,23 @@ template<typename T>
 class DatabaseQueue {
 
 public:
+    using StatisticsData = eprosima::fastdds::statistics::Data;
+    using StatisticsEventKind = eprosima::fastdds::statistics::EventKind;
+
+    using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
+    using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
+    using StatisticsEntityData = eprosima::fastdds::statistics::EntityData;
+    using StatisticsEntity2LocatorTraffic = eprosima::fastdds::statistics::Entity2LocatorTraffic;
+    using StatisticsEntityCount = eprosima::fastdds::statistics::EntityCount;
+    using StatisticsDiscoveryTime = eprosima::fastdds::statistics::DiscoveryTime;
+    using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
+    using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
+    using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
+    using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
+    using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
+    using StatisticsSequenceNumber = eprosima::fastdds::statistics::detail::SequenceNumber_s;
+    using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
+    using StatisticsLocator = eprosima::fastdds::statistics::detail::Locator_s;
 
     using queue_item_type = std::pair<std::chrono::steady_clock::time_point, T>;
 
@@ -347,7 +368,133 @@ public:
 
     virtual void process_sample() override;
 
+    template<typename T, typename Q>
+    void process_sample_type(
+            EntityId& /*entity*/,
+            EntityKind /*entity_kind*/,
+            T& /*sample*/,
+            const Q& /*item*/) const
+    {
+        throw BadParameter("Unsupported Sample type and Data type combination");
+    }
+
+protected:
+
+    std::string deserialize_guid(StatisticsGuid data) const
+    {
+        std::array<uint8_t, eprosima::fastrtps::rtps::GuidPrefix_t::size> guid_prefix = data.guidPrefix().value();
+        std::array<uint8_t, eprosima::fastrtps::rtps::EntityId_t::size> entity_id = data.entityId().value();
+
+        eprosima::fastrtps::rtps::GuidPrefix_t prefix;
+        eprosima::fastrtps::rtps::EntityId_t id;
+
+        std::stringstream ss;
+        for (unsigned int i = 0; i < eprosima::fastrtps::rtps::GuidPrefix_t::size; ++i)
+        {
+            ss << guid_prefix[i];
+        }
+        ss >> prefix;
+
+        ss.clear();
+        for (unsigned int i = 0; i < eprosima::fastrtps::rtps::EntityId_t::size; ++i)
+        {
+            ss << entity_id[i];
+        }
+        ss >> id;
+
+        eprosima::fastrtps::rtps::GUID_t guid (prefix, id);
+        ss.clear();
+        ss << guid;
+        return ss.str();
+    }
+
+    std::string deserialize_locator(StatisticsLocator data) const
+    {
+        int32_t kind = data.kind();
+        uint32_t port = data.port();
+        std::array<uint8_t, 16> address = data.address();
+
+        eprosima::fastrtps::rtps::Locator_t locator(kind, port);
+        memcpy(locator.address, address.data(), address.size());
+        std::stringstream ss;
+        ss << locator;
+        return ss.str();
+    }
+
+    uint64_t deserialize_sequence_number(StatisticsSequenceNumber data) const
+    {
+        int32_t high = data.high();
+        uint32_t low = data.low();
+
+        return eprosima::fastrtps::rtps::SequenceNumber_t(high, low).to64long();
+    }
+
+    std::pair<std::string, uint64_t> deserialize_sample_identity(StatisticsSampleIdentity data) const
+    {
+        std::string writer_guid = deserialize_guid(data.writer_guid());
+        uint64_t sequence_number = deserialize_sequence_number(data.sequence_number());
+
+        return std::make_pair(writer_guid, sequence_number);
+    }
+
 };
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        HistoryLatencySample& sample,
+        const DatabaseQueue::StatisticsWriterReaderData& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        NetworkLatencySample& sample,
+        const StatisticsLocator2LocatorData& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        EntityDataSample& sample,
+        const StatisticsEntityData& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        EntityToLocatorCountSample& sample,
+        const StatisticsEntity2LocatorTraffic& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        ByteToLocatorCountSample& sample,
+        const StatisticsEntity2LocatorTraffic& item) const;
+
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        EntityCountSample& sample,
+        const StatisticsEntityCount& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        DiscoveryTimeSample& sample,
+        const StatisticsDiscoveryTime& item) const;
+
+template<>
+void DatabaseDataQueue::process_sample_type(
+        EntityId& entity,
+        EntityKind entity_kind,
+        SampleDatasCountSample& sample,
+        const StatisticsSampleIdentityCount& item) const;
 
 } //namespace database
 } //namespace statistics_backend
