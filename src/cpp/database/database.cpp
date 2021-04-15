@@ -299,22 +299,6 @@ EntityId Database::insert(
                 throw BadParameter("Parent domain does not exist in the database");
             }
 
-            /* Check that process exits */
-            bool process_exists = false;
-            for (auto process_it : processes_)
-            {
-                if (participant->process.get() == process_it.second.get())
-                {
-                    process_exists = true;
-                    break;
-                }
-            }
-
-            if (!process_exists)
-            {
-                throw BadParameter("Parent process does not exist in the database");
-            }
-
             /* Check that this is indeed a new participant and that its GUID is unique */
             for (auto domain_it : participants_)
             {
@@ -343,7 +327,7 @@ EntityId Database::insert(
             participant->data_writers.clear();
             participant->data.clear();
             participant->id = generate_entity_id();
-            participant->process->participants[participant->id] = participant;
+            // participant->process->participants[participant->id] = participant;
 
             /* Add participant to domain's collection */
             participant->data_readers.clear();
@@ -351,11 +335,11 @@ EntityId Database::insert(
             participant->data.clear();
             participant->domain->participants[participant->id] = participant;
 
-            /* Add reader's locators to domains_by_process_ */
-            domains_by_process_[participant->process->id][participant->domain->id] = participant->domain;
+            // /* Add reader's locators to domains_by_process_ */
+            // domains_by_process_[participant->process->id][participant->domain->id] = participant->domain;
 
-            /* Add reader's participant to processes_by_domain_ */
-            processes_by_domain_[participant->domain->id][participant->process->id] = participant->process;
+            // /* Add reader's participant to processes_by_domain_ */
+            // processes_by_domain_[participant->domain->id][participant->process->id] = participant->process;
 
             /* Insert participant in the database */
             participants_[participant->domain->id][participant->id] = participant;

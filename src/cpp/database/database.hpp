@@ -43,7 +43,8 @@ public:
      * @param entity The entity object to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *             * If the entity already exists in the database
-     *             * If the parent entity does not exist in the database
+     *             * If the parent entity does not exist in the database (expect for the case of
+     *               Domainparticipant, for which it is allowed)
      *             * If the entity name is empty
      *             * Depending on the type of entity, if some other identifier is empty
      *             * For entities with GUID, if the GUID is not unique

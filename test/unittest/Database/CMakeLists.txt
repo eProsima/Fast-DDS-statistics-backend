@@ -120,7 +120,6 @@ set(DATABASE_TEST_LIST
     insert_participant_two_valid
     insert_participant_duplicated
     insert_participant_wrong_domain
-    insert_participant_wrong_process
     insert_participant_empty_name
     insert_participant_empty_qos
     insert_participant_empty_guid
