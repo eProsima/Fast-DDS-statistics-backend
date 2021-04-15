@@ -31,7 +31,6 @@ void DomainParticipantData::clear()
 void DataReaderData::clear()
 {
     discovered_entity.clear();
-    history2history_latency.clear();
     subscription_throughput.clear();
     acknack_count.clear();
     last_reported_acknack_count.clear();
@@ -70,7 +69,6 @@ void DataWriterData::clear()
 
 void LocatorData::clear()
 {
-    RTPSData::clear();
     network_latency_per_locator.clear();
 }
 

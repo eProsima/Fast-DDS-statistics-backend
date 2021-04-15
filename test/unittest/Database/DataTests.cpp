@@ -64,7 +64,6 @@ TEST(database, datareader_data_clear)
                                                std::chrono::steady_clock::now(), true)};
 
     // DDSEndpointData
-    data.history2history_latency[EntityId(1)].push_back(data_sample);
     data.subscription_throughput.push_back(data_sample);
     data.acknack_count.push_back(count_sample);
     data.last_reported_acknack_count = count_sample;
@@ -74,7 +73,6 @@ TEST(database, datareader_data_clear)
     /* Check that data in cleared */
     data.clear();
     ASSERT_TRUE(data.discovered_entity.empty());
-    ASSERT_TRUE(data.history2history_latency.empty());
     ASSERT_TRUE(data.subscription_throughput.empty());
     ASSERT_TRUE(data.acknack_count.empty());
     ASSERT_EQ(data.last_reported_acknack_count.count, 0);
@@ -159,29 +157,12 @@ TEST(database, locator_data_clear)
     byte_sample.count = 13;
     byte_sample.magnitude_order = 2;
 
-    // RTPSData
-    data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
-    data.last_reported_rtps_packets_sent_count = count_sample;
-    data.rtps_bytes_sent[EntityId(3)].push_back(byte_sample);
-    data.last_reported_rtps_bytes_sent_count = byte_sample;
-    data.rtps_packets_lost[EntityId(4)].push_back(count_sample);
-    data.last_reported_rtps_packets_lost_count = count_sample;
-    data.rtps_bytes_lost[EntityId(5)].push_back(byte_sample);
-    data.last_reported_rtps_bytes_lost_count = byte_sample;
-
     // LocatorData
     data.network_latency_per_locator[EntityId(6)].push_back(data_sample);
 
     /* Check that data in cleared */
     data.clear();
-    ASSERT_TRUE(data.rtps_packets_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_sent_count.count, 0);
-    ASSERT_TRUE(data.rtps_bytes_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_sent_count.count, 0);
-    ASSERT_TRUE(data.rtps_packets_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_lost_count.count, 0);
-    ASSERT_TRUE(data.rtps_bytes_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_lost_count.count, 0);
+    ASSERT_TRUE(data.network_latency_per_locator.empty());
 }
 
 int main(

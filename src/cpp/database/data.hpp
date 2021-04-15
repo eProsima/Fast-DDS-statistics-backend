@@ -315,7 +315,7 @@ struct LocatorData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    void clear() final;
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC
