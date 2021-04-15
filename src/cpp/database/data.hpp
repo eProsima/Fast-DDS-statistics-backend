@@ -88,23 +88,9 @@ struct DomainParticipantData : DDSEntityData
 };
 
 /*
- * Base struct for data related to DDS endpoints (data readers and writers)
- */
-struct DDSEndpointData : DDSEntityData
-{
-    /*
-     * Data reported by topic: eprosima::fastdds::statistics::HISTORY_LATENCY_TOPIC
-     *
-     * Store the reported latencies between the local and remote endpoint (identified by its
-     * EntityId) histories.
-     */
-    std::map<EntityId, std::vector<EntityDataSample>> history2history_latency;
-};
-
-/*
  * Data related to a DataReader
  */
-struct DataReaderData : DDSEndpointData
+struct DataReaderData : DDSEntityData
 {
     /*
      * Data reported by topic: eprosima::fastdds::statistics::SUBSCRIPTION_THROUGHPUT_TOPIC
@@ -205,7 +191,7 @@ struct RTPSData
 /*
  * Data related to a DataWriter
  */
-struct DataWriterData : DDSEndpointData, RTPSData
+struct DataWriterData : DDSEntityData, RTPSData
 {
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PUBLICATION_THROUGHPUT_TOPIC
@@ -275,12 +261,20 @@ struct DataWriterData : DDSEndpointData, RTPSData
      * The second one is the number of DATA/DATAFRAG sub-messages sent for sending that change.
      */
     std::map<uint64_t, uint64_t> sample_datas;
+
+    /*
+     * Data reported by topic: eprosima::fastdds::statistics::HISTORY_LATENCY_TOPIC
+     *
+     * Store the reported latencies between the local and remote endpoint (identified by its
+     * EntityId) histories.
+     */
+    std::map<EntityId, std::vector<EntityDataSample>> history2history_latency;
 };
 
 /*
  * Data related to a locator
  */
-struct LocatorData : RTPSData
+struct LocatorData
 {
     /*
      * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC
