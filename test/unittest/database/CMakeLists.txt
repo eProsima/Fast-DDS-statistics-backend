@@ -22,7 +22,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     add_executable(database_queue_tests database_queue_tests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
 
     target_include_directories(database_queue_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
@@ -41,6 +42,22 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_host
         push_user
         push_process
+        push_history_latency
+        push_network_latency
+        push_publication_throughput
+        push_subscription_throughput
+        push_rtps_sent
+        push_rtps_lost
+        push_resent_datas
+        push_heartbeat_count
+        push_acknack_count
+        push_nackfrag_count
+        push_gat_count
+        push_data_count
+        push_pdp_count
+        push_edp_count
+        push_discovery_times
+        push_sample_datas
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})
