@@ -76,7 +76,7 @@ public:
             Message& message) override
     {
         message["guid_prefix"] = static_cast<StatisticsGuid*>(data)->guidPrefix().value();
-        message["entityId"] = static_cast<StatisticsGuid*>(data)->guidPrefix().value();
+        message["entityId"] = static_cast<StatisticsGuid*>(data)->entityId().value();
     }
 
     virtual void deserialize(
