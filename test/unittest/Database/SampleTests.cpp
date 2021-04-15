@@ -32,7 +32,7 @@ TEST(database, statistics_sample_clear)
 
 TEST(database, entitydata_sample_clear)
 {
-    EntityDataSample sample;
+    EntityDataSample sample(DataKind::NACKFRAG_COUNT);
     sample.src_ts = std::chrono::steady_clock::now();
     sample.data = 12.0;
     sample.clear();
@@ -43,7 +43,7 @@ TEST(database, entitydata_sample_clear)
 
 TEST(database, entitycount_sample_clear)
 {
-    EntityCountSample sample;
+    EntityCountSample sample(DataKind::NACKFRAG_COUNT);
     sample.src_ts = std::chrono::steady_clock::now();
     sample.count = 12;
     sample.clear();
@@ -54,7 +54,7 @@ TEST(database, entitycount_sample_clear)
 
 TEST(database, bytecount_sample_clear)
 {
-    ByteCountSample sample;
+    ByteCountSample sample(DataKind::NACKFRAG_COUNT);
     sample.src_ts = std::chrono::steady_clock::now();
     sample.count = 12;
     sample.magnitude_order = 2;
