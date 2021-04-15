@@ -56,10 +56,13 @@ public:
         , consuming_(false)
         , current_loop_(0)
     {
+        start_consumer();
     }
 
    virtual ~DatabaseQueue()
    {
+       // Especializations must stop the consumer in their destructor,
+       // to avoid calling the abstract process_sample once the child is destroyed
    }
 
     /**
@@ -69,6 +72,9 @@ public:
      */
     void push(std::chrono::steady_clock::time_point ts, const T& item)
     {
+        std::unique_lock<std::mutex> guard(background_mutex_);
+        background_queue_->push(std::make_pair(ts, item));
+        cv_.notify_all();
     }
 
     /**
@@ -78,6 +84,34 @@ public:
      */
    void flush()
    {
+        std::unique_lock<std::mutex> guard(cv_mutex_);
+        if (!consuming_ && !consumer_thread_)
+        {
+            // already empty
+            return;
+        }
+
+        /* Flush() two steps strategy:
+        First consume the foreground queue, then swap and consume the background one.
+        */
+
+        int last_loop = -1;
+        for (int i = 0; i < 2; ++i)
+        {
+            cv_.wait(guard,
+                    [&]()
+                        {
+                            /* I must avoid:
+                            + the two calls be processed without an intermediate Run() loop (by using last_loop sequence number)
+                            + deadlock by absence of Run() loop activity (by using BothEmpty() call)
+                            */
+                            return !consuming_ ||
+                            ( empty() &&
+                            ( last_loop != current_loop_ || both_empty()) );
+                        });
+
+            last_loop = current_loop_;
+        }
    }
 
     /**
@@ -88,7 +122,18 @@ public:
      */
    bool stop_consumer()
    {
-        return true;
+        if (consuming_)
+        {
+            std::unique_lock<std::mutex> guard(cv_mutex_);
+            consuming_ = false;
+            guard.unlock();
+            cv_.notify_all();
+            consumer_thread_->join();
+            consumer_thread_.reset();
+            return true;
+        }
+
+        return false;
    }
 
     /**
@@ -98,7 +143,15 @@ public:
      */
    bool start_consumer() noexcept
    {
-        return true;
+        std::unique_lock<std::mutex> guard(cv_mutex_);
+        if (!consuming_ && !consumer_thread_)
+        {
+            consuming_ = true;
+            consumer_thread_.reset(new std::thread(&DatabaseQueue::run, this));
+            return true;
+        }
+
+        return false;
    }
 
 protected:
@@ -108,6 +161,15 @@ protected:
     */
    void swap()
    {
+      std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
+      std::unique_lock<std::mutex> bg_guard(background_mutex_);
+
+      // Clear the foreground queue.
+      std::queue<queue_item_type>().swap(*foreground_queue_);
+
+      auto* swap       = background_queue_;
+      background_queue_ = foreground_queue_;
+      foreground_queue_ = swap;
    }
 
    /**
@@ -119,7 +181,8 @@ protected:
     */
    queue_item_type& front()
    {
-      return queue_item_type();
+      std::unique_lock<std::mutex> guard(foreground_mutex_);
+      return foreground_queue_->front();
    }
 
    /**
@@ -131,7 +194,8 @@ protected:
     */
    const queue_item_type& front() const
    {
-      return queue_item_type();
+      std::unique_lock<std::mutex> guard(foreground_mutex_);
+      return foreground_queue_->front();
    }
 
    /**
@@ -141,6 +205,8 @@ protected:
     */
    void pop()
    {
+      std::unique_lock<std::mutex> guard(foreground_mutex_);
+      foreground_queue_->pop();
    }
 
    /**
@@ -150,7 +216,8 @@ protected:
     */
    bool empty() const
    {
-       true;
+      std::unique_lock<std::mutex> guard(foreground_mutex_);
+      return foreground_queue_->empty();
    }
 
    /**
@@ -160,7 +227,9 @@ protected:
     */
    bool both_empty() const
    {
-       true;
+      std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
+      std::unique_lock<std::mutex> bg_guard(background_mutex_);
+      return foreground_queue_->empty() && background_queue_->empty();
    }
 
     /**
@@ -168,6 +237,27 @@ protected:
      */
     void run()
     {
+        // Consume whatever there is in the queue
+        consume_all();
+
+        std::unique_lock<std::mutex> guard(cv_mutex_);
+        while (consuming_)
+        {
+            cv_.wait(guard,
+                    [&]()
+                        {
+                            return !consuming_ || !both_empty();
+                        });
+
+            if (!consuming_)
+            {
+                return;
+            }
+
+            guard.unlock();
+            consume_all();
+            guard.lock();
+        }
     }
 
     /**
@@ -176,10 +266,42 @@ protected:
      */
     void consume_all()
     {
+        swap();
+        while (!empty())
+        {
+            process_sample();
+            pop();
+        }
+
+        // We don't care about the overflow
+        ++current_loop_;
+
+        cv_.notify_all();
     }
 
     virtual void process_sample() = 0;
 
+
+   // Underlying queues
+   std::queue<queue_item_type> queue_alpha_;
+   std::queue<queue_item_type> queue_beta_;
+
+   // Front and background queue references (double buffering)
+   std::queue<queue_item_type>* foreground_queue_;
+   std::queue<queue_item_type>* background_queue_;
+
+   mutable std::mutex foreground_mutex_;
+   mutable std::mutex background_mutex_;
+
+    // Database
+    Database* database_;
+
+    // Consumer
+    std::unique_ptr<std::thread> consumer_thread_;
+    std::condition_variable cv_;
+    std::mutex cv_mutex_;
+    bool consuming_;
+    unsigned char current_loop_;
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<std::shared_ptr<Entity>>
@@ -195,12 +317,14 @@ public:
 
     virtual ~DatabaseEntityQueue()
     {
+        stop_consumer();
     }
 
 protected:
 
     virtual void process_sample() override
     {
+        database_->insert(front().second);
     }
 
 };
@@ -218,6 +342,7 @@ public:
 
     virtual ~DatabaseDataQueue()
     {
+        stop_consumer();
     }
 
     virtual void process_sample() override;
