@@ -112,7 +112,7 @@ struct EntityToLocatorCountSample : EntityCountSample
     {
     }
 
-    std::string remote_locator;
+    EntityId remote_locator;
 
 };
 
@@ -127,7 +127,7 @@ struct ByteToLocatorCountSample : ByteCountSample
     {
     }
 
-    std::string remote_locator;
+    EntityId remote_locator;
 
 };
 
@@ -141,7 +141,7 @@ struct HistoryLatencySample : EntityDataSample
     {
     }
 
-    std::string reader_guid;
+    EntityId reader;
 };
 
 /*
@@ -154,7 +154,7 @@ struct NetworkLatencySample : EntityDataSample
     {
     }
 
-    std::string remote_locator;
+    EntityId remote_locator;
 };
 
 /*
@@ -215,7 +215,7 @@ struct RtpsPacketsLostSample : EntityToLocatorCountSample
     {
     }
 
-    std::string remote_locator;
+    EntityId remote_locator;
 
 };
 
@@ -337,7 +337,7 @@ struct DiscoveryTimeSample : TimepointSample
     {
     }
 
-    std::string remote_entity_guid;
+    EntityId remote_entity;
 
 };
 
