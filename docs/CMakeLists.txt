@@ -69,7 +69,6 @@ set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} doxygen)
 ####################################################################################################
 # Build Sphinx documentation
 ####################################################################################################
-
 # Find sphinx
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 find_package(Sphinx REQUIRED)
