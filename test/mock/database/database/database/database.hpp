@@ -67,25 +67,13 @@ public:
             EntityKind entity_kind,
             const EntityId& entity_id));
 
-    MOCK_CONST_METHOD2(get_entities, const std::vector<std::shared_ptr<const Entity>>(
+    MOCK_CONST_METHOD2(get_entities_by_guid, std::vector<EntityId>(
             EntityKind entity_kind,
-            const eprosima::fastrtps::rtps::GUID_t& guid));
+            const std::string& guid));
 
-    MOCK_CONST_METHOD2(get_entities, const std::vector<std::shared_ptr<const Entity>>(
+    MOCK_CONST_METHOD2(get_entities_by_name, std::vector<EntityId>(
             EntityKind entity_kind,
             const std::string& name));
-
-    template<typename T>
-    const std::vector<EntityId> get_entities_with_attribute(
-            EntityKind /*entity_kind*/,
-            const T& /*attribute*/)
-    {
-        // Now construct the fake output
-        EntityId id (1);
-        std::vector<EntityId> result;
-        result.push_back(id);
-        return result;
-    }
 
 };
 

@@ -192,6 +192,41 @@ public:
      */
     EntityId generate_entity_id() noexcept;
 
+    /**
+     * Get all entities of a given EntityKind that match with the requested name
+     *
+     * @param entity_kind The EntityKind of the fetched entities
+     * @param name The name of the entities to search for
+     * @return A vector containing the EntityIds of the matching entities
+     */
+    std::vector<EntityId> get_entities_by_name(
+            EntityKind entity_kind,
+            const std::string& name) const
+    {
+        (void)entity_kind;
+        (void)name;
+        throw Unsupported("Not implemented yet");
+    }
+
+    /**
+     * Get all entities of a given EntityKind that match with the requested GUID
+     *
+     * If the given EntityKind does not contain a GUID,
+     * BadParameter is thrown.
+     *
+     * @param entity_kind The EntityKind of the fetched entities
+     * @param guid The GUID of the entities to search for
+     * @return A vector containing the EntityIds of the matching entities
+     */
+    std::vector<EntityId> get_entities_by_guid(
+            EntityKind entity_kind,
+            const std::string& guid) const
+    {
+        (void)entity_kind;
+        (void)guid;
+        throw Unsupported("Not implemented yet");
+    }
+
 protected:
 
     /**
