@@ -384,7 +384,7 @@ void Database::insert(
                 writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -398,7 +398,7 @@ void Database::insert(
                 locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known locator");
+            throw BadParameter(std::to_string(entity_id.value()) + " does not refer to a known locator");
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
@@ -411,7 +411,7 @@ void Database::insert(
                 writer->data.publication_throughput.push_back(publication_throughput);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -426,7 +426,7 @@ void Database::insert(
                 reader->data.subscription_throughput.push_back(subscription_throughput);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -440,7 +440,7 @@ void Database::insert(
                 writer->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(rtps_packets_sent);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -454,7 +454,7 @@ void Database::insert(
                 writer->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(rtps_bytes_sent);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -468,7 +468,7 @@ void Database::insert(
                 writer->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(rtps_packets_lost);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -482,7 +482,7 @@ void Database::insert(
                 writer->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -496,7 +496,7 @@ void Database::insert(
                 writer->data.resent_datas.push_back(resent_datas);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -510,7 +510,7 @@ void Database::insert(
                 writer->data.heartbeat_count.push_back(heartbeat_count);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -524,7 +524,7 @@ void Database::insert(
                 reader->data.acknack_count.push_back(acknack_count);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -538,7 +538,7 @@ void Database::insert(
                 reader->data.nackfrag_count.push_back(nackfrag_count);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -552,7 +552,7 @@ void Database::insert(
                 writer->data.gap_count.push_back(gap_count);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -566,7 +566,7 @@ void Database::insert(
                 writer->data.data_count.push_back(data_count);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -580,7 +580,7 @@ void Database::insert(
                 participant->data.pdp_packets.push_back(pdp_packets);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -594,7 +594,7 @@ void Database::insert(
                 participant->data.edp_packets.push_back(edp_packets);
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -609,7 +609,7 @@ void Database::insert(
                         bool>(discovery_time.time, discovery_time.discovered));
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
                               domain_id.value()));
         }
@@ -623,7 +623,7 @@ void Database::insert(
                 writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
                 break;
             }
-            throw Unsupported(std::to_string(
+            throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
                               domain_id.value()));
         }
