@@ -1609,13 +1609,23 @@ TEST(database, insert_sample_history_latency)
     HistoryLatencySample sample;
     sample.reader = reader_id;
     sample.data = 12;
-    // ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
-    db.insert(domain_id, writer_id, sample);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 1);
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
 }
 
+TEST(database, insert_sample_history_latency_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    HistoryLatencySample sample;
+    sample.reader = db.generate_entity_id();
+    sample.data = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_network_latency)
 {
@@ -1651,6 +1661,17 @@ TEST(database, insert_sample_network_latency)
             static_cast<EntityDataSample>(sample));
 }
 
+TEST(database, insert_sample_network_latency_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    NetworkLatencySample sample;
+    sample.remote_locator = db.generate_entity_id();
+    sample.data = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_publication_throughput)
 {
@@ -1678,6 +1699,16 @@ TEST(database, insert_sample_publication_throughput)
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
 }
 
+TEST(database, insert_sample_publication_throughput_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    PublicationThroughputSample sample;
+    sample.data = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_subscription_throughput)
 {
@@ -1705,6 +1736,16 @@ TEST(database, insert_sample_subscription_throughput)
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
 }
 
+TEST(database, insert_sample_subscription_throughput_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    SubscriptionThroughputSample sample;
+    sample.data = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_rtps_packets_sent)
 {
@@ -1733,6 +1774,17 @@ TEST(database, insert_sample_rtps_packets_sent)
     ASSERT_EQ(writer->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_rtps_packets_sent_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    RtpsPacketsSentSample sample;
+    sample.remote_locator = db.generate_entity_id();
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_rtps_bytes_sent)
 {
@@ -1762,6 +1814,18 @@ TEST(database, insert_sample_rtps_bytes_sent)
     ASSERT_EQ(writer->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
+TEST(database, insert_sample_rtps_bytes_sent_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    RtpsBytesSentSample sample;
+    sample.remote_locator = db.generate_entity_id();
+    sample.count = 12;
+    sample.magnitude_order = 2;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_rtps_packets_lost)
 {
@@ -1790,6 +1854,17 @@ TEST(database, insert_sample_rtps_packets_lost)
     ASSERT_EQ(writer->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_rtps_packets_lost_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    RtpsPacketsLostSample sample;
+    sample.remote_locator = db.generate_entity_id();
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_rtps_bytes_lost)
 {
@@ -1819,6 +1894,18 @@ TEST(database, insert_sample_rtps_bytes_lost)
     ASSERT_EQ(writer->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
+TEST(database, insert_sample_rtps_bytes_lost_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    RtpsBytesLostSample sample;
+    sample.remote_locator = db.generate_entity_id();
+    sample.count = 12;
+    sample.magnitude_order = 2;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_resent_data)
 {
@@ -1846,6 +1933,16 @@ TEST(database, insert_sample_resent_data)
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_resent_data_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    ResentDataSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_heartbeat_count)
 {
@@ -1873,6 +1970,16 @@ TEST(database, insert_sample_heartbeat_count)
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_heartbeat_count_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    HeartbeatCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_acknack_count)
 {
@@ -1900,6 +2007,16 @@ TEST(database, insert_sample_acknack_count)
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_acknack_count_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    AcknackCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_nackfrag_count)
 {
@@ -1927,6 +2044,16 @@ TEST(database, insert_sample_nackfrag_count)
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_nackfrag_count_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    NackfragCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_gap_count)
 {
@@ -1954,6 +2081,16 @@ TEST(database, insert_sample_gap_count)
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_gap_count_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    GapCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_data_count)
 {
@@ -1981,6 +2118,16 @@ TEST(database, insert_sample_data_count)
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_data_count_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    DataCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_pdp_packets)
 {
@@ -2000,6 +2147,16 @@ TEST(database, insert_sample_pdp_packets)
     ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_pdp_packets_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    PdpCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_edp_packets)
 {
@@ -2019,6 +2176,16 @@ TEST(database, insert_sample_edp_packets)
     ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
 }
 
+TEST(database, insert_sample_edp_packets_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    EdpCountSample sample;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_discovery_time)
 {
@@ -2050,6 +2217,18 @@ TEST(database, insert_sample_discovery_time)
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
 }
 
+TEST(database, insert_sample_discovery_time_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    DiscoveryTimeSample sample;
+    sample.remote_entity = db.generate_entity_id();
+    sample.time = std::chrono::steady_clock::now();
+    sample.discovered = true;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
 
 TEST(database, insert_sample_sample_datas)
 {
@@ -2078,6 +2257,18 @@ TEST(database, insert_sample_sample_datas)
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
 }
 
+TEST(database, insert_sample_sample_datas_wrong_entity)
+{
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+
+    SampleDatasCountSample sample;
+    sample.sequence_number = 2;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+}
+
 TEST(database, insert_sample_invalid)
 {
     /* Domain, topic, participant, and writer */
@@ -2098,6 +2289,30 @@ TEST(database, insert_sample_invalid)
 
     StatisticsSample sample;
     ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+}
+
+TEST(database, insert_sample_valid_wrong_domain)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    SampleDatasCountSample sample;
+    sample.sequence_number = 2;
+    sample.count = 12;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, sample), BadParameter);
 }
 
 int main(
