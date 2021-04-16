@@ -21,6 +21,8 @@
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
+#include "samples.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
 namespace database {
@@ -358,9 +360,105 @@ EntityId Database::insert(
 }
 
 void Database::insert(
+        const EntityId& domain_id,
         const EntityId& entity_id,
-        StatisticsSample sample)
+        const StatisticsSample& sample)
 {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    /* Check that domain_id refers to a known domain */
+    if (sample.kind != DataKind::NETWORK_LATENCY && !domains_[domain_id])
+    {
+        throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+    }
+
+    switch (sample.kind)
+    {
+        case DataKind::FASTDDS_LATENCY:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
+                writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+        }
+        case DataKind::NETWORK_LATENCY:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::PUBLICATION_THROUGHPUT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::RTPS_PACKETS_SENT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::RTPS_BYTES_SENT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::RTPS_PACKETS_LOST:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::RESENT_DATA:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::HEARTBEAT_COUNT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::ACKNACK_COUNT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::NACKFRAG_COUNT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::GAP_COUNT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::DATA_COUNT:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::PDP_PACKETS:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::EDP_PACKETS:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::DISCOVERY_TIME:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::SAMPLE_DATAS:
+        {
+            throw Unsupported("DataKind is not supported");
+        }
+        case DataKind::INVALID:
+        {
+            throw BadParameter("Invalid DataKind");
+        }
+    }
     static_cast<void>(entity_id);
     static_cast<void>(sample);
 }
