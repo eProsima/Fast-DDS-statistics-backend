@@ -59,10 +59,6 @@ TEST(database, datareader_data_clear)
     EntityCountSample count_sample;
     count_sample.count = 12;
 
-    // DDSEntityData
-    data.discovered_entity[EntityId(1)] = {std::pair<std::chrono::steady_clock::time_point, bool>(
-                                               std::chrono::steady_clock::now(), true)};
-
     // DDSEndpointData
     data.subscription_throughput.push_back(data_sample);
     data.acknack_count.push_back(count_sample);
@@ -72,7 +68,6 @@ TEST(database, datareader_data_clear)
 
     /* Check that data in cleared */
     data.clear();
-    ASSERT_TRUE(data.discovered_entity.empty());
     ASSERT_TRUE(data.subscription_throughput.empty());
     ASSERT_TRUE(data.acknack_count.empty());
     ASSERT_EQ(data.last_reported_acknack_count.count, 0);
@@ -91,13 +86,6 @@ TEST(database, datawriter_data_clear)
     ByteCountSample byte_sample;
     byte_sample.count = 13;
     byte_sample.magnitude_order = 2;
-
-    // DDSEntityData
-    data.discovered_entity[EntityId(1)] = {std::pair<std::chrono::steady_clock::time_point, bool>(
-                                               std::chrono::steady_clock::now(), true)};
-
-    // DDSEndpointData
-    data.history2history_latency[EntityId(1)].push_back(data_sample);
 
     // RTPSData
     data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
@@ -120,10 +108,10 @@ TEST(database, datawriter_data_clear)
     data.data_count.push_back(count_sample);
     data.last_reported_data_count = count_sample;
     data.sample_datas[1] = 12;
+    data.history2history_latency[EntityId(1)].push_back(data_sample);
 
     /* Check that data in cleared */
     data.clear();
-    ASSERT_TRUE(data.discovered_entity.empty());
     ASSERT_TRUE(data.history2history_latency.empty());
     ASSERT_TRUE(data.rtps_packets_sent.empty());
     ASSERT_EQ(data.last_reported_rtps_packets_sent_count.count, 0);

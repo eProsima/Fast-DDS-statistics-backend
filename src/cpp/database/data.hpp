@@ -38,14 +38,14 @@ namespace database {
 using Qos = nlohmann::json;
 
 /*
- * Base struct for all data strutures related to DDS entities
+ * Data related to a DomainParticipant
  */
-struct DDSEntityData
+struct DomainParticipantData
 {
     /**
-     * Clear all the internal data structures.
+     * Clear the vectors and maps, and set the counts to zero
      */
-    virtual void clear() = 0;
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::DISCOVERY_TOPIC
@@ -56,18 +56,6 @@ struct DDSEntityData
      * with value 1), or to a un-discovery (represented as DISPOSED with value 0).
      */
     std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>> discovered_entity;
-};
-
-/*
- * Data related to a DomainParticipant
- */
-struct DomainParticipantData : DDSEntityData
-{
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    void clear() final;
-
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PDP_PACKETS_TOPIC
@@ -101,12 +89,12 @@ struct DomainParticipantData : DDSEntityData
 /*
  * Data related to a DataReader
  */
-struct DataReaderData : DDSEntityData
+struct DataReaderData
 {
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    void clear() final;
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::SUBSCRIPTION_THROUGHPUT_TOPIC
@@ -150,7 +138,7 @@ struct RTPSData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    virtual void clear();
+    virtual void clear() = 0;
 
     /*
      * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -207,22 +195,12 @@ struct RTPSData
      * This is done to speed up the calculation of the entries in rtps_bytes_lost
      */
     ByteCountSample last_reported_rtps_bytes_lost_count;
-
-protected:
-
-    /**
-     * Empty protected constructor so the struct cannot be instantiated
-     */
-    RTPSData() noexcept
-    {
-    }
-
 };
 
 /*
  * Data related to a DataWriter
  */
-struct DataWriterData : DDSEntityData, RTPSData
+struct DataWriterData : RTPSData
 {
     /**
      * Clear the vectors and maps, and set the counts to zero

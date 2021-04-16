@@ -626,6 +626,7 @@ struct DiscoveryTimeSample : TimepointSample
     DiscoveryTimeSample()
         : TimepointSample(DataKind::DISCOVERY_TIME)
         , remote_entity(EntityId::invalid())
+        , discovered(false)
     {
     }
 
@@ -642,6 +643,8 @@ struct DiscoveryTimeSample : TimepointSample
     }
 
     EntityId remote_entity;
+
+    bool discovered;
 
 };
 
