@@ -496,7 +496,15 @@ void Database::insert(
         }
         case DataKind::ACKNACK_COUNT:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known reader */
+            auto reader = datareaders_[domain_id][entity_id];
+            if (reader)
+            {
+                const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
+                reader->data.acknack_count.push_back(acknack_count);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::NACKFRAG_COUNT:
         {
