@@ -1647,7 +1647,8 @@ TEST(database, insert_sample_network_latency)
     ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample));
 
     ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id].size(), 1);
-    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][0],
+            static_cast<EntityDataSample>(sample));
 }
 
 
@@ -1792,7 +1793,7 @@ TEST(database, insert_sample_rtps_packets_lost)
 
 TEST(database, insert_sample_rtps_bytes_lost)
 {
-        /* Domain, topic, participant, and writer */
+    /* Domain, topic, participant, and writer */
     DataBaseTest db;
     auto domain = std::make_shared<Domain>("test_domain");
     auto domain_id = db.insert(domain);

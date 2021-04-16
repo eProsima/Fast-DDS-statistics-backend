@@ -384,7 +384,9 @@ void Database::insert(
                 writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::NETWORK_LATENCY:
         {
@@ -404,11 +406,14 @@ void Database::insert(
             auto writer = datawriters_[domain_id][entity_id];
             if (writer)
             {
-                const PublicationThroughputSample& publication_throughput = dynamic_cast<const PublicationThroughputSample&>(sample);
+                const PublicationThroughputSample& publication_throughput =
+                        dynamic_cast<const PublicationThroughputSample&>(sample);
                 writer->data.publication_throughput.push_back(publication_throughput);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
@@ -416,11 +421,14 @@ void Database::insert(
             auto reader = datareaders_[domain_id][entity_id];
             if (reader)
             {
-                const SubscriptionThroughputSample& subscription_throughput = dynamic_cast<const SubscriptionThroughputSample&>(sample);
+                const SubscriptionThroughputSample& subscription_throughput =
+                        dynamic_cast<const SubscriptionThroughputSample&>(sample);
                 reader->data.subscription_throughput.push_back(subscription_throughput);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::RTPS_PACKETS_SENT:
         {
@@ -432,7 +440,9 @@ void Database::insert(
                 writer->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(rtps_packets_sent);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::RTPS_BYTES_SENT:
         {
@@ -444,7 +454,9 @@ void Database::insert(
                 writer->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(rtps_bytes_sent);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::RTPS_PACKETS_LOST:
         {
@@ -456,7 +468,9 @@ void Database::insert(
                 writer->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(rtps_packets_lost);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::RTPS_BYTES_LOST:
         {
@@ -468,7 +482,9 @@ void Database::insert(
                 writer->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::RESENT_DATA:
         {
@@ -480,7 +496,9 @@ void Database::insert(
                 writer->data.resent_datas.push_back(resent_datas);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::HEARTBEAT_COUNT:
         {
@@ -492,7 +510,9 @@ void Database::insert(
                 writer->data.heartbeat_count.push_back(heartbeat_count);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::ACKNACK_COUNT:
         {
@@ -504,7 +524,9 @@ void Database::insert(
                 reader->data.acknack_count.push_back(acknack_count);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::NACKFRAG_COUNT:
         {
@@ -516,7 +538,9 @@ void Database::insert(
                 reader->data.nackfrag_count.push_back(nackfrag_count);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::GAP_COUNT:
         {
@@ -528,7 +552,9 @@ void Database::insert(
                 writer->data.gap_count.push_back(gap_count);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::DATA_COUNT:
         {
@@ -540,7 +566,9 @@ void Database::insert(
                 writer->data.data_count.push_back(data_count);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::PDP_PACKETS:
         {
@@ -552,7 +580,9 @@ void Database::insert(
                 participant->data.pdp_packets.push_back(pdp_packets);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::EDP_PACKETS:
         {
@@ -564,7 +594,9 @@ void Database::insert(
                 participant->data.edp_packets.push_back(edp_packets);
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::DISCOVERY_TIME:
         {
@@ -573,10 +605,13 @@ void Database::insert(
             if (participant)
             {
                 const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
-                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::steady_clock::time_point, bool>(discovery_time.time, discovery_time.discovered));
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::steady_clock::time_point,
+                        bool>(discovery_time.time, discovery_time.discovered));
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::SAMPLE_DATAS:
         {
@@ -588,7 +623,9 @@ void Database::insert(
                 writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
                 break;
             }
-            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+            throw Unsupported(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::INVALID:
         {
