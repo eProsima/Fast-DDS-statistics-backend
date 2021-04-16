@@ -322,18 +322,20 @@ void DatabaseDataQueue::process_sample()
             }
             break;
         case StatisticsEventKind::PHYSICAL_DATA:
-            {/*
+            {
                 StatisticsPhysicalData item = front().second->physical_data();
 
                 // Take the ID of the Participant from its GUID
                 std::string participant_guid = deserialize_guid(item.participant_guid());
-                EntityId participant_id = database_->get_entities_with_attribute(EntityKind::PARTICIPANT, participant_guid).front();
+                EntityId participant_id = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid).front();
 
                 // Parse the process name and PID
                 size_t separator_pos = item.process().find(':');
                 if (separator_pos == std::string::npos)
                 {
-                    //error
+                    std::stringstream msg;
+                    msg << "Process name " << item.process() << "does not follow the [comman]:[PID] pattern";
+                    throw Error(msg.str());
                 }
                 std::string process_name = item.process().substr(0, separator_pos);
                 std::string process_pid = item.process().substr(separator_pos + 1);
@@ -341,17 +343,17 @@ void DatabaseDataQueue::process_sample()
                 // Check the existence of the process
                 EntityId process_id;
                 std::shared_ptr<Process> process;
-                std::vector<EntityId> processes = database_->get_entities_with_attribute(EntityKind::PROCESS, process_name);
+                std::vector<EntityId> processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
                 if (processes.empty())
                 {
                     // Check the existence of the user
                     std::shared_ptr<User> user;
-                    std::vector<EntityId> users = database_->get_entities_with_attribute(EntityKind::USER, item.user());
+                    std::vector<EntityId> users = database_->get_entities_by_name(EntityKind::USER, item.user());
                     if (users.empty())
                     {
                         // Check the existence of the host
                         std::shared_ptr<Host> host;
-                        std::vector<EntityId> hosts = database_->get_entities_with_attribute(EntityKind::HOST, item.host());
+                        std::vector<EntityId> hosts = database_->get_entities_by_name(EntityKind::HOST, item.host());
                         if (hosts.empty())
                         {
                             host.reset(new Host(item.host()));
@@ -378,8 +380,8 @@ void DatabaseDataQueue::process_sample()
                     process_id = processes.front();
                 }
 
-                database_->link_participant_to_process(participant_id, process_id);
-*/            }
+                database_->link_participant_with_process(participant_id, process_id);
+            }
             break;
     }
 }
