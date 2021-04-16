@@ -409,11 +409,18 @@ void Database::insert(
                 break;
             }
             throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
-
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known reader */
+            auto reader = datareaders_[domain_id][entity_id];
+            if (reader)
+            {
+                const SubscriptionThroughputSample& subscription_throughput = dynamic_cast<const SubscriptionThroughputSample&>(sample);
+                reader->data.subscription_throughput.push_back(subscription_throughput);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::RTPS_PACKETS_SENT:
         {
