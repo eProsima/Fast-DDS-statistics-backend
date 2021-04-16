@@ -412,6 +412,114 @@ TEST_F(database_queue_tests, push_history_latency)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_history_latency_no_reader)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    inner_data.data(1.0);
+    inner_data.writer_guid(writer_guid);
+    inner_data.reader_guid(reader_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->writer_reader_data(inner_data);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is not called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_history_latency_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    inner_data.data(1.0);
+    inner_data.writer_guid(writer_guid);
+    inner_data.reader_guid(reader_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->writer_reader_data(inner_data);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The reader exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is not called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_network_latency)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -474,6 +582,104 @@ TEST_F(database_queue_tests, push_network_latency)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_network_latency_no_source_locator)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    uint32_t src_locator_port = 1024;
+    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the source locator
+    DatabaseDataQueue::StatisticsLocator src_locator;
+    src_locator.kind(LOCATOR_KIND_TCPv4);
+    src_locator.port(src_locator_port);
+    src_locator.address(src_locator_address);
+
+    // Build the destination locator
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    inner_data.data(1.0);
+    inner_data.src_locator(src_locator);
+    inner_data.dst_locator(dst_locator);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->locator2locator_data(inner_data);
+    data->_d(EventKind::NETWORK_LATENCY);
+
+    // Precondition: The source locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The destination locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    uint32_t src_locator_port = 1024;
+    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the source locator
+    DatabaseDataQueue::StatisticsLocator src_locator;
+    src_locator.kind(LOCATOR_KIND_TCPv4);
+    src_locator.port(src_locator_port);
+    src_locator.address(src_locator_address);
+
+    // Build the destination locator
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    inner_data.data(1.0);
+    inner_data.src_locator(src_locator);
+    inner_data.dst_locator(dst_locator);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->locator2locator_data(inner_data);
+    data->_d(EventKind::NETWORK_LATENCY);
+
+    // Precondition: The source locator exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The destination locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_publication_throughput)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -525,6 +731,44 @@ TEST_F(database_queue_tests, push_publication_throughput)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_publication_throughput_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityData inner_data;
+    inner_data.data(1.0);
+    inner_data.guid(writer_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_data(inner_data);
+    data->_d(EventKind::PUBLICATION_THROUGHPUT);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_subscription_throughput)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -570,6 +814,44 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityData inner_data;
+    inner_data.data(1.0);
+    inner_data.guid(reader_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_data(inner_data);
+    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -659,6 +941,114 @@ TEST_F(database_queue_tests, push_rtps_sent)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_rtps_sent_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_SENT);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_rtps_sent_no_locator)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_SENT);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator does_not_exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is never called, ddata dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_rtps_lost)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -742,6 +1132,114 @@ TEST_F(database_queue_tests, push_rtps_lost)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_rtps_lost_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_LOST);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_rtps_lost_no_locator)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_LOST);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert method is never called. data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_resent_datas)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -787,6 +1285,44 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_resent_datas_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(writer_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::RESENT_DATAS);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -844,6 +1380,44 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(writer_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::HEARTBEAT_COUNT);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_acknack_count)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -889,6 +1463,44 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_acknack_count_no_reader)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(reader_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::ACKNACK_COUNT);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -946,6 +1558,44 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(reader_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::NACKFRAG_COUNT);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_gap_count)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -991,6 +1641,44 @@ TEST_F(database_queue_tests, push_gap_count)
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_gap_count_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(writer_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::GAP_COUNT);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1048,6 +1736,44 @@ TEST_F(database_queue_tests, push_data_count)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_data_count_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(writer_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::DATA_COUNT);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_pdp_count)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -1099,6 +1825,44 @@ TEST_F(database_queue_tests, push_pdp_count)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_pdp_count_no_participant)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(participant_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::PDP_PACKETS);
+
+    // Precondition: The participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_edp_count)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -1144,6 +1908,44 @@ TEST_F(database_queue_tests, push_edp_count)
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_edp_count_no_participant)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    inner_data.guid(participant_guid);
+    inner_data.count(1024);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity_count(inner_data);
+    data->_d(EventKind::EDP_PACKETS);
+
+    // Precondition: The participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1220,6 +2022,118 @@ TEST_F(database_queue_tests, push_discovery_times)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_discovery_times_no_participant)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
+    uint64_t discovery_time = 1024;
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+ 
+    // Build the participant GUID
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the remote GUID
+    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    remote_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    remote_entity_id.value(entity_id);
+    DatabaseDataQueue::StatisticsGuid remote_guid;
+    remote_guid.guidPrefix(remote_prefix);
+    remote_guid.entityId(remote_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    inner_data.local_participant_guid(participant_guid);
+    inner_data.remote_entity_guid(remote_guid);
+    inner_data.time(discovery_time);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->discovery_time(inner_data);
+    data->_d(EventKind::DISCOVERED_ENTITY);
+
+    // Precondition: The participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The remote entity exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_discovery_times_no_entity)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
+    uint64_t discovery_time = 1024;
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+ 
+    // Build the participant GUID
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the remote GUID
+    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    remote_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    remote_entity_id.value(entity_id);
+    DatabaseDataQueue::StatisticsGuid remote_guid;
+    remote_guid.guidPrefix(remote_prefix);
+    remote_guid.entityId(remote_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    inner_data.local_participant_guid(participant_guid);
+    inner_data.remote_entity_guid(remote_guid);
+    inner_data.time(discovery_time);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->discovery_time(inner_data);
+    data->_d(EventKind::DISCOVERED_ENTITY);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The remote entity does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_sample_datas)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -1256,6 +2170,7 @@ TEST_F(database_queue_tests, push_sample_datas)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
     data->_d(EventKind::SAMPLE_DATAS);
+
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
         .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
@@ -1275,6 +2190,55 @@ TEST_F(database_queue_tests, push_sample_datas)
             });
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_sample_datas_no_writer)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    DatabaseDataQueue::StatisticsSequenceNumber sequence_number;
+    sequence_number.high(sn_high);
+    sequence_number.low(sn_low);
+
+    DatabaseDataQueue::StatisticsSampleIdentity sample_identity;
+    sample_identity.writer_guid(writer_guid);
+    sample_identity.sequence_number(sequence_number);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsSampleIdentityCount inner_data;
+    inner_data.count(1024);
+    inner_data.sample_id(sample_identity);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->sample_identity_count(inner_data);
+    data->_d(EventKind::SAMPLE_DATAS);
+    
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+     // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
