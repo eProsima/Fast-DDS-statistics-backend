@@ -45,21 +45,42 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_user
         push_process
         push_history_latency
+        push_history_latency_no_reader
+        push_history_latency_no_writer
         push_network_latency
+        push_network_latency_no_source_locator
+        push_network_latency_no_destination_locator
         push_publication_throughput
+        push_publication_throughput_no_writer
         push_subscription_throughput
+        push_subscription_throughput_no_reder
         push_rtps_sent
+        push_rtps_sent_no_writer
+        push_rtps_sent_no_locator
         push_rtps_lost
+        push_rtps_lost_no_writer
+        push_rtps_lost_no_locator
         push_resent_datas
+        push_resent_datas_no_writer
         push_heartbeat_count
+        push_heartbeat_count_no_writer
         push_acknack_count
+        push_acknack_count_no_reader
         push_nackfrag_count
-        push_gat_count
+        push_nackfrag_count_no_reader
+        push_gap_count
+        push_gap_count_no_writer
         push_data_count
+        push_data_count_no_writer
         push_pdp_count
+        push_pdp_count_no_participant
         push_edp_count
+        push_edp_count_no_participant
         push_discovery_times
+        push_discovery_times_no_participant
+        push_discovery_times_no_entity
         push_sample_datas
+        push_sample_datas_no_writer
         push_physical_data_process_exists
         push_physical_data_no_participant_exists
         push_physical_data_no_process_exists
