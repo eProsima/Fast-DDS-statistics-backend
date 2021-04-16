@@ -1696,7 +1696,7 @@ TEST(database, insert_sample_subscription_throughput)
     reader->locators[reader_locator->id] = reader_locator;
     auto reader_id = db.insert(reader);
 
-    PublicationThroughputSample sample;
+    SubscriptionThroughputSample sample;
     sample.data = 12;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
