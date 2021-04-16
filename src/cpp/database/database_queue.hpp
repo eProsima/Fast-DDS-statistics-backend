@@ -370,6 +370,7 @@ public:
 
     template<typename T, typename Q>
     void process_sample_type(
+            EntityId& /*domain*/,
             EntityId& /*entity*/,
             EntityKind /*entity_kind*/,
             T& /*sample*/,
@@ -437,6 +438,7 @@ protected:
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         HistoryLatencySample& sample,
@@ -444,6 +446,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         NetworkLatencySample& sample,
@@ -451,6 +454,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         EntityDataSample& sample,
@@ -458,6 +462,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         EntityToLocatorCountSample& sample,
@@ -465,6 +470,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         ByteToLocatorCountSample& sample,
@@ -473,6 +479,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         EntityCountSample& sample,
@@ -480,6 +487,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         DiscoveryTimeSample& sample,
@@ -487,6 +495,7 @@ void DatabaseDataQueue::process_sample_type(
 
 template<>
 void DatabaseDataQueue::process_sample_type(
+        EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         SampleDatasCountSample& sample,

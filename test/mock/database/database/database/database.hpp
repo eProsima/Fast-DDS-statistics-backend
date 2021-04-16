@@ -36,7 +36,8 @@ public:
     MOCK_METHOD1(insert, EntityId(
             std::shared_ptr<Entity> entity));
 
-    MOCK_METHOD2(insert, void(
+    MOCK_METHOD3(insert, void(
+            const EntityId& domain_id,
             const EntityId& entity_id,
             const StatisticsSample& sample));
 
@@ -67,11 +68,11 @@ public:
             EntityKind entity_kind,
             const EntityId& entity_id));
 
-    MOCK_CONST_METHOD2(get_entities_by_guid, std::vector<EntityId>(
+    MOCK_CONST_METHOD2(get_entities_by_guid, std::vector<std::pair<EntityId, EntityId>>(
             EntityKind entity_kind,
             const std::string& guid));
 
-    MOCK_CONST_METHOD2(get_entities_by_name, std::vector<EntityId>(
+    MOCK_CONST_METHOD2(get_entities_by_name, std::vector<std::pair<EntityId, EntityId>>(
             EntityKind entity_kind,
             const std::string& name));
 
