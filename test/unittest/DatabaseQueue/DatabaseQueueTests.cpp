@@ -20,6 +20,7 @@
 #include <gmock/gmock.h>
 
 #include <iostream>
+#include <functional>
 
 using namespace eprosima::statistics_backend::database;
 using EntityId = eprosima::statistics_backend::EntityId;
@@ -134,44 +135,46 @@ public:
 
 struct InsertDataArgs
 {
+    InsertDataArgs (
+            std::function<void(
+                const EntityId&,
+                const EntityId&,
+                const StatisticsSample&)> func)
+        : callback_(func)
+    {
+    }
+
     void insert(
+            const EntityId& domain_id,
             const EntityId& id,
             const StatisticsSample& sample)
     {
-        entities_.emplace_back(id);
-        samples_.emplace_back(sample);
+        return callback_(domain_id, id, sample);
     }
 
-    std::vector<EntityId> entities_;
-    std::vector<std::reference_wrapper<const StatisticsSample>> samples_;
+    std::function<void(
+            const EntityId&,
+            const EntityId&,
+            const StatisticsSample&)> callback_;
 };
 
 struct InsertEntityArgs
 {
-    InsertEntityArgs(
-            EntityId returned_entity_id)
+    InsertEntityArgs (
+            std::function<EntityId(std::shared_ptr<Entity>)> func)
+        : callback_(func)
     {
-        returned_entity_ids_.emplace_back(returned_entity_id);
     }
 
     EntityId insert(
             std::shared_ptr<Entity> entity)
     {
-        entities_.emplace_back(entity);
-        return returned_entity_ids_[counter_++];
+        entity_ = entity;
+        return callback_(entity);
     }
 
-    unsigned int add_expected_id(
-            EntityId returned_entity_id)
-    {
-        returned_entity_ids_.push_back(returned_entity_id);
-        return returned_entity_ids_.size() - 1;
-    }
-
-    unsigned int counter_ = 0;
-    std::vector<std::shared_ptr<Entity>> entities_;
-    std::vector<EntityId> returned_entity_ids_;
-
+    std::function<EntityId(std::shared_ptr<Entity> entity)> callback_;
+    std::shared_ptr<Entity> entity_;
 };
 
 class database_queue_tests: public ::testing::Test
@@ -187,9 +190,6 @@ public:
         : entity_queue(&database)
         , data_queue(&database)
     {
-        ON_CALL(database, insert(_)).WillByDefault(Return(EntityId(1)));
-        ON_CALL(database, get_entities_by_guid(_, _)).WillByDefault(Return(std::vector<EntityId>(1, EntityId(1))));
-        ON_CALL(database, get_entities_by_name(_, _)).WillByDefault(Return(std::vector<EntityId>(1, EntityId(1))));
     }
 };
 
@@ -259,8 +259,25 @@ TEST_F(database_queue_tests, start_stop_flush)
 TEST_F(database_queue_tests, push_host)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
-    std::shared_ptr<Host> host = std::make_shared<Host>("hostname");
-    EXPECT_CALL(database, insert(_)).Times(1);
+    std::string hostname = "hostname";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+
+    // Expectation: The host is created and given ID 1
+    InsertEntityArgs insert_args([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, hostname);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+        .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
     entity_queue.push(timestamp, host);
     entity_queue.flush();
 }
@@ -268,9 +285,28 @@ TEST_F(database_queue_tests, push_host)
 TEST_F(database_queue_tests, push_user)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
-    std::shared_ptr<Host> host = std::make_shared<Host>("hostname");
-    std::shared_ptr<User> user = std::make_shared<User>("username", host);
-    EXPECT_CALL(database, insert(_)).Times(1);
+    std::string hostname = "hostname";
+    std::string username = "username";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+    std::shared_ptr<User> user = std::make_shared<User>(username, host);
+
+    // Expectation: The user is created and given ID 2
+    InsertEntityArgs insert_args([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
+
+                return EntityId(2);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+        .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
     entity_queue.push(timestamp, user);
     entity_queue.flush();
 }
@@ -278,10 +314,32 @@ TEST_F(database_queue_tests, push_user)
 TEST_F(database_queue_tests, push_process)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
-    std::shared_ptr<Host> host = std::make_shared<Host>("hostname");
-    std::shared_ptr<User> user = std::make_shared<User>("username", host);
-    std::shared_ptr<Process> process = std::make_shared<Process>("processname", "1", user);
-    EXPECT_CALL(database, insert(_)).Times(1);
+    std::string hostname = "hostname";
+    std::string username = "username";
+    std::string command = "command";
+    std::string pid = "1234";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+    std::shared_ptr<User> user = std::make_shared<User>(username, host);
+    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, user);
+
+    // Expectation: The process is created and given ID 2
+    InsertEntityArgs insert_args([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, command);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+
+                return EntityId(2);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+        .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
     entity_queue.push(timestamp, process);
     entity_queue.flush();
 }
@@ -326,27 +384,32 @@ TEST_F(database_queue_tests, push_history_latency)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The reader exists and has ID 2
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::FASTDDS_LATENCY);
+                EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(sample).reader, 2);
+                EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(sample).data, 1.0);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::FASTDDS_LATENCY);
-    EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(args.samples_[0].get()).reader, 2);
-    EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_network_latency)
@@ -354,18 +417,25 @@ TEST_F(database_queue_tests, push_network_latency)
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    uint32_t src_locator_port = 1024;
+    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
+    // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
-    src_locator.port(1024);
+    src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
+    // Build the destination locator
     DatabaseDataQueue::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
-    dst_locator.port(2048);
+    dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
@@ -374,15 +444,34 @@ TEST_F(database_queue_tests, push_network_latency)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
     data->_d(EventKind::NETWORK_LATENCY);
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+
+    // Precondition: The source locator exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The destination locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
+                EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::NETWORK_LATENCY);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
 }
 
 TEST_F(database_queue_tests, push_publication_throughput)
@@ -413,22 +502,27 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::PUBLICATION_THROUGHPUT);
+                EXPECT_EQ(dynamic_cast<const PublicationThroughputSample&>(sample).data, 1.0);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::PUBLICATION_THROUGHPUT);
-    EXPECT_EQ(dynamic_cast<const PublicationThroughputSample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_subscription_throughput)
@@ -459,22 +553,27 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::SUBSCRIPTION_THROUGHPUT);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(dynamic_cast<const SubscriptionThroughputSample&>(sample).data, 1.0);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::SUBSCRIPTION_THROUGHPUT);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(dynamic_cast<const SubscriptionThroughputSample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_rtps_sent)
@@ -517,34 +616,47 @@ TEST_F(database_queue_tests, push_rtps_sent)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
-        .WillRepeatedly(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(2)
-        .WillRepeatedly(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(2)
-        .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
+    InsertDataArgs args1([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+        .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+        .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RTPS_PACKETS_SENT);
-    EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(args.samples_[0].get()).count, 1024);
-    EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(args.samples_[0].get()).remote_locator, 2);
-
-    EXPECT_EQ(args.entities_[1], 1);
-    EXPECT_EQ(args.samples_[1].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[1].get().kind, DataKind::RTPS_BYTES_SENT);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).count, 2048);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).magnitude_order, 10);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).remote_locator, 2);
 }
 
 TEST_F(database_queue_tests, push_rtps_lost)
@@ -586,35 +698,48 @@ TEST_F(database_queue_tests, push_rtps_lost)
     data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The locator exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(2)
+        .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(2)
-        .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
+    InsertDataArgs args1([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+        .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+        .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RTPS_PACKETS_LOST);
-    EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(args.samples_[0].get()).count, 1024);
-    EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(args.samples_[0].get()).remote_locator, 2);
-
-    EXPECT_EQ(args.entities_[1], 1);
-    EXPECT_EQ(args.samples_[1].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[1].get().kind, DataKind::RTPS_BYTES_LOST);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).count, 2048);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).magnitude_order, 10);
-    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).remote_locator, 2);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -645,22 +770,27 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RESENT_DATA);
+                EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RESENT_DATA);
-    EXPECT_EQ(dynamic_cast<const ResentDataSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_heartbeat_count)
@@ -691,22 +821,27 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::HEARTBEAT_COUNT);
+                EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::HEARTBEAT_COUNT);
-    EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_acknack_count)
@@ -737,22 +872,27 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::ACKNACK_COUNT);
+                EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::ACKNACK_COUNT);
-    EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_nackfrag_count)
@@ -783,22 +923,27 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NACKFRAG_COUNT);
+                EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::NACKFRAG_COUNT);
-    EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_gap_count)
@@ -829,22 +974,27 @@ TEST_F(database_queue_tests, push_gap_count)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::GAP_COUNT);
+                EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::GAP_COUNT);
-    EXPECT_EQ(dynamic_cast<const GapCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_data_count)
@@ -875,22 +1025,27 @@ TEST_F(database_queue_tests, push_data_count)
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::DATA_COUNT);
+                EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::DATA_COUNT);
-    EXPECT_EQ(dynamic_cast<const DataCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_pdp_count)
@@ -921,22 +1076,27 @@ TEST_F(database_queue_tests, push_pdp_count)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::PDP_PACKETS);
+                EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::PDP_PACKETS);
-    EXPECT_EQ(dynamic_cast<const PdpCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_edp_count)
@@ -967,22 +1127,27 @@ TEST_F(database_queue_tests, push_edp_count)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::EDP_PACKETS);
+                EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::EDP_PACKETS);
-    EXPECT_EQ(dynamic_cast<const EdpCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_discovery_times)
@@ -1027,27 +1192,32 @@ TEST_F(database_queue_tests, push_discovery_times)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The remote entity exists and has ID 2
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::DISCOVERY_TIME);
+                EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).remote_entity, 2);
+            //    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::DISCOVERY_TIME);
-    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(args.samples_[0].get()).remote_entity, 2);
-//    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(args.samples_[0].get()).time, discovery_timestamp);
 }
 
 TEST_F(database_queue_tests, push_sample_datas)
@@ -1088,23 +1258,27 @@ TEST_F(database_queue_tests, push_sample_datas)
     data->_d(EventKind::SAMPLE_DATAS);
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
      // Expectation: The insert method is called with appropriate arguments
-    InsertDataArgs args;
-    EXPECT_CALL(database, insert(_, _)).Times(1)
+    InsertDataArgs args([&](
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::SAMPLE_DATAS);
+                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).sequence_number, sn.to64long());
+            });
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
         .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(args.entities_[0], 1);
-    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
-    EXPECT_EQ(args.samples_[0].get().kind, DataKind::SAMPLE_DATAS);
-    EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(args.samples_[0].get()).count, 1024);
-    EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(args.samples_[0].get()).sequence_number, sn.to64long());
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
@@ -1145,7 +1319,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();
@@ -1192,11 +1366,11 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The process exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: methods that may be called but we do not care at this moment
     EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
@@ -1247,23 +1421,34 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The process does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The user exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto user = std::make_shared<User>(username, std::make_shared<Host>(hostname));
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+        .WillOnce(Return(user));
 
     // Expectation: The process is created and given ID 3
-    InsertEntityArgs insert_args(EntityId(3));
-    EXPECT_CALL(database, insert(_)).Times(1)
-        .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    InsertEntityArgs insert_args_process([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-    // Expectation: methods that may be called but we do not care at this moment
-    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+                return EntityId(3);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+        .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(3))).Times(1);
@@ -1271,10 +1456,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::PROCESS);
-    EXPECT_EQ(insert_args.entities_[0]->name, processname);
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
@@ -1315,31 +1496,50 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The process does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The user does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+        .WillOnce(Return(host));
 
     // Expectation: The user is created and given ID 3
-    InsertEntityArgs insert_args(EntityId(3));
+    InsertEntityArgs insert_args_user([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
+
+                return EntityId(3);
+            });
 
     // Expectation: The process is created and given ID 4
-    insert_args.add_expected_id(EntityId(4));
+    InsertEntityArgs insert_args_process([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(4);
+            });
 
     EXPECT_CALL(database, insert(_)).Times(2)
-        .WillRepeatedly(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectation: methods that may be called but we do not care at this moment
-    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+        .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+        .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
@@ -1347,13 +1547,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::USER);
-    EXPECT_EQ(insert_args.entities_[0]->name, username);
-
-    EXPECT_EQ(insert_args.entities_[1]->kind, EntityKind::PROCESS);
-    EXPECT_EQ(insert_args.entities_[1]->name, processname);
 }
 
 
@@ -1395,34 +1588,57 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The process does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The user does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The host does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>()));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Expectation: The host is created and given ID 3
-    InsertEntityArgs insert_args(EntityId(3));
+    InsertEntityArgs insert_args_host([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, hostname);
+
+                return EntityId(4);
+            });
 
     // Expectation: The user is created and given ID 4
-    insert_args.add_expected_id(EntityId(4));
+    InsertEntityArgs insert_args_user([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(4);
+            });
 
     // Expectation: The process is created and given ID 5
-    insert_args.add_expected_id(EntityId(5));
+    InsertEntityArgs insert_args_process([&](
+            std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(5);
+            });
 
     EXPECT_CALL(database, insert(_)).Times(3)
-        .WillRepeatedly(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectation: methods that may be called but we do not care at this moment
-    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+        .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+        .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+        .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(1);
@@ -1430,16 +1646,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-
-    // Check expected arguments
-    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::HOST);
-    EXPECT_EQ(insert_args.entities_[0]->name, hostname);
-
-    EXPECT_EQ(insert_args.entities_[1]->kind, EntityKind::USER);
-    EXPECT_EQ(insert_args.entities_[1]->name, username);
-
-    EXPECT_EQ(insert_args.entities_[2]->kind, EntityKind::PROCESS);
-    EXPECT_EQ(insert_args.entities_[2]->name, processname);
 }
 
 TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
@@ -1480,7 +1686,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();
