@@ -51,7 +51,7 @@ public:
     void insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            StatisticsSample sample);
+            const StatisticsSample& sample);
 
     /**
      * @brief Erase all the data related to a domain
