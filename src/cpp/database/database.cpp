@@ -580,7 +580,15 @@ void Database::insert(
         }
         case DataKind::SAMPLE_DATAS:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
+                writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::INVALID:
         {
