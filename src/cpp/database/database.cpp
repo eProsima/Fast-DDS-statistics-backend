@@ -388,7 +388,15 @@ void Database::insert(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known locator */
+            auto locator = locators_[entity_id];
+            if (locator)
+            {
+                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known locator");
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
