@@ -23,6 +23,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
 
     target_include_directories(database_queue_tests PRIVATE
@@ -58,6 +60,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_edp_count
         push_discovery_times
         push_sample_datas
+        push_physical_data_process_exists
+        push_physical_data_no_participant_exists
+        push_physical_data_no_process_exists
+        push_physical_data_no_process_no_user_exists
+        push_physical_data_no_process_no_user_no_host_exists
+        push_physical_data_wrong_processname_format
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})

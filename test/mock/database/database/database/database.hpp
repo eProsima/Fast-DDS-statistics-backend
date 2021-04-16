@@ -33,7 +33,7 @@ class Database
 {
 public:
 
-    MOCK_METHOD1(insert, void(
+    MOCK_METHOD1(insert, EntityId(
             std::shared_ptr<Entity> entity));
 
     MOCK_METHOD2(insert, void(
@@ -74,6 +74,10 @@ public:
     MOCK_CONST_METHOD2(get_entities_by_name, std::vector<EntityId>(
             EntityKind entity_kind,
             const std::string& name));
+
+    MOCK_CONST_METHOD2(link_participant_with_process, void(
+            const EntityId& participant_id,
+            const EntityId& process_id));
 
 };
 

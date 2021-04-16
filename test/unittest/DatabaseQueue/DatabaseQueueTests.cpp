@@ -30,6 +30,8 @@ using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Return;
+using ::testing::AnyNumber;
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend::database;
@@ -60,6 +62,26 @@ public:
     {
         swap();
     }
+
+    /**
+     * @brief Processes one sample and removes it from the front queue
+     * 
+     * This is necessary to check exception handling on the consumer
+     * Consumers must be stopped and the queues swapped manually
+     * 
+     * @return true if anything was consumed
+     */
+    bool consume_sample()
+    {
+        if (empty())
+        {
+            return false;
+        }
+
+        process_sample();
+        pop();
+        return true;
+    }
 };
 
 // Wrapper class to expose the internal attributes of the queue
@@ -88,6 +110,68 @@ public:
     {
         swap();
     }
+
+    /**
+     * @brief Processes one sample and removes it from the front queue
+     * 
+     * This is necessary to check exception handling on the consumer
+     * Consumers must be stopped and the queues swapped manually
+     * 
+     * @return true if anything was consumed
+     */
+    bool consume_sample()
+    {
+        if (empty())
+        {
+            return false;
+        }
+
+        process_sample();
+        pop();
+        return true;
+    }
+};
+
+struct InsertDataArgs
+{
+    void insert(
+            const EntityId& id,
+            const StatisticsSample& sample)
+    {
+        entities_.emplace_back(id);
+        samples_.emplace_back(sample);
+    }
+
+    std::vector<EntityId> entities_;
+    std::vector<std::reference_wrapper<const StatisticsSample>> samples_;
+};
+
+struct InsertEntityArgs
+{
+    InsertEntityArgs(
+            EntityId returned_entity_id)
+    {
+        returned_entity_ids_.emplace_back(returned_entity_id);
+    }
+
+    EntityId insert(
+            std::shared_ptr<Entity> entity)
+    {
+        entities_.emplace_back(entity);
+        return returned_entity_ids_[counter_++];
+    }
+
+    unsigned int add_expected_id(
+            EntityId returned_entity_id)
+    {
+        returned_entity_ids_.push_back(returned_entity_id);
+        return returned_entity_ids_.size() - 1;
+    }
+
+    unsigned int counter_ = 0;
+    std::vector<std::shared_ptr<Entity>> entities_;
+    std::vector<EntityId> returned_entity_ids_;
+
 };
 
 class database_queue_tests: public ::testing::Test
@@ -103,8 +187,10 @@ public:
         : entity_queue(&database)
         , data_queue(&database)
     {
+        ON_CALL(database, insert(_)).WillByDefault(Return(EntityId(1)));
+        ON_CALL(database, get_entities_by_guid(_, _)).WillByDefault(Return(std::vector<EntityId>(1, EntityId(1))));
+        ON_CALL(database, get_entities_by_name(_, _)).WillByDefault(Return(std::vector<EntityId>(1, EntityId(1))));
     }
-
 };
 
 TEST_F(database_queue_tests, start_stop_flush)
@@ -199,19 +285,6 @@ TEST_F(database_queue_tests, push_process)
     entity_queue.push(timestamp, process);
     entity_queue.flush();
 }
-
-struct InsertArgs {
-    void insert(
-            const EntityId& id,
-            const StatisticsSample& sample)
-    {
-        id_ = id;
-        sample_ = sample;
-    }
-
-    EntityId id_;
-    StatisticsSample sample_;
-};
 
 TEST_F(database_queue_tests, push_history_latency)
 {
@@ -777,19 +850,408 @@ TEST_F(database_queue_tests, push_sample_datas)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
     data->_d(EventKind::SAMPLE_DATAS);
-    InsertArgs args;
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::SAMPLE_DATAS);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::SAMPLE_DATAS);
+    EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(args.samples_[0].get()).count, 1024);
+    EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(args.samples_[0].get()).sequence_number, sn.to64long());
+}
+
+TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Add to the queue and wait to be processed
+    data_queue.stop_consumer();
+    data_queue.push(timestamp, data);
+    data_queue.do_swap();
+    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::BadParameter);
+}
+
+TEST_F(database_queue_tests, push_physical_data_process_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The process exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: methods that may be called but we do not care at this moment
+    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(2))).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_physical_data_no_process_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Precondition: The user exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: The process is created and given ID 3
+    InsertEntityArgs insert_args(EntityId(3));
+    EXPECT_CALL(database, insert(_)).Times(1)
+        .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: methods that may be called but we do not care at this moment
+    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(3))).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+
+    // Check expected arguments
+    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::PROCESS);
+    EXPECT_EQ(insert_args.entities_[0]->name, processname);
+}
+
+TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Precondition: The user does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: The user is created and given ID 3
+    InsertEntityArgs insert_args(EntityId(3));
+
+    // Expectation: The process is created and given ID 4
+    insert_args.add_expected_id(EntityId(4));
+
+    EXPECT_CALL(database, insert(_)).Times(2)
+        .WillRepeatedly(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: methods that may be called but we do not care at this moment
+    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+
+    // Check expected arguments
+    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::USER);
+    EXPECT_EQ(insert_args.entities_[0]->name, username);
+
+    EXPECT_EQ(insert_args.entities_[1]->kind, EntityKind::PROCESS);
+    EXPECT_EQ(insert_args.entities_[1]->name, processname);
 }
 
 
+TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
 
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Precondition: The user does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Precondition: The host does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>()));
+
+    // Expectation: The host is created and given ID 3
+    InsertEntityArgs insert_args(EntityId(3));
+
+    // Expectation: The user is created and given ID 4
+    insert_args.add_expected_id(EntityId(4));
+
+    // Expectation: The process is created and given ID 5
+    insert_args.add_expected_id(EntityId(5));
+
+    EXPECT_CALL(database, insert(_)).Times(3)
+        .WillRepeatedly(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: methods that may be called but we do not care at this moment
+    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+
+    // Check expected arguments
+    EXPECT_EQ(insert_args.entities_[0]->kind, EntityKind::HOST);
+    EXPECT_EQ(insert_args.entities_[0]->name, hostname);
+
+    EXPECT_EQ(insert_args.entities_[1]->kind, EntityKind::USER);
+    EXPECT_EQ(insert_args.entities_[1]->name, username);
+
+    EXPECT_EQ(insert_args.entities_[2]->kind, EntityKind::PROCESS);
+    EXPECT_EQ(insert_args.entities_[2]->name, processname);
+}
+
+TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name with the wrong format
+    std::stringstream ss;
+    ss << processname << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Add to the queue and wait to be processed
+    data_queue.stop_consumer();
+    data_queue.push(timestamp, data);
+    data_queue.do_swap();
+    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::Error);
+}
 
 int main(
         int argc,
