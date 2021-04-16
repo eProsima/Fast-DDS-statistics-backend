@@ -32,7 +32,7 @@ void DatabaseDataQueue::process_sample_type(
 {
     sample.data = item.data();
     std::string reader_guid = deserialize_guid(item.reader_guid());
-    sample.reader = database_->get_entities_by_guid(entity_kind, reader_guid).front();
+    sample.reader = database_->get_entities_by_guid(EntityKind::DATAREADER, reader_guid).front();
 
     std::string writer_guid = deserialize_guid(item.writer_guid());
     entity = database_->get_entities_by_guid(entity_kind, writer_guid).front();
@@ -47,7 +47,7 @@ void DatabaseDataQueue::process_sample_type(
 {
     sample.data = item.data();
     std::string remote_locator = deserialize_locator(item.dst_locator());
-    sample.remote_locator = database_->get_entities_by_name(entity_kind, remote_locator).front();
+    sample.remote_locator = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator).front();
 
     std::string source_locator = deserialize_locator(item.src_locator());
     entity = database_->get_entities_by_name(entity_kind, source_locator).front();
@@ -75,7 +75,7 @@ void DatabaseDataQueue::process_sample_type(
 {
     sample.count = item.packet_count();
     std::string remote_locator = deserialize_locator(item.dst_locator());
-    sample.remote_locator = database_->get_entities_by_name(entity_kind, remote_locator).front();
+    sample.remote_locator = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator).front();
 
     std::string guid = deserialize_guid(item.src_guid());
     entity = database_->get_entities_by_guid(entity_kind, guid).front();
@@ -91,7 +91,7 @@ void DatabaseDataQueue::process_sample_type(
     sample.count = item.byte_count();
     sample.magnitude_order = item.byte_magnitude_order();
     std::string remote_locator = deserialize_locator(item.dst_locator());
-    sample.remote_locator = database_->get_entities_by_name(entity_kind, remote_locator).front();
+    sample.remote_locator = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator).front();
 
     std::string guid = deserialize_guid(item.src_guid());
     entity = database_->get_entities_by_guid(entity_kind, guid).front();
@@ -327,14 +327,21 @@ void DatabaseDataQueue::process_sample()
 
                 // Take the ID of the Participant from its GUID
                 std::string participant_guid = deserialize_guid(item.participant_guid());
-                EntityId participant_id = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid).front();
+                std::vector<EntityId> participants = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
+                if (participants.empty())
+                {
+                    std::stringstream msg;
+                    msg << "No participant with GUID " << participant_guid << " exists";
+                    throw BadParameter(msg.str());
+                }
+                EntityId participant_id = participants.front();
 
                 // Parse the process name and PID
-                size_t separator_pos = item.process().find(':');
+                size_t separator_pos = item.process().find_last_of(':');
                 if (separator_pos == std::string::npos)
                 {
                     std::stringstream msg;
-                    msg << "Process name " << item.process() << "does not follow the [comman]:[PID] pattern";
+                    msg << "Process name " << item.process() << " does not follow the [command]:[PID] pattern";
                     throw Error(msg.str());
                 }
                 std::string process_name = item.process().substr(0, separator_pos);
@@ -361,7 +368,8 @@ void DatabaseDataQueue::process_sample()
                         }
                         else
                         {
-                            host = std::dynamic_pointer_cast<Host>(database_->get_entity(hosts.front()));
+                            std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(hosts.front()));
+                            host = std::const_pointer_cast<Host>(const_host);
                         }
 
                         user.reset(new User(item.user(), host));
@@ -369,7 +377,8 @@ void DatabaseDataQueue::process_sample()
                     }
                     else
                     {
-                        user = std::dynamic_pointer_cast<User>(database_->get_entity(users.front()));
+                        std::shared_ptr<const User> const_user = std::dynamic_pointer_cast<const User>(database_->get_entity(users.front()));
+                        user = std::const_pointer_cast<User>(const_user);
                     }
 
                     process.reset(new Process(process_name, process_pid, user));
