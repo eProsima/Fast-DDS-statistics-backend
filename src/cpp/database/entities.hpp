@@ -56,6 +56,8 @@ struct Entity
     {
     }
 
+    virtual ~Entity() = default;
+
     //! The unique identification of the entity
     EntityId id;
 
