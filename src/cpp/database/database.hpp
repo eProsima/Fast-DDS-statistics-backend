@@ -44,10 +44,12 @@ public:
 
     /**
      * @brief Insert a new statistics sample into the database.
+     * @param domain_id The EntityId to the domain that contains the entity
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      */
     void insert(
+            const EntityId& domain_id,
             const EntityId& entity_id,
             StatisticsSample sample);
 
