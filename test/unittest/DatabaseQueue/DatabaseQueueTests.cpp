@@ -293,6 +293,10 @@ TEST_F(database_queue_tests, push_history_latency)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId reader_entity_id;
@@ -301,6 +305,7 @@ TEST_F(database_queue_tests, push_history_latency)
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -309,6 +314,7 @@ TEST_F(database_queue_tests, push_history_latency)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsWriterReaderData inner_data;
     inner_data.data(1.0);
     inner_data.writer_guid(writer_guid);
@@ -317,15 +323,30 @@ TEST_F(database_queue_tests, push_history_latency)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
     data->_d(EventKind::HISTORY2HISTORY_LATENCY);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The reader exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::FASTDDS_LATENCY);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::FASTDDS_LATENCY);
+    EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(args.samples_[0].get()).reader, 2);
+    EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_network_latency)
@@ -353,15 +374,15 @@ TEST_F(database_queue_tests, push_network_latency)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
     data->_d(EventKind::NETWORK_LATENCY);
-    InsertArgs args;
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::NETWORK_LATENCY);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::NETWORK_LATENCY);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
 }
 
 TEST_F(database_queue_tests, push_publication_throughput)
@@ -370,6 +391,9 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -378,6 +402,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(writer_guid);
@@ -385,15 +410,25 @@ TEST_F(database_queue_tests, push_publication_throughput)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
     data->_d(EventKind::PUBLICATION_THROUGHPUT);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::PUBLICATION_THROUGHPUT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::PUBLICATION_THROUGHPUT);
+    EXPECT_EQ(dynamic_cast<const PublicationThroughputSample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_subscription_throughput)
@@ -402,6 +437,9 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId reader_entity_id;
@@ -410,6 +448,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(reader_guid);
@@ -417,15 +456,25 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
     data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
-    InsertArgs args;
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::SUBSCRIPTION_THROUGHPUT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::SUBSCRIPTION_THROUGHPUT);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(dynamic_cast<const SubscriptionThroughputSample&>(args.samples_[0].get()).data, 1.0);
 }
 
 TEST_F(database_queue_tests, push_rtps_sent)
@@ -434,6 +483,12 @@ TEST_F(database_queue_tests, push_rtps_sent)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -442,12 +497,13 @@ TEST_F(database_queue_tests, push_rtps_sent)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
-    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    // Build the locator address
     DatabaseDataQueue::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
-    dst_locator.port(2048);
+    dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
@@ -458,21 +514,37 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
     data->_d(EventKind::RTPS_SENT);
-    InsertArgs args1;
-    InsertArgs args2;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
+        .WillRepeatedly(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(2)
+        .WillRepeatedly(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(2)
-        .WillOnce(Invoke(&args1, &InsertArgs::insert))
-        .WillOnce(Invoke(&args2, &InsertArgs::insert));
+        .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args1.id_, 1);
-    EXPECT_EQ(args1.sample_.kind, DataKind::RTPS_PACKETS_SENT);
-    EXPECT_EQ(args1.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RTPS_PACKETS_SENT);
+    EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(args.samples_[0].get()).count, 1024);
+    EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(args.samples_[0].get()).remote_locator, 2);
 
-    EXPECT_EQ(args2.id_, 1);
-    EXPECT_EQ(args2.sample_.kind, DataKind::RTPS_BYTES_SENT);
-    EXPECT_EQ(args2.sample_.src_ts, timestamp);
+    EXPECT_EQ(args.entities_[1], 1);
+    EXPECT_EQ(args.samples_[1].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[1].get().kind, DataKind::RTPS_BYTES_SENT);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).count, 2048);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).magnitude_order, 10);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(args.samples_[1].get()).remote_locator, 2);
 }
 
 TEST_F(database_queue_tests, push_rtps_lost)
@@ -481,6 +553,12 @@ TEST_F(database_queue_tests, push_rtps_lost)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -489,12 +567,13 @@ TEST_F(database_queue_tests, push_rtps_lost)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
-    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    // Build the locator address
     DatabaseDataQueue::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
-    dst_locator.port(2048);
+    dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
@@ -505,21 +584,37 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
     data->_d(EventKind::RTPS_LOST);
-    InsertArgs args1;
-    InsertArgs args2;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(2)
-        .WillOnce(Invoke(&args1, &InsertArgs::insert))
-        .WillOnce(Invoke(&args2, &InsertArgs::insert));
+        .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args1.id_, 1);
-    EXPECT_EQ(args1.sample_.kind, DataKind::RTPS_PACKETS_LOST);
-    EXPECT_EQ(args1.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RTPS_PACKETS_LOST);
+    EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(args.samples_[0].get()).count, 1024);
+    EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(args.samples_[0].get()).remote_locator, 2);
 
-    EXPECT_EQ(args2.id_, 1);
-    EXPECT_EQ(args2.sample_.kind, DataKind::RTPS_BYTES_LOST);
-    EXPECT_EQ(args2.sample_.src_ts, timestamp);
+    EXPECT_EQ(args.entities_[1], 1);
+    EXPECT_EQ(args.samples_[1].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[1].get().kind, DataKind::RTPS_BYTES_LOST);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).count, 2048);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).magnitude_order, 10);
+    EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(args.samples_[1].get()).remote_locator, 2);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -528,6 +623,9 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -536,6 +634,7 @@ TEST_F(database_queue_tests, push_resent_datas)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
@@ -543,15 +642,25 @@ TEST_F(database_queue_tests, push_resent_datas)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::RESENT_DATAS);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::RESENT_DATA);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::RESENT_DATA);
+    EXPECT_EQ(dynamic_cast<const ResentDataSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_heartbeat_count)
@@ -560,6 +669,9 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -568,6 +680,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
@@ -575,15 +688,25 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::HEARTBEAT_COUNT);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::HEARTBEAT_COUNT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::HEARTBEAT_COUNT);
+    EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_acknack_count)
@@ -592,6 +715,9 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId reader_entity_id;
@@ -600,6 +726,7 @@ TEST_F(database_queue_tests, push_acknack_count)
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
@@ -607,15 +734,25 @@ TEST_F(database_queue_tests, push_acknack_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::ACKNACK_COUNT);
-    InsertArgs args;
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::ACKNACK_COUNT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::ACKNACK_COUNT);
+    EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_nackfrag_count)
@@ -624,6 +761,9 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+
+    // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId reader_entity_id;
@@ -632,6 +772,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
@@ -639,15 +780,25 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::NACKFRAG_COUNT);
-    InsertArgs args;
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::NACKFRAG_COUNT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::NACKFRAG_COUNT);
+    EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_gap_count)
@@ -656,6 +807,9 @@ TEST_F(database_queue_tests, push_gap_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -664,6 +818,7 @@ TEST_F(database_queue_tests, push_gap_count)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
@@ -671,15 +826,25 @@ TEST_F(database_queue_tests, push_gap_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::GAP_COUNT);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::GAP_COUNT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::GAP_COUNT);
+    EXPECT_EQ(dynamic_cast<const GapCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_data_count)
@@ -688,6 +853,9 @@ TEST_F(database_queue_tests, push_data_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -696,6 +864,7 @@ TEST_F(database_queue_tests, push_data_count)
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
@@ -703,15 +872,25 @@ TEST_F(database_queue_tests, push_data_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::DATA_COUNT);
-    InsertArgs args;
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::DATA_COUNT);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::DATA_COUNT);
+    EXPECT_EQ(dynamic_cast<const DataCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_pdp_count)
@@ -720,6 +899,9 @@ TEST_F(database_queue_tests, push_pdp_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId participant_entity_id;
@@ -728,6 +910,7 @@ TEST_F(database_queue_tests, push_pdp_count)
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
@@ -735,15 +918,25 @@ TEST_F(database_queue_tests, push_pdp_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::PDP_PACKETS);
-    InsertArgs args;
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::PDP_PACKETS);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::PDP_PACKETS);
+    EXPECT_EQ(dynamic_cast<const PdpCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_edp_count)
@@ -752,6 +945,9 @@ TEST_F(database_queue_tests, push_edp_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+
+    // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId participant_entity_id;
@@ -760,6 +956,7 @@ TEST_F(database_queue_tests, push_edp_count)
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
@@ -767,15 +964,25 @@ TEST_F(database_queue_tests, push_edp_count)
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
     data->_d(EventKind::EDP_PACKETS);
-    InsertArgs args;
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::EDP_PACKETS);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::EDP_PACKETS);
+    EXPECT_EQ(dynamic_cast<const EdpCountSample&>(args.samples_[0].get()).count, 1024);
 }
 
 TEST_F(database_queue_tests, push_discovery_times)
@@ -785,7 +992,12 @@ TEST_F(database_queue_tests, push_discovery_times)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
-
+    uint64_t discovery_time = 1024;
+    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+ 
+    // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId participant_entity_id;
@@ -794,6 +1006,7 @@ TEST_F(database_queue_tests, push_discovery_times)
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
+    // Build the remote GUID
     DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
     remote_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId remote_entity_id;
@@ -802,23 +1015,39 @@ TEST_F(database_queue_tests, push_discovery_times)
     remote_guid.guidPrefix(remote_prefix);
     remote_guid.entityId(remote_entity_id);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
     inner_data.local_participant_guid(participant_guid);
     inner_data.remote_entity_guid(remote_guid);
-    inner_data.time(1024);
+    inner_data.time(discovery_time);
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
     data->_d(EventKind::DISCOVERED_ENTITY);
-    InsertArgs args;
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(1))));
+
+    // Precondition: The remote entity exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(1)
+        .WillOnce(Return(std::vector<EntityId>(1, EntityId(2))));
+
+     // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args;
     EXPECT_CALL(database, insert(_, _)).Times(1)
-        .WillOnce(Invoke(&args, &InsertArgs::insert));
+        .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
 
-    EXPECT_EQ(args.id_, 1);
-    EXPECT_EQ(args.sample_.kind, DataKind::DISCOVERY_TIME);
-    EXPECT_EQ(args.sample_.src_ts, timestamp);
+    // Check expected arguments
+    EXPECT_EQ(args.entities_[0], 1);
+    EXPECT_EQ(args.samples_[0].get().src_ts, timestamp);
+    EXPECT_EQ(args.samples_[0].get().kind, DataKind::DISCOVERY_TIME);
+    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(args.samples_[0].get()).remote_entity, 2);
+//    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(args.samples_[0].get()).time, discovery_timestamp);
 }
 
 TEST_F(database_queue_tests, push_sample_datas)
@@ -827,6 +1056,12 @@ TEST_F(database_queue_tests, push_sample_datas)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+
+    // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueue::StatisticsEntityId writer_entity_id;
@@ -836,13 +1071,14 @@ TEST_F(database_queue_tests, push_sample_datas)
     writer_guid.entityId(writer_entity_id);
 
     DatabaseDataQueue::StatisticsSequenceNumber sequence_number;
-    sequence_number.high(1024);
-    sequence_number.low(2048);
+    sequence_number.high(sn_high);
+    sequence_number.low(sn_low);
 
     DatabaseDataQueue::StatisticsSampleIdentity sample_identity;
     sample_identity.writer_guid(writer_guid);
     sample_identity.sequence_number(sequence_number);
 
+    // Build the Statistics data
     DatabaseDataQueue::StatisticsSampleIdentityCount inner_data;
     inner_data.count(1024);
     inner_data.sample_id(sample_identity);
