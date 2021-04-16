@@ -26,10 +26,37 @@ target_link_libraries(sample_tests PUBLIC
     gtest)
 
 set(SAMPLES_TEST_LIST
+    # Clear sample tests
     statistics_sample_clear
     entitydata_sample_clear
     entitycount_sample_clear
     bytecount_sample_clear
+    # Comparison operator tests
+    statisticssample_operator_comparison
+    entitydatasample_operator_comparison
+    entitycountsample_operator_comparison
+    bytecountsample_operator_comparison
+    timepointsample_operator_comparison
+    entitytolocatorcountsample_operator_comparison
+    bytetolocatorcountsample_operator_comparison
+    historylatencysample_operator_comparison
+    networklatencysample_operator_comparison
+    publicationthroughputsample_operator_comparison
+    subscriptionthroughputsample_operator_comparison
+    rtpspacketssentsample_operator_comparison
+    rtpsbytessentsample_operator_comparison
+    rtpspacketslostsample_operator_comparison
+    rtpsbyteslostsample_operator_comparison
+    resentdatasample_operator_comparison
+    heartbeatcountsample_operator_comparison
+    acknackcountsample_operator_comparison
+    nackfragcountsample_operator_comparison
+    gapcountsample_operator_comparison
+    datacountsample_operator_comparison
+    pdpcountsample_operator_comparison
+    edpcountsample_operator_comparison
+    discoverytimesample_operator_comparison
+    sampledatascountsample_operator_comparison
 )
 
 foreach(test_name ${SAMPLES_TEST_LIST})
