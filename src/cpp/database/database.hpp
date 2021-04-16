@@ -64,7 +64,12 @@ public:
     void insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            const StatisticsSample& sample);
+            const StatisticsSample& sample)
+    {
+        (void)entity_id;
+        (void)sample;
+        throw Unsupported("Not implemented yet");
+    }
 
     /**
      * @brief Create the link between a participant and a process
@@ -159,7 +164,11 @@ public:
      * @return A constant shared pointer to the Entity
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const;
+            const EntityId& entity_id) const
+    {
+        (void) entity_id;
+        throw Unsupported("Not implemented yet");
+    }
 
     /**
      * Get all entities of a given EntityKind related to another entity
