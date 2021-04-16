@@ -22,6 +22,7 @@
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
+#include <database/samples.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -1579,6 +1580,501 @@ TEST(database, link_participant_with_process_linked_participant)
     /* Link participant with process twice */
     ASSERT_NO_THROW(db.link_participant_with_process(participant_id, process_id));
     ASSERT_THROW(db.link_participant_with_process(participant_id, process_id), BadParameter);
+}
+
+TEST(database, insert_sample_history_latency)
+{
+    /* Domain, topic, participant, writer, and reader */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+    auto reader_locator = std::make_shared<Locator>("reader_locator");
+    reader_locator->id = db.generate_entity_id();
+    auto reader = std::make_shared<DataReader>(
+        "test_reader", db.test_qos, "reader_guid", participant, topic);
+    reader->locators[reader_locator->id] = reader_locator;
+    auto reader_id = db.insert(reader);
+
+    HistoryLatencySample sample;
+    sample.reader = reader_id;
+    sample.data = 12;
+    // ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    db.insert(domain_id, writer_id, sample);
+
+    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 1);
+    ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
+}
+
+
+TEST(database, insert_sample_network_latency)
+{
+    /* Domain, topic, participant, writer, and reader */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    db.insert(writer);
+    auto reader_locator = std::make_shared<Locator>("reader_locator");
+    reader_locator->id = db.generate_entity_id();
+    auto reader = std::make_shared<DataReader>(
+        "test_reader", db.test_qos, "reader_guid", participant, topic);
+    reader->locators[reader_locator->id] = reader_locator;
+    db.insert(reader);
+
+    NetworkLatencySample sample;
+    sample.remote_locator = reader_locator->id;
+    sample.data = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample));
+
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id].size(), 1);
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][0], static_cast<EntityDataSample>(sample));
+}
+
+
+TEST(database, insert_sample_publication_throughput)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    PublicationThroughputSample sample;
+    sample.data = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.publication_throughput.size(), 1);
+    ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
+}
+
+
+TEST(database, insert_sample_subscription_throughput)
+{
+    /* Domain, topic, participant, and reader */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto reader_locator = std::make_shared<Locator>("reader_locator");
+    reader_locator->id = db.generate_entity_id();
+    auto reader = std::make_shared<DataReader>(
+        "test_reader", db.test_qos, "reader_guid", participant, topic);
+    reader->locators[reader_locator->id] = reader_locator;
+    auto reader_id = db.insert(reader);
+
+    PublicationThroughputSample sample;
+    sample.data = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    ASSERT_EQ(reader->data.subscription_throughput.size(), 1);
+    ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
+}
+
+
+TEST(database, insert_sample_rtps_packets_sent)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    RtpsPacketsSentSample sample;
+    sample.remote_locator = writer_locator->id;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.rtps_packets_sent.size(), 1);
+    ASSERT_EQ(writer->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_rtps_bytes_sent)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    RtpsBytesSentSample sample;
+    sample.remote_locator = writer_locator->id;
+    sample.count = 12;
+    sample.magnitude_order = 2;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.rtps_bytes_sent.size(), 1);
+    ASSERT_EQ(writer->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_rtps_packets_lost)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    RtpsPacketsLostSample sample;
+    sample.remote_locator = writer_locator->id;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.rtps_packets_lost.size(), 1);
+    ASSERT_EQ(writer->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_rtps_bytes_lost)
+{
+        /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    RtpsBytesLostSample sample;
+    sample.remote_locator = writer_locator->id;
+    sample.count = 12;
+    sample.magnitude_order = 2;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.rtps_bytes_lost.size(), 1);
+    ASSERT_EQ(writer->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_resent_data)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    ResentDataSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.resent_datas.size(), 1);
+    ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_heartbeat_count)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    HeartbeatCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.heartbeat_count.size(), 1);
+    ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_acknack_count)
+{
+    /* Domain, topic, participant, and reader */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto reader_locator = std::make_shared<Locator>("reader_locator");
+    reader_locator->id = db.generate_entity_id();
+    auto reader = std::make_shared<DataReader>(
+        "test_reader", db.test_qos, "reader_guid", participant, topic);
+    reader->locators[reader_locator->id] = reader_locator;
+    auto reader_id = db.insert(reader);
+
+    AcknackCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    ASSERT_EQ(reader->data.acknack_count.size(), 1);
+    ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_nackfrag_count)
+{
+    /* Domain, topic, participant, and reader */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto reader_locator = std::make_shared<Locator>("reader_locator");
+    reader_locator->id = db.generate_entity_id();
+    auto reader = std::make_shared<DataReader>(
+        "test_reader", db.test_qos, "reader_guid", participant, topic);
+    reader->locators[reader_locator->id] = reader_locator;
+    auto reader_id = db.insert(reader);
+
+    NackfragCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    ASSERT_EQ(reader->data.nackfrag_count.size(), 1);
+    ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_gap_count)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    GapCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.gap_count.size(), 1);
+    ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_data_count)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    DataCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.data_count.size(), 1);
+    ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_pdp_packets)
+{
+    /* Domain, topic, and participant */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    auto participant_id = db.insert(participant);
+
+    PdpCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+
+    ASSERT_EQ(participant->data.pdp_packets.size(), 1);
+    ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_edp_packets)
+{
+    /* Domain, topic, and participant */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    auto participant_id = db.insert(participant);
+
+    EdpCountSample sample;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+
+    ASSERT_EQ(participant->data.edp_packets.size(), 1);
+    ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
+}
+
+
+TEST(database, insert_sample_discovery_time)
+{
+    /* Domain, topic, participant, and writer*/
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    /* Check participant */
+    DiscoveryTimeSample sample;
+    sample.remote_entity = writer_id;
+    sample.time = std::chrono::steady_clock::now();
+    sample.discovered = true;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+
+    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 1);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].first, sample.time);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
+}
+
+
+TEST(database, insert_sample_sample_datas)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    SampleDatasCountSample sample;
+    sample.sequence_number = 2;
+    sample.count = 12;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    ASSERT_EQ(writer->data.sample_datas.size(), 1);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
 }
 
 int main(

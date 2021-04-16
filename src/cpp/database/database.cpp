@@ -357,6 +357,14 @@ EntityId Database::insert(
     return EntityId();
 }
 
+void Database::insert(
+        const EntityId& entity_id,
+        StatisticsSample sample)
+{
+    static_cast<void>(entity_id);
+    static_cast<void>(sample);
+}
+
 void Database::link_participant_with_process(
         const EntityId& participant_id,
         const EntityId& process_id)

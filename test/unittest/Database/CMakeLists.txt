@@ -172,6 +172,25 @@ set(DATABASE_TEST_LIST
     link_participant_with_process_wrong_participant
     link_participant_with_process_wrong_process
     link_participant_with_process_linked_participant
+    # Insert samples
+    insert_sample_history_latency
+    insert_sample_network_latency
+    insert_sample_publication_throughput
+    insert_sample_subscription_throughput
+    insert_sample_rtps_packets_sent
+    insert_sample_rtps_bytes_sent
+    insert_sample_rtps_packets_lost
+    insert_sample_rtps_bytes_lost
+    insert_sample_resent_data
+    insert_sample_heartbeat_count
+    insert_sample_acknack_count
+    insert_sample_nackfrag_count
+    insert_sample_gap_count
+    insert_sample_data_count
+    insert_sample_pdp_packets
+    insert_sample_edp_packets
+    insert_sample_discovery_time
+    insert_sample_sample_datas
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
