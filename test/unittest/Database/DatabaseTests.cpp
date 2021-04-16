@@ -2077,6 +2077,28 @@ TEST(database, insert_sample_sample_datas)
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
 }
 
+TEST(database, insert_sample_invalid)
+{
+    /* Domain, topic, participant, and writer */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+    auto writer_locator = std::make_shared<Locator>("writer_locator");
+    writer_locator->id = db.generate_entity_id();
+    auto writer = std::make_shared<DataWriter>(
+        "test_writer", db.test_qos, "writer_guid", participant, topic);
+    writer->locators[writer_locator->id] = writer_locator;
+    auto writer_id = db.insert(writer);
+
+    StatisticsSample sample;
+    ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+}
+
 int main(
         int argc,
         char** argv)

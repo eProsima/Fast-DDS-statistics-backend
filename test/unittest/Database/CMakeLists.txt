@@ -191,6 +191,7 @@ set(DATABASE_TEST_LIST
     insert_sample_edp_packets
     insert_sample_discovery_time
     insert_sample_sample_datas
+    insert_sample_invalid
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
