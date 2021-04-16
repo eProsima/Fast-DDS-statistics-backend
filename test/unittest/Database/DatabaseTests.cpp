@@ -60,6 +60,11 @@ public:
         return participants_;
     }
 
+    const std::map<EntityId, std::shared_ptr<Locator>>& locators()
+    {
+        return locators_;
+    }
+
     const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant()
     {
         return locators_by_participant_;
@@ -145,13 +150,18 @@ void insert_ddsendpoint_valid()
     ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
 
-    /* Check x_by_y_ collections */
+    /* Check x_by_y_ collections and locators_ */
+    auto locators = db.locators();
     auto locators_by_participant = db.locators_by_participant();
     auto participants_by_locator = db.participants_by_locator();
     ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size());
     ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
     for (auto locator_it : endpoint->locators)
     {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
         // Check that the endpoint's locators are correctly inserted in locators_by_participant_
         ASSERT_NE(
             locators_by_participant[participant_id].find(locator_it.first),
@@ -220,7 +230,8 @@ void insert_ddsendpoint_two_valid()
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
 
-    /* Check x_by_y_ collections */
+    /* Check x_by_y_ collections and locators_ */
+    auto locators = db.locators();
     auto locators_by_participant = db.locators_by_participant();
     auto participants_by_locator = db.participants_by_locator();
     ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size() * 2);
@@ -228,6 +239,10 @@ void insert_ddsendpoint_two_valid()
     ASSERT_EQ(participants_by_locator[locator_2->id].size(), endpoint_2->locators.size());
     for (auto locator_it : endpoint->locators)
     {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
         // Check that the endpoint's locators are correctly inserted in locators_by_participant_
         ASSERT_NE(
             locators_by_participant[participant_id].find(locator_it.first),
@@ -240,6 +255,10 @@ void insert_ddsendpoint_two_valid()
 
     for (auto locator_it : endpoint_2->locators)
     {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
         // Check that the endpoint's locators are correctly inserted in locators_by_participant_
         ASSERT_NE(
             locators_by_participant[participant_id].find(locator_it.first),

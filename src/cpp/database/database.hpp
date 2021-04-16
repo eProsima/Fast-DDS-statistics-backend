@@ -292,9 +292,11 @@ protected:
         endpoint->id = generate_entity_id();
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
-        /* Add to x_by_y_ collections */
+        /* Add to x_by_y_ collections and to locators_ */
         for (auto locator_it : endpoint->locators)
         {
+            // Add locator to locators_
+            locators_[locator_it.first] = locator_it.second;
             // Add reader's locators to locators_by_participant_
             locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
             // Add reader's participant to participants_by_locator_
