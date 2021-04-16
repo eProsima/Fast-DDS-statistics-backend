@@ -568,7 +568,15 @@ void Database::insert(
         }
         case DataKind::DISCOVERY_TIME:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::steady_clock::time_point, bool>(discovery_time.time, discovery_time.discovered));
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::SAMPLE_DATAS:
         {
