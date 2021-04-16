@@ -520,7 +520,15 @@ void Database::insert(
         }
         case DataKind::GAP_COUNT:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
+                writer->data.gap_count.push_back(gap_count);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::DATA_COUNT:
         {
