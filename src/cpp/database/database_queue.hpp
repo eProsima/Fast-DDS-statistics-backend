@@ -385,26 +385,22 @@ protected:
         std::array<uint8_t, eprosima::fastrtps::rtps::GuidPrefix_t::size> guid_prefix = data.guidPrefix().value();
         std::array<uint8_t, eprosima::fastrtps::rtps::EntityId_t::size> entity_id = data.entityId().value();
 
-        eprosima::fastrtps::rtps::GuidPrefix_t prefix;
-        eprosima::fastrtps::rtps::EntityId_t id;
-
         std::stringstream ss;
         for (unsigned int i = 0; i < eprosima::fastrtps::rtps::GuidPrefix_t::size; ++i)
         {
-            ss << guid_prefix[i];
+            ss << static_cast<unsigned int>(guid_prefix[i]) << '.';
         }
-        ss >> prefix;
-
-        ss.clear();
         for (unsigned int i = 0; i < eprosima::fastrtps::rtps::EntityId_t::size; ++i)
         {
-            ss << entity_id[i];
+            ss << static_cast<unsigned int>(entity_id[i]);
+            if (i < eprosima::fastrtps::rtps::EntityId_t::size - 1)
+            {
+                ss << '.';
+            }
         }
-        ss >> id;
 
-        eprosima::fastrtps::rtps::GUID_t guid (prefix, id);
-        ss.clear();
-        ss << guid;
+        eprosima::fastrtps::rtps::GUID_t guid;
+        ss >> guid;
         return ss.str();
     }
 
