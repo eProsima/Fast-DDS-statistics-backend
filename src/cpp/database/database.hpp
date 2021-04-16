@@ -66,6 +66,7 @@ public:
             const EntityId& entity_id,
             const StatisticsSample& sample)
     {
+        (void) domain_id;
         (void)entity_id;
         (void)sample;
         throw Unsupported("Not implemented yet");
@@ -207,9 +208,10 @@ public:
      *
      * @param entity_kind The EntityKind of the fetched entities
      * @param name The name of the entities to search for
-     * @return A vector containing the EntityIds of the matching entities
+     * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entities
      */
-    std::vector<EntityId> get_entities_by_name(
+    std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
             EntityKind entity_kind,
             const std::string& name) const
     {
@@ -226,9 +228,10 @@ public:
      *
      * @param entity_kind The EntityKind of the fetched entities
      * @param guid The GUID of the entities to search for
-     * @return A vector containing the EntityIds of the matching entities
+     * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entities
      */
-    std::vector<EntityId> get_entities_by_guid(
+    std::vector<std::pair<EntityId, EntityId>> get_entities_by_guid(
             EntityKind entity_kind,
             const std::string& guid) const
     {
