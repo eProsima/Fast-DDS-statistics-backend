@@ -532,7 +532,15 @@ void Database::insert(
         }
         case DataKind::DATA_COUNT:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
+                writer->data.data_count.push_back(data_count);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::PDP_PACKETS:
         {
