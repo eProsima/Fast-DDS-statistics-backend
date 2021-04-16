@@ -556,7 +556,15 @@ void Database::insert(
         }
         case DataKind::EDP_PACKETS:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
+                participant->data.edp_packets.push_back(edp_packets);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::DISCOVERY_TIME:
         {
