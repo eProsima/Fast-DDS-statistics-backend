@@ -400,7 +400,16 @@ void Database::insert(
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const PublicationThroughputSample& publication_throughput = dynamic_cast<const PublicationThroughputSample&>(sample);
+                writer->data.publication_throughput.push_back(publication_throughput);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
+
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
