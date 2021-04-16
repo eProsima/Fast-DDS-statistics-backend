@@ -460,7 +460,15 @@ void Database::insert(
         }
         case DataKind::RTPS_BYTES_LOST:
         {
-            throw Unsupported("DataKind is not supported");
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
+                writer->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                break;
+            }
+            throw Unsupported(std::to_string(entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(domain_id.value()));
         }
         case DataKind::RESENT_DATA:
         {
