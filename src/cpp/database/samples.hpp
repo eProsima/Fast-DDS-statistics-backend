@@ -413,8 +413,6 @@ struct RtpsPacketsLostSample : EntityToLocatorCountSample
         return !(*this == other);
     }
 
-    EntityId remote_locator;
-
 };
 
 /*
