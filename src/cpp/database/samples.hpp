@@ -24,7 +24,6 @@
 
 #include <fastdds-statistics-backend/types/types.hpp>
 
-
 namespace eprosima {
 namespace statistics_backend {
 namespace database {

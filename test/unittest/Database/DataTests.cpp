@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <database/data.hpp>
-
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <chrono>
 
 #include "gtest/gtest.h"
 
-#include <chrono>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
+
+#include <database/data.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;

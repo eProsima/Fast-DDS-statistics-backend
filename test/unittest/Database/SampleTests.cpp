@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <database/samples.hpp>
+#include <chrono>
 
 #include "gtest/gtest.h"
 
-#include <chrono>
+#include <database/samples.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;

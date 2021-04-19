@@ -19,9 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_ENTITYID_HPP_
 
-#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
-
 #include <ostream>
+
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -64,7 +64,7 @@ public:
             const EntityId& entity_id) noexcept = default;
 
     /**
-     * @brief Mode assignment operator
+     * @brief Move assignment operator
      * @param entity_id The assigned EntityId
      */
     EntityId& operator =(

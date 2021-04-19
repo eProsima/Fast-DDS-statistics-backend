@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#include "database.hpp"
+#include <iostream>
+#include <mutex>  // For std::unique_lock
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
-#include <mutex>  // For std::unique_lock
-#include <iostream>
+#include "database.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -152,14 +152,17 @@ EntityId Database::insert(
                 throw BadParameter("Parent user does not exist in the database");
             }
 
-            /* Check that a process with the same pid does not exist in the user's collection */
-            for (auto process_it : process->user->processes)
+            /* Check that a process with the same pid does not exist in the same host */
+            for (auto user_it : hosts_[process->user->host->id]->users)
             {
-                if (process->pid == process_it.second->pid)
+                for (auto process_it : user_it.second->processes)
                 {
-                    throw BadParameter(
-                              "Another process with PID '" + process->pid
-                              + "' already exists in parent user collection");
+                    if (process->pid == process_it.second->pid)
+                    {
+                        throw BadParameter(
+                                  "Another process with PID '" + process->pid
+                                  + "' already exists in the same host");
+                    }
                 }
             }
 
@@ -304,13 +307,10 @@ EntityId Database::insert(
             {
                 for (auto participant_it : domain_it.second)
                 {
-                    // Check the participant in the domain
-                    if (participant_it.second->domain->id == participant->domain->id)
+                    // Check that participant is new
+                    if (participant.get() == participant_it.second.get())
                     {
-                        if (participant.get() == participant_it.second.get())
-                        {
-                            throw BadParameter("Participant already exists in the database");
-                        }
+                        throw BadParameter("Participant already exists in the database");
                     }
                     // Check GUID uniqueness
                     if (participant->guid == participant_it.second->guid)
@@ -329,9 +329,6 @@ EntityId Database::insert(
             participant->id = generate_entity_id();
 
             /* Add participant to domain's collection */
-            participant->data_readers.clear();
-            participant->data_writers.clear();
-            participant->data.clear();
             participant->domain->participants[participant->id] = participant;
 
             /* Insert participant in the database */

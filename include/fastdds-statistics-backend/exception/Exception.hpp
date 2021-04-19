@@ -19,10 +19,10 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 
-#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
-
 #include <exception>
 #include <string>
+
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 
 namespace eprosima {
 namespace statistics_backend {

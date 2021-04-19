@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <database/database.hpp>
-#include <database/entities.hpp>
+#include <memory>
+#include <string>
+
+#include "gtest/gtest.h"
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include "gtest/gtest.h"
-
-#include <memory>
-#include <string>
+#include <database/database.hpp>
+#include <database/entities.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -915,9 +915,32 @@ TEST(database, insert_process_two_diff_user_same_pid)
     /* Insert a process */
     std::string process_pid = "test_pid";
     auto process = std::make_shared<Process>("test_process", process_pid, user);
-    auto process_id = db.insert(process);
+    db.insert(process);
 
     /* Insert a process in the same user with a duplicated pid */
+    auto process_2 = std::make_shared<Process>("test_process", process_pid, user_2);
+    ASSERT_THROW(db.insert(process_2), BadParameter);
+}
+
+TEST(database, insert_process_two_diff_host_same_pid)
+{
+    /* Insert two host */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    auto host_2 = std::make_shared<Host>("test_host_2");
+    db.insert(host);
+    db.insert(host_2);
+
+    /* Insert two users */
+    auto user = std::make_shared<User>("test_user", host);
+    auto user_2 = std::make_shared<User>("test_user_2", host_2);
+    db.insert(user);
+    db.insert(user_2);
+
+    /* Insert two process with same PID in different hosts */
+    std::string process_pid = "test_pid";
+    auto process = std::make_shared<Process>("test_process", process_pid, user);
+    auto process_id = db.insert(process);
     auto process_2 = std::make_shared<Process>("test_process", process_pid, user_2);
     auto process_id_2 = db.insert(process_2);
 

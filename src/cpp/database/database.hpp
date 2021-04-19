@@ -20,15 +20,15 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
 
-#include "entities.hpp"
+#include <atomic>
+#include <shared_mutex>
+#include <memory>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 
-#include <atomic>
-#include <shared_mutex>
-#include <memory>
+#include "entities.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -44,7 +44,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *             * If the entity already exists in the database
      *             * If the parent entity does not exist in the database (expect for the case of
-     *               Domainparticipant, for which it is allowed)
+     *               a Domainparticipant entity, for which an unregistered parent process is allowed)
      *             * If the entity name is empty
      *             * Depending on the type of entity, if some other identifier is empty
      *             * For entities with GUID, if the GUID is not unique
@@ -70,13 +70,13 @@ public:
      * @brief Create the link between a participant and a process
      *
      * This operation entails:
-     *     1. Add reference to process to the participant
-     *     2. Add the participant to the process' list of participants
-     *     3. Add entry to domains_by_process_
-     *     4. Add entry to processes_by_domain_
+     *     1. Adding reference to process to the participant
+     *     2. Adding the participant to the process' list of participants
+     *     3. Adding entry to domains_by_process_
+     *     4. Adding entry to processes_by_domain_
      *
-     * @param participant_id Then EntityId of the participant
-     * @param process_id Then EntityId of the process
+     * @param participant_id The EntityId of the participant
+     * @param process_id The EntityId of the process
      * @throw eprosima::statistics_backend::BadParameter in the following cases:
      *            * The participant is already linked with a process
      *            * The participant does not exist in the database

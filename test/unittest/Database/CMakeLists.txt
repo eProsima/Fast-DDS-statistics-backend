@@ -1,4 +1,4 @@
-# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,6 +100,7 @@ set(DATABASE_TEST_LIST
     insert_process_two_same_user_diff_pid
     insert_process_two_same_user_same_pid
     insert_process_two_diff_user_same_pid
+    insert_process_two_diff_host_same_pid
     # Insert Domain tests
     insert_domain_valid
     insert_domain_two_valid

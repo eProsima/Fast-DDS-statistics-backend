@@ -20,13 +20,13 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATA_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATA_HPP_
 
-#include "samples.hpp"
+#include <chrono>
+#include <vector>
 
 #include <fastdds-statistics-backend/nlohmann-json/json.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <chrono>
-#include <vector>
+#include "samples.hpp"
 
 namespace eprosima {
 namespace statistics_backend {

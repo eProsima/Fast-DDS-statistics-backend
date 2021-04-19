@@ -20,11 +20,12 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 
-#include "data.hpp"
+#include <string>
+
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <string>
+#include "data.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
