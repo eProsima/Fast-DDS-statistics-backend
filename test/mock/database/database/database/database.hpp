@@ -34,51 +34,51 @@ class Database
 public:
 
     MOCK_METHOD1(insert, EntityId(
-            std::shared_ptr<Entity> entity));
+                std::shared_ptr<Entity> entity));
 
     MOCK_METHOD3(insert, void(
-            const EntityId& domain_id,
-            const EntityId& entity_id,
-            const StatisticsSample& sample));
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample));
 
     MOCK_METHOD1(erase, void(
-            EntityId& domain_id));
+                EntityId & domain_id));
 
     MOCK_METHOD5(select, std::vector<const StatisticsSample*>(
-            DataKind data_type,
-            EntityId entity_id_source,
-            EntityId entity_id_target,
-            Timestamp t_from,
-            Timestamp t_to));
+                DataKind data_type,
+                EntityId entity_id_source,
+                EntityId entity_id_target,
+                Timestamp t_from,
+                Timestamp t_to));
 
     MOCK_METHOD4(select, std::vector<const StatisticsSample*>(
-            DataKind data_type,
-            EntityId entity_id,
-            Timestamp t_from,
-            Timestamp t_to));
+                DataKind data_type,
+                EntityId entity_id,
+                Timestamp t_from,
+                Timestamp t_to));
 
     MOCK_CONST_METHOD1(get_entity, const std::shared_ptr<const Entity>(
-            const EntityId& entity_id));
+                const EntityId& entity_id));
 
     MOCK_CONST_METHOD2(get_entities, const std::vector<std::shared_ptr<const Entity>>(
-            EntityKind entity_kind,
-            const EntityId& entity_id));
+                EntityKind entity_kind,
+                const EntityId& entity_id));
 
     MOCK_CONST_METHOD2(get_entity_ids, std::vector<EntityId>(
-            EntityKind entity_kind,
-            const EntityId& entity_id));
+                EntityKind entity_kind,
+                const EntityId& entity_id));
 
     MOCK_CONST_METHOD2(get_entities_by_guid, std::vector<std::pair<EntityId, EntityId>>(
-            EntityKind entity_kind,
-            const std::string& guid));
+                EntityKind entity_kind,
+                const std::string& guid));
 
     MOCK_CONST_METHOD2(get_entities_by_name, std::vector<std::pair<EntityId, EntityId>>(
-            EntityKind entity_kind,
-            const std::string& name));
+                EntityKind entity_kind,
+                const std::string& name));
 
     MOCK_CONST_METHOD2(link_participant_with_process, void(
-            const EntityId& participant_id,
-            const EntityId& process_id));
+                const EntityId& participant_id,
+                const EntityId& process_id));
 
 };
 

@@ -152,7 +152,6 @@ void DatabaseDataQueue::process_sample_type(
     entity = found_entities.front().second;
 }
 
-
 template<>
 void DatabaseDataQueue::process_sample_type(
         EntityId& domain,
@@ -227,94 +226,98 @@ void DatabaseDataQueue::process_sample()
     switch (front().second->_d())
     {
         case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
+        {
+            HistoryLatencySample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                HistoryLatencySample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->writer_reader_data());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->writer_reader_data());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::NETWORK_LATENCY:
+        {
+            NetworkLatencySample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                NetworkLatencySample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::LOCATOR, sample, item.second->locator2locator_data());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::LOCATOR, sample, item.second->locator2locator_data());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::PUBLICATION_THROUGHPUT:
+        {
+            PublicationThroughputSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                PublicationThroughputSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityDataSample&>(sample), item.second->entity_data());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityDataSample&>(sample),
+                        item.second->entity_data());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            SubscriptionThroughputSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                SubscriptionThroughputSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityDataSample&>(sample), item.second->entity_data());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityDataSample&>(sample),
+                        item.second->entity_data());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::RTPS_SENT:
+        {
+            RtpsPacketsSentSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                RtpsPacketsSentSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityToLocatorCountSample&>(sample), item.second->entity2locator_traffic());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER,
+                        static_cast<EntityToLocatorCountSample&>(sample),
+                        item.second->entity2locator_traffic());
+                database_->insert(domain, entity, sample);
             }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
             {
                 RtpsBytesSentSample sample;
                 EntityId domain;
@@ -323,32 +326,36 @@ void DatabaseDataQueue::process_sample()
                 sample.src_ts = item.first;
                 try
                 {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER,  static_cast<ByteToLocatorCountSample&>(sample), item.second->entity2locator_traffic());
+                    process_sample_type(domain, entity, EntityKind::DATAWRITER,
+                            static_cast<ByteToLocatorCountSample&>(sample),
+                            item.second->entity2locator_traffic());
                     database_->insert(domain, entity, sample);
                 }
-                catch(const eprosima::statistics_backend::Exception& e)
+                catch (const eprosima::statistics_backend::Exception& e)
                 {
                     //TODO: maybe some logging would be nice
                 }
             }
             break;
         case StatisticsEventKind::RTPS_LOST:
+        {
+            RtpsPacketsLostSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                RtpsPacketsLostSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityToLocatorCountSample&>(sample), item.second->entity2locator_traffic());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER,
+                        static_cast<EntityToLocatorCountSample&>(sample),
+                        item.second->entity2locator_traffic());
+                database_->insert(domain, entity, sample);
             }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
             {
                 RtpsBytesLostSample sample;
                 EntityId domain;
@@ -357,269 +364,281 @@ void DatabaseDataQueue::process_sample()
                 sample.src_ts = item.first;
                 try
                 {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<ByteToLocatorCountSample&>(sample), item.second->entity2locator_traffic());
+                    process_sample_type(domain, entity, EntityKind::DATAWRITER,
+                            static_cast<ByteToLocatorCountSample&>(sample),
+                            item.second->entity2locator_traffic());
                     database_->insert(domain, entity, sample);
                 }
-                catch(const eprosima::statistics_backend::Exception& e)
+                catch (const eprosima::statistics_backend::Exception& e)
                 {
                     //TODO: maybe some logging would be nice
                 }
             }
             break;
         case StatisticsEventKind::RESENT_DATAS:
+        {
+            ResentDataSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                ResentDataSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::HEARTBEAT_COUNT:
+        {
+            HeartbeatCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                HeartbeatCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::ACKNACK_COUNT:
+        {
+            AcknackCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                AcknackCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::NACKFRAG_COUNT:
+        {
+            NackfragCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                NackfragCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::GAP_COUNT:
+        {
+            GapCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                GapCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::DATA_COUNT:
+        {
+            DataCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                DataCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::PDP_PACKETS:
+        {
+            PdpCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                PdpCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::EDP_PACKETS:
+        {
+            EdpCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                EdpCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample), item.second->entity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
+                        item.second->entity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::DISCOVERED_ENTITY:
+        {
+            DiscoveryTimeSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                DiscoveryTimeSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::PARTICIPANT, sample, item.second->discovery_time());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::PARTICIPANT, sample, item.second->discovery_time());
+                database_->insert(domain, entity, sample);
             }
-            break;
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
         case StatisticsEventKind::SAMPLE_DATAS:
+        {
+            SampleDatasCountSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
             {
-                SampleDatasCountSample sample;
-                EntityId domain;
-                EntityId entity;
-                queue_item_type item = front();
-                sample.src_ts = item.first;
-                try
-                {
-                    process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->sample_identity_count());
-                    database_->insert(domain, entity, sample);
-                }
-                catch(const eprosima::statistics_backend::Exception& e)
-                {
-                    //TODO: maybe some logging would be nice
-                }
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
+                        item.second->sample_identity_count());
+                database_->insert(domain, entity, sample);
             }
-            break;
-        case StatisticsEventKind::PHYSICAL_DATA:
+            catch (const eprosima::statistics_backend::Exception& e)
             {
-                StatisticsPhysicalData item = front().second->physical_data();
+                //TODO: maybe some logging would be nice
+            }
+        }
+        break;
+        case StatisticsEventKind::PHYSICAL_DATA:
+        {
+            StatisticsPhysicalData item = front().second->physical_data();
 
-                // Take the ID of the Participant from its GUID
-                std::string participant_guid = deserialize_guid(item.participant_guid());
-                auto participants = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
-                if (participants.empty())
-                {
-                    std::stringstream msg;
-                    msg << "No participant with GUID " << participant_guid << " exists";
-                    throw BadParameter(msg.str());
-                }
-                EntityId participant_id = participants.front().second;
+            // Take the ID of the Participant from its GUID
+            std::string participant_guid = deserialize_guid(item.participant_guid());
+            auto participants = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
+            if (participants.empty())
+            {
+                std::stringstream msg;
+                msg << "No participant with GUID " << participant_guid << " exists";
+                throw BadParameter(msg.str());
+            }
+            EntityId participant_id = participants.front().second;
 
-                // Parse the process name and PID
-                size_t separator_pos = item.process().find_last_of(':');
-                if (separator_pos == std::string::npos)
-                {
-                    std::stringstream msg;
-                    msg << "Process name " << item.process() << " does not follow the [command]:[PID] pattern";
-                    throw Error(msg.str());
-                }
-                std::string process_name = item.process().substr(0, separator_pos);
-                std::string process_pid = item.process().substr(separator_pos + 1);
+            // Parse the process name and PID
+            size_t separator_pos = item.process().find_last_of(':');
+            if (separator_pos == std::string::npos)
+            {
+                std::stringstream msg;
+                msg << "Process name " << item.process() << " does not follow the [command]:[PID] pattern";
+                throw Error(msg.str());
+            }
+            std::string process_name = item.process().substr(0, separator_pos);
+            std::string process_pid = item.process().substr(separator_pos + 1);
 
-                // Check the existence of the process
-                EntityId process_id;
-                std::shared_ptr<Process> process;
-                auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
-                if (processes.empty())
+            // Check the existence of the process
+            EntityId process_id;
+            std::shared_ptr<Process> process;
+            auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
+            if (processes.empty())
+            {
+                // Check the existence of the user
+                std::shared_ptr<User> user;
+                auto users = database_->get_entities_by_name(EntityKind::USER, item.user());
+                if (users.empty())
                 {
-                    // Check the existence of the user
-                    std::shared_ptr<User> user;
-                    auto users = database_->get_entities_by_name(EntityKind::USER, item.user());
-                    if (users.empty())
+                    // Check the existence of the host
+                    std::shared_ptr<Host> host;
+                    auto hosts = database_->get_entities_by_name(EntityKind::HOST, item.host());
+                    if (hosts.empty())
                     {
-                        // Check the existence of the host
-                        std::shared_ptr<Host> host;
-                        auto hosts = database_->get_entities_by_name(EntityKind::HOST, item.host());
-                        if (hosts.empty())
-                        {
-                            host.reset(new Host(item.host()));
-                            database_->insert(std::static_pointer_cast<Entity>(host));
-                        }
-                        else
-                        {
-                            std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(hosts.front().second));
-                            host = std::const_pointer_cast<Host>(const_host);
-                        }
-
-                        user.reset(new User(item.user(), host));
-                        database_->insert(std::static_pointer_cast<Entity>(user));
+                        host.reset(new Host(item.host()));
+                        database_->insert(std::static_pointer_cast<Entity>(host));
                     }
                     else
                     {
-                        std::shared_ptr<const User> const_user = std::dynamic_pointer_cast<const User>(database_->get_entity(users.front().second));
-                        user = std::const_pointer_cast<User>(const_user);
+                        std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
+                                            hosts.front().second));
+                        host = std::const_pointer_cast<Host>(const_host);
                     }
 
-                    process.reset(new Process(process_name, process_pid, user));
-                    process_id = database_->insert(std::static_pointer_cast<Entity>(process));
+                    user.reset(new User(item.user(), host));
+                    database_->insert(std::static_pointer_cast<Entity>(user));
                 }
                 else
                 {
-                    process_id = processes.front().second;
+                    std::shared_ptr<const User> const_user = std::dynamic_pointer_cast<const User>(database_->get_entity(
+                                        users.front().second));
+                    user = std::const_pointer_cast<User>(const_user);
                 }
 
-                database_->link_participant_with_process(participant_id, process_id);
+                process.reset(new Process(process_name, process_pid, user));
+                process_id = database_->insert(std::static_pointer_cast<Entity>(process));
             }
-            break;
+            else
+            {
+                process_id = processes.front().second;
+            }
+
+            database_->link_participant_with_process(participant_id, process_id);
+        }
+        break;
     }
 }
-
 
 } //namespace database
 } //namespace statistics_backend
