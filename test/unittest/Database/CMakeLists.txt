@@ -212,6 +212,17 @@ set(DATABASE_TEST_LIST
     insert_sample_sample_datas_wrong_entity
     insert_sample_invalid
     insert_sample_valid_wrong_domain
+    # get_entity
+    get_entity_host
+    get_entity_process
+    get_entity_user
+    get_entity_domain
+    get_entity_topic
+    get_entity_participant
+    get_entity_datareader
+    get_entity_datawriter
+    get_entity_locator
+    get_entity_no_existing
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})

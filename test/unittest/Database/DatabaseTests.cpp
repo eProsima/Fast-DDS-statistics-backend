@@ -563,6 +563,12 @@ public:
 
     void SetUp()
     {
+        host.reset(new Host("test_host"));
+        host_id = db.insert(host);
+        user.reset(new User("test_user", host));
+        user_id = db.insert(user);
+        process.reset(new Process("test_process", "12345", user));
+        process_id = db.insert(process);
         domain.reset(new Domain("test_domain"));
         domain_id = db.insert(domain);
         participant.reset(new DomainParticipant("test_participant", db.test_qos, "01.02.03.04", nullptr, domain));
@@ -582,6 +588,12 @@ public:
     }
 
     DataBaseTest db;
+    std::shared_ptr<Host> host;
+    EntityId host_id;
+    std::shared_ptr<User> user;
+    EntityId user_id;
+    std::shared_ptr<Process> process;
+    EntityId process_id;
     std::shared_ptr<Domain> domain;
     EntityId domain_id;
     std::shared_ptr<DomainParticipant> participant;
@@ -2025,6 +2037,67 @@ TEST_F(database_tests, insert_sample_valid_wrong_domain)
 
     SampleDatasCountSample sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_host)
+{
+    auto local_host = db.get_entity(host_id);
+    ASSERT_EQ(local_host.get(), host.get());
+}
+
+TEST_F(database_tests, get_entity_process)
+{
+    auto local_process = db.get_entity(process_id);
+    ASSERT_EQ(local_process.get(), process.get());
+}
+
+TEST_F(database_tests, get_entity_user)
+{
+    auto local_user = db.get_entity(user_id);
+    ASSERT_EQ(local_user.get(), user.get());
+}
+
+TEST_F(database_tests, get_entity_domain)
+{
+    auto local_domain = db.get_entity(domain_id);
+    ASSERT_EQ(local_domain.get(), domain.get());
+}
+
+TEST_F(database_tests, get_entity_topic)
+{
+    auto local_topic = db.get_entity(topic_id);
+    ASSERT_EQ(local_topic.get(), topic.get());
+}
+
+TEST_F(database_tests, get_entity_participant)
+{
+    auto local_participant = db.get_entity(participant_id);
+    ASSERT_EQ(local_participant.get(), participant.get());
+}
+
+TEST_F(database_tests, get_entity_datareader)
+{
+    auto local_reader = db.get_entity(reader_id);
+    ASSERT_EQ(local_reader.get(), reader.get());
+}
+
+TEST_F(database_tests, get_entity_datawriter)
+{
+    auto local_writer = db.get_entity(writer_id);
+    ASSERT_EQ(local_writer.get(), writer.get());
+}
+
+TEST_F(database_tests, get_entity_locator)
+{
+    auto local_reader_locator = db.get_entity(reader_locator->id);
+    ASSERT_EQ(local_reader_locator.get(), reader_locator.get());
+    auto local_writer_locator = db.get_entity(writer_locator->id);
+    ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
+}
+
+TEST_F(database_tests, get_entity_no_existing)
+{
+    ASSERT_THROW(db.get_entity(EntityId()), BadParameter);
 }
 
 int main(

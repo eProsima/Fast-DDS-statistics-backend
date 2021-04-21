@@ -692,6 +692,14 @@ void Database::link_participant_with_process(
     processes_by_domain_[domain_id][process_it->first] = process_it->second;
 }
 
+const std::shared_ptr<const Entity> Database::get_entity(
+        const EntityId& entity_id) const
+{
+    auto entity = std::make_shared<Entity>();
+    entity->id = entity_id;
+    return entity;
+}
+
 EntityId Database::generate_entity_id() noexcept
 {
     return EntityId(next_id_++);
