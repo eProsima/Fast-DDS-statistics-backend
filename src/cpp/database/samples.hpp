@@ -384,7 +384,6 @@ struct RtpsPacketsLostSample : EntityToLocatorCountSample
 {
     RtpsPacketsLostSample()
         : EntityToLocatorCountSample(DataKind::RTPS_PACKETS_LOST)
-        , remote_locator(EntityId::invalid())
     {
     }
 
@@ -637,7 +636,8 @@ struct DiscoveryTimeSample : TimepointSample
     inline bool operator ==(
             const DiscoveryTimeSample& other) const noexcept
     {
-        return (TimepointSample::operator ==(other) && remote_entity == other.remote_entity);
+        return (TimepointSample::operator ==(other) && remote_entity == other.remote_entity &&
+               discovered == other.discovered);
     }
 
     inline bool operator !=(

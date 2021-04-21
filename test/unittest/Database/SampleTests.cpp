@@ -70,7 +70,12 @@ TEST(database, statisticssample_operator_comparison)
     StatisticsSample sample_1;
     StatisticsSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
     sample_2.src_ts = std::chrono::steady_clock::now();
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = StatisticsSample();
+    sample_2.kind = DataKind::FASTDDS_LATENCY;
     ASSERT_NE(sample_1, sample_2);
 }
 
@@ -97,6 +102,16 @@ TEST(database, bytecountsample_operator_comparison)
     ByteCountSample sample_1;
     ByteCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
+    sample_2.count = 2;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = ByteCountSample();
+    sample_2.magnitude_order = 3;
+    sample_2.magnitude_order = 3;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = ByteCountSample();
     sample_2.count = 2;
     sample_2.magnitude_order = 3;
     ASSERT_NE(sample_1, sample_2);
@@ -179,6 +194,15 @@ TEST(database, rtpsbytessentsample_operator_comparison)
     RtpsBytesSentSample sample_1;
     RtpsBytesSentSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
+    sample_2.count = 2;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = RtpsBytesSentSample();
+    sample_2.magnitude_order = 3;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = RtpsBytesSentSample();
     sample_2.count = 2;
     sample_2.magnitude_order = 3;
     ASSERT_NE(sample_1, sample_2);
@@ -198,6 +222,15 @@ TEST(database, rtpsbyteslostsample_operator_comparison)
     RtpsBytesLostSample sample_1;
     RtpsBytesLostSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
+    sample_2.count = 2;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = RtpsBytesLostSample();
+    sample_2.magnitude_order = 3;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = RtpsBytesLostSample();
     sample_2.count = 2;
     sample_2.magnitude_order = 3;
     ASSERT_NE(sample_1, sample_2);
@@ -280,7 +313,17 @@ TEST(database, discoverytimesample_operator_comparison)
     DiscoveryTimeSample sample_1;
     DiscoveryTimeSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
     sample_2.remote_entity = EntityId(5);
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = DiscoveryTimeSample();
+    sample_2.discovered = true;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = DiscoveryTimeSample();
+    sample_2.remote_entity = EntityId(5);
+    sample_2.discovered = true;
     ASSERT_NE(sample_1, sample_2);
 }
 
@@ -289,6 +332,15 @@ TEST(database, sampledatascountsample_operator_comparison)
     SampleDatasCountSample sample_1;
     SampleDatasCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
+
+    sample_2.count = 2;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = SampleDatasCountSample();
+    sample_2.sequence_number = 3;
+    ASSERT_NE(sample_1, sample_2);
+
+    sample_2 = SampleDatasCountSample();
     sample_2.count = 2;
     sample_2.sequence_number = 3;
     ASSERT_NE(sample_1, sample_2);
