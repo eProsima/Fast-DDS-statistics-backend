@@ -22,7 +22,7 @@ namespace eprosima {
 namespace statistics_backend {
 
 Exception::Exception(
-        const char* message)
+        const char* message) noexcept
     : message_(message)
 {
 }
@@ -39,7 +39,7 @@ const char* Exception::what() const noexcept
 }
 
 Error::Error(
-        const char* message)
+        const char* message) noexcept
     : Exception(message)
 {
 }
@@ -51,7 +51,7 @@ Error::Error(
 }
 
 Unsupported::Unsupported(
-        const char* message)
+        const char* message) noexcept
     : Exception(message)
 {
 }
@@ -63,7 +63,7 @@ Unsupported::Unsupported(
 }
 
 BadParameter::BadParameter(
-        const char* message)
+        const char* message) noexcept
     : Exception(message)
 {
 }
@@ -75,7 +75,7 @@ BadParameter::BadParameter(
 }
 
 NoData::NoData(
-        const char* message)
+        const char* message) noexcept
     : Exception(message)
 {
 }
@@ -85,7 +85,6 @@ NoData::NoData(
     : Exception(message)
 {
 }
-
 
 } // namespace statistics_backend
 } // namespace eprosima

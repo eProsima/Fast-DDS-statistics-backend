@@ -20,11 +20,12 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 
-#include "data.hpp"
+#include <string>
+
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <string>
+#include "data.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -49,7 +50,7 @@ struct Entity
 {
     Entity(
             EntityKind entity_kind = EntityKind::INVALID,
-            std::string entity_name = "INVALID")
+            std::string entity_name = "INVALID") noexcept
         : kind(entity_kind)
         , name(entity_name)
     {
@@ -71,7 +72,7 @@ struct Entity
 struct Host : Entity
 {
     Host(
-            std::string host_name)
+            std::string host_name) noexcept
         : Entity(EntityKind::HOST, host_name)
     {
     }
@@ -90,7 +91,7 @@ struct User : Entity
 {
     User(
             std::string user_name,
-            std::shared_ptr<Host> user_host)
+            std::shared_ptr<Host> user_host) noexcept
         : Entity(EntityKind::USER, user_name)
         , host(user_host)
     {
@@ -114,7 +115,7 @@ struct Process : Entity
     Process(
             std::string process_name,
             std::string process_id,
-            std::shared_ptr<User> process_user)
+            std::shared_ptr<User> process_user) noexcept
         : Entity(EntityKind::PROCESS, process_name)
         , pid(process_id)
         , user(process_user)
@@ -141,7 +142,7 @@ struct Process : Entity
 struct Domain : Entity
 {
     Domain(
-            std::string domain_name)
+            std::string domain_name) noexcept
         : Entity(EntityKind::DOMAIN, domain_name)
     {
     }
@@ -168,7 +169,7 @@ struct DDSEntity : Entity
             EntityKind entity_kind = EntityKind::INVALID,
             std::string dds_entity_name = "INVALID",
             Qos dds_entity_qos = {},
-            std::string dds_entity_guid = "|GUID UNKNOWN|")
+            std::string dds_entity_guid = "|GUID UNKNOWN|") noexcept
         : Entity(entity_kind, dds_entity_name)
         , qos(dds_entity_qos)
         , guid(dds_entity_guid)
@@ -192,12 +193,15 @@ struct DomainParticipant : DDSEntity
             Qos participant_qos,
             std::string participant_guid,
             std::shared_ptr<Process> participant_process,
-            std::shared_ptr<Domain> participant_domain)
+            std::shared_ptr<Domain> participant_domain) noexcept
         : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid)
         , process(participant_process)
         , domain(participant_domain)
     {
     }
+
+    template<typename T>
+    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
 
     //! Reference to the Process in which this DomainParticipant runs.
     std::shared_ptr<Process> process;
@@ -221,6 +225,7 @@ struct DomainParticipant : DDSEntity
     DomainParticipantData data;
 };
 
+
 /*
  * Topic entities hold data about the topics involved in the communication.
  */
@@ -229,12 +234,15 @@ struct Topic : Entity
     Topic(
             std::string topic_name,
             std::string topic_type,
-            std::shared_ptr<Domain> topic_domain)
+            std::shared_ptr<Domain> topic_domain) noexcept
         : Entity(EntityKind::TOPIC, topic_name)
         , data_type(topic_type)
         , domain(topic_domain)
     {
     }
+
+    template<typename T>
+    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
 
     //! The data type name of the topic
     std::string data_type;
@@ -266,7 +274,7 @@ struct DDSEndpoint : DDSEntity
             Qos endpoint_qos = {},
             std::string endpoint_guid = "|GUID UNKNOWN|",
             std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
-            std::shared_ptr<Topic> endpoint_topic = nullptr)
+            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept
         : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
         , participant(endpoint_participant)
         , topic(endpoint_topic)
@@ -296,8 +304,7 @@ struct DataReader : DDSEndpoint
             Qos datareader_qos,
             std::string datareader_guid,
             std::shared_ptr<DomainParticipant> datareader_participant,
-            std::shared_ptr<Topic> datareader_topic
-            )
+            std::shared_ptr<Topic> datareader_topic) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
                 datareader_topic)
     {
@@ -317,8 +324,7 @@ struct DataWriter : DDSEndpoint
             Qos datawriter_qos,
             std::string datawriter_guid,
             std::shared_ptr<DomainParticipant> datawriter_participant,
-            std::shared_ptr<Topic> datawriter_topic
-            )
+            std::shared_ptr<Topic> datawriter_topic) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
                 datawriter_topic)
     {
@@ -335,7 +341,7 @@ struct DataWriter : DDSEndpoint
 struct Locator : Entity
 {
     Locator(
-            std::string locator_name)
+            std::string locator_name) noexcept
         : Entity(EntityKind::LOCATOR, locator_name)
     {
     }

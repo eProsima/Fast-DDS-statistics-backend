@@ -19,10 +19,10 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
 
-#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
-
 #include <exception>
 #include <string>
+
+#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -42,7 +42,7 @@ public:
      * @param message The message to be returned by what()
      */
     Exception(
-        const char* message);
+            const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Exception object
@@ -50,7 +50,7 @@ public:
      * @param message The message to be returned by what()
      */
     Exception(
-        const std::string& message);
+            const std::string& message);
 
     /**
      * @brief Copies the statistics_backend::Exception object into a new one
@@ -58,7 +58,7 @@ public:
      * @param other The original exception object to copy
      */
     Exception(
-        const Exception& other) = default;
+            const Exception& other) = default;
 
     /**
      * @brief Copies the statistics_backend::Exception object into the current one
@@ -66,8 +66,8 @@ public:
      * @param other The original exception object to copy
      * @return the current statistics_backend::Exception object after the copy
      */
-    Exception& operator=(
-        const Exception& other) = default;
+    Exception& operator =(
+            const Exception& other) = default;
 
     /**
      * @brief Returns the explanatory string of the exception
@@ -96,7 +96,7 @@ public:
      * @param message The message to be returned by what()
      */
     Error(
-        const char* message);
+            const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Error exception
@@ -104,7 +104,7 @@ public:
      * @param message The message to be returned by what()
      */
     Error(
-        const std::string& message);
+            const std::string& message);
 
     /**
      * @brief Copies the statistics_backend::Error exception into a new one
@@ -112,7 +112,7 @@ public:
      * @param other The original exception object to copy
      */
     Error(
-        const Error& other) = default;
+            const Error& other) = default;
 
     /**
      * @brief Copies the statistics_backend::Error exception into the current one
@@ -120,8 +120,8 @@ public:
      * @param other The original statistics_backend::Error exception to copy
      * @return the current statistics_backend::Error exception after the copy
      */
-    Error& operator=(
-        const Error& other) = default;
+    Error& operator =(
+            const Error& other) = default;
 };
 
 /**
@@ -138,7 +138,7 @@ public:
      * @param message The message to be returned by what()
      */
     Unsupported(
-        const char* message);
+            const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::Unsupported exception
@@ -146,7 +146,7 @@ public:
      * @param message The message to be returned by what()
      */
     Unsupported(
-        const std::string& message);
+            const std::string& message);
 
     /**
      * @brief Copies the statistics_backend::Unsupported exception into a new one
@@ -154,7 +154,7 @@ public:
      * @param other The original exception object to copy
      */
     Unsupported(
-        const Unsupported& other) = default;
+            const Unsupported& other) = default;
 
     /**
      * @brief Copies the statistics_backend::Unsupported exception into the current one
@@ -162,8 +162,8 @@ public:
      * @param other The original statistics_backend::Unsupported exception to copy
      * @return the current statistics_backend::Unsupported exception after the copy
      */
-    Unsupported& operator=(
-        const Unsupported& other) = default;
+    Unsupported& operator =(
+            const Unsupported& other) = default;
 };
 
 /**
@@ -180,7 +180,7 @@ public:
      * @param message The message to be returned by what()
      */
     BadParameter(
-        const char* message);
+            const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::BadParameter exception
@@ -188,7 +188,7 @@ public:
      * @param message The message to be returned by what()
      */
     BadParameter(
-        const std::string& message);
+            const std::string& message);
 
     /**
      * @brief Copies the statistics_backend::BadParameter exception into a new one
@@ -196,7 +196,7 @@ public:
      * @param other The original exception object to copy
      */
     BadParameter(
-        const BadParameter& other) = default;
+            const BadParameter& other) = default;
 
     /**
      * @brief Copies the statistics_backend::BadParameter exception into the current one
@@ -204,8 +204,8 @@ public:
      * @param other The original statistics_backend::BadParameter exception to copy
      * @return the current statistics_backend::BadParameter exception after the copy
      */
-    BadParameter& operator=(
-        const BadParameter& other) = default;
+    BadParameter& operator =(
+            const BadParameter& other) = default;
 };
 
 /**
@@ -222,7 +222,7 @@ public:
      * @param message The message to be returned by what()
      */
     NoData(
-        const char* message);
+            const char* message) noexcept;
 
     /**
      * @brief Construct a new statistics_backend::NoData exception
@@ -230,7 +230,7 @@ public:
      * @param message The message to be returned by what()
      */
     NoData(
-        const std::string& message);
+            const std::string& message);
 
     /**
      * @brief Copies the statistics_backend::NoData exception into a new one
@@ -238,7 +238,7 @@ public:
      * @param other The original exception object to copy
      */
     NoData(
-        const NoData& other) = default;
+            const NoData& other) = default;
 
     /**
      * @brief Copies the statistics_backend::NoData exception into the current one
@@ -246,8 +246,8 @@ public:
      * @param other The original statistics_backend::NoData exception to copy
      * @return the current statistics_backend::NoData exception after the copy
      */
-    NoData& operator=(
-        const NoData& other) = default;
+    NoData& operator =(
+            const NoData& other) = default;
 };
 
 

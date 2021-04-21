@@ -21,6 +21,10 @@ file(GLOB_RECURSE ALL_HEADERS
 
 set(${PROJECT_NAME}_SOURCES
     ${ALL_HEADERS}
+    database/data.cpp
+    database/database.cpp
+    database/entities.cpp
+    database/samples.cpp
     exception/Exception.cpp
     types/EntityId.cpp
     StatisticsBackend.cpp
