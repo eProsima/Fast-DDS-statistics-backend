@@ -591,7 +591,7 @@ private:
             }
             else
             {
-                throw Unsupported("Unsupported kind " + kind);
+                throw Unsupported("Unsupported event kind " + str);
             }
 
             event_kinds_[str] = kind;
