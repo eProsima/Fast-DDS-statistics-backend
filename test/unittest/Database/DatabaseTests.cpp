@@ -917,7 +917,7 @@ TEST(database, insert_process_two_diff_user_same_pid)
     auto process = std::make_shared<Process>("test_process", process_pid, user);
     db.insert(process);
 
-    /* Insert a process in the same user with a duplicated pid */
+    /* Insert a process in the same host with a duplicated pid for a different user */
     auto process_2 = std::make_shared<Process>("test_process", process_pid, user_2);
     ASSERT_THROW(db.insert(process_2), BadParameter);
 }

@@ -16,9 +16,9 @@
  * @file StatisticsBackend.cpp
  */
 
-#include "database/database.hpp"
-
 #include <fastdds-statistics-backend/StatisticsBackend.hpp>
+
+#include "database/database.hpp"
 
 namespace eprosima {
 namespace statistics_backend {

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "database.hpp"
+
 #include <iostream>
 #include <mutex>  // For std::unique_lock
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
-
-#include "database.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
