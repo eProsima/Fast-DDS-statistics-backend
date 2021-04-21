@@ -41,12 +41,16 @@ EntityId Database::insert(
                 throw BadParameter("Host name cannot be empty");
             }
 
-            /* Check that this is indeed a new host */
+            /* Check that this is indeed a new host, and that its name is unique */
             for (auto host_it: hosts_)
             {
                 if (host.get() == host_it.second.get())
                 {
                     throw BadParameter("Host already exists in the database");
+                }
+                if (host->name == host_it.second->name)
+                {
+                    throw BadParameter("Host with name " + host->name + " already exists in the database");
                 }
             }
 
