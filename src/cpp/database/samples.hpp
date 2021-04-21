@@ -39,6 +39,8 @@ struct StatisticsSample
     {
     }
 
+    virtual ~StatisticsSample() = default;
+
     virtual void clear();
 
     inline bool operator ==(
@@ -69,6 +71,8 @@ struct EntityDataSample : StatisticsSample
     {
     }
 
+    virtual ~EntityDataSample() = default;
+
     void clear() final;
 
     inline bool operator ==(
@@ -97,6 +101,8 @@ struct EntityCountSample : StatisticsSample
         , count(0)
     {
     }
+
+    virtual ~EntityCountSample() = default;
 
     void clear() final;
 
@@ -128,6 +134,8 @@ struct ByteCountSample : StatisticsSample
     {
     }
 
+    virtual ~ByteCountSample() = default;
+
     void clear() final;
 
     inline bool operator ==(
@@ -158,6 +166,8 @@ struct TimepointSample : StatisticsSample
     {
     }
 
+    virtual ~TimepointSample() = default;
+
     inline bool operator ==(
             const TimepointSample& other) const noexcept
     {
@@ -184,6 +194,8 @@ struct EntityToLocatorCountSample : EntityCountSample
         , remote_locator(EntityId::invalid())
     {
     }
+
+    virtual ~EntityToLocatorCountSample() = default;
 
     inline bool operator ==(
             const EntityToLocatorCountSample& other) const noexcept
@@ -212,6 +224,8 @@ struct ByteToLocatorCountSample : ByteCountSample
         , remote_locator(EntityId::invalid())
     {
     }
+
+    virtual ~ByteToLocatorCountSample() = default;
 
     inline bool operator ==(
             const ByteToLocatorCountSample& other) const noexcept

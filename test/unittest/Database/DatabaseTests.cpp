@@ -557,7 +557,7 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     ASSERT_THROW(db.insert(endpoint_2), BadParameter);
 }
 
-class database : public ::testing::Test
+class database_tests : public ::testing::Test
 {
 public:
 
@@ -596,7 +596,7 @@ public:
     EntityId reader_id;
 };
 
-TEST_F(database, insert_host)
+TEST_F(database_tests, insert_host)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -611,7 +611,7 @@ TEST_F(database, insert_host)
     ASSERT_EQ(host_name, hosts[host_id]->name);
 }
 
-TEST_F(database, insert_host_two)
+TEST_F(database_tests, insert_host_two)
 {
     /* Insert two hosts */
     DataBaseTest db;
@@ -631,7 +631,7 @@ TEST_F(database, insert_host_two)
     ASSERT_EQ(host_name_2, hosts[host_id_2]->name);
 }
 
-TEST_F(database, insert_host_duplicated)
+TEST_F(database_tests, insert_host_duplicated)
 {
     /* Insert a host twice */
     DataBaseTest db;
@@ -640,7 +640,7 @@ TEST_F(database, insert_host_duplicated)
     ASSERT_THROW(db.insert(host), BadParameter);
 }
 
-TEST_F(database, insert_host_empty_name)
+TEST_F(database_tests, insert_host_empty_name)
 {
     /* Insert a host with empty name */
     DataBaseTest db;
@@ -648,7 +648,7 @@ TEST_F(database, insert_host_empty_name)
     ASSERT_THROW(db.insert(host), BadParameter);
 }
 
-TEST_F(database, insert_user_valid)
+TEST_F(database_tests, insert_user_valid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -671,7 +671,7 @@ TEST_F(database, insert_user_valid)
     ASSERT_EQ(user_name, users[user_id]->name);
 }
 
-TEST_F(database, insert_user_two_valid)
+TEST_F(database_tests, insert_user_two_valid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -700,7 +700,7 @@ TEST_F(database, insert_user_two_valid)
     ASSERT_EQ(user_name_2, users[user_id_2]->name);
 }
 
-TEST_F(database, insert_user_duplicated)
+TEST_F(database_tests, insert_user_duplicated)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -713,7 +713,7 @@ TEST_F(database, insert_user_duplicated)
     ASSERT_THROW(db.insert(user), BadParameter);
 }
 
-TEST_F(database, insert_user_wrong_host)
+TEST_F(database_tests, insert_user_wrong_host)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -727,7 +727,7 @@ TEST_F(database, insert_user_wrong_host)
     ASSERT_THROW(db.insert(user), BadParameter);
 }
 
-TEST_F(database, insert_user_empty_name)
+TEST_F(database_tests, insert_user_empty_name)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -739,7 +739,7 @@ TEST_F(database, insert_user_empty_name)
     ASSERT_THROW(db.insert(user), BadParameter);
 }
 
-TEST_F(database, insert_user_duplicated_name)
+TEST_F(database_tests, insert_user_duplicated_name)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -756,7 +756,7 @@ TEST_F(database, insert_user_duplicated_name)
     ASSERT_THROW(db.insert(user_2), BadParameter);
 }
 
-TEST_F(database, insert_process_valid)
+TEST_F(database_tests, insert_process_valid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -785,7 +785,7 @@ TEST_F(database, insert_process_valid)
     ASSERT_EQ(process_pid, processes[process_id]->pid);
 }
 
-TEST_F(database, insert_process_two_valid)
+TEST_F(database_tests, insert_process_two_valid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -820,7 +820,7 @@ TEST_F(database, insert_process_two_valid)
     ASSERT_EQ(process_name_2, processes[process_id_2]->name);
 }
 
-TEST_F(database, insert_process_duplicated)
+TEST_F(database_tests, insert_process_duplicated)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -837,7 +837,7 @@ TEST_F(database, insert_process_duplicated)
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 
-TEST_F(database, insert_process_wrong_user)
+TEST_F(database_tests, insert_process_wrong_user)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -854,7 +854,7 @@ TEST_F(database, insert_process_wrong_user)
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 
-TEST_F(database, insert_process_empty_name)
+TEST_F(database_tests, insert_process_empty_name)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -870,7 +870,7 @@ TEST_F(database, insert_process_empty_name)
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 
-TEST_F(database, insert_process_empty_pid)
+TEST_F(database_tests, insert_process_empty_pid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -886,7 +886,7 @@ TEST_F(database, insert_process_empty_pid)
     ASSERT_THROW(db.insert(process), BadParameter);
 }
 
-TEST_F(database, insert_process_two_same_user_diff_pid)
+TEST_F(database_tests, insert_process_two_same_user_diff_pid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -919,7 +919,7 @@ TEST_F(database, insert_process_two_same_user_diff_pid)
     ASSERT_EQ(process_pid_2, processes[process_id_2]->pid);
 }
 
-TEST_F(database, insert_process_two_same_user_same_pid)
+TEST_F(database_tests, insert_process_two_same_user_same_pid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -940,7 +940,7 @@ TEST_F(database, insert_process_two_same_user_same_pid)
     ASSERT_THROW(db.insert(process_2), BadParameter);
 }
 
-TEST_F(database, insert_process_two_diff_user_same_pid)
+TEST_F(database_tests, insert_process_two_diff_user_same_pid)
 {
     /* Insert a host */
     DataBaseTest db;
@@ -963,7 +963,7 @@ TEST_F(database, insert_process_two_diff_user_same_pid)
     ASSERT_THROW(db.insert(process_2), BadParameter);
 }
 
-TEST_F(database, insert_process_two_diff_host_same_pid)
+TEST_F(database_tests, insert_process_two_diff_host_same_pid)
 {
     /* Insert two host */
     DataBaseTest db;
@@ -1000,7 +1000,7 @@ TEST_F(database, insert_process_two_diff_host_same_pid)
     ASSERT_EQ(process_pid, processes[process_id_2]->pid);
 }
 
-TEST_F(database, insert_domain_valid)
+TEST_F(database_tests, insert_domain_valid)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1015,7 +1015,7 @@ TEST_F(database, insert_domain_valid)
     ASSERT_EQ(domain_name, domains[domain_id]->name);
 }
 
-TEST_F(database, insert_domain_two_valid)
+TEST_F(database_tests, insert_domain_two_valid)
 {
     /* Insert two domains */
     DataBaseTest db;
@@ -1035,7 +1035,7 @@ TEST_F(database, insert_domain_two_valid)
     ASSERT_EQ(domain_name_2, domains[domain_id_2]->name);
 }
 
-TEST_F(database, insert_domain_duplicated)
+TEST_F(database_tests, insert_domain_duplicated)
 {
     /* Insert a domain twice */
     DataBaseTest db;
@@ -1044,7 +1044,7 @@ TEST_F(database, insert_domain_duplicated)
     ASSERT_THROW(db.insert(domain), BadParameter);
 }
 
-TEST_F(database, insert_domain_empty_name)
+TEST_F(database_tests, insert_domain_empty_name)
 {
     /* Insert a domain with empty name */
     DataBaseTest db;
@@ -1052,7 +1052,7 @@ TEST_F(database, insert_domain_empty_name)
     ASSERT_THROW(db.insert(domain), BadParameter);
 }
 
-TEST_F(database, insert_domain_same_name)
+TEST_F(database_tests, insert_domain_same_name)
 {
     /* Insert two domains with same name */
     DataBaseTest db;
@@ -1062,7 +1062,7 @@ TEST_F(database, insert_domain_same_name)
     ASSERT_THROW(db.insert(domain_2), BadParameter);
 }
 
-TEST_F(database, insert_topic_valid)
+TEST_F(database_tests, insert_topic_valid)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1088,7 +1088,7 @@ TEST_F(database, insert_topic_valid)
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
 }
 
-TEST_F(database, insert_topic_two_valid)
+TEST_F(database_tests, insert_topic_two_valid)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1123,7 +1123,7 @@ TEST_F(database, insert_topic_two_valid)
     ASSERT_EQ(topic_type_2, topics[domain_id][topic_id_2]->data_type);
 }
 
-TEST_F(database, insert_topic_duplicated)
+TEST_F(database_tests, insert_topic_duplicated)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1136,7 +1136,7 @@ TEST_F(database, insert_topic_duplicated)
     ASSERT_THROW(db.insert(topic), BadParameter);
 }
 
-TEST_F(database, insert_topic_wrong_domain)
+TEST_F(database_tests, insert_topic_wrong_domain)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1149,7 +1149,7 @@ TEST_F(database, insert_topic_wrong_domain)
     ASSERT_THROW(db.insert(topic), BadParameter);
 }
 
-TEST_F(database, insert_topic_empty_name)
+TEST_F(database_tests, insert_topic_empty_name)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1161,7 +1161,7 @@ TEST_F(database, insert_topic_empty_name)
     ASSERT_THROW(db.insert(topic), BadParameter);
 }
 
-TEST_F(database, insert_topic_empty_datatype)
+TEST_F(database_tests, insert_topic_empty_datatype)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1173,7 +1173,7 @@ TEST_F(database, insert_topic_empty_datatype)
     ASSERT_THROW(db.insert(topic), BadParameter);
 }
 
-TEST_F(database, insert_topic_two_same_domain_same_name)
+TEST_F(database_tests, insert_topic_two_same_domain_same_name)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1187,7 +1187,7 @@ TEST_F(database, insert_topic_two_same_domain_same_name)
     ASSERT_THROW(db.insert(topic_2), BadParameter);
 }
 
-TEST_F(database, insert_topic_two_same_domain_diff_name_same_type)
+TEST_F(database_tests, insert_topic_two_same_domain_diff_name_same_type)
 {
     /* Insert a domain */
     DataBaseTest db;
@@ -1221,7 +1221,7 @@ TEST_F(database, insert_topic_two_same_domain_diff_name_same_type)
     ASSERT_EQ(topic_type, topics[domain_id][topic_id_2]->data_type);
 }
 
-TEST_F(database, insert_participant_valid)
+TEST_F(database_tests, insert_participant_valid)
 {
     /* Insert a host, user, and process */
     DataBaseTest db;
@@ -1257,7 +1257,7 @@ TEST_F(database, insert_participant_valid)
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
 }
 
-TEST_F(database, insert_participant_two_valid)
+TEST_F(database_tests, insert_participant_two_valid)
 {
     /* Insert a host, user, and process */
     DataBaseTest db;
@@ -1303,7 +1303,7 @@ TEST_F(database, insert_participant_two_valid)
     ASSERT_EQ(part_guid_2, participants[domain_id][participant_id_2]->guid);
 }
 
-TEST_F(database, insert_participant_duplicated)
+TEST_F(database_tests, insert_participant_duplicated)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1323,7 +1323,7 @@ TEST_F(database, insert_participant_duplicated)
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
-TEST_F(database, insert_participant_wrong_domain)
+TEST_F(database_tests, insert_participant_wrong_domain)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1343,7 +1343,7 @@ TEST_F(database, insert_participant_wrong_domain)
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
-TEST_F(database, insert_participant_empty_name)
+TEST_F(database_tests, insert_participant_empty_name)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1362,7 +1362,7 @@ TEST_F(database, insert_participant_empty_name)
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
-TEST_F(database, insert_participant_empty_qos)
+TEST_F(database_tests, insert_participant_empty_qos)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1381,7 +1381,7 @@ TEST_F(database, insert_participant_empty_qos)
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
-TEST_F(database, insert_participant_empty_guid)
+TEST_F(database_tests, insert_participant_empty_guid)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1400,7 +1400,7 @@ TEST_F(database, insert_participant_empty_guid)
     ASSERT_THROW(db.insert(participant), BadParameter);
 }
 
-TEST_F(database, insert_participant_two_same_domain_same_guid)
+TEST_F(database_tests, insert_participant_two_same_domain_same_guid)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1423,7 +1423,7 @@ TEST_F(database, insert_participant_two_same_domain_same_guid)
     ASSERT_THROW(db.insert(participant_2), BadParameter);
 }
 
-TEST_F(database, insert_participant_two_diff_domain_same_guid)
+TEST_F(database_tests, insert_participant_two_diff_domain_same_guid)
 {
     /* Insert a host, user, process, and domain */
     DataBaseTest db;
@@ -1450,73 +1450,73 @@ TEST_F(database, insert_participant_two_diff_domain_same_guid)
     ASSERT_THROW(db.insert(participant_2), BadParameter);
 }
 
-TEST_F(database, insert_ddsendpoint_valid)
+TEST_F(database_tests, insert_ddsendpoint_valid)
 {
     insert_ddsendpoint_valid<DataReader>();
     insert_ddsendpoint_valid<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_two_valid)
+TEST_F(database_tests, insert_ddsendpoint_two_valid)
 {
     insert_ddsendpoint_two_valid<DataReader>();
     insert_ddsendpoint_two_valid<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_duplicated)
+TEST_F(database_tests, insert_ddsendpoint_duplicated)
 {
     insert_ddsendpoint_duplicated<DataReader>();
     insert_ddsendpoint_duplicated<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_wrong_participant)
+TEST_F(database_tests, insert_ddsendpoint_wrong_participant)
 {
     insert_ddsendpoint_wrong_participant<DataReader>();
     insert_ddsendpoint_wrong_participant<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_wrong_topic)
+TEST_F(database_tests, insert_ddsendpoint_wrong_topic)
 {
     insert_ddsendpoint_wrong_topic<DataReader>();
     insert_ddsendpoint_wrong_topic<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_empty_name)
+TEST_F(database_tests, insert_ddsendpoint_empty_name)
 {
     insert_ddsendpoint_empty_name<DataReader>();
     insert_ddsendpoint_empty_name<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_empty_qos)
+TEST_F(database_tests, insert_ddsendpoint_empty_qos)
 {
     insert_ddsendpoint_empty_qos<DataReader>();
     insert_ddsendpoint_empty_qos<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_empty_guid)
+TEST_F(database_tests, insert_ddsendpoint_empty_guid)
 {
     insert_ddsendpoint_empty_guid<DataReader>();
     insert_ddsendpoint_empty_guid<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_empty_locators)
+TEST_F(database_tests, insert_ddsendpoint_empty_locators)
 {
     insert_ddsendpoint_empty_locators<DataReader>();
     insert_ddsendpoint_empty_locators<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_two_same_domain_same_guid)
+TEST_F(database_tests, insert_ddsendpoint_two_same_domain_same_guid)
 {
     insert_ddsendpoint_two_same_domain_same_guid<DataReader>();
     insert_ddsendpoint_two_same_domain_same_guid<DataWriter>();
 }
 
-TEST_F(database, insert_ddsendpoint_two_diff_domain_same_guid)
+TEST_F(database_tests, insert_ddsendpoint_two_diff_domain_same_guid)
 {
     insert_ddsendpoint_two_diff_domain_same_guid<DataReader>();
     insert_ddsendpoint_two_diff_domain_same_guid<DataWriter>();
 }
 
-TEST_F(database, insert_invalid)
+TEST_F(database_tests, insert_invalid)
 {
     /* Insert an entity */
     DataBaseTest db;
@@ -1525,7 +1525,7 @@ TEST_F(database, insert_invalid)
     ASSERT_EQ(entity_id, EntityId::invalid());
 }
 
-TEST_F(database, link_participant_with_process_unlinked)
+TEST_F(database_tests, link_participant_with_process_unlinked)
 {
     /* Insert a host, user, process, domain, and participant */
     DataBaseTest db;
@@ -1561,7 +1561,7 @@ TEST_F(database, link_participant_with_process_unlinked)
     ASSERT_EQ(processes_by_domain[domain_id][process_id].get(), process.get());
 }
 
-TEST_F(database, link_participant_with_process_wrong_participant)
+TEST_F(database_tests, link_participant_with_process_wrong_participant)
 {
     /* Insert a host, user, process, domain, and participant */
     DataBaseTest db;
@@ -1581,7 +1581,7 @@ TEST_F(database, link_participant_with_process_wrong_participant)
     ASSERT_THROW(db.link_participant_with_process(EntityId(12), process_id), BadParameter);
 }
 
-TEST_F(database, link_participant_with_process_wrong_process)
+TEST_F(database_tests, link_participant_with_process_wrong_process)
 {
     /* Insert a host, user, process, domain, and participant */
     DataBaseTest db;
@@ -1601,7 +1601,7 @@ TEST_F(database, link_participant_with_process_wrong_process)
     ASSERT_THROW(db.link_participant_with_process(participant_id, EntityId(12)), BadParameter);
 }
 
-TEST_F(database, link_participant_with_process_linked_participant)
+TEST_F(database_tests, link_participant_with_process_linked_participant)
 {
     /* Insert a host, user, process, domain, and participant */
     DataBaseTest db;
@@ -1622,7 +1622,7 @@ TEST_F(database, link_participant_with_process_linked_participant)
     ASSERT_THROW(db.link_participant_with_process(participant_id, process_id), BadParameter);
 }
 
-TEST_F(database, insert_sample_history_latency)
+TEST_F(database_tests, insert_sample_history_latency)
 {
     HistoryLatencySample sample;
     sample.reader = reader_id;
@@ -1634,7 +1634,7 @@ TEST_F(database, insert_sample_history_latency)
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
 }
 
-TEST_F(database, insert_sample_history_latency_wrong_entity)
+TEST_F(database_tests, insert_sample_history_latency_wrong_entity)
 {
     HistoryLatencySample sample;
     sample.reader = db.generate_entity_id();
@@ -1642,7 +1642,7 @@ TEST_F(database, insert_sample_history_latency_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_network_latency)
+TEST_F(database_tests, insert_sample_network_latency)
 {
     NetworkLatencySample sample;
     sample.remote_locator = reader_locator->id;
@@ -1654,7 +1654,7 @@ TEST_F(database, insert_sample_network_latency)
             static_cast<EntityDataSample>(sample));
 }
 
-TEST_F(database, insert_sample_network_latency_wrong_entity)
+TEST_F(database_tests, insert_sample_network_latency_wrong_entity)
 {
     NetworkLatencySample sample;
     sample.remote_locator = db.generate_entity_id();
@@ -1662,7 +1662,7 @@ TEST_F(database, insert_sample_network_latency_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_publication_throughput)
+TEST_F(database_tests, insert_sample_publication_throughput)
 {
     PublicationThroughputSample sample;
     sample.data = 12;
@@ -1672,14 +1672,14 @@ TEST_F(database, insert_sample_publication_throughput)
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
 }
 
-TEST_F(database, insert_sample_publication_throughput_wrong_entity)
+TEST_F(database_tests, insert_sample_publication_throughput_wrong_entity)
 {
     PublicationThroughputSample sample;
     sample.data = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_subscription_throughput)
+TEST_F(database_tests, insert_sample_subscription_throughput)
 {
     SubscriptionThroughputSample sample;
     sample.data = 12;
@@ -1689,14 +1689,14 @@ TEST_F(database, insert_sample_subscription_throughput)
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
 }
 
-TEST_F(database, insert_sample_subscription_throughput_wrong_entity)
+TEST_F(database_tests, insert_sample_subscription_throughput_wrong_entity)
 {
     SubscriptionThroughputSample sample;
     sample.data = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_rtps_packets_sent)
+TEST_F(database_tests, insert_sample_rtps_packets_sent)
 {
     RtpsPacketsSentSample sample;
     sample.remote_locator = writer_locator->id;
@@ -1707,7 +1707,7 @@ TEST_F(database, insert_sample_rtps_packets_sent)
     ASSERT_EQ(writer->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_rtps_packets_sent_wrong_entity)
+TEST_F(database_tests, insert_sample_rtps_packets_sent_wrong_entity)
 {
     RtpsPacketsSentSample sample;
     sample.remote_locator = db.generate_entity_id();
@@ -1715,7 +1715,7 @@ TEST_F(database, insert_sample_rtps_packets_sent_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_rtps_bytes_sent)
+TEST_F(database_tests, insert_sample_rtps_bytes_sent)
 {
     RtpsBytesSentSample sample;
     sample.remote_locator = writer_locator->id;
@@ -1727,7 +1727,7 @@ TEST_F(database, insert_sample_rtps_bytes_sent)
     ASSERT_EQ(writer->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_rtps_bytes_sent_wrong_entity)
+TEST_F(database_tests, insert_sample_rtps_bytes_sent_wrong_entity)
 {
     RtpsBytesSentSample sample;
     sample.remote_locator = db.generate_entity_id();
@@ -1736,7 +1736,7 @@ TEST_F(database, insert_sample_rtps_bytes_sent_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_rtps_packets_lost)
+TEST_F(database_tests, insert_sample_rtps_packets_lost)
 {
     RtpsPacketsLostSample sample;
     sample.remote_locator = writer_locator->id;
@@ -1747,7 +1747,7 @@ TEST_F(database, insert_sample_rtps_packets_lost)
     ASSERT_EQ(writer->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_rtps_packets_lost_wrong_entity)
+TEST_F(database_tests, insert_sample_rtps_packets_lost_wrong_entity)
 {
     RtpsPacketsLostSample sample;
     sample.remote_locator = db.generate_entity_id();
@@ -1755,7 +1755,7 @@ TEST_F(database, insert_sample_rtps_packets_lost_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_rtps_bytes_lost)
+TEST_F(database_tests, insert_sample_rtps_bytes_lost)
 {
     RtpsBytesLostSample sample;
     sample.remote_locator = writer_locator->id;
@@ -1767,7 +1767,7 @@ TEST_F(database, insert_sample_rtps_bytes_lost)
     ASSERT_EQ(writer->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_rtps_bytes_lost_wrong_entity)
+TEST_F(database_tests, insert_sample_rtps_bytes_lost_wrong_entity)
 {
     RtpsBytesLostSample sample;
     sample.remote_locator = db.generate_entity_id();
@@ -1776,7 +1776,7 @@ TEST_F(database, insert_sample_rtps_bytes_lost_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_resent_data)
+TEST_F(database_tests, insert_sample_resent_data)
 {
     ResentDataSample sample;
     sample.count = 12;
@@ -1786,14 +1786,14 @@ TEST_F(database, insert_sample_resent_data)
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_resent_data_wrong_entity)
+TEST_F(database_tests, insert_sample_resent_data_wrong_entity)
 {
     ResentDataSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_heartbeat_count)
+TEST_F(database_tests, insert_sample_heartbeat_count)
 {
     HeartbeatCountSample sample;
     sample.count = 12;
@@ -1803,14 +1803,14 @@ TEST_F(database, insert_sample_heartbeat_count)
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_heartbeat_count_wrong_entity)
+TEST_F(database_tests, insert_sample_heartbeat_count_wrong_entity)
 {
     HeartbeatCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_acknack_count)
+TEST_F(database_tests, insert_sample_acknack_count)
 {
     AcknackCountSample sample;
     sample.count = 12;
@@ -1820,14 +1820,14 @@ TEST_F(database, insert_sample_acknack_count)
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_acknack_count_wrong_entity)
+TEST_F(database_tests, insert_sample_acknack_count_wrong_entity)
 {
     AcknackCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_nackfrag_count)
+TEST_F(database_tests, insert_sample_nackfrag_count)
 {
     NackfragCountSample sample;
     sample.count = 12;
@@ -1837,14 +1837,14 @@ TEST_F(database, insert_sample_nackfrag_count)
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_nackfrag_count_wrong_entity)
+TEST_F(database_tests, insert_sample_nackfrag_count_wrong_entity)
 {
     NackfragCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_gap_count)
+TEST_F(database_tests, insert_sample_gap_count)
 {
     GapCountSample sample;
     sample.count = 12;
@@ -1854,14 +1854,14 @@ TEST_F(database, insert_sample_gap_count)
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_gap_count_wrong_entity)
+TEST_F(database_tests, insert_sample_gap_count_wrong_entity)
 {
     GapCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_data_count)
+TEST_F(database_tests, insert_sample_data_count)
 {
     DataCountSample sample;
     sample.count = 12;
@@ -1871,14 +1871,14 @@ TEST_F(database, insert_sample_data_count)
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_data_count_wrong_entity)
+TEST_F(database_tests, insert_sample_data_count_wrong_entity)
 {
     DataCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_pdp_packets)
+TEST_F(database_tests, insert_sample_pdp_packets)
 {
     PdpCountSample sample;
     sample.count = 12;
@@ -1888,14 +1888,14 @@ TEST_F(database, insert_sample_pdp_packets)
     ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_pdp_packets_wrong_entity)
+TEST_F(database_tests, insert_sample_pdp_packets_wrong_entity)
 {
     PdpCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_edp_packets)
+TEST_F(database_tests, insert_sample_edp_packets)
 {
     EdpCountSample sample;
     sample.count = 12;
@@ -1905,14 +1905,14 @@ TEST_F(database, insert_sample_edp_packets)
     ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
 }
 
-TEST_F(database, insert_sample_edp_packets_wrong_entity)
+TEST_F(database_tests, insert_sample_edp_packets_wrong_entity)
 {
     EdpCountSample sample;
     sample.count = 12;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_discovery_time)
+TEST_F(database_tests, insert_sample_discovery_time)
 {
     DiscoveryTimeSample sample;
     sample.remote_entity = writer_id;
@@ -1925,7 +1925,7 @@ TEST_F(database, insert_sample_discovery_time)
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
 }
 
-TEST_F(database, insert_sample_discovery_time_wrong_entity)
+TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
 {
     DiscoveryTimeSample sample;
     sample.remote_entity = db.generate_entity_id();
@@ -1934,7 +1934,7 @@ TEST_F(database, insert_sample_discovery_time_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_sample_datas)
+TEST_F(database_tests, insert_sample_sample_datas)
 {
     SampleDatasCountSample sample;
     sample.sequence_number = 2;
@@ -1945,7 +1945,7 @@ TEST_F(database, insert_sample_sample_datas)
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
 }
 
-TEST_F(database, insert_sample_sample_datas_wrong_entity)
+TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
 {
     SampleDatasCountSample sample;
     sample.sequence_number = 2;
@@ -1953,13 +1953,13 @@ TEST_F(database, insert_sample_sample_datas_wrong_entity)
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_invalid)
+TEST_F(database_tests, insert_sample_invalid)
 {
     StatisticsSample sample;
     ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
 }
 
-TEST_F(database, insert_sample_valid_wrong_domain)
+TEST_F(database_tests, insert_sample_valid_wrong_domain)
 {
     HistoryLatencySample history_lantency_sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, history_lantency_sample), BadParameter);
