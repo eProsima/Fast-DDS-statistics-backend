@@ -695,9 +695,84 @@ void Database::link_participant_with_process(
 const std::shared_ptr<const Entity> Database::get_entity(
         const EntityId& entity_id) const
 {
-    auto entity = std::make_shared<Entity>();
-    entity->id = entity_id;
-    return entity;
+    /* Iterate over all the collections looking for the entity */
+    for (auto host_it : hosts_)
+    {
+        if (host_it.second->id == entity_id)
+        {
+            return host_it.second;
+        }
+    }
+    for (auto process_it : processes_)
+    {
+        if (process_it.second->id == entity_id)
+        {
+            return process_it.second;
+        }
+    }
+    for (auto user_it : users_)
+    {
+        if (user_it.second->id == entity_id)
+        {
+            return user_it.second;
+        }
+    }
+    for (auto domain_it : domains_)
+    {
+        if (domain_it.second->id == entity_id)
+        {
+            return domain_it.second;
+        }
+    }
+    for (auto domain_it : topics_)
+    {
+        for (auto topic_it : domain_it.second)
+        {
+            if (topic_it.second->id == entity_id)
+            {
+                return topic_it.second;
+            }
+        }
+    }
+    for (auto domain_it : participants_)
+    {
+        for (auto participant_it : domain_it.second)
+        {
+            if (participant_it.second->id == entity_id)
+            {
+                return participant_it.second;
+            }
+        }
+    }
+    for (auto domain_it : datareaders_)
+    {
+        for (auto datareader_it : domain_it.second)
+        {
+            if (datareader_it.second->id == entity_id)
+            {
+                return datareader_it.second;
+            }
+        }
+    }
+    for (auto domain_it : datawriters_)
+    {
+        for (auto datawriter_it : domain_it.second)
+        {
+            if (datawriter_it.second->id == entity_id)
+            {
+                return datawriter_it.second;
+            }
+        }
+    }
+    for (auto locator_it : locators_)
+    {
+        if (locator_it.second->id == entity_id)
+        {
+            return locator_it.second;
+        }
+    }
+    /* The entity has not been found */
+    throw BadParameter("Database does not contain an entity with ID " + entity_id.value());
 }
 
 EntityId Database::generate_entity_id() noexcept
