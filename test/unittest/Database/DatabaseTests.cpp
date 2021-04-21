@@ -631,6 +631,17 @@ TEST_F(database_tests, insert_host_two)
     ASSERT_EQ(host_name_2, hosts[host_id_2]->name);
 }
 
+TEST_F(database_tests, insert_host_two_same_name)
+{
+    /* Insert two hosts */
+    DataBaseTest db;
+    std::string host_name = "test_host";
+    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
+    std::shared_ptr<Host> host_2 = std::make_shared<Host>(host_name);
+    db.insert(host);
+    ASSERT_THROW(db.insert(host_2), BadParameter);
+}
+
 TEST_F(database_tests, insert_host_duplicated)
 {
     /* Insert a host twice */

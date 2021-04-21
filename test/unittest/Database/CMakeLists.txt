@@ -108,6 +108,7 @@ set(DATABASE_TEST_LIST
     # Insert Host test
     insert_host
     insert_host_two
+    insert_host_two_same_name
     insert_host_duplicated
     insert_host_empty_name
     # Insert User tests
@@ -214,7 +215,7 @@ set(DATABASE_TEST_LIST
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
-    add_test(NAME database.${test_name}
+    add_test(NAME database_tests.${test_name}
             COMMAND database_tests
-            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+            --gtest_filter=database_tests.${test_name}:*/database_tests.${test_name}/*)
 endforeach()
