@@ -28,27 +28,27 @@ EntityId::EntityId(
 {
 }
 
-EntityId EntityId::all()
+EntityId EntityId::all() noexcept
 {
     return EntityId(ENTITY_ID_ALL);
 }
 
-EntityId EntityId::invalid()
+EntityId EntityId::invalid() noexcept
 {
     return EntityId(ENTITY_ID_INVALID);
 }
 
-bool EntityId::is_valid()
+bool EntityId::is_valid() noexcept
 {
     return (value_ >= 0);
 }
 
-void EntityId::invalidate()
+void EntityId::invalidate() noexcept
 {
     value_ = ENTITY_ID_INVALID;
 }
 
-int64_t EntityId::value() const
+int64_t EntityId::value() const noexcept
 {
     return value_;
 }

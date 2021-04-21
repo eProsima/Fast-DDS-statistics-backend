@@ -74,13 +74,13 @@ public:
      * @brief Get the EntityId to refer all entities at once
      * @return An ID that refers all entities.
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId all();
+    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId all() noexcept;
 
     /**
      * @brief Get an invalid EntityId
      * @return An ID that is invalid
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId invalid();
+    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId invalid() noexcept;
 
     /**
      * @brief Invalidate an EntityId
@@ -88,19 +88,19 @@ public:
      * @post
      *     is_valid() returns false
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate();
+    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate() noexcept;
 
     /**
      * @brief Check whether an EntityId is valid
      * @return True if valid, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid();
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() noexcept;
 
     /**
      * @brief Get the internal value of the EntityId
      * @return An int64_t with the representing internal value
      */
-    int64_t value() const;
+    int64_t value() const noexcept;
 
 protected:
 
