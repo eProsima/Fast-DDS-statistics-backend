@@ -133,6 +133,17 @@ public:
         return true;
     }
 
+    void do_process_sample_type(
+            EntityId& domain,
+            EntityId& entity,
+            EntityKind entity_kind,
+            ByteToLocatorCountSample& sample,
+            const StatisticsEntity2LocatorTraffic& item) const
+    {
+        process_sample_type<ByteToLocatorCountSample, StatisticsEntity2LocatorTraffic>(
+            domain, entity, entity_kind, sample, item);
+    }
+
 };
 
 struct InsertDataArgs
@@ -344,6 +355,234 @@ TEST_F(database_queue_tests, push_process)
 
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, process);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_domain)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string domain_name = "domain name";
+
+    // Create the domain hierarchy
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(domain_name);
+
+    // Expectation: The domain is created and given ID 0
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
+                EXPECT_EQ(entity->name, domain_name);
+
+                return EntityId(0);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, domain);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_process_exists)
+{
+    // Create the process
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string command = "command";
+    std::string pid = "1234";
+
+    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, std::shared_ptr<User>());
+
+    // Create the domain hierarchy
+    std::string participant_name = "participant name";
+    Qos participant_qos;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    std::shared_ptr<Domain> domain;
+    std::shared_ptr<DomainParticipant> participant =
+            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
+                    process, domain);
+
+    // Expectation: The participant is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
+                EXPECT_EQ(entity->name, participant_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, participant);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_no_process_exists)
+{
+    // Create the domain hierarchy
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string participant_name = "participant name";
+    Qos participant_qos;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    std::shared_ptr<Domain> domain;
+    std::shared_ptr<Process> process;
+    std::shared_ptr<DomainParticipant> participant =
+            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
+                    process, domain);
+
+    // Expectation: The participant is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
+                EXPECT_EQ(entity->name, participant_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, participant);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_topic)
+{
+    // Create the domain hierarchy
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string topic_name = "topic";
+    std::string type_name = "type";
+
+    std::shared_ptr<Domain> domain;
+    std::shared_ptr<Topic> topic =
+            std::make_shared<Topic>(topic_name, type_name, domain);
+
+    // Expectation: The topic is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
+                EXPECT_EQ(entity->name, topic_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, topic);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_datawriter)
+{
+    // Create the domain hierarchy
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string datawriter_name = "datawriter";
+    Qos datawriter_qos;
+    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+
+    std::shared_ptr<Topic> topic;
+    std::shared_ptr<DomainParticipant> participant;
+
+    std::shared_ptr<DataWriter> datawriter =
+            std::make_shared<DataWriter>(datawriter_name, datawriter_qos, datawriter_guid_str,
+                    participant, topic);
+
+    // Expectation: The datawriter is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(entity->name, datawriter_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, datawriter);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_datareader)
+{
+    // Create the domain hierarchy
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string datareader_name = "datareader";
+    Qos datareader_qos;
+    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+
+    std::shared_ptr<Topic> topic;
+    std::shared_ptr<DomainParticipant> participant;
+
+    std::shared_ptr<DataReader> datareader =
+            std::make_shared<DataReader>(datareader_name, datareader_qos, datareader_guid_str,
+                    participant, topic);
+
+    // Expectation: The datareader is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                EXPECT_EQ(entity->name, datareader_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, datareader);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_locator)
+{
+    // Create the domain hierarchy
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string locator_name = "locator";
+
+    std::shared_ptr<Locator> locator =
+            std::make_shared<Locator>(locator_name);
+
+    // Expectation: The datareader is created and given ID 1
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, locator_name);
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.push(timestamp, locator);
     entity_queue.flush();
 }
 
@@ -1249,6 +1488,104 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Add to the queue and wait to be processed
+    ByteToLocatorCountSample sample;
+    EntityId domain;
+    EntityId entity;
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
+            inner_data), eprosima::statistics_backend::Error);
+}
+
+TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Add to the queue and wait to be processed    // Add to the queue and wait to be processed
+    ByteToLocatorCountSample sample;
+    EntityId domain;
+    EntityId entity;
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
+            inner_data), eprosima::statistics_backend::Error);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
