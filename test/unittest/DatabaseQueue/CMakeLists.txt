@@ -21,6 +21,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
@@ -42,6 +43,13 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_host
         push_user
         push_process
+        push_domain
+        push_participant_process_exists
+        push_participant_no_process_exists
+        push_topic
+        push_datawriter
+        push_datareader
+        push_locator
         push_history_latency
         push_history_latency_no_reader
         push_history_latency_no_writer
