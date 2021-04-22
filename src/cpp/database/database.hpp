@@ -64,13 +64,7 @@ public:
     void insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            const StatisticsSample& sample)
-    {
-        (void) domain_id;
-        (void)entity_id;
-        (void)sample;
-        throw Unsupported("Not implemented yet");
-    }
+            const StatisticsSample& sample);
 
     /**
      * @brief Create the link between a participant and a process
@@ -165,11 +159,7 @@ public:
      * @return A constant shared pointer to the Entity
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const
-    {
-        (void) entity_id;
-        throw Unsupported("Not implemented yet");
-    }
+            const EntityId& entity_id) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity
@@ -212,12 +202,7 @@ public:
      */
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
             EntityKind entity_kind,
-            const std::string& name) const
-    {
-        (void)entity_kind;
-        (void)name;
-        throw Unsupported("Not implemented yet");
-    }
+            const std::string& name) const;
 
     /**
      * Get all entities of a given EntityKind that match with the requested GUID
@@ -232,12 +217,7 @@ public:
      */
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_guid(
             EntityKind entity_kind,
-            const std::string& guid) const
-    {
-        (void)entity_kind;
-        (void)guid;
-        throw Unsupported("Not implemented yet");
-    }
+            const std::string& guid) const;
 
 protected:
 

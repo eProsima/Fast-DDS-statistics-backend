@@ -27,6 +27,17 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+void Database::insert(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const StatisticsSample& sample)
+{
+    (void) domain_id;
+    (void)entity_id;
+    (void)sample;
+    throw Unsupported("Not implemented yet");
+}
+
 EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
@@ -690,6 +701,31 @@ void Database::link_participant_with_process(
 
     /* Add entry to processes_by_domain_ */
     processes_by_domain_[domain_id][process_it->first] = process_it->second;
+}
+
+const std::shared_ptr<const Entity> Database::get_entity(
+        const EntityId& entity_id) const
+{
+    (void) entity_id;
+    throw Unsupported("Not implemented yet");
+}
+
+std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
+        EntityKind entity_kind,
+        const std::string& name) const
+{
+    (void)entity_kind;
+    (void)name;
+    throw Unsupported("Not implemented yet");
+}
+
+std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
+        EntityKind entity_kind,
+        const std::string& guid) const
+{
+    (void)entity_kind;
+    (void)guid;
+    throw Unsupported("Not implemented yet");
 }
 
 EntityId Database::generate_entity_id() noexcept
