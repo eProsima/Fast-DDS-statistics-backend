@@ -71,22 +71,18 @@ public:
 
     using queue_item_type = std::pair<std::chrono::steady_clock::time_point, T>;
 
-    DatabaseQueue(
-            Database* database)
+    DatabaseQueue()
         : foreground_queue_(&queue_alpha_)
         , background_queue_(&queue_beta_)
-        , database_(database)
         , consuming_(false)
         , current_loop_(0)
     {
         start_consumer();
     }
 
-    virtual ~DatabaseQueue()
-    {
-        // Especializations must stop the consumer in their destructor,
-        // to avoid calling the abstract process_sample once the child is destroyed
-    }
+    // Specializations must stop the consumer in their destructor
+    // to avoid calling the abstract process_sample once the child is destroyed
+    virtual ~DatabaseQueue() = default;
 
     /**
      * @brief Pushes to the background queue.
@@ -127,8 +123,8 @@ public:
                     [&]()
                     {
                         /* I must avoid:
-                         + the two calls be processed without an intermediate Run() loop (by using last_loop sequence number)
-                         + deadlock by absence of Run() loop activity (by using BothEmpty() call)
+                         + the two calls be processed without an intermediate run() loop (by using last_loop sequence number)
+                         + deadlock by absence of run() loop activity (by using both_empty() call)
                          */
                         return !consuming_ ||
                         ( empty() &&
@@ -200,7 +196,7 @@ protected:
     /**
      * @brief Returns a reference to the front element in the foreground queue.
      *
-     * \pre Empty() is not False. Otherwise, the resulting behavior is undefined.
+     * \pre empty() is not False. Otherwise, the resulting behavior is undefined.
      *
      * @return A reference to the front element in the queue
      */
@@ -213,7 +209,7 @@ protected:
     /**
      * @brief Returns a reference to the front element in the foreground queue
      *
-     * \pre Empty() is not False. Otherwise, the resulting behavior is undefined.
+     * \pre empty() is not False. Otherwise, the resulting behavior is undefined.
      *
      * @return A const reference to the front element in the queue
      */
@@ -226,7 +222,7 @@ protected:
     /**
      * @brief Pops the front element in the foreground queue
      *
-     * \pre Empty() is not False. Otherwise, the resulting behavior is undefined.
+     * \pre empty() is not False. Otherwise, the resulting behavior is undefined.
      */
     void pop()
     {
@@ -286,7 +282,7 @@ protected:
     }
 
     /**
-     * @brief Consume all that there is in the background queue
+     * @brief Consume all the elements in the background queue
      *
      */
     void consume_all()
@@ -304,6 +300,9 @@ protected:
         cv_.notify_all();
     }
 
+    /**
+     * @brief Processes the next sample in the foreground queue
+     */
     virtual void process_sample() = 0;
 
 
@@ -317,9 +316,6 @@ protected:
 
     mutable std::mutex foreground_mutex_;
     mutable std::mutex background_mutex_;
-
-    // Database
-    Database* database_;
 
     // Consumer
     std::unique_ptr<std::thread> consumer_thread_;
@@ -336,7 +332,8 @@ public:
 
     DatabaseEntityQueue(
             database::Database* database)
-        : DatabaseQueue<std::shared_ptr<Entity>>(database)
+        : DatabaseQueue<std::shared_ptr<Entity>>()
+        , database_(database)
     {
     }
 
@@ -352,6 +349,9 @@ protected:
         database_->insert(front().second);
     }
 
+    // Database
+    Database* database_;
+
 };
 
 class DatabaseDataQueue : public DatabaseQueue<std::shared_ptr<eprosima::fastdds::statistics::Data>>
@@ -361,7 +361,8 @@ public:
 
     DatabaseDataQueue(
             database::Database* database)
-        : DatabaseQueue<std::shared_ptr<eprosima::fastdds::statistics::Data>>(database)
+        : DatabaseQueue<std::shared_ptr<eprosima::fastdds::statistics::Data>>()
+        , database_(database)
     {
     }
 
@@ -372,13 +373,28 @@ public:
 
     virtual void process_sample() override;
 
+    /**
+     * @brief subroutine to build a StatisticsSample from a StatisticsData
+     *
+     * The consumer takes the @ref StatisticsData pushed to the queue and delegates to specializations of this subroutine
+     * the task of creating the corresponding @ref StatisticsSample that will be added to the database.
+     *
+     * @tparam T The Sample type. It should be a type extending \ref StatisticsSample.
+     * @tparam Q The type of the inner data contained in the \ref StatisticsData in the queue.
+     *
+     * @param[out] domain Buffer to receive the ID of the domain to which the \p entity belongs
+     * @param[out] entity Buffer to receive the ID of the entity to which the sample refers
+     * @param[in]  entity_kind The entity kind of the expected entity whose ID will be received in \p entity
+     * @param[out] sample Buffer to receive the constructed sample
+     * @param[in]  item The StatisticsData we want to process
+     */
     template<typename T, typename Q>
     void process_sample_type(
-            EntityId& /*domain*/,
-            EntityId& /*entity*/,
-            EntityKind /*entity_kind*/,
-            T& /*sample*/,
-            const Q& /*item*/) const
+            EntityId& domain,
+            EntityId& entity,
+            EntityKind entity_kind,
+            T& sample,
+            const Q& item) const
     {
         throw BadParameter("Unsupported Sample type and Data type combination");
     }
@@ -388,25 +404,11 @@ protected:
     std::string deserialize_guid(
             StatisticsGuid data) const
     {
-        std::array<uint8_t, eprosima::fastrtps::rtps::GuidPrefix_t::size> guid_prefix = data.guidPrefix().value();
-        std::array<uint8_t, eprosima::fastrtps::rtps::EntityId_t::size> entity_id = data.entityId().value();
-
-        std::stringstream ss;
-        for (unsigned int i = 0; i < eprosima::fastrtps::rtps::GuidPrefix_t::size; ++i)
-        {
-            ss << static_cast<unsigned int>(guid_prefix[i]) << '.';
-        }
-        for (unsigned int i = 0; i < eprosima::fastrtps::rtps::EntityId_t::size; ++i)
-        {
-            ss << static_cast<unsigned int>(entity_id[i]);
-            if (i < eprosima::fastrtps::rtps::EntityId_t::size - 1)
-            {
-                ss << '.';
-            }
-        }
-
         eprosima::fastrtps::rtps::GUID_t guid;
-        ss >> guid;
+        memcpy(guid.guidPrefix.value, data.guidPrefix().value().data(), eprosima::fastrtps::rtps::GuidPrefix_t::size);
+        memcpy(guid.entityId.value, data.entityId().value().data(), eprosima::fastrtps::rtps::EntityId_t::size);
+        std::stringstream ss;
+        ss << guid;
         return ss.str();
     }
 
@@ -441,6 +443,9 @@ protected:
 
         return std::make_pair(writer_guid, sequence_number);
     }
+
+    // Database
+    Database* database_;
 
 };
 

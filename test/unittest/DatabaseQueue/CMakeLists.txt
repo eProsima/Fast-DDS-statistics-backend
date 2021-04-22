@@ -17,8 +17,6 @@ check_gtest()
 check_gmock()
 
 if(GTEST_FOUND AND GMOCK_FOUND)
-    find_package(Threads REQUIRED)
-
     add_executable(database_queue_tests DatabaseQueueTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx

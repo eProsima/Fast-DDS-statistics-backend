@@ -354,8 +354,8 @@ TEST_F(database_queue_tests, push_history_latency)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -422,8 +422,8 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -476,8 +476,8 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -689,7 +689,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -740,7 +740,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -778,7 +778,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -829,7 +829,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -869,7 +869,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -954,7 +954,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -1009,7 +1009,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -1064,7 +1064,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -1149,7 +1149,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -1204,7 +1204,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
 
     // Build the writer GUID
@@ -1257,7 +1257,7 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1308,7 +1308,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1346,7 +1346,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1397,7 +1397,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1435,7 +1435,7 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -1486,7 +1486,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -1524,7 +1524,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -1575,7 +1575,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
@@ -1613,7 +1613,7 @@ TEST_F(database_queue_tests, push_gap_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1664,7 +1664,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1702,7 +1702,7 @@ TEST_F(database_queue_tests, push_data_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1753,7 +1753,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -1791,7 +1791,7 @@ TEST_F(database_queue_tests, push_pdp_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -1842,7 +1842,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -1880,7 +1880,7 @@ TEST_F(database_queue_tests, push_edp_count)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -1931,7 +1931,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -1971,9 +1971,10 @@ TEST_F(database_queue_tests, push_discovery_times)
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     uint64_t discovery_time = 1024;
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
-    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
-    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::chrono::steady_clock::time_point discovery_timestamp = std::chrono::steady_clock::time_point(std::chrono::nanoseconds(
+                        discovery_time));
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -2022,7 +2023,7 @@ TEST_F(database_queue_tests, push_discovery_times)
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::DISCOVERY_TIME);
                 EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).remote_entity, 2);
-                //    EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
+                EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -2041,8 +2042,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     uint64_t discovery_time = 1024;
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
-    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
 
     // Build the participant GUID
@@ -2097,8 +2098,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     uint64_t discovery_time = 1024;
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
-    std::string remote_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.1";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
 
     // Build the participant GUID
@@ -2153,7 +2154,7 @@ TEST_F(database_queue_tests, push_sample_datas)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
@@ -2215,7 +2216,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.2";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
@@ -2256,6 +2257,81 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_physical_data_process_exists)
+{
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+            .WillOnce(Return(host));
+
+    // Precondition: The user exists and has ID 3
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+            .WillOnce(Return(user));
+
+    // Precondition: The process exists and has ID 4
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+
+    auto process = std::make_shared<Process>(processname, pid, user);
+    process->id = EntityId(4);
+    EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
+            .WillOnce(Return(process));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -2263,7 +2339,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     std::string pid = "1234";
     std::string username = "user";
     std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -2296,66 +2372,38 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillOnce(Return(host));
+
+    // Precondition: The user exists and has ID 3
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+            .WillOnce(Return(user));
+
+    // Precondition: The process exists and has ID 4
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+
+    auto process = std::make_shared<Process>(processname, pid, user);
+    process->id = EntityId(4);
+    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+            .WillOnce(Return(process));
+
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();
     data_queue.push(timestamp, data);
     data_queue.do_swap();
     ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::BadParameter);
-}
-
-TEST_F(database_queue_tests, push_physical_data_process_exists)
-{
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
-
-    // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
-
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
-
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
-
-    // Precondition: The process exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    // Expectation: methods that may be called but we do not care at this moment
-    EXPECT_CALL(database, get_entity(_)).Times(AnyNumber());
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(2))).Times(1);
-
-    // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_process_exists)
@@ -2365,7 +2413,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
     std::string pid = "1234";
     std::string username = "user";
     std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -2398,19 +2446,29 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+            .WillOnce(Return(host));
+
+    // Precondition: The user exists and has ID 3
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+            .WillOnce(Return(user));
+
     // Precondition: The process does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
-    // Precondition: The user exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto user = std::make_shared<User>(username, std::make_shared<Host>(hostname));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(user));
-
-    // Expectation: The process is created and given ID 3
+    // Expectation: The process is created and given ID 4
     InsertEntityArgs insert_args_process([&](
                 std::shared_ptr<Entity> entity)
             {
@@ -2419,14 +2477,14 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-                return EntityId(3);
+                return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
     // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(3))).Times(1);
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2440,7 +2498,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     std::string pid = "1234";
     std::string username = "user";
     std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -2473,21 +2531,22 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The user does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
             .WillOnce(Return(host));
+
+    // Precondition: The user does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Expectation: The user is created and given ID 3
     InsertEntityArgs insert_args_user([&](
@@ -2524,7 +2583,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     data_queue.flush();
 }
 
-
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists)
 {
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
@@ -2532,7 +2590,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
     std::string pid = "1234";
     std::string username = "user";
     std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -2565,16 +2623,16 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
 
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
+    // Precondition: The host does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The user does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
-    // Precondition: The host does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Expectation: The host is created and given ID 3
@@ -2630,7 +2688,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
     std::string pid = "1234";
     std::string username = "user";
     std::string hostname = "host";
-    std::string participant_guid_str = "1.2.3.4.5.6.7.8.9.10.11.12.0.0.0.0";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -2662,6 +2720,18 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The user exists and has ID 3
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+
+    // Precondition: The process exists and has ID 4
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
 
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();

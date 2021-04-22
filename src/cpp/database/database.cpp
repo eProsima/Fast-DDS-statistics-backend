@@ -777,6 +777,24 @@ const std::shared_ptr<const Entity> Database::get_entity(
     throw BadParameter("Database does not contain an entity with ID " + entity_id.value());
 }
 
+std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
+        EntityKind entity_kind,
+        const std::string& name) const
+{
+    (void)entity_kind;
+    (void)name;
+    throw Unsupported("Not implemented yet");
+}
+
+std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
+        EntityKind entity_kind,
+        const std::string& guid) const
+{
+    (void)entity_kind;
+    (void)guid;
+    throw Unsupported("Not implemented yet");
+}
+
 EntityId Database::generate_entity_id() noexcept
 {
     return EntityId(next_id_++);
