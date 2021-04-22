@@ -156,6 +156,7 @@ public:
      * Get an entity given its EntityId
      *
      * @param entity_id constant reference to the EntityId of the retrieved entity
+     * @throws eprosima::statistics_backend::BadParameter in there is not entity with the given ID.
      * @return A constant shared pointer to the Entity
      */
     const std::shared_ptr<const Entity> get_entity(
