@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <mutex>  // For std::unique_lock
+#include <shared_mutex>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
@@ -695,6 +696,7 @@ void Database::link_participant_with_process(
 const std::shared_ptr<const Entity> Database::get_entity(
         const EntityId& entity_id) const
 {
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     /* Iterate over all the collections looking for the entity */
     for (auto host_it : hosts_)
     {
