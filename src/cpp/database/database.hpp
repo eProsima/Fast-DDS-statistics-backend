@@ -166,7 +166,7 @@ public:
      */
     const std::shared_ptr<const Entity> get_entity(
             const EntityId& entity_id,
-            const EntityKind kind=EntityKind::INVALID) const;
+            const EntityKind kind = EntityKind::INVALID) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity
@@ -248,12 +248,14 @@ public:
 
 protected:
 
-    inline std::string id_to_string(EntityId id)
+    inline std::string id_to_string(
+            EntityId id)
     {
         return std::to_string(id.value());
     }
 
-    inline std::string time_to_string(std::chrono::steady_clock::time_point time)
+    inline std::string time_to_string(
+            std::chrono::steady_clock::time_point time)
     {
         // TODO
         std::string s = std::to_string(
@@ -389,26 +391,42 @@ protected:
      * @param kind EntityKind of the entity
      * @return DatabaseDump object representing the entity in the database
      */
-    DatabaseDump dump_entity_(const std::shared_ptr<Host>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<User>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<Process>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<Domain>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<Topic>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<DomainParticipant>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<DataWriter>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<DataReader>& entity);
-    DatabaseDump dump_entity_(const std::shared_ptr<Locator>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<Host>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<User>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<Process>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<Domain>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<Topic>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<DomainParticipant>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<DataWriter>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<DataReader>& entity);
+    DatabaseDump dump_entity_(
+            const std::shared_ptr<Locator>& entity);
 
     /**
      * TODO
      */
-    DatabaseDump dump_data_(const std::map<EntityId, std::vector<ByteCountSample>>& data);
-    DatabaseDump dump_data_(const std::map<EntityId, std::vector<EntityCountSample>>& data);
-    DatabaseDump dump_data_(const std::map<EntityId, std::vector<EntityDataSample>>& data);
-    DatabaseDump dump_data_(const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data);
-    DatabaseDump dump_data_(const std::map<uint64_t, uint64_t>& data);
-    DatabaseDump dump_data_(const std::vector<EntityCountSample>& data);
-    DatabaseDump dump_data_(const std::vector<EntityDataSample>& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, std::vector<ByteCountSample>>& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, std::vector<EntityCountSample>>& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, std::vector<EntityDataSample>>& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data);
+    DatabaseDump dump_data_(
+            const std::map<uint64_t, uint64_t>& data);
+    DatabaseDump dump_data_(
+            const std::vector<EntityCountSample>& data);
+    DatabaseDump dump_data_(
+            const std::vector<EntityDataSample>& data);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
