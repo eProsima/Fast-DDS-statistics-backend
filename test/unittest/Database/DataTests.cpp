@@ -29,13 +29,24 @@ TEST(database, domainparticipant_data_clear)
     DomainParticipantData data;
     EntityCountSample count_sample;
     count_sample.count = 12;
+    ByteCountSample byte_sample;
+    byte_sample.count = 13;
+    byte_sample.magnitude_order = 2;
 
-    // DDSEntityData
+    // RTPSData
+    data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
+    data.last_reported_rtps_packets_sent_count = count_sample;
+    data.rtps_bytes_sent[EntityId(3)].push_back(byte_sample);
+    data.last_reported_rtps_bytes_sent_count = byte_sample;
+    data.rtps_packets_lost[EntityId(4)].push_back(count_sample);
+    data.last_reported_rtps_packets_lost_count = count_sample;
+    data.rtps_bytes_lost[EntityId(5)].push_back(byte_sample);
+    data.last_reported_rtps_bytes_lost_count = byte_sample;
+
+    // DomainParticipantData
     data.discovered_entity[EntityId(1)].push_back(
         std::pair<std::chrono::steady_clock::time_point, bool>(
             std::chrono::steady_clock::now(), true));
-
-    // DomainParticipantData
     data.pdp_packets.push_back(count_sample);
     data.last_reported_pdp_packets = count_sample;
     data.edp_packets.push_back(count_sample);
@@ -43,6 +54,14 @@ TEST(database, domainparticipant_data_clear)
 
     /* Check that data in cleared */
     data.clear();
+    ASSERT_TRUE(data.rtps_packets_sent.empty());
+    ASSERT_EQ(data.last_reported_rtps_packets_sent_count.count, 0);
+    ASSERT_TRUE(data.rtps_bytes_sent.empty());
+    ASSERT_EQ(data.last_reported_rtps_bytes_sent_count.count, 0);
+    ASSERT_TRUE(data.rtps_packets_lost.empty());
+    ASSERT_EQ(data.last_reported_rtps_packets_lost_count.count, 0);
+    ASSERT_TRUE(data.rtps_bytes_lost.empty());
+    ASSERT_EQ(data.last_reported_rtps_bytes_lost_count.count, 0);
     ASSERT_TRUE(data.discovered_entity.empty());
     ASSERT_TRUE(data.pdp_packets.empty());
     ASSERT_EQ(data.last_reported_pdp_packets.count, 0);
@@ -83,19 +102,6 @@ TEST(database, datawriter_data_clear)
     data_sample.data = 11.0;
     EntityCountSample count_sample;
     count_sample.count = 12;
-    ByteCountSample byte_sample;
-    byte_sample.count = 13;
-    byte_sample.magnitude_order = 2;
-
-    // RTPSData
-    data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
-    data.last_reported_rtps_packets_sent_count = count_sample;
-    data.rtps_bytes_sent[EntityId(3)].push_back(byte_sample);
-    data.last_reported_rtps_bytes_sent_count = byte_sample;
-    data.rtps_packets_lost[EntityId(4)].push_back(count_sample);
-    data.last_reported_rtps_packets_lost_count = count_sample;
-    data.rtps_bytes_lost[EntityId(5)].push_back(byte_sample);
-    data.last_reported_rtps_bytes_lost_count = byte_sample;
 
     // DataWriterData
     data.publication_throughput.push_back(data_sample);
@@ -113,14 +119,6 @@ TEST(database, datawriter_data_clear)
     /* Check that data in cleared */
     data.clear();
     ASSERT_TRUE(data.history2history_latency.empty());
-    ASSERT_TRUE(data.rtps_packets_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_sent_count.count, 0);
-    ASSERT_TRUE(data.rtps_bytes_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_sent_count.count, 0);
-    ASSERT_TRUE(data.rtps_packets_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_lost_count.count, 0);
-    ASSERT_TRUE(data.rtps_bytes_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_lost_count.count, 0);
     ASSERT_TRUE(data.publication_throughput.empty());
     ASSERT_TRUE(data.resent_datas.empty());
     ASSERT_EQ(data.last_reported_resent_datas.count, 0);
