@@ -29,6 +29,7 @@ set(${PROJECT_NAME}_SOURCES
     exception/Exception.cpp
     types/EntityId.cpp
     StatisticsBackend.cpp
+    subscriber/QosSerializer.cpp
     subscriber/StatisticsParticipantListener.cpp
     topic_types/types.cxx
     topic_types/typesPubSubTypes.cxx
