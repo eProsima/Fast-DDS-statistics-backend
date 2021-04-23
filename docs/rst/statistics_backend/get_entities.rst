@@ -63,45 +63,45 @@ This function returns the related entities according to the following table:
      - Contained
      - Itself
      - Contains
-     - By Participant
-     - By Participant
-     - Subcontains
-     - Subcontains
-     - Subcontains
-     - By Participant
+     - By DomainParticipant
+     - By DomainParticipant
+     - Sub-contains
+     - Sub-contains
+     - Sub-contains
+     - By DomainParticipant
    * - Process
-     - Subcontained
+     - Sub-contained
      - Contained
      - Itself
-     - By Participant
-     - By Participant
+     - By DomainParticipant
+     - By DomainParticipant
      - Contains
-     - Subcontains
-     - Subcontains
-     - By Participant
+     - Sub-contains
+     - Sub-contains
+     - By DomainParticipant
    * - Domain
-     - By Participant
-     - By Participant
-     - By Participant
+     - By DomainParticipant
+     - By DomainParticipant
+     - By DomainParticipant
      - Itself
      - Contains
      - Contains
-     - Subcontains
-     - Subcontains
-     - By Participant
+     - Sub-contains
+     - Sub-contains
+     - By DomainParticipant
    * - Topic
-     - By Participant
-     - By Participant
-     - By Participant
+     - By DomainParticipant
+     - By DomainParticipant
+     - By DomainParticipant
      - Contained
      - Itself
      - By Endpoints
      - Contains
      - Contains
      - By Endpoints
-   * - DParticipant
-     - Subcontained
-     - Subcontained
+   * - DomainParticipant
+     - Sub-contained
+     - Sub-contained
      - Contained
      - Contained
      - By Endpoints
@@ -110,27 +110,27 @@ This function returns the related entities according to the following table:
      - Contains
      - By Endpoints
    * - DataWriter
-     - Subcontained
-     - Subcontained
-     - Subcontained
-     - Subcontained
+     - Sub-contained
+     - Sub-contained
+     - Sub-contained
+     - Sub-contained
      - Contained
      - Contained
      - Itself
      - By topic
      - Contains
    * - DataReader
-     - Subcontained
-     - Subcontained
-     - Subcontained
-     - Subcontained
+     - Sub-contained
+     - Sub-contained
+     - Sub-contained
+     - Sub-contained
      - Contained
      - Contained
      - By topic
      - Itself
      - Contains
    * - Locator
-     - Subcontained
+     - Sub-contained
      - By Endpoints
      - By Endpoints
      - By Endpoints
@@ -139,3 +139,25 @@ This function returns the related entities according to the following table:
      - Contained
      - Contained
      - Itself
+
+* **Itself**: Means that the return will only contain the entity by which the query is performed, i.e. when asking for
+  all the |HOST-api| related to a given |HOST-api|, the return will simply be the |HOST-api| itself.
+* **Contains**: The returned entities will be the ones that the entity by which the query is performed contains, i.e.
+  when asking for all the |PARTICIPANT-api| related to a |PROCESS-api|, the return will be all the
+  |PARTICIPANT-api| that the |PROCESS-api| contains.
+* **Sub-contains**: The returned entities will be the ones that the entity by which the query is performed sub-contains,
+  i.e. when asking for all the |DataWriter-api| related to a |USER-api|, the return will be all the |DataWriter-api|
+  that are contained in each of the |PARTICIPANT-api| in each of the |PROCESS-api| that the |USER-api| contains.
+* **Contained**: The returned entity will be that one in which the entity by which the query is performed is contained,
+  i.e. when asking for all the |TOPIC-api| related to a |DataReader-api|, the return will be the |TOPIC-api| in which
+  the |DataReader-api| is contained.
+* **Sub-contained**: The returned entity will be the one in which the entity by which the query is performed is
+  sub-contained, i.e. when asking for all the |HOST-api| related to a |PARTICIPANT-api|, the return will be the
+  |HOST-api| in which the |PARTICIPANT-api| is sub-contained.
+* **By DomainParticipant**: The returned entities will be the ones that are related to the entity by which the query is
+  performed through the DomainParticipant, i.e. when asking for all the |HOST-api| related to a |DOMAIN-api|, the result
+  will be all the |HOST-api| that have a |PARTICIPANT-api| running on said |DOMAIN-api|.
+  * **By Endpoints**: The returned entities will be the ones that are related to the entity by which the query is
+  performed through the endpoints (|DataReader-api| and |DataWriter-api|), i.e. when asking for all the |LOCATOR-api|
+  related to a |TOPIC-api|, the result will be all the |LOCATOR-api| that are used by all the |DataReader-api| and
+  |DataWriter-api| present in the |TOPIC-api|.
