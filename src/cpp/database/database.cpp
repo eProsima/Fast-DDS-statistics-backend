@@ -1117,7 +1117,8 @@ DatabaseDump Database::dump_database()
     return dump;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<Host>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<Host>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1135,7 +1136,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<Host>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<User>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<User>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1155,7 +1157,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<User>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<Process>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<Process>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1176,7 +1179,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<Process>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<Domain>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<Domain>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1204,7 +1208,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<Domain>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<Topic>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<Topic>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1235,7 +1240,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<Topic>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<DomainParticipant>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<DomainParticipant>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1283,7 +1289,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<DomainParticipant>& en
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<DataWriter>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<DataWriter>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1346,7 +1353,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<DataWriter>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<DataReader>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<DataReader>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1385,7 +1393,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<DataReader>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_entity_(const std::shared_ptr<Locator>& entity)
+DatabaseDump Database::dump_entity_(
+        const std::shared_ptr<Locator>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO] = entity->name;
@@ -1423,7 +1432,8 @@ DatabaseDump Database::dump_entity_(const std::shared_ptr<Locator>& entity)
     return entity_info;
 }
 
-DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<ByteCountSample>>& data)
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, std::vector<ByteCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -1435,8 +1445,8 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<ByteCount
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_COUNT] = std::to_string(sample.count);
-            value[DATA_VALUE_MAGNITUDE] = std::to_string(sample.magnitude_order);
+            value[DATA_VALUE_COUNT] = sample.count;
+            value[DATA_VALUE_MAGNITUDE] = sample.magnitude_order;
 
             samples.push_back(value);
         }
@@ -1447,7 +1457,8 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<ByteCount
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityCountSample>>& data)
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, std::vector<EntityCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -1459,7 +1470,7 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityCou
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_COUNT] = std::to_string(sample.count);
+            value[DATA_VALUE_COUNT] = sample.count;
 
             samples.push_back(value);
         }
@@ -1470,7 +1481,8 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityCou
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityDataSample>>& data)
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, std::vector<EntityDataSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -1482,7 +1494,7 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityDat
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_DATA] = std::to_string(sample.data);
+            value[DATA_VALUE_DATA] = sample.data;
 
             samples.push_back(value);
         }
@@ -1493,7 +1505,8 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityDat
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data)
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -1505,7 +1518,7 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<std::pair
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME] = time_to_string(sample.first);
-            value[DATA_VALUE_STATUS] = std::to_string(sample.second);
+            value[DATA_VALUE_STATUS] = sample.second;
 
             samples.push_back(value);
         }
@@ -1516,19 +1529,21 @@ DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<std::pair
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::map<uint64_t, uint64_t>& data)
+DatabaseDump Database::dump_data_(
+        const std::map<uint64_t, uint64_t>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
     for (auto it : data)
     {
-        data_dump[it.first] = it.second;
+        data_dump[std::to_string(it.first)] = it.second;
     }
 
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::vector<EntityCountSample>& data)
+DatabaseDump Database::dump_data_(
+        const std::vector<EntityCountSample>& data)
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
@@ -1536,7 +1551,7 @@ DatabaseDump Database::dump_data_(const std::vector<EntityCountSample>& data)
     {
         DatabaseDump value = DatabaseDump::object();
         value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
-        value[DATA_VALUE_COUNT] = std::to_string(it.count);
+        value[DATA_VALUE_COUNT] = it.count;
 
         data_dump.push_back(value);
     }
@@ -1544,7 +1559,8 @@ DatabaseDump Database::dump_data_(const std::vector<EntityCountSample>& data)
     return data_dump;
 }
 
-DatabaseDump Database::dump_data_(const std::vector<EntityDataSample>& data)
+DatabaseDump Database::dump_data_(
+        const std::vector<EntityDataSample>& data)
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
@@ -1552,7 +1568,7 @@ DatabaseDump Database::dump_data_(const std::vector<EntityDataSample>& data)
     {
         DatabaseDump value = DatabaseDump::object();
         value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
-        value[DATA_VALUE_DATA] = std::to_string(it.data);
+        value[DATA_VALUE_DATA] = it.data;
 
         data_dump.push_back(value);
     }

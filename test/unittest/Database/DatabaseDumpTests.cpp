@@ -42,7 +42,40 @@ constexpr const char* PID_DEFAULT = "36000";
 constexpr const char* DATA_TYPE_DEFAULT = "data_type";
 #define QOS_DEFAULT Qos(R"({"qos":"empty"})"_json)
 
-DatabaseDump load_file(std::string filename)
+constexpr const bool STATUS_DEFAULT = true;
+constexpr const uint64_t COUNT_DEFAULT = 2;
+constexpr const double DATA_DEFAULT = 1.1;
+constexpr const uint64_t SEQUENCE_NUMBER_DEFAULT = 3;
+constexpr const int16_t MAGNITUDE_DEFAULT = 0;
+constexpr const std::chrono::steady_clock::time_point TIME_DEFAULT =
+        std::chrono::steady_clock::time_point(std::chrono::steady_clock::duration(1600000000000000001L));
+
+#define DOMAIN_DEFAULT_ID EntityId(4)
+#define PARTICIPANT_DEFAULT_ID EntityId(6)
+#define DATAWRITER_DEFAULT_ID EntityId(7)
+#define DATAREADER_DEFAULT_ID EntityId(8)
+#define LOCATOR_DEFAULT_ID EntityId(0)
+
+void initialize_empty_entities(
+        Database& db);
+void initialize_simple_entities(
+        Database& db);
+void initialize_participant_data(
+        Database& db);
+void initialize_datawriter_data(
+        Database& db);
+void initialize_datareader_data(
+        Database& db);
+void initialize_locator_data(
+        Database& db);
+void initialize_data(
+        Database& db);
+void initialize_data(
+        Database& db,
+        int sample_number);
+
+DatabaseDump load_file(
+        std::string filename)
 {
     // Check if the file exists
     std::ifstream file(filename);
@@ -64,16 +97,20 @@ DatabaseDump load_file(std::string filename)
     return dump;
 }
 
-void initialize_empty_entities(Database& db)
+void initialize_empty_entities(
+        Database& db)
 {
     std::shared_ptr<Host> host = std::make_shared<Host>(std::string(HOST_ENTITY));
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_ENTITY), host);
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_ENTITY), PID_DEFAULT, user);
     std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_ENTITY));
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_ENTITY), DATA_TYPE_DEFAULT, domain);
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(PARTICIPANT_ENTITY), QOS_DEFAULT, GUID_DEFAULT, nullptr, domain);
-    std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(DATAWRITER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
-    std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(DATAREADER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
+                        PARTICIPANT_ENTITY), QOS_DEFAULT, GUID_DEFAULT, nullptr, domain);
+    std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(
+                        DATAWRITER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
+    std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(
+                        DATAREADER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
     std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_ENTITY));
 
     // This ID is set manually as there si no insert for Locator in database
@@ -97,46 +134,212 @@ void initialize_empty_entities(Database& db)
     locator->data_readers[dr->id] = dr;
 }
 
-void initialize_simple_entities(Database& db)
+void initialize_simple_entities(
+        Database& db)
 {
-    std::shared_ptr<Host> host = std::make_shared<Host>(std::string(HOST_ENTITY));
-    std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_ENTITY), host);
-    std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_ENTITY), PID_DEFAULT, user);
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_ENTITY));
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_ENTITY), DATA_TYPE_DEFAULT, domain);
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(PARTICIPANT_ENTITY), QOS_DEFAULT, GUID_DEFAULT, nullptr, domain);
-    std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(DATAWRITER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
-    std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(DATAREADER_ENTITY), QOS_DEFAULT, GUID_DEFAULT, participant, topic);
-    std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_ENTITY));
+    // Initialize entities
+    initialize_empty_entities(db);
+    // Insert data
+    initialize_data(db);
+}
 
-    // This ID is set manually as there si no insert for Locator in database
-    locator->id = db.generate_entity_id();
+void initialize_participant_data(
+        Database& db)
+{
+    // discovered_entity
+    {
+        DiscoveryTimeSample sample;
+        sample.remote_entity = PARTICIPANT_DEFAULT_ID;
+        sample.time = TIME_DEFAULT;
+        sample.discovered = STATUS_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, PARTICIPANT_DEFAULT_ID, sample);
+    }
 
-    dw->locators[locator->id] = locator;
-    dr->locators[locator->id] = locator;
+    // pdp_packets
+    {
+        PdpCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, PARTICIPANT_DEFAULT_ID, sample);
+    }
 
-    ASSERT_NE(db.insert(host), EntityId::invalid());
-    ASSERT_NE(db.insert(user), EntityId::invalid());
-    ASSERT_NE(db.insert(process), EntityId::invalid());
-    ASSERT_NE(db.insert(domain), EntityId::invalid());
-    ASSERT_NE(db.insert(topic), EntityId::invalid());
-    ASSERT_NE(db.insert(participant), EntityId::invalid());
-    ASSERT_NE(db.insert(dw), EntityId::invalid());
-    ASSERT_NE(db.insert(dr), EntityId::invalid());
+    // edp_packets
+    {
+        EdpCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, PARTICIPANT_DEFAULT_ID, sample);
+    }
+}
 
-    db.link_participant_with_process(participant->id, process->id);
+void initialize_datawriter_data(
+        Database& db)
+{
+    // publication_throughput
+    {
+        PublicationThroughputSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.data = DATA_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
 
-    locator->data_writers[dw->id] = dw;
-    locator->data_readers[dr->id] = dr;
+    // resent_datas
+    {
+        ResentDataSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
 
-    // TODO add a data of each kind
+    // heartbeat_count
+    {
+        HeartbeatCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // gap_count
+    {
+        GapCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // data_count
+    {
+        DataCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // sample_datas
+    {
+        SampleDatasCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        sample.sequence_number = SEQUENCE_NUMBER_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // history2history_latency
+    {
+        HistoryLatencySample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.data = DATA_DEFAULT;
+        sample.reader = DATAREADER_DEFAULT_ID;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // rtps_packets_sent
+    {
+        RtpsPacketsSentSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // rtps_bytes_sent
+    {
+        RtpsBytesSentSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID;
+        sample.count = COUNT_DEFAULT;
+        sample.magnitude_order = MAGNITUDE_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // rtps_packets_lost
+    {
+        RtpsPacketsLostSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+
+    // rtps_bytes_lost
+    {
+        RtpsBytesLostSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID;
+        sample.count = COUNT_DEFAULT;
+        sample.magnitude_order = MAGNITUDE_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAWRITER_DEFAULT_ID, sample);
+    }
+}
+
+void initialize_datareader_data(
+        Database& db)
+{
+    // subscription_throughput
+    {
+        SubscriptionThroughputSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.data = DATA_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAREADER_DEFAULT_ID, sample);
+    }
+
+    // acknack_count
+    {
+        AcknackCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAREADER_DEFAULT_ID, sample);
+    }
+
+    // nackfrag_count
+    {
+        NackfragCountSample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID, DATAREADER_DEFAULT_ID, sample);
+    }
+}
+
+void initialize_locator_data(
+        Database& db)
+{
+    // network_latency_per_locator
+    {
+        NetworkLatencySample sample;
+        sample.src_ts = TIME_DEFAULT;
+        sample.data = DATA_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID;
+        db.insert(DOMAIN_DEFAULT_ID, LOCATOR_DEFAULT_ID, sample);
+    }
+}
+
+void initialize_data(
+        Database& db)
+{
+    initialize_participant_data(db);
+    initialize_datawriter_data(db);
+    initialize_datareader_data(db);
+    initialize_locator_data(db);
+}
+
+void initialize_data(
+        Database& db,
+        int sample_number)
+{
+    for (int i = 0; i < sample_number; i++)
+    {
+        initialize_data(db);
+    }
 }
 
 class database : public ::testing::Test
 {
 public:
+
     void SetUp()
-    {}
+    {
+    }
+
 };
 
 TEST(database, dump_empty_database)
@@ -156,6 +359,7 @@ TEST(database, dump_simple_database)
 {
     Database db;
     initialize_simple_entities(db);
+    std::cout << "finish initializing" << std::endl;
     ASSERT_EQ(db.dump_database(), load_file(SIMPLE_DUMP_FILE));
 }
 

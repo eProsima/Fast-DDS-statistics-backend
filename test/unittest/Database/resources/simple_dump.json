@@ -61,7 +61,7 @@
         {
             "name": "participant",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
-            "qos": {"qos":"empty"},
+            "qos": {"qos": "empty"},
 
             "process": "3",
             "domain": "4",
@@ -70,9 +70,30 @@
 
             "data":
             {
-                "discovery_time": {},
-                "pdp_packets": [],
-                "edp_packets": []
+                "discovery_time":
+                {
+                    "6":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "status": true
+                        }
+                    ]
+                },
+                "pdp_packets":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "edp_packets":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ]
             }
         }
     },
@@ -83,7 +104,7 @@
         {
             "name": "datawriter",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
-            "qos": {"qos":"empty"},
+            "qos": {"qos": "empty"},
 
             "participant": "6",
             "topic": "5",
@@ -91,18 +112,98 @@
 
             "data":
             {
-                "publication_throughput": [],
-                "resent_datas": [],
-                "heartbeat_count": [],
-                "gap_count": [],
-                "data_count": [],
-                "samples_datas": {},
-                "history2history_latency": {},
+                "publication_throughput":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "data": 1.1
+                    }
+                ],
+                "resent_datas":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "heartbeat_count":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "gap_count":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "data_count":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "samples_datas":
+                {
+                    "3": 2
+                },
+                "history2history_latency":
+                {
+                    "8":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "data": 1.1
+                        }
+                    ]
+                },
 
-                "rtps_packets_sent": {},
-                "rtps_bytes_sent": {},
-                "rtps_packets_lost": {},
-                "rtps_bytes_lost": {}
+                "rtps_packets_sent":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_bytes_sent":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "magnitude": 0,
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_packets_lost":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_bytes_lost":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "magnitude": 0,
+                            "count": 2
+                        }
+                    ]
+                }
             }
         }
     },
@@ -113,7 +214,7 @@
         {
             "name": "datareader",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
-            "qos": {"qos":"empty"},
+            "qos": {"qos": "empty"},
 
             "participant": "6",
             "topic": "5",
@@ -121,9 +222,27 @@
 
             "data":
             {
-                "subscription_throughput": [],
-                "acknack_count": [],
-                "nackfrag_count": []
+                "subscription_throughput":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "data": 1.1
+                    }
+                ],
+                "acknack_count":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ],
+                "nackfrag_count":
+                [
+                    {
+                        "src_time": "1600000000000000001",
+                        "count": 2
+                    }
+                ]
             }
         }
     },
@@ -138,7 +257,16 @@
 
             "data":
             {
-                "network_latency_per_locator": {}
+                "network_latency_per_locator":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "1600000000000000001",
+                            "data": 1.1
+                        }
+                    ]
+                }
             }
         }
     }
