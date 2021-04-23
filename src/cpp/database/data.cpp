@@ -21,6 +21,7 @@ namespace database {
 
 void DomainParticipantData::clear()
 {
+    RTPSData::clear();
     discovered_entity.clear();
     pdp_packets.clear();
     last_reported_pdp_packets.clear();
@@ -52,7 +53,6 @@ void RTPSData::clear()
 void DataWriterData::clear()
 {
     history2history_latency.clear();
-    RTPSData::clear();
     publication_throughput.clear();
     resent_datas.clear();
     last_reported_resent_datas.clear();

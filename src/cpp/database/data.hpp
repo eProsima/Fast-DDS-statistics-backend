@@ -38,14 +38,81 @@ namespace database {
 using Qos = nlohmann::json;
 
 /*
- * Data related to a DomainParticipant
+ * Base struct for data related to RTPS
  */
-struct DomainParticipantData
+struct RTPSData
 {
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    void clear();
+    virtual void clear() = 0;
+
+    /*
+     * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     *
+     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
+     * difference between each accumulated report and the previous one.
+     */
+    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_sent;
+
+    /*
+     * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * This is done to speed up the calculation of the entries in rtps_packets_sent
+     */
+    EntityCountSample last_reported_rtps_packets_sent_count;
+
+    /*
+     * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     *
+     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
+     * difference between each accumulated report and the previous one.
+     */
+    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_sent;
+
+    /*
+     * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * This is done to speed up the calculation of the entries in rtps_bytes_sent
+     */
+    ByteCountSample last_reported_rtps_bytes_sent_count;
+
+    /*
+     * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
+     *
+     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
+     * difference between each accumulated report and the previous one.
+     */
+    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_lost;
+
+    /*
+     * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
+     * This is done to speed up the calculation of the entries in rtps_packets_lost
+     */
+    EntityCountSample last_reported_rtps_packets_lost_count;
+
+    /*
+     * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     *
+     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
+     * difference between each accumulated report and the previous one.
+     */
+    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_lost;
+
+    /*
+     * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * This is done to speed up the calculation of the entries in rtps_bytes_lost
+     */
+    ByteCountSample last_reported_rtps_bytes_lost_count;
+};
+
+/*
+ * Data related to a DomainParticipant
+ */
+struct DomainParticipantData : RTPSData
+{
+    /**
+     * Clear the vectors and maps, and set the counts to zero
+     */
+    void clear() final;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::DISCOVERY_TOPIC
@@ -131,81 +198,14 @@ struct DataReaderData
 };
 
 /*
- * Base struct for data related to RTPS
- */
-struct RTPSData
-{
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    virtual void clear() = 0;
-
-    /*
-     * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     *
-     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
-     * difference between each accumulated report and the previous one.
-     */
-    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_sent;
-
-    /*
-     * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     * This is done to speed up the calculation of the entries in rtps_packets_sent
-     */
-    EntityCountSample last_reported_rtps_packets_sent_count;
-
-    /*
-     * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     *
-     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
-     * difference between each accumulated report and the previous one.
-     */
-    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_sent;
-
-    /*
-     * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     * This is done to speed up the calculation of the entries in rtps_bytes_sent
-     */
-    ByteCountSample last_reported_rtps_bytes_sent_count;
-
-    /*
-     * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
-     *
-     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
-     * difference between each accumulated report and the previous one.
-     */
-    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_lost;
-
-    /*
-     * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
-     * This is done to speed up the calculation of the entries in rtps_packets_lost
-     */
-    EntityCountSample last_reported_rtps_packets_lost_count;
-
-    /*
-     * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     *
-     * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
-     * difference between each accumulated report and the previous one.
-     */
-    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_lost;
-
-    /*
-     * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
-     * This is done to speed up the calculation of the entries in rtps_bytes_lost
-     */
-    ByteCountSample last_reported_rtps_bytes_lost_count;
-};
-
-/*
  * Data related to a DataWriter
  */
-struct DataWriterData : RTPSData
+struct DataWriterData
 {
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    void clear() final;
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PUBLICATION_THROUGHPUT_TOPIC

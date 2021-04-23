@@ -1712,10 +1712,10 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
     RtpsPacketsSentSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(writer->data.rtps_packets_sent.size(), 1);
-    ASSERT_EQ(writer->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_sent_wrong_entity)
@@ -1732,10 +1732,10 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent)
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(writer->data.rtps_bytes_sent.size(), 1);
-    ASSERT_EQ(writer->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_sent_wrong_entity)
@@ -1752,10 +1752,10 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost)
     RtpsPacketsLostSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(writer->data.rtps_packets_lost.size(), 1);
-    ASSERT_EQ(writer->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_lost_wrong_entity)
@@ -1772,10 +1772,10 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost)
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(writer->data.rtps_bytes_lost.size(), 1);
-    ASSERT_EQ(writer->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_lost_wrong_entity)
