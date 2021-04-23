@@ -270,6 +270,112 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
     :end-before: //!
     :dedent: 8
 
+This function returns the related entities according to the following table:
+
+.. list-table:: Entity relations
+   :header-rows: 1
+
+   * - :class:`EntityId` / :class:`EntityKind`
+     - Host
+     - User
+     - Process
+     - Domain
+     - Topic
+     - DomainParticipant
+     - DataWriter
+     - DataReader
+     - Locator
+   * - Host
+     - Itself
+     - Contains
+     - Sub-contains
+     - By DomainParticipant
+     - By DomainParticipant
+     - Sub-contains
+     - Sub-contains
+     - Sub-contains
+     - By DomainParticipant
+   * - User
+     - Contained
+     - Itself
+     - Contains
+     - By Participant
+     - By Participant
+     - Subcontains
+     - Subcontains
+     - Subcontains
+     - By Participant
+   * - Process
+     - Subcontained
+     - Contained
+     - Itself
+     - By Participant
+     - By Participant
+     - Contains
+     - Subcontains
+     - Subcontains
+     - By Participant
+   * - Domain
+     - By Participant
+     - By Participant
+     - By Participant
+     - Itself
+     - Contains
+     - Contains
+     - Subcontains
+     - Subcontains
+     - By Participant
+   * - Topic
+     - By Participant
+     - By Participant
+     - By Participant
+     - Contained
+     - Itself
+     - By Endpoints
+     - Contains
+     - Contains
+     - By Endpoints
+   * - DParticipant
+     - Subcontained
+     - Subcontained
+     - Contained
+     - Contained
+     - By Endpoints
+     - Itself
+     - Contains
+     - Contains
+     - By Endpoints
+   * - DataWriter
+     - Subcontained
+     - Subcontained
+     - Subcontained
+     - Subcontained
+     - Contained
+     - Contained
+     - Itself
+     - By topic
+     - Contains
+   * - DataReader
+     - Subcontained
+     - Subcontained
+     - Subcontained
+     - Subcontained
+     - Contained
+     - Contained
+     - By topic
+     - Itself
+     - Contains
+   * - Locator
+     - Subcontained
+     - By Endpoints
+     - By Endpoints
+     - By Endpoints
+     - By Endpoints
+     - By Endpoints
+     - Contained
+     - Contained
+     - Itself
+
 .. _statistics_backend_get_info:
 
 Get entity meta information
