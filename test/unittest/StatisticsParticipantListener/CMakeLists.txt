@@ -23,6 +23,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
@@ -48,6 +49,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_reader_discovered_no_participant
         new_reader_discovered_no_domain
         new_reader_discovered_reader_already_exists
+        new_writer_discovered
+        new_writer_discovered_no_topic
+        new_writer_discovered_several_locators
+        new_writer_discovered_no_participant
+        new_writer_discovered_no_domain
+        new_writer_discovered_writer_already_exists
         )
 
     foreach(test_name ${STATISTICSPARTICIPANTLISTENER_TEST_LIST})
