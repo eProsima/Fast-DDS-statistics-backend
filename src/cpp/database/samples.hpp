@@ -118,6 +118,15 @@ struct EntityCountSample : StatisticsSample
         return !(*this == other);
     }
 
+    inline EntityCountSample operator -(
+        const EntityCountSample& other) const noexcept
+    {
+        EntityCountSample ret;
+        ret.kind = kind;
+        ret.count = count - other.count;
+        return ret;
+    }
+
     uint64_t count;
 };
 

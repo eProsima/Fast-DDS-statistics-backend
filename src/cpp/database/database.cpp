@@ -438,7 +438,11 @@ void Database::insert(
             if (participant)
             {
                 const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
-                participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(rtps_packets_sent);
+                // Store the increment since the last report
+                participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
+                    rtps_packets_sent - participant->data.last_reported_rtps_packets_sent_count);
+                // Update last report
+                participant->data.last_reported_rtps_packets_sent_count = rtps_packets_sent;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -466,7 +470,11 @@ void Database::insert(
             if (participant)
             {
                 const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
-                participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(rtps_packets_lost);
+                // Store the increment since the last report
+                participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
+                    rtps_packets_lost - participant->data.last_reported_rtps_packets_sent_count);
+                // Update last report
+                participant->data.last_reported_rtps_packets_sent_count = rtps_packets_lost;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -494,7 +502,10 @@ void Database::insert(
             if (writer)
             {
                 const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
-                writer->data.resent_datas.push_back(resent_datas);
+                // Store the increment since the last report
+                writer->data.resent_datas.push_back(resent_datas - writer->data.last_reported_resent_datas);
+                // Update last report
+                writer->data.last_reported_resent_datas = resent_datas;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -508,7 +519,10 @@ void Database::insert(
             if (writer)
             {
                 const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
-                writer->data.heartbeat_count.push_back(heartbeat_count);
+                // Store the increment since the last report
+                writer->data.heartbeat_count.push_back(heartbeat_count - writer->data.last_reported_heartbeat_count);
+                // Update last report
+                writer->data.last_reported_heartbeat_count = heartbeat_count;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -522,7 +536,10 @@ void Database::insert(
             if (reader)
             {
                 const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
-                reader->data.acknack_count.push_back(acknack_count);
+                // Store the increment since the last report
+                reader->data.acknack_count.push_back(acknack_count - reader->data.last_reported_acknack_count);
+                // Update last report
+                reader->data.last_reported_acknack_count = acknack_count;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -536,7 +553,10 @@ void Database::insert(
             if (reader)
             {
                 const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
-                reader->data.nackfrag_count.push_back(nackfrag_count);
+                // Store the increment since the last report
+                reader->data.nackfrag_count.push_back(nackfrag_count - reader->data.last_reported_nackfrag_count);
+                // Update last report
+                reader->data.last_reported_nackfrag_count = nackfrag_count;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -550,7 +570,10 @@ void Database::insert(
             if (writer)
             {
                 const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
-                writer->data.gap_count.push_back(gap_count);
+                // Store the increment since the last report
+                writer->data.gap_count.push_back(gap_count - writer->data.last_reported_gap_count);
+                // Update last report
+                writer->data.last_reported_gap_count = gap_count;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -564,7 +587,10 @@ void Database::insert(
             if (writer)
             {
                 const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
-                writer->data.data_count.push_back(data_count);
+                // Store the increment since the last report
+                writer->data.data_count.push_back(data_count - writer->data.last_reported_data_count);
+                // Update last report
+                writer->data.last_reported_data_count = data_count;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -578,7 +604,10 @@ void Database::insert(
             if (participant)
             {
                 const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
-                participant->data.pdp_packets.push_back(pdp_packets);
+                // Store the increment since the last report
+                participant->data.pdp_packets.push_back(pdp_packets - participant->data.last_reported_pdp_packets);
+                // Update last report
+                participant->data.last_reported_pdp_packets = pdp_packets;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -592,7 +621,10 @@ void Database::insert(
             if (participant)
             {
                 const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
-                participant->data.edp_packets.push_back(edp_packets);
+                // Store the increment since the last report
+                participant->data.edp_packets.push_back(edp_packets - participant->data.last_reported_edp_packets);
+                // Update last report
+                participant->data.last_reported_edp_packets = edp_packets;
                 break;
             }
             throw BadParameter(std::to_string(
