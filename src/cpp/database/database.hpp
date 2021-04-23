@@ -21,8 +21,9 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
 
 #include <atomic>
-#include <shared_mutex>
 #include <memory>
+#include <shared_mutex>
+#include <sstream>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
@@ -155,12 +156,17 @@ public:
     /**
      * Get an entity given its EntityId
      *
+     * If the kind of the entity is not retrieved, the entity will be looked up in the whole database
+     * The \c kind param is not required but very recommended when available to accelerate the search
+     *
      * @param entity_id constant reference to the EntityId of the retrieved entity
+     * @param kind kind of the entity to look up
      * @throws eprosima::statistics_backend::BadParameter if there is not entity with the given ID.
      * @return A constant shared pointer to the Entity
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const;
+            const EntityId& entity_id,
+            const EntityKind kind=EntityKind::INVALID) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity
@@ -225,16 +231,35 @@ public:
             EntityKind entity_kind,
             const std::string& guid) const;
 
-    /**
-     * Get EntityKind given an EntityId
+     /**
+     * @brief Get a dump of the database
      *
-     * @param entity_id The EntityId of the entity
-     * @return The EntityKind of the given entity
+     * @return DatabaseDump object representing the backend database
      */
-    EntityKind get_entity_kind(
-            EntityId entity_id) const;
+    DatabaseDump dump_database();
+
+    /**
+     * @brief Load Entities and their dt from dump (json) object
+     *
+     * @param dump Object with the object with the dump to load
+     */
+    void load_database(
+            DatabaseDump dump);
 
 protected:
+
+    inline std::string id_to_string(EntityId id)
+    {
+        return std::to_string(id.value());
+    }
+
+    inline std::string time_to_string(std::chrono::steady_clock::time_point time)
+    {
+        // TODO
+        std::string s = std::to_string(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count());
+        return s;
+    }
 
     /**
      * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
@@ -297,7 +322,7 @@ protected:
             throw BadParameter("Parent participant does not exist in the database");
         }
 
-        /* Check that topic exits */
+        /* Check that topic exists */
         bool topic_exists = false;
         for (auto topic_it : topics_[endpoint->topic->domain->id])
         {
@@ -353,6 +378,37 @@ protected:
         dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
         return endpoint->id;
     }
+
+    /**
+     * @brief Get a dump of an Entity stored in the database
+     *
+     * Non setting the kind argument will remain in the method to search in the internal maps for the entity
+     * So it saves really big time to give the Kind as argument
+     *
+     * @param id EntityId of the entity to dump
+     * @param kind EntityKind of the entity
+     * @return DatabaseDump object representing the entity in the database
+     */
+    DatabaseDump dump_entity_(const std::shared_ptr<Host>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<User>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<Process>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<Domain>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<Topic>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<DomainParticipant>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<DataWriter>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<DataReader>& entity);
+    DatabaseDump dump_entity_(const std::shared_ptr<Locator>& entity);
+
+    /**
+     * TODO
+     */
+    DatabaseDump dump_data_(const std::map<EntityId, std::vector<ByteCountSample>>& data);
+    DatabaseDump dump_data_(const std::map<EntityId, std::vector<EntityCountSample>>& data);
+    DatabaseDump dump_data_(const std::map<EntityId, std::vector<EntityDataSample>>& data);
+    DatabaseDump dump_data_(const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data);
+    DatabaseDump dump_data_(const std::map<uint64_t, uint64_t>& data);
+    DatabaseDump dump_data_(const std::vector<EntityCountSample>& data);
+    DatabaseDump dump_data_(const std::vector<EntityDataSample>& data);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;

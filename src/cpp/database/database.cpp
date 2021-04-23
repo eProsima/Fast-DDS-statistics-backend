@@ -21,6 +21,7 @@
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds-statistics-backend/types/JSONTags.h>
 
 #include "samples.hpp"
 
@@ -979,6 +980,592 @@ template<>
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
 {
     return datawriters_;
+}
+
+DatabaseDump Database::dump_database()
+{
+    DatabaseDump dump = DatabaseDump::object();
+
+    // Add version
+    dump[VERSION] = ACTUAL_DUMP_VERSION;
+
+    // Hosts
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : hosts_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[HOST_CONTAINER] = container;
+    }
+
+    // Users
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : users_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[USER_CONTAINER] = container;
+    }
+
+    // Processes
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : processes_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[PROCESS_CONTAINER] = container;
+    }
+
+    // Domain
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : domains_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[DOMAIN_CONTAINER] = container;
+    }
+
+    // Topic
+    {
+        DatabaseDump container = DatabaseDump::object();
+        // For each domain
+        for (auto super_it : topics_)
+        {
+            // For each entity of this kind in domain
+            for (auto it : super_it.second)
+            {
+                container[id_to_string(it.first.value())] = dump_entity_(it.second);
+            }
+        }
+        dump[TOPIC_CONTAINER] = container;
+    }
+
+    // Participant
+    {
+        DatabaseDump container = DatabaseDump::object();
+        // For each domain
+        for (auto super_it : participants_)
+        {
+            // For each entity of this kind in domain
+            for (auto it : super_it.second)
+            {
+                container[id_to_string(it.first.value())] = dump_entity_(it.second);
+            }
+        }
+        dump[PARTICIPANT_CONTAINER] = container;
+    }
+
+    // DataWriter
+    {
+        DatabaseDump container = DatabaseDump::object();
+        // For each domain
+        for (auto super_it : datawriters_)
+        {
+            // For each entity of this kind in domain
+            for (auto it : super_it.second)
+            {
+                container[id_to_string(it.first.value())] = dump_entity_(it.second);
+            }
+        }
+        dump[DATAWRITER_CONTAINER] = container;
+    }
+
+    // DataReader
+    {
+        DatabaseDump container = DatabaseDump::object();
+        // For each domain
+        for (auto super_it : datareaders_)
+        {
+            // For each entity of this kind in domain
+            for (auto it : super_it.second)
+            {
+                container[id_to_string(it.first.value())] = dump_entity_(it.second);
+            }
+        }
+        dump[DATAREADER_CONTAINER] = container;
+    }
+
+    // Locator
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : locators_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[LOCATOR_CONTAINER] = container;
+    }
+
+    return dump;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<Host>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+
+    // Populate subentity array
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->users)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[USER_CONTAINER] = subentities;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<User>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+
+    entity_info[HOST_ENTITY] = id_to_string(entity->host->id);
+
+    // Populate subentity array
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->processes)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[PROCESS_CONTAINER] = subentities;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<Process>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+    entity_info[PID_INFO] = entity->pid;
+
+    entity_info[USER_ENTITY] = id_to_string(entity->user->id);
+
+    // Populate subentity array
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->participants)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[PARTICIPANT_CONTAINER] = subentities;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<Domain>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+
+    // Populate subentity array for Topics
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->topics)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[TOPIC_CONTAINER] = subentities;
+    }
+
+    // Populate subentity array for Participants
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->participants)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[PARTICIPANT_CONTAINER] = subentities;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<Topic>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+    entity_info[DATA_TYPE_INFO] = entity->data_type;
+
+    entity_info[DOMAIN_ENTITY] = id_to_string(entity->domain->id);
+
+    // Populate subentity array for DataWriters
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_writers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAWRITER_CONTAINER] = subentities;
+    }
+
+    // Populate subentity array for DataReaders
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_readers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAREADER_CONTAINER] = subentities;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<DomainParticipant>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+    entity_info[GUID_INFO] = entity->guid;
+    entity_info[QOS_INFO] = entity->qos;
+
+    entity_info[DOMAIN_ENTITY] = id_to_string(entity->domain->id);
+    entity_info[PROCESS_ENTITY] = id_to_string(entity->process->id);
+
+    // Populate subentity array for DataWriters
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_writers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAWRITER_CONTAINER] = subentities;
+    }
+    // Populate subentity array for DataReaders
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_readers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAREADER_CONTAINER] = subentities;
+    }
+
+    // Store data from the entity
+    {
+        DatabaseDump data = DatabaseDump::object();
+
+        // discovered_entity
+        data[DATA_KIND_DISCOVERY_TIME] = dump_data_(entity->data.discovered_entity);
+
+        // pdp_packets
+        data[DATA_KIND_PDP_PACKETS] = dump_data_(entity->data.pdp_packets);
+
+        // edp_packets
+        data[DATA_KIND_EDP_PACKETS] = dump_data_(entity->data.edp_packets);
+
+        entity_info[DATA_CONTAINER] = data;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<DataWriter>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+    entity_info[GUID_INFO] = entity->guid;
+    entity_info[QOS_INFO] = entity->qos;
+
+    entity_info[PARTICIPANT_ENTITY] = id_to_string(entity->participant->id);
+    entity_info[TOPIC_ENTITY] = id_to_string(entity->topic->id);
+
+    // Populate subentity array for Locators
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->locators)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[LOCATOR_CONTAINER] = subentities;
+    }
+
+    // Store data from the entity
+    {
+        DatabaseDump data = DatabaseDump::object();
+
+        // publication_throughput
+        data[DATA_KIND_PUBLICATION_THROUGHPUT] = dump_data_(entity->data.publication_throughput);
+
+        // resent_datas
+        data[DATA_KIND_RESENT_DATA] = dump_data_(entity->data.resent_datas);
+
+        // heartbeat_count
+        data[DATA_KIND_HEARTBEAT_COUNT] = dump_data_(entity->data.heartbeat_count);
+
+        // gap_count
+        data[DATA_KIND_GAP_COUNT] = dump_data_(entity->data.gap_count);
+
+        // data_count
+        data[DATA_KIND_DATA_COUNT] = dump_data_(entity->data.data_count);
+
+        // sample_datas
+        data[DATA_KIND_SAMPLE_DATAS] = dump_data_(entity->data.sample_datas);
+
+        // history2history_latency
+        data[DATA_KIND_FASTDDS_LATENCY] = dump_data_(entity->data.history2history_latency);
+
+        // rtps_packets_sent
+        data[DATA_KIND_RTPS_PACKETS_SENT] = dump_data_(entity->data.rtps_packets_sent);
+
+        // rtps_bytes_sent
+        data[DATA_KIND_RTPS_BYTES_SENT] = dump_data_(entity->data.rtps_bytes_sent);
+
+        // rtps_packets_lost
+        data[DATA_KIND_RTPS_PACKETS_LOST] = dump_data_(entity->data.rtps_packets_lost);
+
+        // rtps_bytes_lost
+        data[DATA_KIND_RTPS_BYTES_LOST] = dump_data_(entity->data.rtps_bytes_lost);
+
+        entity_info[DATA_CONTAINER] = data;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<DataReader>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+    entity_info[GUID_INFO] = entity->guid;
+    entity_info[QOS_INFO] = entity->qos;
+
+    entity_info[PARTICIPANT_ENTITY] = id_to_string(entity->participant->id);
+    entity_info[TOPIC_ENTITY] = id_to_string(entity->topic->id);
+
+    // Populate subentity array for Locators
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->locators)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[LOCATOR_CONTAINER] = subentities;
+    }
+
+    // Store data from the entity
+    {
+        DatabaseDump data = DatabaseDump::object();
+
+        // subscription_throughput
+        data[DATA_KIND_SUBSCRIPTION_THROUGHPUT] = dump_data_(entity->data.subscription_throughput);
+
+        // acknack_count
+        data[DATA_KIND_ACKNACK_COUNT] = dump_data_(entity->data.acknack_count);
+
+        // nackfrag_count
+        data[DATA_KIND_NACKFRAG_COUNT] = dump_data_(entity->data.nackfrag_count);
+
+        entity_info[DATA_CONTAINER] = data;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_entity_(const std::shared_ptr<Locator>& entity)
+{
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+
+    // Populate subentity array for DataWriters
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_writers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAWRITER_CONTAINER] = subentities;
+    }
+
+    // Populate subentity array for DataReaders
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->data_readers)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[DATAREADER_CONTAINER] = subentities;
+    }
+
+    // Store data from the entity
+    {
+        DatabaseDump data = DatabaseDump::object();
+
+        // network_latency_per_locator
+        data[DATA_KIND_NETWORK_LATENCY] = dump_data_(entity->data.network_latency_per_locator);
+
+        entity_info[DATA_CONTAINER] = data;
+    }
+
+    return entity_info;
+}
+
+DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<ByteCountSample>>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        DatabaseDump samples = DatabaseDump::array();
+
+        for (auto sample : it.second)
+        {
+            DatabaseDump value = DatabaseDump::object();
+            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_COUNT] = std::to_string(sample.count);
+            value[DATA_VALUE_MAGNITUDE] = std::to_string(sample.magnitude_order);
+
+            samples.push_back(value);
+        }
+
+        data_dump[id_to_string(it.first.value())] = samples;
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityCountSample>>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        DatabaseDump samples = DatabaseDump::array();
+
+        for (auto sample : it.second)
+        {
+            DatabaseDump value = DatabaseDump::object();
+            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_COUNT] = std::to_string(sample.count);
+
+            samples.push_back(value);
+        }
+
+        data_dump[id_to_string(it.first.value())] = samples;
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<EntityDataSample>>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        DatabaseDump samples = DatabaseDump::array();
+
+        for (auto sample : it.second)
+        {
+            DatabaseDump value = DatabaseDump::object();
+            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_DATA] = std::to_string(sample.data);
+
+            samples.push_back(value);
+        }
+
+        data_dump[id_to_string(it.first.value())] = samples;
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        DatabaseDump samples = DatabaseDump::array();
+
+        for (auto sample : it.second)
+        {
+            DatabaseDump value = DatabaseDump::object();
+            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.first);
+            value[DATA_VALUE_STATUS] = std::to_string(sample.second);
+
+            samples.push_back(value);
+        }
+
+        data_dump[id_to_string(it.first.value())] = samples;
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::map<uint64_t, uint64_t>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        data_dump[it.first] = it.second;
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::vector<EntityCountSample>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::array();
+
+    for (auto it : data)
+    {
+        DatabaseDump value = DatabaseDump::object();
+        value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
+        value[DATA_VALUE_COUNT] = std::to_string(it.count);
+
+        data_dump.push_back(value);
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(const std::vector<EntityDataSample>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::array();
+
+    for (auto it : data)
+    {
+        DatabaseDump value = DatabaseDump::object();
+        value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
+        value[DATA_VALUE_DATA] = std::to_string(it.data);
+
+        data_dump.push_back(value);
+    }
+
+    return data_dump;
+}
+
+void Database::load_database(
+        DatabaseDump dump)
+{
+    // TODO
+    static_cast<void>(dump);
+    throw BadParameter("Database::load_database method is not supported yet.");
 }
 
 } //namespace database

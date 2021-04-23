@@ -1,0 +1,145 @@
+{
+    "description": "DB dump with 1 entity of each kind, only required connections and no data",
+
+    "version": "0.0",
+
+    "hosts":
+    {
+        "1":
+        {
+            "name": "host",
+            "users": ["2"]
+        }
+    },
+
+    "users":
+    {
+        "2":
+        {
+            "name": "user",
+            "host": "1",
+            "processes": ["3"]
+        }
+    },
+
+    "processes":
+    {
+        "3":
+        {
+            "name": "process",
+            "pid": "36000",
+            "user": "2",
+            "participants": ["6"]
+        }
+    },
+
+    "domains":
+    {
+        "4":
+        {
+            "name": "domain",
+            "participants": ["6"],
+            "topics": ["5"]
+        }
+    },
+
+    "topics":
+    {
+        "5":
+        {
+            "name": "topic",
+            "data_type": "data_type",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"]
+        }
+    },
+
+    "participants":
+    {
+        "6":
+        {
+            "name": "participant",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "process": "3",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "discovery_time": {},
+                "pdp_packets": [],
+                "edp_packets": []
+            }
+        }
+    },
+
+    "datawriters":
+    {
+        "7":
+        {
+            "name": "datawriter",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "publication_throughput": [],
+                "resent_datas": [],
+                "heartbeat_count": [],
+                "gap_count": [],
+                "data_count": [],
+                "samples_datas": {},
+                "history2history_latency": {},
+
+                "rtps_packets_sent": {},
+                "rtps_bytes_sent": {},
+                "rtps_packets_lost": {},
+                "rtps_bytes_lost": {}
+            }
+        }
+    },
+
+    "datareaders":
+    {
+        "8":
+        {
+            "name": "datareader",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "subscription_throughput": [],
+                "acknack_count": [],
+                "nackfrag_count": []
+            }
+        }
+    },
+
+    "locators":
+    {
+        "0":
+        {
+            "name": "locator",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "network_latency_per_locator": {}
+            }
+        }
+    }
+}

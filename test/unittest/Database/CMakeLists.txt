@@ -255,3 +255,36 @@ foreach(test_name ${DATABASE_TEST_LIST})
             COMMAND database_tests
             --gtest_filter=database_tests.${test_name}:*/database_tests.${test_name}/*)
 endforeach()
+
+###############################################################################
+# Database Dump tests
+###############################################################################
+
+add_executable(database_dump_tests DatabaseDumpTests.cpp)
+
+target_include_directories(database_dump_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(database_dump_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
+
+
+set(DATABASE_DUMP_TEST_LIST
+    dump_empty_database
+    dump_empty_entities_database
+    dump_simple_database
+)
+
+foreach(test_name ${DATABASE_DUMP_TEST_LIST})
+    add_test(NAME database.${test_name}
+            COMMAND database_dump_tests
+            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+endforeach()

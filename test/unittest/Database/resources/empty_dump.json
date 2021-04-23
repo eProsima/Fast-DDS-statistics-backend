@@ -1,0 +1,41 @@
+{
+    "description": "DB dump without entities.",
+
+    "version": "0.0",
+
+    "hosts":
+    {
+    },
+
+    "users":
+    {
+    },
+
+    "processes":
+    {
+    },
+
+    "domains":
+    {
+    },
+
+    "topics":
+    {
+    },
+
+    "participants":
+    {
+    },
+
+    "datawriters":
+    {
+    },
+
+    "datareaders":
+    {
+    },
+
+    "locators":
+    {
+    }
+}
