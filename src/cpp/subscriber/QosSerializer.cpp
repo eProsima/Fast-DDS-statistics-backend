@@ -399,6 +399,36 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
     serialized[fieldname] = datasharing;
 }
 
+template <>
+void serialize<fastdds::dds::OwnershipStrengthQosPolicy> (
+            const fastdds::dds::OwnershipStrengthQosPolicy& qos,
+            const std::string& fieldname,
+            database::Qos& serialized)
+{
+    database::Qos strength;
+    strength["value"] = qos.value;
+    serialized[fieldname] = strength;
+}
+
+template <>
+void serialize<fastdds::dds::PublishModeQosPolicy> (
+            const fastdds::dds::PublishModeQosPolicy& qos,
+            const std::string& fieldname,
+            database::Qos& serialized)
+{
+    database::Qos publishmode;
+    switch (qos.kind)
+    {
+        case fastdds::dds::SYNCHRONOUS_PUBLISH_MODE:
+            publishmode["kind"] = "SYNCHRONOUS_PUBLISH_MODE";
+            break;
+        case fastdds::dds::ASYNCHRONOUS_PUBLISH_MODE:
+            publishmode["kind"] = "ASYNCHRONOUS_PUBLISH_MODE";
+            break;
+    }
+    serialized[fieldname] = publishmode;
+}
+
 database::Qos reader_qos_to_backend_qos(
             const fastdds::dds::ReaderQos& reader_qos)
 {
@@ -410,7 +440,7 @@ database::Qos reader_qos_to_backend_qos(
     serialize(reader_qos.m_liveliness, "liveliness", reader);
     serialize(reader_qos.m_reliability, "reliablility", reader);
     serialize(reader_qos.m_ownership, "ownership", reader);
-    serialize(reader_qos.m_destinationOrder, "ownership", reader);
+    serialize(reader_qos.m_destinationOrder, "destination_order", reader);
     serialize(reader_qos.m_userData, "user_data", reader);
     serialize(reader_qos.m_timeBasedFilter, "time_based_filter", reader);
     serialize(reader_qos.m_presentation, "presentation", reader);
@@ -427,7 +457,34 @@ database::Qos reader_qos_to_backend_qos(
     return reader;
 }
 
+database::Qos writer_qos_to_backend_qos(
+            const fastdds::dds::WriterQos& writer_qos)
+{
+    database::Qos writer;
 
+    serialize(writer_qos.m_durability, "durability", writer);
+    serialize(writer_qos.m_durabilityService, "durability_service", writer);
+    serialize(writer_qos.m_deadline, "deadline", writer);
+    serialize(writer_qos.m_latencyBudget, "latency_budget", writer);
+    serialize(writer_qos.m_liveliness, "liveliness", writer);
+    serialize(writer_qos.m_reliability, "reliablility", writer);
+    serialize(writer_qos.m_lifespan, "lifespan", writer);
+    serialize(writer_qos.m_userData, "user_data", writer);
+    serialize(writer_qos.m_timeBasedFilter, "time_based_filter", writer);
+    serialize(writer_qos.m_ownership, "ownership", writer);
+    serialize(writer_qos.m_ownershipStrength, "ownership_strength", writer);
+    serialize(writer_qos.m_destinationOrder, "destination_order", writer);
+    serialize(writer_qos.m_presentation, "presentation", writer);
+    serialize(writer_qos.m_partition, "partition", writer);
+    serialize(writer_qos.m_topicData, "topic_data", writer);
+    serialize(writer_qos.m_groupData, "group_data", writer);
+    serialize(writer_qos.m_publishMode, "publish_mode", writer);
+    serialize(writer_qos.representation, "representation", writer);
+    serialize(writer_qos.m_disablePositiveACKs, "disable_positive_acks", writer);
+    serialize(writer_qos.data_sharing, "data_sharing", writer);
+
+    return writer;
+}
 
 
 } // namespace subscriber

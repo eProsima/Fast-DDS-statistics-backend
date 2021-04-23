@@ -22,6 +22,7 @@
 #include <string>
 
 #include <fastdds/dds/subscriber/qos/ReaderQos.hpp>
+#include <fastdds/dds/publisher/qos/WriterQos.hpp>
 #include <database/entities.hpp>
 
 namespace eprosima {
@@ -162,6 +163,9 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
 
 database::Qos reader_qos_to_backend_qos(
             const fastdds::dds::ReaderQos& reader_qos);
+
+database::Qos writer_qos_to_backend_qos(
+            const fastdds::dds::WriterQos& writer_qos);
 
 
 } // namespace subscriber
