@@ -179,7 +179,8 @@ void get_data_examples()
         EntityId participant_id;
 
         //CONF-GET-DATA-TOPIC-HEARTBEAT_COUNT
-        std::vector<EntityId> participant_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, participant_id);
+        std::vector<EntityId> participant_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER,
+                        participant_id);
 
         /* Get the current time */
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
