@@ -17,4 +17,6 @@ add_subdirectory(EntityId)
 add_subdirectory(TrafficInjector)
 add_subdirectory(DatabaseQueue)
 add_subdirectory(StatisticsBackend)
+add_subdirectory(StatisticsParticipantListener)
 add_subdirectory(StatisticsReaderListener)
+
