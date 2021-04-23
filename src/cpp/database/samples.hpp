@@ -119,7 +119,7 @@ struct EntityCountSample : StatisticsSample
     }
 
     inline EntityCountSample operator -(
-        const EntityCountSample& other) const noexcept
+            const EntityCountSample& other) const noexcept
     {
         EntityCountSample ret;
         ret.kind = kind;
