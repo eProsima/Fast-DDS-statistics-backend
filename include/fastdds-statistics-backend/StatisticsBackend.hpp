@@ -224,8 +224,8 @@ public:
      * \sa StatisticsBackend
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_id_source Id of the source entity of the requested data
-     * @param entity_id_target Id of the target entity of the requested data
+     * @param entity_ids_source Ids of the source entities of the requested data
+     * @param entity_ids_target Ids of the target entities of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
@@ -234,8 +234,8 @@ public:
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
-            EntityId entity_id_source,
-            EntityId entity_id_target,
+            const std::vector<EntityId> entity_ids_source,
+            const std::vector<EntityId> entity_ids_target,
             uint16_t bins = 0,
             Timestamp t_from = Timestamp(),
             Timestamp t_to = std::chrono::system_clock::now(),
@@ -267,7 +267,7 @@ public:
      * \sa StatisticsBackend
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_id Id of the entity of the requested data
+     * @param entity_ids Ids of the entities of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
@@ -276,7 +276,7 @@ public:
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
-            EntityId entity_id,
+            const std::vector<EntityId> entity_ids,
             uint16_t bins = 0,
             Timestamp t_from = Timestamp(),
             Timestamp t_to = std::chrono::system_clock::now(),
@@ -289,16 +289,16 @@ public:
      * It is used to set the \c statistic argument with default time values.
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_id_source Id of the source entity of the requested data
-     * @param entity_id_target Id of the target entity of the requested data
+     * @param entity_ids_source Ids of the source entities of the requested data
+     * @param entity_ids_target Ids of the target entities of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
-            EntityId entity_id_source,
-            EntityId entity_id_target,
+            const std::vector<EntityId> entity_ids_source,
+            const std::vector<EntityId> entity_ids_target,
             uint16_t bins = 0,
             StatisticKind statistic = StatisticKind::NONE);
 
@@ -309,14 +309,14 @@ public:
      * It is used to set the \c statistic argument with default time values.
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_id Id of the entity of the requested data
+     * @param entity_ids Ids of the entities of the requested data
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
-            EntityId entity_id,
+            const std::vector<EntityId> entity_ids,
             uint16_t bins = 0,
             StatisticKind statistic = StatisticKind::NONE);
 

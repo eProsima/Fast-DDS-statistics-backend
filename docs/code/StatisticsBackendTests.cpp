@@ -123,8 +123,8 @@ void set_listeners_examples()
 void get_data_examples()
 {
     {
-        EntityId source_entity_id;
-        EntityId target_entity_id;
+        std::vector<EntityId> source_entity_ids;
+        std::vector<EntityId> target_entity_ids;
 
         //CONF-GET-DATA-OVERLOAD-EXAMPLE
         /*
@@ -135,8 +135,8 @@ void get_data_examples()
          */
         std::vector<StatisticsData> latency_data = StatisticsBackend::get_data(
             DataKind::FASTDDS_LATENCY,                                   // DataKind
-            source_entity_id,                                            // Source entity
-            target_entity_id,                                            // Target entity
+            source_entity_ids,                                            // Source entity
+            target_entity_ids,                                            // Target entity
             10,                                                          // Number of bins
             std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
             std::chrono::system_clock::now(),                            // t_to
@@ -150,7 +150,7 @@ void get_data_examples()
          */
         std::vector<StatisticsData> heartbeat_data = StatisticsBackend::get_data(
             DataKind::HEARTBEAT_COUNT,                                   // DataKind
-            source_entity_id,                                            // Source entity
+            source_entity_ids,                                            // Source entity
             10,                                                          // Number of bins
             std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
             std::chrono::system_clock::now(),                            // t_to
@@ -165,8 +165,8 @@ void get_data_examples()
          */
         std::vector<StatisticsData> data = StatisticsBackend::get_data(
             DataKind::FASTDDS_LATENCY,                                   // DataKind
-            source_entity_id,                                            // Source entity
-            target_entity_id,                                            // Target entity
+            source_entity_ids,                                            // Source entity
+            target_entity_ids,                                            // Target entity
             0,                                                           // Number of bins
             std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
             std::chrono::system_clock::now());                           // t_to
