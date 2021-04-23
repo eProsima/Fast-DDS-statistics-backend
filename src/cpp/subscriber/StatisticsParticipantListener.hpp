@@ -91,6 +91,16 @@ public:
 
 protected:
 
+    template<typename T>
+    std::string to_string(
+            T data)
+    {
+        std::stringstream ss;
+        ss << data;
+        return ss.str();
+    }
+
+
     database::Database* database_;                  ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;   ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue* data_queue_;       ///< Reference to the statistics data queue. Injected on construction
