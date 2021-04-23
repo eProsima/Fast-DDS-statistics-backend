@@ -4,5 +4,8 @@ build
 install
 log
 
+# ignore vscode folder
+.vscode
+
 # Common CSS
 docs/rst/_static/css/eprosima_rtd_theme.css
