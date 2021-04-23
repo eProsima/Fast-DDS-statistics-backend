@@ -219,7 +219,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
 
                 return EntityId(10);
             });
@@ -296,7 +296,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
 
                 // We cannot check the Topic pointer as the queue will create a new one.
                 // We check the topic_ data instead
@@ -433,7 +433,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
 
                 return EntityId(11);
             });
@@ -594,7 +594,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 
     // Precondition: The Reader exists and has ID 10
     std::shared_ptr<DataReader> reader =
-            std::make_shared<DataReader>(reader_guid_str_, reader_qos_to_backend_qos(info.info.m_qos), reader_guid_str_, participant_, topic_);
+            std::make_shared<DataReader>(reader_guid_str_, reader_info_to_backend_qos(info), reader_guid_str_, participant_, topic_);
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(10)))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
@@ -668,7 +668,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_info_to_backend_qos(info));
 
                 return EntityId(10);
             });
@@ -745,7 +745,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_info_to_backend_qos(info));
 
                 // We cannot check the Topic pointer as the queue will create a new one.
                 // We check the topic_ data instead
@@ -882,7 +882,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_qos_to_backend_qos(info.info.m_qos));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_info_to_backend_qos(info));
 
                 return EntityId(11);
             });
@@ -1043,7 +1043,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
 
     // Precondition: The writer exists and has ID 10
     std::shared_ptr<DataWriter> writer =
-            std::make_shared<DataWriter>(writer_guid_str_, writer_qos_to_backend_qos(info.info.m_qos), writer_guid_str_, participant_, topic_);
+            std::make_shared<DataWriter>(writer_guid_str_, writer_info_to_backend_qos(info), writer_guid_str_, participant_, topic_);
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(10)))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())

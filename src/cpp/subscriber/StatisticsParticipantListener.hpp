@@ -25,6 +25,8 @@
 #include "fastdds/rtps/common/Guid.h"
 #include "fastdds/rtps/common/Locator.h"
 
+#include <database/entities.hpp>
+
 
 namespace eprosima {
 namespace statistics_backend {
@@ -92,19 +94,38 @@ public:
 protected:
 
     template<typename T>
-    std::string to_string(
-            T data)
-    {
-        std::stringstream ss;
-        ss << data;
-        return ss.str();
-    }
+    void process_endpoint_discovery(
+            eprosima::fastdds::dds::DomainParticipant* participant,
+            T&& info,
+            EntityKind endpoint_kind,
+            const std::string& endpoint_name);
 
+    template<typename T>
+    std::shared_ptr<database::Entity> create_endpoint(
+            const eprosima::fastrtps::rtps::GUID_t& guid,
+            const T& qos,
+            std::shared_ptr<database::DomainParticipant> participant,
+            std::shared_ptr<database::Topic> topic);
 
     database::Database* database_;                  ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;   ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue* data_queue_;       ///< Reference to the statistics data queue. Injected on construction
 };
+
+template<>
+std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+        const eprosima::fastrtps::rtps::GUID_t& guid,
+        const fastrtps::rtps::ReaderDiscoveryInfo& info,
+        std::shared_ptr<database::DomainParticipant> participant,
+        std::shared_ptr<database::Topic> topic);
+
+template<>
+std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+        const eprosima::fastrtps::rtps::GUID_t& guid,
+        const fastrtps::rtps::WriterDiscoveryInfo& info,
+        std::shared_ptr<database::DomainParticipant> participant,
+        std::shared_ptr<database::Topic> topic);
+
 
 } //namespace database
 } //namespace statistics_backend

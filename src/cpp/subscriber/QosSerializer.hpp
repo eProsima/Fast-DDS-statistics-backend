@@ -21,8 +21,9 @@
 
 #include <string>
 
-#include <fastdds/dds/subscriber/qos/ReaderQos.hpp>
-#include <fastdds/dds/publisher/qos/WriterQos.hpp>
+#include <fastdds/rtps/reader/ReaderDiscoveryInfo.h>
+#include <fastdds/rtps/writer/WriterDiscoveryInfo.h>
+
 #include <database/entities.hpp>
 
 namespace eprosima {
@@ -161,11 +162,12 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
             const std::string& fieldname,
             database::Qos& serialized);
 
-database::Qos reader_qos_to_backend_qos(
-            const fastdds::dds::ReaderQos& reader_qos);
+database::Qos reader_info_to_backend_qos(
+            const fastrtps::rtps::ReaderDiscoveryInfo& reader_info);
 
-database::Qos writer_qos_to_backend_qos(
-            const fastdds::dds::WriterQos& writer_qos);
+database::Qos writer_info_to_backend_qos(
+            const fastrtps::rtps::WriterDiscoveryInfo& writer_info);
+
 
 
 } // namespace subscriber
