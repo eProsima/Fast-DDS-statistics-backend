@@ -59,6 +59,117 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         DomainParticipant* participant,
         ReaderDiscoveryInfo&& info)
 {
+    // First stop the data queue until the new entity is created
+    data_queue_->stop_consumer();
+
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    switch (info.status)
+    {
+        case ReaderDiscoveryInfo::DISCOVERED_READER:
+            {
+                // Get the domain from the database
+                auto domain_ids = database_->get_entities_by_name(EntityKind::DOMAIN, std::to_string(participant->get_domain_id()));
+                if (domain_ids.empty())
+                {
+                    throw Error("DataReader discovered on Domain " + std::to_string(participant->get_domain_id())
+                            + " but there is no such Domain in the database");
+                }
+
+                std::shared_ptr<database::Domain> domain =
+                        std::const_pointer_cast<database::Domain>(
+                            std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
+
+                // Check whether the reader is already on the database
+                GUID_t reader_guid = info.info.guid();
+                auto reader_ids = database_->get_entities_by_guid(EntityKind::DATAREADER, to_string(reader_guid));
+                if (!reader_ids.empty())
+                {
+                    throw Error("DataReader discovered " + to_string(reader_guid)
+                            + " but there is already a DataReader qith the same GUID in the database");
+                }
+
+                // Get the participant from the database
+                GUID_t participant_guid(reader_guid.guidPrefix, EntityId_t());
+                auto participant_ids = database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+                if (participant_ids.empty())
+                {
+                    throw Error("DataReader discovered on Participant " + to_string(participant_guid)
+                            + " but there is no such Participant in the database");
+                }
+                std::shared_ptr<database::DomainParticipant> participant = 
+                        std::const_pointer_cast<database::DomainParticipant>(
+                            std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_ids.front().second)));
+
+                assert(participant_ids.front().first == domain_ids.front().second);
+
+                // Check whether the topic is already in the database
+                std::shared_ptr<database::Topic> topic;
+                auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.info.topicName().to_string());
+                if (topic_ids.empty())
+                {
+                    // Create the Topic and push it to the queue
+                    topic = std::make_shared<database::Topic>(
+                            info.info.topicName().to_string(),
+                            info.info.typeName().to_string(),
+                            domain);
+
+                    entity_queue_->push(timestamp, topic);
+                }
+                else
+                {
+                    topic = std::const_pointer_cast<database::Topic>(
+                            std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_ids.front().second)));
+                    assert(topic_ids.front().first == domain_ids.front().second);
+                }
+
+                // Check whether the locators are already in the database
+                for (auto dds_locator : info.info.remote_locators().unicast)
+                {
+                    std::shared_ptr<database::Locator> locator;
+                    auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
+                    if (locator_ids.empty())
+                    {
+                        // Create the Locator and push it to the queue
+                        locator = std::make_shared<database::Locator>(to_string(dds_locator));
+                        entity_queue_->push(timestamp, locator);
+                    }
+                }
+                for (auto dds_locator : info.info.remote_locators().multicast)
+                {
+                    std::shared_ptr<database::Locator> locator;
+                    auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
+                    if (locator_ids.empty())
+                    {
+                        // Create the Locator and push it to the queue
+                        locator = std::make_shared<database::Locator>(to_string(dds_locator));
+                        entity_queue_->push(timestamp, locator);
+                    }
+                }
+
+                // Create the reader and push it to the queue
+                auto datareader = std::make_shared<database::DataReader>(
+                        to_string(info.info.guid()),
+                        reader_qos_to_backend_qos(info.info.m_qos),
+                        to_string(info.info.guid()),
+                        participant,
+                        topic);
+
+                entity_queue_->push(timestamp, datareader);
+            }
+            break;
+
+        case ReaderDiscoveryInfo::CHANGED_QOS_READER:
+            // Update QoS on stored entity
+            break;
+
+        case ReaderDiscoveryInfo::REMOVED_READER:
+            // Do nothing
+            break;
+    }
+
+    // Wait until the entity queue is processed and restart the data queue
+    entity_queue_->flush();
+    data_queue_->start_consumer();
     (void)participant, (void)info;
 }
 
