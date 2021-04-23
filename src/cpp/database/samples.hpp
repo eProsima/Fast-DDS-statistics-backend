@@ -39,7 +39,21 @@ struct StatisticsSample
     {
     }
 
+    virtual ~StatisticsSample() = default;
+
     virtual void clear();
+
+    inline bool operator ==(
+            const StatisticsSample& other) const noexcept
+    {
+        return (kind == other.kind && src_ts == other.src_ts);
+    }
+
+    inline bool operator !=(
+            const StatisticsSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
 
     DataKind kind;
     std::chrono::steady_clock::time_point src_ts;
@@ -53,10 +67,25 @@ struct EntityDataSample : StatisticsSample
     EntityDataSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
+        , data(0)
     {
     }
 
+    virtual ~EntityDataSample() = default;
+
     void clear() final;
+
+    inline bool operator ==(
+            const EntityDataSample& other) const noexcept
+    {
+        return (StatisticsSample::operator ==(other) && data == other.data);
+    }
+
+    inline bool operator !=(
+            const EntityDataSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
 
     double data;
 };
@@ -69,10 +98,25 @@ struct EntityCountSample : StatisticsSample
     EntityCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
+        , count(0)
     {
     }
 
+    virtual ~EntityCountSample() = default;
+
     void clear() final;
+
+    inline bool operator ==(
+            const EntityCountSample& other) const noexcept
+    {
+        return (StatisticsSample::operator ==(other) && count == other.count);
+    }
+
+    inline bool operator !=(
+            const EntityCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
 
     uint64_t count;
 };
@@ -85,10 +129,27 @@ struct ByteCountSample : StatisticsSample
     ByteCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
+        , count(0)
+        , magnitude_order(0)
     {
     }
 
+    virtual ~ByteCountSample() = default;
+
     void clear() final;
+
+    inline bool operator ==(
+            const ByteCountSample& other) const noexcept
+    {
+        return (StatisticsSample::operator ==(other) && count == other.count &&
+               magnitude_order == other.magnitude_order);
+    }
+
+    inline bool operator !=(
+            const ByteCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
 
     uint64_t count;
     int16_t magnitude_order;
@@ -105,6 +166,20 @@ struct TimepointSample : StatisticsSample
     {
     }
 
+    virtual ~TimepointSample() = default;
+
+    inline bool operator ==(
+            const TimepointSample& other) const noexcept
+    {
+        return (StatisticsSample::operator ==(other) && time == other.time);
+    }
+
+    inline bool operator !=(
+            const TimepointSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
     std::chrono::steady_clock::time_point time;
 };
 
@@ -116,7 +191,22 @@ struct EntityToLocatorCountSample : EntityCountSample
     EntityToLocatorCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : EntityCountSample(sample_kind)
+        , remote_locator(EntityId::invalid())
     {
+    }
+
+    virtual ~EntityToLocatorCountSample() = default;
+
+    inline bool operator ==(
+            const EntityToLocatorCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other) && remote_locator == other.remote_locator);
+    }
+
+    inline bool operator !=(
+            const EntityToLocatorCountSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     EntityId remote_locator;
@@ -131,7 +221,22 @@ struct ByteToLocatorCountSample : ByteCountSample
     ByteToLocatorCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : ByteCountSample(sample_kind)
+        , remote_locator(EntityId::invalid())
     {
+    }
+
+    virtual ~ByteToLocatorCountSample() = default;
+
+    inline bool operator ==(
+            const ByteToLocatorCountSample& other) const noexcept
+    {
+        return (ByteCountSample::operator ==(other) && remote_locator == other.remote_locator);
+    }
+
+    inline bool operator !=(
+            const ByteToLocatorCountSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     EntityId remote_locator;
@@ -145,7 +250,20 @@ struct HistoryLatencySample : EntityDataSample
 {
     HistoryLatencySample()
         : EntityDataSample(DataKind::FASTDDS_LATENCY)
+        , reader(EntityId::invalid())
     {
+    }
+
+    inline bool operator ==(
+            const HistoryLatencySample& other) const noexcept
+    {
+        return (EntityDataSample::operator ==(other) && reader == other.reader);
+    }
+
+    inline bool operator !=(
+            const HistoryLatencySample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     EntityId reader;
@@ -158,7 +276,20 @@ struct NetworkLatencySample : EntityDataSample
 {
     NetworkLatencySample()
         : EntityDataSample(DataKind::NETWORK_LATENCY)
+        , remote_locator(EntityId::invalid())
     {
+    }
+
+    inline bool operator ==(
+            const NetworkLatencySample& other) const noexcept
+    {
+        return (EntityDataSample::operator ==(other) && remote_locator == other.remote_locator);
+    }
+
+    inline bool operator !=(
+            const NetworkLatencySample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     EntityId remote_locator;
@@ -174,6 +305,18 @@ struct PublicationThroughputSample : EntityDataSample
     {
     }
 
+    inline bool operator ==(
+            const PublicationThroughputSample& other) const noexcept
+    {
+        return (EntityDataSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const PublicationThroughputSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -184,6 +327,18 @@ struct SubscriptionThroughputSample : EntityDataSample
     SubscriptionThroughputSample()
         : EntityDataSample(DataKind::SUBSCRIPTION_THROUGHPUT)
     {
+    }
+
+    inline bool operator ==(
+            const SubscriptionThroughputSample& other) const noexcept
+    {
+        return (EntityDataSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const SubscriptionThroughputSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
 };
@@ -198,6 +353,18 @@ struct RtpsPacketsSentSample : EntityToLocatorCountSample
     {
     }
 
+    inline bool operator ==(
+            const RtpsPacketsSentSample& other) const noexcept
+    {
+        return (EntityToLocatorCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const RtpsPacketsSentSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -210,6 +377,18 @@ struct RtpsBytesSentSample : ByteToLocatorCountSample
     {
     }
 
+    inline bool operator ==(
+            const RtpsBytesSentSample& other) const noexcept
+    {
+        return (ByteToLocatorCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const RtpsBytesSentSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -220,6 +399,18 @@ struct RtpsPacketsLostSample : EntityToLocatorCountSample
     RtpsPacketsLostSample()
         : EntityToLocatorCountSample(DataKind::RTPS_PACKETS_LOST)
     {
+    }
+
+    inline bool operator ==(
+            const RtpsPacketsLostSample& other) const noexcept
+    {
+        return (EntityToLocatorCountSample::operator ==(other) && remote_locator == other.remote_locator);
+    }
+
+    inline bool operator !=(
+            const RtpsPacketsLostSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     EntityId remote_locator;
@@ -236,6 +427,18 @@ struct RtpsBytesLostSample : ByteToLocatorCountSample
     {
     }
 
+    inline bool operator ==(
+            const RtpsBytesLostSample& other) const noexcept
+    {
+        return (ByteToLocatorCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const RtpsBytesLostSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -246,6 +449,18 @@ struct ResentDataSample : EntityCountSample
     ResentDataSample()
         : EntityCountSample(DataKind::RESENT_DATA)
     {
+    }
+
+    inline bool operator ==(
+            const ResentDataSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const ResentDataSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
 };
@@ -260,7 +475,20 @@ struct HeartbeatCountSample : EntityCountSample
     {
     }
 
+    inline bool operator ==(
+            const HeartbeatCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const HeartbeatCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
+
 
 /*
  * Amount of ACKNACKs that each non discovery DataWriter sends
@@ -272,7 +500,20 @@ struct AcknackCountSample : EntityCountSample
     {
     }
 
+    inline bool operator ==(
+            const AcknackCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const AcknackCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
+
 
 /*
  * Amount of NACKFRAGs that each non discovery DataWriter sends
@@ -282,6 +523,18 @@ struct NackfragCountSample : EntityCountSample
     NackfragCountSample()
         : EntityCountSample(DataKind::NACKFRAG_COUNT)
     {
+    }
+
+    inline bool operator ==(
+            const NackfragCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const NackfragCountSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
 };
@@ -296,6 +549,18 @@ struct GapCountSample : EntityCountSample
     {
     }
 
+    inline bool operator ==(
+            const GapCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const GapCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -306,6 +571,18 @@ struct DataCountSample : EntityCountSample
     DataCountSample()
         : EntityCountSample(DataKind::DATA_COUNT)
     {
+    }
+
+    inline bool operator ==(
+            const DataCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const DataCountSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
 };
@@ -320,6 +597,18 @@ struct PdpCountSample : EntityCountSample
     {
     }
 
+    inline bool operator ==(
+            const PdpCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const PdpCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -332,6 +621,18 @@ struct EdpCountSample : EntityCountSample
     {
     }
 
+    inline bool operator ==(
+            const EdpCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other));
+    }
+
+    inline bool operator !=(
+            const EdpCountSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
 };
 
 /*
@@ -341,10 +642,27 @@ struct DiscoveryTimeSample : TimepointSample
 {
     DiscoveryTimeSample()
         : TimepointSample(DataKind::DISCOVERY_TIME)
+        , remote_entity(EntityId::invalid())
+        , discovered(false)
     {
     }
 
+    inline bool operator ==(
+            const DiscoveryTimeSample& other) const noexcept
+    {
+        return (TimepointSample::operator ==(other) && remote_entity == other.remote_entity &&
+               discovered == other.discovered);
+    }
+
+    inline bool operator !=(
+            const DiscoveryTimeSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
     EntityId remote_entity;
+
+    bool discovered;
 
 };
 
@@ -355,7 +673,20 @@ struct SampleDatasCountSample : EntityCountSample
 {
     SampleDatasCountSample()
         : EntityCountSample(DataKind::SAMPLE_DATAS)
+        , sequence_number(0)
     {
+    }
+
+    inline bool operator ==(
+            const SampleDatasCountSample& other) const noexcept
+    {
+        return (EntityCountSample::operator ==(other) && sequence_number == other.sequence_number);
+    }
+
+    inline bool operator !=(
+            const SampleDatasCountSample& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     uint64_t sequence_number;

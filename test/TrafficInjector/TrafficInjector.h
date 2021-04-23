@@ -20,6 +20,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_TRAFFICINJECTOR_HPP_
 
 #include <MessageSerializer.h>
+#include <exception/Exception.hpp>
 #include <topic_types/types.h>
 #include <topic_types/typesPubSubTypes.h>
 
@@ -180,7 +181,6 @@ private:
                     // Add the type to all other event kinds that use it
                 }
             }
-
             else if (str == "NETWORK_LATENCY")
             {
                 kind = StatisticsEventKind::NETWORK_LATENCY;
@@ -199,7 +199,6 @@ private:
                     // Add the type to all other event kinds that use it
                 }
             }
-
             else if (str == "PUBLICATION_THROUGHPUT")
             {
                 kind = StatisticsEventKind::PUBLICATION_THROUGHPUT;
@@ -220,7 +219,6 @@ private:
                     serializers_[StatisticsEventKind::SUBSCRIPTION_THROUGHPUT] = serializer;
                 }
             }
-
             else if (str == "SUBSCRIPTION_THROUGHPUT")
             {
                 kind = StatisticsEventKind::SUBSCRIPTION_THROUGHPUT;
@@ -241,7 +239,6 @@ private:
                     serializers_[StatisticsEventKind::PUBLICATION_THROUGHPUT] = serializer;
                 }
             }
-
             else if (str == "RTPS_SENT")
             {
                 kind = StatisticsEventKind::RTPS_SENT;
@@ -262,7 +259,6 @@ private:
                     serializers_[StatisticsEventKind::RTPS_LOST] = serializer;
                 }
             }
-
             else if (str == "RTPS_LOST")
             {
                 kind = StatisticsEventKind::RTPS_LOST;
@@ -283,7 +279,6 @@ private:
                     serializers_[StatisticsEventKind::RTPS_SENT] = serializer;
                 }
             }
-
             else if (str == "RESENT_DATAS")
             {
                 kind = StatisticsEventKind::RESENT_DATAS;
@@ -316,7 +311,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "HEARTBEAT_COUNT")
             {
                 kind = StatisticsEventKind::HEARTBEAT_COUNT;
@@ -349,7 +343,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "ACKNACK_COUNT")
             {
                 kind = StatisticsEventKind::ACKNACK_COUNT;
@@ -382,7 +375,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "NACKFRAG_COUNT")
             {
                 kind = StatisticsEventKind::NACKFRAG_COUNT;
@@ -415,7 +407,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "GAP_COUNT")
             {
                 kind = StatisticsEventKind::GAP_COUNT;
@@ -448,7 +439,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "DATA_COUNT")
             {
                 kind = StatisticsEventKind::DATA_COUNT;
@@ -481,7 +471,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "PDP_PACKETS")
             {
                 kind = StatisticsEventKind::PDP_PACKETS;
@@ -514,7 +503,6 @@ private:
                     serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "EDP_PACKETS")
             {
                 kind = StatisticsEventKind::EDP_PACKETS;
@@ -547,7 +535,6 @@ private:
                     serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
                 }
             }
-
             else if (str == "DISCOVERED_ENTITY")
             {
                 kind = StatisticsEventKind::DISCOVERED_ENTITY;
@@ -566,7 +553,6 @@ private:
                     // Add the type to all other event kinds that use it
                 }
             }
-
             else if (str == "SAMPLE_DATAS")
             {
                 kind = StatisticsEventKind::SAMPLE_DATAS;
@@ -585,7 +571,6 @@ private:
                     // Add the type to all other event kinds that use it
                 }
             }
-
             else if (str == "PHYSICAL_DATA")
             {
                 kind = StatisticsEventKind::PHYSICAL_DATA;
@@ -603,6 +588,10 @@ private:
 
                     // Add the type to all other event kinds that use it
                 }
+            }
+            else
+            {
+                throw Unsupported("Unsupported event kind " + str);
             }
 
             event_kinds_[str] = kind;

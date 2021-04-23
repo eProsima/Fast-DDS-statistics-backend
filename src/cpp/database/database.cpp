@@ -21,6 +21,8 @@
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
+#include "samples.hpp"
+
 namespace eprosima {
 namespace statistics_backend {
 namespace database {
@@ -355,6 +357,283 @@ EntityId Database::insert(
         }
     }
     return EntityId();
+}
+
+void Database::insert(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const StatisticsSample& sample)
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    /* Check that domain_id refers to a known domain */
+    if (sample.kind != DataKind::NETWORK_LATENCY && !domains_[domain_id])
+    {
+        throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+    }
+
+    switch (sample.kind)
+    {
+        case DataKind::FASTDDS_LATENCY:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
+                writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::NETWORK_LATENCY:
+        {
+            /* Check that the entity is a known locator */
+            auto locator = locators_[entity_id];
+            if (locator)
+            {
+                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
+                break;
+            }
+            throw BadParameter(std::to_string(entity_id.value()) + " does not refer to a known locator");
+        }
+        case DataKind::PUBLICATION_THROUGHPUT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const PublicationThroughputSample& publication_throughput =
+                        dynamic_cast<const PublicationThroughputSample&>(sample);
+                writer->data.publication_throughput.push_back(publication_throughput);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            /* Check that the entity is a known reader */
+            auto reader = datareaders_[domain_id][entity_id];
+            if (reader)
+            {
+                const SubscriptionThroughputSample& subscription_throughput =
+                        dynamic_cast<const SubscriptionThroughputSample&>(sample);
+                reader->data.subscription_throughput.push_back(subscription_throughput);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::RTPS_PACKETS_SENT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
+                writer->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(rtps_packets_sent);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::RTPS_BYTES_SENT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
+                writer->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(rtps_bytes_sent);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::RTPS_PACKETS_LOST:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
+                writer->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(rtps_packets_lost);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
+                writer->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::RESENT_DATA:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
+                writer->data.resent_datas.push_back(resent_datas);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::HEARTBEAT_COUNT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
+                writer->data.heartbeat_count.push_back(heartbeat_count);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::ACKNACK_COUNT:
+        {
+            /* Check that the entity is a known reader */
+            auto reader = datareaders_[domain_id][entity_id];
+            if (reader)
+            {
+                const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
+                reader->data.acknack_count.push_back(acknack_count);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::NACKFRAG_COUNT:
+        {
+            /* Check that the entity is a known reader */
+            auto reader = datareaders_[domain_id][entity_id];
+            if (reader)
+            {
+                const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
+                reader->data.nackfrag_count.push_back(nackfrag_count);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::GAP_COUNT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
+                writer->data.gap_count.push_back(gap_count);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::DATA_COUNT:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
+                writer->data.data_count.push_back(data_count);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::PDP_PACKETS:
+        {
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
+                participant->data.pdp_packets.push_back(pdp_packets);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::EDP_PACKETS:
+        {
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
+                participant->data.edp_packets.push_back(edp_packets);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::DISCOVERY_TIME:
+        {
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::steady_clock::time_point,
+                        bool>(discovery_time.time, discovery_time.discovered));
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::SAMPLE_DATAS:
+        {
+            /* Check that the entity is a known writer */
+            auto writer = datawriters_[domain_id][entity_id];
+            if (writer)
+            {
+                const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
+                writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+        }
+        case DataKind::INVALID:
+        {
+            throw BadParameter("Invalid DataKind");
+        }
+    }
+    static_cast<void>(entity_id);
+    static_cast<void>(sample);
 }
 
 void Database::link_participant_with_process(

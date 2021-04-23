@@ -26,10 +26,37 @@ target_link_libraries(sample_tests PUBLIC
     gtest)
 
 set(SAMPLES_TEST_LIST
+    # Clear sample tests
     statistics_sample_clear
     entitydata_sample_clear
     entitycount_sample_clear
     bytecount_sample_clear
+    # Comparison operator tests
+    statisticssample_operator_comparison
+    entitydatasample_operator_comparison
+    entitycountsample_operator_comparison
+    bytecountsample_operator_comparison
+    timepointsample_operator_comparison
+    entitytolocatorcountsample_operator_comparison
+    bytetolocatorcountsample_operator_comparison
+    historylatencysample_operator_comparison
+    networklatencysample_operator_comparison
+    publicationthroughputsample_operator_comparison
+    subscriptionthroughputsample_operator_comparison
+    rtpspacketssentsample_operator_comparison
+    rtpsbytessentsample_operator_comparison
+    rtpspacketslostsample_operator_comparison
+    rtpsbyteslostsample_operator_comparison
+    resentdatasample_operator_comparison
+    heartbeatcountsample_operator_comparison
+    acknackcountsample_operator_comparison
+    nackfragcountsample_operator_comparison
+    gapcountsample_operator_comparison
+    datacountsample_operator_comparison
+    pdpcountsample_operator_comparison
+    edpcountsample_operator_comparison
+    discoverytimesample_operator_comparison
+    sampledatascountsample_operator_comparison
 )
 
 foreach(test_name ${SAMPLES_TEST_LIST})
@@ -81,6 +108,7 @@ set(DATABASE_TEST_LIST
     # Insert Host test
     insert_host
     insert_host_two
+    insert_host_two_same_name
     insert_host_duplicated
     insert_host_empty_name
     # Insert User tests
@@ -145,10 +173,49 @@ set(DATABASE_TEST_LIST
     link_participant_with_process_wrong_participant
     link_participant_with_process_wrong_process
     link_participant_with_process_linked_participant
+    # Insert samples
+    insert_sample_history_latency
+    insert_sample_history_latency_wrong_entity
+    insert_sample_network_latency
+    insert_sample_network_latency_wrong_entity
+    insert_sample_publication_throughput
+    insert_sample_publication_throughput_wrong_entity
+    insert_sample_subscription_throughput
+    insert_sample_subscription_throughput_wrong_entity
+    insert_sample_rtps_packets_sent
+    insert_sample_rtps_packets_sent_wrong_entity
+    insert_sample_rtps_bytes_sent
+    insert_sample_rtps_bytes_sent_wrong_entity
+    insert_sample_rtps_packets_lost
+    insert_sample_rtps_packets_lost_wrong_entity
+    insert_sample_rtps_bytes_lost
+    insert_sample_rtps_bytes_lost_wrong_entity
+    insert_sample_resent_data
+    insert_sample_resent_data_wrong_entity
+    insert_sample_heartbeat_count
+    insert_sample_heartbeat_count_wrong_entity
+    insert_sample_acknack_count
+    insert_sample_acknack_count_wrong_entity
+    insert_sample_nackfrag_count
+    insert_sample_nackfrag_count_wrong_entity
+    insert_sample_gap_count
+    insert_sample_gap_count_wrong_entity
+    insert_sample_data_count
+    insert_sample_data_count_wrong_entity
+    insert_sample_pdp_packets
+    insert_sample_pdp_packets_wrong_entity
+    insert_sample_edp_packets
+    insert_sample_edp_packets_wrong_entity
+    insert_sample_discovery_time
+    insert_sample_discovery_time_wrong_entity
+    insert_sample_sample_datas
+    insert_sample_sample_datas_wrong_entity
+    insert_sample_invalid
+    insert_sample_valid_wrong_domain
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
-    add_test(NAME database.${test_name}
+    add_test(NAME database_tests.${test_name}
             COMMAND database_tests
-            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+            --gtest_filter=database_tests.${test_name}:*/database_tests.${test_name}/*)
 endforeach()
