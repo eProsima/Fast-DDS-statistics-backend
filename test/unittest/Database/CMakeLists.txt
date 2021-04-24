@@ -223,6 +223,27 @@ set(DATABASE_TEST_LIST
     get_entity_datawriter
     get_entity_locator
     get_entity_no_existing
+    # get_entities_by_name
+    get_entities_by_name_host
+    get_entities_by_name_host_wrong_name
+    get_entities_by_name_user
+    get_entities_by_name_user_wrong_name
+    get_entities_by_name_process
+    get_entities_by_name_process_wrong_name
+    get_entities_by_name_domain
+    get_entities_by_name_domain_wrong_name
+    get_entities_by_name_participant
+    get_entities_by_name_participant_wrong_name
+    get_entities_by_name_topic
+    get_entities_by_name_topic_wrong_name
+    get_entities_by_name_datawriter
+    get_entities_by_name_datawriter_wrong_name
+    get_entities_by_name_datareader
+    get_entities_by_name_datareader_wrong_name
+    get_entities_by_name_locator
+    get_entities_by_name_locator_wrong_name
+    get_entities_by_name_invalid
+    get_entities_by_name_other_kind
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
