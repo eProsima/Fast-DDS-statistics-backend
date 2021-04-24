@@ -197,13 +197,9 @@ public:
      * Get all entities of a given EntityKind that match with the requested name
      *
      * @param entity_kind The EntityKind of the fetched entities
-<<<<<<< HEAD
-     * @param name The name of the entities to search for
-=======
      * @param name The name of the entities for which to search
      * @throws eprosima::statistics_backend::BadParameter if entity_kind is EntityKind::INVALID
      *         eprosima::statistics_backend::Unsupported if entity_kind is not supported
->>>>>>> 8d52596... Refs 11287: get_entities_by_name tests
      * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
      *         and the second is the EntityId of the matching entities
      */

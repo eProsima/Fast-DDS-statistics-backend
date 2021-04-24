@@ -781,9 +781,130 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         EntityKind entity_kind,
         const std::string& name) const
 {
-    (void)entity_kind;
-    (void)name;
-    throw Unsupported("Not implemented yet");
+    std::vector<std::pair<EntityId, EntityId>> entities;
+    switch (entity_kind)
+    {
+        case EntityKind::HOST:
+        {
+            for (auto host_it : hosts_)
+            {
+                if (host_it.second->name == name)
+                {
+                    entities.push_back(std::pair<EntityId, EntityId>(EntityId(), host_it.first));
+                }
+            }
+            break;
+        }
+        case EntityKind::USER:
+        {
+            for (auto user_it : users_)
+            {
+                if (user_it.second->name == name)
+                {
+                    entities.push_back(std::pair<EntityId, EntityId>(EntityId(), user_it.first));
+                }
+            }
+            break;
+        }
+        case EntityKind::PROCESS:
+        {
+            for (auto process_it : processes_)
+            {
+                if (process_it.second->name == name)
+                {
+                    entities.push_back(std::pair<EntityId, EntityId>(EntityId(), process_it.first));
+                }
+            }
+            break;
+        }
+        case EntityKind::DOMAIN:
+        {
+            for (auto domain_it : domains_)
+            {
+                if (domain_it.second->name == name)
+                {
+                    entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, domain_it.first));
+                }
+            }
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            for (auto domain_it : participants_)
+            {
+                for (auto participant_it : domain_it.second)
+                {
+                    if (participant_it.second->name == name)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, participant_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            for (auto domain_it : topics_)
+            {
+                for (auto topic_it : domain_it.second)
+                {
+                    if (topic_it.second->name == name)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, topic_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            for (auto domain_it : datareaders_)
+            {
+                for (auto datareader_it : domain_it.second)
+                {
+                    if (datareader_it.second->name == name)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datareader_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            for (auto domain_it : datawriters_)
+            {
+                for (auto datawriter_it : domain_it.second)
+                {
+                    if (datawriter_it.second->name == name)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datawriter_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::LOCATOR:
+        {
+            for (auto locator_it : locators_)
+            {
+                if (locator_it.second->name == name)
+                {
+                    entities.push_back(std::pair<EntityId, EntityId>(EntityId(), locator_it.first));
+                }
+            }
+            break;
+        }
+        case EntityKind::INVALID:
+        {
+            throw BadParameter("INVALID EntityKind");
+        }
+        default:
+        {
+            throw Unsupported("Not implemented yet");
+        }
+    }
+    return entities;
 }
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
