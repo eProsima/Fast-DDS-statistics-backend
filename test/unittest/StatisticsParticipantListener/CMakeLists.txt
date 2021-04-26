@@ -43,6 +43,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
+        new_participant_discovered
+        new_participant_discovered_no_domain
+        new_participant_discovered_participant_already_exists
+        participant_qos_change_discovered
         new_reader_discovered
         new_reader_discovered_no_topic
         new_reader_discovered_several_locators
