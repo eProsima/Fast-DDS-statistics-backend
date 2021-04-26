@@ -43,6 +43,38 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     set(STATISTICSDATALISTENER_TEST_LIST
         new_history_latency_received
         new_history_latency_received_not_in_mask
+        new_network_latency_received
+        new_network_latency_received_not_in_mask
+        new_publication_throughput_received
+        new_publication_throughput_received_not_in_mask
+        new_subscription_throughput_received
+        new_subscription_throughput_received_not_in_mask
+        new_rtps_sent_received
+        new_rtps_sent_received_not_in_mask
+        new_rtps_lost_received
+        new_rtps_lost_received_not_in_mask
+        new_resent_datas_received
+        new_resent_datas_received_not_in_mask
+        new_heartbeat_count_received
+        new_heartbeat_count_received_not_in_mask
+        new_acknack_count_received
+        new_acknack_count_received_not_in_mask
+        new_nackfrag_count_received
+        new_nackfrag_count_received_not_in_mask
+        new_gap_count_received
+        new_gap_count_received_not_in_mask
+        new_data_count_received
+        new_data_count_received_not_in_mask
+        new_pdp_count_received
+        new_pdp_count_received_not_in_mask
+        new_edp_count_received
+        new_edp_count_received_not_in_mask
+        new_discovery_times_received
+        new_discovery_times_received_not_in_mask
+        new_sample_datas_received
+        new_sample_datas_received_not_in_mask
+        new_physical_data_received
+        new_physical_data_received_no_mask
         )
 
     foreach(test_name ${STATISTICSDATALISTENER_TEST_LIST})
