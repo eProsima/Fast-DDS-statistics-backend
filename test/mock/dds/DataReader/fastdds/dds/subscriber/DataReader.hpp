@@ -87,7 +87,6 @@ public:
         guid_ = guid;
     }
 
-
 protected:
 
     fastrtps::rtps::GUID_t guid_;

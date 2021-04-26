@@ -80,7 +80,6 @@ public:
      */
     DataKindMask get_mask();
 
-
 protected:
 
     //! Reference to the database queues

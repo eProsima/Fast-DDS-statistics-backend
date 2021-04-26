@@ -58,7 +58,6 @@ DataKindMask StatisticsReaderListener::get_mask()
     return data_mask_;
 }
 
-
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
@@ -70,7 +69,7 @@ void StatisticsReaderListener::on_data_available(
     }
 
     bool process = false;
-    switch(data->_d())
+    switch (data->_d())
     {
         case EventKind::HISTORY2HISTORY_LATENCY:
             if (data_mask_.is_set(DataKind::FASTDDS_LATENCY))
@@ -98,14 +97,14 @@ void StatisticsReaderListener::on_data_available(
             break;
         case EventKind::RTPS_SENT:
             if (data_mask_.is_set(DataKind::RTPS_PACKETS_SENT)  ||
-                data_mask_.is_set(DataKind::RTPS_BYTES_SENT))
+                    data_mask_.is_set(DataKind::RTPS_BYTES_SENT))
             {
                 process = true;
             }
             break;
         case EventKind::RTPS_LOST:
             if (data_mask_.is_set(DataKind::RTPS_PACKETS_LOST)  ||
-                data_mask_.is_set(DataKind::RTPS_BYTES_LOST))
+                    data_mask_.is_set(DataKind::RTPS_BYTES_LOST))
             {
                 process = true;
             }
@@ -182,7 +181,6 @@ void StatisticsReaderListener::on_data_available(
         data_queue_->push(timestamp, data);
     }
 }
-
 
 } //namespace database
 } //namespace statistics_backend
