@@ -23,6 +23,7 @@
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
 
+#include <types/types.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -54,7 +55,7 @@ public:
      * @brief Constructor
      */
     StatisticsReaderListener(
-            database::DatabaseEntityQueue* entity_queue,
+            DataKindMask mask,
             database::DatabaseDataQueue* data_queue) noexcept;
 
     /**
@@ -64,11 +65,29 @@ public:
     void on_data_available(
             eprosima::fastdds::dds::DataReader* reader) override;
 
+    /**
+     * @brief Sets the mask for the data kind.
+     * @param mask The new mask
+     * @return The old mask
+     */
+    DataKindMask set_mask(
+            DataKindMask mask);
+
+    /**
+     * @brief Retrieves the mask for the data kind.
+     * @return mask The mask for the data kind
+     * @return The old mask
+     */
+    DataKindMask get_mask();
+
+
 protected:
 
     //! Reference to the database queues
-    database::DatabaseEntityQueue* entity_queue_;
     database::DatabaseDataQueue* data_queue_;
+
+    //! Mask of the data kinds to process
+    DataKindMask data_mask_;
 };
 
 } //namespace database

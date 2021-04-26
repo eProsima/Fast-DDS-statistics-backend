@@ -30,29 +30,62 @@ namespace statistics_backend {
 namespace subscriber {
 
 using namespace eprosima::fastrtps::types;
+using namespace eprosima::fastdds::statistics;
 
 StatisticsReaderListener::StatisticsReaderListener(
-        database::DatabaseEntityQueue* entity_queue,
+        DataKindMask mask,
         database::DatabaseDataQueue* data_queue) noexcept
     : DataReaderListener()
-    , entity_queue_(entity_queue)
     , data_queue_(data_queue)
+    , data_mask_(mask)
 {
 }
+
+DataKindMask StatisticsReaderListener::set_mask(
+        DataKindMask mask)
+{
+    std::swap(data_mask_, mask);
+    return mask;
+}
+
+/**
+ * @brief Retrieves the mask for the data kind.
+ * @return mask The mask for the data kind
+ * @return The old mask
+ */
+DataKindMask StatisticsReaderListener::get_mask()
+{
+    return data_mask_;
+}
+
 
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    std::shared_ptr<Data> data = std::make_shared<Data>();
     eprosima::fastdds::dds::SampleInfo info;
     if (reader->take_next_sample(data.get(), &info) != ReturnCode_t::RETCODE_OK)
     {
         return;
     }
 
-    std::chrono::steady_clock::time_point timestamp =
-            std::chrono::steady_clock::time_point (std::chrono::nanoseconds(info.source_timestamp.to_ns()));
-    data_queue_->push(timestamp, data);
+    bool process = false;
+    switch(data->_d())
+    {
+        case EventKind::HISTORY2HISTORY_LATENCY:
+            if (data_mask_.is_set(DataKind::FASTDDS_LATENCY))
+            {
+                process = true;
+            }
+            break;
+    }
+
+    if (process)
+    {
+        std::chrono::steady_clock::time_point timestamp =
+                std::chrono::steady_clock::time_point (std::chrono::nanoseconds(info.source_timestamp.to_ns()));
+        data_queue_->push(timestamp, data);
+    }
 }
 
 
