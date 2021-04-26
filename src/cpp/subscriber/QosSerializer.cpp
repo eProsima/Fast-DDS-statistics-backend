@@ -432,6 +432,23 @@ void serialize<fastdds::dds::PublishModeQosPolicy> (
     serialized[fieldname] = publishmode;
 }
 
+template <>
+void serialize<fastdds::dds::ParameterPropertyList_t> (
+            const fastdds::dds::ParameterPropertyList_t& qos,
+            const std::string& fieldname,
+            database::Qos& serialized)
+{
+    database::Qos properties = database::Qos::array();
+    for (auto p : qos)
+    {
+        database::Qos property;
+        property["name"] = p.first();
+        property["value"] = p.second();
+        properties.push_back(property);
+    }
+    serialized[fieldname] = properties;
+}
+
 database::Qos reader_info_to_backend_qos(
             const fastrtps::rtps::ReaderDiscoveryInfo& reader_info)
 {
@@ -487,6 +504,20 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.data_sharing, "data_sharing", writer);
 
     return writer;
+}
+
+database::Qos participant_info_to_backend_qos(
+            const fastrtps::rtps::ParticipantDiscoveryInfo& participant_info)
+{
+    database::Qos participant;
+
+    participant["available_builtin_endpoints"] = participant_info.info.m_availableBuiltinEndpoints;
+    serialize(participant_info.info.m_leaseDuration, "lease_duration", participant);
+    serialize(participant_info.info.m_properties, "properties", participant);
+    serialize(participant_info.info.m_userData, "user_data", participant);
+    participant["vendor_id"] = participant_info.info.m_VendorId;
+
+    return participant;
 }
 
 
