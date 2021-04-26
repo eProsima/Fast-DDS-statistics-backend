@@ -27,17 +27,6 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
-void Database::insert(
-        const EntityId& domain_id,
-        const EntityId& entity_id,
-        const StatisticsSample& sample)
-{
-    (void) domain_id;
-    (void)entity_id;
-    (void)sample;
-    throw Unsupported("Not implemented yet");
-}
-
 EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
