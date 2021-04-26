@@ -23,6 +23,7 @@
 
 #include <fastdds/rtps/reader/ReaderDiscoveryInfo.h>
 #include <fastdds/rtps/writer/WriterDiscoveryInfo.h>
+#include <fastdds/rtps/participant/ParticipantDiscoveryInfo.h>
 
 #include <database/entities.hpp>
 
@@ -168,6 +169,8 @@ database::Qos reader_info_to_backend_qos(
 database::Qos writer_info_to_backend_qos(
             const fastrtps::rtps::WriterDiscoveryInfo& writer_info);
 
+database::Qos participant_info_to_backend_qos(
+            const fastrtps::rtps::ParticipantDiscoveryInfo& writer_info);
 
 
 } // namespace subscriber
