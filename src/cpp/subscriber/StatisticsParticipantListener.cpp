@@ -35,7 +35,7 @@ using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::rtps;
 
 const StatusMask StatisticsParticipantListener::StatisticsParticipantMask =
-    StatusMask::none();
+        StatusMask::none();
 
 template<typename T>
 std::string to_string(
@@ -45,7 +45,6 @@ std::string to_string(
     ss << data;
     return ss.str();
 }
-
 
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
@@ -57,16 +56,18 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
 
     // Get the domain from the database
-    auto domain_ids = database_->get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant->get_domain_id()));
+    auto domain_ids =
+            database_->get_entities_by_name(EntityKind::DOMAIN,
+                    std::to_string(statistics_participant->get_domain_id()));
     if (domain_ids.empty())
     {
         throw Error(endpoint_name + " discovered on Domain " + std::to_string(statistics_participant->get_domain_id())
-                + " but there is no such Domain in the database");
+                      + " but there is no such Domain in the database");
     }
 
     std::shared_ptr<database::Domain> domain =
             std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
+        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
 
     // Check whether the endpoint is already on the database
     GUID_t endpoint_guid = info.info.guid();
@@ -74,7 +75,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     if (!endpoint_ids.empty())
     {
         throw Error(endpoint_name + " discovered " + to_string(endpoint_guid)
-                + " but there is already a " + endpoint_name + " with the same GUID in the database");
+                      + " but there is already a " + endpoint_name + " with the same GUID in the database");
     }
 
     // Get the participant from the database
@@ -83,11 +84,12 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     if (participant_ids.empty())
     {
         throw Error(endpoint_name + " discovered on Participant " + to_string(participant_guid)
-                + " but there is no such Participant in the database");
+                      + " but there is no such Participant in the database");
     }
-    std::shared_ptr<database::DomainParticipant> participant = 
+    std::shared_ptr<database::DomainParticipant> participant =
             std::const_pointer_cast<database::DomainParticipant>(
-                std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_ids.front().second)));
+        std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
+            participant_ids.front().second)));
 
     assert(participant_ids.front().first == domain_ids.front().second);
 
@@ -98,16 +100,16 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     {
         // Create the Topic and push it to the queue
         topic = std::make_shared<database::Topic>(
-                info.info.topicName().to_string(),
-                info.info.typeName().to_string(),
-                domain);
+            info.info.topicName().to_string(),
+            info.info.typeName().to_string(),
+            domain);
 
         entity_queue_->push(timestamp, topic);
     }
     else
     {
         topic = std::const_pointer_cast<database::Topic>(
-                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_ids.front().second)));
+            std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_ids.front().second)));
         assert(topic_ids.front().first == domain_ids.front().second);
     }
 
@@ -158,7 +160,7 @@ std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint
 template<>
 std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
         const GUID_t& guid,
-                const fastrtps::rtps::ReaderDiscoveryInfo& info,
+        const fastrtps::rtps::ReaderDiscoveryInfo& info,
 
         std::shared_ptr<database::DomainParticipant> participant,
         std::shared_ptr<database::Topic> topic)
@@ -193,39 +195,42 @@ void StatisticsParticipantListener::on_participant_discovery(
     switch (info.status)
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
+        {
+            // Get the domain from the database
+            auto domain_ids =
+                    database_->get_entities_by_name(EntityKind::DOMAIN,
+                            std::to_string(participant->get_domain_id()));
+            if (domain_ids.empty())
             {
-                // Get the domain from the database
-                auto domain_ids = database_->get_entities_by_name(EntityKind::DOMAIN, std::to_string(participant->get_domain_id()));
-                if (domain_ids.empty())
-                {
-                    throw Error("Participant discovered on Domain " + std::to_string(participant->get_domain_id())
-                            + " but there is no such Domain in the database");
-                }
-
-                std::shared_ptr<database::Domain> domain =
-                        std::const_pointer_cast<database::Domain>(
-                            std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
-
-                // Check whether the participant is already on the database
-                GUID_t participant_guid = info.info.m_guid;
-                auto participant_ids = database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
-                if (!participant_ids.empty())
-                {
-                    throw Error("Participant discovered " + to_string(participant_guid)
-                            + " but there is already a Participant with the same GUID in the database");
-                }
-
-                // Create the participant and push it to the queue
-                auto participant = std::make_shared<database::DomainParticipant>(
-                        info.info.m_participantName.to_string(),
-                        participant_info_to_backend_qos(info),
-                        to_string(participant_guid),
-                        std::shared_ptr<database::Process>(),
-                        domain);
-
-                entity_queue_->push(timestamp, participant);
+                throw Error("Participant discovered on Domain " + std::to_string(participant->get_domain_id())
+                              + " but there is no such Domain in the database");
             }
-            break;
+
+            std::shared_ptr<database::Domain> domain =
+                    std::const_pointer_cast<database::Domain>(
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
+
+            // Check whether the participant is already on the database
+            GUID_t participant_guid = info.info.m_guid;
+            auto participant_ids =
+                    database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+            if (!participant_ids.empty())
+            {
+                throw Error("Participant discovered " + to_string(participant_guid)
+                              + " but there is already a Participant with the same GUID in the database");
+            }
+
+            // Create the participant and push it to the queue
+            auto participant = std::make_shared<database::DomainParticipant>(
+                info.info.m_participantName.to_string(),
+                participant_info_to_backend_qos(info),
+                to_string(participant_guid),
+                std::shared_ptr<database::Process>(),
+                domain);
+
+            entity_queue_->push(timestamp, participant);
+        }
+        break;
 
         case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
             // Update QoS on stored entity
@@ -298,8 +303,6 @@ void StatisticsParticipantListener::on_publisher_discovery(
     data_queue_->start_consumer();
     (void)participant, (void)info;
 }
-
-
 
 } //namespace database
 } //namespace statistics_backend

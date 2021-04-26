@@ -39,138 +39,138 @@ static void serialize(
 
 template <>
 void serialize<fastdds::dds::DurabilityQosPolicy> (
-            const fastdds::dds::DurabilityQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DurabilityQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastrtps::Duration_t> (
-            const fastrtps::Duration_t& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastrtps::Duration_t& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DeadlineQosPolicy> (
-            const fastdds::dds::DeadlineQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DeadlineQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::LatencyBudgetQosPolicy> (
-            const fastdds::dds::LatencyBudgetQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::LatencyBudgetQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::LivelinessQosPolicy> (
-            const fastdds::dds::LivelinessQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::LivelinessQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::ReliabilityQosPolicy> (
-            const fastdds::dds::ReliabilityQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::ReliabilityQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::OwnershipQosPolicy> (
-            const fastdds::dds::OwnershipQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::OwnershipQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DestinationOrderQosPolicy> (
-            const fastdds::dds::DestinationOrderQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DestinationOrderQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::TopicDataQosPolicy> (
-            const fastdds::dds::TopicDataQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::TopicDataQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::UserDataQosPolicy> (
-            const fastdds::dds::UserDataQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::UserDataQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::GroupDataQosPolicy> (
-            const fastdds::dds::GroupDataQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::GroupDataQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::TimeBasedFilterQosPolicy> (
-            const fastdds::dds::TimeBasedFilterQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::TimeBasedFilterQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<bool> (
-            const bool& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const bool& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::PresentationQosPolicy> (
-            const fastdds::dds::PresentationQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::PresentationQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::PartitionQosPolicy> (
-            const fastdds::dds::PartitionQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::PartitionQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DurabilityServiceQosPolicy> (
-            const fastdds::dds::DurabilityServiceQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DurabilityServiceQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::LifespanQosPolicy> (
-            const fastdds::dds::LifespanQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::LifespanQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DataRepresentationQosPolicy> (
-            const fastdds::dds::DataRepresentationQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DataRepresentationQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::TypeConsistencyEnforcementQosPolicy> (
-            const fastdds::dds::TypeConsistencyEnforcementQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::TypeConsistencyEnforcementQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DisablePositiveACKsQosPolicy> (
-            const fastdds::dds::DisablePositiveACKsQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DisablePositiveACKsQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 template <>
 void serialize<fastdds::dds::DataSharingQosPolicy> (
-            const fastdds::dds::DataSharingQosPolicy& qos,
-            const std::string& fieldname,
-            database::Qos& serialized);
+        const fastdds::dds::DataSharingQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
 
 database::Qos reader_info_to_backend_qos(
-            const fastrtps::rtps::ReaderDiscoveryInfo& reader_info);
+        const fastrtps::rtps::ReaderDiscoveryInfo& reader_info);
 
 database::Qos writer_info_to_backend_qos(
-            const fastrtps::rtps::WriterDiscoveryInfo& writer_info);
+        const fastrtps::rtps::WriterDiscoveryInfo& writer_info);
 
 database::Qos participant_info_to_backend_qos(
-            const fastrtps::rtps::ParticipantDiscoveryInfo& writer_info);
+        const fastrtps::rtps::ParticipantDiscoveryInfo& writer_info);
 
 
 } // namespace subscriber

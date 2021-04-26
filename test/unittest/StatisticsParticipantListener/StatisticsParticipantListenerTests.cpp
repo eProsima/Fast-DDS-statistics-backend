@@ -55,7 +55,8 @@ struct InsertEntityArgs
 };
 
 template<typename T>
-std::string to_string(T data)
+std::string to_string(
+        T data)
 {
     std::stringstream ss;
     ss << data;
@@ -169,11 +170,14 @@ public:
 TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
@@ -196,7 +200,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                 EXPECT_EQ(entity->name, participant_name_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_info_to_backend_qos(info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
+                participant_info_to_backend_qos(info));
 
                 return EntityId(10);
             });
@@ -211,9 +216,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_domain)
 {
     // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
@@ -241,14 +248,18 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -271,7 +282,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
             eprosima::statistics_backend::Error);
 }
 
-TEST_F(statistics_participant_listener_tests,participant_qos_change_discovered)
+TEST_F(statistics_participant_listener_tests, participant_qos_change_discovered)
 {
     FAIL() << "Not implemented";
 }
@@ -279,26 +290,32 @@ TEST_F(statistics_participant_listener_tests,participant_qos_change_discovered)
 TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -346,14 +363,18 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -363,7 +384,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -429,23 +451,28 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 }
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_locators
-)
+        )
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
@@ -457,7 +484,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
 
@@ -469,7 +497,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
@@ -563,24 +592,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participant)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -616,9 +650,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participa
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
 {
     // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
@@ -629,7 +665,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -665,26 +702,32 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_already_exists)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -706,9 +749,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 
     // Precondition: The Reader exists and has ID 10
     std::shared_ptr<DataReader> reader =
-            std::make_shared<DataReader>(reader_guid_str_, reader_info_to_backend_qos(info), reader_guid_str_, participant_, topic_);
+            std::make_shared<DataReader>(reader_guid_str_, reader_info_to_backend_qos(
+                        info), reader_guid_str_, participant_, topic_);
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(10)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(10)))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
@@ -728,26 +773,32 @@ TEST_F(statistics_participant_listener_tests, reader_qos_change_discovered)
 TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -795,14 +846,18 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -812,7 +867,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -878,23 +934,28 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
 }
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_locators
-)
+        )
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
@@ -906,7 +967,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
 
@@ -918,7 +980,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
@@ -1012,24 +1075,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participant)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -1065,9 +1133,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participa
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
 {
     // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    
+
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
@@ -1078,7 +1148,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -1114,26 +1185,32 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_already_exists)
 {
     // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
-    
+
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, locator_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(locator_));
 
@@ -1155,9 +1232,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
 
     // Precondition: The writer exists and has ID 10
     std::shared_ptr<DataWriter> writer =
-            std::make_shared<DataWriter>(writer_guid_str_, writer_info_to_backend_qos(info), writer_guid_str_, participant_, topic_);
+            std::make_shared<DataWriter>(writer_guid_str_, writer_info_to_backend_qos(
+                        info), writer_guid_str_, participant_, topic_);
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(10)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(10)))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
