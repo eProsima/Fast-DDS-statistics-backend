@@ -100,6 +100,7 @@ public:
     std::string participant_prefix_str_;
     eprosima::fastrtps::rtps::GuidPrefix_t guid_prefix_;
     std::string participant_guid_str_;
+    eprosima::fastrtps::rtps::GUID_t participant_guid_;
     std::shared_ptr<DomainParticipant> participant_;
 
     // Topic entity
@@ -136,6 +137,7 @@ public:
         participant_prefix_str_ = "01.02.03.04.05.06.07.08.09.0a.0b.0c";
         std::stringstream(participant_prefix_str_) >> guid_prefix_;
         participant_guid_str_ = participant_prefix_str_ + "|0.0.0.0";
+        std::stringstream(participant_guid_str_) >> participant_guid_;
         participant_ =
                 std::make_shared<DomainParticipant>(participant_name_, participant_qos_, participant_guid_str_,
                         std::shared_ptr<Process>(), domain_);
@@ -163,6 +165,116 @@ public:
     }
 
 };
+
+TEST_F(statistics_participant_listener_tests, new_participant_discovered)
+{
+    // Precondition: The Domain 0 exists and has ID 0
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain_));
+    
+    // Precondition: The Participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+    eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+    // Precondition: The discovered participant has the given GUID and name
+    data.m_guid = participant_guid_;
+    data.m_participantName = participant_name_;
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+
+    // Expectation: The Participant is added to the database. We do not care about the given ID
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
+                EXPECT_EQ(entity->name, participant_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_info_to_backend_qos(info));
+
+                return EntityId(10);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Execution: Call the listener
+    participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
+}
+
+TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_domain)
+{
+    // Precondition: The Domain 0 does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    
+    // Precondition: The Participant does not exist
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+    eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+    // Precondition: The discovered participant has the given GUID and name
+    data.m_guid = participant_guid_;
+    data.m_participantName = participant_name_;
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+
+    // Expectation: No entity is added to the database
+    EXPECT_CALL(database, insert(_)).Times(0);
+
+    // Expectation: Calling the listener throws
+    EXPECT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)),
+            eprosima::statistics_backend::Error);
+
+}
+
+TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
+{
+    // Precondition: The Domain 0 exists and has ID 0
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain_));
+    
+    // Precondition: The Participant exists and has ID 1
+    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant_));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+    eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+    // Precondition: The discovered participant has the given GUID and name
+    data.m_guid = participant_guid_;
+    data.m_participantName = participant_name_;
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+
+    // Expectation: No entity is added to the database
+    EXPECT_CALL(database, insert(_)).Times(0);
+
+    // Expectation: Calling the listener throws
+    EXPECT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)),
+            eprosima::statistics_backend::Error);
+}
+
+TEST_F(statistics_participant_listener_tests,participant_qos_change_discovered)
+{
+    FAIL() << "Not implemented";
+}
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {
