@@ -24,8 +24,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
-#    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp)
 
     target_include_directories(statistics_reader_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}

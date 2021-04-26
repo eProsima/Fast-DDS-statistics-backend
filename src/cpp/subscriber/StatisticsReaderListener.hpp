@@ -14,19 +14,15 @@
  */
 
 /**
- * @file StatisticsDataListener.hpp
+ * @file StatisticsReaderListener.hpp
  */
 
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSDATALISTENER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSDATALISTENER_HPP_
 
-#include <string>
-
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
 
-
-class eprosima::fastdds::dds::DataReader;
 
 namespace eprosima {
 namespace statistics_backend {
@@ -59,22 +55,14 @@ public:
      */
     StatisticsReaderListener(
             database::DatabaseEntityQueue* entity_queue,
-            database::DatabaseDataQueue* data_queue) noexcept
-        : DataReaderListener()
-        , entity_queue_(entity_queue)
-        , data_queue_(data_queue)
-    {
-    }
+            database::DatabaseDataQueue* data_queue) noexcept;
 
     /**
      * @brief Actions to be performed when a new Data Message is received.
      * @param reader DataReader that received the data
      */
     void on_data_available(
-            eprosima::fastdds::dds::DataReader* reader) override
-    {
-        (void)reader;
-    }
+            eprosima::fastdds::dds::DataReader* reader) override;
 
 protected:
 
