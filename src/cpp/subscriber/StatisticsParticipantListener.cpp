@@ -186,6 +186,60 @@ void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* participant,
         ParticipantDiscoveryInfo&& info)
 {
+    // First stop the data queue until the new entity is created
+    data_queue_->stop_consumer();
+
+    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    switch (info.status)
+    {
+        case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
+            {
+                // Get the domain from the database
+                auto domain_ids = database_->get_entities_by_name(EntityKind::DOMAIN, std::to_string(participant->get_domain_id()));
+                if (domain_ids.empty())
+                {
+                    throw Error("Participant discovered on Domain " + std::to_string(participant->get_domain_id())
+                            + " but there is no such Domain in the database");
+                }
+
+                std::shared_ptr<database::Domain> domain =
+                        std::const_pointer_cast<database::Domain>(
+                            std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
+
+                // Check whether the participant is already on the database
+                GUID_t participant_guid = info.info.m_guid;
+                auto participant_ids = database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+                if (!participant_ids.empty())
+                {
+                    throw Error("Participant discovered " + to_string(participant_guid)
+                            + " but there is already a Participant with the same GUID in the database");
+                }
+
+                // Create the participant and push it to the queue
+                auto participant = std::make_shared<database::DomainParticipant>(
+                        info.info.m_participantName.to_string(),
+                        participant_info_to_backend_qos(info),
+                        to_string(participant_guid),
+                        std::shared_ptr<database::Process>(),
+                        domain);
+
+                entity_queue_->push(timestamp, participant);
+            }
+            break;
+
+        case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
+            // Update QoS on stored entity
+            break;
+
+        case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
+        case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
+            // Do nothing
+            break;
+    }
+
+    // Wait until the entity queue is processed and restart the data queue
+    entity_queue_->flush();
+    data_queue_->start_consumer();
     (void)participant, (void)info;
 }
 
@@ -244,6 +298,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
     data_queue_->start_consumer();
     (void)participant, (void)info;
 }
+
 
 
 } //namespace database
