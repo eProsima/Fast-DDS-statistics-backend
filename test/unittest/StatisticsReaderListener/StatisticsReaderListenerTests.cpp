@@ -71,16 +71,16 @@ class statistics_reader_listener_tests : public ::testing::Test
 public:
 
     Database database_;
-    DatabaseEntityQueue entity_queue_;
     DatabaseDataQueue data_queue_;
+    eprosima::statistics_backend::DataKindMask data_mask_;
     StatisticsReaderListener reader_listener_;
     eprosima::fastdds::dds::DataReader datareader_;
 
     statistics_reader_listener_tests()
         : database_()
-        , entity_queue_(&database_)
         , data_queue_(&database_)
-        , reader_listener_(&entity_queue_, &data_queue_)
+        , data_mask_(eprosima::statistics_backend::DataKindMask::all())
+        , reader_listener_(data_mask_, &data_queue_)
     {
     }
 
@@ -89,6 +89,20 @@ public:
     {
         std::shared_ptr<SampleInfo> info = get_default_info();
         datareader_.add_sample(data, info);
+    }
+
+    void set_data_mask_bit (
+            eprosima::statistics_backend::DataKind bit)
+    {
+        data_mask_.set(bit);
+        reader_listener_.set_mask(data_mask_);
+    }
+
+    void clear_data_mask_bit (
+            eprosima::statistics_backend::DataKind bit)
+    {
+        data_mask_.clear(bit);
+        reader_listener_.set_mask(data_mask_);
     }
 
 protected:
@@ -178,6 +192,63 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Insert the data on the queue and wait until processed
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+}
+
+TEST_F(statistics_reader_listener_tests, new_history_latency_received_not_in_mask)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+
+    // Build the reader GUID
+    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueue::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    inner_data.data(1.0);
+    inner_data.writer_guid(writer_guid);
+    inner_data.reader_guid(reader_guid);
+
+    std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+    data->writer_reader_data(inner_data);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+
+    add_sample_to_reader_history(data);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The reader exists and has ID 2
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The event is filtered out
+    clear_data_mask_bit(eprosima::statistics_backend::DataKind::FASTDDS_LATENCY);
+
+    // Expectation: The insert method is never called
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
 
     // Insert the data on the queue and wait until processed
     reader_listener_.on_data_available(&datareader_);

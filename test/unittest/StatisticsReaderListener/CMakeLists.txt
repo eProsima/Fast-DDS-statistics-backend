@@ -42,6 +42,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     set(STATISTICSDATALISTENER_TEST_LIST
         new_history_latency_received
+        new_history_latency_received_not_in_mask
         )
 
     foreach(test_name ${STATISTICSDATALISTENER_TEST_LIST})
