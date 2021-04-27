@@ -9,7 +9,7 @@ Get entity meta information
     This feature is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
-*Fast DDS Statistics Backend* includes the possibility of retrieving the meta information of any given entities present
+*Fast DDS Statistics Backend* includes the possibility of retrieving the meta information of any given entity present
 in the network.
 Depending on the |EntityKind-api|, the returned tree contains merely the ``name``, or extra information such as ``pid``,
 ``qos``, or ``data_type``.

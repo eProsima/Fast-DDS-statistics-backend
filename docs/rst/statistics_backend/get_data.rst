@@ -2,20 +2,22 @@
 
 .. _statistics_backend_get_data:
 
-Retrieve statistical data
--------------------------
+Get statistical data
+--------------------
 
 .. warning::
     This feature is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 *Fast DDS Statistics Backend* provides two overloads of |get_data-api| to retrieve statistical data of a given
-|DataKind-api| within a time frame.
+|DataKind-api| within a time frame (for more information about all the reported |DataKind-api|, please refer to
+:ref:`types_data_kind`).
 This time interval is evenly divided into the specified number of bins, each one with size
 :math:`(t_to - t_from)/(# of bins)`.
 For each of these bins, a new |StatisticsData-api| value is calculated applying the given |StatisticKind-api| to all the
 data points in it.
 The result is a collection of |StatisticsData-api| elements with size equal to the number of specified bins.
+If the number of bins is set to zero, then all data points are returned and no statistic is calculated for the series.
 
 Depending on the |DataKind-api|, the data is related to one or two entities, e.g. |FASTDDS_LATENCY-api| measures the
 latency between a write operation on the data writer side and the notification to the user when the data is available on
@@ -64,7 +66,9 @@ The following table illustrates the expected inputs depending on the query's |Da
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
 
-
+.. warning::
+   If for a given bin, the *Fast DDS Statistics Backend* has no data, the value returned will be the one supplied by
+   `std::numeric_limits<double>::quiet_NaN <https://en.cppreference.com/w/cpp/types/numeric_limits/quiet_NaN>`_.
 
 .. _statistics_backend_get_data_examples:
 
@@ -73,6 +77,9 @@ Examples
 
 Following, some example queries are provided to serve a inspiration for applications using
 *Fast DDS Statistics Backend*.
+
+.. todo::
+   Include an output example for each example here.
 
 DataWriter's Fast DDS Latency median example
 """"""""""""""""""""""""""""""""""""""""""""

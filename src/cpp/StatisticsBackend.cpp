@@ -25,10 +25,12 @@ namespace statistics_backend {
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
-        CallbackMask callback_mask)
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
 {
     static_cast<void>(listener);
     static_cast<void>(callback_mask);
+    static_cast<void>(data_mask);
 }
 
 EntityId StatisticsBackend::init_monitor(

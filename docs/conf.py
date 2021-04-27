@@ -219,6 +219,7 @@ breathe_default_project = 'fastdds-statistics-backend'
 # ones.
 extensions = [
     'breathe',
+    'sphinx.ext.todo',
 ]
 try:
     import sphinxcontrib.spelling  # noqa: F401

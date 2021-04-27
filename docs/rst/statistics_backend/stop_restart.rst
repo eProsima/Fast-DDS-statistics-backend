@@ -16,6 +16,7 @@ Is is important to note that:
 
 * Calls to |stop_monitor-api| on an already stopped monitor take no effect.
 * Calls to |restart_monitor-api| on an already running monitor take no effect.
+* |stop_monitor-api| must be called before calling |clear_monitor-api|.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++

@@ -52,10 +52,12 @@ public:
      *
      * @param listener the listener with the callback implementations.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored
      */
     static void set_physical_listener(
             PhysicalListener* listener,
-            CallbackMask callback_mask = CallbackMask::all());
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
 
     /**
      * @brief Starts monitoring on a given domain
@@ -224,8 +226,10 @@ public:
      * \sa StatisticsBackend
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_ids_source Ids of the source entities of the requested data
-     * @param entity_ids_target Ids of the target entities of the requested data
+     * @param entity_ids_source Ids of the source entities of the requested data. These IDs must correspond to
+     *                          entities of specific kinds depending on the data_type.
+     * @param entity_ids_target Ids of the target entities of the requested data. These IDs must correspond to
+     *                          entities of specific kinds depending on the data_type.
      * @param bins Number of time intervals in which the measurement time is divided
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
@@ -267,7 +271,8 @@ public:
      * \sa StatisticsBackend
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_ids Ids of the entities of the requested data
+     * @param entity_ids Ids of the entities of the requested data. These IDs must correspond to
+     *                   entities of specific kinds depending on the data_type.
      * @param bins Number of time intervals in which the measurement time is divided
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
@@ -289,8 +294,10 @@ public:
      * It is used to set the \c statistic argument with default time values.
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_ids_source Ids of the source entities of the requested data
-     * @param entity_ids_target Ids of the target entities of the requested data
+     * @param entity_ids_source Ids of the source entities of the requested data. These IDs must correspond to
+     *                          entities of specific kinds depending on the data_type.
+     * @param entity_ids_target Ids of the target entities of the requested data. These IDs must correspond to
+     *                          entities of specific kinds depending on the data_type.
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic
@@ -309,7 +316,8 @@ public:
      * It is used to set the \c statistic argument with default time values.
      *
      * @param data_type The type of the measurement being requested
-     * @param entity_ids Ids of the entities of the requested data
+     * @param entity_ids Ids of the entities of the requested data. These IDs must correspond to
+     *                   entities of specific kinds depending on the data_type.
      * @param bins Number of time intervals in which the measurement time is divided
      * @param statistic Statistic to calculate for each of the bins
      * @return a vector of \c bin elements with the values of the requested statistic

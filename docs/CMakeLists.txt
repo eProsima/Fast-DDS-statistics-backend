@@ -74,6 +74,11 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH}
 find_package(Sphinx REQUIRED)
 
 set(DOCS_BUILDER html)
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(SHOW_TODOS "-Dtodo_include_todos=1")
+else()
+    set(SHOW_TODOS "-Dtodo_include_todos=0")
+endif()
 
 # Generate the sphinx documentation
 add_custom_target(Sphinx ALL
@@ -81,6 +86,7 @@ add_custom_target(Sphinx ALL
     ${SPHINX_EXECUTABLE} -b ${DOCS_BUILDER}
     # Tell Breathe where to find the Doxygen output
     -D breathe_projects.fastdds-statistics-backend=${DOXYGEN_OUTPUT_XML_DIR}
+    ${SHOW_TODOS}
     -d "${PROJECT_BINARY_DOCS_DIR}/doctrees"
     ${PROJECT_SOURCE_DOCS_DIR}
     ${DOCS_OUTPUT_HTML_DIR}

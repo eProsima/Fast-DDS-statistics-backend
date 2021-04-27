@@ -39,7 +39,7 @@ This function returns the related entities according to the following table:
 .. list-table:: Entity relations
    :header-rows: 1
 
-   * - :class:`EntityId` / :class:`EntityKind`
+   * - :class:`EntityId` \ :class:`EntityKind`
      - Host
      - User
      - Process
@@ -58,7 +58,7 @@ This function returns the related entities according to the following table:
      - Sub-contains
      - Sub-contains
      - Sub-contains
-     - By DomainParticipant
+     - Sub-contains
    * - User
      - Contained
      - Itself
@@ -68,7 +68,7 @@ This function returns the related entities according to the following table:
      - Sub-contains
      - Sub-contains
      - Sub-contains
-     - By DomainParticipant
+     - By Endpoints
    * - Process
      - Sub-contained
      - Contained
@@ -78,7 +78,7 @@ This function returns the related entities according to the following table:
      - Contains
      - Sub-contains
      - Sub-contains
-     - By DomainParticipant
+     - By Endpoints
    * - Domain
      - By DomainParticipant
      - By DomainParticipant
@@ -88,7 +88,7 @@ This function returns the related entities according to the following table:
      - Contains
      - Sub-contains
      - Sub-contains
-     - By DomainParticipant
+     - By Endpoints
    * - Topic
      - By DomainParticipant
      - By DomainParticipant
@@ -157,7 +157,7 @@ This function returns the related entities according to the following table:
 * **By DomainParticipant**: The returned entities will be the ones that are related to the entity by which the query is
   performed through the DomainParticipant, i.e. when asking for all the |HOST-api| related to a |DOMAIN-api|, the result
   will be all the |HOST-api| that have a |PARTICIPANT-api| running on said |DOMAIN-api|.
-  * **By Endpoints**: The returned entities will be the ones that are related to the entity by which the query is
+* **By Endpoints**: The returned entities will be the ones that are related to the entity by which the query is
   performed through the endpoints (|DataReader-api| and |DataWriter-api|), i.e. when asking for all the |LOCATOR-api|
   related to a |TOPIC-api|, the result will be all the |LOCATOR-api| that are used by all the |DataReader-api| and
   |DataWriter-api| present in the |TOPIC-api|.
