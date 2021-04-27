@@ -41,6 +41,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
     set(STATISTICSDATALISTENER_TEST_LIST
+        mask
+        not_valid_data
         new_history_latency_received
         new_history_latency_received_not_in_mask
         new_network_latency_received

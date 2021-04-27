@@ -63,7 +63,8 @@ void StatisticsReaderListener::on_data_available(
 {
     std::shared_ptr<Data> data = std::make_shared<Data>();
     eprosima::fastdds::dds::SampleInfo info;
-    if (reader->take_next_sample(data.get(), &info) != ReturnCode_t::RETCODE_OK)
+    if (reader->take_next_sample(data.get(), &info) != ReturnCode_t::RETCODE_OK ||
+            !info.valid_data)
     {
         return;
     }
