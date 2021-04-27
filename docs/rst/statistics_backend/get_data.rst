@@ -17,7 +17,10 @@ This time interval is evenly divided into the specified number of bins, each one
 For each of these bins, a new |StatisticsData-api| value is calculated applying the given |StatisticKind-api| to all the
 data points in it.
 The result is a collection of |StatisticsData-api| elements with size equal to the number of specified bins.
-If the number of bins is set to zero, then all data points are returned and no statistic is calculated for the series.
+
+.. important::
+   If the number of bins is set to zero, then all data points are returned and no statistic is calculated for the
+   series.
 
 Depending on the |DataKind-api|, the data is related to one or two entities, e.g. |FASTDDS_LATENCY-api| measures the
 latency between a write operation on the data writer side and the notification to the user when the data is available on
