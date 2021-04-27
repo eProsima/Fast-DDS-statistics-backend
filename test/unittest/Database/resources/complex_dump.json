@@ -1,0 +1,1098 @@
+{
+    "description": "DB dump with 3 entities of each kind, and 3 data in each data kind for each entity",
+
+    "version": "0.0",
+
+    "datareaders": {
+        "17": {
+            "data": {
+                "acknack_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "nackfrag_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "subscription_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|00.00.00.00",
+            "locators": [
+                "9"
+            ],
+            "name": "datareader_1",
+            "participant": "15",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "14"
+        },
+        "26": {
+            "data": {
+                "acknack_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "nackfrag_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "subscription_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "locators": [
+                "18"
+            ],
+            "name": "datareader_2",
+            "participant": "24",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "23"
+        },
+        "8": {
+            "data": {
+                "acknack_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "nackfrag_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "subscription_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "locators": [
+                "0"
+            ],
+            "name": "datareader_0",
+            "participant": "6",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "5"
+        }
+    },
+    "datawriters": {
+        "16": {
+            "data": {
+                "data_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "gap_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "heartbeat_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "history2history_latency": {
+                    "17": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "publication_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ],
+                "resent_datas": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "rtps_bytes_lost": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "samples_datas": {
+                    "3": 2
+                }
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|00.00.00.00",
+            "locators": [
+                "9"
+            ],
+            "name": "datawriter_1",
+            "participant": "15",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "14"
+        },
+        "25": {
+            "data": {
+                "data_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "gap_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "heartbeat_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "history2history_latency": {
+                    "26": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "publication_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ],
+                "resent_datas": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "rtps_bytes_lost": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "samples_datas": {
+                    "3": 2
+                }
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "locators": [
+                "18"
+            ],
+            "name": "datawriter_2",
+            "participant": "24",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "23"
+        },
+        "7": {
+            "data": {
+                "data_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "gap_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "heartbeat_count": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "history2history_latency": {
+                    "8": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "publication_throughput": [
+                    {
+                        "data": 1.1,
+                        "src_time": "0"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "1"
+                    },
+                    {
+                        "data": 1.1,
+                        "src_time": "2"
+                    }
+                ],
+                "resent_datas": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "rtps_bytes_lost": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "samples_datas": {
+                    "3": 2
+                }
+            },
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "locators": [
+                "0"
+            ],
+            "name": "datawriter_0",
+            "participant": "6",
+            "qos": {
+                "qos": "empty"
+            },
+            "topic": "5"
+        }
+    },
+    "domains": {
+        "13": {
+            "name": "domain_1",
+            "participants": [
+                "15"
+            ],
+            "topics": [
+                "14"
+            ]
+        },
+        "22": {
+            "name": "domain_2",
+            "participants": [
+                "24"
+            ],
+            "topics": [
+                "23"
+            ]
+        },
+        "4": {
+            "name": "domain_0",
+            "participants": [
+                "6"
+            ],
+            "topics": [
+                "5"
+            ]
+        }
+    },
+    "hosts": {
+        "1": {
+            "name": "host_0",
+            "users": [
+                "2"
+            ]
+        },
+        "10": {
+            "name": "host_1",
+            "users": [
+                "11"
+            ]
+        },
+        "19": {
+            "name": "host_2",
+            "users": [
+                "20"
+            ]
+        }
+    },
+    "locators": {
+        "0": {
+            "data": {
+                "network_latency_per_locator": {
+                    "0": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                }
+            },
+            "datareaders": [
+                "8"
+            ],
+            "datawriters": [
+                "7"
+            ],
+            "name": "locator_0"
+        },
+        "18": {
+            "data": {
+                "network_latency_per_locator": {
+                    "18": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                }
+            },
+            "datareaders": [
+                "26"
+            ],
+            "datawriters": [
+                "25"
+            ],
+            "name": "locator_2"
+        },
+        "9": {
+            "data": {
+                "network_latency_per_locator": {
+                    "9": [
+                        {
+                            "data": 1.1,
+                            "src_time": "0"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "1"
+                        },
+                        {
+                            "data": 1.1,
+                            "src_time": "2"
+                        }
+                    ]
+                }
+            },
+            "datareaders": [
+                "17"
+            ],
+            "datawriters": [
+                "16"
+            ],
+            "name": "locator_1"
+        }
+    },
+    "participants": {
+        "15": {
+            "data": {
+                "discovery_time": {
+                    "15": [
+                        {
+                            "src_time": "0",
+                            "status": true
+                        },
+                        {
+                            "src_time": "1",
+                            "status": true
+                        },
+                        {
+                            "src_time": "2",
+                            "status": true
+                        }
+                    ]
+                },
+                "edp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "pdp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "datareaders": [
+                "17"
+            ],
+            "datawriters": [
+                "16"
+            ],
+            "domain": "13",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|00.00.00.00",
+            "name": "participant_1",
+            "process": "12",
+            "qos": {
+                "qos": "empty"
+            }
+        },
+        "24": {
+            "data": {
+                "discovery_time": {
+                    "24": [
+                        {
+                            "src_time": "0",
+                            "status": true
+                        },
+                        {
+                            "src_time": "1",
+                            "status": true
+                        },
+                        {
+                            "src_time": "2",
+                            "status": true
+                        }
+                    ]
+                },
+                "edp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "pdp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "datareaders": [
+                "26"
+            ],
+            "datawriters": [
+                "25"
+            ],
+            "domain": "22",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "name": "participant_2",
+            "process": "21",
+            "qos": {
+                "qos": "empty"
+            }
+        },
+        "6": {
+            "data": {
+                "discovery_time": {
+                    "6": [
+                        {
+                            "src_time": "0",
+                            "status": true
+                        },
+                        {
+                            "src_time": "1",
+                            "status": true
+                        },
+                        {
+                            "src_time": "2",
+                            "status": true
+                        }
+                    ]
+                },
+                "edp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ],
+                "pdp_packets": [
+                    {
+                        "count": 2,
+                        "src_time": "0"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "1"
+                    },
+                    {
+                        "count": 2,
+                        "src_time": "2"
+                    }
+                ]
+            },
+            "datareaders": [
+                "8"
+            ],
+            "datawriters": [
+                "7"
+            ],
+            "domain": "4",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "name": "participant_0",
+            "process": "3",
+            "qos": {
+                "qos": "empty"
+            }
+        }
+    },
+    "processes": {
+        "12": {
+            "name": "process_1",
+            "participants": [
+                "15"
+            ],
+            "pid": "36000",
+            "user": "11"
+        },
+        "21": {
+            "name": "process_2",
+            "participants": [
+                "24"
+            ],
+            "pid": "36000",
+            "user": "20"
+        },
+        "3": {
+            "name": "process_0",
+            "participants": [
+                "6"
+            ],
+            "pid": "36000",
+            "user": "2"
+        }
+    },
+    "topics": {
+        "14": {
+            "data_type": "data_type",
+            "datareaders": [
+                "17"
+            ],
+            "datawriters": [
+                "16"
+            ],
+            "domain": "13",
+            "name": "topic_1"
+        },
+        "23": {
+            "data_type": "data_type",
+            "datareaders": [
+                "26"
+            ],
+            "datawriters": [
+                "25"
+            ],
+            "domain": "22",
+            "name": "topic_2"
+        },
+        "5": {
+            "data_type": "data_type",
+            "datareaders": [
+                "8"
+            ],
+            "datawriters": [
+                "7"
+            ],
+            "domain": "4",
+            "name": "topic_0"
+        }
+    },
+    "users": {
+        "11": {
+            "host": "10",
+            "name": "user_1",
+            "processes": [
+                "12"
+            ]
+        },
+        "2": {
+            "host": "1",
+            "name": "user_0",
+            "processes": [
+                "3"
+            ]
+        },
+        "20": {
+            "host": "19",
+            "name": "user_2",
+            "processes": [
+                "21"
+            ]
+        }
+    }
+}
