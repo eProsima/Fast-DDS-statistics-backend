@@ -23,6 +23,7 @@ set(${PROJECT_NAME}_SOURCES
     ${ALL_HEADERS}
     database/data.cpp
     database/database.cpp
+    database/database_queue.cpp
     database/entities.cpp
     database/samples.cpp
     exception/Exception.cpp
@@ -63,6 +64,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/types>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/subscriber>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         $<INSTALL_INTERFACE:include>
         )
 

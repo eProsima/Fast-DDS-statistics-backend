@@ -193,6 +193,33 @@ public:
      */
     EntityId generate_entity_id() noexcept;
 
+    /**
+     * Get all entities of a given EntityKind that match with the requested name
+     *
+     * @param entity_kind The EntityKind of the fetched entities
+     * @param name The name of the entities to search for
+     * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entities
+     */
+    std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
+            EntityKind entity_kind,
+            const std::string& name) const;
+
+    /**
+     * Get all entities of a given EntityKind that match with the requested GUID
+     *
+     * If the given EntityKind does not contain a GUID,
+     * BadParameter is thrown.
+     *
+     * @param entity_kind The EntityKind of the fetched entities
+     * @param guid The GUID of the entities to search for
+     * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entities
+     */
+    std::vector<std::pair<EntityId, EntityId>> get_entities_by_guid(
+            EntityKind entity_kind,
+            const std::string& guid) const;
+
 protected:
 
     /**
