@@ -63,6 +63,7 @@ jobs:
           --exclude='.*github/.*' \
           --exclude='.*topic_types/.*' \
           --exclude-unreachable-branches
+        if: always()
 
       - name: Upload coverage
         uses: actions/upload-artifact@v1
