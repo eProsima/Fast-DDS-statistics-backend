@@ -895,13 +895,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
             }
             break;
         }
-        case EntityKind::INVALID:
-        {
-            throw BadParameter("INVALID EntityKind");
-        }
         default:
         {
-            throw Unsupported("Not implemented yet");
+            throw BadParameter("Incorrect EntityKind");
         }
     }
     return entities;

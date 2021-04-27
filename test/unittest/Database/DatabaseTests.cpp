@@ -2113,6 +2113,7 @@ TEST_F(database_tests, get_entity_no_existing)
 
 TEST_F(database_tests, get_entities_by_name_host)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto hosts = db.get_entities_by_name(EntityKind::HOST, host_name);
     EXPECT_EQ(hosts.size(), 1);
     EXPECT_FALSE(hosts[0].first.is_valid());
@@ -2127,10 +2128,26 @@ TEST_F(database_tests, get_entities_by_name_host_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_user)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto users = db.get_entities_by_name(EntityKind::USER, user_name);
     EXPECT_EQ(users.size(), 1);
     EXPECT_FALSE(users[0].first.is_valid());
     EXPECT_EQ(users[0].second, user_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto host_2 = std::make_shared<Host>("host_2");
+    db.insert(host_2);
+    auto user_2 = std::make_shared<User>(user_name, host_2);
+    auto user_id_2 = db.insert(user_2);
+    std::vector<EntityId> ids = {user_id, user_id_2};
+    users = db.get_entities_by_name(EntityKind::USER, user_name);
+
+    EXPECT_EQ(users.size(), 2);
+    for (size_t i = 0; i < users.size(); i++)
+    {
+        EXPECT_FALSE(users[i].first.is_valid());
+        EXPECT_EQ(users[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_user_wrong_name)
@@ -2141,10 +2158,24 @@ TEST_F(database_tests, get_entities_by_name_user_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_process)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
     EXPECT_EQ(processes.size(), 1);
     EXPECT_FALSE(processes[0].first.is_valid());
     EXPECT_EQ(processes[0].second, process_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto process_2 = std::make_shared<Process>(process_name, "6789", user);
+    auto process_id_2 = db.insert(process_2);
+    std::vector<EntityId> ids = {process_id, process_id_2};
+    processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
+
+    EXPECT_EQ(processes.size(), 2);
+    for (size_t i = 0; i < processes.size(); i++)
+    {
+        EXPECT_FALSE(processes[i].first.is_valid());
+        EXPECT_EQ(processes[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_process_wrong_name)
@@ -2155,6 +2186,7 @@ TEST_F(database_tests, get_entities_by_name_process_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_domain)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto domains = db.get_entities_by_name(EntityKind::DOMAIN, domain_name);
     EXPECT_EQ(domains.size(), 1);
     EXPECT_EQ(domains[0].first, domain_id);
@@ -2169,10 +2201,25 @@ TEST_F(database_tests, get_entities_by_name_domain_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_participant)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
     EXPECT_EQ(participants.size(), 1);
     EXPECT_EQ(participants[0].first, domain_id);
     EXPECT_EQ(participants[0].second, participant_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto participant_2 = std::make_shared<DomainParticipant>(participant_name, db.test_qos, "05.06.07.08", nullptr,
+                    domain);
+    auto participant_id_2 = db.insert(participant_2);
+    std::vector<EntityId> ids = {participant_id, participant_id_2};
+    participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
+
+    EXPECT_EQ(participants.size(), 2);
+    for (size_t i = 0; i < participants.size(); i++)
+    {
+        EXPECT_TRUE(participants[i].first.is_valid());
+        EXPECT_EQ(participants[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_participant_wrong_name)
@@ -2183,10 +2230,26 @@ TEST_F(database_tests, get_entities_by_name_participant_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_topic)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
     EXPECT_EQ(topics.size(), 1);
     EXPECT_EQ(topics[0].first, domain_id);
     EXPECT_EQ(topics[0].second, topic_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto domain_2 = std::make_shared<Domain>("domain_2");
+    db.insert(domain_2);
+    auto topic_2 = std::make_shared<Topic>(topic_name, topic_type, domain_2);
+    auto topic_id_2 = db.insert(topic_2);
+    std::vector<EntityId> ids = {topic_id, topic_id_2};
+    topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
+
+    EXPECT_EQ(topics.size(), 2);
+    for (size_t i = 0; i < topics.size(); i++)
+    {
+        EXPECT_TRUE(topics[i].first.is_valid());
+        EXPECT_EQ(topics[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_topic_wrong_name)
@@ -2197,10 +2260,25 @@ TEST_F(database_tests, get_entities_by_name_topic_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_datawriter)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
     EXPECT_EQ(datawriters.size(), 1);
     EXPECT_EQ(datawriters[0].first, domain_id);
     EXPECT_EQ(datawriters[0].second, writer_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto writer_2 = std::make_shared<DataWriter>(writer_name, db.test_qos, "writer_guid_2", participant, topic);
+    writer_2->locators[writer_locator->id] = writer_locator;
+    auto writer_id_2 = db.insert(writer_2);
+    std::vector<EntityId> ids = {writer_id, writer_id_2};
+    datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
+
+    EXPECT_EQ(datawriters.size(), 2);
+    for (size_t i = 0; i < datawriters.size(); i++)
+    {
+        EXPECT_TRUE(datawriters[i].first.is_valid());
+        EXPECT_EQ(datawriters[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_datawriter_wrong_name)
@@ -2211,10 +2289,25 @@ TEST_F(database_tests, get_entities_by_name_datawriter_wrong_name)
 
 TEST_F(database_tests, get_entities_by_name_datareader)
 {
+    /* Check that the inserted entity is retrieved correctly */
     auto datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
     EXPECT_EQ(datareaders.size(), 1);
     EXPECT_EQ(datareaders[0].first, domain_id);
     EXPECT_EQ(datareaders[0].second, reader_id);
+
+    /* Insert another one with the same name and check that both of them are retrieved correctly */
+    auto reader_2 = std::make_shared<DataReader>(reader_name, db.test_qos, "reader_guid_2", participant, topic);
+    reader_2->locators[reader_locator->id] = reader_locator;
+    auto reader_id_2 = db.insert(reader_2);
+    std::vector<EntityId> ids = {reader_id, reader_id_2};
+    datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
+
+    EXPECT_EQ(datareaders.size(), 2);
+    for (size_t i = 0; i < datareaders.size(); i++)
+    {
+        EXPECT_TRUE(datareaders[i].first.is_valid());
+        EXPECT_EQ(datareaders[i].second, ids[i]);
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_datareader_wrong_name)
@@ -2244,9 +2337,8 @@ TEST_F(database_tests, get_entities_by_name_invalid)
 
 TEST_F(database_tests, get_entities_by_name_other_kind)
 {
-    EXPECT_THROW(db.get_entities_by_name(static_cast<EntityKind>(127), "some_name"), Unsupported);
+    EXPECT_THROW(db.get_entities_by_name(static_cast<EntityKind>(127), "some_name"), BadParameter);
 }
-
 
 int main(
         int argc,
