@@ -361,10 +361,10 @@ public:
     /**
      * @brief Return the \c EntityKind of the entity that this data refers to
      *
-     * Each DataKind has associated one or two EntityKinds.
+     * Each DataKind has associated one or two EntityKind.
      * The first EntityKind is associated with the entity that store the data, and so the entity that must be used
      * in a \c get_data query as source entity to retrieve such data.
-     * The second EntityKind is associated witht the entity that this data references, and so the entity that must be
+     * The second EntityKind is associated with the entity that this data references, and so the entity that must be
      * used in a \c get_data query as target entity to retrieve such data.
      *
      * This method is useful to automatize the call to \c get_data from any EntityKind.
@@ -380,7 +380,8 @@ public:
      * @param data_kind Data kind
      * @return EntityKind pair with the entity kinds that \c get_data query must be asked with
      */
-    static std::pair<EntityKind, EntityKind> get_data_supported_entity_kinds(DataKind data_kind);
+    static std::pair<EntityKind, EntityKind> get_data_supported_entity_kinds(
+            DataKind data_kind);
 
 protected:
 
