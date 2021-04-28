@@ -29,7 +29,7 @@
    :numbered: 5
    :hidden:
 
-   /rst/statistics_backend
+   /rst/statistics_backend/statistics_backend
    /rst/listeners/listeners_index
    /rst/types/types_index
    /rst/full_example

@@ -25,10 +25,12 @@ namespace statistics_backend {
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
-        CallbackMask callback_mask)
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
 {
     static_cast<void>(listener);
     static_cast<void>(callback_mask);
+    static_cast<void>(data_mask);
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -119,16 +121,16 @@ Info StatisticsBackend::get_info(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        EntityId entity_id_source,
-        EntityId entity_id_target,
+        const std::vector<EntityId> entity_ids_source,
+        const std::vector<EntityId> entity_ids_target,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
         StatisticKind statistic)
 {
     static_cast<void>(data_type);
-    static_cast<void>(entity_id_source);
-    static_cast<void>(entity_id_target);
+    static_cast<void>(entity_ids_source);
+    static_cast<void>(entity_ids_target);
     static_cast<void>(bins);
     static_cast<void>(t_from);
     static_cast<void>(t_to);
@@ -138,14 +140,14 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        EntityId entity_id,
+        const std::vector<EntityId> entity_ids,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
         StatisticKind statistic)
 {
     static_cast<void>(data_type);
-    static_cast<void>(entity_id);
+    static_cast<void>(entity_ids);
     static_cast<void>(bins);
     static_cast<void>(t_from);
     static_cast<void>(t_to);
@@ -155,15 +157,15 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        EntityId entity_id_source,
-        EntityId entity_id_target,
+        const std::vector<EntityId> entity_ids_source,
+        const std::vector<EntityId> entity_ids_target,
         uint16_t bins,
         StatisticKind statistic)
 {
     return get_data(
         data_type,
-        entity_id_source,
-        entity_id_target,
+        entity_ids_source,
+        entity_ids_target,
         bins,
         Timestamp(),
         std::chrono::system_clock::now(),
@@ -172,13 +174,13 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        EntityId entity_id,
+        const std::vector<EntityId> entity_ids,
         uint16_t bins,
         StatisticKind statistic)
 {
     return get_data(
         data_type,
-        entity_id,
+        entity_ids,
         bins,
         Timestamp(),
         std::chrono::system_clock::now(),

@@ -123,53 +123,106 @@ void set_listeners_examples()
 void get_data_examples()
 {
     {
-        EntityId source_entity_id;
-        EntityId target_entity_id;
+        EntityId datawriter_id;
 
-        //CONF-GET-DATA-OVERLOAD-EXAMPLE
+        //CONF-GET-DATA-DATAWRITER-FASTDDS_LATENCY
+        /* Get the DataReaders related to a given DataWriter */
+        std::vector<EntityId> datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, datawriter_id);
+
+        /* Get the current time */
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
         /*
          * Get the median of the FASTDDS_LATENCY of the last 10 minutes, divided into ten bins,
-         * between a given source and a target entity. After the operation, latency_data.size() is
-         * 10. Each of the elements of latency_data is a StatisticsData element which represents the
-         * median of the FASTDDS_LATENCY of that minute.
+         * between a given DataWriter and its related DataReaders. After the operation,
+         * latency_data.size() is 10. Each of the elements of latency_data is a StatisticsData
+         * element which represents the median of the FASTDDS_LATENCY of that minute.
          */
         std::vector<StatisticsData> latency_data = StatisticsBackend::get_data(
             DataKind::FASTDDS_LATENCY,                                   // DataKind
-            source_entity_id,                                            // Source entity
-            target_entity_id,                                            // Target entity
+            std::vector<EntityId>({datawriter_id}),                      // Source entities
+            datareaders,                                                 // Target entities
             10,                                                          // Number of bins
-            std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
-            std::chrono::system_clock::now(),                            // t_to
+            now - std::chrono::minutes(10),                              // t_from
+            now,                                                         // t_to
             StatisticKind::MEDIAN);                                      // Statistic
+        //!--
+    }
+    {
+        EntityId topic_id;
+
+        //CONF-GET-DATA-TOPIC-FASTDDS_LATENCY
+        /* Get the DataWriters and DataReaders in a Topic */
+        std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, topic_id);
+        std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, topic_id);
+
+        /* Get the current time */
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+        /*
+         * Get the median of the FASTDDS_LATENCY of the last 10 minutes, divided into ten bins,
+         * between the DataWriters of Host 1 and the DataReaders of Host 2. After the operation,
+         * latency_data.size() is 10. Each of the elements of latency_data is a StatisticsData
+         * element which represents the median of the FASTDDS_LATENCY of that minute.
+         */
+        std::vector<StatisticsData> latency_data = StatisticsBackend::get_data(
+            DataKind::FASTDDS_LATENCY,                                   // DataKind
+            topic_datawriters,                                           // Source entities
+            topic_datareaders,                                           // Target entities
+            10,                                                          // Number of bins
+            now - std::chrono::minutes(10),                              // t_from
+            now,                                                         // t_to
+            StatisticKind::MEAN);                                        // Statistic
+        //!--
+    }
+    {
+        EntityId participant_id;
+
+        //CONF-GET-DATA-TOPIC-HEARTBEAT_COUNT
+        std::vector<EntityId> participant_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER,
+                        participant_id);
+
+        /* Get the current time */
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
         /*
          * Get the maximum of the HEARTBEAT_COUNT of the last 10 minutes, divided into ten bins,
-         * of a given source entity. After the operation, heartbeat_data.size() is 10. Each of the
-         * elements of heartbeat_data is a StatisticsData element which represents the maximum of
-         * the HEARTBEAT_COUNT of that minute.
+         * of the DataWriters of a given Participant. After the operation, heartbeat_data.size() is
+         * 10. Each of the elements of heartbeat_data is a StatisticsData element which represents
+         * the maximum of the HEARTBEAT_COUNT of that minute.
          */
         std::vector<StatisticsData> heartbeat_data = StatisticsBackend::get_data(
             DataKind::HEARTBEAT_COUNT,                                   // DataKind
-            source_entity_id,                                            // Source entity
+            participant_datawriters,                                     // Source entities
             10,                                                          // Number of bins
-            std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
-            std::chrono::system_clock::now(),                            // t_to
+            now - std::chrono::minutes(10),                              // t_from
+            now,                                                         // t_to
             StatisticKind::MAX);                                         // Statistic
         //!--
+    }
+    {
+        EntityId host1_id;
+        EntityId host2_id;
 
         //CONF-GET-ALL-POINTS-EXAMPLE
+        std::vector<EntityId> host1_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, host1_id);
+        std::vector<EntityId> host2_datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, host2_id);
+
+        /* Get the current time */
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
         /*
-         * Get all the FASTDDS_LATENCY data points of the last 10 minutes between a source and a
-         * target entity. data.size() == total number of data points received. Since bins is 0,
-         * the statistic is left as default.
+         * Get all the FASTDDS_LATENCY data points of the last 10 minutes between the DataWriters
+         * of Host 1 and the DataReaders of Host 2. data.size() == total number of data points
+         * received. Since bins is 0, the statistic is left as default.
          */
         std::vector<StatisticsData> data = StatisticsBackend::get_data(
             DataKind::FASTDDS_LATENCY,                                   // DataKind
-            source_entity_id,                                            // Source entity
-            target_entity_id,                                            // Target entity
+            host1_datawriters,                                           // Source entities
+            host2_datareaders,                                           // Target entities
             0,                                                           // Number of bins
-            std::chrono::system_clock::now() - std::chrono::minutes(10), // t_from
-            std::chrono::system_clock::now());                           // t_to
+            now - std::chrono::minutes(10),                              // t_from
+            now);                                                        // t_to
         //!--
     }
 }
