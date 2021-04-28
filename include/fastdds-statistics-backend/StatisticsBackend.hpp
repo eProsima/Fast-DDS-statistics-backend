@@ -380,7 +380,7 @@ public:
      * @param data_kind Data kind
      * @return EntityKind pair with the entity kinds that \c get_data query must be asked with
      */
-    static std::pair<EntityKind, EntityKind> data_entityKind(DataKind data_kind);
+    static std::pair<EntityKind, EntityKind> get_data_supported_entity_kinds(DataKind data_kind);
 
 protected:
 
