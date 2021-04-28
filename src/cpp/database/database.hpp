@@ -197,9 +197,12 @@ public:
      * Get all entities of a given EntityKind that match with the requested name
      *
      * @param entity_kind The EntityKind of the fetched entities
-     * @param name The name of the entities to search for
+     * @param name The name of the entities for which to search
+     * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid
      * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
-     *         and the second is the EntityId of the matching entities
+     *         and the second is the EntityId of the matching entities. For physical entities (Host, User, Process,
+     *         Locator) the returned Domain EntityId is EntityId::INVALID, as it has no meaning since these entities
+     *         do not belong to a Domain.
      */
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
             EntityKind entity_kind,
@@ -214,7 +217,9 @@ public:
      * @param entity_kind The EntityKind of the fetched entities
      * @param guid The GUID of the entities to search for
      * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
-     *         and the second is the EntityId of the matching entities
+     *         and the second is the EntityId of the matching entities. For physical entities (Host, User, Process,
+     *         Locator) the returned Domain EntityId is EntityId::INVALID, as it has no meaning since these entities
+     *         do not belong to a Domain.
      */
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_guid(
             EntityKind entity_kind,
