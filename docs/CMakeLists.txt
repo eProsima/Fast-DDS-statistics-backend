@@ -73,6 +73,8 @@ set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} doxygen)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 find_package(Sphinx REQUIRED)
 
+set(DOCS_BUILDER html)
+
 # Generate the sphinx documentation
 add_custom_target(Sphinx ALL
     COMMAND
