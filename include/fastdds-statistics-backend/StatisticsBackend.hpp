@@ -371,11 +371,13 @@ public:
      * First, call \c get_entities with the Id to get the entities related, and the type return by this method.
      * Then, call \c get_data with the vectors that \c get_entities returns.
      *
-     * i.e. Get the 'FASTDDS_LATENCY' between all the writers in 'Host1' and all the readers in 'Host2':
+     * i.e. Get the \c FASTDDS_LATENCY between all the writers in Host1 and all the readers in Host2
+     * @code
      * auto types = data_entityKind(DataKind::FASTDDS_LATENCY);
      * get_data(DataKind::FASTDDS_LATENCY,
      *          get_entities(types->first, Host1-::id),
      *          get_entities(types->second, Host2::id));
+     * @endcode
      *
      * @param data_kind Data kind
      * @return EntityKind pair with the entity kinds that \c get_data query must be asked with
