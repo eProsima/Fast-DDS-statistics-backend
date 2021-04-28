@@ -192,5 +192,33 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
+std::pair<EntityKind, EntityKind> StatisticsBackend::data_entityKind(DataKind data_kind)
+{
+    static std::map<DataKind, std::pair<EntityKind, EntityKind>> data_to_entity_map =
+    {
+        {DataKind::INVALID, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::FASTDDS_LATENCY, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::NETWORK_LATENCY, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::PUBLICATION_THROUGHPUT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::SUBSCRIPTION_THROUGHPUT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::RTPS_PACKETS_SENT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::RTPS_BYTES_SENT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::RTPS_PACKETS_LOST, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::RTPS_BYTES_LOST, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::RESENT_DATA, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::HEARTBEAT_COUNT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::ACKNACK_COUNT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::NACKFRAG_COUNT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::GAP_COUNT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::DATA_COUNT, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::PDP_PACKETS, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::EDP_PACKETS, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::DISCOVERY_TIME, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)},
+        {DataKind::SAMPLE_DATAS, std::pair<EntityKind, EntityKind>(EntityKind::INVALID, EntityKind::INVALID)}
+    };
+
+    return data_to_entity_map[data_kind];
+}
+
 } // namespace statistics_backend
 } // namespace eprosima

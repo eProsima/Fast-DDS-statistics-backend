@@ -358,6 +358,30 @@ public:
     static void load_database(
             std::string filename);
 
+    /**
+     * @brief Return the \c EntityKind of the entity that this data refers to
+     *
+     * Each DataKind has associated one or two EntityKinds.
+     * The first EntityKind is associated with the entity that store the data, and so the entity that must be used
+     * in a \c get_data query as source entity to retrieve such data.
+     * The second EntityKind is associated witht the entity that this data references, and so the entity that must be
+     * used in a \c get_data query as target entity to retrieve such data.
+     *
+     * This method is useful to automatize the call to \c get_data from any EntityKind.
+     * First, call \c get_entities with the Id to get the entities related, and the type return by this method.
+     * Then, call \c get_data with the vectors that \c get_entities returns.
+     *
+     * i.e. Get the 'FASTDDS_LATENCY' between all the writers in 'Host1' and all the readers in 'Host2':
+     * auto types = data_entityKind(DataKind::FASTDDS_LATENCY);
+     * get_data(DataKind::FASTDDS_LATENCY,
+     *          get_entities(types->first, Host1-::id),
+     *          get_entities(types->second, Host2::id));
+     *
+     * @param data_kind Data kind
+     * @return EntityKind pair with the entity kinds that \c get_data query must be asked with
+     */
+    static std::pair<EntityKind, EntityKind> data_entityKind(DataKind data_kind);
+
 protected:
 
     StatisticsBackend()
