@@ -2340,6 +2340,20 @@ TEST_F(database_tests, get_entities_by_name_other_kind)
     EXPECT_THROW(db.get_entities_by_name(static_cast<EntityKind>(127), "some_name"), BadParameter);
 }
 
+TEST_F(database_tests, get_entity_kind)
+{
+    EXPECT_EQ(EntityKind::HOST, db.get_entity_kind(host_id));
+    EXPECT_EQ(EntityKind::USER, db.get_entity_kind(user_id));
+    EXPECT_EQ(EntityKind::PROCESS, db.get_entity_kind(process_id));
+    EXPECT_EQ(EntityKind::DOMAIN, db.get_entity_kind(domain_id));
+    EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind(participant_id));
+    EXPECT_EQ(EntityKind::DATAWRITER, db.get_entity_kind(writer_id));
+    EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind(reader_id));
+    EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
+    EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
+    EXPECT_EQ(EntityKind::INVALID, db.get_entity_kind(EntityId::invalid()));
+}
+
 int main(
         int argc,
         char** argv)

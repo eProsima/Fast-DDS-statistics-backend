@@ -244,6 +244,8 @@ set(DATABASE_TEST_LIST
     get_entities_by_name_locator_wrong_name
     get_entities_by_name_invalid
     get_entities_by_name_other_kind
+    # get_entity_kind
+    get_entity_kind
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
