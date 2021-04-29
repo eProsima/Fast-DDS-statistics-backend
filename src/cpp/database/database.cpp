@@ -1416,9 +1416,58 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
 {
-    (void)entity_kind;
-    (void)guid;
-    throw Unsupported("Not implemented yet");
+    std::vector<std::pair<EntityId, EntityId>> entities;
+    switch (entity_kind)
+    {
+        case EntityKind::PARTICIPANT:
+        {
+            for (auto domain_it : participants_)
+            {
+                for (auto participant_it : domain_it.second)
+                {
+                    if (participant_it.second->guid == guid)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, participant_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            for (auto domain_it : datareaders_)
+            {
+                for (auto datareader_it : domain_it.second)
+                {
+                    if (datareader_it.second->guid == guid)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datareader_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            for (auto domain_it : datawriters_)
+            {
+                for (auto datawriter_it : domain_it.second)
+                {
+                    if (datawriter_it.second->guid == guid)
+                    {
+                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datawriter_it.first));
+                    }
+                }
+            }
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Incorrect EntityKind");
+        }
+    }
+
+    return entities;
 }
 
 EntityKind Database::get_entity_kind(
