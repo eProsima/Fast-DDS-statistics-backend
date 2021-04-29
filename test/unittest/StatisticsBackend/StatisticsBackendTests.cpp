@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <list>
+
 #include <StatisticsBackend.hpp>
 #include <types/types.hpp>
 
@@ -75,17 +77,39 @@ TEST(statistics_backend_tests, get_data_supported_entity_kinds)
         {DataKind::EDP_PACKETS, std::pair<EntityKind, EntityKind>(
              EntityKind::PARTICIPANT, EntityKind::INVALID)},
 
-        {DataKind::DISCOVERY_TIME, std::pair<EntityKind, EntityKind>(
-             EntityKind::PARTICIPANT, EntityKind::PARTICIPANT)},
-
         {DataKind::SAMPLE_DATAS, std::pair<EntityKind, EntityKind>(
              EntityKind::DATAWRITER, EntityKind::INVALID)}
     };
 
+    // Check every DataKind with only one relation
     for (auto element : data_to_entity_map)
     {
-        ASSERT_EQ(StatisticsBackend::get_data_supported_entity_kinds(element.first).first, element.second.first);
-        ASSERT_EQ(StatisticsBackend::get_data_supported_entity_kinds(element.first).second, element.second.second);
+        auto res = StatisticsBackend::get_data_supported_entity_kinds(element.first);
+        ASSERT_EQ(res.size(), 1);
+
+        ASSERT_EQ(res[0].first, element.second.first);
+        ASSERT_EQ(res[0].second, element.second.second);
+    }
+
+    // Check DISCOVERY_TIME
+    {
+        auto discovery_time_types = std::list<std::pair<EntityKind, EntityKind>> ({
+            std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::PARTICIPANT),
+            std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAWRITER),
+            std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAREADER)
+        });
+
+        auto res = StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
+        ASSERT_EQ(res.size(), 3);
+
+        for (auto types_allowed : res)
+        {
+            ASSERT_NE(
+                std::find(discovery_time_types.begin(),
+                discovery_time_types.end(),
+                types_allowed),
+                discovery_time_types.end());
+        }
     }
 }
 
