@@ -116,6 +116,10 @@ public:
      * @param entity_id_target Id of the target entity of the requested data
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
+     * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
+     * 1. t_from must be less than t_to
+     * 2. data_type must be of a type that relates to two entities.
+     * 3. entity_id_source and entity_id_target must coincide with the ones expected by data_type
      * @return A vector of pointers to StatisticSamples.
      */
     std::vector<const StatisticsSample*> select(
@@ -144,6 +148,10 @@ public:
      * @param entity_id Id of entity of the requested data
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
+     * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
+     * 1. t_from must be less than t_to
+     * 2. data_type must be of a type that relates to a single entity.
+     * 3. entity_id must coincide with the EntityId expected by the given DataKind
      * @return A vector of pointers to StatisticSamples.
      */
     std::vector<const StatisticsSample*> select(
