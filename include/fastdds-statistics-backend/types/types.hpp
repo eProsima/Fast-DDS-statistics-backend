@@ -161,7 +161,7 @@ enum class EntityKind
  *     | DATA_COUNT              | DataWriter        |               | 1            |
  *     | PDP_PACKETS             | DomainParticipant |               | 1            |
  *     | EDP_PACKETS             | DomainParticipant |               | 1            |
- *     | DISCOVERED_ENTITY       | DomainParticipant | DDSEntity     | 2            |
+ *     | DISCOVERY_TIME          | DomainParticipant | DDSEntity     | 2            |
  *     | SAMPLE_DATAS            | DataWriter        |               | 1            |
  */
 enum class DataKind : int32_t
