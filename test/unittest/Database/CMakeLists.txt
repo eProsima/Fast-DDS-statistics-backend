@@ -252,6 +252,7 @@ set(DATABASE_TEST_LIST
     select_single_entity_invalid_needs_two_entities
     select_double_entity_invalid_needs_one_entity
     select_invalid_timestamps
+    select_invalid_entity_ids
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
