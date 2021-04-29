@@ -1426,6 +1426,15 @@ EntityKind Database::get_entity_kind(
     return get_entity(entity_id).get()->kind;
 }
 
+const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
+        EntityKind entity_kind,
+        const EntityId& entity_id) const
+{
+    std::vector<std::shared_ptr<const Entity>> entities;
+
+    return entities;
+}
+
 EntityId Database::generate_entity_id() noexcept
 {
     return EntityId(next_id_++);
