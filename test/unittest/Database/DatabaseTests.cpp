@@ -612,13 +612,11 @@ public:
     std::string writer_name = "test_writer";
     std::shared_ptr<DataWriter> writer;
     EntityId writer_id;
-    EntityId writer_locator_id;
     std::string reader_locator_name = "test_reader_locator";
     std::shared_ptr<Locator> reader_locator;
     std::string reader_name = "test_reader";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
-    EntityId reader_locator_id;
 };
 
 TEST_F(database_tests, insert_host)
@@ -2500,7 +2498,7 @@ TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
     Timestamp dst_timestamp = src_timestamp + std::chrono::seconds(1);
 
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, src_timestamp, dst_timestamp), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, src_timestamp, dst_timestamp), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, src_timestamp, dst_timestamp), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, src_timestamp, dst_timestamp), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, src_timestamp, dst_timestamp), BadParameter);
