@@ -949,6 +949,34 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
     return entities;
 }
 
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id_source,
+        EntityId entity_id_target,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    (void)data_type;
+    (void)entity_id_source;
+    (void)entity_id_target;
+    (void)t_from;
+    (void)t_to;
+    throw Unsupported("Not implemented yet");
+}
+
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    (void)data_type;
+    (void)entity_id;
+    (void)t_from;
+    (void)t_to;
+    throw Unsupported("Not implemented yet");
+}
+
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
