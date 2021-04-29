@@ -612,11 +612,13 @@ public:
     std::string writer_name = "test_writer";
     std::shared_ptr<DataWriter> writer;
     EntityId writer_id;
+    EntityId writer_locator_id;
     std::string reader_locator_name = "test_reader_locator";
     std::shared_ptr<Locator> reader_locator;
     std::string reader_name = "test_reader";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
+    EntityId reader_locator_id;
 };
 
 TEST_F(database_tests, insert_host)
@@ -2490,6 +2492,56 @@ TEST_F(database_tests, get_entity_kind)
     EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
     EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
     EXPECT_THROW(db.get_entity_kind(EntityId::invalid()), BadParameter);
+}
+
+TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
+{
+    Timestamp src_timestamp = std::chrono::system_clock::now();
+    Timestamp dst_timestamp = src_timestamp + std::chrono::seconds(1);
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, src_timestamp, dst_timestamp), BadParameter);
+}
+
+TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
+{
+    Timestamp src_timestamp = std::chrono::system_clock::now();
+    Timestamp dst_timestamp = src_timestamp + std::chrono::seconds(1);
+
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, reader_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, writer_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, reader_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, reader_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, writer_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, reader_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, reader_id, src_timestamp, dst_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, writer_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, writer_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, reader_id, src_timestamp, dst_timestamp), BadParameter);
+}
+
+TEST_F(database_tests, select_invalid_timestamps)
+{
+    Timestamp src_timestamp = std::chrono::system_clock::now();
+    Timestamp dst_timestamp = src_timestamp - std::chrono::nanoseconds(1);
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_timestamp, src_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_timestamp, dst_timestamp),
+        BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_timestamp, src_timestamp), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_timestamp, dst_timestamp), BadParameter);
 }
 
 int main(

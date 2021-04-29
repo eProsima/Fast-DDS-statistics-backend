@@ -248,6 +248,10 @@ set(DATABASE_TEST_LIST
     get_entities_by_name_other_kind
     # get_entity_kind
     get_entity_kind
+    # select
+    select_single_entity_invalid_needs_two_entities
+    select_double_entity_invalid_needs_one_entity
+    select_invalid_timestamps
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
