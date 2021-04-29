@@ -25,4 +25,5 @@ contain a set of callbacks that the application implements.
     /rst/statistics_backend/get_entities
     /rst/statistics_backend/get_data
     /rst/statistics_backend/get_type
+    /rst/statistics_backend/get_data_supported_entity_kinds
     /rst/statistics_backend/is_active

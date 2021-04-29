@@ -4,6 +4,7 @@
 .. |restart_monitor-api| replace:: :cpp:func:`restart_monitor()<eprosima::statistics_backend::StatisticsBackend::restart_monitor>`
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`
 .. |get_data-api| replace:: :cpp:func:`get_data()<eprosima::statistics_backend::StatisticsBackend::get_data>`
+.. |get_data_supported_entity_kinds-api| replace:: :cpp:func:`get_data_supported_entity_kinds()<eprosima::statistics_backend::StatisticsBackend::get_data_supported_entity_kinds>`
 .. |get_entities-api| replace:: :cpp:func:`get_entities()<eprosima::statistics_backend::StatisticsBackend::get_entities>`
 .. |get_info-api| replace:: :cpp:func:`get_info()<eprosima::statistics_backend::StatisticsBackend::get_info>`
 .. |is_active-api| replace:: :cpp:func:`is_active()<eprosima::statistics_backend::StatisticsBackend::is_active>`
@@ -41,6 +42,7 @@
 .. |Info-api| replace:: :cpp:type:`Info<eprosima::statistics_backend::Info>`
 .. |Graph-api| replace:: :cpp:type:`Graph<eprosima::statistics_backend::Graph>`
 
+.. |EntityKind_INVALID-api| replace:: :cpp:enumerator:`INVALID<eprosima::statistics_backend::EntityKind::INVALID>`
 .. |HOST-api| replace:: :cpp:enumerator:`HOST<eprosima::statistics_backend::EntityKind::HOST>`
 .. |USER-api| replace:: :cpp:enumerator:`USER<eprosima::statistics_backend::EntityKind::USER>`
 .. |PROCESS-api| replace:: :cpp:enumerator:`PROCESS<eprosima::statistics_backend::EntityKind::PROCESS>`

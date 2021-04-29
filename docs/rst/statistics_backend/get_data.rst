@@ -69,6 +69,9 @@ The following table illustrates the expected inputs depending on the query's |Da
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
 
+|get_data_supported_entity_kinds-api| can be used to get all the |EntityKind-api|
+pairs suitable for a given |DataKind-api|, according to this table.
+
 .. warning::
    If for a given bin, the *Fast DDS Statistics Backend* has no data, the value returned will be the one supplied by
    `std::numeric_limits<double>::quiet_NaN <https://en.cppreference.com/w/cpp/types/numeric_limits/quiet_NaN>`_.
