@@ -915,8 +915,15 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
-    (void)entity_id;
-    throw Unsupported("Not implemented yet");
+    try
+    {
+        auto entity = get_entity(entity_id);
+        return entity.get()->kind;
+    }
+    catch (Exception& BadParameter)
+    {
+        return EntityKind::INVALID;
+    }
 }
 
 EntityId Database::generate_entity_id() noexcept
