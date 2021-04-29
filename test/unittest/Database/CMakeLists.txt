@@ -274,6 +274,21 @@ set(DATABASE_TEST_LIST
     select_edp_packets
     select_discovery_time
     select_sample_datas
+    # get_entities_by_guid
+    get_entities_by_guid_host
+    get_entities_by_guid_user
+    get_entities_by_guid_process
+    get_entities_by_guid_domain
+    get_entities_by_guid_participant
+    get_entities_by_guid_participant_wrong_guid
+    get_entities_by_guid_topic
+    get_entities_by_guid_datawriter
+    get_entities_by_guid_datawriter_wrong_guid
+    get_entities_by_guid_datareader
+    get_entities_by_guid_datareader_wrong_guid
+    get_entities_by_guid_locator
+    get_entities_by_guid_invalid
+    get_entities_by_guid_other_kind
     )
 
 foreach(test_name ${DATABASE_TEST_LIST})
