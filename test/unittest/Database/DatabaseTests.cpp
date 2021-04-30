@@ -2575,7 +2575,12 @@ TEST_F(database_tests, select_invalid_entity_ids)
     Timestamp t_from = std::chrono::system_clock::now();
     Timestamp t_to = t_from + std::chrono::seconds(1);
 
+    EntityId invalid_id;
+
     EXPECT_NO_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), BadParameter);
@@ -2596,6 +2601,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
     EXPECT_NO_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, process_id, t_from, t_to), BadParameter);
@@ -2616,6 +2624,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_id, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), BadParameter);
@@ -2626,6 +2635,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), BadParameter);
@@ -2637,6 +2647,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
     EXPECT_NO_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, writer_locator->id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, process_id, t_from, t_to), BadParameter);
@@ -2659,6 +2672,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
     EXPECT_NO_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, writer_locator->id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, process_id, t_from, t_to), BadParameter);
@@ -2680,6 +2696,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
     EXPECT_NO_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, writer_locator->id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, process_id, t_from, t_to), BadParameter);
@@ -2702,6 +2721,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
     EXPECT_NO_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, writer_locator->id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, process_id, t_from, t_to), BadParameter);
@@ -2722,6 +2744,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, reader_locator->id, writer_id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::RESENT_DATA, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), BadParameter);
@@ -2732,6 +2755,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), BadParameter);
@@ -2742,6 +2766,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), BadParameter);
@@ -2752,6 +2777,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), BadParameter);
@@ -2762,6 +2788,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::GAP_COUNT, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), BadParameter);
@@ -2772,6 +2799,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::DATA_COUNT, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), BadParameter);
@@ -2782,6 +2810,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), BadParameter);
@@ -2792,6 +2821,7 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), BadParameter);
@@ -2804,6 +2834,9 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_NO_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, participant_id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_to));
     EXPECT_NO_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), BadParameter);
@@ -2812,8 +2845,15 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), BadParameter);
 
     EXPECT_NO_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to));
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, host_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, user_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, process_id, t_from, t_to), BadParameter);
