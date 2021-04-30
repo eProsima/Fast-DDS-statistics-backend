@@ -273,6 +273,9 @@ set(DATABASE_TEST_LIST
     select_edp_packets
     select_discovery_time
     select_sample_datas
+    # get _entities
+    get_entities_bad_parameter
+    get_entities_host
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
