@@ -1661,7 +1661,7 @@ TEST_F(database_tests, insert_sample_history_latency)
     HistoryLatencySample sample;
     sample.reader = reader_id;
     sample.data = 12;
-    sample.src_ts = std::chrono::steady_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 1);
@@ -1950,7 +1950,7 @@ TEST_F(database_tests, insert_sample_discovery_time)
 {
     DiscoveryTimeSample sample;
     sample.remote_entity = writer_id;
-    sample.time = std::chrono::steady_clock::now();
+    sample.time = std::chrono::system_clock::now();
     sample.discovered = true;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
@@ -1963,7 +1963,7 @@ TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
 {
     DiscoveryTimeSample sample;
     sample.remote_entity = db.generate_entity_id();
-    sample.time = std::chrono::steady_clock::now();
+    sample.time = std::chrono::system_clock::now();
     sample.discovered = true;
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
 }

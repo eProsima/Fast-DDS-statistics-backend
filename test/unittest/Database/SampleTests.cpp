@@ -24,43 +24,43 @@ using namespace eprosima::statistics_backend::database;
 TEST(database, statistics_sample_clear)
 {
     StatisticsSample sample(DataKind::NACKFRAG_COUNT);
-    sample.src_ts = std::chrono::steady_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
-    ASSERT_EQ(sample.src_ts, std::chrono::steady_clock::time_point());
+    ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
 }
 
 TEST(database, entitydata_sample_clear)
 {
     EntityDataSample sample(DataKind::NACKFRAG_COUNT);
-    sample.src_ts = std::chrono::steady_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     sample.data = 12.0;
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
-    ASSERT_EQ(sample.src_ts, std::chrono::steady_clock::time_point());
+    ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
     ASSERT_EQ(sample.data, 0);
 }
 
 TEST(database, entitycount_sample_clear)
 {
     EntityCountSample sample(DataKind::NACKFRAG_COUNT);
-    sample.src_ts = std::chrono::steady_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     sample.count = 12;
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
-    ASSERT_EQ(sample.src_ts, std::chrono::steady_clock::time_point());
+    ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
     ASSERT_EQ(sample.count, 0);
 }
 
 TEST(database, bytecount_sample_clear)
 {
     ByteCountSample sample(DataKind::NACKFRAG_COUNT);
-    sample.src_ts = std::chrono::steady_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     sample.count = 12;
     sample.magnitude_order = 2;
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
-    ASSERT_EQ(sample.src_ts, std::chrono::steady_clock::time_point());
+    ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
     ASSERT_EQ(sample.count, 0);
     ASSERT_EQ(sample.magnitude_order, 0);
 }
@@ -71,7 +71,7 @@ TEST(database, statisticssample_operator_comparison)
     StatisticsSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = StatisticsSample();
@@ -85,7 +85,7 @@ TEST(database, entitydatasample_operator_comparison)
     EntityDataSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = EntityDataSample();
@@ -99,7 +99,7 @@ TEST(database, entitycountsample_operator_comparison)
     EntityCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = EntityCountSample();
@@ -113,7 +113,7 @@ TEST(database, bytecountsample_operator_comparison)
     ByteCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = ByteCountSample();
@@ -136,11 +136,11 @@ TEST(database, timepointsample_operator_comparison)
     TimepointSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = TimepointSample();
-    sample_2.time = std::chrono::steady_clock::now();
+    sample_2.time = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 }
 
@@ -150,7 +150,7 @@ TEST(database, entitytolocatorcountsample_operator_comparison)
     EntityToLocatorCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = EntityToLocatorCountSample();
@@ -164,7 +164,7 @@ TEST(database, bytetolocatorcountsample_operator_comparison)
     ByteToLocatorCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = ByteToLocatorCountSample();
@@ -178,7 +178,7 @@ TEST(database, historylatencysample_operator_comparison)
     HistoryLatencySample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = HistoryLatencySample();
@@ -192,7 +192,7 @@ TEST(database, networklatencysample_operator_comparison)
     NetworkLatencySample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = NetworkLatencySample();
@@ -206,7 +206,7 @@ TEST(database, publicationthroughputsample_operator_comparison)
     PublicationThroughputSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = PublicationThroughputSample();
@@ -220,7 +220,7 @@ TEST(database, subscriptionthroughputsample_operator_comparison)
     SubscriptionThroughputSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = SubscriptionThroughputSample();
@@ -234,7 +234,7 @@ TEST(database, rtpspacketssentsample_operator_comparison)
     RtpsPacketsSentSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = RtpsPacketsSentSample();
@@ -248,7 +248,7 @@ TEST(database, rtpsbytessentsample_operator_comparison)
     RtpsBytesSentSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = RtpsBytesSentSample();
@@ -271,7 +271,7 @@ TEST(database, rtpspacketslostsample_operator_comparison)
     RtpsPacketsLostSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = RtpsPacketsLostSample();
@@ -289,7 +289,7 @@ TEST(database, rtpsbyteslostsample_operator_comparison)
     RtpsBytesLostSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = RtpsBytesLostSample();
@@ -312,7 +312,7 @@ TEST(database, resentdatasample_operator_comparison)
     ResentDataSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = ResentDataSample();
@@ -326,7 +326,7 @@ TEST(database, heartbeatcountsample_operator_comparison)
     HeartbeatCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = HeartbeatCountSample();
@@ -340,7 +340,7 @@ TEST(database, acknackcountsample_operator_comparison)
     AcknackCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = AcknackCountSample();
@@ -354,7 +354,7 @@ TEST(database, nackfragcountsample_operator_comparison)
     NackfragCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = NackfragCountSample();
@@ -368,7 +368,7 @@ TEST(database, gapcountsample_operator_comparison)
     GapCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = GapCountSample();
@@ -382,7 +382,7 @@ TEST(database, datacountsample_operator_comparison)
     DataCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = DataCountSample();
@@ -396,7 +396,7 @@ TEST(database, pdpcountsample_operator_comparison)
     PdpCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = PdpCountSample();
@@ -410,7 +410,7 @@ TEST(database, edpcountsample_operator_comparison)
     EdpCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = EdpCountSample();
@@ -424,7 +424,7 @@ TEST(database, discoverytimesample_operator_comparison)
     DiscoveryTimeSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = DiscoveryTimeSample();
@@ -447,7 +447,7 @@ TEST(database, sampledatascountsample_operator_comparison)
     SampleDatasCountSample sample_2;
     ASSERT_EQ(sample_1, sample_2);
 
-    sample_2.src_ts = std::chrono::steady_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NE(sample_1, sample_2);
 
     sample_2 = SampleDatasCountSample();

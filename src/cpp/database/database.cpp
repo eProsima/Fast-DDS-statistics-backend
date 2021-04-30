@@ -606,7 +606,7 @@ void Database::insert(
             if (participant)
             {
                 const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
-                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::steady_clock::time_point,
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::system_clock::time_point,
                         bool>(discovery_time.time, discovery_time.discovered));
                 break;
             }

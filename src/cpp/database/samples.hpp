@@ -56,7 +56,7 @@ struct StatisticsSample
     }
 
     DataKind kind;
-    std::chrono::steady_clock::time_point src_ts;
+    std::chrono::system_clock::time_point src_ts;
 };
 
 /*
@@ -180,7 +180,7 @@ struct TimepointSample : StatisticsSample
         return !(*this == other);
     }
 
-    std::chrono::steady_clock::time_point time;
+    std::chrono::system_clock::time_point time;
 };
 
 /*

@@ -210,7 +210,7 @@ public:
 TEST_F(database_queue_tests, start_stop_flush)
 {
     // Generate some data
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::shared_ptr<Host> host = std::make_shared<Host>("hostname");
     std::shared_ptr<User> user = std::make_shared<User>("username", host);
     std::shared_ptr<Process> process = std::make_shared<Process>("processname", "1", user);
@@ -272,7 +272,7 @@ TEST_F(database_queue_tests, start_stop_flush)
 
 TEST_F(database_queue_tests, push_host)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string hostname = "hostname";
 
     // Create the entity hierarchy
@@ -298,7 +298,7 @@ TEST_F(database_queue_tests, push_host)
 
 TEST_F(database_queue_tests, push_user)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string hostname = "hostname";
     std::string username = "username";
 
@@ -327,7 +327,7 @@ TEST_F(database_queue_tests, push_user)
 
 TEST_F(database_queue_tests, push_process)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string hostname = "hostname";
     std::string username = "username";
     std::string command = "command";
@@ -360,7 +360,7 @@ TEST_F(database_queue_tests, push_process)
 
 TEST_F(database_queue_tests, push_domain)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string domain_name = "domain name";
 
     // Create the domain hierarchy
@@ -387,7 +387,7 @@ TEST_F(database_queue_tests, push_domain)
 TEST_F(database_queue_tests, push_participant_process_exists)
 {
     // Create the process
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string command = "command";
     std::string pid = "1234";
 
@@ -427,7 +427,7 @@ TEST_F(database_queue_tests, push_participant_process_exists)
 TEST_F(database_queue_tests, push_participant_no_process_exists)
 {
     // Create the domain hierarchy
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string participant_name = "participant name";
     Qos participant_qos;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
@@ -462,7 +462,7 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
 TEST_F(database_queue_tests, push_topic)
 {
     // Create the domain hierarchy
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string topic_name = "topic";
     std::string type_name = "type";
 
@@ -493,7 +493,7 @@ TEST_F(database_queue_tests, push_topic)
 TEST_F(database_queue_tests, push_datawriter)
 {
     // Create the domain hierarchy
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string datawriter_name = "datawriter";
     Qos datawriter_qos;
     std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
@@ -528,7 +528,7 @@ TEST_F(database_queue_tests, push_datawriter)
 TEST_F(database_queue_tests, push_datareader)
 {
     // Create the domain hierarchy
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string datareader_name = "datareader";
     Qos datareader_qos;
     std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
@@ -563,7 +563,7 @@ TEST_F(database_queue_tests, push_datareader)
 TEST_F(database_queue_tests, push_locator)
 {
     // Create the domain hierarchy
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string locator_name = "locator";
 
     std::shared_ptr<Locator> locator =
@@ -588,7 +588,7 @@ TEST_F(database_queue_tests, push_locator)
 
 TEST_F(database_queue_tests, push_history_latency)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -656,7 +656,7 @@ TEST_F(database_queue_tests, push_history_latency)
 
 TEST_F(database_queue_tests, push_history_latency_no_reader)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -710,7 +710,7 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 
 TEST_F(database_queue_tests, push_history_latency_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -764,7 +764,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
 TEST_F(database_queue_tests, push_network_latency)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint32_t src_locator_port = 1024;
@@ -826,7 +826,7 @@ TEST_F(database_queue_tests, push_network_latency)
 
 TEST_F(database_queue_tests, push_network_latency_no_source_locator)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint32_t src_locator_port = 1024;
@@ -875,7 +875,7 @@ TEST_F(database_queue_tests, push_network_latency_no_source_locator)
 
 TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint32_t src_locator_port = 1024;
@@ -924,7 +924,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
 TEST_F(database_queue_tests, push_publication_throughput)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -975,7 +975,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
 TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1013,7 +1013,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
 TEST_F(database_queue_tests, push_subscription_throughput)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1064,7 +1064,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
 TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1102,7 +1102,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
 TEST_F(database_queue_tests, push_rtps_sent)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1187,7 +1187,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
 
 TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1242,7 +1242,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
 TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1297,7 +1297,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
 TEST_F(database_queue_tests, push_rtps_lost)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1382,7 +1382,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
 
 TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1437,7 +1437,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
 TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1590,7 +1590,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
 
 TEST_F(database_queue_tests, push_resent_datas)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1641,7 +1641,7 @@ TEST_F(database_queue_tests, push_resent_datas)
 
 TEST_F(database_queue_tests, push_resent_datas_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1679,7 +1679,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
 TEST_F(database_queue_tests, push_heartbeat_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1730,7 +1730,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
 TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1768,7 +1768,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
 TEST_F(database_queue_tests, push_acknack_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1819,7 +1819,7 @@ TEST_F(database_queue_tests, push_acknack_count)
 
 TEST_F(database_queue_tests, push_acknack_count_no_reader)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1857,7 +1857,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
 TEST_F(database_queue_tests, push_nackfrag_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1908,7 +1908,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
 TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
@@ -1946,7 +1946,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
 TEST_F(database_queue_tests, push_gap_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1997,7 +1997,7 @@ TEST_F(database_queue_tests, push_gap_count)
 
 TEST_F(database_queue_tests, push_gap_count_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -2035,7 +2035,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
 TEST_F(database_queue_tests, push_data_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -2086,7 +2086,7 @@ TEST_F(database_queue_tests, push_data_count)
 
 TEST_F(database_queue_tests, push_data_count_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -2124,7 +2124,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
 TEST_F(database_queue_tests, push_pdp_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2175,7 +2175,7 @@ TEST_F(database_queue_tests, push_pdp_count)
 
 TEST_F(database_queue_tests, push_pdp_count_no_participant)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2213,7 +2213,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
 TEST_F(database_queue_tests, push_edp_count)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2264,7 +2264,7 @@ TEST_F(database_queue_tests, push_edp_count)
 
 TEST_F(database_queue_tests, push_edp_count_no_participant)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2302,7 +2302,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
 TEST_F(database_queue_tests, push_discovery_times)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2310,7 +2310,7 @@ TEST_F(database_queue_tests, push_discovery_times)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::steady_clock::time_point discovery_timestamp = std::chrono::steady_clock::time_point(std::chrono::nanoseconds(
+    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(std::chrono::nanoseconds(
                         discovery_time));
 
     // Build the participant GUID
@@ -2373,7 +2373,7 @@ TEST_F(database_queue_tests, push_discovery_times)
 
 TEST_F(database_queue_tests, push_discovery_times_no_participant)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2381,7 +2381,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -2429,7 +2429,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
 TEST_F(database_queue_tests, push_discovery_times_no_entity)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -2437,7 +2437,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::steady_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -2485,7 +2485,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
 TEST_F(database_queue_tests, push_sample_datas)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -2547,7 +2547,7 @@ TEST_F(database_queue_tests, push_sample_datas)
 
 TEST_F(database_queue_tests, push_sample_datas_no_writer)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -2596,7 +2596,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
 TEST_F(database_queue_tests, push_physical_data_process_exists)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
@@ -2671,7 +2671,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
 TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
@@ -2745,7 +2745,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
 TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
@@ -2830,7 +2830,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
@@ -2922,7 +2922,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
@@ -3020,7 +3020,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
 TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     std::string processname = "command";
     std::string pid = "1234";
     std::string username = "user";
