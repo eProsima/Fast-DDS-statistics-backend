@@ -2824,6 +2824,64 @@ TEST_F(database_tests, select_invalid_entity_ids)
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, t_from, t_to), BadParameter);
 }
 
+TEST_F(database_tests, select_fastdds_latency)
+{
+    Timestamp src_ts = std::chrono::system_clock::now();
+    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
+    Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
+    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
+    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
+    Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
+    Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
+    Timestamp end_ts = src_ts + std::chrono::seconds(15);
+
+    std::vector<const StatisticsSample*> output;
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    HistoryLatencySample sample_1;
+    sample_1.reader = reader_id;
+    sample_1.data = 10;
+    sample_1.src_ts = sample1_ts;
+    HistoryLatencySample sample_2;
+    sample_2.reader = reader_id;
+    sample_2.data = 20;
+    sample_2.src_ts = sample2_ts;
+    HistoryLatencySample sample_3;
+    sample_3.reader = reader_id;
+    sample_3.data = 15;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 3u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid1_ts, mid2_ts));
+    EXPECT_EQ(output.size(), 1u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, sample2_ts, sample3_ts));
+    EXPECT_EQ(output.size(), 2u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+}
+
 int main(
         int argc,
         char** argv)

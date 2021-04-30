@@ -253,6 +253,7 @@ set(DATABASE_TEST_LIST
     select_double_entity_invalid_needs_one_entity
     select_invalid_timestamps
     select_invalid_entity_ids
+    select_fastdds_latency
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
