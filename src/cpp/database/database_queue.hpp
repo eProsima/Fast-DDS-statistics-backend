@@ -69,7 +69,7 @@ public:
     using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
     using StatisticsLocator = eprosima::fastdds::statistics::detail::Locator_s;
 
-    using queue_item_type = std::pair<std::chrono::steady_clock::time_point, T>;
+    using queue_item_type = std::pair<std::chrono::system_clock::time_point, T>;
 
     DatabaseQueue()
         : foreground_queue_(&queue_alpha_)
@@ -90,7 +90,7 @@ public:
      * @param item Item to push into the queue
      */
     void push(
-            std::chrono::steady_clock::time_point ts,
+            std::chrono::system_clock::time_point ts,
             const T& item)
     {
         std::unique_lock<std::mutex> guard(background_mutex_);

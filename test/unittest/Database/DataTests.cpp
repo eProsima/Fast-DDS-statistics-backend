@@ -45,8 +45,8 @@ TEST(database, domainparticipant_data_clear)
 
     // DomainParticipantData
     data.discovered_entity[EntityId(1)].push_back(
-        std::pair<std::chrono::steady_clock::time_point, bool>(
-            std::chrono::steady_clock::now(), true));
+        std::pair<std::chrono::system_clock::time_point, bool>(
+            std::chrono::system_clock::now(), true));
     data.pdp_packets.push_back(count_sample);
     data.last_reported_pdp_packets = count_sample;
     data.edp_packets.push_back(count_sample);

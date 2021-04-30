@@ -184,7 +184,7 @@ void DatabaseDataQueue::process_sample_type(
         DiscoveryTimeSample& sample,
         const StatisticsDiscoveryTime& item) const
 {
-    sample.time = std::chrono::steady_clock::time_point (std::chrono::nanoseconds(item.time()));
+    sample.time = std::chrono::system_clock::time_point (std::chrono::nanoseconds(item.time()));
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     auto found_remote_entities = database_->get_entities_by_guid(entity_kind, remote_entity_guid);
     if (found_remote_entities.empty())
