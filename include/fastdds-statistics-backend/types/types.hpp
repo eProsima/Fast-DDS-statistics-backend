@@ -149,10 +149,10 @@ enum class EntityKind
  *     | NETWORK_LATENCY         | Locator           | Locator       | 2            |
  *     | PUBLICATION_THROUGHPUT  | DataWriter        |               | 1            |
  *     | SUBSCRIPTION_THROUGHPUT | DataReader        |               | 1            |
- *     | RTPS_PACKETS_SENT       | DataWriter        | Locator       | 2            |
- *     | RTPS_BYTES_SENT         | DataWriter        | Locator       | 2            |
- *     | RTPS_PACKETS_LOST       | DataWriter        | Locator       | 2            |
- *     | RTPS_BYTES_LOST         | DataWriter        | Locator       | 2            |
+ *     | RTPS_PACKETS_SENT       | DomainParticipant | Locator       | 2            |
+ *     | RTPS_BYTES_SENT         | DomainParticipant | Locator       | 2            |
+ *     | RTPS_PACKETS_LOST       | DomainParticipant | Locator       | 2            |
+ *     | RTPS_BYTES_LOST         | DomainParticipant | Locator       | 2            |
  *     | RESENT_DATA             | DataWriter        |               | 1            |
  *     | HEARTBEAT_COUNT         | DataWriter        |               | 1            |
  *     | ACKNACK_COUNT           | DataReader        |               | 1            |
