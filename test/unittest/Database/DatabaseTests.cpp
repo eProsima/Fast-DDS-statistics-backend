@@ -587,6 +587,81 @@ public:
         reader_id = db.insert(reader);
     }
 
+    void select_test(
+            const DataKind kind,
+            const EntityId source,
+            const EntityId target,
+            const std::vector<StatisticsSample>& samples)
+    {
+        for (size_t i = 0; i < samples.size(); i++)
+        {
+            ASSERT_NO_THROW(db.insert(domain_id, source, samples[i]));
+        }
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, target, src_ts, end_ts));
+        ASSERT_GE(data_output.size(), 3u);
+        EXPECT_EQ(*data_output[0], samples[0]);
+        EXPECT_EQ(*data_output[1], samples[1]);
+        EXPECT_EQ(*data_output[2], samples[2]);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, target, src_ts, mid1_ts));
+        EXPECT_EQ(data_output.size(), 0u);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, target, mid1_ts, mid2_ts));
+        ASSERT_GE(data_output.size(), 1u);
+        EXPECT_EQ(*data_output[0], samples[0]);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, target, mid2_ts, mid3_ts));
+        EXPECT_EQ(data_output.size(), 0u);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, target, sample2_ts, sample3_ts));
+        ASSERT_GE(data_output.size(), 2u);
+        EXPECT_EQ(*data_output[0], samples[1]);
+        EXPECT_EQ(*data_output[1], samples[2]);
+    }
+
+    void select_test(
+            const DataKind kind,
+            const EntityId source,
+            const std::vector<StatisticsSample>& samples)
+    {
+        for (size_t i = 0; i < samples.size(); i++)
+        {
+            ASSERT_NO_THROW(db.insert(domain_id, source, samples[i]));
+        }
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, src_ts, end_ts));
+        ASSERT_GE(data_output.size(), 3u);
+        EXPECT_EQ(*data_output[0], samples[0]);
+        EXPECT_EQ(*data_output[1], samples[1]);
+        EXPECT_EQ(*data_output[2], samples[2]);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, src_ts, mid1_ts));
+        EXPECT_EQ(data_output.size(), 0u);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, mid1_ts, mid2_ts));
+        ASSERT_GE(data_output.size(), 1u);
+        EXPECT_EQ(*data_output[0], samples[0]);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, mid2_ts, mid3_ts));
+        EXPECT_EQ(data_output.size(), 0u);
+
+        data_output.clear();
+        ASSERT_NO_THROW(data_output = db.select(kind, source, sample2_ts, sample3_ts));
+        ASSERT_GE(data_output.size(), 2u);
+        EXPECT_EQ(*data_output[0], samples[1]);
+        EXPECT_EQ(*data_output[1], samples[2]);
+    }
+
     DataBaseTest db;
     std::string host_name = "test_host";
     std::shared_ptr<Host> host;
@@ -626,6 +701,9 @@ public:
     Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
     Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
     Timestamp end_ts = src_ts + std::chrono::seconds(15);
+
+    std::vector<const StatisticsSample*> data_output;
+    std::vector<StatisticsSample> samples;
 };
 
 TEST_F(database_tests, insert_host)
@@ -2875,203 +2953,106 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
 TEST_F(database_tests, select_fastdds_latency)
 {
-    std::vector<const StatisticsSample*> output;
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 0u);
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
 
     HistoryLatencySample sample_1;
     sample_1.reader = reader_id;
     sample_1.data = 10;
     sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
     HistoryLatencySample sample_2;
     sample_2.reader = reader_id;
     sample_2.data = 20;
     sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
     HistoryLatencySample sample_3;
     sample_3.reader = reader_id;
     sample_3.data = 15;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    samples.push_back(sample_3);
 
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 3u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, mid1_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid1_ts, mid2_ts));
-    EXPECT_EQ(output.size(), 1u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid2_ts, mid3_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, sample2_ts, sample3_ts));
-    EXPECT_EQ(output.size(), 2u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+    select_test(DataKind::FASTDDS_LATENCY, writer_id, reader_id, samples);
 }
 
 TEST_F(database_tests, select_network_latency)
 {
-    std::vector<const StatisticsSample*> output;
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
         end_ts));
-    EXPECT_EQ(output.size(), 0u);
+    EXPECT_EQ(data_output.size(), 0u);
 
     NetworkLatencySample sample_1;
     sample_1.remote_locator = reader_locator->id;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
     NetworkLatencySample sample_2;
     sample_2.remote_locator = reader_locator->id;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
     NetworkLatencySample sample_3;
     sample_3.remote_locator = reader_locator->id;
     sample_3.data = 25;
     sample_3.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_1));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_3));
+    samples.push_back(sample_3);
 
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+    select_test(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
         end_ts));
-    EXPECT_EQ(output.size(), 3u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
-        mid1_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
-        mid2_ts));
-    EXPECT_EQ(output.size(), 1u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
-        mid3_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, sample2_ts,
-        sample3_ts));
-    EXPECT_EQ(output.size(), 2u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
-        end_ts));
-    EXPECT_EQ(output.size(), 0u);
+    EXPECT_EQ(data_output.size(), 0u);
 }
 
 TEST_F(database_tests, select_publication_throughput)
 {
-    std::vector<const StatisticsSample*> output;
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 0u);
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
 
     PublicationThroughputSample sample_1;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
     PublicationThroughputSample sample_2;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
     PublicationThroughputSample sample_3;
     sample_3.data = 25;
     sample_3.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    samples.push_back(sample_3);
 
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 3u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, mid1_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid1_ts, mid2_ts));
-    EXPECT_EQ(output.size(), 1u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid2_ts, mid3_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sample2_ts, sample3_ts));
-    EXPECT_EQ(output.size(), 2u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+    select_test(DataKind::PUBLICATION_THROUGHPUT, writer_id, samples);
 }
 
 TEST_F(database_tests, select_subscription_throughput)
 {
-    std::vector<const StatisticsSample*> output;
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 0u);
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
 
     SubscriptionThroughputSample sample_1;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
     SubscriptionThroughputSample sample_2;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
     SubscriptionThroughputSample sample_3;
     sample_3.data = 25;
     sample_3.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    samples.push_back(sample_3);
 
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
-    EXPECT_EQ(output.size(), 3u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, mid1_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid1_ts, mid2_ts));
-    EXPECT_EQ(output.size(), 1u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid2_ts, mid3_ts));
-    EXPECT_EQ(output.size(), 0u);
-
-    output.clear();
-    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sample2_ts, sample3_ts));
-    EXPECT_EQ(output.size(), 2u);
-    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
-    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+    select_test(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, samples);
 }
 
 int main(
