@@ -2351,7 +2351,7 @@ TEST_F(database_tests, get_entity_kind)
     EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind(reader_id));
     EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
     EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
-    EXPECT_EQ(EntityKind::INVALID, db.get_entity_kind(EntityId::invalid()));
+    EXPECT_THROW(db.get_entity_kind(EntityId::invalid()), BadParameter);
 }
 
 int main(

@@ -915,15 +915,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
-    try
-    {
-        auto entity = get_entity(entity_id);
-        return entity.get()->kind;
-    }
-    catch (Exception& BadParameter)
-    {
-        return EntityKind::INVALID;
-    }
+    return get_entity(entity_id).get()->kind;
 }
 
 EntityId Database::generate_entity_id() noexcept
