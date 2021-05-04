@@ -3981,16 +3981,14 @@ TEST_F(database_tests, get_entities_by_guid_domain)
 TEST_F(database_tests, get_entities_by_guid_participant)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto participants = db.get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
-    ASSERT_EQ(participants.size(), 1);
-    EXPECT_EQ(participants[0].first, domain_id);
-    EXPECT_EQ(participants[0].second, participant_id);
+    auto participant = db.get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
+    EXPECT_EQ(participant.first, domain_id);
+    EXPECT_EQ(participant.second, participant_id);
 }
 
 TEST_F(database_tests, get_entities_by_guid_participant_wrong_guid)
 {
-    auto participants = db.get_entities_by_guid(EntityKind::PARTICIPANT, "wrong_guid");
-    EXPECT_EQ(participants.size(), 0);
+    EXPECT_THROW(db.get_entities_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entities_by_guid_topic)
@@ -4001,31 +3999,27 @@ TEST_F(database_tests, get_entities_by_guid_topic)
 TEST_F(database_tests, get_entities_by_guid_datawriter)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datawriters = db.get_entities_by_guid(EntityKind::DATAWRITER, writer_guid);
-    ASSERT_EQ(datawriters.size(), 1);
-    EXPECT_EQ(datawriters[0].first, domain_id);
-    EXPECT_EQ(datawriters[0].second, writer_id);
+    auto datawriter = db.get_entities_by_guid(EntityKind::DATAWRITER, writer_guid);
+    EXPECT_EQ(datawriter.first, domain_id);
+    EXPECT_EQ(datawriter.second, writer_id);
 }
 
 TEST_F(database_tests, get_entities_by_guid_datawriter_wrong_guid)
 {
-    auto datawriters = db.get_entities_by_guid(EntityKind::DATAWRITER, "wrong_guid");
-    EXPECT_EQ(datawriters.size(), 0);
+    EXPECT_THROW(db.get_entities_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entities_by_guid_datareader)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datareaders = db.get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
-    ASSERT_EQ(datareaders.size(), 1);
-    EXPECT_EQ(datareaders[0].first, domain_id);
-    EXPECT_EQ(datareaders[0].second, reader_id);
+    auto datareader = db.get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
+    EXPECT_EQ(datareader.first, domain_id);
+    EXPECT_EQ(datareader.second, reader_id);
 }
 
 TEST_F(database_tests, get_entities_by_guid_datareader_wrong_guid)
 {
-    auto datareaders = db.get_entities_by_guid(EntityKind::DATAREADER, "wrong_guid");
-    EXPECT_EQ(datareaders.size(), 0);
+    EXPECT_THROW(db.get_entities_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entities_by_guid_locator)

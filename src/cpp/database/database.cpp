@@ -1412,11 +1412,10 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
+std::pair<EntityId, EntityId> Database::get_entities_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
 {
-    std::vector<std::pair<EntityId, EntityId>> entities;
     switch (entity_kind)
     {
         case EntityKind::PARTICIPANT:
@@ -1427,7 +1426,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
                 {
                     if (participant_it.second->guid == guid)
                     {
-                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, participant_it.first));
+                        return std::pair<EntityId, EntityId>(domain_it.first, participant_it.first);
                     }
                 }
             }
@@ -1441,7 +1440,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
                 {
                     if (datareader_it.second->guid == guid)
                     {
-                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datareader_it.first));
+                        return std::pair<EntityId, EntityId>(domain_it.first, datareader_it.first);
                     }
                 }
             }
@@ -1455,7 +1454,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
                 {
                     if (datawriter_it.second->guid == guid)
                     {
-                        entities.push_back(std::pair<EntityId, EntityId>(domain_it.first, datawriter_it.first));
+                        return std::pair<EntityId, EntityId>(domain_it.first, datawriter_it.first);
                     }
                 }
             }
@@ -1467,7 +1466,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
         }
     }
 
-    return entities;
+    throw BadParameter("No entity of type " + std::to_string(
+                      static_cast<int>(entity_kind)) + " and GUID " + guid + " exists");
+    return std::make_pair<EntityId, EntityId>(EntityId::invalid(), EntityId::invalid());
 }
 
 EntityKind Database::get_entity_kind(

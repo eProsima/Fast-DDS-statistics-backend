@@ -37,21 +37,27 @@ void DatabaseDataQueue::process_sample_type(
 {
     sample.data = item.data();
     std::string reader_guid = deserialize_guid(item.reader_guid());
-    auto found_readers = database_->get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
-    if (found_readers.empty())
+    try
+    {
+        auto found_reader = database_->get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
+        sample.reader = found_reader.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Reader " + reader_guid + " not found");
     }
-    sample.reader = found_readers.front().second;
 
     std::string writer_guid = deserialize_guid(item.writer_guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, writer_guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, writer_guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + writer_guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -92,13 +98,16 @@ void DatabaseDataQueue::process_sample_type(
     sample.data =  item.data();
 
     std::string guid = deserialize_guid(item.guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -119,13 +128,16 @@ void DatabaseDataQueue::process_sample_type(
     sample.remote_locator = found_remote_locators.front().second;
 
     std::string guid = deserialize_guid(item.src_guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -147,13 +159,16 @@ void DatabaseDataQueue::process_sample_type(
     sample.remote_locator = found_remote_locators.front().second;
 
     std::string guid = deserialize_guid(item.src_guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -167,13 +182,16 @@ void DatabaseDataQueue::process_sample_type(
     sample.count = item.count();
 
     std::string guid = deserialize_guid(item.guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -186,21 +204,27 @@ void DatabaseDataQueue::process_sample_type(
 {
     sample.time = std::chrono::system_clock::time_point (std::chrono::nanoseconds(item.time()));
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
-    auto found_remote_entities = database_->get_entities_by_guid(entity_kind, remote_entity_guid);
-    if (found_remote_entities.empty())
+    try
+    {
+        auto found_remote_entity = database_->get_entities_by_guid(entity_kind, remote_entity_guid);
+        sample.remote_entity = found_remote_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Remote entity " + remote_entity_guid + " not found");
     }
-    sample.remote_entity = found_remote_entities.front().second;
 
     std::string guid = deserialize_guid(item.local_participant_guid());
-    auto found_entities = database_->get_entities_by_guid(entity_kind, guid);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + guid + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 template<>
@@ -215,14 +239,16 @@ void DatabaseDataQueue::process_sample_type(
 
     auto sample_identity = deserialize_sample_identity(item.sample_id());
     sample.sequence_number = sample_identity.second;
-
-    auto found_entities = database_->get_entities_by_guid(entity_kind, sample_identity.first);
-    if (found_entities.empty())
+    try
+    {
+        auto found_entity = database_->get_entities_by_guid(entity_kind, sample_identity.first);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter& e)
     {
         throw Error("Entity " + sample_identity.first + " not found");
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
 }
 
 void DatabaseDataQueue::process_sample()
@@ -569,11 +595,7 @@ void DatabaseDataQueue::process_sample()
             // Take the ID of the Participant from its GUID
             std::string participant_guid = deserialize_guid(item.participant_guid());
             auto participants = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
-            if (participants.empty())
-            {
-                throw BadParameter("No participant with GUID " + participant_guid + " exists");
-            }
-            EntityId participant_id = participants.front().second;
+            EntityId participant_id = participants.second;
 
             // Parse the process name and PID
             size_t separator_pos = item.process().find_last_of(':');
