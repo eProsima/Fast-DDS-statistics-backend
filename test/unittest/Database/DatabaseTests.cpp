@@ -617,6 +617,15 @@ public:
     std::string reader_name = "test_reader";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
+
+    Timestamp src_ts = std::chrono::system_clock::now();
+    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
+    Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
+    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
+    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
+    Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
+    Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
+    Timestamp end_ts = src_ts + std::chrono::seconds(15);
 };
 
 TEST_F(database_tests, insert_host)
@@ -2866,15 +2875,6 @@ TEST_F(database_tests, select_invalid_entity_ids)
 
 TEST_F(database_tests, select_fastdds_latency)
 {
-    Timestamp src_ts = std::chrono::system_clock::now();
-    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
-    Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
-    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
-    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
-    Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
-    Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
-    Timestamp end_ts = src_ts + std::chrono::seconds(15);
-
     std::vector<const StatisticsSample*> output;
     ASSERT_NO_THROW(output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
     EXPECT_EQ(output.size(), 0u);
