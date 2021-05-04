@@ -2998,7 +2998,7 @@ TEST_F(database_tests, select_network_latency)
     NetworkLatencySample sample_3;
     sample_3.remote_locator = reader_locator->id;
     sample_3.data = 25;
-    sample_3.src_ts = sample1_ts;
+    sample_3.src_ts = sample3_ts;
     samples.push_back(sample_3);
 
     select_test(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, samples);
@@ -3026,7 +3026,7 @@ TEST_F(database_tests, select_publication_throughput)
     samples.push_back(sample_2);
     PublicationThroughputSample sample_3;
     sample_3.data = 25;
-    sample_3.src_ts = sample1_ts;
+    sample_3.src_ts = sample3_ts;
     samples.push_back(sample_3);
 
     select_test(DataKind::PUBLICATION_THROUGHPUT, writer_id, samples);
@@ -3049,10 +3049,144 @@ TEST_F(database_tests, select_subscription_throughput)
     samples.push_back(sample_2);
     SubscriptionThroughputSample sample_3;
     sample_3.data = 25;
-    sample_3.src_ts = sample1_ts;
+    sample_3.src_ts = sample3_ts;
     samples.push_back(sample_3);
 
     select_test(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, samples);
+}
+
+TEST_F(database_tests, select_rtps_packets_sent)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsPacketsSentSample sample_1;
+    sample_1.remote_locator = reader_locator->id;
+    sample_1.count = 15;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    RtpsPacketsSentSample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.count = 35;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    RtpsPacketsSentSample sample_3;
+    sample_3.remote_locator = reader_locator->id;
+    sample_3.count = 70;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, writer_id, writer_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_bytes_sent)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsBytesSentSample sample_1;
+    sample_1.remote_locator = reader_locator->id;
+    sample_1.count = 15;
+    sample_1.magnitude_order = 2;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    RtpsBytesSentSample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.count = 5;
+    sample_2.magnitude_order = 3;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    RtpsBytesSentSample sample_3;
+    sample_3.remote_locator = reader_locator->id;
+    sample_3.count = 25;
+    sample_3.magnitude_order = 3;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, writer_id, writer_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_packets_lost)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsPacketsLostSample sample_1;
+    sample_1.remote_locator = reader_locator->id;
+    sample_1.count = 15;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    RtpsPacketsLostSample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.count = 5;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    RtpsPacketsLostSample sample_3;
+    sample_3.remote_locator = reader_locator->id;
+    sample_3.count = 25;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, writer_id, writer_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_bytes_lost)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsBytesSentSample sample_1;
+    sample_1.remote_locator = reader_locator->id;
+    sample_1.count = 15;
+    sample_1.magnitude_order = 1;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    RtpsBytesSentSample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.count = 5;
+    sample_2.magnitude_order = 2;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    RtpsBytesSentSample sample_3;
+    sample_3.remote_locator = reader_locator->id;
+    sample_3.count = 25;
+    sample_3.magnitude_order = 3;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, writer_id, writer_locator->id, src_ts,
+        end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
 }
 
 int main(

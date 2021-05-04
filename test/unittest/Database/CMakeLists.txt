@@ -257,6 +257,10 @@ set(DATABASE_TEST_LIST
     select_network_latency
     select_publication_throughput
     select_subscription_throughput
+    select_rtps_packets_sent
+    select_rtps_bytes_sent
+    select_rtps_packets_lost
+    select_rtps_bytes_lost
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
