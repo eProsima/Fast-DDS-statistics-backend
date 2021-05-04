@@ -255,6 +255,8 @@ set(DATABASE_TEST_LIST
     select_invalid_entity_ids
     select_fastdds_latency
     select_network_latency
+    select_publication_throughput
+    select_subscription_throughput
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})

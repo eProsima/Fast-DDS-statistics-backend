@@ -2982,6 +2982,98 @@ TEST_F(database_tests, select_network_latency)
     EXPECT_EQ(output.size(), 0u);
 }
 
+TEST_F(database_tests, select_publication_throughput)
+{
+    std::vector<const StatisticsSample*> output;
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    PublicationThroughputSample sample_1;
+    sample_1.data = 15;
+    sample_1.src_ts = sample1_ts;
+    PublicationThroughputSample sample_2;
+    sample_2.data = 5;
+    sample_2.src_ts = sample2_ts;
+    PublicationThroughputSample sample_3;
+    sample_3.data = 25;
+    sample_3.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 3u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid1_ts, mid2_ts));
+    EXPECT_EQ(output.size(), 1u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sample2_ts, sample3_ts));
+    EXPECT_EQ(output.size(), 2u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+}
+
+TEST_F(database_tests, select_subscription_throughput)
+{
+    std::vector<const StatisticsSample*> output;
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    SubscriptionThroughputSample sample_1;
+    sample_1.data = 15;
+    sample_1.src_ts = sample1_ts;
+    SubscriptionThroughputSample sample_2;
+    sample_2.data = 5;
+    sample_2.src_ts = sample2_ts;
+    SubscriptionThroughputSample sample_3;
+    sample_3.data = 25;
+    sample_3.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(output.size(), 3u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[2], static_cast<StatisticsSample>(sample_3));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid1_ts, mid2_ts));
+    EXPECT_EQ(output.size(), 1u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_1));
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(output.size(), 0u);
+
+    output.clear();
+    ASSERT_NO_THROW(output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sample2_ts, sample3_ts));
+    EXPECT_EQ(output.size(), 2u);
+    EXPECT_EQ(*output[0], static_cast<StatisticsSample>(sample_2));
+    EXPECT_EQ(*output[1], static_cast<StatisticsSample>(sample_3));
+}
+
 int main(
         int argc,
         char** argv)
