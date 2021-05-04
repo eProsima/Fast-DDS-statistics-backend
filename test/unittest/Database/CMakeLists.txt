@@ -254,6 +254,7 @@ set(DATABASE_TEST_LIST
     select_invalid_timestamps
     select_invalid_entity_ids
     select_fastdds_latency
+    select_network_latency
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})
