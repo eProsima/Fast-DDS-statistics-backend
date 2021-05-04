@@ -162,7 +162,7 @@ TEST_F(statistics_reader_listener_tests, mask)
 
     for (auto kind : all_kinds)
     {
-        //Modify one of the bits in the mask
+        // Modify one of the bits in the mask
         auto mask = reader_listener_.get_mask();
         mask.set(kind);
         reader_listener_.set_mask(mask);
@@ -180,7 +180,7 @@ TEST_F(statistics_reader_listener_tests, mask)
             }
         }
 
-        //Remove the bit
+        // Remove the bit
         mask.clear(kind);
         reader_listener_.set_mask(mask);
         for (auto check : all_kinds)
@@ -1671,7 +1671,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::steady_clock::time_point discovery_timestamp = std::chrono::steady_clock::time_point(std::chrono::nanoseconds(
+    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(std::chrono::nanoseconds(
                         discovery_time));
 
     // Build the participant GUID
