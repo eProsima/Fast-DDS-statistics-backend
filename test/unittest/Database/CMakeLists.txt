@@ -170,6 +170,7 @@ set(DATABASE_TEST_LIST
     insert_ddsendpoint_two_diff_domain_same_guid
     # Insert invalid
     insert_invalid
+    insert_locator
     # Link participant with process
     link_participant_with_process_unlinked
     link_participant_with_process_wrong_participant

@@ -1562,6 +1562,14 @@ TEST_F(database_tests, insert_ddsendpoint_two_diff_domain_same_guid)
     insert_ddsendpoint_two_diff_domain_same_guid<DataWriter>();
 }
 
+TEST_F(database_tests, insert_locator)
+{
+    DataBaseTest db;
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>("locator_name");
+    EntityId locator_id = db.insert(locator);
+    ASSERT_EQ(locator_id, EntityId::invalid());
+}
+
 TEST_F(database_tests, insert_invalid)
 {
     /* Insert an entity */
