@@ -126,9 +126,8 @@ public:
                          + the two calls be processed without an intermediate run() loop (by using last_loop sequence number)
                          + deadlock by absence of run() loop activity (by using both_empty() call)
                          */
-                        return !consuming_ ||
-                        ( empty() &&
-                        ( last_loop != current_loop_ || both_empty()));
+                        return !consuming_ || both_empty() ||
+                        ( empty() && last_loop != current_loop_);
                     });
 
             last_loop = current_loop_;
@@ -188,7 +187,7 @@ protected:
         // Clear the foreground queue.
         std::queue<queue_item_type>().swap(*foreground_queue_);
 
-        auto* swap       = background_queue_;
+        auto* swap        = background_queue_;
         background_queue_ = foreground_queue_;
         foreground_queue_ = swap;
     }
@@ -259,9 +258,10 @@ protected:
     void run()
     {
         // Consume whatever there is in the queue
+        // Needs lock acquired to sync with potential flush
+        std::unique_lock<std::mutex> guard(cv_mutex_);
         consume_all();
 
-        std::unique_lock<std::mutex> guard(cv_mutex_);
         while (consuming_)
         {
             cv_.wait(guard,
