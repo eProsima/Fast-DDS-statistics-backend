@@ -273,10 +273,7 @@ set(DATABASE_TEST_LIST
     select_edp_packets
     select_discovery_time
     select_sample_datas
-    # get _entities
-    get_entities_bad_parameter
-    get_entities_host
-)
+    )
 
 foreach(test_name ${DATABASE_TEST_LIST})
     add_test(NAME database_tests.${test_name}
@@ -318,3 +315,27 @@ foreach(test_name ${DATABASE_DUMP_TEST_LIST})
             COMMAND database_dump_tests
             --gtest_filter=database.${test_name}:*/database.${test_name}/*)
 endforeach()
+
+###############################################################################
+# Database: get_entities tests
+###############################################################################
+
+add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp)
+
+target_include_directories(database_get_entities_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(database_get_entities_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(DATABASE_GET_ENTITIES_TEST_LIST
+    get_entities
+)
+
+foreach(test_name ${DATABASE_GET_ENTITIES_TEST_LIST})
+    add_test(NAME database_get_entities_tests.${test_name}
+            COMMAND database_get_entities_tests
+            --gtest_filter=database_get_entities_tests.${test_name}:*/database_get_entities_tests.${test_name}/*)
+endforeach()
+

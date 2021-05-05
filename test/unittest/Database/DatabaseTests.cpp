@@ -3947,61 +3947,6 @@ TEST_F(database_tests, select_sample_datas)
     EXPECT_EQ(data_output.size(), 0u);
 }
 
-TEST_F(database_tests, get_entities_bad_parameter)
-{
-    EXPECT_THROW(db.get_entities(EntityKind::HOST, db.generate_entity_id()), BadParameter);
-    EXPECT_THROW(db.get_entities(EntityKind::INVALID, host_id), BadParameter);
-}
-
-TEST_F(database_tests, get_entities_host)
-{
-    // HOST - HOST -> itself
-    auto hosts = db.get_entities(EntityKind::HOST, host_id);
-    ASSERT_EQ(hosts.size(), 1);
-    EXPECT_EQ(hosts[0].get(), host.get());
-
-    // HOST - USER
-    auto users = db.get_entities(EntityKind::USER, host_id);
-    ASSERT_EQ(users.size(), 1);
-    EXPECT_EQ(users[0].get(), user.get());
-
-    // HOST - PROCESS
-    auto processes = db.get_entities(EntityKind::PROCESS, host_id);
-    ASSERT_EQ(processes.size(), 1);
-    EXPECT_EQ(processes[0].get(), process.get());
-
-    // HOST - DOMAIN
-    auto domains = db.get_entities(EntityKind::DOMAIN, host_id);
-    ASSERT_EQ(domains.size(), 1);
-    EXPECT_EQ(domains[0].get(), domain.get());
-
-    // HOST - PARTICIPANT
-    auto participants = db.get_entities(EntityKind::PARTICIPANT, host_id);
-    ASSERT_EQ(participants.size(), 1);
-    EXPECT_EQ(participants[0].get(), participant.get());
-
-    // HOST - TOPIC
-    auto topics = db.get_entities(EntityKind::TOPIC, host_id);
-    ASSERT_EQ(topics.size(), 1);
-    EXPECT_EQ(topics[0].get(), topic.get());
-
-    // HOST - DATAWRITER
-    auto writers = db.get_entities(EntityKind::DATAWRITER, host_id);
-    ASSERT_EQ(writers.size(), 1);
-    EXPECT_EQ(writers[0].get(), writer.get());
-
-    // HOST - DATAREADER
-    auto readers = db.get_entities(EntityKind::DATAREADER, host_id);
-    ASSERT_EQ(readers.size(), 1);
-    EXPECT_EQ(readers[0].get(), reader.get());
-
-    // HOST - LOCATOR
-    auto locators = db.get_entities(EntityKind::LOCATOR, host_id);
-    ASSERT_EQ(locators.size(), 2);
-    EXPECT_EQ(locators[0].get(), writer_locator.get());
-    EXPECT_EQ(locators[1].get(), reader_locator.get());
-}
-
 int main(
         int argc,
         char** argv)
