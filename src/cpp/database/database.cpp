@@ -1002,6 +1002,24 @@ std::vector<const StatisticsSample*> Database::select(
             }
             break;
         }
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            assert(EntityKind::DATAREADER == entity->kind);
+            auto reader = static_cast<const DataReader*>(entity.get());
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : reader->data.subscription_throughput)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
         // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
         default:
         {
