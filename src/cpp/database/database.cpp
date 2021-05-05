@@ -1854,6 +1854,22 @@ std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::d
     return datawriters_;
 }
 
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataWriter>& endpoint,
+        std::shared_ptr<Locator>& locator)
+{
+    locator->data_writers[endpoint->id] = endpoint;
+}
+
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataReader>& endpoint,
+        std::shared_ptr<Locator>& locator)
+{
+    locator->data_readers[endpoint->id] = endpoint;
+}
+
 DatabaseDump Database::dump_database()
 {
     DatabaseDump dump = DatabaseDump::object();
