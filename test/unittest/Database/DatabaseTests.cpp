@@ -3195,6 +3195,253 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     EXPECT_EQ(data_output.size(), 0u);
 }
 
+TEST_F(database_tests, select_resent_data)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    ResentDataSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    ResentDataSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    ResentDataSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::RESENT_DATA, writer_id, samples);
+}
+
+TEST_F(database_tests, select_heartbeat_count)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    HeartbeatCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    HeartbeatCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    HeartbeatCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::HEARTBEAT_COUNT, writer_id, samples);
+}
+
+TEST_F(database_tests, select_acknack_count)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    AcknackCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    AcknackCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    AcknackCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::ACKNACK_COUNT, reader_id, samples);
+}
+
+TEST_F(database_tests, select_nackfrag_count)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    NackfragCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    NackfragCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    NackfragCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::NACKFRAG_COUNT, reader_id, samples);
+}
+
+TEST_F(database_tests, select_gap_count)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    GapCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    GapCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    GapCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::GAP_COUNT, writer_id, samples);
+}
+
+TEST_F(database_tests, select_data_count)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    DataCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    DataCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    DataCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::DATA_COUNT, writer_id, samples);
+}
+
+TEST_F(database_tests, select_pdp_packets)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    PdpCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    PdpCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    PdpCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::PDP_PACKETS, participant_id, samples);
+}
+
+TEST_F(database_tests, select_edp_packets)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    EdpCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    EdpCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    EdpCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::EDP_PACKETS, participant_id, samples);
+}
+
+TEST_F(database_tests, select_discovery_time)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    DiscoveryTimeSample sample_1;
+    sample_1.remote_entity = reader_id;
+    sample_1.time = std::chrono::system_clock::now();
+    sample_1.discovered = true;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    DiscoveryTimeSample sample_2;
+    sample_2.remote_entity = reader_id;
+    sample_2.time = std::chrono::system_clock::now() + std::chrono::seconds(1);
+    sample_2.discovered = false;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    DiscoveryTimeSample sample_3;
+    sample_3.remote_entity = reader_id;
+    sample_3.time = std::chrono::system_clock::now() + std::chrono::seconds(17);
+    sample_3.discovered = true;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::DISCOVERY_TIME, participant_id, reader_id, samples);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_sample_datas)
+{
+    data_output.clear();
+    samples.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    SampleDatasCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.sequence_number = 2;
+    sample_1.src_ts = sample1_ts;
+    samples.push_back(sample_1);
+    SampleDatasCountSample sample_2;
+    sample_2.count = 15;
+    sample_2.sequence_number = 1;
+    sample_2.src_ts = sample2_ts;
+    samples.push_back(sample_2);
+    SampleDatasCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.sequence_number = 2;
+    sample_3.src_ts = sample3_ts;
+    samples.push_back(sample_3);
+
+    select_test(DataKind::SAMPLE_DATAS, writer_id, samples);
+}
+
 int main(
         int argc,
         char** argv)
