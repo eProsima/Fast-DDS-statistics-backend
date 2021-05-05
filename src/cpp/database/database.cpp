@@ -1485,7 +1485,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::DATAREADER:
                 case EntityKind::DATAWRITER:
                 case EntityKind::LOCATOR:
-                // TODO: we can reach the same LOCATOR several times from a single PARTICIPANT. Remove duplicates
                     for (auto user : host->users)
                     {
                         auto sub_entities = get_entities(entity_kind, user.second);
@@ -1520,7 +1519,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::DATAREADER:
                 case EntityKind::DATAWRITER:
                 case EntityKind::LOCATOR:
-                // TODO: we can reach the same LOCATOR several times from a single PARTICIPANT. Remove duplicates
                     for (auto process : user->processes)
                     {
                         auto sub_entities = get_entities(entity_kind, process.second);
@@ -1560,7 +1558,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::DATAREADER:
                 case EntityKind::DATAWRITER:
                 case EntityKind::LOCATOR:
-                // TODO: we can reach the same LOCATOR several times from a single PARTICIPANT. Remove duplicates
                     for (auto participant : process->participants)
                     {
                         auto sub_entities = get_entities(entity_kind, participant.second);
@@ -1598,7 +1595,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::DATAREADER:
                 case EntityKind::DATAWRITER:
                 case EntityKind::LOCATOR:
-                    // TODO: we can reach the same LOCATOR several times from a single PARTICIPANT. Remove duplicates
                     for (auto participant : domain->participants)
                     {
                         auto sub_entities = get_entities(entity_kind, participant.second);
@@ -1645,7 +1641,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     break;
                 case EntityKind::TOPIC:
                 case EntityKind::LOCATOR:
-                // TODO: we can reach the same destination several times from a single PARTICIPANT. Remove duplicates
                     for (auto writer : participant->data_writers)
                     {
                         auto sub_entities = get_entities(entity_kind, writer.second);
@@ -1690,8 +1685,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::PROCESS:
                 case EntityKind::PARTICIPANT:
                 case EntityKind::LOCATOR:
-                    // TODO: we can reach the same destinations (except maybe LOCATOR) several times from a single TOPIC. Remove duplicates
-
                     for (auto writer : topic->data_writers)
                     {
                         auto sub_entities = get_entities(entity_kind, writer.second);
@@ -1814,7 +1807,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::PARTICIPANT:
                 case EntityKind::TOPIC:
                 case EntityKind::DOMAIN:
-                    // TODO: we can reach the same destinations several times from a single LOCATOR. Remove duplicates
                     for (auto writer : locator->data_writers)
                     {
                         auto sub_entities = get_entities(entity_kind, writer.second);
