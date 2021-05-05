@@ -1438,18 +1438,18 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     auto entities = get_entities(entity_kind, origin);
 
     // Remove duplicates by sorting and unique-ing
-    std::sort(entities.begin(), entities.end(),[](
-            const std::shared_ptr<const Entity>& first,
-            const std::shared_ptr<const Entity>& second)
+    std::sort(entities.begin(), entities.end(), [](
+                const std::shared_ptr<const Entity>& first,
+                const std::shared_ptr<const Entity>& second)
             {
                 return first.get() < second.get();
             });
-    auto last = std::unique(entities.begin(), entities.end(),[](
-            const std::shared_ptr<const Entity>& first,
-            const std::shared_ptr<const Entity>& second)
-            {
-                return first.get() == second.get();
-            });
+    auto last = std::unique(entities.begin(), entities.end(), [](
+                        const std::shared_ptr<const Entity>& first,
+                        const std::shared_ptr<const Entity>& second)
+                    {
+                        return first.get() == second.get();
+                    });
     entities.erase(last, entities.end());
 
     return entities;
@@ -1536,11 +1536,11 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
             switch (entity_kind)
             {
                 case EntityKind::HOST:
-                    {
-                        auto sub_entities = get_entities(entity_kind, process->user);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, process->user);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 case EntityKind::USER:
                     entities.push_back(process->user);
                     break;
@@ -1608,16 +1608,17 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         }
         case EntityKind::PARTICIPANT:
         {
-            const std::shared_ptr<const DomainParticipant>& participant = std::dynamic_pointer_cast<const DomainParticipant>(origin);
+            const std::shared_ptr<const DomainParticipant>& participant =
+                    std::dynamic_pointer_cast<const DomainParticipant>(origin);
             switch (entity_kind)
             {
                 case EntityKind::HOST:
                 case EntityKind::USER:
-                    {
-                        auto sub_entities = get_entities(entity_kind, participant->process);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, participant->process);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 case EntityKind::PROCESS:
                     entities.push_back(participant->process);
                     break;
@@ -1722,20 +1723,20 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     }
                     break;
                 case EntityKind::DATAREADER:
-                    {
-                        auto sub_entities = get_entities(entity_kind, writer->topic);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, writer->topic);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 case EntityKind::HOST:
                 case EntityKind::USER:
                 case EntityKind::PROCESS:
                 case EntityKind::DOMAIN:
-                    {
-                        auto sub_entities = get_entities(entity_kind, writer->participant);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, writer->participant);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 default:
                     throw BadParameter("Invalid EntityKind");
             }
@@ -1762,20 +1763,20 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     }
                     break;
                 case EntityKind::DATAWRITER:
-                    {
-                        auto sub_entities = get_entities(entity_kind, reader->topic);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, reader->topic);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 case EntityKind::HOST:
                 case EntityKind::USER:
                 case EntityKind::PROCESS:
                 case EntityKind::DOMAIN:
-                    {
-                        auto sub_entities = get_entities(entity_kind, reader->participant);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
+                {
+                    auto sub_entities = get_entities(entity_kind, reader->participant);
+                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                }
+                break;
                 default:
                     throw BadParameter("Invalid EntityKind");
             }
@@ -1827,7 +1828,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
 
     return entities;
 }
-
 
 EntityId Database::generate_entity_id() noexcept
 {
