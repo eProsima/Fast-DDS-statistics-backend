@@ -1283,6 +1283,18 @@ DatabaseDump Database::dump_entity_(
         // edp_packets
         data[DATA_KIND_EDP_PACKETS] = dump_data_(entity->data.edp_packets);
 
+        // rtps_packets_sent
+        data[DATA_KIND_RTPS_PACKETS_SENT] = dump_data_(entity->data.rtps_packets_sent);
+        
+        // rtps_bytes_sent
+        data[DATA_KIND_RTPS_BYTES_SENT] = dump_data_(entity->data.rtps_bytes_sent);
+
+        // rtps_packets_lost
+        data[DATA_KIND_RTPS_PACKETS_LOST] = dump_data_(entity->data.rtps_packets_lost);
+
+        // rtps_bytes_lost
+        data[DATA_KIND_RTPS_BYTES_LOST] = dump_data_(entity->data.rtps_bytes_lost);
+
         entity_info[DATA_CONTAINER] = data;
     }
 
@@ -1334,18 +1346,6 @@ DatabaseDump Database::dump_entity_(
 
         // history2history_latency
         data[DATA_KIND_FASTDDS_LATENCY] = dump_data_(entity->data.history2history_latency);
-
-        // rtps_packets_sent
-        data[DATA_KIND_RTPS_PACKETS_SENT] = dump_data_(entity->data.rtps_packets_sent);
-
-        // rtps_bytes_sent
-        data[DATA_KIND_RTPS_BYTES_SENT] = dump_data_(entity->data.rtps_bytes_sent);
-
-        // rtps_packets_lost
-        data[DATA_KIND_RTPS_PACKETS_LOST] = dump_data_(entity->data.rtps_packets_lost);
-
-        // rtps_bytes_lost
-        data[DATA_KIND_RTPS_BYTES_LOST] = dump_data_(entity->data.rtps_bytes_lost);
 
         entity_info[DATA_CONTAINER] = data;
     }
@@ -1506,7 +1506,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data)
+        const std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 

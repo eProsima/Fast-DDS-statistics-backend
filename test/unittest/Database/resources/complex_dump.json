@@ -262,76 +262,6 @@
                         "src_time": "2"
                     }
                 ],
-                "rtps_bytes_lost": {
-                    "9": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent": {
-                    "9": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_lost": {
-                    "9": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_sent": {
-                    "9": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
                 "samples_datas": {
                     "3": 2
                 }
@@ -435,76 +365,6 @@
                         "src_time": "2"
                     }
                 ],
-                "rtps_bytes_lost": {
-                    "18": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent": {
-                    "18": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_lost": {
-                    "18": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_sent": {
-                    "18": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
                 "samples_datas": {
                     "3": 2
                 }
@@ -608,76 +468,6 @@
                         "src_time": "2"
                     }
                 ],
-                "rtps_bytes_lost": {
-                    "0": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent": {
-                    "0": [
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "magnitude": 0,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_lost": {
-                    "0": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
-                "rtps_packets_sent": {
-                    "0": [
-                        {
-                            "count": 2,
-                            "src_time": "0"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "1"
-                        },
-                        {
-                            "count": 2,
-                            "src_time": "2"
-                        }
-                    ]
-                },
                 "samples_datas": {
                     "3": 2
                 }
@@ -872,7 +662,78 @@
                         "count": 2,
                         "src_time": "2"
                     }
-                ]
+                ],
+                "rtps_bytes_lost": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "9": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                }
+
             },
             "datareaders": [
                 "17"
@@ -933,7 +794,78 @@
                         "count": 2,
                         "src_time": "2"
                     }
-                ]
+                ],
+
+                "rtps_bytes_lost": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "18": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                }
             },
             "datareaders": [
                 "26"
@@ -994,7 +926,77 @@
                         "count": 2,
                         "src_time": "2"
                     }
-                ]
+                ],
+                "rtps_bytes_lost": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_bytes_sent": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "magnitude": 0,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_lost": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                },
+                "rtps_packets_sent": {
+                    "0": [
+                        {
+                            "count": 2,
+                            "src_time": "0"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "1"
+                        },
+                        {
+                            "count": 2,
+                            "src_time": "2"
+                        }
+                    ]
+                }
             },
             "datareaders": [
                 "8"

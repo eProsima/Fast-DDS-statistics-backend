@@ -165,8 +165,7 @@ public:
      * @return A constant shared pointer to the Entity
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id,
-            const EntityKind kind = EntityKind::INVALID) const;
+            const EntityId& entity_id) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity
@@ -255,7 +254,7 @@ protected:
     }
 
     inline std::string time_to_string(
-            std::chrono::steady_clock::time_point time)
+            std::chrono::system_clock::time_point time)
     {
         // TODO
         std::string s = std::to_string(
@@ -420,7 +419,7 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, std::vector<EntityDataSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<std::pair<std::chrono::steady_clock::time_point, bool>>>& data);
+            const std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>>& data);
     DatabaseDump dump_data_(
             const std::map<uint64_t, uint64_t>& data);
     DatabaseDump dump_data_(

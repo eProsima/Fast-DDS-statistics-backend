@@ -72,7 +72,12 @@
             {
                 "discovery_time": {},
                 "pdp_packets": [],
-                "edp_packets": []
+                "edp_packets": [],
+                
+                "rtps_packets_sent": {},
+                "rtps_bytes_sent": {},
+                "rtps_packets_lost": {},
+                "rtps_bytes_lost": {}
             }
         }
     },
@@ -97,12 +102,7 @@
                 "gap_count": [],
                 "data_count": [],
                 "samples_datas": {},
-                "history2history_latency": {},
-
-                "rtps_packets_sent": {},
-                "rtps_bytes_sent": {},
-                "rtps_packets_lost": {},
-                "rtps_bytes_lost": {}
+                "history2history_latency": {}
             }
         }
     },

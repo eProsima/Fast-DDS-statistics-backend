@@ -71,7 +71,7 @@ constexpr const std::chrono::steady_clock::time_point TIME_DEFAULT =
 #define DATAWRITER_DEFAULT_ID(x) EntityId(x*9 + 7)
 #define DATAREADER_DEFAULT_ID(x) EntityId(x*9 + 8)
 
-#define TIME_DEFAULT(x) std::chrono::steady_clock::time_point(std::chrono::steady_clock::duration(x))
+#define TIME_DEFAULT(x) std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
 
 void initialize_database(
@@ -188,6 +188,44 @@ void initialize_participant_data(
         sample.count = COUNT_DEFAULT;
         db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
     }
+
+     // rtps_packets_sent
+    {
+        RtpsPacketsSentSample sample;
+        sample.src_ts = TIME_DEFAULT(time);
+        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
+    }
+
+    // rtps_bytes_sent
+    {
+        RtpsBytesSentSample sample;
+        sample.src_ts = TIME_DEFAULT(time);
+        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
+        sample.count = COUNT_DEFAULT;
+        sample.magnitude_order = MAGNITUDE_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
+    }
+
+    // rtps_packets_lost
+    {
+        RtpsPacketsLostSample sample;
+        sample.src_ts = TIME_DEFAULT(time);
+        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
+        sample.count = COUNT_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
+    }
+
+    // rtps_bytes_lost
+    {
+        RtpsBytesLostSample sample;
+        sample.src_ts = TIME_DEFAULT(time);
+        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
+        sample.count = COUNT_DEFAULT;
+        sample.magnitude_order = MAGNITUDE_DEFAULT;
+        db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
+    }
 }
 
 void initialize_datawriter_data(
@@ -251,43 +289,6 @@ void initialize_datawriter_data(
         db.insert(DOMAIN_DEFAULT_ID(index), DATAWRITER_DEFAULT_ID(index), sample);
     }
 
-    // rtps_packets_sent
-    {
-        RtpsPacketsSentSample sample;
-        sample.src_ts = TIME_DEFAULT(time);
-        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
-        sample.count = COUNT_DEFAULT;
-        db.insert(DOMAIN_DEFAULT_ID(index), DATAWRITER_DEFAULT_ID(index), sample);
-    }
-
-    // rtps_bytes_sent
-    {
-        RtpsBytesSentSample sample;
-        sample.src_ts = TIME_DEFAULT(time);
-        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
-        sample.count = COUNT_DEFAULT;
-        sample.magnitude_order = MAGNITUDE_DEFAULT;
-        db.insert(DOMAIN_DEFAULT_ID(index), DATAWRITER_DEFAULT_ID(index), sample);
-    }
-
-    // rtps_packets_lost
-    {
-        RtpsPacketsLostSample sample;
-        sample.src_ts = TIME_DEFAULT(time);
-        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
-        sample.count = COUNT_DEFAULT;
-        db.insert(DOMAIN_DEFAULT_ID(index), DATAWRITER_DEFAULT_ID(index), sample);
-    }
-
-    // rtps_bytes_lost
-    {
-        RtpsBytesLostSample sample;
-        sample.src_ts = TIME_DEFAULT(time);
-        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
-        sample.count = COUNT_DEFAULT;
-        sample.magnitude_order = MAGNITUDE_DEFAULT;
-        db.insert(DOMAIN_DEFAULT_ID(index), DATAWRITER_DEFAULT_ID(index), sample);
-    }
 }
 
 void initialize_datareader_data(
