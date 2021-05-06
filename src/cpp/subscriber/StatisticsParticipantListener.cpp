@@ -53,7 +53,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         EntityKind endpoint_kind,
         const std::string& endpoint_name)
 {
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database
     auto domain_ids =
@@ -113,32 +113,58 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         assert(topic_ids.front().first == domain_ids.front().second);
     }
 
-    // Check whether the locators are already in the database
+    // Create the endpoint
+    auto endpoint = create_endpoint(endpoint_guid, info, participant, topic);
+
+    // Routine to process one locator from the locator list of the endpoint
+    auto process_locators = [&](const Locator_t& dds_locator)
+        {
+            std::shared_ptr<database::Locator> locator = std::make_shared<database::Locator>(to_string(dds_locator));
+
+            // See if the participant has the physical info attached
+            auto hosts = database_->get_entities(EntityKind::HOST, participant_ids.front().second);
+            if (!hosts.empty())
+            {
+                assert(hosts.size() == 1);
+
+                //There is physical info. Add the host info to the locator
+                locator->name += std::string(":") + hosts.front()->name;
+
+                // Look for the locator
+                auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, locator->name);
+                if (locator_ids.empty())
+                {
+                    // The locator is not in the database. Add the new one.
+                    locator->id = database_->generate_entity_id();
+                    endpoint->locators[locator->id] = locator;
+                }
+                else
+                {
+                    // The locator exists. Add the existing one.
+                    auto existing = std::const_pointer_cast<database::Locator>(
+                            std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().second)));
+                    endpoint->locators[existing->id] = existing;
+                }
+            }
+            else
+            {
+                // If there is no physical information, we always create the locator entity.
+                // We will combine them once that info is available
+                locator->id = database_->generate_entity_id();
+                endpoint->locators[locator->id] = locator;
+            }
+        };
+
     for (auto dds_locator : info.info.remote_locators().unicast)
     {
-        std::shared_ptr<database::Locator> locator;
-        auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
-        if (locator_ids.empty())
-        {
-            // Create the Locator and push it to the queue
-            locator = std::make_shared<database::Locator>(to_string(dds_locator));
-            entity_queue_->push(timestamp, locator);
-        }
+        process_locators(dds_locator);
     }
     for (auto dds_locator : info.info.remote_locators().multicast)
     {
-        std::shared_ptr<database::Locator> locator;
-        auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
-        if (locator_ids.empty())
-        {
-            // Create the Locator and push it to the queue
-            locator = std::make_shared<database::Locator>(to_string(dds_locator));
-            entity_queue_->push(timestamp, locator);
-        }
+        process_locators(dds_locator);
     }
 
-    // Create the endpoint and push it to the queue
-    auto endpoint = create_endpoint(endpoint_guid, info, participant, topic);
+    // Push the endpoint
     entity_queue_->push(timestamp, endpoint);
 }
 
@@ -191,7 +217,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
-    std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     switch (info.status)
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
