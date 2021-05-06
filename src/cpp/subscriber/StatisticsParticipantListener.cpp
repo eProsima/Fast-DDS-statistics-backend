@@ -143,7 +143,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
 }
 
 template<>
-std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
         const GUID_t& guid,
         const fastrtps::rtps::WriterDiscoveryInfo& info,
         std::shared_ptr<database::DomainParticipant> participant,
@@ -158,7 +158,7 @@ std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint
 }
 
 template<>
-std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
         const GUID_t& guid,
         const fastrtps::rtps::ReaderDiscoveryInfo& info,
 
@@ -233,19 +233,18 @@ void StatisticsParticipantListener::on_participant_discovery(
         break;
 
         case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
-            // Update QoS on stored entity
+            // TODO [ILG] : Process these messages and save the updated QoS
             break;
 
         case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
-            // Do nothing
+            // TODO [ILG] : Process these messages and save the status of the entity
             break;
     }
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();
-    (void)participant, (void)info;
 }
 
 void StatisticsParticipantListener::on_subscriber_discovery(
@@ -258,22 +257,27 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     switch (info.status)
     {
         case ReaderDiscoveryInfo::DISCOVERED_READER:
-            process_endpoint_discovery(participant, info, EntityKind::DATAREADER, "DataReader");
+        {
+            std::stringstream name;
+            name << info.info.guid();
+            process_endpoint_discovery(participant, info, EntityKind::DATAREADER, name.str());
             break;
-
+        }
         case ReaderDiscoveryInfo::CHANGED_QOS_READER:
-            // Update QoS on stored entity
+        {
+            // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
             break;
-
+        }
         case ReaderDiscoveryInfo::REMOVED_READER:
-            // Do nothing
+        {
+            // TODO [ILG] : Process these messages and save the status of the entity
             break;
+        }
     }
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();
-    (void)participant, (void)info;
 }
 
 void StatisticsParticipantListener::on_publisher_discovery(
@@ -286,22 +290,27 @@ void StatisticsParticipantListener::on_publisher_discovery(
     switch (info.status)
     {
         case WriterDiscoveryInfo::DISCOVERED_WRITER:
-            process_endpoint_discovery(participant, info, EntityKind::DATAWRITER, "DataWriter");
+        {
+            std::stringstream name;
+            name << info.info.guid();
+            process_endpoint_discovery(participant, info, EntityKind::DATAWRITER, name.str());
             break;
-
+        }
         case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
-            // Update QoS on stored entity
+        {
+            // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
             break;
-
+        }
         case WriterDiscoveryInfo::REMOVED_WRITER:
-            // Do nothing
+        {
+            // TODO [ILG] : Process these messages and save the status of the entity
             break;
+        }
     }
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();
-    (void)participant, (void)info;
 }
 
 } //namespace database

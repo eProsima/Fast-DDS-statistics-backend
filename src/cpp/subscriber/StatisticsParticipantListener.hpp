@@ -20,10 +20,10 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
 
-#include "fastdds/dds/domain/DomainParticipantListener.hpp"
-#include "fastdds/dds/core/status/StatusMask.hpp"
-#include "fastdds/rtps/common/Guid.h"
-#include "fastdds/rtps/common/Locator.h"
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/rtps/common/Guid.h>
+#include <fastdds/rtps/common/Locator.h>
 
 #include <database/entities.hpp>
 
@@ -101,7 +101,7 @@ protected:
             const std::string& endpoint_name);
 
     template<typename T>
-    std::shared_ptr<database::Entity> create_endpoint(
+    std::shared_ptr<database::DDSEndpoint> create_endpoint(
             const eprosima::fastrtps::rtps::GUID_t& guid,
             const T& qos,
             std::shared_ptr<database::DomainParticipant> participant,
@@ -113,14 +113,14 @@ protected:
 };
 
 template<>
-std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
         const eprosima::fastrtps::rtps::GUID_t& guid,
         const fastrtps::rtps::ReaderDiscoveryInfo& info,
         std::shared_ptr<database::DomainParticipant> participant,
         std::shared_ptr<database::Topic> topic);
 
 template<>
-std::shared_ptr<database::Entity> StatisticsParticipantListener::create_endpoint(
+std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
         const eprosima::fastrtps::rtps::GUID_t& guid,
         const fastrtps::rtps::WriterDiscoveryInfo& info,
         std::shared_ptr<database::DomainParticipant> participant,
