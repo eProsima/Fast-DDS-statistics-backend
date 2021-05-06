@@ -969,10 +969,38 @@ std::vector<const StatisticsSample*> Database::select(
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
+    bool found = false;
     switch (data_type)
     {
         case DataKind::FASTDDS_LATENCY:
         {
+            assert(EntityKind::DATAWRITER == source_entity->kind);
+            assert(EntityKind::DATAREADER == target_entity->kind);
+            auto writer = static_cast<const DataWriter*>(source_entity.get());
+            for (auto& reader : writer->data.history2history_latency)
+            {
+                /* Look if the writer has information about the required reader */
+                if (reader.first == entity_id_target)
+                {
+                    found = true;
+                    /* Look for the samples between the given timestamps */
+                    for (auto& sample : reader.second)
+                    {
+                        if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                        {
+                            samples.push_back(&sample);
+                        }
+                        else if (sample.src_ts > t_to)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (found)
+                {
+                    break;
+                }
+            }
             break;
         }
         case DataKind::NETWORK_LATENCY:
