@@ -2725,7 +2725,6 @@ TEST_F(database_tests, select_fastdds_latency)
 TEST_F(database_tests, select_network_latency)
 {
     data_output.clear();
-    samples.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
         end_ts));
     EXPECT_EQ(data_output.size(), 0u);
@@ -2734,19 +2733,54 @@ TEST_F(database_tests, select_network_latency)
     sample_1.remote_locator = reader_locator->id;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
-    samples.push_back(sample_1);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_1));
     NetworkLatencySample sample_2;
     sample_2.remote_locator = reader_locator->id;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
-    samples.push_back(sample_2);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
     NetworkLatencySample sample_3;
     sample_3.remote_locator = reader_locator->id;
     sample_3.data = 25;
     sample_3.src_ts = sample3_ts;
-    samples.push_back(sample_3);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_3));
 
-    select_test(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, samples);
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+        end_ts));
+    ASSERT_GE(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityDataSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+        mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
+        mid2_ts));
+    ASSERT_GE(data_output.size(), 1u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
+        mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id,
+        sample2_ts, sample3_ts));
+    ASSERT_GE(data_output.size(), 2u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,

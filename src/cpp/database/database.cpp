@@ -1005,6 +1005,29 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NETWORK_LATENCY:
         {
+            assert(EntityKind::LOCATOR == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto locator = static_cast<const Locator*>(source_entity.get());
+            for (auto& remote_locator : locator->data.network_latency_per_locator)
+            {
+                /* Look if the locator has information about the required locator */
+                if (remote_locator.first == entity_id_target)
+                {
+                    found = true;
+                    /* Look for the samples between the given timestamps */
+                    for (auto& sample : remote_locator.second)
+                    {
+                        if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                        {
+                            samples.push_back(&sample);
+                        }
+                        else if (sample.src_ts > t_to)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
             break;
         }
         case DataKind::RTPS_PACKETS_SENT:
