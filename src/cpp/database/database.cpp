@@ -1020,6 +1020,56 @@ std::vector<const StatisticsSample*> Database::select(
             }
             break;
         }
+        case DataKind::RESENT_DATA:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = static_cast<const DataWriter*>(entity.get());
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.resent_datas)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::HEARTBEAT_COUNT:
+        {
+            break;
+        }
+        case DataKind::ACKNACK_COUNT:
+        {
+            break;
+        }
+        case DataKind::NACKFRAG_COUNT:
+        {
+            break;
+        }
+        case DataKind::GAP_COUNT:
+        {
+            break;
+        }
+        case DataKind::DATA_COUNT:
+        {
+            break;
+        }
+        case DataKind::PDP_PACKETS:
+        {
+            break;
+        }
+        case DataKind::EDP_PACKETS:
+        {
+            break;
+        }
+        case DataKind::SAMPLE_DATAS:
+        {
+            break;
+        }
         // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
         default:
         {
