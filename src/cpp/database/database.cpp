@@ -1190,6 +1190,20 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::EDP_PACKETS:
         {
+            assert(EntityKind::PARTICIPANT == entity->kind);
+            auto participant = static_cast<const DomainParticipant*>(entity.get());
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : participant->data.edp_packets)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
             break;
         }
         case DataKind::SAMPLE_DATAS:
