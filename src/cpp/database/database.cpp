@@ -1136,6 +1136,20 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::GAP_COUNT:
         {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = static_cast<const DataWriter*>(entity.get());
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.gap_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
             break;
         }
         case DataKind::DATA_COUNT:

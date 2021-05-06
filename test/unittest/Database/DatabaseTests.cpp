@@ -3179,24 +3179,56 @@ TEST_F(database_tests, select_nackfrag_count)
 TEST_F(database_tests, select_gap_count)
 {
     data_output.clear();
-    samples.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     GapCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    samples.push_back(sample_1);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
     GapCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    samples.push_back(sample_2);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     GapCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    samples.push_back(sample_3);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
 
-    select_test(DataKind::GAP_COUNT, writer_id, samples);
+    // TODO Adjust this test after merging PR which fixes resent datas
+    // resent datas stores the difference between each accumulated report and the previous one
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_GE(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_GE(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_GE(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
 }
 
 TEST_F(database_tests, select_data_count)
