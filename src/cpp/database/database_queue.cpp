@@ -270,7 +270,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection.");
+                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -289,7 +290,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing NETWORK_LATENCY event. Data was not added to the statistics collection.");
+                        "Error processing NETWORK_LATENCY event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -309,7 +311,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing PUBLICATION_THROUGHPUT event. Data was not added to the statistics collection.");
+                        "Error processing PUBLICATION_THROUGHPUT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -329,7 +332,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing SUBSCRIPTION_THROUGHPUT event. Data was not added to the statistics collection.");
+                        "Error processing SUBSCRIPTION_THROUGHPUT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -349,6 +353,15 @@ void DatabaseDataQueue::process_sample()
                         static_cast<EntityToLocatorCountSample&>(packet_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, packet_sample);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
+            }
+            try
+            {
                 process_sample_type(domain, entity, EntityKind::DATAWRITER,
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
@@ -357,7 +370,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing RTPS_SENT event. Data was not added to the statistics collection.");
+                        "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -377,6 +391,15 @@ void DatabaseDataQueue::process_sample()
                         static_cast<EntityToLocatorCountSample&>(packet_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, packet_sample);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
+            }
+            try
+            {
                 process_sample_type(domain, entity, EntityKind::DATAWRITER,
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
@@ -385,7 +408,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing RTPS_LOST event. Data was not added to the statistics collection.");
+                        "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -405,7 +429,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing RESENT_DATAS event. Data was not added to the statistics collection.");
+                        "Error processing RESENT_DATAS event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -425,7 +450,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing HEARTBEAT_COUNT event. Data was not added to the statistics collection.");
+                        "Error processing HEARTBEAT_COUNT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -445,7 +471,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing ACKNACK_COUNT event. Data was not added to the statistics collection.");
+                        "Error processing ACKNACK_COUNT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -465,7 +492,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing NACKFRAG_COUNT event. Data was not added to the statistics collection.");
+                        "Error processing NACKFRAG_COUNT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -485,7 +513,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing GAP_COUNT event. Data was not added to the statistics collection.");
+                        "Error processing GAP_COUNT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -505,7 +534,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing DATA_COUNT event. Data was not added to the statistics collection.");
+                        "Error processing DATA_COUNT event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -525,7 +555,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing PDP_PACKETS event. Data was not added to the statistics collection.");
+                        "Error processing PDP_PACKETS event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -545,7 +576,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing EDP_PACKETS event. Data was not added to the statistics collection.");
+                        "Error processing EDP_PACKETS event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -564,7 +596,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing DISCOVERED_ENTITY event. Data was not added to the statistics collection.");
+                        "Error processing DISCOVERED_ENTITY event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -584,7 +617,8 @@ void DatabaseDataQueue::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing SAMPLE_DATAS event. Data was not added to the statistics collection.");
+                        "Error processing SAMPLE_DATAS event. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
             }
         }
         break;
@@ -601,7 +635,7 @@ void DatabaseDataQueue::process_sample()
             size_t separator_pos = item.process().find_last_of(':');
             if (separator_pos == std::string::npos)
             {
-                throw Error("Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+                logError(BACKEND_DATABASE_QUEUE, "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
             }
             std::string process_name = item.process().substr(0, separator_pos);
             std::string process_pid = item.process().substr(separator_pos + 1);
@@ -612,7 +646,15 @@ void DatabaseDataQueue::process_sample()
             if (hosts.empty())
             {
                 host.reset(new Host(item.host()));
-                database_->insert(std::static_pointer_cast<Entity>(host));
+                try
+                {
+                    database_->insert(std::static_pointer_cast<Entity>(host));
+                }
+                catch(const std::exception& e)
+                {
+                    logError(BACKEND_DATABASE_QUEUE, e.what());
+                    return;
+                }
             }
             else
             {
@@ -640,7 +682,14 @@ void DatabaseDataQueue::process_sample()
             if (!user)
             {
                 user.reset(new User(item.user(), host));
-                database_->insert(std::static_pointer_cast<Entity>(user));
+                try
+                {
+                    database_->insert(std::static_pointer_cast<Entity>(user));
+                }
+                catch(const std::exception& e)
+                {
+                    logError(BACKEND_DATABASE_QUEUE, e.what());
+                }
             }
 
             // Check the existence of the process in that user
@@ -663,7 +712,14 @@ void DatabaseDataQueue::process_sample()
             if (!process)
             {
                 process.reset(new Process(process_name, process_pid, user));
-                process_id = database_->insert(std::static_pointer_cast<Entity>(process));
+                try
+                {
+                    process_id = database_->insert(std::static_pointer_cast<Entity>(process));
+                }
+                catch(const std::exception& e)
+                {
+                    logError(BACKEND_DATABASE_QUEUE, e.what());
+                }
             }
 
             database_->link_participant_with_process(participant_id, process_id);

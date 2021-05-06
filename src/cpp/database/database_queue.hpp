@@ -27,9 +27,10 @@
 #include <queue>
 #include <thread>
 
-#include "fastdds/rtps/common/Guid.h"
-#include "fastdds/rtps/common/Locator.h"
-#include "fastdds/rtps/common/SequenceNumber.h"
+#include <fastdds/rtps/common/Guid.h>
+#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/SequenceNumber.h>
+#include <fastdds/dds/log/Log.hpp>
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
@@ -345,7 +346,14 @@ protected:
 
     virtual void process_sample() override
     {
-        database_->insert(front().second);
+        try
+        {
+            database_->insert(front().second);
+        }
+        catch(const eprosima::statistics_backend::Exception& e)
+        {
+            logError(BACKEND_DATABASE_QUEUE, e.what());
+        }
     }
 
     // Database
