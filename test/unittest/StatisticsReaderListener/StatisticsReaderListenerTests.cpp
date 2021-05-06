@@ -198,7 +198,7 @@ TEST_F(statistics_reader_listener_tests, not_valid_data)
 
     // Add to the history
     std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
-    add_sample_to_reader_history(data, get_default_info());
+    add_sample_to_reader_history(data, info);
 
     // Expectation: The insert method is never called
     EXPECT_CALL(database_, insert(_, _, _)).Times(0);
