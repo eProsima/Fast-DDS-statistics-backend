@@ -50,6 +50,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_reader_discovered
         new_reader_discovered_no_topic
         new_reader_discovered_several_locators
+        new_reader_discovered_several_locators_no_host
         new_reader_discovered_no_participant
         new_reader_discovered_no_domain
         new_reader_discovered_reader_already_exists
@@ -57,6 +58,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_writer_discovered
         new_writer_discovered_no_topic
         new_writer_discovered_several_locators
+        new_writer_discovered_several_locators_no_host
         new_writer_discovered_no_participant
         new_writer_discovered_no_domain
         new_writer_discovered_writer_already_exists
