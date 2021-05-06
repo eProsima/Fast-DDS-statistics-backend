@@ -19,6 +19,7 @@
 #include <mutex>  // For std::unique_lock
 #include <shared_mutex>
 #include <string>
+#include <vector>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
@@ -957,12 +958,53 @@ std::vector<const StatisticsSample*> Database::select(
         Timestamp t_from,
         Timestamp t_to)
 {
-    (void)data_type;
-    (void)entity_id_source;
-    (void)entity_id_target;
-    (void)t_from;
-    (void)t_to;
-    throw Unsupported("Not implemented yet");
+    /* Check that the given timestamps are consistent */
+    if (t_to <= t_from)
+    {
+        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
+    }
+
+    auto source_entity = get_entity(entity_id_source);
+    auto target_entity = get_entity(entity_id_target);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<const StatisticsSample*> samples;
+    switch (data_type)
+    {
+        case DataKind::FASTDDS_LATENCY:
+        {
+            break;
+        }
+        case DataKind::NETWORK_LATENCY:
+        {
+            break;
+        }
+        case DataKind::RTPS_PACKETS_SENT:
+        {
+            break;
+        }
+        case DataKind::RTPS_BYTES_SENT:
+        {
+            break;
+        }
+        case DataKind::RTPS_PACKETS_LOST:
+        {
+            break;
+        }
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            break;
+        }
+        case DataKind::DISCOVERY_TIME:
+        {
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Incorrect DataKind");
+        }
+    }
+    return samples;
 }
 
 std::vector<const StatisticsSample*> Database::select(
