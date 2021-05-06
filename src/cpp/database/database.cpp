@@ -1234,10 +1234,6 @@ std::vector<const StatisticsSample*> Database::select(
             }
             break;
         }
-        case DataKind::SAMPLE_DATAS:
-        {
-            break;
-        }
         // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
         default:
         {

@@ -269,7 +269,7 @@ set(DATABASE_TEST_LIST
     select_pdp_packets
     select_edp_packets
     select_discovery_time
-    select_sample_datas
+#    select_sample_datas
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})

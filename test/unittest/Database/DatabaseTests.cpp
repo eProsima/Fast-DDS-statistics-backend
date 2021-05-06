@@ -2591,6 +2591,7 @@ TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
@@ -2659,8 +2660,11 @@ TEST_F(database_tests, select_invalid_timestamps)
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_to), BadParameter);
+    // TODO(jlbueno) SAMPLE_DATAS should be fixed once requirement #11497 has been implemented
+/*
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
+*/
 }
 
 TEST_F(database_tests, select_fastdds_latency)
@@ -3459,6 +3463,8 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(data_output.size(), 0u);
 }
 
+// TODO(jlbueno) This test needs to be fixed once requirement #11497 has been implemented.
+/*
 TEST_F(database_tests, select_sample_datas)
 {
     data_output.clear();
@@ -3484,6 +3490,7 @@ TEST_F(database_tests, select_sample_datas)
 
     select_test(DataKind::SAMPLE_DATAS, writer_id, samples);
 }
+*/
 
 int main(
         int argc,
