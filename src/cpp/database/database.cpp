@@ -1118,6 +1118,20 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NACKFRAG_COUNT:
         {
+            assert(EntityKind::DATAREADER == entity->kind);
+            auto reader = static_cast<const DataReader*>(entity.get());
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : reader->data.nackfrag_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
             break;
         }
         case DataKind::GAP_COUNT:
