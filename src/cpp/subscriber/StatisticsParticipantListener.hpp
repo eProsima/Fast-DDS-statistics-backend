@@ -97,7 +97,6 @@ protected:
     void process_endpoint_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
             T&& info,
-            EntityKind endpoint_kind,
             const std::string& endpoint_name);
 
     template<typename T>

@@ -28,6 +28,7 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::AnyNumber;
 using ::testing::Contains;
+using ::testing::StrictMock;
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend::database;
@@ -70,7 +71,7 @@ class statistics_participant_listener_tests : public ::testing::Test
 public:
 
     // Mocked database, to check insertions
-    Database database;
+    StrictMock<Database> database;
 
     // Entity queue, attached to the mocked database
     DatabaseEntityQueue entity_queue;
@@ -227,10 +228,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
-
+    // Expectation: Nothing is inserted
+    participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
@@ -262,12 +261,25 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
-    // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    // Expectation: The Participant is added to the database (even though it will not really insert).
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
+                EXPECT_EQ(entity->name, participant_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
+                participant_info_to_backend_qos(info));
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+                return EntityId(10);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Execution: Call the listener.
+    participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
+    entity_queue.flush();
 }
 
 TEST_F(statistics_participant_listener_tests, participant_qos_change_discovered)
@@ -822,9 +834,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participa
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+    // Expectation: Nothing is inserted
+    participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
 
 }
 
@@ -881,9 +892,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+    // Expectation: Nothing is inserted
+    participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
 
 }
 
@@ -964,9 +974,34 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+    // Expectation: The DataReader is added to the database (even though it will not really insert).
+    InsertEntityArgs insert_reader_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
+
+                std::vector<std::string> expected_locator_names;
+                expected_locator_names.push_back(existing_unicast_locator_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
+                {
+                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
+                }
+
+                return EntityId(11);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+
+    // Execution: Call the listener.
+    participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
+    entity_queue.flush();
 }
 
 TEST_F(statistics_participant_listener_tests, reader_qos_change_discovered)
@@ -1515,9 +1550,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participa
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+    // Expectation: Nothing is inserted
+    participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
 
 }
 
@@ -1571,13 +1605,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
     // Finish building the discovered writer info
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
-    // Expectation: No entity is added to the database
+     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
-
+    // Expectation: Nothing is inserted
+    participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
 }
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_already_exists)
@@ -1598,6 +1630,15 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
+    // Precondition: The Participant is linked to a host with ID 50
+    std::string host_name = "hostname";
+    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
+
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
+    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+            .WillRepeatedly(Return(host));
+
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -1609,7 +1650,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + ":" + host_name;;
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1645,12 +1686,34 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
-    // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    // Expectation: The DataWriter is added to the database (even though it will not really insert).
+    InsertEntityArgs insert_writer_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_info_to_backend_qos(info));
 
-    // Expectation: Calling the listener throws
-    EXPECT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(info)),
-            eprosima::statistics_backend::Error);
+                std::vector<std::string> expected_locator_names;
+                expected_locator_names.push_back(existing_unicast_locator_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
+                {
+                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
+                }
+
+                return EntityId(11);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+
+    // Execution: Call the listener.
+    participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
+    entity_queue.flush();
 }
 
 TEST_F(statistics_participant_listener_tests, writer_qos_change_discovered)
