@@ -2779,6 +2779,54 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
+void Database::load_database(
+        DatabaseDump dump)
+{
+    // TODO
+    // static_cast<void>(dump);
+    // 
+    throw BadParameter("Database::load_database method is not supported yet.");
+
+    // Hosts
+    {
+        DatabaseDump container = DatabaseDump::object();
+
+        // For each entity of this kind in database
+        for (auto it : hosts_)
+        {
+            container[id_to_string(it.first.value())] = dump_entity_(it.second);
+        }
+
+        dump[HOST_CONTAINER] = container;
+    }
+
+
+}
+
+void Database::load_entity_(
+        const std::shared_ptr<Host>& entity)
+{
+    std::shared_ptr<Host> host;
+    host = std::make_shared<Host>();
+
+    
+    DatabaseDump entity_info = DatabaseDump::object();
+    entity_info[NAME_INFO] = entity->name;
+
+    // Populate subentity array
+    {
+        DatabaseDump subentities = DatabaseDump::array();
+        for (auto sub_it : entity->users)
+        {
+            subentities.push_back(id_to_string(sub_it.first));
+        }
+        entity_info[USER_CONTAINER] = subentities;
+    }
+
+    // return entity_info;
+}
+
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima
