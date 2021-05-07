@@ -282,11 +282,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     entity_queue.flush();
 }
 
-TEST_F(statistics_participant_listener_tests, participant_qos_change_discovered)
-{
-    FAIL() << "Not implemented";
-}
-
 TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
@@ -1004,11 +999,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     entity_queue.flush();
 }
 
-TEST_F(statistics_participant_listener_tests, reader_qos_change_discovered)
-{
-    FAIL() << "Not implemented";
-}
-
 TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
@@ -1714,11 +1704,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     // Execution: Call the listener.
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
     entity_queue.flush();
-}
-
-TEST_F(statistics_participant_listener_tests, writer_qos_change_discovered)
-{
-    FAIL() << "Not implemented";
 }
 
 int main(

@@ -46,7 +46,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_participant_discovered
         new_participant_discovered_no_domain
         new_participant_discovered_participant_already_exists
-        participant_qos_change_discovered
         new_reader_discovered
         new_reader_discovered_no_topic
         new_reader_discovered_several_locators
@@ -54,7 +53,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_reader_discovered_no_participant
         new_reader_discovered_no_domain
         new_reader_discovered_reader_already_exists
-        reader_qos_change_discovered
         new_writer_discovered
         new_writer_discovered_no_topic
         new_writer_discovered_several_locators
@@ -62,7 +60,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_writer_discovered_no_participant
         new_writer_discovered_no_domain
         new_writer_discovered_writer_already_exists
-        writer_qos_change_discovered
         )
 
     foreach(test_name ${STATISTICSPARTICIPANTLISTENER_TEST_LIST})
