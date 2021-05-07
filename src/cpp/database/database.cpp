@@ -1027,11 +1027,42 @@ std::vector<const StatisticsSample*> Database::select(
                         }
                     }
                 }
+                if (found)
+                {
+                    break;
+                }
             }
             break;
         }
         case DataKind::RTPS_PACKETS_SENT:
         {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto participant = static_cast<const DomainParticipant*>(source_entity.get());
+            for (auto& locator : participant->data.rtps_packets_sent)
+            {
+                /* Look if the participant has information about the required locator */
+                if (locator.first == entity_id_target)
+                {
+                    found = true;
+                    /* Look for the samples between the given timestamps */
+                    for (auto& sample : locator.second)
+                    {
+                        if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                        {
+                            samples.push_back(&sample);
+                        }
+                        else if (sample.src_ts > t_to)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (found)
+                {
+                    break;
+                }
+            }
             break;
         }
         case DataKind::RTPS_BYTES_SENT:
