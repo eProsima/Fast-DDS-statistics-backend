@@ -587,81 +587,6 @@ public:
         reader_id = db.insert(reader);
     }
 
-    void select_test(
-            const DataKind kind,
-            const EntityId source,
-            const EntityId target,
-            const std::vector<StatisticsSample>& samples)
-    {
-        for (size_t i = 0; i < samples.size(); i++)
-        {
-            ASSERT_NO_THROW(db.insert(domain_id, source, samples[i]));
-        }
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, target, src_ts, end_ts));
-        ASSERT_GE(data_output.size(), 3u);
-        EXPECT_EQ(*data_output[0], samples[0]);
-        EXPECT_EQ(*data_output[1], samples[1]);
-        EXPECT_EQ(*data_output[2], samples[2]);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, target, src_ts, mid1_ts));
-        EXPECT_EQ(data_output.size(), 0u);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, target, mid1_ts, mid2_ts));
-        ASSERT_GE(data_output.size(), 1u);
-        EXPECT_EQ(*data_output[0], samples[0]);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, target, mid2_ts, mid3_ts));
-        EXPECT_EQ(data_output.size(), 0u);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, target, sample2_ts, sample3_ts));
-        ASSERT_GE(data_output.size(), 2u);
-        EXPECT_EQ(*data_output[0], samples[1]);
-        EXPECT_EQ(*data_output[1], samples[2]);
-    }
-
-    void select_test(
-            const DataKind kind,
-            const EntityId source,
-            const std::vector<StatisticsSample>& samples)
-    {
-        for (size_t i = 0; i < samples.size(); i++)
-        {
-            ASSERT_NO_THROW(db.insert(domain_id, source, samples[i]));
-        }
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, src_ts, end_ts));
-        ASSERT_GE(data_output.size(), 3u);
-        EXPECT_EQ(*data_output[0], samples[0]);
-        EXPECT_EQ(*data_output[1], samples[1]);
-        EXPECT_EQ(*data_output[2], samples[2]);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, src_ts, mid1_ts));
-        EXPECT_EQ(data_output.size(), 0u);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, mid1_ts, mid2_ts));
-        ASSERT_GE(data_output.size(), 1u);
-        EXPECT_EQ(*data_output[0], samples[0]);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, mid2_ts, mid3_ts));
-        EXPECT_EQ(data_output.size(), 0u);
-
-        data_output.clear();
-        ASSERT_NO_THROW(data_output = db.select(kind, source, sample2_ts, sample3_ts));
-        ASSERT_GE(data_output.size(), 2u);
-        EXPECT_EQ(*data_output[0], samples[1]);
-        EXPECT_EQ(*data_output[1], samples[2]);
-    }
-
     DataBaseTest db;
     std::string host_name = "test_host";
     std::shared_ptr<Host> host;
@@ -703,7 +628,6 @@ public:
     Timestamp end_ts = src_ts + std::chrono::seconds(15);
 
     std::vector<const StatisticsSample*> data_output;
-    std::vector<StatisticsSample> samples;
 };
 
 TEST_F(database_tests, insert_host)
@@ -2172,10 +2096,8 @@ TEST_F(database_tests, insert_sample_discovery_time)
 
     ASSERT_EQ(participant->data.discovered_entity.size(), 1);
     ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].first, sample.time);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].first, sample_2.time);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].second, sample_2.discovered);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
@@ -2914,6 +2836,8 @@ TEST_F(database_tests, select_rtps_packets_sent)
     sample_3.count = 70;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    // TODO Adjust this test after merging PR which fixes rtps packets sent
+    // rtps packets sent stores the difference between each accumulated report and the previous one
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
@@ -2983,6 +2907,8 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    // TODO Adjust this test after merging PR which fixes rtps bytes sent
+    // rtps bytes sent stores the difference between each accumulated report and the previous one
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
@@ -3049,6 +2975,8 @@ TEST_F(database_tests, select_rtps_packets_lost)
     sample_3.count = 25;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    // TODO Adjust this test after merging PR which fixes rtps packets lost
+    // rtps packets lost stores the difference between each accumulated report and the previous one
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
@@ -3118,6 +3046,8 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    // TODO Adjust this test after merging PR which fixes rtps bytes lost
+    // rtps bytes lost stores the difference between each accumulated report and the previous one
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
@@ -3288,8 +3218,7 @@ TEST_F(database_tests, select_acknack_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
-
-    // TODO Adjust this test after merging PR which fixes acknack
+    // TODO Adjust this test after merging PR which fixes acknack count
     //acknack count stores the difference between each accumulated report and the previous one
 
     data_output.clear();
@@ -3397,9 +3326,8 @@ TEST_F(database_tests, select_gap_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
-
-    // TODO Adjust this test after merging PR which fixes resent datas
-    // resent datas stores the difference between each accumulated report and the previous one
+    // TODO Adjust this test after merging PR which fixes gap count
+    // gap count stores the difference between each accumulated report and the previous one
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
@@ -3599,7 +3527,6 @@ TEST_F(database_tests, select_edp_packets)
 TEST_F(database_tests, select_discovery_time)
 {
     data_output.clear();
-    samples.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -3608,21 +3535,52 @@ TEST_F(database_tests, select_discovery_time)
     sample_1.time = std::chrono::system_clock::now();
     sample_1.discovered = true;
     sample_1.src_ts = sample1_ts;
-    samples.push_back(sample_1);
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
     DiscoveryTimeSample sample_2;
     sample_2.remote_entity = reader_id;
     sample_2.time = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.discovered = false;
     sample_2.src_ts = sample2_ts;
-    samples.push_back(sample_2);
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     DiscoveryTimeSample sample_3;
     sample_3.remote_entity = reader_id;
     sample_3.time = std::chrono::system_clock::now() + std::chrono::seconds(17);
     sample_3.discovered = true;
     sample_3.src_ts = sample3_ts;
-    samples.push_back(sample_3);
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
 
-    select_test(DataKind::DISCOVERY_TIME, participant_id, reader_id, samples);
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    ASSERT_GE(data_output.size(), 3u);
+    auto sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    auto sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
+    auto sample3 = static_cast<const DiscoveryTimeSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid1_ts, mid2_ts));
+    ASSERT_GE(data_output.size(), 1u);
+    sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, sample2_ts, 
+        sample3_ts));
+    ASSERT_GE(data_output.size(), 2u);
+    sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, participant_id, src_ts, end_ts));

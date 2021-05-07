@@ -126,7 +126,7 @@ struct DomainParticipantData : RTPSData
      * represents whether the timepoint corresponds to a discovery/update (represented as ALIVE
      * with value 1), or to a un-discovery (represented as DISPOSED with value 0).
      */
-    std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>> discovered_entity;
+    std::map<EntityId, std::vector<DiscoveryTimeSample>> discovered_entity;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PDP_PACKETS_TOPIC

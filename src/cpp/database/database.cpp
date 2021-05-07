@@ -654,8 +654,7 @@ void Database::insert(
             if (participant)
             {
                 const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
-                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::system_clock::time_point,
-                        bool>(discovery_time.time, discovery_time.discovered));
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(discovery_time);
                 break;
             }
             throw BadParameter(std::to_string(
@@ -1160,6 +1159,34 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::DISCOVERY_TIME:
         {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::PARTICIPANT == target_entity->kind || EntityKind::DATAREADER == target_entity->kind ||
+                EntityKind::DATAWRITER == target_entity->kind);
+            auto participant = static_cast<const DomainParticipant*>(source_entity.get());
+            for (auto& dds_entity : participant->data.discovered_entity)
+            {
+                /* Look if the participant has information about the required dds entity */
+                if (dds_entity.first == entity_id_target)
+                {
+                    found = true;
+                    /* Look for the samples between the given timestamps */
+                    for (auto& sample : dds_entity.second)
+                    {
+                        if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                        {
+                            samples.push_back(&sample);
+                        }
+                        else if (sample.src_ts > t_to)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (found)
+                {
+                    break;
+                }
+            }
             break;
         }
         default:
