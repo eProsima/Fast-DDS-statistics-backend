@@ -440,9 +440,11 @@ void Database::insert(
                 const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
                 // Store the increment since the last report
                 participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
-                    rtps_packets_sent - participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
+                    rtps_packets_sent -
+                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
                 // Update last report
-                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] = rtps_packets_sent;
+                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
+                        rtps_packets_sent;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -456,7 +458,12 @@ void Database::insert(
             if (participant)
             {
                 const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
-                participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(rtps_bytes_sent);
+                // Store the increment since the last report
+                participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
+                    rtps_bytes_sent -
+                    participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator]);
+                // Update last report
+                participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] = rtps_bytes_sent;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -472,9 +479,11 @@ void Database::insert(
                 const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
                 // Store the increment since the last report
                 participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
-                    rtps_packets_lost - participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator]);
+                    rtps_packets_lost -
+                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator]);
                 // Update last report
-                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator] = rtps_packets_lost;
+                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator] =
+                        rtps_packets_lost;
                 break;
             }
             throw BadParameter(std::to_string(
@@ -488,7 +497,12 @@ void Database::insert(
             if (participant)
             {
                 const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
-                participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                // Store the increment since the last report
+                participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
+                    rtps_bytes_lost -
+                    participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator]);
+                // Update last report
+                participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] = rtps_bytes_lost;
                 break;
             }
             throw BadParameter(std::to_string(

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <chrono>
+#include <limits>
 
 #include "gtest/gtest.h"
 
@@ -107,6 +108,29 @@ TEST(database, entitycountsample_operator_comparison)
     ASSERT_NE(sample_1, sample_2);
 }
 
+TEST(database, entitycountsample_operator_minus)
+{
+    EntityCountSample sample_1;
+    sample_1.count = 2;
+    EntityCountSample sample_2;
+    sample_2.count = 2;
+    EntityCountSample sample_3;
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
+
+    sample_2.count = 1;
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
+
+#ifndef NDEBUG
+    // Assertion are active here
+    sample_2.count = 3;
+    ASSERT_DEATH(sample_1 - sample_2, "");
+#endif // ifndef NDEBUG
+}
+
 TEST(database, bytecountsample_operator_comparison)
 {
     ByteCountSample sample_1;
@@ -128,6 +152,89 @@ TEST(database, bytecountsample_operator_comparison)
     sample_2.count = 2;
     sample_2.magnitude_order = 3;
     ASSERT_NE(sample_1, sample_2);
+}
+
+TEST(database, bytecountsample_operator_minus)
+{
+    // Different time points used to check that the correct one is kept
+    auto ts_1 = std::chrono::system_clock::now();
+    auto ts_2 = ts_1 - std::chrono::seconds(5);
+
+    /* Initialize samples 1 and 2 so that both count and magnitude order of 1 are smaller that in 2 */
+    ByteCountSample sample_1;
+    sample_1.src_ts = ts_1;
+    sample_1.magnitude_order = 1;
+    sample_1.count = 3;
+
+    ByteCountSample sample_2;
+    sample_2.src_ts = ts_2;
+    sample_2.magnitude_order = 2;
+    sample_2.count = 4;
+
+    ByteCountSample sample_3;
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.magnitude_order, -2);
+    ASSERT_EQ(sample_3.count, std::numeric_limits<uint64_t>::max() - (sample_2.count - sample_1.count) + 1);
+    ASSERT_EQ(sample_3.src_ts, ts_1);
+
+    sample_3 = sample_2 - sample_1;
+    ASSERT_EQ(sample_3.magnitude_order, 1);
+    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.src_ts, ts_2);
+
+    /* Initialize samples 1 and 2 so that one digit on 1 is smaller than in 2, while the other is larger */
+    sample_1.magnitude_order = 2;
+    sample_1.count = 3;
+    sample_2.magnitude_order = 1;
+    sample_2.count = 4;
+
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.magnitude_order, 0);
+    ASSERT_EQ(sample_3.count, std::numeric_limits<uint64_t>::max() - (sample_2.count - sample_1.count) + 1);
+    ASSERT_EQ(sample_3.src_ts, ts_1);
+
+    sample_3 = sample_2 - sample_1;
+    ASSERT_EQ(sample_3.magnitude_order, -1);
+    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.src_ts, ts_2);
+
+    /* Check when count is equal, but magnitude_order is not */
+    sample_1.magnitude_order = 2;
+    sample_1.count = 3;
+    sample_2.magnitude_order = 1;
+    sample_2.count = 3;
+
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.magnitude_order, 1);
+    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.src_ts, ts_1);
+
+    sample_3 = sample_2 - sample_1;
+    ASSERT_EQ(sample_3.magnitude_order, -1);
+    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.src_ts, ts_2);
+
+    /* Check when magnitude_order is equal, but count is not */
+    sample_1.magnitude_order = 2;
+    sample_1.count = 3;
+    sample_2.magnitude_order = 2;
+    sample_2.count = 5;
+
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.magnitude_order, -1);
+    ASSERT_EQ(sample_3.count, std::numeric_limits<uint64_t>::max() - (sample_2.count - sample_1.count) + 1);
+    ASSERT_EQ(sample_3.src_ts, ts_1);
+
+    sample_3 = sample_2 - sample_1;
+    ASSERT_EQ(sample_3.magnitude_order, 0);
+    ASSERT_EQ(sample_3.count, 2);
+    ASSERT_EQ(sample_3.src_ts, ts_2);
+
+    /* Check that 2 minus itself is 0 */
+    sample_3 = sample_2 - sample_2;
+    ASSERT_EQ(sample_3.magnitude_order, 0);
+    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.src_ts, ts_2);
 }
 
 TEST(database, timepointsample_operator_comparison)

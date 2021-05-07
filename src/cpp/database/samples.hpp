@@ -121,8 +121,9 @@ struct EntityCountSample : StatisticsSample
     inline EntityCountSample operator -(
             const EntityCountSample& other) const noexcept
     {
-        EntityCountSample ret;
-        ret.kind = kind;
+        assert(count >= other.count);
+        EntityCountSample ret(kind);
+        ret.src_ts = src_ts;
         ret.count = count - other.count;
         return ret;
     }
@@ -158,6 +159,35 @@ struct ByteCountSample : StatisticsSample
             const ByteCountSample& other) const noexcept
     {
         return !(*this == other);
+    }
+
+
+    /**
+     * ByteCountSample is, in a way, a number expressed in base 2^64, where count is the first digit from the right
+     * (LSD), and magnitude_order is the second digit from the right (MSD). However, it has 2 peculiarities:
+     *     1. MSD range is [-2^15; 2^15-1]
+     *     2. LSD range is [0; 2^64-1]
+     *
+     * Because LSD CANNOT be negative, a negative number represented as ByteCountSample is a bit counter intuitive
+     * at first. Following, and example of the representation of the same number in base 10 and as a ByteCountSample
+     * is given (assume that a number can expressed as (MSD, LSD) in both representations).
+     *     BASE 10:
+     *         -9 = (0, -9)
+     *     ByteCountSample
+     *         -9 = (-1, 2^64 - 9) -> This is interpreted as (-(1 * 2^64) + (2^64 - 9)) = -2^64 + 2^64 -9 = -9
+     */
+    inline ByteCountSample operator -(
+            const ByteCountSample& other) const noexcept
+    {
+        ByteCountSample ret(kind);
+        ret.src_ts = src_ts;
+        ret.count = count - other.count;
+        ret.magnitude_order = magnitude_order - other.magnitude_order;
+        if (ret.count > count)
+        {
+            ret.magnitude_order -=  1;
+        }
+        return ret;
     }
 
     uint64_t count;

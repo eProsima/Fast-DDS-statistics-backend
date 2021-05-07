@@ -35,7 +35,9 @@ set(SAMPLES_TEST_LIST
     statisticssample_operator_comparison
     entitydatasample_operator_comparison
     entitycountsample_operator_comparison
+    entitycountsample_operator_minus
     bytecountsample_operator_comparison
+    bytecountsample_operator_minus
     timepointsample_operator_comparison
     entitytolocatorcountsample_operator_comparison
     bytetolocatorcountsample_operator_comparison
