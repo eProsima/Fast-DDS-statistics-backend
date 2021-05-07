@@ -271,7 +271,8 @@ void DatabaseDataQueue::process_sample()
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
         }
         break;
@@ -312,7 +313,8 @@ void DatabaseDataQueue::process_sample()
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing PUBLICATION_THROUGHPUT event. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
         }
         break;
@@ -333,7 +335,8 @@ void DatabaseDataQueue::process_sample()
             {
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing SUBSCRIPTION_THROUGHPUT event. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
         }
         break;
@@ -635,7 +638,8 @@ void DatabaseDataQueue::process_sample()
             size_t separator_pos = item.process().find_last_of(':');
             if (separator_pos == std::string::npos)
             {
-                logError(BACKEND_DATABASE_QUEUE, "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+                logError(BACKEND_DATABASE_QUEUE,
+                        "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
             }
             std::string process_name = item.process().substr(0, separator_pos);
             std::string process_pid = item.process().substr(separator_pos + 1);
@@ -650,7 +654,7 @@ void DatabaseDataQueue::process_sample()
                 {
                     database_->insert(std::static_pointer_cast<Entity>(host));
                 }
-                catch(const std::exception& e)
+                catch (const std::exception& e)
                 {
                     logError(BACKEND_DATABASE_QUEUE, e.what());
                     return;
@@ -686,7 +690,7 @@ void DatabaseDataQueue::process_sample()
                 {
                     database_->insert(std::static_pointer_cast<Entity>(user));
                 }
-                catch(const std::exception& e)
+                catch (const std::exception& e)
                 {
                     logError(BACKEND_DATABASE_QUEUE, e.what());
                 }
@@ -716,7 +720,7 @@ void DatabaseDataQueue::process_sample()
                 {
                     process_id = database_->insert(std::static_pointer_cast<Entity>(process));
                 }
-                catch(const std::exception& e)
+                catch (const std::exception& e)
                 {
                     logError(BACKEND_DATABASE_QUEUE, e.what());
                 }

@@ -350,7 +350,7 @@ protected:
         {
             database_->insert(front().second);
         }
-        catch(const eprosima::statistics_backend::Exception& e)
+        catch (const eprosima::statistics_backend::Exception& e)
         {
             logError(BACKEND_DATABASE_QUEUE, e.what());
         }
