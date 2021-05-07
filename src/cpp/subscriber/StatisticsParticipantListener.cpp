@@ -122,7 +122,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 assert(hosts.size() == 1);
 
                 //There is physical info. Add the host info to the locator
-                locator->name += std::string(":") + hosts.front()->name;
+                locator->name += std::string("@") + hosts.front()->name;
 
                 // Look for the locator
                 auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, locator->name);
