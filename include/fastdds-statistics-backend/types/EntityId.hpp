@@ -111,7 +111,7 @@ protected:
     static constexpr int64_t ENTITY_ID_INVALID = -1;
 
     //! EntityId representing all entities
-    static constexpr int64_t ENTITY_ID_ALL = 0;
+    static constexpr int64_t ENTITY_ID_ALL = -2;
 };
 
 /**
