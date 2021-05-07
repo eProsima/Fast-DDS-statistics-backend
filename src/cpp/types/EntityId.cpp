@@ -43,6 +43,11 @@ bool EntityId::is_valid() noexcept
     return (value_ >= 0);
 }
 
+bool EntityId::is_all() noexcept
+{
+    return (value_ != ENTITY_ID_ALL);
+}
+
 void EntityId::invalidate() noexcept
 {
     value_ = ENTITY_ID_INVALID;

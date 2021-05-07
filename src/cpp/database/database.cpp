@@ -36,6 +36,18 @@ EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    // Insert in the database with a unique ID
+    EntityId entity = insert_nts(entity,EntityId::invalid());
+
+    // Clear the entity
+    entity->clear();
+}
+
+EntityId Database::insert_nts(
+        const std::shared_ptr<Entity>& entity,
+        const EntityId& entity_id)
+{
     switch (entity->kind)
     {
         case EntityKind::HOST:
@@ -61,9 +73,12 @@ EntityId Database::insert(
                 }
             }
 
-            /* Insert host in the database */
-            host->users.clear();
-            host->id = generate_entity_id();
+            // /* Insert host in the database */
+            // if (entity_id.is_valid() && entity_id.is_all())
+            //     host->id = generate_entity_id();
+            // else
+            //     host->id = entity_id;
+
             hosts_[host->id] = host;
             return host->id;
         }
@@ -114,8 +129,7 @@ EntityId Database::insert(
             }
 
             /* Add user to users collection */
-            user->processes.clear();
-            user->id = generate_entity_id();
+            user->id = entity_id;
             users_[user->id] = user;
 
             /* Add user to host's users collection */
@@ -178,8 +192,7 @@ EntityId Database::insert(
             }
 
             /* Add process to processes collection */
-            process->participants.clear();
-            process->id = generate_entity_id();
+            process->id = entity_id;
             processes_[process->id] = process;
 
             /* Add process to user's processes collection */
@@ -212,9 +225,7 @@ EntityId Database::insert(
             }
 
             /* Insert domain in the database */
-            domain->topics.clear();
-            domain->participants.clear();
-            domain->id = generate_entity_id();
+            domain->id = entity_id;
             domains_[domain->id] = domain;
             return domain->id;
         }
@@ -266,9 +277,7 @@ EntityId Database::insert(
             }
 
             /* Add topic to domain's collection */
-            topic->data_readers.clear();
-            topic->data_writers.clear();
-            topic->id = generate_entity_id();
+            topic->id = entity_id;
             domains_[topic->domain->id]->topics[topic->id] = topic;
 
             /* Insert topic in the database */
@@ -334,10 +343,7 @@ EntityId Database::insert(
             }
 
             /* Add participant to process' collection */
-            participant->data_readers.clear();
-            participant->data_writers.clear();
-            participant->data.clear();
-            participant->id = generate_entity_id();
+            participant->id = entity_id;
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
@@ -2782,8 +2788,21 @@ DatabaseDump Database::dump_data_(
 void Database::load_database(
         DatabaseDump dump)
 {
+    // TODO: Check if dump have the correct keys?
+
+    DatabaseDump hostDump = dump[HOST_CONTAINER];
+
+    for (auto it = hostDump.begin(); it != hostDump.end(); ++it)
+    {
+        std::shared_ptr<Host> host = load_entity_(it.value());
+        // host
+        // insert(host);
+    }
+
+    // ------------------
+
     // TODO
-    // static_cast<void>(dump);
+    static_cast<void>(dump);
     // 
     throw BadParameter("Database::load_database method is not supported yet.");
 
@@ -2803,25 +2822,30 @@ void Database::load_database(
 
 }
 
-void Database::load_entity_(
-        const std::shared_ptr<Host>& entity)
+std::shared_ptr<Host> Database::load_entity_(
+        const DatabaseDump& dump)
 {
-    std::shared_ptr<Host> host;
-    host = std::make_shared<Host>();
-
+    // Create host
+    std::shared_ptr<Host> host = std::make_shared<Host>("H");
     
-    DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
 
-    // Populate subentity array
-    {
-        DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->users)
-        {
-            subentities.push_back(id_to_string(sub_it.first));
-        }
-        entity_info[USER_CONTAINER] = subentities;
-    }
+    return host;
+
+
+    // ------------------
+
+    // DatabaseDump entity_info = DatabaseDump::object();
+    // entity_info[NAME_INFO] = entity->name;
+
+    // // Populate subentity array
+    // {
+    //     DatabaseDump subentities = DatabaseDump::array();
+    //     for (auto sub_it : entity->users)
+    //     {
+    //         subentities.push_back(id_to_string(sub_it.first));
+    //     }
+    //     entity_info[USER_CONTAINER] = subentities;
+    // }
 
     // return entity_info;
 }

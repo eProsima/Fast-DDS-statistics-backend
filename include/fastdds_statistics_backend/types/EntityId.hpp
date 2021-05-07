@@ -97,6 +97,12 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() noexcept;
 
     /**
+     * @brief Check whether an EntityId is the ID representing all entities
+     * @return True if is ENTITY_ID_ALL, false otherwise
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() noexcept;
+
+    /**
      * @brief Get the internal value of the EntityId
      * @return An int64_t with the representing internal value
      */

@@ -514,13 +514,14 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, ByteCountSample>& data);
 
-    
    /**
     * TODO: LOAD
     */
-    void load_entity_(const std::shared_ptr<Host>& entity);
+    EntityId insert_nts(
+        const std::shared_ptr<Entity>& entity,
+        const EntityId& entity_id);
 
-
+    std::shared_ptr<Host> load_entity_(const DatabaseDump& dump);
     
 
     //! Collection of Hosts sorted by EntityId

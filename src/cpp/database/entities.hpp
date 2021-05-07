@@ -58,6 +58,11 @@ struct Entity
 
     virtual ~Entity() = default;
 
+    /**
+     * Clear the maps and data
+     */
+    virtual void clear() = 0;
+
     //! The unique identification of the entity
     EntityId id;
 
@@ -79,6 +84,11 @@ struct Host : Entity
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
+
     /*
      * Collection of users within the host which are involved in the communication.
      * The collection is ordered by the EntityId of the user nodes.
@@ -98,6 +108,11 @@ struct User : Entity
         , host(user_host)
     {
     }
+
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
 
     //! Reference to the Host in which this user runs
     std::shared_ptr<Host> host;
@@ -124,6 +139,11 @@ struct Process : Entity
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
+
     //! The PID of the process
     std::string pid;
 
@@ -148,6 +168,11 @@ struct Domain : Entity
         : Entity(EntityKind::DOMAIN, domain_name)
     {
     }
+
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
 
     /*
      * Collection of Topics within the Domain which are either published, subscribed, or both.
@@ -178,6 +203,11 @@ struct DDSEntity : Entity
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    virtual void clear() = 0;
+
     //! Quality of Service configuration of the entities in a tree structure.
     Qos qos;
 
@@ -201,6 +231,11 @@ struct DomainParticipant : DDSEntity
         , domain(participant_domain)
     {
     }
+
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
 
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
@@ -243,6 +278,11 @@ struct Topic : Entity
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
+
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
 
@@ -283,6 +323,11 @@ struct DDSEndpoint : DDSEntity
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    virtual void clear() = 0;
+
     //! Reference to the DomainParticipant in which this Endpoint runs.
     std::shared_ptr<DomainParticipant> participant;
 
@@ -312,6 +357,11 @@ struct DataReader : DDSEndpoint
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
+
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderData data;
 };
@@ -332,6 +382,11 @@ struct DataWriter : DDSEndpoint
     {
     }
 
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
+
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterData data;
 };
@@ -347,6 +402,11 @@ struct Locator : Entity
         : Entity(EntityKind::LOCATOR, locator_name)
     {
     }
+
+    /**
+     * Clear the maps and data
+     */
+    void clear() final;
 
     /*
      * Collection of DataReaders using this locator.

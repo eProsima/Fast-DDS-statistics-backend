@@ -19,6 +19,56 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+void Host::clear()
+{
+    users.clear();
+}
+
+void User::clear()
+{
+    processes.clear();
+}
+
+void Process::clear()
+{
+    participants.clear();
+}
+
+void Domain::clear()
+{
+    topics.clear();
+    participants.clear(); 
+}
+
+void DomainParticipant::clear()
+{
+    data_readers.clear();
+    data_writers.clear();
+    data.clear();
+}
+
+void Topic::clear()
+{
+    data_readers.clear();
+    data_writers.clear();
+}
+
+void DataReader::clear()
+{
+    data.clear();
+}
+
+void DataWriter::clear()
+{
+    data.clear();
+}
+
+void Locator::clear()
+{
+    data_readers.clear();
+    data_writers.clear();
+}
+
 template<>
 std::map<EntityId, std::shared_ptr<DataReader>>& DomainParticipant::ddsendpoints<DataReader>()
 {
