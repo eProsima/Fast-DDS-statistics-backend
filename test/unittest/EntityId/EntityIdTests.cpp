@@ -23,7 +23,7 @@ using namespace eprosima::statistics_backend;
 
 TEST(entityid, all)
 {
-    EXPECT_EQ(0, EntityId::all().value());
+    EXPECT_EQ(-2, EntityId::all().value());
 }
 
 TEST(entityid, invalid)
