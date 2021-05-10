@@ -61,7 +61,7 @@ struct Entity
     /**
      * Clear the maps and data
      */
-    virtual void clear() = 0;
+    virtual void clear(){};
 
     //! The unique identification of the entity
     EntityId id;
@@ -206,7 +206,7 @@ struct DDSEntity : Entity
     /**
      * Clear the maps and data
      */
-    virtual void clear() = 0;
+    virtual void clear(){};
 
     //! Quality of Service configuration of the entities in a tree structure.
     Qos qos;
@@ -326,7 +326,7 @@ struct DDSEndpoint : DDSEntity
     /**
      * Clear the maps and data
      */
-    virtual void clear() = 0;
+    virtual void clear(){};
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     std::shared_ptr<DomainParticipant> participant;

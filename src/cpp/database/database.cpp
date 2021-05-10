@@ -38,10 +38,12 @@ EntityId Database::insert(
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Insert in the database with a unique ID
-    EntityId entity = insert_nts(entity,EntityId::invalid());
+    EntityId entityId = insert_nts(entity,EntityId::invalid());
 
     // Clear the entity
     entity->clear();
+
+    return entityId;
 }
 
 EntityId Database::insert_nts(
@@ -73,11 +75,12 @@ EntityId Database::insert_nts(
                 }
             }
 
-            // /* Insert host in the database */
-            // if (entity_id.is_valid() && entity_id.is_all())
-            //     host->id = generate_entity_id();
-            // else
-            //     host->id = entity_id;
+            
+            /* Insert host in the database */
+            if (!entity_id.is_valid() || entity_id.is_all())
+                host->id = generate_entity_id();
+            else
+                host->id = entity_id;
 
             hosts_[host->id] = host;
             return host->id;
@@ -129,7 +132,11 @@ EntityId Database::insert_nts(
             }
 
             /* Add user to users collection */
-            user->id = entity_id;
+            if (!entity_id.is_valid() || entity_id.is_all())
+                user->id = generate_entity_id();
+            else
+                user->id = entity_id;
+                
             users_[user->id] = user;
 
             /* Add user to host's users collection */
@@ -192,7 +199,11 @@ EntityId Database::insert_nts(
             }
 
             /* Add process to processes collection */
-            process->id = entity_id;
+            if (!entity_id.is_valid() || entity_id.is_all())
+                process->id = generate_entity_id();
+            else
+                process->id = entity_id;
+
             processes_[process->id] = process;
 
             /* Add process to user's processes collection */
@@ -225,7 +236,11 @@ EntityId Database::insert_nts(
             }
 
             /* Insert domain in the database */
-            domain->id = entity_id;
+            if (!entity_id.is_valid() || entity_id.is_all())
+                domain->id = generate_entity_id();
+            else
+                domain->id = entity_id;
+
             domains_[domain->id] = domain;
             return domain->id;
         }
@@ -277,7 +292,11 @@ EntityId Database::insert_nts(
             }
 
             /* Add topic to domain's collection */
-            topic->id = entity_id;
+            if (!entity_id.is_valid() || entity_id.is_all())
+                topic->id = generate_entity_id();
+            else
+                topic->id = entity_id;
+
             domains_[topic->domain->id]->topics[topic->id] = topic;
 
             /* Insert topic in the database */
@@ -343,7 +362,10 @@ EntityId Database::insert_nts(
             }
 
             /* Add participant to process' collection */
-            participant->id = entity_id;
+            if (!entity_id.is_valid() || entity_id.is_all())
+                participant->id = generate_entity_id();
+            else
+                participant->id = entity_id;
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
@@ -2828,6 +2850,7 @@ std::shared_ptr<Host> Database::load_entity_(
     // Create host
     std::shared_ptr<Host> host = std::make_shared<Host>("H");
     
+    static_cast<void>(dump);
 
     return host;
 

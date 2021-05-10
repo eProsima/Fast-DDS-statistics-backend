@@ -94,13 +94,13 @@ public:
      * @brief Check whether an EntityId is valid
      * @return True if valid, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() const noexcept;
 
     /**
      * @brief Check whether an EntityId is the ID representing all entities
      * @return True if is ENTITY_ID_ALL, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() const noexcept;
 
     /**
      * @brief Get the internal value of the EntityId

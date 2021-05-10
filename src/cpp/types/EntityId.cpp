@@ -38,12 +38,12 @@ EntityId EntityId::invalid() noexcept
     return EntityId(ENTITY_ID_INVALID);
 }
 
-bool EntityId::is_valid() noexcept
+bool EntityId::is_valid() const noexcept
 {
     return (value_ >= 0);
 }
 
-bool EntityId::is_all() noexcept
+bool EntityId::is_all() const noexcept
 {
     return (value_ != ENTITY_ID_ALL);
 }
