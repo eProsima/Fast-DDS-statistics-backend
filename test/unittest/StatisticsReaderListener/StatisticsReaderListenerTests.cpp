@@ -786,6 +786,178 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_not_in_mask)
     data_queue_.flush();
 }
 
+TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_packets_not_in_mask)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_SENT);
+
+    add_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The event is filtered out
+    clear_data_mask_bit(eprosima::statistics_backend::DataKind::RTPS_PACKETS_SENT);
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
+
+    // Insert the data on the queue and wait until processed
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+}
+
+TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_bytes_not_in_mask)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_SENT);
+
+    add_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The event is filtered out
+    clear_data_mask_bit(eprosima::statistics_backend::DataKind::RTPS_BYTES_SENT);
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
+
+    // Insert the data on the queue and wait until processed
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+}
+
 TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 {
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -923,6 +1095,177 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_not_in_mask)
 
     // Expectation: The insert method is never called
     EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+
+    // Insert the data on the queue and wait until processed
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+}
+
+TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_packets_not_in_mask)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_LOST);
+
+    add_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The event is filtered out
+    clear_data_mask_bit(eprosima::statistics_backend::DataKind::RTPS_PACKETS_LOST);
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
+
+    // Insert the data on the queue and wait until processed
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+}
+TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_bytes_not_in_mask)
+{
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the writer GUID
+    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build the locator address
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    inner_data.src_guid(writer_guid);
+    inner_data.dst_locator(dst_locator);
+    inner_data.packet_count(1024);
+    inner_data.byte_count(2048);
+    inner_data.byte_magnitude_order(10);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->entity2locator_traffic(inner_data);
+    data->_d(EventKind::RTPS_LOST);
+
+    add_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(1)))));
+
+    // Precondition: The locator exists and has ID 2
+    EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Precondition: The event is filtered out
+    clear_data_mask_bit(eprosima::statistics_backend::DataKind::RTPS_BYTES_LOST);
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
     reader_listener_.on_data_available(&datareader_);

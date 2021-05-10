@@ -53,8 +53,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_subscription_throughput_received_not_in_mask
         new_rtps_sent_received
         new_rtps_sent_received_not_in_mask
+        new_rtps_sent_received_packets_not_in_mask
+        new_rtps_sent_received_bytes_not_in_mask
         new_rtps_lost_received
         new_rtps_lost_received_not_in_mask
+        new_rtps_lost_received_packets_not_in_mask
+        new_rtps_lost_received_bytes_not_in_mask
         new_resent_datas_received
         new_resent_datas_received_not_in_mask
         new_heartbeat_count_received
