@@ -912,6 +912,12 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
     throw Unsupported("Not implemented yet");
 }
 
+EntityKind Database::get_entity_kind(
+        EntityId entity_id) const
+{
+    return get_entity(entity_id).get()->kind;
+}
+
 EntityId Database::generate_entity_id() noexcept
 {
     return EntityId(next_id_++);
