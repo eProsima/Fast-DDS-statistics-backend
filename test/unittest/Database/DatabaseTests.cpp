@@ -2568,22 +2568,22 @@ TEST_F(database_tests, select_invalid_timestamps)
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_from),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_to),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_from),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_to),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_from),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_from),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_to),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_from),
-        BadParameter);
+            BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_to), BadParameter);
@@ -2672,7 +2672,7 @@ TEST_F(database_tests, select_network_latency)
 {
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     NetworkLatencySample sample_1;
@@ -2693,7 +2693,7 @@ TEST_F(database_tests, select_network_latency)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     ASSERT_GE(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -2704,24 +2704,24 @@ TEST_F(database_tests, select_network_latency)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
-        mid1_ts));
+            mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
-        mid2_ts));
+            mid2_ts));
     ASSERT_GE(data_output.size(), 1u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
-        mid3_ts));
+            mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id,
-        sample2_ts, sample3_ts));
+            sample2_ts, sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -2730,7 +2730,7 @@ TEST_F(database_tests, select_network_latency)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -2842,7 +2842,7 @@ TEST_F(database_tests, select_rtps_packets_sent)
 {
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     RtpsPacketsSentSample sample_1;
@@ -2865,7 +2865,7 @@ TEST_F(database_tests, select_rtps_packets_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     ASSERT_GE(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -2876,24 +2876,24 @@ TEST_F(database_tests, select_rtps_packets_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
-        mid1_ts));
+            mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid1_ts,
-        mid2_ts));
+            mid2_ts));
     ASSERT_GE(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid2_ts,
-        mid3_ts));
+            mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, sample2_ts,
-        sample3_ts));
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -2902,7 +2902,7 @@ TEST_F(database_tests, select_rtps_packets_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -2910,7 +2910,7 @@ TEST_F(database_tests, select_rtps_bytes_sent)
 {
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     RtpsBytesSentSample sample_1;
@@ -2936,7 +2936,7 @@ TEST_F(database_tests, select_rtps_bytes_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     ASSERT_GE(data_output.size(), 3u);
     auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
@@ -2947,24 +2947,24 @@ TEST_F(database_tests, select_rtps_bytes_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
-        mid1_ts));
+            mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid1_ts,
-        mid2_ts));
+            mid2_ts));
     ASSERT_GE(data_output.size(), 1u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid2_ts,
-        mid3_ts));
+            mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, sample2_ts,
-        sample3_ts));
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     sample2 = static_cast<const ByteCountSample*>(data_output[1]);
@@ -2973,7 +2973,7 @@ TEST_F(database_tests, select_rtps_bytes_sent)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -2981,7 +2981,7 @@ TEST_F(database_tests, select_rtps_packets_lost)
 {
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     RtpsPacketsLostSample sample_1;
@@ -3004,7 +3004,7 @@ TEST_F(database_tests, select_rtps_packets_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     ASSERT_GE(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3015,24 +3015,24 @@ TEST_F(database_tests, select_rtps_packets_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
-        mid1_ts));
+            mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid1_ts,
-        mid2_ts));
+            mid2_ts));
     ASSERT_GE(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid2_ts,
-        mid3_ts));
+            mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, sample2_ts,
-        sample3_ts));
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3041,7 +3041,7 @@ TEST_F(database_tests, select_rtps_packets_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -3049,7 +3049,7 @@ TEST_F(database_tests, select_rtps_bytes_lost)
 {
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     RtpsBytesLostSample sample_1;
@@ -3075,7 +3075,7 @@ TEST_F(database_tests, select_rtps_bytes_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
-        end_ts));
+            end_ts));
     ASSERT_GE(data_output.size(), 3u);
     auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
@@ -3086,24 +3086,24 @@ TEST_F(database_tests, select_rtps_bytes_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
-        mid1_ts));
+            mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid1_ts,
-        mid2_ts));
+            mid2_ts));
     ASSERT_GE(data_output.size(), 1u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid2_ts,
-        mid3_ts));
+            mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, sample2_ts,
-        sample3_ts));
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     sample2 = static_cast<const ByteCountSample*>(data_output[1]);
@@ -3112,7 +3112,7 @@ TEST_F(database_tests, select_rtps_bytes_lost)
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, src_ts,
-        end_ts));
+            end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -3598,8 +3598,8 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, sample2_ts, 
-        sample3_ts));
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, sample2_ts,
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
     sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
@@ -3663,8 +3663,8 @@ TEST_F(database_tests, select_sample_datas)
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts, 
-        sample3_ts));
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts,
+            sample3_ts));
     ASSERT_GE(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);

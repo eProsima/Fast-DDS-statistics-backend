@@ -104,7 +104,7 @@ public:
      *
      * For data types that relate to a single entity,
      * use the overloaded function that takes a single entity as argument.
-     * 
+     *
      * For SAMPLE_DATAS DataKind,
      * use the overloaded function that takes sequence numbers as arguments.
      *
@@ -171,7 +171,7 @@ public:
      *
      * For data types that relate to a single entity,
      * use the overloaded function that takes a single entity as argument.
-     * 
+     *
      * For data types that relate to two entities,
      * use the overloaded function that takes two entities as arguments.
      *

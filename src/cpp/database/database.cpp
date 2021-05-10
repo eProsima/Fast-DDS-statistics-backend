@@ -1161,7 +1161,7 @@ std::vector<const StatisticsSample*> Database::select(
         {
             assert(EntityKind::PARTICIPANT == source_entity->kind);
             assert(EntityKind::PARTICIPANT == target_entity->kind || EntityKind::DATAREADER == target_entity->kind ||
-                EntityKind::DATAWRITER == target_entity->kind);
+                    EntityKind::DATAWRITER == target_entity->kind);
             auto participant = static_cast<const DomainParticipant*>(source_entity.get());
             for (auto& dds_entity : participant->data.discovered_entity)
             {
@@ -1458,7 +1458,6 @@ std::vector<const StatisticsSample*> Database::select(
     }
     return samples;
 }
-
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
         EntityKind entity_kind,
