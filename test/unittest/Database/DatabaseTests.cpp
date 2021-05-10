@@ -2534,10 +2534,36 @@ TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
     EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, reader_id, t_from, t_to), BadParameter);
 }
 
+TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+    uint64_t sequence_number = 3;
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
+}
+
 TEST_F(database_tests, select_invalid_timestamps)
 {
     Timestamp t_from = std::chrono::system_clock::now();
     Timestamp t_to = t_from - std::chrono::nanoseconds(1);
+    uint64_t sequence_number = 3;
 
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to), BadParameter);
@@ -2582,11 +2608,9 @@ TEST_F(database_tests, select_invalid_timestamps)
     EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_to), BadParameter);
-    // TODO(jlbueno) SAMPLE_DATAS should be fixed once requirement #11497 has been implemented
-/*
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
-*/
+
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_fastdds_latency)
@@ -3591,34 +3615,62 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(data_output.size(), 0u);
 }
 
-// TODO(jlbueno) This test needs to be fixed once requirement #11497 has been implemented.
-/*
 TEST_F(database_tests, select_sample_datas)
 {
+    uint64_t sequence_number = 3;
     data_output.clear();
-    samples.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     SampleDatasCountSample sample_1;
-    sample_1.count = 34;
-    sample_1.sequence_number = 2;
+    sample_1.count = 5;
+    sample_1.sequence_number = 3;
     sample_1.src_ts = sample1_ts;
-    samples.push_back(sample_1);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
     SampleDatasCountSample sample_2;
-    sample_2.count = 15;
-    sample_2.sequence_number = 1;
+    sample_2.count = 10;
+    sample_2.sequence_number = 3;
     sample_2.src_ts = sample2_ts;
-    samples.push_back(sample_2);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     SampleDatasCountSample sample_3;
-    sample_3.count = 44;
-    sample_3.sequence_number = 2;
+    sample_3.count = 24;
+    sample_3.sequence_number = 3;
     sample_3.src_ts = sample3_ts;
-    samples.push_back(sample_3);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
 
-    select_test(DataKind::SAMPLE_DATAS, writer_id, samples);
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
+    ASSERT_GE(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid1_ts, mid2_ts));
+    ASSERT_GE(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts, 
+        sample3_ts));
+    ASSERT_GE(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
 }
-*/
 
 int main(
         int argc,
