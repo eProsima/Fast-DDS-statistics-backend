@@ -385,20 +385,21 @@ public:
      * Then, call @ref get_entities to get the available entities ofr that kind.
      * Finally, call @ref get_data with the pairs that @ref get_entities returns.
      *
-     * i.e. Get the FASTDDS_LATENCY between all the writers in Host1 and all the readers in Host2
+     * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1
      * @code
-     * // Get all the EntityKind pairs related to DISCOVERED_ENTITY.
-     * auto types_list = StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
+     * // Get all the EntityKind pairs related to DISCOVERY_TIME.
+     * std::vector<std::pair<EntityKind, EntityKind>> types_list =
+     *         StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
      *
      * // Iterate over all the valid pairs composing the final result
      * std::vector<StatisticsData> discovery_times;
-     * for (auto types : types_list)
+     * for (std::pair<EntityKind, EntityKind> type_pair : types_list)
      * {
      *     // Take the data for this pair and append it to the existing data
      *     std::vector<StatisticsData> tmp = StatisticsBackend::get_data(
-     *         DataKind::DISCOVERY_TIME,
-     *         StatisticsBackend::get_entities(types.first, host1_id),
-     *         StatisticsBackend::get_entities(types.second, host2_id));
+     *             DataKind::DISCOVERY_TIME,
+     *             StatisticsBackend::get_entities(type_pair.first, host1_id),
+     *             StatisticsBackend::get_entities(type_pair.second, host2_id));
      *
      *     discovery_times.insert(discovery_times.end(), tmp.begin(), tmp.end());
      * }

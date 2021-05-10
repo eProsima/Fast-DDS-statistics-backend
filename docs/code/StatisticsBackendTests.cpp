@@ -235,17 +235,18 @@ void get_data_supported_entity_kinds_examples()
 
         //CONF-GET-FASTDDS-LATENCY-SUPPORTED-ENTITY-KINDS
         /* Get all the EntityKind pairs related to DISCOVERED_ENTITY. */
-        auto types_list = StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
+        std::vector<std::pair<EntityKind, EntityKind>> types_list =
+                StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
 
         /* Iterate over all the valid pairs composing the final result */
         std::vector<StatisticsData> discovery_times;
-        for (auto types : types_list)
+        for (std::pair<EntityKind, EntityKind> type_pair : types_list)
         {
             /* Take the data for this pair and append it to the existing data */
             std::vector<StatisticsData> tmp = StatisticsBackend::get_data(
                 DataKind::DISCOVERY_TIME,
-                StatisticsBackend::get_entities(types.first, host1_id),
-                StatisticsBackend::get_entities(types.second, host2_id));
+                StatisticsBackend::get_entities(type_pair.first, host1_id),
+                StatisticsBackend::get_entities(type_pair.second, host2_id));
 
             discovery_times.insert(discovery_times.end(), tmp.begin(), tmp.end());
         }
