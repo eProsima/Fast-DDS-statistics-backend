@@ -1412,12 +1412,51 @@ std::vector<const StatisticsSample*> Database::select(
         Timestamp t_from,
         Timestamp t_to)
 {
-    (void)data_type;
-    (void)entity_id;
-    (void)sequence_number;
-    (void)t_from;
-    (void)t_to;
-    throw Unsupported("Not implemented yet");
+    /* Check that the given timestamps are consistent */
+    if (t_to <= t_from)
+    {
+        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
+    }
+
+    auto entity = get_entity(entity_id);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<const StatisticsSample*> samples;
+    bool found = false;
+    if (DataKind::SAMPLE_DATAS == data_type)
+    {
+        assert(EntityKind::DATAWRITER == entity->kind);
+        auto writer = static_cast<const DataWriter*>(entity.get());
+        for (auto& seq_number : writer->data.sample_datas)
+        {
+            /* Look if the writer has information about the required sequence number */
+            if (seq_number.first == sequence_number)
+            {
+                found = true;
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : seq_number.second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (found)
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        throw BadParameter("Incorrect DataKind");
+    }
+    return samples;
 }
 
 
