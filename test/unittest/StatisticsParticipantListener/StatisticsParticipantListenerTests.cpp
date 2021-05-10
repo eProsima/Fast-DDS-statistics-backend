@@ -29,6 +29,7 @@ using ::testing::Return;
 using ::testing::AnyNumber;
 using ::testing::Contains;
 using ::testing::StrictMock;
+using ::testing::Throw;
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend::database;
@@ -122,9 +123,9 @@ public:
     statistics_participant_listener_tests()
         : entity_queue(&database)
         , data_queue(&database)
-        , participant_listener(&database, &entity_queue, &data_queue)
+        , participant_listener(0, &database, &entity_queue, &data_queue)
     {
-        statistics_participant.domain_id_ = 0;
+        //statistics_participant.domain_id_ = 0;
 
         // Domain entity
         domain_name_ = std::to_string(statistics_participant.domain_id_);
@@ -153,7 +154,6 @@ public:
         writer_guid_str_ = participant_prefix_str_ + "|0.0.0.2";
         std::stringstream(writer_guid_str_) >> writer_guid_;
     }
-
 };
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered)
@@ -209,6 +209,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
@@ -228,8 +230,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Nothing is inserted
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
+    // Expectation: Exception thrown
+    ASSERT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
@@ -899,6 +901,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
@@ -947,9 +951,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Nothing is inserted
-    participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
-
+    // Expectation: Exception thrown
+    ASSERT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_already_exists)
@@ -1679,6 +1682,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
@@ -1727,8 +1732,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
      // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: Nothing is inserted
-    participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
+    // Expectation: Exception thrown
+    ASSERT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_already_exists)

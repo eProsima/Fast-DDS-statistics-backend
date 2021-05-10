@@ -57,6 +57,7 @@ public:
      * @brief Constructor
      */
     StatisticsParticipantListener(
+            EntityId domain_id,
             database::Database* database,
             database::DatabaseEntityQueue* entity_queue,
             database::DatabaseDataQueue* data_queue) noexcept;
@@ -106,6 +107,7 @@ protected:
             std::shared_ptr<database::DomainParticipant> participant,
             std::shared_ptr<database::Topic> topic);
 
+    EntityId domain_id_;                            ///< The DomainId this listener is monitoring
     database::Database* database_;                  ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;   ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue* data_queue_;       ///< Reference to the statistics data queue. Injected on construction

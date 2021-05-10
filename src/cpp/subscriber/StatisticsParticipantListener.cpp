@@ -49,27 +49,18 @@ std::string to_string(
 
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
-        eprosima::fastdds::dds::DomainParticipant* statistics_participant,
+        eprosima::fastdds::dds::DomainParticipant* /*statistics_participant*/,
         T&& info,
         const std::string& endpoint_name)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database
-    auto domain_ids =
-            database_->get_entities_by_name(EntityKind::DOMAIN,
-                    std::to_string(statistics_participant->get_domain_id()));
-    if (domain_ids.empty())
-    {
-        logError(STATISTICS_BACKEND, endpoint_name + " discovered on Domain " + std::to_string(statistics_participant->get_domain_id())
-                      + " but there is no such Domain in the database");
-        return;
-    }
-
-    std::shared_ptr<database::Domain> domain =
-            std::const_pointer_cast<database::Domain>(
-        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
-
+    // This may throw if the domain does not exist
+    // The database MUST contain the domain, or something went wrong upstream
+    std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+    
     // Get the participant from the database
     GUID_t endpoint_guid = info.info.guid();
     GUID_t participant_guid(endpoint_guid.guidPrefix, EntityId_t());
@@ -85,7 +76,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
             participant_ids.front().second)));
 
-    assert(participant_ids.front().first == domain_ids.front().second);
+    assert(participant_ids.front().first == domain_id_);
 
     // Check whether the topic is already in the database
     std::shared_ptr<database::Topic> topic;
@@ -104,7 +95,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     {
         topic = std::const_pointer_cast<database::Topic>(
             std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_ids.front().second)));
-        assert(topic_ids.front().first == domain_ids.front().second);
+        assert(topic_ids.front().first == domain_id_);
     }
 
     // Create the endpoint
@@ -223,10 +214,12 @@ std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_end
 }
 
 StatisticsParticipantListener::StatisticsParticipantListener(
+        EntityId domain_id,
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
         database::DatabaseDataQueue* data_queue) noexcept
     : DomainParticipantListener()
+    , domain_id_(domain_id)
     , database_(database)
     , entity_queue_(entity_queue)
     , data_queue_(data_queue)
@@ -234,7 +227,7 @@ StatisticsParticipantListener::StatisticsParticipantListener(
 }
 
 void StatisticsParticipantListener::on_participant_discovery(
-        DomainParticipant* participant,
+        DomainParticipant* /*participant*/,
         ParticipantDiscoveryInfo&& info)
 {
     // First stop the data queue until the new entity is created
@@ -246,19 +239,10 @@ void StatisticsParticipantListener::on_participant_discovery(
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
         {
             // Get the domain from the database
-            auto domain_ids =
-                    database_->get_entities_by_name(EntityKind::DOMAIN,
-                            std::to_string(participant->get_domain_id()));
-            if (domain_ids.empty())
-            {
-                logError(STATISTICS_BACKEND, "Participant discovered on Domain " + std::to_string(participant->get_domain_id())
-                              + " but there is no such Domain in the database");
-                return;
-            }
-
-            std::shared_ptr<database::Domain> domain =
-                    std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_ids.front().second)));
+            // This may throw if the domain does not exist
+            // The database MUST contain the domain, or something went wrong upstream
+            std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+                    std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
 
             // Create the participant and push it to the queue
             GUID_t participant_guid = info.info.m_guid;
