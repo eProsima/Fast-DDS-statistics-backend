@@ -2790,7 +2790,7 @@ TEST_F(database_tests, select_invalid_entities)
     ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, participant_id, sequence_number, t_from, t_to), "");
     ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, reader_id, sequence_number, t_from, t_to), "");
     ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, sequence_number, t_from, t_to), "");
-#endif
+#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, select_invalid_timestamps)
