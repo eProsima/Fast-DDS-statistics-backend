@@ -1405,6 +1405,22 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id,
+        uint64_t sequence_number,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    (void)data_type;
+    (void)entity_id;
+    (void)sequence_number;
+    (void)t_from;
+    (void)t_to;
+    throw Unsupported("Not implemented yet");
+}
+
+
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
