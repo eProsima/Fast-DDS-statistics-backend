@@ -2559,6 +2559,240 @@ TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
     EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
 }
 
+TEST_F(database_tests, select_invalid_entities)
+{
+#ifndef NDEBUG
+    // Test assertions
+
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+    uint64_t sequence_number = 1;
+
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, host_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, user_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, process_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, domain_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, topic_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, participant_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, host_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, user_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, process_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, domain_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, topic_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, participant_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, reader_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, sequence_number, t_from, t_to), "");
+#endif
+}
+
 TEST_F(database_tests, select_invalid_timestamps)
 {
     Timestamp t_from = std::chrono::system_clock::now();
