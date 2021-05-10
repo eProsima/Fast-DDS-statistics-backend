@@ -154,6 +154,7 @@ public:
         writer_guid_str_ = participant_prefix_str_ + "|0.0.0.2";
         std::stringstream(writer_guid_str_) >> writer_guid_;
     }
+
 };
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered)
@@ -231,7 +232,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
     EXPECT_CALL(database, insert(_)).Times(0);
 
     // Expectation: Exception thrown
-    ASSERT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
+    ASSERT_THROW(participant_listener.on_participant_discovery(&statistics_participant, std::move(
+                info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
@@ -367,7 +369,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -482,7 +485,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -595,7 +599,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
-    
+
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(2, 2);
 
@@ -635,7 +639,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
                 expected_locator_names.push_back(existing_multicast_locator_name);
                 expected_locator_names.push_back(new_unicast_locator_name);
                 expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -755,7 +760,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
-    
+
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(2, 2);
 
@@ -795,7 +800,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
                 expected_locator_names.push_back(existing_multicast_locator_name);
                 expected_locator_names.push_back(new_unicast_locator_name);
                 expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -952,7 +958,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
     EXPECT_CALL(database, insert(_)).Times(0);
 
     // Expectation: Exception thrown
-    ASSERT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
+    ASSERT_THROW(participant_listener.on_subscriber_discovery(&statistics_participant, std::move(
+                info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_already_exists)
@@ -1047,7 +1054,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -1148,7 +1156,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -1263,7 +1272,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -1416,7 +1426,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
                 expected_locator_names.push_back(existing_multicast_locator_name);
                 expected_locator_names.push_back(new_unicast_locator_name);
                 expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -1576,7 +1587,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
                 expected_locator_names.push_back(existing_multicast_locator_name);
                 expected_locator_names.push_back(new_unicast_locator_name);
                 expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
@@ -1729,11 +1741,12 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
     // Finish building the discovered writer info
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
-     // Expectation: No entity is added to the database
+    // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
     // Expectation: Exception thrown
-    ASSERT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(info)), eprosima::statistics_backend::BadParameter);
+    ASSERT_THROW(participant_listener.on_publisher_discovery(&statistics_participant, std::move(
+                info)), eprosima::statistics_backend::BadParameter);
 }
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_already_exists)
@@ -1774,7 +1787,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1825,7 +1838,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(), expected_locator_names.size());
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
+                expected_locator_names.size());
                 for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
                 {
                     EXPECT_THAT(expected_locator_names, Contains(loc.second->name));

@@ -59,8 +59,8 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     // This may throw if the domain does not exist
     // The database MUST contain the domain, or something went wrong upstream
     std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
-    
+        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+
     // Get the participant from the database
     GUID_t endpoint_guid = info.info.guid();
     GUID_t participant_guid(endpoint_guid.guidPrefix, EntityId_t());
@@ -68,7 +68,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     if (participant_ids.empty())
     {
         logError(STATISTICS_BACKEND, endpoint_name + " discovered on Participant " + to_string(participant_guid)
-                      + " but there is no such Participant in the database");
+                + " but there is no such Participant in the database");
         return;
     }
     std::shared_ptr<database::DomainParticipant> participant =
@@ -138,7 +138,8 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 {
                     // The locator exists. Add the existing one.
                     auto existing = std::const_pointer_cast<database::Locator>(
-                            std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().second)));
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
+                                second)));
                     endpoint->locators[existing->id] = existing;
                 }
             }
@@ -148,15 +149,16 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 // we need to create only one copy of the locator for this participant
                 using namespace std::placeholders;
                 auto found = std::find_if(participant_locators.begin(), participant_locators.end(),
-                    std::bind([](std::shared_ptr<database::Entity> new_locator, std::shared_ptr<const database::Entity> existing)
-                    {
-                        return new_locator->name == existing->name;
-                    }, locator, _1));
+                                std::bind([](std::shared_ptr<database::Entity> new_locator,
+                                std::shared_ptr<const database::Entity> existing)
+                                {
+                                    return new_locator->name == existing->name;
+                                }, locator, _1));
                 if (found != participant_locators.end())
                 {
                     // The locator exists. Add the existing one.
                     auto existing = std::const_pointer_cast<database::Locator>(
-                            std::static_pointer_cast<const database::Locator>(*found));
+                        std::static_pointer_cast<const database::Locator>(*found));
                     endpoint->locators[existing->id] = existing;
                 }
                 else
@@ -242,7 +244,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             // This may throw if the domain does not exist
             // The database MUST contain the domain, or something went wrong upstream
             std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                    std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
 
             // Create the participant and push it to the queue
             GUID_t participant_guid = info.info.m_guid;
