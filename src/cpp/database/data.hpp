@@ -278,7 +278,7 @@ struct DataWriterData
      * The key of the map corresponds to the sequence number of the change.
      * The second one is the number of DATA/DATAFRAG sub-messages sent for sending that change.
      */
-    std::map<uint64_t, uint64_t> sample_datas;
+    std::map<uint64_t, std::vector<EntityCountSample>> sample_datas;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::HISTORY_LATENCY_TOPIC

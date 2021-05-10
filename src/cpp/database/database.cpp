@@ -668,7 +668,7 @@ void Database::insert(
             if (writer)
             {
                 const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
-                writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
+                writer->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
                 break;
             }
             throw BadParameter(std::to_string(

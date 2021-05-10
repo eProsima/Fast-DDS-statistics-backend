@@ -114,7 +114,7 @@ TEST(database, datawriter_data_clear)
     data.last_reported_gap_count = count_sample;
     data.data_count.push_back(count_sample);
     data.last_reported_data_count = count_sample;
-    data.sample_datas[1] = 12;
+    data.sample_datas[1].push_back(count_sample);
     data.history2history_latency[EntityId(1)].push_back(data_sample);
 
     /* Check that data in cleared */

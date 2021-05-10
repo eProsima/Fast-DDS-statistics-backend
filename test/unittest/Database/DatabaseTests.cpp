@@ -2122,8 +2122,8 @@ TEST_F(database_tests, insert_sample_sample_datas)
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.sample_datas.size(), 2);
-    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
-    ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number], sample_2.count);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number][0], static_cast<EntityCountSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
