@@ -981,7 +981,7 @@ std::vector<const StatisticsSample*> Database::select(
             {
                 /* Look for the samples between the given timestamps */
                 // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
-                // implement a binary search (PR#58 Originally posted by @IkerLuengo in 
+                // implement a binary search (PR#58 Originally posted by @IkerLuengo in
                 // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
                 for (auto& sample : reader->second)
                 {
@@ -1174,7 +1174,7 @@ std::vector<const StatisticsSample*> Database::select(
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
-            // implement a binary search (PR#58 Originally posted by @IkerLuengo in 
+            // implement a binary search (PR#58 Originally posted by @IkerLuengo in
             // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
             for (auto& sample : writer->data.publication_throughput)
             {
@@ -1388,7 +1388,7 @@ std::vector<const StatisticsSample*> Database::select(
         {
             /* Look for the samples between the given timestamps */
             // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
-            // implement a binary search (PR#58 Originally posted by @IkerLuengo in 
+            // implement a binary search (PR#58 Originally posted by @IkerLuengo in
             // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
             for (auto& sample : seq_number->second)
             {
