@@ -3128,8 +3128,8 @@ TEST_F(database_tests, select_rtps_packets_sent)
     sample_3.count = 70;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes rtps packets sent
-    // rtps packets sent stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
@@ -3139,8 +3139,8 @@ TEST_F(database_tests, select_rtps_packets_sent)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
@@ -3165,8 +3165,8 @@ TEST_F(database_tests, select_rtps_packets_sent)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, src_ts,
@@ -3199,8 +3199,8 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes rtps bytes sent
-    // rtps bytes sent stores the difference between each accumulated report and the previous one
+    ByteCountSample db_sample_2 = sample_2 - sample_1;
+    ByteCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
@@ -3210,8 +3210,8 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
     auto sample3 = static_cast<const ByteCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
@@ -3236,8 +3236,8 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     sample2 = static_cast<const ByteCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, src_ts,
@@ -3259,16 +3259,16 @@ TEST_F(database_tests, select_rtps_packets_lost)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
     RtpsPacketsLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
-    sample_2.count = 5;
+    sample_2.count = 25;
     sample_2.src_ts = sample2_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     RtpsPacketsLostSample sample_3;
     sample_3.remote_locator = writer_locator->id;
-    sample_3.count = 25;
+    sample_3.count = 65;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes rtps packets lost
-    // rtps packets lost stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
@@ -3278,8 +3278,8 @@ TEST_F(database_tests, select_rtps_packets_lost)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
@@ -3304,8 +3304,8 @@ TEST_F(database_tests, select_rtps_packets_lost)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, src_ts,
@@ -3338,8 +3338,8 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes rtps bytes lost
-    // rtps bytes lost stores the difference between each accumulated report and the previous one
+    ByteCountSample db_sample_2 = sample_2 - sample_1;
+    ByteCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
@@ -3349,8 +3349,8 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
     auto sample3 = static_cast<const ByteCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
@@ -3375,8 +3375,8 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     sample2 = static_cast<const ByteCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, src_ts,
@@ -3402,8 +3402,8 @@ TEST_F(database_tests, select_resent_data)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes resent datas
-    // resent datas stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
@@ -3412,8 +3412,8 @@ TEST_F(database_tests, select_resent_data)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, mid1_ts));
@@ -3434,8 +3434,8 @@ TEST_F(database_tests, select_resent_data)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_heartbeat_count)
@@ -3456,8 +3456,8 @@ TEST_F(database_tests, select_heartbeat_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes heartbeat count
-    // heartbeat count stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
@@ -3466,8 +3466,8 @@ TEST_F(database_tests, select_heartbeat_count)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, mid1_ts));
@@ -3488,8 +3488,8 @@ TEST_F(database_tests, select_heartbeat_count)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_acknack_count)
@@ -3510,8 +3510,8 @@ TEST_F(database_tests, select_acknack_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes acknack count
-    //acknack count stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
@@ -3520,8 +3520,8 @@ TEST_F(database_tests, select_acknack_count)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, mid1_ts));
@@ -3542,8 +3542,8 @@ TEST_F(database_tests, select_acknack_count)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_nackfrag_count)
@@ -3564,8 +3564,8 @@ TEST_F(database_tests, select_nackfrag_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes nackfrag count
-    // nackfrag count stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
@@ -3574,8 +3574,8 @@ TEST_F(database_tests, select_nackfrag_count)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, mid1_ts));
@@ -3596,8 +3596,8 @@ TEST_F(database_tests, select_nackfrag_count)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_gap_count)
@@ -3618,8 +3618,8 @@ TEST_F(database_tests, select_gap_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes gap count
-    // gap count stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
@@ -3628,8 +3628,8 @@ TEST_F(database_tests, select_gap_count)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, mid1_ts));
@@ -3650,8 +3650,8 @@ TEST_F(database_tests, select_gap_count)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_data_count)
@@ -3672,8 +3672,8 @@ TEST_F(database_tests, select_data_count)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes data count
-    // data count stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
@@ -3682,8 +3682,8 @@ TEST_F(database_tests, select_data_count)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, mid1_ts));
@@ -3704,8 +3704,8 @@ TEST_F(database_tests, select_data_count)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_pdp_packets)
@@ -3726,8 +3726,8 @@ TEST_F(database_tests, select_pdp_packets)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes pdp packets
-    // pdp packets stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
@@ -3736,8 +3736,8 @@ TEST_F(database_tests, select_pdp_packets)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, mid1_ts));
@@ -3758,8 +3758,8 @@ TEST_F(database_tests, select_pdp_packets)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_edp_packets)
@@ -3780,8 +3780,8 @@ TEST_F(database_tests, select_edp_packets)
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
-    // TODO Adjust this test after merging PR which fixes edp packets
-    // edp packets stores the difference between each accumulated report and the previous one
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
@@ -3790,8 +3790,8 @@ TEST_F(database_tests, select_edp_packets)
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
     auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
     EXPECT_EQ(*sample1, sample_1);
-    EXPECT_EQ(*sample2, sample_2);
-    EXPECT_EQ(*sample3, sample_3);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
     ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, mid1_ts));
@@ -3812,8 +3812,8 @@ TEST_F(database_tests, select_edp_packets)
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
-    EXPECT_EQ(*sample1, sample_2);
-    EXPECT_EQ(*sample2, sample_3);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
 }
 
 TEST_F(database_tests, select_discovery_time)
