@@ -22,70 +22,143 @@
 namespace eprosima {
 namespace statistics_backend {
 
+//////////////////
+// DB DUMP TAGS //
+//////////////////
+
+/////
+// Actual Version
+
+//! Actual version of the Database Dump
+constexpr const char* ACTUAL_DUMP_VERSION           = "0.0";
+
+/////
 // Version
-constexpr const char* VERSION                 = "version";
-constexpr const char* ACTUAL_DUMP_VERSION     = "0.0";
 
+//! Key Tag for version
+constexpr const char* VERSION_TAG                   = "version";
+
+/////
 // Entity containers
-constexpr const char* HOST_CONTAINER          = "hosts";
-constexpr const char* USER_CONTAINER          = "users";
-constexpr const char* PROCESS_CONTAINER       = "processes";
-constexpr const char* DOMAIN_CONTAINER        = "domains";
-constexpr const char* TOPIC_CONTAINER         = "topics";
-constexpr const char* PARTICIPANT_CONTAINER   = "participants";
-constexpr const char* DATAWRITER_CONTAINER    = "datawriters";
-constexpr const char* DATAREADER_CONTAINER    = "datareaders";
-constexpr const char* LOCATOR_CONTAINER       = "locators";
 
+//! Key Tag for container of hosts
+constexpr const char* HOST_CONTAINER_TAG            = "hosts";
+//! Key Tag for container of users
+constexpr const char* USER_CONTAINER_TAG            = "users";
+//! Key Tag for container of processes
+constexpr const char* PROCESS_CONTAINER_TAG         = "processes";
+//! Key Tag for container of domains
+constexpr const char* DOMAIN_CONTAINER_TAG          = "domains";
+//! Key Tag for container of topics
+constexpr const char* TOPIC_CONTAINER_TAG           = "topics";
+//! Key Tag for container of participants
+constexpr const char* PARTICIPANT_CONTAINER_TAG     = "participants";
+//! Key Tag for container of datawriters
+constexpr const char* DATAWRITER_CONTAINER_TAG      = "datawriters";
+//! Key Tag for container of datareaders
+constexpr const char* DATAREADER_CONTAINER_TAG      = "datareaders";
+//! Key Tag for container of locators
+constexpr const char* LOCATOR_CONTAINER_TAG         = "locators";
+
+/////
 // Entity
-constexpr const char* HOST_ENTITY             = "host";
-constexpr const char* USER_ENTITY             = "user";
-constexpr const char* PROCESS_ENTITY          = "process";
-constexpr const char* DOMAIN_ENTITY           = "domain";
-constexpr const char* TOPIC_ENTITY            = "topic";
-constexpr const char* PARTICIPANT_ENTITY      = "participant";
-constexpr const char* DATAWRITER_ENTITY       = "datawriter";
-constexpr const char* DATAREADER_ENTITY       = "datareader";
-constexpr const char* LOCATOR_ENTITY          = "locator";
 
+//! Key Tag for a single host entity
+constexpr const char* HOST_ENTITY_TAG               = "host";
+//! Key Tag for a single user entity
+constexpr const char* USER_ENTITY_TAG               = "user";
+//! Key Tag for a single process entity
+constexpr const char* PROCESS_ENTITY_TAG            = "process";
+//! Key Tag for a single domain entity
+constexpr const char* DOMAIN_ENTITY_TAG             = "domain";
+//! Key Tag for a single topic entity
+constexpr const char* TOPIC_ENTITY_TAG              = "topic";
+//! Key Tag for a single participant entity
+constexpr const char* PARTICIPANT_ENTITY_TAG        = "participant";
+//! Key Tag for a single datawriter entity
+constexpr const char* DATAWRITER_ENTITY_TAG         = "datawriter";
+//! Key Tag for a single datareader entity
+constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
+//! Key Tag for a single locator entity
+constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
+
+/////
 // Internal info
-constexpr const char* NAME_INFO               = "name";
-constexpr const char* PID_INFO                = "pid";
-constexpr const char* DATA_TYPE_INFO          = "data_type";
-constexpr const char* GUID_INFO               = "guid";
-constexpr const char* QOS_INFO                = "qos";
 
+//! Key tag for name of an entity
+constexpr const char* NAME_INFO_TAG                 = "name";
+//! Key tag for process id of a process entity
+constexpr const char* PID_INFO_TAG                  = "pid";
+//! Key tag for type name of a topic entity
+constexpr const char* DATA_TYPE_INFO_TAG            = "data_type";
+//! Key tag for GUID of a participant, datawriter or datareader entity
+constexpr const char* GUID_INFO_TAG                 = "guid";
+//! Key tag for QoS of a participant, datawriter or datareader entity
+constexpr const char* QOS_INFO_TAG                  = "qos";
+
+/////
 // Data container
-constexpr const char* DATA_CONTAINER          = "data";
 
+//! Key tag for container of data kinds
+constexpr const char* DATA_CONTAINER_TAG            = "data";
+
+/////
 // Data kind
-constexpr const char* DATA_KIND_FASTDDS_LATENCY             = "history2history_latency";
-constexpr const char* DATA_KIND_NETWORK_LATENCY             = "network_latency_per_locator";
-constexpr const char* DATA_KIND_PUBLICATION_THROUGHPUT      = "publication_throughput";
-constexpr const char* DATA_KIND_SUBSCRIPTION_THROUGHPUT     = "subscription_throughput";
-constexpr const char* DATA_KIND_RTPS_PACKETS_SENT           = "rtps_packets_sent";
-constexpr const char* DATA_KIND_RTPS_BYTES_SENT             = "rtps_bytes_sent";
-constexpr const char* DATA_KIND_RTPS_PACKETS_LOST           = "rtps_packets_lost";
-constexpr const char* DATA_KIND_RTPS_BYTES_LOST             = "rtps_bytes_lost";
-constexpr const char* DATA_KIND_RESENT_DATA                 = "resent_datas";
-constexpr const char* DATA_KIND_HEARTBEAT_COUNT             = "heartbeat_count";
-constexpr const char* DATA_KIND_ACKNACK_COUNT               = "acknack_count";
-constexpr const char* DATA_KIND_NACKFRAG_COUNT              = "nackfrag_count";
-constexpr const char* DATA_KIND_GAP_COUNT                   = "gap_count";
-constexpr const char* DATA_KIND_DATA_COUNT                  = "data_count";
-constexpr const char* DATA_KIND_PDP_PACKETS                 = "pdp_packets";
-constexpr const char* DATA_KIND_EDP_PACKETS                 = "edp_packets";
-constexpr const char* DATA_KIND_DISCOVERY_TIME              = "discovery_time";
-constexpr const char* DATA_KIND_SAMPLE_DATAS                = "samples_datas";
 
+//! Key tag for container of data kind FASTDDS_LATENCY
+constexpr const char* DATA_KIND_FASTDDS_LATENCY_TAG             = "history2history_latency";
+//! Key tag for container of data kind NETWORK_LATENCY
+constexpr const char* DATA_KIND_NETWORK_LATENCY_TAG             = "network_latency_per_locator";
+//! Key tag for container of data kind PUBLICATION_THROUGHPUT
+constexpr const char* DATA_KIND_PUBLICATION_THROUGHPUT_TAG      = "publication_throughput";
+//! Key tag for container of data kind SUBSCRIPTION_THROUGHPUT
+constexpr const char* DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG     = "subscription_throughput";
+//! Key tag for container of data kind RTPS_PACKETS_SENT
+constexpr const char* DATA_KIND_RTPS_PACKETS_SENT_TAG           = "rtps_packets_sent";
+//! Key tag for container of data kind RTPS_BYTES_SENT
+constexpr const char* DATA_KIND_RTPS_BYTES_SENT_TAG             = "rtps_bytes_sent";
+//! Key tag for container of data kind RTPS_PACKETS_LOST
+constexpr const char* DATA_KIND_RTPS_PACKETS_LOST_TAG           = "rtps_packets_lost";
+//! Key tag for container of data kind RTPS_BYTES_LOST
+constexpr const char* DATA_KIND_RTPS_BYTES_LOST_TAG             = "rtps_bytes_lost";
+//! Key tag for container of data kind RESENT_DATA
+constexpr const char* DATA_KIND_RESENT_DATA_TAG                 = "resent_datas";
+//! Key tag for container of data kind HEARTBEAT_COUNT
+constexpr const char* DATA_KIND_HEARTBEAT_COUNT_TAG             = "heartbeat_count";
+//! Key tag for container of data kind ACKNACK_COUNT
+constexpr const char* DATA_KIND_ACKNACK_COUNT_TAG               = "acknack_count";
+//! Key tag for container of data kind NACKFRAG_COUNT
+constexpr const char* DATA_KIND_NACKFRAG_COUNT_TAG              = "nackfrag_count";
+//! Key tag for container of data kind GAP_COUNT
+constexpr const char* DATA_KIND_GAP_COUNT_TAG                   = "gap_count";
+//! Key tag for container of data kind DATA_COUNT
+constexpr const char* DATA_KIND_DATA_COUNT_TAG                  = "data_count";
+//! Key tag for container of data kind PDP_PACKETS
+constexpr const char* DATA_KIND_PDP_PACKETS_TAG                 = "pdp_packets";
+//! Key tag for container of data kind EDP_PACKETS
+constexpr const char* DATA_KIND_EDP_PACKETS_TAG                 = "edp_packets";
+//! Key tag for container of data kind DISCOVERY_TIME
+constexpr const char* DATA_KIND_DISCOVERY_TIME_TAG              = "discovery_time";
+//! Key tag for container of data kind SAMPLE_DATAS
+constexpr const char* DATA_KIND_SAMPLE_DATAS_TAG                = "samples_datas";
+
+/////
 // Samples values
-constexpr const char* DATA_VALUE_SRC_TIME         = "src_time";
-constexpr const char* DATA_VALUE_COUNT            = "count";
-constexpr const char* DATA_VALUE_DATA             = "data";
-constexpr const char* DATA_VALUE_TIME             = "time";
-constexpr const char* DATA_VALUE_MAGNITUDE        = "magnitude";
-constexpr const char* DATA_VALUE_REMOTE_ENTITY    = "remote_id";
-constexpr const char* DATA_VALUE_STATUS           = "status";
+
+//! Key tag for source time (time_point) value in data
+constexpr const char* DATA_VALUE_SRC_TIME_TAG       = "src_time";
+//! Key tag for count (uint64_t) value in data
+constexpr const char* DATA_VALUE_COUNT_TAG          = "count";
+//! Key tag for data (double) value in data
+constexpr const char* DATA_VALUE_DATA_TAG           = "data";
+//! Key tag for time (time_point) value in data
+constexpr const char* DATA_VALUE_TIME_TAG           = "time";
+//! Key tag for magnitude (int16_t) value in data
+constexpr const char* DATA_VALUE_MAGNITUDE_TAG      = "magnitude";
+//! Key tag for remote id (EntityId) value in data
+constexpr const char* DATA_VALUE_REMOTE_ENTITY_TAG  = "remote_id";
+//! Key tag for status (bool) value in data
+constexpr const char* DATA_VALUE_STATUS_TAG         = "status";
 
 } //namespace statistics_backend
 } //namespace eprosima

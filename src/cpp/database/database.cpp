@@ -987,7 +987,7 @@ DatabaseDump Database::dump_database()
     DatabaseDump dump = DatabaseDump::object();
 
     // Add version
-    dump[VERSION] = ACTUAL_DUMP_VERSION;
+    dump[VERSION_TAG] = ACTUAL_DUMP_VERSION;
 
     // Hosts
     {
@@ -999,7 +999,7 @@ DatabaseDump Database::dump_database()
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
 
-        dump[HOST_CONTAINER] = container;
+        dump[HOST_CONTAINER_TAG] = container;
     }
 
     // Users
@@ -1012,7 +1012,7 @@ DatabaseDump Database::dump_database()
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
 
-        dump[USER_CONTAINER] = container;
+        dump[USER_CONTAINER_TAG] = container;
     }
 
     // Processes
@@ -1025,7 +1025,7 @@ DatabaseDump Database::dump_database()
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
 
-        dump[PROCESS_CONTAINER] = container;
+        dump[PROCESS_CONTAINER_TAG] = container;
     }
 
     // Domain
@@ -1038,7 +1038,7 @@ DatabaseDump Database::dump_database()
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
 
-        dump[DOMAIN_CONTAINER] = container;
+        dump[DOMAIN_CONTAINER_TAG] = container;
     }
 
     // Topic
@@ -1053,7 +1053,7 @@ DatabaseDump Database::dump_database()
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
         }
-        dump[TOPIC_CONTAINER] = container;
+        dump[TOPIC_CONTAINER_TAG] = container;
     }
 
     // Participant
@@ -1068,7 +1068,7 @@ DatabaseDump Database::dump_database()
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
         }
-        dump[PARTICIPANT_CONTAINER] = container;
+        dump[PARTICIPANT_CONTAINER_TAG] = container;
     }
 
     // DataWriter
@@ -1083,7 +1083,7 @@ DatabaseDump Database::dump_database()
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
         }
-        dump[DATAWRITER_CONTAINER] = container;
+        dump[DATAWRITER_CONTAINER_TAG] = container;
     }
 
     // DataReader
@@ -1098,7 +1098,7 @@ DatabaseDump Database::dump_database()
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
         }
-        dump[DATAREADER_CONTAINER] = container;
+        dump[DATAREADER_CONTAINER_TAG] = container;
     }
 
     // Locator
@@ -1111,7 +1111,7 @@ DatabaseDump Database::dump_database()
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
 
-        dump[LOCATOR_CONTAINER] = container;
+        dump[LOCATOR_CONTAINER_TAG] = container;
     }
 
     return dump;
@@ -1121,7 +1121,7 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Host>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
+    entity_info[NAME_INFO_TAG] = entity->name;
 
     // Populate subentity array
     {
@@ -1130,7 +1130,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[USER_CONTAINER] = subentities;
+        entity_info[USER_CONTAINER_TAG] = subentities;
     }
 
     return entity_info;
@@ -1140,9 +1140,9 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<User>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
+    entity_info[NAME_INFO_TAG] = entity->name;
 
-    entity_info[HOST_ENTITY] = id_to_string(entity->host->id);
+    entity_info[HOST_ENTITY_TAG] = id_to_string(entity->host->id);
 
     // Populate subentity array
     {
@@ -1151,7 +1151,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[PROCESS_CONTAINER] = subentities;
+        entity_info[PROCESS_CONTAINER_TAG] = subentities;
     }
 
     return entity_info;
@@ -1161,10 +1161,10 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Process>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
-    entity_info[PID_INFO] = entity->pid;
+    entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[PID_INFO_TAG] = entity->pid;
 
-    entity_info[USER_ENTITY] = id_to_string(entity->user->id);
+    entity_info[USER_ENTITY_TAG] = id_to_string(entity->user->id);
 
     // Populate subentity array
     {
@@ -1173,7 +1173,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[PARTICIPANT_CONTAINER] = subentities;
+        entity_info[PARTICIPANT_CONTAINER_TAG] = subentities;
     }
 
     return entity_info;
@@ -1183,7 +1183,7 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Domain>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
+    entity_info[NAME_INFO_TAG] = entity->name;
 
     // Populate subentity array for Topics
     {
@@ -1192,7 +1192,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[TOPIC_CONTAINER] = subentities;
+        entity_info[TOPIC_CONTAINER_TAG] = subentities;
     }
 
     // Populate subentity array for Participants
@@ -1202,7 +1202,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[PARTICIPANT_CONTAINER] = subentities;
+        entity_info[PARTICIPANT_CONTAINER_TAG] = subentities;
     }
 
     return entity_info;
@@ -1212,10 +1212,10 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Topic>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
-    entity_info[DATA_TYPE_INFO] = entity->data_type;
+    entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[DATA_TYPE_INFO_TAG] = entity->data_type;
 
-    entity_info[DOMAIN_ENTITY] = id_to_string(entity->domain->id);
+    entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
     // Populate subentity array for DataWriters
     {
@@ -1224,7 +1224,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAWRITER_CONTAINER] = subentities;
+        entity_info[DATAWRITER_CONTAINER_TAG] = subentities;
     }
 
     // Populate subentity array for DataReaders
@@ -1234,7 +1234,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAREADER_CONTAINER] = subentities;
+        entity_info[DATAREADER_CONTAINER_TAG] = subentities;
     }
 
     return entity_info;
@@ -1244,12 +1244,12 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DomainParticipant>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
-    entity_info[GUID_INFO] = entity->guid;
-    entity_info[QOS_INFO] = entity->qos;
+    entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[GUID_INFO_TAG] = entity->guid;
+    entity_info[QOS_INFO_TAG] = entity->qos;
 
-    entity_info[DOMAIN_ENTITY] = id_to_string(entity->domain->id);
-    entity_info[PROCESS_ENTITY] = id_to_string(entity->process->id);
+    entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
+    entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
 
     // Populate subentity array for DataWriters
     {
@@ -1258,7 +1258,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAWRITER_CONTAINER] = subentities;
+        entity_info[DATAWRITER_CONTAINER_TAG] = subentities;
     }
     // Populate subentity array for DataReaders
     {
@@ -1267,7 +1267,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAREADER_CONTAINER] = subentities;
+        entity_info[DATAREADER_CONTAINER_TAG] = subentities;
     }
 
     // Store data from the entity
@@ -1275,27 +1275,27 @@ DatabaseDump Database::dump_entity_(
         DatabaseDump data = DatabaseDump::object();
 
         // discovered_entity
-        data[DATA_KIND_DISCOVERY_TIME] = dump_data_(entity->data.discovered_entity);
+        data[DATA_KIND_DISCOVERY_TIME_TAG] = dump_data_(entity->data.discovered_entity);
 
         // pdp_packets
-        data[DATA_KIND_PDP_PACKETS] = dump_data_(entity->data.pdp_packets);
+        data[DATA_KIND_PDP_PACKETS_TAG] = dump_data_(entity->data.pdp_packets);
 
         // edp_packets
-        data[DATA_KIND_EDP_PACKETS] = dump_data_(entity->data.edp_packets);
+        data[DATA_KIND_EDP_PACKETS_TAG] = dump_data_(entity->data.edp_packets);
 
         // rtps_packets_sent
-        data[DATA_KIND_RTPS_PACKETS_SENT] = dump_data_(entity->data.rtps_packets_sent);
+        data[DATA_KIND_RTPS_PACKETS_SENT_TAG] = dump_data_(entity->data.rtps_packets_sent);
 
         // rtps_bytes_sent
-        data[DATA_KIND_RTPS_BYTES_SENT] = dump_data_(entity->data.rtps_bytes_sent);
+        data[DATA_KIND_RTPS_BYTES_SENT_TAG] = dump_data_(entity->data.rtps_bytes_sent);
 
         // rtps_packets_lost
-        data[DATA_KIND_RTPS_PACKETS_LOST] = dump_data_(entity->data.rtps_packets_lost);
+        data[DATA_KIND_RTPS_PACKETS_LOST_TAG] = dump_data_(entity->data.rtps_packets_lost);
 
         // rtps_bytes_lost
-        data[DATA_KIND_RTPS_BYTES_LOST] = dump_data_(entity->data.rtps_bytes_lost);
+        data[DATA_KIND_RTPS_BYTES_LOST_TAG] = dump_data_(entity->data.rtps_bytes_lost);
 
-        entity_info[DATA_CONTAINER] = data;
+        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
@@ -1305,12 +1305,12 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DataWriter>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
-    entity_info[GUID_INFO] = entity->guid;
-    entity_info[QOS_INFO] = entity->qos;
+    entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[GUID_INFO_TAG] = entity->guid;
+    entity_info[QOS_INFO_TAG] = entity->qos;
 
-    entity_info[PARTICIPANT_ENTITY] = id_to_string(entity->participant->id);
-    entity_info[TOPIC_ENTITY] = id_to_string(entity->topic->id);
+    entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
+    entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
 
     // Populate subentity array for Locators
     {
@@ -1319,7 +1319,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[LOCATOR_CONTAINER] = subentities;
+        entity_info[LOCATOR_CONTAINER_TAG] = subentities;
     }
 
     // Store data from the entity
@@ -1327,27 +1327,27 @@ DatabaseDump Database::dump_entity_(
         DatabaseDump data = DatabaseDump::object();
 
         // publication_throughput
-        data[DATA_KIND_PUBLICATION_THROUGHPUT] = dump_data_(entity->data.publication_throughput);
+        data[DATA_KIND_PUBLICATION_THROUGHPUT_TAG] = dump_data_(entity->data.publication_throughput);
 
         // resent_datas
-        data[DATA_KIND_RESENT_DATA] = dump_data_(entity->data.resent_datas);
+        data[DATA_KIND_RESENT_DATA_TAG] = dump_data_(entity->data.resent_datas);
 
         // heartbeat_count
-        data[DATA_KIND_HEARTBEAT_COUNT] = dump_data_(entity->data.heartbeat_count);
+        data[DATA_KIND_HEARTBEAT_COUNT_TAG] = dump_data_(entity->data.heartbeat_count);
 
         // gap_count
-        data[DATA_KIND_GAP_COUNT] = dump_data_(entity->data.gap_count);
+        data[DATA_KIND_GAP_COUNT_TAG] = dump_data_(entity->data.gap_count);
 
         // data_count
-        data[DATA_KIND_DATA_COUNT] = dump_data_(entity->data.data_count);
+        data[DATA_KIND_DATA_COUNT_TAG] = dump_data_(entity->data.data_count);
 
         // sample_datas
-        data[DATA_KIND_SAMPLE_DATAS] = dump_data_(entity->data.sample_datas);
+        data[DATA_KIND_SAMPLE_DATAS_TAG] = dump_data_(entity->data.sample_datas);
 
         // history2history_latency
-        data[DATA_KIND_FASTDDS_LATENCY] = dump_data_(entity->data.history2history_latency);
+        data[DATA_KIND_FASTDDS_LATENCY_TAG] = dump_data_(entity->data.history2history_latency);
 
-        entity_info[DATA_CONTAINER] = data;
+        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
@@ -1357,12 +1357,12 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DataReader>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
-    entity_info[GUID_INFO] = entity->guid;
-    entity_info[QOS_INFO] = entity->qos;
+    entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[GUID_INFO_TAG] = entity->guid;
+    entity_info[QOS_INFO_TAG] = entity->qos;
 
-    entity_info[PARTICIPANT_ENTITY] = id_to_string(entity->participant->id);
-    entity_info[TOPIC_ENTITY] = id_to_string(entity->topic->id);
+    entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
+    entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
 
     // Populate subentity array for Locators
     {
@@ -1371,7 +1371,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[LOCATOR_CONTAINER] = subentities;
+        entity_info[LOCATOR_CONTAINER_TAG] = subentities;
     }
 
     // Store data from the entity
@@ -1379,15 +1379,15 @@ DatabaseDump Database::dump_entity_(
         DatabaseDump data = DatabaseDump::object();
 
         // subscription_throughput
-        data[DATA_KIND_SUBSCRIPTION_THROUGHPUT] = dump_data_(entity->data.subscription_throughput);
+        data[DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG] = dump_data_(entity->data.subscription_throughput);
 
         // acknack_count
-        data[DATA_KIND_ACKNACK_COUNT] = dump_data_(entity->data.acknack_count);
+        data[DATA_KIND_ACKNACK_COUNT_TAG] = dump_data_(entity->data.acknack_count);
 
         // nackfrag_count
-        data[DATA_KIND_NACKFRAG_COUNT] = dump_data_(entity->data.nackfrag_count);
+        data[DATA_KIND_NACKFRAG_COUNT_TAG] = dump_data_(entity->data.nackfrag_count);
 
-        entity_info[DATA_CONTAINER] = data;
+        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
@@ -1397,7 +1397,7 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Locator>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO] = entity->name;
+    entity_info[NAME_INFO_TAG] = entity->name;
 
     // Populate subentity array for DataWriters
     {
@@ -1406,7 +1406,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAWRITER_CONTAINER] = subentities;
+        entity_info[DATAWRITER_CONTAINER_TAG] = subentities;
     }
 
     // Populate subentity array for DataReaders
@@ -1416,7 +1416,7 @@ DatabaseDump Database::dump_entity_(
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
-        entity_info[DATAREADER_CONTAINER] = subentities;
+        entity_info[DATAREADER_CONTAINER_TAG] = subentities;
     }
 
     // Store data from the entity
@@ -1424,9 +1424,9 @@ DatabaseDump Database::dump_entity_(
         DatabaseDump data = DatabaseDump::object();
 
         // network_latency_per_locator
-        data[DATA_KIND_NETWORK_LATENCY] = dump_data_(entity->data.network_latency_per_locator);
+        data[DATA_KIND_NETWORK_LATENCY_TAG] = dump_data_(entity->data.network_latency_per_locator);
 
-        entity_info[DATA_CONTAINER] = data;
+        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
@@ -1444,9 +1444,9 @@ DatabaseDump Database::dump_data_(
         for (auto sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
-            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_COUNT] = sample.count;
-            value[DATA_VALUE_MAGNITUDE] = sample.magnitude_order;
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_COUNT_TAG] = sample.count;
+            value[DATA_VALUE_MAGNITUDE_TAG] = sample.magnitude_order;
 
             samples.push_back(value);
         }
@@ -1469,8 +1469,8 @@ DatabaseDump Database::dump_data_(
         for (auto sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
-            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_COUNT] = sample.count;
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_COUNT_TAG] = sample.count;
 
             samples.push_back(value);
         }
@@ -1493,8 +1493,8 @@ DatabaseDump Database::dump_data_(
         for (auto sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
-            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.src_ts);
-            value[DATA_VALUE_DATA] = sample.data;
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_DATA_TAG] = sample.data;
 
             samples.push_back(value);
         }
@@ -1517,8 +1517,8 @@ DatabaseDump Database::dump_data_(
         for (auto sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
-            value[DATA_VALUE_SRC_TIME] = time_to_string(sample.first);
-            value[DATA_VALUE_STATUS] = sample.second;
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.first);
+            value[DATA_VALUE_STATUS_TAG] = sample.second;
 
             samples.push_back(value);
         }
@@ -1550,8 +1550,8 @@ DatabaseDump Database::dump_data_(
     for (auto it : data)
     {
         DatabaseDump value = DatabaseDump::object();
-        value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
-        value[DATA_VALUE_COUNT] = it.count;
+        value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(it.src_ts);
+        value[DATA_VALUE_COUNT_TAG] = it.count;
 
         data_dump.push_back(value);
     }
@@ -1567,8 +1567,8 @@ DatabaseDump Database::dump_data_(
     for (auto it : data)
     {
         DatabaseDump value = DatabaseDump::object();
-        value[DATA_VALUE_SRC_TIME] = time_to_string(it.src_ts);
-        value[DATA_VALUE_DATA] = it.data;
+        value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(it.src_ts);
+        value[DATA_VALUE_DATA_TAG] = it.data;
 
         data_dump.push_back(value);
     }

@@ -16,3 +16,4 @@ Types
     /rst/api-reference/types/statistickind
     /rst/api-reference/types/statisticsdata
     /rst/api-reference/types/timestamp
+    /rst/api-reference/types/jsontags

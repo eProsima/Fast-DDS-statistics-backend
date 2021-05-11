@@ -110,4 +110,3 @@ Output to OStream
     :start-after: //ENTITYID-OSTREAM-EXAMPLE
     :end-before: //!
     :dedent: 8
-
