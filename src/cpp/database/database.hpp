@@ -156,9 +156,6 @@ public:
     /**
      * Get an entity given its EntityId
      *
-     * If the kind of the entity is not retrieved, the entity will be looked up in the whole database
-     * The \c kind param is not required but very recommended when available to accelerate the search
-     *
      * @param entity_id constant reference to the EntityId of the retrieved entity
      * @throws eprosima::statistics_backend::BadParameter if there is not entity with the given ID.
      * @return A constant shared pointer to the Entity
@@ -238,7 +235,7 @@ public:
     EntityKind get_entity_kind(
             EntityId entity_id) const;
 
-     /**
+    /**
      * @brief Get a dump of the database
      *
      * @return DatabaseDump object representing the backend database
@@ -413,7 +410,7 @@ protected:
             const std::shared_ptr<Locator>& entity);
 
     /**
-     * @brief Get a dump of a data stored in the database
+     * @brief Get a dump of data stored in the database
 
      * @param data Reference to a data container
      * @return \c DatabaseDump object representing the data

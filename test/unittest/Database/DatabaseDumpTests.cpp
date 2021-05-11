@@ -59,30 +59,40 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define DATAWRITER_DEFAULT_NAME(x) "datawriter_" + std::to_string(x)
 #define DATAREADER_DEFAULT_NAME(x) "datareader_" + std::to_string(x)
 
-#define LOCATOR_DEFAULT_ID(x) EntityId(x*9 + 0)
-#define HOST_DEFAULT_ID(x) EntityId(x*9 + 1)
-#define USER_DEFAULT_ID(x) EntityId(x*9 + 2)
-#define PROCESS_DEFAULT_ID(x) EntityId(x*9 + 3)
-#define DOMAIN_DEFAULT_ID(x) EntityId(x*9 + 4)
-#define TOPIC_DEFAULT_ID(x) EntityId(x*9 + 5)
-#define PARTICIPANT_DEFAULT_ID(x) EntityId(x*9 + 6)
-#define DATAWRITER_DEFAULT_ID(x) EntityId(x*9 + 7)
-#define DATAREADER_DEFAULT_ID(x) EntityId(x*9 + 8)
+#define LOCATOR_DEFAULT_ID(x) EntityId(x * 9 + 0)
+#define HOST_DEFAULT_ID(x) EntityId(x * 9 + 1)
+#define USER_DEFAULT_ID(x) EntityId(x * 9 + 2)
+#define PROCESS_DEFAULT_ID(x) EntityId(x * 9 + 3)
+#define DOMAIN_DEFAULT_ID(x) EntityId(x * 9 + 4)
+#define TOPIC_DEFAULT_ID(x) EntityId(x * 9 + 5)
+#define PARTICIPANT_DEFAULT_ID(x) EntityId(x * 9 + 6)
+#define DATAWRITER_DEFAULT_ID(x) EntityId(x * 9 + 7)
+#define DATAREADER_DEFAULT_ID(x) EntityId(x * 9 + 8)
 
 #define TIME_DEFAULT(x) std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
 
 void initialize_database(
-        Database& db, int n_entity, int n_data);
+        Database& db,
+        int n_entity,
+        int n_data);
 
 void initialize_participant_data(
-        Database& db, int index, int time);
+        Database& db,
+        int index,
+        int time);
 void initialize_datawriter_data(
-        Database& db, int index, int time);
+        Database& db,
+        int index,
+        int time);
 void initialize_datareader_data(
-        Database& db, int index, int time);
+        Database& db,
+        int index,
+        int time);
 void initialize_locator_data(
-        Database& db, int index, int time);
+        Database& db,
+        int index,
+        int time);
 
 DatabaseDump load_file(
         std::string filename)
@@ -108,13 +118,16 @@ DatabaseDump load_file(
 }
 
 void initialize_empty_entities(
-        Database& db, int index)
+        Database& db,
+        int index)
 {
     std::shared_ptr<Host> host = std::make_shared<Host>(std::string(HOST_DEFAULT_NAME(index)));
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
-    std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(index)), PID_DEFAULT, user);
+    std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
+                        index)), PID_DEFAULT, user);
     std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)));
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(index)), DATA_TYPE_DEFAULT, domain);
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
+                        index)), DATA_TYPE_DEFAULT, domain);
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
                         PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), nullptr, domain);
     std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(
@@ -144,12 +157,14 @@ void initialize_empty_entities(
 }
 
 void initialize_database(
-        Database& db, int n_entity, int n_data)
+        Database& db,
+        int n_entity,
+        int n_data)
 {
-    for (int i=0; i<n_entity; ++i)
+    for (int i = 0; i < n_entity; ++i)
     {
         initialize_empty_entities(db, i);
-        for (int j=0; j<n_data; ++j)
+        for (int j = 0; j < n_data; ++j)
         {
             initialize_participant_data(db, i, j);
             initialize_datawriter_data(db, i, j);
@@ -160,7 +175,9 @@ void initialize_database(
 }
 
 void initialize_participant_data(
-        Database& db, int index, int time)
+        Database& db,
+        int index,
+        int time)
 {
     // discovered_entity
     {
@@ -187,7 +204,7 @@ void initialize_participant_data(
         db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
     }
 
-     // rtps_packets_sent
+    // rtps_packets_sent
     {
         RtpsPacketsSentSample sample;
         sample.src_ts = TIME_DEFAULT(time);
@@ -227,7 +244,9 @@ void initialize_participant_data(
 }
 
 void initialize_datawriter_data(
-        Database& db, int index, int time)
+        Database& db,
+        int index,
+        int time)
 {
     // publication_throughput
     {
@@ -290,7 +309,9 @@ void initialize_datawriter_data(
 }
 
 void initialize_datareader_data(
-        Database& db, int index, int time)
+        Database& db,
+        int index,
+        int time)
 {
     // subscription_throughput
     {
@@ -318,7 +339,9 @@ void initialize_datareader_data(
 }
 
 void initialize_locator_data(
-        Database& db, int index, int time)
+        Database& db,
+        int index,
+        int time)
 {
     // network_latency_per_locator
     {

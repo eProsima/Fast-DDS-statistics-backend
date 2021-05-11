@@ -5,13 +5,14 @@
 JSON Tags
 =========
 
-The |StatisticsBackend-api| use JSON format to retrieve information in many methods as |get_info-api|,
+The |StatisticsBackend-api| uses JSON format to retrieve information in many methods as |get_info-api|,
 |get_graph-api| or |dump_database-api|.
 
 .. todo::
 
     In order to access every item in every JSON generated, the following tags are provided:
-    Create table
+
+    Pending table creation
 
 Dump Tags Example
 -----------------
