@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <chrono>
+#include <map>
 #include <memory>
 #include <string>
+#include <tuple>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -33,7 +37,7 @@ using namespace eprosima::statistics_backend::database;
  *
  * \c get_entities retrieves all the entities of a given kind that are reachable from a given entity.
  * The casuistry for this functionality is rather complex,
- * and the tests need a populated database withs several entity combinations in order to be able to
+ * and the tests need a populated database with several entity combinations in order to be able to
  * test all this casuistry.
  *
  * This fixture populates a database with several entities and several relations among them.
@@ -42,7 +46,7 @@ using namespace eprosima::statistics_backend::database;
  * for the test to be able to get them and check the result of the execution.
  * This identifier is independent of the EntityId given by the database,
  * and is totally under control of the fixture and the tests.
- * This is important to keep the tests stable even if the Database implementatio to assign an EntityId changes.
+ * This is important to keep the tests stable even if the Database implementation to assign an EntityId changes.
  *
  * The following Json object describes the populated database objects and their given unique identifiers:
  *
@@ -235,19 +239,6 @@ public:
         db.insert(datawriter2);
         entities[16] = datawriter2;
         entities[20] = writer_locator2;
-    }
-
-    void check_expected_result(
-            std::vector<std::shared_ptr<const Entity>> expected,
-            std::vector<std::shared_ptr<const Entity>> result)
-    {
-        ASSERT_EQ(expected.size(), result.size());
-        std::sort(expected.begin(), expected.end());
-        std::sort(result.begin(), result.end());
-        for (size_t i = 0; i < expected.size(); ++i)
-        {
-            EXPECT_EQ(expected[i].get(), result[i].get());
-        }
     }
 
     Database db;
@@ -522,7 +513,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(EntityKind::DATAREADER, 13, std::vector<size_t> { 13 }),
         // DATAREADER - LOCATOR
         std::make_tuple(EntityKind::LOCATOR, 14, std::vector<size_t> { 17, 18 }),
-        // DATAREADER - LOCATOR: none
+        // DATAREADER - LOCATOR
         std::make_tuple(EntityKind::LOCATOR, 13, std::vector<size_t> { 17 }),
 
         // DATAWRITER - HOST
@@ -551,7 +542,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(EntityKind::DATAREADER, 15, std::vector<size_t> { 13, 14 }),
         // DATAWRITER - LOCATOR
         std::make_tuple(EntityKind::LOCATOR, 16, std::vector<size_t> { 19, 20 }),
-        // DATAWRITER - LOCATOR: none
+        // DATAWRITER - LOCATOR
         std::make_tuple(EntityKind::LOCATOR, 15, std::vector<size_t> { 19 }),
 
         // LOCATOR - HOST

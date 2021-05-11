@@ -15,6 +15,7 @@
 
 #include "database.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <mutex>  // For std::unique_lock
 #include <shared_mutex>
@@ -1460,7 +1461,6 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         const std::shared_ptr<const Entity>& origin) const
 {
     std::vector<std::shared_ptr<const Entity>> entities;
-    assert (origin->kind != EntityKind::INVALID);
 
     switch (origin->kind)
     {
@@ -1824,6 +1824,8 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
             }
             break;
         }
+        default:
+            throw BadParameter("Invalid EntityKind");
     }
 
     return entities;
