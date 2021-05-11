@@ -1303,19 +1303,19 @@ DatabaseDump Database::dump_entity_(
 
         // rtps_packets_sent last reported
         data[DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG] =
-            dump_data_(entity->data.last_reported_rtps_packets_sent_count);
+                dump_data_(entity->data.last_reported_rtps_packets_sent_count);
 
         // rtps_bytes_sent last reported
         data[DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG] =
-            dump_data_(entity->data.last_reported_rtps_bytes_sent_count);
+                dump_data_(entity->data.last_reported_rtps_bytes_sent_count);
 
         // rtps_packets_lost last reported
         data[DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG] =
-            dump_data_(entity->data.last_reported_rtps_packets_lost_count);
+                dump_data_(entity->data.last_reported_rtps_packets_lost_count);
 
         // rtps_bytes_lost last reported
         data[DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG] =
-            dump_data_(entity->data.last_reported_rtps_bytes_lost_count);
+                dump_data_(entity->data.last_reported_rtps_bytes_lost_count);
 
         entity_info[DATA_CONTAINER_TAG] = data;
     }
@@ -1614,26 +1614,51 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const EntityCountSample data)
+        const EntityCountSample& data)
 {
-    DatabaseDump value = DatabaseDump::object();
-    value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
-    value[DATA_VALUE_COUNT_TAG] = data.count;
+    DatabaseDump data_dump = DatabaseDump::object();
+    data_dump[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
+    data_dump[DATA_VALUE_COUNT_TAG] = data.count;
 
-    return value;
+    return data_dump;
 }
 
 DatabaseDump Database::dump_data_(
-        const ByteCountSample data)
+        const ByteCountSample& data)
 {
-    DatabaseDump value = DatabaseDump::object();
-    value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
-    value[DATA_VALUE_COUNT_TAG] = data.count;
-    value[DATA_VALUE_MAGNITUDE_TAG] = data.magnitude_order;
+    DatabaseDump data_dump = DatabaseDump::object();
+    data_dump[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
+    data_dump[DATA_VALUE_COUNT_TAG] = data.count;
+    data_dump[DATA_VALUE_MAGNITUDE_TAG] = data.magnitude_order;
 
-    return value;
+    return data_dump;
 }
 
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, EntityCountSample>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        data_dump[id_to_string(it.first.value())] = dump_data_(it.second);
+    }
+
+    return data_dump;
+}
+
+DatabaseDump Database::dump_data_(
+        const std::map<EntityId, ByteCountSample>& data)
+{
+    DatabaseDump data_dump = DatabaseDump::object();
+
+    for (auto it : data)
+    {
+        data_dump[id_to_string(it.first.value())] = dump_data_(it.second);
+    }
+
+    return data_dump;
+}
 
 } //namespace database
 } //namespace statistics_backend

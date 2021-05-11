@@ -78,29 +78,17 @@
                 "rtps_bytes_sent": {},
                 "rtps_packets_lost": {},
                 "rtps_bytes_lost": {},
+
+                "last_reported_rtps_bytes_lost":{},
+                "last_reported_rtps_bytes_sent":{},
+                "last_reported_rtps_packets_lost":{},
+                "last_reported_rtps_packets_sent":{},
+
                 "last_reported_edp_packets":{
                     "count":0,
                     "src_time":"0"
                 },
                 "last_reported_pdp_packets":{
-                    "count":0,
-                    "src_time":"0"
-                },
-                "last_reported_rtps_bytes_lost":{
-                    "count":0,
-                    "magnitude":0,
-                    "src_time":"0"
-                },
-                "last_reported_rtps_bytes_sent":{
-                    "count":0,
-                    "magnitude":0,
-                    "src_time":"0"
-                },
-                "last_reported_rtps_packets_lost":{
-                    "count":0,
-                    "src_time":"0"
-                },
-                "last_reported_rtps_packets_sent":{
                     "count":0,
                     "src_time":"0"
                 }

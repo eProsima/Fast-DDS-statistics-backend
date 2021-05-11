@@ -430,9 +430,13 @@ protected:
     DatabaseDump dump_data_(
             const std::vector<EntityDataSample>& data);
     DatabaseDump dump_data_(
-            const EntityCountSample data);
+            const EntityCountSample& data);
     DatabaseDump dump_data_(
-            const ByteCountSample data);
+            const ByteCountSample& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, EntityCountSample>& data);
+    DatabaseDump dump_data_(
+            const std::map<EntityId, ByteCountSample>& data);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
