@@ -142,6 +142,29 @@ constexpr const char* DATA_KIND_DISCOVERY_TIME_TAG              = "discovery_tim
 //! Key tag for container of data kind SAMPLE_DATAS
 constexpr const char* DATA_KIND_SAMPLE_DATAS_TAG                = "samples_datas";
 
+//! Key tag for container of last reported data in data kind RTPS_PACKETS_SENT
+constexpr const char* DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG             = "last_reported_rtps_packets_sent";
+//! Key tag for container of last reported data in data kind RTPS_BYTES_SENT
+constexpr const char* DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG               = "last_reported_rtps_bytes_sent";
+//! Key tag for container of last reported data in data kind RTPS_PACKETS_LOST
+constexpr const char* DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG             = "last_reported_rtps_packets_lost";
+//! Key tag for container of last reported data in data kind RTPS_BYTES_LOST
+constexpr const char* DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG               = "last_reported_rtps_bytes_lost";
+//! Key tag for container of last data reported in data kind PDP_PACKETS
+constexpr const char* DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG                   = "last_reported_pdp_packets";
+//! Key tag for container of last data reported in data kind EDP_PACKETS
+constexpr const char* DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG                   = "last_reported_edp_packets";
+//! Key tag for container of last data reported in data kind HEARTBEAT_COUNT
+constexpr const char* DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG               = "last_reported_heartbeat_count";
+//! Key tag for container of last data reported in data kind ACKNACK_COUNT
+constexpr const char* DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG                 = "last_reported_acknack_count";
+//! Key tag for container of last data reported in data kind NACKFRAG_COUNT
+constexpr const char* DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG                = "last_reported_nackfrag_count";
+//! Key tag for container of last data reported in data kind GAP_COUNT
+constexpr const char* DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG                     = "last_reported_gap_count";
+//! Key tag for container of last data reported in data kind DATA_COUNT
+constexpr const char* DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG                    = "last_reported_data_count";
+
 /////
 // Samples values
 

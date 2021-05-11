@@ -1295,6 +1295,28 @@ DatabaseDump Database::dump_entity_(
         // rtps_bytes_lost
         data[DATA_KIND_RTPS_BYTES_LOST_TAG] = dump_data_(entity->data.rtps_bytes_lost);
 
+        // pdp_packets last reported
+        data[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_pdp_packets);
+
+        // edp_packets last reported
+        data[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_edp_packets);
+
+        // rtps_packets_sent last reported
+        data[DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG] =
+            dump_data_(entity->data.last_reported_rtps_packets_sent_count);
+
+        // rtps_bytes_sent last reported
+        data[DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG] =
+            dump_data_(entity->data.last_reported_rtps_bytes_sent_count);
+
+        // rtps_packets_lost last reported
+        data[DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG] =
+            dump_data_(entity->data.last_reported_rtps_packets_lost_count);
+
+        // rtps_bytes_lost last reported
+        data[DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG] =
+            dump_data_(entity->data.last_reported_rtps_bytes_lost_count);
+
         entity_info[DATA_CONTAINER_TAG] = data;
     }
 
@@ -1347,6 +1369,15 @@ DatabaseDump Database::dump_entity_(
         // history2history_latency
         data[DATA_KIND_FASTDDS_LATENCY_TAG] = dump_data_(entity->data.history2history_latency);
 
+        // heartbeat_count last reported
+        data[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_heartbeat_count);
+
+        // gap_count last reported
+        data[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_gap_count);
+
+        // data_count last reported
+        data[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
+
         entity_info[DATA_CONTAINER_TAG] = data;
     }
 
@@ -1386,6 +1417,12 @@ DatabaseDump Database::dump_entity_(
 
         // nackfrag_count
         data[DATA_KIND_NACKFRAG_COUNT_TAG] = dump_data_(entity->data.nackfrag_count);
+
+        // acknack_count last reported
+        data[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_acknack_count);
+
+        // nackfrag_count last reported
+        data[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_nackfrag_count);
 
         entity_info[DATA_CONTAINER_TAG] = data;
     }
@@ -1575,6 +1612,28 @@ DatabaseDump Database::dump_data_(
 
     return data_dump;
 }
+
+DatabaseDump Database::dump_data_(
+        const EntityCountSample data)
+{
+    DatabaseDump value = DatabaseDump::object();
+    value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
+    value[DATA_VALUE_COUNT_TAG] = data.count;
+
+    return value;
+}
+
+DatabaseDump Database::dump_data_(
+        const ByteCountSample data)
+{
+    DatabaseDump value = DatabaseDump::object();
+    value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(data.src_ts);
+    value[DATA_VALUE_COUNT_TAG] = data.count;
+    value[DATA_VALUE_MAGNITUDE_TAG] = data.magnitude_order;
+
+    return value;
+}
+
 
 } //namespace database
 } //namespace statistics_backend
