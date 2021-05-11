@@ -361,9 +361,9 @@ public:
     /**
      * @brief Return the EntityKind of the entities to which a DataKind refers
      *
-     * Some DataKind relate to a single @ref Entity of a given EntityKind.
+     * Some DataKind relate to a single Entity of a given EntityKind.
      * This is the case of @c SUBSCRIPTION_THROUGHPUT, that always relates to a @c DATAREADER.
-     * Other DataKind relate to two different @ref Entity, each one of a given EntityKind.
+     * Other DataKind relate to two different Entity, each one of a given EntityKind.
      * For example, @c FASTDDS_LATENCY relates to a @c DATAWRITER as source
      * and a @c DATAREADER as target of the data flow.
      * Sometimes the DataKind relate to more than one EntityKind.
@@ -373,16 +373,16 @@ public:
      * Given a DataKind, this method provides a collection of all pairs of EntityKind to which
      * this DataKind relates.
      *
-     * - For a @c DataKind that only relates to one @ref Entity, the first element of the pair is the EntityKind
-     * of such @ref Entity, while the second element is @ref EntityKind::INVALID
-     * - For a DataKind that relates to two @ref Entity, the first element of the pair is the EntityKind
-     * of the source @ref Entity, while the second element is the EntityKind of the target @ref Entity
+     * - For a @c DataKind that only relates to one Entity, the first element of the pair is the EntityKind
+     * of such Entity, while the second element is @ref EntityKind::INVALID
+     * - For a DataKind that relates to two Entity, the first element of the pair is the EntityKind
+     * of the source Entity, while the second element is the EntityKind of the target Entity
      *
      * The source and target pairs returned by this method are exactly the accepted source and target EntityKind
      * accepted by @ref get_data for the given DataKind.
      * This is convenient to prepare a call to @ref get_data from an EntityKind.
      * First, call @ref get_data_supported_entity_kinds with the EntityKind to get the EntityKinds of the related entities.
-     * Then, call @ref get_entities to get the available entities ofr that kind.
+     * Then, call @ref get_entities to get the available entities for that kind.
      * Finally, call @ref get_data with the pairs that @ref get_entities returns.
      *
      * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1
