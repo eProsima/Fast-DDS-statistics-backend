@@ -1,5 +1,5 @@
 {
-    "description": "DB dump with 1 entity of each kind, only required connections and no data (TODO)",
+    "description": "DB dump with 1 entity of each EntityKind and 1 data of each DataKind",
 
     "version": "0.0",
 

@@ -1285,7 +1285,7 @@ DatabaseDump Database::dump_entity_(
 
         // rtps_packets_sent
         data[DATA_KIND_RTPS_PACKETS_SENT] = dump_data_(entity->data.rtps_packets_sent);
-        
+
         // rtps_bytes_sent
         data[DATA_KIND_RTPS_BYTES_SENT] = dump_data_(entity->data.rtps_bytes_sent);
 
@@ -1574,14 +1574,6 @@ DatabaseDump Database::dump_data_(
     }
 
     return data_dump;
-}
-
-void Database::load_database(
-        DatabaseDump dump)
-{
-    // TODO
-    static_cast<void>(dump);
-    throw BadParameter("Database::load_database method is not supported yet.");
 }
 
 } //namespace database

@@ -160,7 +160,6 @@ public:
      * The \c kind param is not required but very recommended when available to accelerate the search
      *
      * @param entity_id constant reference to the EntityId of the retrieved entity
-     * @param kind kind of the entity to look up
      * @throws eprosima::statistics_backend::BadParameter if there is not entity with the given ID.
      * @return A constant shared pointer to the Entity
      */
@@ -238,7 +237,7 @@ public:
     DatabaseDump dump_database();
 
     /**
-     * @brief Load Entities and their dt from dump (json) object
+     * @brief Load Entities and their data from dump (json) object
      *
      * @param dump Object with the object with the dump to load
      */
@@ -256,7 +255,6 @@ protected:
     inline std::string time_to_string(
             std::chrono::system_clock::time_point time)
     {
-        // TODO
         std::string s = std::to_string(
             std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch()).count());
         return s;
@@ -382,13 +380,9 @@ protected:
 
     /**
      * @brief Get a dump of an Entity stored in the database
-     *
-     * Non setting the kind argument will remain in the method to search in the internal maps for the entity
-     * So it saves really big time to give the Kind as argument
-     *
-     * @param id EntityId of the entity to dump
-     * @param kind EntityKind of the entity
-     * @return DatabaseDump object representing the entity in the database
+
+     * @param entity Pointer to Entity to dump
+     * @return \c DatabaseDump object representing the entity
      */
     DatabaseDump dump_entity_(
             const std::shared_ptr<Host>& entity);
@@ -410,7 +404,10 @@ protected:
             const std::shared_ptr<Locator>& entity);
 
     /**
-     * TODO
+     * @brief Get a dump of a data stored in the database
+
+     * @param data Reference to a data container
+     * @return \c DatabaseDump object representing the data
      */
     DatabaseDump dump_data_(
             const std::map<EntityId, std::vector<ByteCountSample>>& data);

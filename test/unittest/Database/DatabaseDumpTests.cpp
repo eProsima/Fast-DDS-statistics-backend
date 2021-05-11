@@ -48,8 +48,6 @@ constexpr const uint64_t COUNT_DEFAULT = 2;
 constexpr const double DATA_DEFAULT = 1.1;
 constexpr const uint64_t SEQUENCE_NUMBER_DEFAULT = 3;
 constexpr const int16_t MAGNITUDE_DEFAULT = 0;
-constexpr const std::chrono::steady_clock::time_point TIME_DEFAULT =
-        std::chrono::steady_clock::time_point(std::chrono::steady_clock::duration(1600000000000000001L));
 
 #define LOCATOR_DEFAULT_NAME(x) "locator_" + std::to_string(x)
 #define HOST_DEFAULT_NAME(x) "host_" + std::to_string(x)
@@ -342,12 +340,14 @@ public:
 
 };
 
+// Test the dump of a database without any entity
 TEST(database, dump_empty_database)
 {
     Database db;
     ASSERT_EQ(db.dump_database(), load_file(EMPTY_DUMP_FILE));
 }
 
+// Test the dump of a database with one entity of each kind
 TEST(database, dump_empty_entities_database)
 {
     Database db;
@@ -355,6 +355,7 @@ TEST(database, dump_empty_entities_database)
     ASSERT_EQ(db.dump_database(), load_file(EMPTY_ENTITIES_DUMP_FILE));
 }
 
+// Test the dump of a database with one entity of each kind and one data of each kind
 TEST(database, dump_simple_database)
 {
     Database db;
@@ -362,6 +363,7 @@ TEST(database, dump_simple_database)
     ASSERT_EQ(db.dump_database(), load_file(SIMPLE_DUMP_FILE));
 }
 
+// Test the dump of a database with three entities of each kind and three datas of each kind
 TEST(database, dump_complex_database)
 {
     Database db;

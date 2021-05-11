@@ -28,7 +28,6 @@ set(${PROJECT_NAME}_SOURCES
     database/samples.cpp
     exception/Exception.cpp
     types/EntityId.cpp
-    types/JSONTags.cpp
     StatisticsBackend.cpp
     topic_types/types.cxx
     topic_types/typesPubSubTypes.cxx
