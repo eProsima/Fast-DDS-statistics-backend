@@ -169,7 +169,7 @@ public:
      *
      * Use this function only for SAMPLE_DATAS DataKind as described in DataType.
      *
-     * For data types that relate to a single entity,
+     * For other data types that relate to a single entity,
      * use the overloaded function that takes a single entity as argument.
      *
      * For data types that relate to two entities,
