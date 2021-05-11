@@ -229,6 +229,15 @@ public:
             EntityKind entity_kind,
             const std::string& guid) const;
 
+    /**
+     * Get EntityKind given an EntityId
+     *
+     * @param entity_id The EntityId of the entity
+     * @return The EntityKind of the given entity
+     */
+    EntityKind get_entity_kind(
+            EntityId entity_id) const;
+
      /**
      * @brief Get a dump of the database
      *
