@@ -237,11 +237,23 @@ TEST(database, bytecountsample_operator_minus)
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Check that an exception is thrown if the result is less than (-2^15, 0) */
-    sample_1.magnitude_order = -10;
+    sample_1.magnitude_order = std::numeric_limits<int16_t>::min();
     sample_1.count = 0;
-    sample_2.magnitude_order = -11;
+    sample_2.magnitude_order = 1;
     sample_2.count = 0;
     ASSERT_THROW(sample_1 - sample_2, Unsupported);
+
+    sample_1.magnitude_order = std::numeric_limits<int16_t>::min();
+    sample_1.count = 0;
+    sample_2.magnitude_order = -1;
+    sample_2.count = 0;
+    ASSERT_NO_THROW(sample_1 - sample_2);
+
+    sample_1.magnitude_order = -2;
+    sample_1.count = 0;
+    sample_2.magnitude_order = 1;
+    sample_2.count = 0;
+    ASSERT_NO_THROW(sample_1 - sample_2);
 }
 
 TEST(database, timepointsample_operator_comparison)

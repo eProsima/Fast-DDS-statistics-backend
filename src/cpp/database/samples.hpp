@@ -187,7 +187,7 @@ struct ByteCountSample : StatisticsSample
         {
             ret.magnitude_order -=  1;
         }
-        if (magnitude_order < 0 && ret.magnitude_order > 0)
+        if (magnitude_order < 0 && other.magnitude_order >= 0 && ret.magnitude_order > 0)
         {
             throw Unsupported("The minimum possible representation is -2^15. The operation will yield a lower number");
         }
