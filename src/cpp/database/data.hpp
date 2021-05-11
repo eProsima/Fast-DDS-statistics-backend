@@ -57,9 +57,10 @@ struct RTPSData
 
     /*
      * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * by locator id.
      * This is done to speed up the calculation of the entries in rtps_packets_sent
      */
-    EntityCountSample last_reported_rtps_packets_sent_count;
+    std::map<EntityId, EntityCountSample> last_reported_rtps_packets_sent_count;
 
     /*
      * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -71,9 +72,10 @@ struct RTPSData
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * by locator id.
      * This is done to speed up the calculation of the entries in rtps_bytes_sent
      */
-    ByteCountSample last_reported_rtps_bytes_sent_count;
+    std::map<EntityId, ByteCountSample> last_reported_rtps_bytes_sent_count;
 
     /*
      * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
@@ -85,9 +87,10 @@ struct RTPSData
 
     /*
      * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
+     * by locator id.
      * This is done to speed up the calculation of the entries in rtps_packets_lost
      */
-    EntityCountSample last_reported_rtps_packets_lost_count;
+    std::map<EntityId, EntityCountSample> last_reported_rtps_packets_lost_count;
 
     /*
      * Byte count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -99,9 +102,10 @@ struct RTPSData
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
+     * by locator id.
      * This is done to speed up the calculation of the entries in rtps_bytes_lost
      */
-    ByteCountSample last_reported_rtps_bytes_lost_count;
+    std::map<EntityId, ByteCountSample> last_reported_rtps_bytes_lost_count;
 };
 
 /*

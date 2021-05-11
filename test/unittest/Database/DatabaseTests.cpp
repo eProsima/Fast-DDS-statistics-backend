@@ -1664,8 +1664,15 @@ TEST_F(database_tests, insert_sample_history_latency)
     sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 1);
+    HistoryLatencySample sample_2;
+    sample_2.reader = reader_id;
+    sample_2.data = 13;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2);
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer->data.history2history_latency[reader_id][1], static_cast<EntityDataSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_history_latency_wrong_entity)
@@ -1683,9 +1690,16 @@ TEST_F(database_tests, insert_sample_network_latency)
     sample.data = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample));
 
-    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id].size(), 1);
+    NetworkLatencySample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.data = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
+
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id].size(), 2);
     ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][0],
             static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][1],
+            static_cast<EntityDataSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_network_latency_wrong_entity)
@@ -1702,8 +1716,13 @@ TEST_F(database_tests, insert_sample_publication_throughput)
     sample.data = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.publication_throughput.size(), 1);
+    PublicationThroughputSample sample_2;
+    sample_2.data = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.publication_throughput.size(), 2);
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer->data.publication_throughput[1], static_cast<EntityDataSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput_wrong_entity)
@@ -1719,8 +1738,13 @@ TEST_F(database_tests, insert_sample_subscription_throughput)
     sample.data = 12;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
-    ASSERT_EQ(reader->data.subscription_throughput.size(), 1);
+    SubscriptionThroughputSample sample_2;
+    sample_2.data = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+
+    ASSERT_EQ(reader->data.subscription_throughput.size(), 2);
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(reader->data.subscription_throughput[1], static_cast<EntityDataSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_subscription_throughput_wrong_entity)
@@ -1737,8 +1761,18 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
+    RtpsPacketsSentSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
     ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id].size(), 2);
     ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_packets_sent_count[writer_locator->id].count, sample_2.count);
+
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_sent_wrong_entity)
@@ -1757,8 +1791,20 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent)
     sample.magnitude_order = 2;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
+    RtpsBytesSentSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 13;
+    sample_2.magnitude_order = 3;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
     ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2);
     ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][1],
+            static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].magnitude_order,
+            sample_2.magnitude_order);
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_sent_wrong_entity)
@@ -1777,8 +1823,17 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
+    RtpsPacketsLostSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
     ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2);
     ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_packets_lost_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_lost_wrong_entity)
@@ -1797,8 +1852,20 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost)
     sample.magnitude_order = 2;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
+    RtpsBytesLostSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 13;
+    sample_2.magnitude_order = 3;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
     ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2);
     ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][1],
+            static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].magnitude_order,
+            sample_2.magnitude_order);
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_lost_wrong_entity)
@@ -1816,8 +1883,15 @@ TEST_F(database_tests, insert_sample_resent_data)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.resent_datas.size(), 1);
+    ResentDataSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.resent_datas.size(), 2);
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.resent_datas[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_resent_datas, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_resent_data_wrong_entity)
@@ -1833,8 +1907,15 @@ TEST_F(database_tests, insert_sample_heartbeat_count)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.heartbeat_count.size(), 1);
+    HeartbeatCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.heartbeat_count.size(), 2);
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.heartbeat_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_heartbeat_count, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_heartbeat_count_wrong_entity)
@@ -1850,8 +1931,15 @@ TEST_F(database_tests, insert_sample_acknack_count)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
-    ASSERT_EQ(reader->data.acknack_count.size(), 1);
+    AcknackCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+
+    ASSERT_EQ(reader->data.acknack_count.size(), 2);
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.acknack_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.last_reported_acknack_count, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_acknack_count_wrong_entity)
@@ -1867,8 +1955,15 @@ TEST_F(database_tests, insert_sample_nackfrag_count)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
-    ASSERT_EQ(reader->data.nackfrag_count.size(), 1);
+    NackfragCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+
+    ASSERT_EQ(reader->data.nackfrag_count.size(), 2);
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.nackfrag_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.last_reported_nackfrag_count, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_nackfrag_count_wrong_entity)
@@ -1884,8 +1979,15 @@ TEST_F(database_tests, insert_sample_gap_count)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.gap_count.size(), 1);
+    GapCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.gap_count.size(), 2);
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.gap_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_gap_count, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_gap_count_wrong_entity)
@@ -1901,8 +2003,15 @@ TEST_F(database_tests, insert_sample_data_count)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.data_count.size(), 1);
+    DataCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.data_count.size(), 2);
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.data_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_data_count, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_data_count_wrong_entity)
@@ -1918,8 +2027,15 @@ TEST_F(database_tests, insert_sample_pdp_packets)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(participant->data.pdp_packets.size(), 1);
+    PdpCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
+    ASSERT_EQ(participant->data.pdp_packets.size(), 2);
     ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.pdp_packets[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_pdp_packets, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_pdp_packets_wrong_entity)
@@ -1935,8 +2051,15 @@ TEST_F(database_tests, insert_sample_edp_packets)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(participant->data.edp_packets.size(), 1);
+    EdpCountSample sample_2;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
+    ASSERT_EQ(participant->data.edp_packets.size(), 2);
     ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.edp_packets[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_edp_packets, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_edp_packets_wrong_entity)
@@ -1954,9 +2077,18 @@ TEST_F(database_tests, insert_sample_discovery_time)
     sample.discovered = true;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
-    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 1);
+    DiscoveryTimeSample sample_2;
+    sample_2.remote_entity = writer_id;
+    sample_2.time = std::chrono::system_clock::now();
+    sample_2.discovered = true;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
+    ASSERT_EQ(participant->data.discovered_entity.size(), 1);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2);
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0].first, sample.time);
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].first, sample_2.time);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].second, sample_2.discovered);
 }
 
 TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
@@ -1975,8 +2107,14 @@ TEST_F(database_tests, insert_sample_sample_datas)
     sample.count = 12;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
-    ASSERT_EQ(writer->data.sample_datas.size(), 1);
+    SampleDatasCountSample sample_2;
+    sample_2.sequence_number = 3;
+    sample_2.count = 13;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->data.sample_datas.size(), 2);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
+    ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number], sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
