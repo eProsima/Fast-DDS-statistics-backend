@@ -8,6 +8,8 @@
 .. |get_entities-api| replace:: :cpp:func:`get_entities()<eprosima::statistics_backend::StatisticsBackend::get_entities>`
 .. |get_info-api| replace:: :cpp:func:`get_info()<eprosima::statistics_backend::StatisticsBackend::get_info>`
 .. |is_active-api| replace:: :cpp:func:`is_active()<eprosima::statistics_backend::StatisticsBackend::is_active>`
+.. |get_graph-api| replace:: :cpp:func:`get_graph()<eprosima::statistics_backend::StatisticsBackend::get_graph>`
+.. |dump_database-api| replace:: :cpp:func:`dump_database()<eprosima::statistics_backend::StatisticsBackend::dump_database>`
 
 .. |DomainListener-api| replace:: :cpp:class:`DomainListener<eprosima::statistics_backend::DomainListener>`
 .. |PhysicalListener-api| replace:: :cpp:class:`PhysicalListener<eprosima::statistics_backend::PhysicalListener>`

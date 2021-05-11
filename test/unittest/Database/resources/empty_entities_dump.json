@@ -1,0 +1,179 @@
+{
+    "description": "DB dump with 1 entity of each kind, only required connections and no data",
+
+    "version": "0.0",
+
+    "hosts":
+    {
+        "1":
+        {
+            "name": "host_0",
+            "users": ["2"]
+        }
+    },
+
+    "users":
+    {
+        "2":
+        {
+            "name": "user_0",
+            "host": "1",
+            "processes": ["3"]
+        }
+    },
+
+    "processes":
+    {
+        "3":
+        {
+            "name": "process_0",
+            "pid": "36000",
+            "user": "2",
+            "participants": ["6"]
+        }
+    },
+
+    "domains":
+    {
+        "4":
+        {
+            "name": "domain_0",
+            "participants": ["6"],
+            "topics": ["5"]
+        }
+    },
+
+    "topics":
+    {
+        "5":
+        {
+            "name": "topic_0",
+            "data_type": "data_type",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"]
+        }
+    },
+
+    "participants":
+    {
+        "6":
+        {
+            "name": "participant_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "process": "3",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "discovery_time": {},
+                "pdp_packets": [],
+                "edp_packets": [],
+
+                "rtps_packets_sent": {},
+                "rtps_bytes_sent": {},
+                "rtps_packets_lost": {},
+                "rtps_bytes_lost": {},
+
+                "last_reported_rtps_bytes_lost":{},
+                "last_reported_rtps_bytes_sent":{},
+                "last_reported_rtps_packets_lost":{},
+                "last_reported_rtps_packets_sent":{},
+
+                "last_reported_edp_packets":{
+                    "count":0,
+                    "src_time":"0"
+                },
+                "last_reported_pdp_packets":{
+                    "count":0,
+                    "src_time":"0"
+                }
+            }
+        }
+    },
+
+    "datawriters":
+    {
+        "7":
+        {
+            "name": "datawriter_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "publication_throughput": [],
+                "resent_datas": [],
+                "heartbeat_count": [],
+                "gap_count": [],
+                "data_count": [],
+                "samples_datas": {},
+                "history2history_latency": {},
+                "last_reported_data_count":{
+                    "count":0,
+                    "src_time":"0"
+                },
+                "last_reported_gap_count":{
+                    "count":0,
+                    "src_time":"0"
+                },
+                "last_reported_heartbeat_count":{
+                    "count":0,
+                    "src_time":"0"
+                }
+            }
+        }
+    },
+
+    "datareaders":
+    {
+        "8":
+        {
+            "name": "datareader_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos":"empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "subscription_throughput": [],
+                "acknack_count": [],
+                "nackfrag_count": [],
+                "last_reported_acknack_count":{
+                    "count":0,
+                    "src_time":"0"
+                },
+                "last_reported_nackfrag_count":{
+                    "count":0,
+                    "src_time":"0"
+                }
+            }
+        }
+    },
+
+    "locators":
+    {
+        "0":
+        {
+            "name": "locator_0",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "network_latency_per_locator": {}
+            }
+        }
+    }
+}
