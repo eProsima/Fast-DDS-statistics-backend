@@ -235,6 +235,13 @@ TEST(database, bytecountsample_operator_minus)
     ASSERT_EQ(sample_3.magnitude_order, 0);
     ASSERT_EQ(sample_3.count, 0);
     ASSERT_EQ(sample_3.src_ts, ts_2);
+
+    /* Check that an exception is thrown if the result is less than (-2^15, 0) */
+    sample_1.magnitude_order = -10;
+    sample_1.count = 0;
+    sample_2.magnitude_order = -11;
+    sample_2.count = 0;
+    ASSERT_THROW(sample_1 - sample_2, Unsupported);
 }
 
 TEST(database, timepointsample_operator_comparison)

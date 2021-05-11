@@ -480,9 +480,9 @@ void Database::insert(
                 // Store the increment since the last report
                 participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
                     rtps_packets_lost -
-                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator]);
+                    participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator]);
                 // Update last report
-                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_lost.remote_locator] =
+                participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
                         rtps_packets_lost;
                 break;
             }

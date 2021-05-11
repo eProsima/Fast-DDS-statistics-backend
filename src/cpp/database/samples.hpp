@@ -22,6 +22,7 @@
 
 #include <chrono>
 
+#include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 
 namespace eprosima {
@@ -161,7 +162,6 @@ struct ByteCountSample : StatisticsSample
         return !(*this == other);
     }
 
-
     /**
      * ByteCountSample is, in a way, a number expressed in base 2^64, where count is the first digit from the right
      * (LSD), and magnitude_order is the second digit from the right (MSD). However, it has 2 peculiarities:
@@ -177,7 +177,7 @@ struct ByteCountSample : StatisticsSample
      *         -9 = (-1, 2^64 - 9) -> This is interpreted as (-(1 * 2^64) + (2^64 - 9)) = -2^64 + 2^64 -9 = -9
      */
     inline ByteCountSample operator -(
-            const ByteCountSample& other) const noexcept
+            const ByteCountSample& other) const
     {
         ByteCountSample ret(kind);
         ret.src_ts = src_ts;
@@ -186,6 +186,10 @@ struct ByteCountSample : StatisticsSample
         if (ret.count > count)
         {
             ret.magnitude_order -=  1;
+        }
+        if (magnitude_order < 0 && ret.magnitude_order > 0)
+        {
+            throw Unsupported("The minimum possible representation is -2^15. The operation will yield a lower number");
         }
         return ret;
     }
