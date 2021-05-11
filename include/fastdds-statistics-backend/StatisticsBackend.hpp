@@ -306,8 +306,8 @@ public:
             DataKind data_type,
             const std::vector<EntityId> entity_ids_source,
             const std::vector<EntityId> entity_ids_target,
-            uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE);
+            uint16_t bins,
+            StatisticKind statistic);
 
     /**
      * @brief Overload of get_data method without time arguments
@@ -325,8 +325,8 @@ public:
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
             const std::vector<EntityId> entity_ids,
-            uint16_t bins = 0,
-            StatisticKind statistic = StatisticKind::NONE);
+            uint16_t bins,
+            StatisticKind statistic);
 
     /**
      * @brief Get the topology graph
@@ -359,29 +359,56 @@ public:
             std::string filename);
 
     /**
-     * @brief Return the \c EntityKind of the entity that this data refers to
+     * @brief Return the EntityKind of the entities to which a DataKind refers
      *
-     * Each \c get_data call has associated one or two EntityKind depending on the \c DataKind.
-     * The first EntityKind is associated with the entity that stores the data, and so the entity that must be used
-     * in a \c get_data query as source entity to retrieve such data.
-     * The second EntityKind is associated with the entity that this data references, and so the entity that must be
-     * used in a \c get_data query as target entity to retrieve such data.
+     * Some DataKind relate to a single Entity of a given EntityKind.
+     * This is the case of @c SUBSCRIPTION_THROUGHPUT, that always relates to a @c DATAREADER.
+     * Other DataKind relate to two different Entity, each one of a given EntityKind.
+     * For example, @c FASTDDS_LATENCY relates to a @c DATAWRITER as source
+     * and a @c DATAREADER as target of the data flow.
+     * In the specific case of @c DISCOVERED_ENTITY, the DataKind relates to a @c PARTICIPANT as the discoverer,
+     * but can relate to a @c DATAWRITER, @c DATAREADER or another @c PARTICIPANT as the discovered entity.
      *
-     * This method is useful to automatize the call to \c get_data from any EntityKind.
-     * First, call \c get_entities with the Id to get the entities related, and the types returned by this method.
-     * Then, call \c get_data with the vectors that \c get_entities returns.
+     * Given a DataKind, this method provides a collection of all pairs of EntityKind to which
+     * this DataKind relates.
      *
-     * i.e. Get the \c FASTDDS_LATENCY between all the writers in Host1 and all the readers in Host2
+     * - For a @c DataKind that only relates to one Entity, the first element of the pair is the EntityKind
+     * of such Entity, while the second element is @ref EntityKind::INVALID
+     * - For a DataKind that relates to two Entity, the first element of the pair is the EntityKind
+     * of the source Entity, while the second element is the EntityKind of the target Entity
+     *
+     * The source and target pairs returned by this method are exactly the accepted source and target EntityKind
+     * accepted by @ref get_data for the given DataKind.
+     * This is convenient to prepare a call to @ref get_data from an EntityKind.
+     * First, call @ref get_data_supported_entity_kinds with the EntityKind to get the EntityKinds of the related entities.
+     * Then, call @ref get_entities to get the available entities for that kind.
+     * Finally, call @ref get_data with the pairs that @ref get_entities returns.
+     *
+     * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1
      * @code
-     * auto types_list = data_entityKind(DataKind::FASTDDS_LATENCY);
-     * for (types : types_list)
-     *     get_data(DataKind::FASTDDS_LATENCY,
-     *              get_entities(types->first, Host1-::id),
-     *              get_entities(types->second, Host2::id));
+     * // Get all the EntityKind pairs related to DISCOVERY_TIME.
+     * std::vector<std::pair<EntityKind, EntityKind>> types_list =
+     *         StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
+     *
+     * // Iterate over all the valid pairs composing the final result
+     * std::vector<StatisticsData> discovery_times;
+     * for (std::pair<EntityKind, EntityKind> type_pair : types_list)
+     * {
+     *     // Take the data for this pair and append it to the existing data
+     *     std::vector<StatisticsData> tmp = StatisticsBackend::get_data(
+     *             DataKind::DISCOVERY_TIME,
+     *             StatisticsBackend::get_entities(type_pair.first, host1_id),
+     *             StatisticsBackend::get_entities(type_pair.second, host2_id));
+     *
+     *     discovery_times.insert(discovery_times.end(), tmp.begin(), tmp.end());
+     * }
      * @endcode
      *
      * @param data_kind Data kind
-     * @return list of EntityKind pair with the entity kinds that \c get_data query must be asked with
+     * @return list of @c EntityKind pairs with the entity kinds to which a @c DataKind refers
+     *
+     * @sa DataKind
+     * @sa get_data
      */
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);

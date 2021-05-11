@@ -69,6 +69,29 @@ The following table illustrates the expected inputs depending on the query's |Da
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
 
+|get_data_supported_entity_kinds-api| can be used to get all the |EntityKind-api|
+pairs suitable for a given |DataKind-api|, according to this table.
+
+- For a |DataKind-api| that only relates to one Entity,
+  the first element of the pair is the |EntityKind-api| of such Entity,
+  while the second element is |EntityKind_INVALID-api|.
+- For a |DataKind-api| that relates to two Entities, the first element of the pair is the |EntityKind-api|
+  of the source Entity, while the second element is the |EntityKind-api| of the target Entity.
+
+The source and target pairs returned by this method
+are the source and target |EntityKind-api| accepted by |get_data-api| for the given |DataKind-api|.
+This is convenient to prepare a call to |get_data-api| from an |EntityKind-api|.
+First, call |get_data_supported_entity_kinds-api| with the |DataKind-api|
+to get the |EntityKind-api| of the related entities.
+Then, call |get_entities-api| to get the available entities of that kind.
+Finally, call |get_data-api| with the pairs that |get_entities-api| returns.
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //CONF-GET-FASTDDS-LATENCY-SUPPORTED-ENTITY-KINDS
+    :end-before: //!
+    :dedent: 8
+
 .. warning::
    If for a given bin, the *Fast DDS Statistics Backend* has no data, the value returned will be the one supplied by
    `std::numeric_limits<double>::quiet_NaN <https://en.cppreference.com/w/cpp/types/numeric_limits/quiet_NaN>`_.
