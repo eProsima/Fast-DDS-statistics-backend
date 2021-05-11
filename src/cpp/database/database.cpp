@@ -75,13 +75,17 @@ EntityId Database::insert_nts(
                 }
             }
 
-            
-            /* Insert host in the database */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                host->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                host->id = entity_id;
+            {
+                entity->id = entity_id;
+            }
 
+            /* Insert host in the database */
             hosts_[host->id] = host;
             return host->id;
         }
@@ -131,12 +135,17 @@ EntityId Database::insert_nts(
                 }
             }
 
-            /* Add user to users collection */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                user->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                user->id = entity_id;
-                
+            {
+                entity->id = entity_id;
+            }
+
+            /* Add user to users collection */         
             users_[user->id] = user;
 
             /* Add user to host's users collection */
@@ -198,12 +207,17 @@ EntityId Database::insert_nts(
                 }
             }
 
-            /* Add process to processes collection */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                process->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                process->id = entity_id;
+            {
+                entity->id = entity_id;
+            }
 
+            /* Add process to processes collection */
             processes_[process->id] = process;
 
             /* Add process to user's processes collection */
@@ -235,12 +249,17 @@ EntityId Database::insert_nts(
                 }
             }
 
-            /* Insert domain in the database */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                domain->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                domain->id = entity_id;
+            {
+                entity->id = entity_id;
+            }
 
+            /* Insert domain in the database */
             domains_[domain->id] = domain;
             return domain->id;
         }
@@ -291,12 +310,17 @@ EntityId Database::insert_nts(
                 }
             }
 
-            /* Add topic to domain's collection */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                topic->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                topic->id = entity_id;
+            {
+                entity->id = entity_id;
+            }
 
+            /* Add topic to domain's collection */
             domains_[topic->domain->id]->topics[topic->id] = topic;
 
             /* Insert topic in the database */
@@ -361,11 +385,15 @@ EntityId Database::insert_nts(
                 }
             }
 
-            /* Add participant to process' collection */
+            // Add id to the entity
             if (!entity_id.is_valid() || entity_id.is_all())
-                participant->id = generate_entity_id();
+            {
+                entity->id = generate_entity_id();
+            }
             else
-                participant->id = entity_id;
+            {
+                entity->id = entity_id;
+            }
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
@@ -750,6 +778,14 @@ void Database::link_participant_with_process(
         const EntityId& process_id)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    link_participant_with_process_nts(participant_id,process_id);
+}
+
+void Database::link_participant_with_process_nts(
+        const EntityId& participant_id,
+        const EntityId& process_id)
+{
     /* Get the participant and the domain */
     EntityId domain_id;
     std::map<EntityId, std::shared_ptr<DomainParticipant>>::iterator participant_it;
@@ -2812,67 +2848,156 @@ void Database::load_database(
 {
     // TODO: Check if dump have the correct keys?
 
-    DatabaseDump hostDump = dump[HOST_CONTAINER];
-
-    for (auto it = hostDump.begin(); it != hostDump.end(); ++it)
-    {
-        std::shared_ptr<Host> host = load_entity_(it.value());
-        // host
-        // insert(host);
-    }
-
-    // ------------------
-
-    // TODO
-    static_cast<void>(dump);
-    // 
-    throw BadParameter("Database::load_database method is not supported yet.");
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Hosts
+    if (!dump.contains(HOST_CONTAINER))
     {
-        DatabaseDump container = DatabaseDump::object();
+        throw CorruptedFile("Key: " + std::string(HOST_CONTAINER) + " not found in JSON");
+    }
+    else
+    {
+        DatabaseDump container = dump[HOST_CONTAINER];
 
-        // For each entity of this kind in database
-        for (auto it : hosts_)
+        for (auto it = container.begin(); it != container.end(); ++it)
         {
-            container[id_to_string(it.first.value())] = dump_entity_(it.second);
-        }
+            std::shared_ptr<Host> entity = std::make_shared<Host>(
+                (*it)[NAME_INFO]);
 
-        dump[HOST_CONTAINER] = container;
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
     }
 
+    // Users
+    {
+        DatabaseDump container = dump[USER_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            std::shared_ptr<User> entity = std::make_shared<User>(
+                (*it)[NAME_INFO],
+                hosts_[EntityId((*it)[HOST_ENTITY])]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // Processes
+    {
+        DatabaseDump container = dump[PROCESS_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            std::shared_ptr<Process> entity = std::make_shared<Process>(
+                (*it)[NAME_INFO],
+                (*it)[PID_INFO],
+                users_[EntityId((*it)[USER_ENTITY])]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // Domains
+    {
+        DatabaseDump container = dump[DOMAIN_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            std::shared_ptr<Domain> entity = std::make_shared<Domain>(
+                (*it)[NAME_INFO]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // Topics
+    {
+        DatabaseDump container = dump[TOPIC_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            std::shared_ptr<Topic> entity = std::make_shared<Topic>(
+                (*it)[NAME_INFO],
+                (*it)[DATA_TYPE_INFO],
+                domains_[EntityId((*it)[DOMAIN_ENTITY])]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // Participants
+    {
+        DatabaseDump container = dump[PARTICIPANT_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            EntityId entityId (stoi(it.key()));
+            EntityId processId ((*it)[PROCESS_ENTITY]);
+
+            std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
+                (*it)[NAME_INFO],
+                (*it)[QOS_INFO],
+                (*it)[GUID_INFO],
+                processes_[processId],
+                domains_[EntityId((*it)[DOMAIN_ENTITY])]);
+
+            insert_nts(entity,entityId);
+            link_participant_with_process_nts(entityId,processId);
+        }
+    }
+
+    // DataWriters
+    {
+        DatabaseDump container = dump[DATAWRITER_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            EntityId participantId = EntityId((*it)[PARTICIPANT_ENTITY]);
+            EntityId participantDomainId = EntityId(dump[PARTICIPANT_CONTAINER][participantId.value()][DOMAIN_ENTITY]);
+
+            EntityId topicId = EntityId((*it)[TOPIC_ENTITY]);
+            EntityId topicDomainId = EntityId(dump[TOPIC_CONTAINER][topicId.value()][DOMAIN_ENTITY]);
+
+            std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
+                (*it)[NAME_INFO],
+                (*it)[QOS_INFO],
+                (*it)[GUID_INFO],
+                participants_[participantDomainId][participantId],
+                topics_[topicDomainId][topicId]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // DataReaders
+    {
+        DatabaseDump container = dump[DATAREADER_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            EntityId participantId = EntityId((*it)[PARTICIPANT_ENTITY]);
+            EntityId participantDomainId = EntityId(dump[PARTICIPANT_CONTAINER][participantId.value()][DOMAIN_ENTITY]);
+
+            EntityId topicId = EntityId((*it)[TOPIC_ENTITY]);
+            EntityId topicDomainId = EntityId(dump[TOPIC_CONTAINER][topicId.value()][DOMAIN_ENTITY]);
+
+            std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
+                (*it)[NAME_INFO],
+                (*it)[QOS_INFO],
+                (*it)[GUID_INFO],
+                participants_[participantDomainId][participantId],
+                topics_[topicDomainId][topicId]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
+
+    // Locators
+    {
+        DatabaseDump container = dump[LOCATOR_CONTAINER];
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            std::shared_ptr<Locator> entity = std::make_shared<Locator>(
+                (*it)[NAME_INFO]);
+
+            insert_nts(entity,EntityId(stoi(it.key())));
+        }
+    }
 
 }
-
-std::shared_ptr<Host> Database::load_entity_(
-        const DatabaseDump& dump)
-{
-    // Create host
-    std::shared_ptr<Host> host = std::make_shared<Host>("H");
-    
-    static_cast<void>(dump);
-
-    return host;
-
-
-    // ------------------
-
-    // DatabaseDump entity_info = DatabaseDump::object();
-    // entity_info[NAME_INFO] = entity->name;
-
-    // // Populate subentity array
-    // {
-    //     DatabaseDump subentities = DatabaseDump::array();
-    //     for (auto sub_it : entity->users)
-    //     {
-    //         subentities.push_back(id_to_string(sub_it.first));
-    //     }
-    //     entity_info[USER_CONTAINER] = subentities;
-    // }
-
-    // return entity_info;
-}
-
 
 } //namespace database
 } //namespace statistics_backend

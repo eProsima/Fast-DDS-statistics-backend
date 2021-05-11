@@ -521,8 +521,9 @@ protected:
         const std::shared_ptr<Entity>& entity,
         const EntityId& entity_id);
 
-    std::shared_ptr<Host> load_entity_(const DatabaseDump& dump);
-    
+    void link_participant_with_process_nts(
+            const EntityId& participant_id,
+            const EntityId& process_id);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;

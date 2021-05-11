@@ -250,6 +250,47 @@ public:
             const NoData& other) = default;
 };
 
+/**
+ * @brief Exception to signal that a file with an unxpected format has been loaded
+ */
+class FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile : public Exception
+{
+
+public:
+
+    /**
+     * @brief Construct a new statistics_backend::CorruptedFile exception
+     *
+     * @param message The message to be returned by what()
+     */
+    CorruptedFile(
+            const char* message) noexcept;
+
+    /**
+     * @brief Construct a new statistics_backend::CorruptedFile exception
+     *
+     * @param message The message to be returned by what()
+     */
+    CorruptedFile(
+            const std::string& message);
+
+    /**
+     * @brief Copies the statistics_backend::CorruptedFile exception into a new one
+     *
+     * @param other The original exception object to copy
+     */
+    CorruptedFile(
+            const CorruptedFile& other) = default;
+
+    /**
+     * @brief Copies the statistics_backend::CorruptedFile exception into the current one
+     *
+     * @param other The original statistics_backend::CorruptedFile exception to copy
+     * @return the current statistics_backend::CorruptedFile exception after the copy
+     */
+    CorruptedFile& operator =(
+            const CorruptedFile& other) = default;
+};
 
 } // namespace statistics_backend
 } // namespace eprosima
