@@ -2843,105 +2843,173 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
+bool Database::check_key_json(
+    const DatabaseDump& dump,
+    const char* key)
+{
+    if (!dump.contains(key))
+    {
+        throw CorruptedFile("Key: " + std::string(key) + " not found in JSON");
+        return false;
+    }
+    else
+        return true;
+}
+
 void Database::load_database(
         DatabaseDump dump)
 {
-    // TODO: Check if dump have the correct keys?
-
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Hosts
-    if (!dump.contains(HOST_CONTAINER))
-    {
-        throw CorruptedFile("Key: " + std::string(HOST_CONTAINER) + " not found in JSON");
-    }
-    else
+    if (check_key_json(dump,HOST_CONTAINER))
     {
         DatabaseDump container = dump[HOST_CONTAINER];
 
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            std::shared_ptr<Host> entity = std::make_shared<Host>(
-                (*it)[NAME_INFO]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),USER_CONTAINER))
+            {
+                // Create entity
+                std::shared_ptr<Host> entity = std::make_shared<Host>(
+                    (*it)[NAME_INFO]);
 
-            insert_nts(entity,EntityId(stoi(it.key())));
+                // Insert into database
+                insert_nts(entity,EntityId(stoi(it.key())));
+            }
         }
     }
 
     // Users
+    if (check_key_json(dump,USER_CONTAINER))
     {
         DatabaseDump container = dump[USER_CONTAINER];
+
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            std::shared_ptr<User> entity = std::make_shared<User>(
-                (*it)[NAME_INFO],
-                hosts_[EntityId((*it)[HOST_ENTITY])]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),HOST_ENTITY) && 
+                check_key_json((*it),PROCESS_CONTAINER))
+            {
+                // Create entity
+                std::shared_ptr<User> entity = std::make_shared<User>(
+                    (*it)[NAME_INFO],
+                    hosts_[EntityId((*it)[HOST_ENTITY])]);
 
-            insert_nts(entity,EntityId(stoi(it.key())));
+                // Insert into database
+                insert_nts(entity,EntityId(stoi(it.key())));
+            }
         }
     }
 
     // Processes
+    if (check_key_json(dump,PROCESS_CONTAINER))
     {
         DatabaseDump container = dump[PROCESS_CONTAINER];
+
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            std::shared_ptr<Process> entity = std::make_shared<Process>(
-                (*it)[NAME_INFO],
-                (*it)[PID_INFO],
-                users_[EntityId((*it)[USER_ENTITY])]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),PID_INFO) && 
+                check_key_json((*it),USER_ENTITY) && check_key_json((*it),PARTICIPANT_CONTAINER))
+            {
+                // Create entity
+                std::shared_ptr<Process> entity = std::make_shared<Process>(
+                    (*it)[NAME_INFO],
+                    (*it)[PID_INFO],
+                    users_[EntityId((*it)[USER_ENTITY])]);
 
-            insert_nts(entity,EntityId(stoi(it.key())));
+                // Insert into database
+                insert_nts(entity,EntityId(stoi(it.key())));
+            }
         }
     }
 
     // Domains
+    if (check_key_json(dump,DOMAIN_CONTAINER))
     {
         DatabaseDump container = dump[DOMAIN_CONTAINER];
+
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            std::shared_ptr<Domain> entity = std::make_shared<Domain>(
-                (*it)[NAME_INFO]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),PARTICIPANT_CONTAINER) && 
+                check_key_json((*it),TOPIC_CONTAINER))
+            {
+                // Create entity
+                std::shared_ptr<Domain> entity = std::make_shared<Domain>(
+                    (*it)[NAME_INFO]);
 
-            insert_nts(entity,EntityId(stoi(it.key())));
+                // Insert into database
+                insert_nts(entity,EntityId(stoi(it.key())));
+            }
         }
     }
 
     // Topics
+    if (check_key_json(dump,TOPIC_CONTAINER))
     {
         DatabaseDump container = dump[TOPIC_CONTAINER];
+
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            std::shared_ptr<Topic> entity = std::make_shared<Topic>(
-                (*it)[NAME_INFO],
-                (*it)[DATA_TYPE_INFO],
-                domains_[EntityId((*it)[DOMAIN_ENTITY])]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),DATA_TYPE_INFO) && 
+                check_key_json((*it),DOMAIN_ENTITY) && check_key_json((*it),DATAWRITER_CONTAINER) && 
+                check_key_json((*it),DATAREADER_CONTAINER))
+            {
+                // Create entity
+                std::shared_ptr<Topic> entity = std::make_shared<Topic>(
+                    (*it)[NAME_INFO],
+                    (*it)[DATA_TYPE_INFO],
+                    domains_[EntityId((*it)[DOMAIN_ENTITY])]);
 
-            insert_nts(entity,EntityId(stoi(it.key())));
+                // Insert into database
+                insert_nts(entity,EntityId(stoi(it.key())));
+            }
         }
     }
 
     // Participants
+    if (check_key_json(dump,PARTICIPANT_CONTAINER))
     {
         DatabaseDump container = dump[PARTICIPANT_CONTAINER];
+
+        // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            EntityId entityId (stoi(it.key()));
-            EntityId processId ((*it)[PROCESS_ENTITY]);
+            if (check_key_json((*it),NAME_INFO) && check_key_json((*it),GUID_INFO) && 
+                check_key_json((*it),QOS_INFO) && check_key_json((*it),PROCESS_ENTITY) && 
+                check_key_json((*it),DOMAIN_ENTITY) && check_key_json((*it),DATAWRITER_CONTAINER) && 
+                check_key_json((*it),DATAREADER_CONTAINER) && check_key_json((*it),DATA_CONTAINER))
+            {
+                // Create entity
+                EntityId entityId (stoi(it.key()));
+                EntityId processId ((*it)[PROCESS_ENTITY]);
 
-            std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                (*it)[NAME_INFO],
-                (*it)[QOS_INFO],
-                (*it)[GUID_INFO],
-                processes_[processId],
-                domains_[EntityId((*it)[DOMAIN_ENTITY])]);
+                std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
+                    (*it)[NAME_INFO],
+                    (*it)[QOS_INFO],
+                    (*it)[GUID_INFO],
+                    processes_[processId],
+                    domains_[EntityId((*it)[DOMAIN_ENTITY])]);
 
-            insert_nts(entity,entityId);
-            link_participant_with_process_nts(entityId,processId);
+
+                // Insert into database
+                insert_nts(entity,entityId);
+
+                // Load data and insert into database
+                load_data((*it)[DATA_CONTAINER],entity);
+
+                // Link participant with process
+                link_participant_with_process_nts(entityId,processId);
+            }
         }
     }
 
     // DataWriters
+    if (check_key_json(dump,DATAWRITER_CONTAINER))
     {
         DatabaseDump container = dump[DATAWRITER_CONTAINER];
         for (auto it = container.begin(); it != container.end(); ++it)
@@ -2964,6 +3032,7 @@ void Database::load_database(
     }
 
     // DataReaders
+    if (check_key_json(dump,DATAREADER_CONTAINER))
     {
         DatabaseDump container = dump[DATAREADER_CONTAINER];
         for (auto it = container.begin(); it != container.end(); ++it)
@@ -2986,6 +3055,7 @@ void Database::load_database(
     }
 
     // Locators
+    if (check_key_json(dump,LOCATOR_CONTAINER))
     {
         DatabaseDump container = dump[LOCATOR_CONTAINER];
         for (auto it = container.begin(); it != container.end(); ++it)
@@ -2997,6 +3067,345 @@ void Database::load_database(
         }
     }
 
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DomainParticipant>& entity)
+{
+    if (check_key_json(dump,DATA_KIND_DISCOVERY_TIME) && check_key_json(dump,DATA_KIND_PDP_PACKETS) && 
+        check_key_json(dump,DATA_KIND_EDP_PACKETS) && check_key_json(dump,DATA_KIND_RTPS_PACKETS_SENT) &&
+        check_key_json(dump,DATA_KIND_RTPS_BYTES_SENT) && check_key_json(dump,DATA_KIND_RTPS_PACKETS_LOST) && 
+        check_key_json(dump,DATA_KIND_RTPS_BYTES_LOST))
+    {
+        // DiscoveryTime
+        {
+            DatabaseDump container = dump[DATA_KIND_DISCOVERY_TIME];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // TODO: Check key with a number exists, also in the other data
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_STATUS))
+                    {
+                        DiscoveryTimeSample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::DISCOVERY_TIME; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // TODO: Insert correct values in time 
+                        // std::chrono::system_clock::time_point
+                        // sample.time; 
+
+                        // EntityId  
+                        sample.remote_entity = EntityId(id);   
+
+                        // bool
+                        sample.discovered = (*it)[DATA_VALUE_STATUS];
+
+                        // Insert data into database
+                        insert(entity->domain->id,sample.remote_entity,sample);
+                    }
+                }
+
+            }
+
+        }
+
+        // PdpPackets
+        {
+            DatabaseDump container = dump[DATA_KIND_PDP_PACKETS];
+
+            // Data iterator
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT))
+                {
+                    PdpCountSample sample;
+
+                    // DataKind
+                    sample.kind = DataKind::PDP_PACKETS; 
+
+                    // std::chrono::system_clock::time_point   
+                    sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                    // uint64_t
+                    sample.count = (*it)[DATA_VALUE_COUNT];
+
+                    // Insert data into database
+                    insert(entity->domain->id,entity->id,sample);
+                }
+             }
+
+        }
+
+        // EdpPackets
+        {
+            DatabaseDump container = dump[DATA_KIND_EDP_PACKETS];
+
+            // Data iterator
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT))
+                {
+                    EdpCountSample sample;
+
+                    // DataKind
+                    sample.kind = DataKind::EDP_PACKETS; 
+
+                    // std::chrono::system_clock::time_point   
+                    sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                    // uint64_t
+                    sample.count = (*it)[DATA_VALUE_COUNT];
+
+                    // Insert data into database
+                    insert(entity->domain->id,entity->id,sample);
+                }
+             }
+
+        }
+
+        // RtpsPacketsSent
+        {
+            DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_SENT];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT))
+                    {
+                        RtpsPacketsSentSample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::RTPS_PACKETS_SENT; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // uint64_t
+                        sample.count = (*it)[DATA_VALUE_COUNT];
+
+                        // EntityId  
+                        sample.remote_locator = EntityId(id);   
+
+                        // Insert data into database
+                        insert(entity->domain->id,sample.remote_locator,sample);
+                    }
+                }
+
+            }
+
+        }
+
+        // RtpsBytesSent
+        {
+            DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_SENT];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT) &&
+                        check_key_json(dump,DATA_VALUE_MAGNITUDE))
+                    {
+                        RtpsBytesSentSample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::RTPS_BYTES_SENT; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // uint64_t
+                        sample.count = (*it)[DATA_VALUE_COUNT];
+
+                        // int16_t 
+                        sample.magnitude_order = (*it)[DATA_VALUE_MAGNITUDE];
+
+                        // EntityId  
+                        sample.remote_locator = EntityId(id);   
+
+                        // Insert data into database
+                        insert(entity->domain->id,sample.remote_locator,sample);
+                    }
+                }
+
+            }
+
+        }
+
+         // RtpsPacketsLost
+        {
+            DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_LOST];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT))
+                    {
+                        RtpsPacketsLostSample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::RTPS_PACKETS_LOST; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // uint64_t
+                        sample.count = (*it)[DATA_VALUE_COUNT];
+
+                        // EntityId  
+                        sample.remote_locator = EntityId(id);   
+
+                        // Insert data into database
+                        insert(entity->domain->id,sample.remote_locator,sample);
+                    }
+                }
+
+            }
+
+        }
+
+        // RtpsBytesLost
+        {
+            DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_LOST];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_COUNT) &&
+                        check_key_json(dump,DATA_VALUE_MAGNITUDE))
+                    {
+                        RtpsBytesLostSample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::RTPS_BYTES_SENT; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // uint64_t
+                        sample.count = (*it)[DATA_VALUE_COUNT];
+
+                        // int16_t 
+                        sample.magnitude_order = (*it)[DATA_VALUE_MAGNITUDE];
+
+                        // EntityId  
+                        sample.remote_locator = EntityId(id);   
+
+                        // Insert data into database
+                        insert(entity->domain->id,sample.remote_locator,sample);
+                    }
+                }
+
+            }
+
+        }
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DataWriter>& entity)
+{
+    if (check_key_json(dump,DATA_KIND_PUBLICATION_THROUGHPUT) && check_key_json(dump,DATA_KIND_RESENT_DATA) && 
+        check_key_json(dump,DATA_KIND_HEARTBEAT_COUNT) && check_key_json(dump,DATA_KIND_GAP_COUNT) &&
+        check_key_json(dump,DATA_KIND_DATA_COUNT) && check_key_json(dump,DATA_KIND_SAMPLE_DATAS) && 
+        check_key_json(dump,DATA_KIND_FASTDDS_LATENCY))
+    {
+
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DataReader>& entity)
+{
+    if (check_key_json(dump,DATA_KIND_SUBSCRIPTION_THROUGHPUT) && check_key_json(dump,DATA_KIND_ACKNACK_COUNT) && 
+        check_key_json(dump,DATA_KIND_NACKFRAG_COUNT))
+    {
+        // SubscriptionThroughput
+
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<Locator>& entity)
+{
+    if (check_key_json(dump,DATA_KIND_NETWORK_LATENCY))
+    {
+        // NetworkLatency
+        {
+            DatabaseDump container = dump[DATA_KIND_NETWORK_LATENCY];
+  
+            // RemoteEntities iterator
+            for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+            {
+                // Key of the remote entity
+                int id = stoi(remoteIt.key());
+
+                // Data iterator
+                for (auto it = container[id].begin(); it != container[id].end(); ++it)
+                {
+                    if (check_key_json(dump,DATA_VALUE_SRC_TIME) && check_key_json(dump,DATA_VALUE_DATA))
+                    {
+                        NetworkLatencySample sample;
+
+                        // DataKind
+                        sample.kind = DataKind::NETWORK_LATENCY; 
+
+                        // std::chrono::system_clock::time_point   
+                        sample.src_ts = std::chrono::system_clock::from_time_t((*it)[DATA_VALUE_SRC_TIME]);   
+
+                        // double 
+                        sample.data = (*it)[DATA_VALUE_DATA];
+
+                        // EntityId  
+                        sample.remote_locator = EntityId(id);   
+
+                        // Insert data into database
+                        insert(entity->id,sample.remote_locator,sample);
+                    }
+                }
+
+            }
+
+        }
+    }
 }
 
 } //namespace database

@@ -518,12 +518,32 @@ protected:
     * TODO: LOAD
     */
     EntityId insert_nts(
-        const std::shared_ptr<Entity>& entity,
-        const EntityId& entity_id);
+            const std::shared_ptr<Entity>& entity,
+            const EntityId& entity_id);
 
     void link_participant_with_process_nts(
             const EntityId& participant_id,
             const EntityId& process_id);
+
+    bool check_key_json(
+            const DatabaseDump& dump,
+            const char* key);
+
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DomainParticipant>& entity);
+
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DataWriter>& entity);
+
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DataReader>& entity);
+
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<Locator>& entity);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
