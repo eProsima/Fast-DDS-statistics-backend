@@ -3581,19 +3581,45 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillOnce(Return(host));
+
     // Precondition: The user exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
 
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+            .WillOnce(Return(user));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname_pid)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The process is created and given ID 4
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname_pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, "");
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+
+                return EntityId(4);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.stop_consumer();
     data_queue.push(timestamp, data);
-    data_queue.do_swap();
-    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::Error);
+    data_queue.flush();
 }
 
 int main(
