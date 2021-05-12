@@ -693,6 +693,7 @@ void DatabaseDataQueue::process_sample()
                 catch (const std::exception& e)
                 {
                     logError(BACKEND_DATABASE_QUEUE, e.what());
+                    return;
                 }
             }
 
@@ -723,6 +724,7 @@ void DatabaseDataQueue::process_sample()
                 catch (const std::exception& e)
                 {
                     logError(BACKEND_DATABASE_QUEUE, e.what());
+                    return;
                 }
             }
 
