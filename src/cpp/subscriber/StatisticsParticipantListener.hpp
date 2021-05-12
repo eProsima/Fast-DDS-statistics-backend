@@ -97,8 +97,7 @@ protected:
     template<typename T>
     void process_endpoint_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            T&& info,
-            const std::string& endpoint_name);
+            T&& info);
 
     template<typename T>
     std::shared_ptr<database::DDSEndpoint> create_endpoint(

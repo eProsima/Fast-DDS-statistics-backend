@@ -114,10 +114,12 @@ public:
 
     // Reader entity
     std::string reader_guid_str_;
+    std::string reader_entity_id_str_;
     eprosima::fastrtps::rtps::GUID_t reader_guid_;
 
     // Writer entity
     std::string writer_guid_str_;
+    std::string writer_entity_id_str_;
     eprosima::fastrtps::rtps::GUID_t writer_guid_;
 
     statistics_participant_listener_tests()
@@ -147,11 +149,13 @@ public:
         topic_ = std::make_shared<Topic>(topic_name_, type_name_, domain_);
 
         // Reader entity
-        reader_guid_str_ = participant_prefix_str_ + "|0.0.0.1";
+        reader_entity_id_str_ = "0.0.0.1";
+        reader_guid_str_ = participant_prefix_str_ + "|" + reader_entity_id_str_;
         std::stringstream(reader_guid_str_) >> reader_guid_;
 
         // Writer entity
-        writer_guid_str_ = participant_prefix_str_ + "|0.0.0.2";
+        writer_entity_id_str_ = "0.0.0.2";
+        writer_guid_str_ = participant_prefix_str_ + "|" + writer_entity_id_str_;
         std::stringstream(writer_guid_str_) >> writer_guid_;
     }
 
@@ -361,7 +365,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
@@ -471,7 +475,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
@@ -628,7 +632,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
@@ -789,7 +793,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
@@ -1046,7 +1050,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, reader_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
@@ -1148,7 +1152,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
@@ -1258,7 +1262,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
@@ -1415,7 +1419,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
@@ -1576,7 +1580,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
@@ -1830,7 +1834,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, writer_guid_str_);
+                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);

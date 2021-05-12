@@ -50,8 +50,7 @@ std::string to_string(
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
         eprosima::fastdds::dds::DomainParticipant* /*statistics_participant*/,
-        T&& info,
-        const std::string& endpoint_name)
+        T&& info)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
@@ -67,7 +66,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     auto participant_ids = database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
     if (participant_ids.empty())
     {
-        logError(STATISTICS_BACKEND, endpoint_name + " discovered on Participant " + to_string(participant_guid)
+        logError(STATISTICS_BACKEND, "endpoint " << to_string(endpoint_guid) + " discovered on Participant " + to_string(participant_guid)
                 + " but there is no such Participant in the database");
         return;
     }
@@ -123,7 +122,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
             {
                 assert(hosts.size() == 1);
 
-                //There is physical info. Add the host info to the locator
+                // There is physical info. Add the host info to the locator
                 locator->name += std::string("@") + hosts.front()->name;
 
                 // Look for the locator
@@ -191,8 +190,11 @@ std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_end
         std::shared_ptr<database::DomainParticipant> participant,
         std::shared_ptr<database::Topic> topic)
 {
+    std::stringstream name;
+    name << "DataWriter_" << info.info.topicName().to_string() << "_" << info.info.guid().entityId;
+
     return std::make_shared<database::DataWriter>(
-        to_string(guid),
+        name.str(),
         writer_info_to_backend_qos(info),
         to_string(guid),
         participant,
@@ -207,8 +209,11 @@ std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_end
         std::shared_ptr<database::DomainParticipant> participant,
         std::shared_ptr<database::Topic> topic)
 {
+    std::stringstream name;
+    name << "DataReader_" << info.info.topicName().to_string() << "_" << info.info.guid().entityId;
+
     return std::make_shared<database::DataReader>(
-        to_string(guid),
+        name.str(),
         reader_info_to_backend_qos(info),
         to_string(guid),
         participant,
@@ -285,9 +290,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     {
         case ReaderDiscoveryInfo::DISCOVERED_READER:
         {
-            std::stringstream name;
-            name << info.info.guid();
-            process_endpoint_discovery(participant, info, name.str());
+            process_endpoint_discovery(participant, info);
             break;
         }
         case ReaderDiscoveryInfo::CHANGED_QOS_READER:
@@ -318,9 +321,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
     {
         case WriterDiscoveryInfo::DISCOVERED_WRITER:
         {
-            std::stringstream name;
-            name << info.info.guid();
-            process_endpoint_discovery(participant, info, name.str());
+            process_endpoint_discovery(participant, info);
             break;
         }
         case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
