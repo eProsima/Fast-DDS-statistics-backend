@@ -635,14 +635,20 @@ void DatabaseDataQueue::process_sample()
             EntityId participant_id = participants.second;
 
             // Parse the process name and PID
+            std::string process_name;
+            std::string process_pid;
             size_t separator_pos = item.process().find_last_of(':');
             if (separator_pos == std::string::npos)
             {
                 logError(BACKEND_DATABASE_QUEUE,
                         "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+                process_name = item.process();
             }
-            std::string process_name = item.process().substr(0, separator_pos);
-            std::string process_pid = item.process().substr(separator_pos + 1);
+            else
+            {
+                process_name = item.process().substr(0, separator_pos);
+                process_pid = item.process().substr(separator_pos + 1);
+            }
 
             // Check the existence of the host
             std::shared_ptr<Host> host;
