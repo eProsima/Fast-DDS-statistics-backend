@@ -41,15 +41,23 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush
         push_host
+        push_host_throws
         push_user
+        push_user_throws
         push_process
+        push_process_throws
         push_domain
+        push_domain_throws
         push_participant_process_exists
         push_participant_no_process_exists
         push_topic
+        push_topic_throws
         push_datawriter
+        push_datawriter_throws
         push_datareader
+        push_datareader_throws
         push_locator
+        push_locator_throws
         push_history_latency
         push_history_latency_no_reader
         push_history_latency_no_writer
@@ -90,8 +98,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_physical_data_process_exists
         push_physical_data_no_participant_exists
         push_physical_data_no_process_exists
+        push_physical_data_no_process_exists_process_insert_throws
         push_physical_data_no_process_no_user_exists
+        push_physical_data_no_process_no_user_exists_user_insert_throws
         push_physical_data_no_process_no_user_no_host_exists
+        push_physical_data_no_process_no_user_no_host_exists_host_insert_throws
         push_physical_data_wrong_processname_format
         )
 
