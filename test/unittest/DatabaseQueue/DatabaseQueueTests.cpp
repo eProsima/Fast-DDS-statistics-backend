@@ -3140,7 +3140,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
@@ -3149,7 +3150,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     // Precondition: The user exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
@@ -3321,7 +3323,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
