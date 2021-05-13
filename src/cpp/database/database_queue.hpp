@@ -93,7 +93,8 @@ public:
             std::chrono::system_clock::time_point ts,
             const T& item)
     {
-        std::unique_lock<std::mutex> guard(background_mutex_);
+        std::unique_lock<std::mutex> guard(cv_mutex_);
+        std::unique_lock<std::mutex> bg_guard(background_mutex_);
         background_queue_->push(std::make_pair(ts, item));
         cv_.notify_all();
     }
@@ -115,7 +116,6 @@ public:
         /* Flush() two steps strategy:
            First consume the foreground queue, then swap and consume the background one.
          */
-
         int last_loop = -1;
         for (int i = 0; i < 2; ++i)
         {
@@ -129,7 +129,6 @@ public:
                         return !consuming_ || both_empty() ||
                         ( empty() && last_loop != current_loop_);
                     });
-
             last_loop = current_loop_;
         }
     }
@@ -201,7 +200,7 @@ protected:
      */
     queue_item_type& front()
     {
-        std::unique_lock<std::mutex> guard(foreground_mutex_);
+        std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
         return foreground_queue_->front();
     }
 
@@ -214,7 +213,7 @@ protected:
      */
     const queue_item_type& front() const
     {
-        std::unique_lock<std::mutex> guard(foreground_mutex_);
+        std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
         return foreground_queue_->front();
     }
 
@@ -225,7 +224,7 @@ protected:
      */
     void pop()
     {
-        std::unique_lock<std::mutex> guard(foreground_mutex_);
+        std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
         foreground_queue_->pop();
     }
 
@@ -236,7 +235,7 @@ protected:
      */
     bool empty() const
     {
-        std::unique_lock<std::mutex> guard(foreground_mutex_);
+        std::unique_lock<std::mutex> fg_guard(foreground_mutex_);
         return foreground_queue_->empty();
     }
 
@@ -260,7 +259,7 @@ protected:
         // Consume whatever there is in the queue
         // Needs lock acquired to sync with potential flush
         std::unique_lock<std::mutex> guard(cv_mutex_);
-        consume_all();
+        consume_all(guard);
 
         while (consuming_)
         {
@@ -275,9 +274,7 @@ protected:
                 return;
             }
 
-            guard.unlock();
-            consume_all();
-            guard.lock();
+            consume_all(guard);
         }
     }
 
@@ -285,18 +282,20 @@ protected:
      * @brief Consume all the elements in the background queue
      *
      */
-    void consume_all()
+    void consume_all(
+            std::unique_lock<std::mutex>& guard)
     {
         swap();
         while (!empty())
         {
+            guard.unlock();
             process_sample();
+            guard.lock();
             pop();
         }
 
         // We don't care about the overflow
         ++current_loop_;
-
         cv_.notify_all();
     }
 
