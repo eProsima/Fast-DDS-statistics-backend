@@ -180,8 +180,8 @@ constexpr const char* DATA_VALUE_TIME_TAG           = "time";
 constexpr const char* DATA_VALUE_MAGNITUDE_TAG      = "magnitude";
 //! Key tag for remote id (EntityId) value in data
 constexpr const char* DATA_VALUE_REMOTE_ENTITY_TAG  = "remote_id";
-//! Key tag for status (bool) value in data
-constexpr const char* DATA_VALUE_STATUS_TAG         = "status";
+//! Key tag for discovered (bool) value in data
+constexpr const char* DATA_VALUE_DISCOVERED_TAG     = "discovered";
 
 } //namespace statistics_backend
 } //namespace eprosima

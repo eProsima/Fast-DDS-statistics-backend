@@ -573,6 +573,7 @@ public:
         domain_id = db.insert(domain);
         participant.reset(new DomainParticipant(participant_name, db.test_qos, "01.02.03.04", nullptr, domain));
         participant_id = db.insert(participant);
+        db.link_participant_with_process(participant_id, process_id);
         topic.reset(new Topic(topic_name, topic_type, domain));
         topic_id = db.insert(topic);
         writer_locator.reset(new Locator(writer_locator_name));
@@ -1559,6 +1560,14 @@ TEST_F(database_tests, insert_ddsendpoint_two_diff_domain_same_guid)
 {
     insert_ddsendpoint_two_diff_domain_same_guid<DataReader>();
     insert_ddsendpoint_two_diff_domain_same_guid<DataWriter>();
+}
+
+TEST_F(database_tests, insert_locator)
+{
+    DataBaseTest db;
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>("locator_name");
+    EntityId locator_id = db.insert(locator);
+    ASSERT_EQ(locator_id, EntityId::invalid());
 }
 
 TEST_F(database_tests, insert_invalid)

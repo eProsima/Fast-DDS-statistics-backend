@@ -215,6 +215,7 @@ public:
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      * @return A constant vector of shared pointers to the entities
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
@@ -323,6 +324,33 @@ protected:
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
 
     /**
+     * Get all entities of a given EntityKind related to another entity
+     *
+     * @param entity constant reference to the entity to which the returned
+     *                  entities are related
+     * @param entity_kind The EntityKind of the fetched entities
+     * @throws eprosima::statistics_backend::BadParameter if the \c entity_kind
+     *         is \c INVALID or the kind of the \c entity is \c INVALID.
+     * @return A constant vector of shared pointers to the entities
+     */
+    const std::vector<std::shared_ptr<const Entity>> get_entities(
+            EntityKind entity_kind,
+            const std::shared_ptr<const Entity>& entity) const;
+
+    /**
+     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it
+     *
+     * @tparam T The DDSEndpoint to add to the Locator list. Only DDSEndpoint and its derived classes are allowed.
+     * @param endpoint The endpoint of type T to add to the list of the locator
+     * @param locator The locator that will be updated with endpoint
+     * @return The EntityId of the inserted DDSEndpoint
+     */
+    template<typename T>
+    void insert_ddsendpoint_to_locator(
+            std::shared_ptr<T>& endpoint,
+            std::shared_ptr<Locator>& locator);
+
+    /**
      * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
@@ -419,6 +447,8 @@ protected:
             locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
             // Add reader's participant to participants_by_locator_
             participants_by_locator_[locator_it.first][endpoint->participant->id] = endpoint->participant;
+            // Add endpoint to locator's collection
+            insert_ddsendpoint_to_locator(endpoint, locator_it.second);
         }
 
         /* Add endpoint to topics's collection */
@@ -468,9 +498,9 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, std::vector<EntityDataSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>>& data);
+            const std::map<EntityId, std::vector<DiscoveryTimeSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<uint64_t, uint64_t>& data);
+            const std::map<uint64_t, std::vector<EntityCountSample>>& data);
     DatabaseDump dump_data_(
             const std::vector<EntityCountSample>& data);
     DatabaseDump dump_data_(
@@ -549,6 +579,17 @@ protected:
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;
 };
+
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataWriter>& endpoint,
+        std::shared_ptr<Locator>& locator);
+
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataReader>& endpoint,
+        std::shared_ptr<Locator>& locator);
+
 
 } //namespace database
 } //namespace statistics_backend
