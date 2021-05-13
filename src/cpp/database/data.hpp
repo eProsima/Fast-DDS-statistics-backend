@@ -126,7 +126,7 @@ struct DomainParticipantData : RTPSData
      * represents whether the timepoint corresponds to a discovery/update (represented as ALIVE
      * with value 1), or to a un-discovery (represented as DISPOSED with value 0).
      */
-    std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>> discovered_entity;
+    std::map<EntityId, std::vector<DiscoveryTimeSample>> discovered_entity;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PDP_PACKETS_TOPIC
@@ -278,7 +278,7 @@ struct DataWriterData
      * The key of the map corresponds to the sequence number of the change.
      * The second one is the number of DATA/DATAFRAG sub-messages sent for sending that change.
      */
-    std::map<uint64_t, uint64_t> sample_datas;
+    std::map<uint64_t, std::vector<EntityCountSample>> sample_datas;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::HISTORY_LATENCY_TOPIC

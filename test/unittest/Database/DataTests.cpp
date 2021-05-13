@@ -32,6 +32,9 @@ TEST(database, domainparticipant_data_clear)
     ByteCountSample byte_sample;
     byte_sample.count = 13;
     byte_sample.magnitude_order = 2;
+    DiscoveryTimeSample time_sample;
+    time_sample.discovered = true;
+    time_sample.time = std::chrono::system_clock::now();
 
     // RTPSData
     data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
@@ -44,9 +47,7 @@ TEST(database, domainparticipant_data_clear)
     data.last_reported_rtps_bytes_lost_count[EntityId(5)] = byte_sample;
 
     // DomainParticipantData
-    data.discovered_entity[EntityId(1)].push_back(
-        std::pair<std::chrono::system_clock::time_point, bool>(
-            std::chrono::system_clock::now(), true));
+    data.discovered_entity[EntityId(1)].push_back(time_sample);
     data.pdp_packets.push_back(count_sample);
     data.last_reported_pdp_packets = count_sample;
     data.edp_packets.push_back(count_sample);
@@ -113,7 +114,7 @@ TEST(database, datawriter_data_clear)
     data.last_reported_gap_count = count_sample;
     data.data_count.push_back(count_sample);
     data.last_reported_data_count = count_sample;
-    data.sample_datas[1] = 12;
+    data.sample_datas[1].push_back(count_sample);
     data.history2history_latency[EntityId(1)].push_back(data_sample);
 
     /* Check that data in cleared */

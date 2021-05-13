@@ -248,6 +248,31 @@ set(DATABASE_TEST_LIST
     get_entities_by_name_other_kind
     # get_entity_kind
     get_entity_kind
+    # select
+    select_single_entity_invalid_needs_two_entities
+    select_double_entity_invalid_needs_one_entity
+    select_sample_datas_invalid_wrong_entity
+    select_invalid_entities
+    select_invalid_entity_id
+    select_invalid_timestamps
+    select_fastdds_latency
+    select_network_latency
+    select_publication_throughput
+    select_subscription_throughput
+    select_rtps_packets_sent
+    select_rtps_bytes_sent
+    select_rtps_packets_lost
+    select_rtps_bytes_lost
+    select_resent_data
+    select_heartbeat_count
+    select_acknack_count
+    select_nackfrag_count
+    select_gap_count
+    select_data_count
+    select_pdp_packets
+    select_edp_packets
+    select_discovery_time
+    select_sample_datas
 )
 
 foreach(test_name ${DATABASE_TEST_LIST})

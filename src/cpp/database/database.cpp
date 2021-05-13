@@ -18,6 +18,8 @@
 #include <iostream>
 #include <mutex>  // For std::unique_lock
 #include <shared_mutex>
+#include <string>
+#include <vector>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
@@ -653,8 +655,7 @@ void Database::insert(
             if (participant)
             {
                 const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
-                participant->data.discovered_entity[discovery_time.remote_entity].push_back(std::pair<std::chrono::system_clock::time_point,
-                        bool>(discovery_time.time, discovery_time.discovered));
+                participant->data.discovered_entity[discovery_time.remote_entity].push_back(discovery_time);
                 break;
             }
             throw BadParameter(std::to_string(
@@ -668,7 +669,7 @@ void Database::insert(
             if (writer)
             {
                 const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
-                writer->data.sample_datas[sample_datas.sequence_number] = sample_datas.count;
+                writer->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
                 break;
             }
             throw BadParameter(std::to_string(
@@ -948,6 +949,466 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
     }
     return entities;
+}
+
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id_source,
+        EntityId entity_id_target,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    /* Check that the given timestamps are consistent */
+    if (t_to <= t_from)
+    {
+        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
+    }
+
+    auto source_entity = get_entity(entity_id_source);
+    auto target_entity = get_entity(entity_id_target);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<const StatisticsSample*> samples;
+    switch (data_type)
+    {
+        case DataKind::FASTDDS_LATENCY:
+        {
+            assert(EntityKind::DATAWRITER == source_entity->kind);
+            assert(EntityKind::DATAREADER == target_entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(source_entity);
+            /* Look if the writer has information about the required reader */
+            auto reader = writer->data.history2history_latency.find(entity_id_target);
+            if (reader != writer->data.history2history_latency.end())
+            {
+                /* Look for the samples between the given timestamps */
+                // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
+                // implement a binary search (PR#58 Originally posted by @IkerLuengo in
+                // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
+                for (auto& sample : reader->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::NETWORK_LATENCY:
+        {
+            assert(EntityKind::LOCATOR == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto locator = std::static_pointer_cast<const Locator>(source_entity);
+            /* Look if the locator has information about the required locator */
+            auto remote_locator = locator->data.network_latency_per_locator.find(entity_id_target);
+            if (remote_locator != locator->data.network_latency_per_locator.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : remote_locator->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::RTPS_PACKETS_SENT:
+        {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto locator = participant->data.rtps_packets_sent.find(entity_id_target);
+            if (locator != participant->data.rtps_packets_sent.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : locator->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::RTPS_BYTES_SENT:
+        {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto locator = participant->data.rtps_bytes_sent.find(entity_id_target);
+            if (locator != participant->data.rtps_bytes_sent.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : locator->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::RTPS_PACKETS_LOST:
+        {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto locator = participant->data.rtps_packets_lost.find(entity_id_target);
+            if (locator != participant->data.rtps_packets_lost.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : locator->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::LOCATOR == target_entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto locator = participant->data.rtps_bytes_lost.find(entity_id_target);
+            if (locator != participant->data.rtps_bytes_lost.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : locator->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case DataKind::DISCOVERY_TIME:
+        {
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
+            assert(EntityKind::PARTICIPANT == target_entity->kind || EntityKind::DATAREADER == target_entity->kind ||
+                    EntityKind::DATAWRITER == target_entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required dds entity */
+            auto dds_entity = participant->data.discovered_entity.find(entity_id_target);
+            if (dds_entity != participant->data.discovered_entity.end())
+            {
+                /* Look for the samples between the given timestamps */
+                for (auto& sample : dds_entity->second)
+                {
+                    if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                    {
+                        samples.push_back(&sample);
+                    }
+                    else if (sample.src_ts > t_to)
+                    {
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Incorrect DataKind");
+        }
+    }
+    return samples;
+}
+
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    /* Check that the given timestamps are consistent */
+    if (t_to <= t_from)
+    {
+        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
+    }
+
+    auto entity = get_entity(entity_id);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<const StatisticsSample*> samples;
+    switch (data_type)
+    {
+        case DataKind::PUBLICATION_THROUGHPUT:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* Look for the samples between the given timestamps */
+            // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
+            // implement a binary search (PR#58 Originally posted by @IkerLuengo in
+            // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
+            for (auto& sample : writer->data.publication_throughput)
+            {
+                /* The data is assumed to be ordered by timestamp */
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            assert(EntityKind::DATAREADER == entity->kind);
+            auto reader = std::static_pointer_cast<const DataReader>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : reader->data.subscription_throughput)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::RESENT_DATA:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.resent_datas)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::HEARTBEAT_COUNT:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.heartbeat_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::ACKNACK_COUNT:
+        {
+            assert(EntityKind::DATAREADER == entity->kind);
+            auto reader = std::static_pointer_cast<const DataReader>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : reader->data.acknack_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::NACKFRAG_COUNT:
+        {
+            assert(EntityKind::DATAREADER == entity->kind);
+            auto reader = std::static_pointer_cast<const DataReader>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : reader->data.nackfrag_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::GAP_COUNT:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.gap_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::DATA_COUNT:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : writer->data.data_count)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::PDP_PACKETS:
+        {
+            assert(EntityKind::PARTICIPANT == entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : participant->data.pdp_packets)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case DataKind::EDP_PACKETS:
+        {
+            assert(EntityKind::PARTICIPANT == entity->kind);
+            auto participant = std::static_pointer_cast<const DomainParticipant>(entity);
+            /* Look for the samples between the given timestamps */
+            for (auto& sample : participant->data.edp_packets)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
+        default:
+        {
+            throw BadParameter("Incorrect DataKind");
+        }
+    }
+    return samples;
+}
+
+std::vector<const StatisticsSample*> Database::select(
+        DataKind data_type,
+        EntityId entity_id,
+        uint64_t sequence_number,
+        Timestamp t_from,
+        Timestamp t_to)
+{
+    /* Check that the given timestamps are consistent */
+    if (t_to <= t_from)
+    {
+        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
+    }
+
+    auto entity = get_entity(entity_id);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<const StatisticsSample*> samples;
+    if (DataKind::SAMPLE_DATAS == data_type)
+    {
+        assert(EntityKind::DATAWRITER == entity->kind);
+        auto writer = std::static_pointer_cast<const DataWriter>(entity);
+        /* Look if the writer has information about the required sequence number */
+        auto seq_number = writer->data.sample_datas.find(sequence_number);
+        if (seq_number != writer->data.sample_datas.end())
+        {
+            /* Look for the samples between the given timestamps */
+            // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
+            // implement a binary search (PR#58 Originally posted by @IkerLuengo in
+            // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
+            for (auto& sample : seq_number->second)
+            {
+                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
+                {
+                    samples.push_back(&sample);
+                }
+                else if (sample.src_ts > t_to)
+                {
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        throw BadParameter("Incorrect DataKind");
+    }
+    return samples;
 }
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_guid(

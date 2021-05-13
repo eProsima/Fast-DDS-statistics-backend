@@ -617,6 +617,17 @@ public:
     std::string reader_name = "test_reader";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
+
+    Timestamp src_ts = std::chrono::system_clock::now();
+    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
+    Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
+    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
+    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
+    Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
+    Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
+    Timestamp end_ts = src_ts + std::chrono::seconds(15);
+
+    std::vector<const StatisticsSample*> data_output;
 };
 
 TEST_F(database_tests, insert_host)
@@ -2085,10 +2096,8 @@ TEST_F(database_tests, insert_sample_discovery_time)
 
     ASSERT_EQ(participant->data.discovered_entity.size(), 1);
     ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].first, sample.time);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][0].second, sample.discovered);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].first, sample_2.time);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][1].second, sample_2.discovered);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
@@ -2113,8 +2122,8 @@ TEST_F(database_tests, insert_sample_sample_datas)
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.sample_datas.size(), 2);
-    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number], sample.count);
-    ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number], sample_2.count);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number][0], static_cast<EntityCountSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
@@ -2490,6 +2499,1451 @@ TEST_F(database_tests, get_entity_kind)
     EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
     EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
     EXPECT_THROW(db.get_entity_kind(EntityId::invalid()), BadParameter);
+}
+
+TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
+}
+
+TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, reader_id, t_from, t_to), BadParameter);
+}
+
+TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+    uint64_t sequence_number = 3;
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
+}
+
+TEST_F(database_tests, select_invalid_entities)
+{
+#ifndef NDEBUG
+    // Test assertions
+
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+    uint64_t sequence_number = 1;
+
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, host_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, user_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, process_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, domain_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, topic_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, participant_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, host_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, user_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, process_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, domain_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, topic_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, domain_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, topic_id, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), "");
+
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, host_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, user_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, process_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, domain_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, topic_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, participant_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, reader_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, sequence_number, t_from, t_to), "");
+#endif // ifndef NDEBUG
+}
+
+TEST_F(database_tests, select_invalid_entity_id)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from + std::chrono::seconds(1);
+    uint64_t sequence_number = 1;
+    EntityId invalid_id;
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, invalid_id, sequence_number, t_from, t_from), BadParameter);
+}
+
+TEST_F(database_tests, select_invalid_timestamps)
+{
+    Timestamp t_from = std::chrono::system_clock::now();
+    Timestamp t_to = t_from - std::chrono::nanoseconds(1);
+    uint64_t sequence_number = 3;
+
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_from),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_to),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_from),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_to),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_from),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_from),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_to),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_from),
+            BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_to), BadParameter);
+
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_to), BadParameter);
+
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_from), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_to), BadParameter);
+}
+
+TEST_F(database_tests, select_fastdds_latency)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    HistoryLatencySample sample_1;
+    sample_1.reader = reader_id;
+    sample_1.data = 10;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    HistoryLatencySample sample_2;
+    sample_2.reader = reader_id;
+    sample_2.data = 20;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    HistoryLatencySample sample_3;
+    sample_3.reader = reader_id;
+    sample_3.data = 15;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityDataSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+}
+
+TEST_F(database_tests, select_network_latency)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    NetworkLatencySample sample_1;
+    sample_1.remote_locator = reader_locator->id;
+    sample_1.data = 15;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_1));
+    NetworkLatencySample sample_2;
+    sample_2.remote_locator = reader_locator->id;
+    sample_2.data = 5;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
+    NetworkLatencySample sample_3;
+    sample_3.remote_locator = reader_locator->id;
+    sample_3.data = 25;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+            end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityDataSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+            mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
+            mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
+            mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id,
+            sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_publication_throughput)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    PublicationThroughputSample sample_1;
+    sample_1.data = 15;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    PublicationThroughputSample sample_2;
+    sample_2.data = 5;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    PublicationThroughputSample sample_3;
+    sample_3.data = 25;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityDataSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+}
+
+TEST_F(database_tests, select_subscription_throughput)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    SubscriptionThroughputSample sample_1;
+    sample_1.data = 15;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    SubscriptionThroughputSample sample_2;
+    sample_2.data = 5;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    SubscriptionThroughputSample sample_3;
+    sample_3.data = 25;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityDataSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityDataSample*>(data_output[0]);
+    sample2 = static_cast<const EntityDataSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+}
+
+TEST_F(database_tests, select_rtps_packets_sent)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsPacketsSentSample sample_1;
+    sample_1.remote_locator = writer_locator->id;
+    sample_1.count = 15;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    RtpsPacketsSentSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 35;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    RtpsPacketsSentSample sample_3;
+    sample_3.remote_locator = writer_locator->id;
+    sample_3.count = 70;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+            mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid1_ts,
+            mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid2_ts,
+            mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_bytes_sent)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsBytesSentSample sample_1;
+    sample_1.remote_locator = writer_locator->id;
+    sample_1.count = 15;
+    sample_1.magnitude_order = 2;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    RtpsBytesSentSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 5;
+    sample_2.magnitude_order = 3;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    RtpsBytesSentSample sample_3;
+    sample_3.remote_locator = writer_locator->id;
+    sample_3.count = 25;
+    sample_3.magnitude_order = 3;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ByteCountSample db_sample_2 = sample_2 - sample_1;
+    ByteCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const ByteCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+            mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid1_ts,
+            mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid2_ts,
+            mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    sample2 = static_cast<const ByteCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_packets_lost)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsPacketsLostSample sample_1;
+    sample_1.remote_locator = writer_locator->id;
+    sample_1.count = 15;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    RtpsPacketsLostSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 25;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    RtpsPacketsLostSample sample_3;
+    sample_3.remote_locator = writer_locator->id;
+    sample_3.count = 65;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+            mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid1_ts,
+            mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid2_ts,
+            mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_rtps_bytes_lost)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    RtpsBytesLostSample sample_1;
+    sample_1.remote_locator = writer_locator->id;
+    sample_1.count = 15;
+    sample_1.magnitude_order = 1;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    RtpsBytesLostSample sample_2;
+    sample_2.remote_locator = writer_locator->id;
+    sample_2.count = 5;
+    sample_2.magnitude_order = 2;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    RtpsBytesLostSample sample_3;
+    sample_3.remote_locator = writer_locator->id;
+    sample_3.count = 25;
+    sample_3.magnitude_order = 3;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ByteCountSample db_sample_2 = sample_2 - sample_1;
+    ByteCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+            end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const ByteCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const ByteCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+            mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid1_ts,
+            mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid2_ts,
+            mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const ByteCountSample*>(data_output[0]);
+    sample2 = static_cast<const ByteCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_resent_data)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    ResentDataSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ResentDataSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ResentDataSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_heartbeat_count)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    HeartbeatCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    HeartbeatCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    HeartbeatCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_acknack_count)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    AcknackCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    AcknackCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    AcknackCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_nackfrag_count)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    NackfragCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    NackfragCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    NackfragCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_gap_count)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    GapCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    GapCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    GapCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_data_count)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    DataCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    DataCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    DataCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_pdp_packets)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    PdpCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    PdpCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    PdpCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_edp_packets)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    EdpCountSample sample_1;
+    sample_1.count = 34;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    EdpCountSample sample_2;
+    sample_2.count = 43;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    EdpCountSample sample_3;
+    sample_3.count = 44;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    EntityCountSample db_sample_2 = sample_2 - sample_1;
+    EntityCountSample db_sample_3 = sample_3 - sample_2;
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, db_sample_2);
+    EXPECT_EQ(*sample3, db_sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, sample2_ts, sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, db_sample_2);
+    EXPECT_EQ(*sample2, db_sample_3);
+}
+
+TEST_F(database_tests, select_discovery_time)
+{
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    DiscoveryTimeSample sample_1;
+    sample_1.remote_entity = reader_id;
+    sample_1.time = std::chrono::system_clock::now();
+    sample_1.discovered = true;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    DiscoveryTimeSample sample_2;
+    sample_2.remote_entity = reader_id;
+    sample_2.time = std::chrono::system_clock::now() + std::chrono::seconds(1);
+    sample_2.discovered = false;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    DiscoveryTimeSample sample_3;
+    sample_3.remote_entity = reader_id;
+    sample_3.time = std::chrono::system_clock::now() + std::chrono::seconds(17);
+    sample_3.discovered = true;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    auto sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
+    auto sample3 = static_cast<const DiscoveryTimeSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
+    sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, participant_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, select_sample_datas)
+{
+    uint64_t sequence_number = 3;
+    uint64_t sequence_number_unknown = 14;
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    SampleDatasCountSample sample_1;
+    sample_1.count = 5;
+    sample_1.sequence_number = 3;
+    sample_1.src_ts = sample1_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    SampleDatasCountSample sample_2;
+    sample_2.count = 10;
+    sample_2.sequence_number = 3;
+    sample_2.src_ts = sample2_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    SampleDatasCountSample sample_3;
+    sample_3.count = 24;
+    sample_3.sequence_number = 3;
+    sample_3.src_ts = sample3_ts;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
+    ASSERT_EQ(data_output.size(), 3u);
+    auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    auto sample3 = static_cast<const EntityCountSample*>(data_output[2]);
+    EXPECT_EQ(*sample1, sample_1);
+    EXPECT_EQ(*sample2, sample_2);
+    EXPECT_EQ(*sample3, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, mid1_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid1_ts, mid2_ts));
+    ASSERT_EQ(data_output.size(), 1u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    EXPECT_EQ(*sample1, sample_1);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid2_ts, mid3_ts));
+    EXPECT_EQ(data_output.size(), 0u);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts,
+            sample3_ts));
+    ASSERT_EQ(data_output.size(), 2u);
+    sample1 = static_cast<const EntityCountSample*>(data_output[0]);
+    sample2 = static_cast<const EntityCountSample*>(data_output[1]);
+    EXPECT_EQ(*sample1, sample_2);
+    EXPECT_EQ(*sample2, sample_3);
+
+    data_output.clear();
+    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number_unknown, src_ts,
+            end_ts));
+    EXPECT_EQ(data_output.size(), 0u);
 }
 
 int main(
