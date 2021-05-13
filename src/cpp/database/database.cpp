@@ -2425,7 +2425,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>>& data)
+        const std::map<EntityId, std::vector<DiscoveryTimeSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -2436,8 +2436,10 @@ DatabaseDump Database::dump_data_(
         for (auto sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
-            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.first);
-            value[DATA_VALUE_STATUS_TAG] = sample.second;
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_TIME_TAG] = time_to_string(sample.time);
+            value[DATA_VALUE_REMOTE_ENTITY_TAG] = id_to_string(sample.remote_entity.value());
+            value[DATA_VALUE_DISCOVERED_TAG] = sample.discovered;
 
             samples.push_back(value);
         }
@@ -2449,13 +2451,24 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<uint64_t, uint64_t>& data)
+        const std::map<uint64_t, std::vector<EntityCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
     for (auto it : data)
     {
-        data_dump[std::to_string(it.first)] = it.second;
+        DatabaseDump samples = DatabaseDump::array();
+
+        for (auto sample : it.second)
+        {
+            DatabaseDump value = DatabaseDump::object();
+            value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
+            value[DATA_VALUE_COUNT_TAG] = sample.count;
+
+            samples.push_back(value);
+        }
+
+        data_dump[id_to_string(it.first)] = samples;
     }
 
     return data_dump;

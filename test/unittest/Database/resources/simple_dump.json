@@ -75,8 +75,10 @@
                     "6":
                     [
                         {
-                            "src_time": "0",
-                            "status": true
+                            "src_time": "1",
+                            "time": "0",
+                            "remote_id": "6",
+                            "discovered": true
                         }
                     ]
                 },
@@ -227,7 +229,13 @@
                 ],
                 "samples_datas":
                 {
-                    "3": 2
+                    "3":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        }
+                    ]
                 },
                 "history2history_latency":
                 {

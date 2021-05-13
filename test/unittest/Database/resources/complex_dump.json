@@ -297,7 +297,21 @@
                     }
                 ],
                 "samples_datas":{
-                    "3":2
+                    "3":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "1",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "2",
+                            "count": 2
+                        }
+                    ]
                 }
             },
             "guid":"01.0f.00.00.00.00.00.00.00.00.00.01|00.00.00.00",
@@ -412,7 +426,21 @@
                     }
                 ],
                 "samples_datas":{
-                    "3":2
+                    "3":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "1",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "2",
+                            "count": 2
+                        }
+                    ]
                 }
             },
             "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
@@ -527,7 +555,21 @@
                     }
                 ],
                 "samples_datas":{
-                    "3":2
+                    "3":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "1",
+                            "count": 2
+                        },
+                        {
+                            "src_time": "2",
+                            "count": 2
+                        }
+                    ]
                 }
             },
             "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
@@ -680,16 +722,22 @@
                 "discovery_time":{
                     "15":[
                         {
-                            "src_time":"0",
-                            "status":true
+                            "src_time": "1",
+                            "time": "0",
+                            "remote_id": "15",
+                            "discovered": true
                         },
                         {
-                            "src_time":"1",
-                            "status":true
+                            "src_time": "2",
+                            "time": "1",
+                            "remote_id": "15",
+                            "discovered": true
                         },
                         {
-                            "src_time":"2",
-                            "status":true
+                            "src_time": "3",
+                            "time": "2",
+                            "remote_id": "15",
+                            "discovered": true
                         }
                     ]
                 },
@@ -845,16 +893,22 @@
                 "discovery_time":{
                     "24":[
                         {
-                            "src_time":"0",
-                            "status":true
+                            "src_time": "1",
+                            "time": "0",
+                            "remote_id": "24",
+                            "discovered": true
                         },
                         {
-                            "src_time":"1",
-                            "status":true
+                            "src_time": "2",
+                            "time": "1",
+                            "remote_id": "24",
+                            "discovered": true
                         },
                         {
-                            "src_time":"2",
-                            "status":true
+                            "src_time": "3",
+                            "time": "2",
+                            "remote_id": "24",
+                            "discovered": true
                         }
                     ]
                 },
@@ -1010,16 +1064,22 @@
                 "discovery_time":{
                     "6":[
                         {
-                            "src_time":"0",
-                            "status":true
+                            "src_time": "1",
+                            "time": "0",
+                            "remote_id": "6",
+                            "discovered": true
                         },
                         {
-                            "src_time":"1",
-                            "status":true
+                            "src_time": "2",
+                            "time": "1",
+                            "remote_id": "6",
+                            "discovered": true
                         },
                         {
-                            "src_time":"2",
-                            "status":true
+                            "src_time": "3",
+                            "time": "2",
+                            "remote_id": "6",
+                            "discovered": true
                         }
                     ]
                 },

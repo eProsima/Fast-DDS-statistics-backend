@@ -184,6 +184,7 @@ void initialize_participant_data(
         DiscoveryTimeSample sample;
         sample.remote_entity = PARTICIPANT_DEFAULT_ID(index);
         sample.time = TIME_DEFAULT(time);
+        sample.src_ts = TIME_DEFAULT(time + 1);
         sample.discovered = STATUS_DEFAULT;
         db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
     }

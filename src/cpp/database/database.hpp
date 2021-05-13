@@ -498,9 +498,9 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, std::vector<EntityDataSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<std::pair<std::chrono::system_clock::time_point, bool>>>& data);
+            const std::map<EntityId, std::vector<DiscoveryTimeSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<uint64_t, uint64_t>& data);
+            const std::map<uint64_t, std::vector<EntityCountSample>>& data);
     DatabaseDump dump_data_(
             const std::vector<EntityCountSample>& data);
     DatabaseDump dump_data_(
