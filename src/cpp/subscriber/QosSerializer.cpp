@@ -158,11 +158,11 @@ void serialize<fastdds::dds::DestinationOrderQosPolicy> (
     database::Qos destination_order;
     switch (qos.kind)
     {
-        case fastdds::dds::SHARED_OWNERSHIP_QOS:
-            destination_order["kind"] = "SHARED_OWNERSHIP_QOS";
+        case fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS:
+            destination_order["kind"] = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
             break;
-        case fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS:
-            destination_order["kind"] = "EXCLUSIVE_OWNERSHIP_QOS";
+        case fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS:
+            destination_order["kind"] = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
             break;
     }
     serialized[fieldname] = destination_order;

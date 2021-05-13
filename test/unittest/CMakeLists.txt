@@ -13,10 +13,11 @@
 # limitations under the License.
 
 add_subdirectory(Database)
-add_subdirectory(EntityId)
-add_subdirectory(TrafficInjector)
 add_subdirectory(DatabaseQueue)
+add_subdirectory(EntityId)
+add_subdirectory(QosSerializer)
 add_subdirectory(StatisticsBackend)
 add_subdirectory(StatisticsParticipantListener)
 add_subdirectory(StatisticsReaderListener)
+add_subdirectory(TrafficInjector)
 

@@ -32,7 +32,7 @@ namespace statistics_backend {
 namespace subscriber {
 
 template <typename T>
-static void serialize(
+void serialize(
         const T& qos,
         const std::string& fieldname,
         database::Qos& serialized);
