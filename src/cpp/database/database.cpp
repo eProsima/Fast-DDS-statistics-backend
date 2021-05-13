@@ -187,7 +187,7 @@ EntityId Database::insert(
             return process->id;
             break;
         }
-        case EntityKind::DOMAIN:
+        case EntityKind::DOMAIN_DDS:
         {
             std::shared_ptr<Domain> domain = std::static_pointer_cast<Domain>(entity);
 
@@ -866,7 +866,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
             }
             break;
         }
-        case EntityKind::DOMAIN:
+        case EntityKind::DOMAIN_DDS:
         {
             for (auto domain_it : domains_)
             {

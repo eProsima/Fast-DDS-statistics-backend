@@ -121,7 +121,7 @@ enum class EntityKind
     PROCESS,
 
     /// Abstract DDS network by Domain or by Discovery Server
-    DOMAIN,
+    DOMAIN_DDS,
 
     /// DDS Topic
     TOPIC,
@@ -137,7 +137,7 @@ enum class EntityKind
 
     /// Physical locator that a communication is using (IP + port || SHM + port)
     /// Store the Locator Statistic data
-    LOCATOR,
+    LOCATOR
 };
 
 /**
@@ -222,7 +222,7 @@ enum class DataKind : int32_t
     DISCOVERY_TIME              = 1 << 16,
 
     /// Amount of DATA/DATAFRAG sub-messages needed to send a single sample
-    SAMPLE_DATAS                = 1 << 17,
+    SAMPLE_DATAS                = 1 << 17
 };
 
 /**

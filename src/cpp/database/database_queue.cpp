@@ -19,6 +19,8 @@
 
 #include "database_queue.hpp"
 
+#include <chrono>
+
 #include <fastdds/dds/log/Log.hpp>
 
 namespace eprosima {
@@ -202,7 +204,8 @@ void DatabaseDataQueue::process_sample_type(
         DiscoveryTimeSample& sample,
         const StatisticsDiscoveryTime& item) const
 {
-    sample.time = std::chrono::system_clock::time_point (std::chrono::nanoseconds(item.time()));
+	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(item.time()));
+	sample.time = std::chrono::system_clock::time_point (duration);
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     try
     {
@@ -269,6 +272,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
                         + std::string(
@@ -290,6 +294,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing NETWORK_LATENCY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -311,6 +316,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing PUBLICATION_THROUGHPUT event. Data was not added to the statistics collection: "
                         + std::string(
@@ -333,6 +339,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing SUBSCRIPTION_THROUGHPUT event. Data was not added to the statistics collection: "
                         + std::string(
@@ -372,6 +379,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -410,6 +418,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -431,6 +440,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing RESENT_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -452,6 +462,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing HEARTBEAT_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -473,6 +484,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing ACKNACK_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -494,6 +506,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing NACKFRAG_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -515,6 +528,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing GAP_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -536,6 +550,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing DATA_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -557,6 +572,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing PDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -578,6 +594,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing EDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -598,6 +615,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing DISCOVERED_ENTITY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
@@ -619,6 +637,7 @@ void DatabaseDataQueue::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
+                (void)e;
                 logWarning(BACKEND_DATABASE_QUEUE,
                         "Error processing SAMPLE_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));

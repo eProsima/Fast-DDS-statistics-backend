@@ -20,6 +20,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_QUEUE_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_QUEUE_HPP_
 
+#include <chrono>
 #include <condition_variable>
 #include <cstring>
 #include <memory>
