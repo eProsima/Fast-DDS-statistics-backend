@@ -38,6 +38,8 @@ class Database;
 
 } // namespace database
 
+struct Monitor;
+
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
@@ -432,8 +434,58 @@ protected:
         return &instance;
     }
 
+    /**
+     * @brief Notify the user about a new discovered entity
+     * 
+     * @param domain_id The domain where the entity was discovered
+     * @param entity_id The entity_id of the discovered entity
+     * @param entity_kind CallbackKind of the discovery event
+     * @param status The status of the discovered entity
+     */
+    static void on_domain_entity_discovery(
+            EntityId domain_id,
+            EntityId entity_id,
+            CallbackKind entity_kind,
+            const DomainListener::Status& status);
+
+    /**
+     * @brief Notify the user about a new discovered entity
+     * 
+     * @param participant_id Entity ID of the participant that discovered the entity.
+     * @param entity_id The entity_id of the discovered entity
+     * @param entity_kind CallbackKind of the discovery event
+     * @param status The status of the discovered entity
+     */
+    static void on_physical_entity_discovery(
+            EntityId participant_id,
+            EntityId entity_id,
+            CallbackKind entity_kind,
+            const DomainListener::Status& status);
+
+    /**
+     * @brief Notify the user about a new available data
+     * 
+     * @param domain_id The domain where the data is available
+     * @param entity_id The entity for which the new data is available
+     * @param data_kind The DataKind of the new available data
+     */
+    static void on_data_available(
+            EntityId domain_id,
+            EntityId entity_id,
+            DataKind data_kind);
+
     //! Reference to the Database
     static database::Database* database_;
+
+    //! Collection of monitors
+    static std::map<EntityId, Monitor*> monitors_;
+
+    //! Physical  listener
+    static PhysicalListener* physical_listener_;
+
+    //! Mask for the physical listener 
+    static CallbackMask physical_callback_mask;
+
 };
 
 } // namespace statistics_backend

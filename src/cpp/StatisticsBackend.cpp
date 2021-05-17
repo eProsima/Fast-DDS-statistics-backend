@@ -20,6 +20,7 @@
 #include <fastdds-statistics-backend/types/JSONTags.h>
 
 #include "database/database.hpp"
+#include "Monitor.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -27,6 +28,7 @@ namespace statistics_backend {
 using namespace eprosima::statistics_backend::database;
 
 Database* StatisticsBackend::database_ = new database::Database();
+std::map<EntityId, Monitor*> StatisticsBackend::monitors_;
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
@@ -300,6 +302,115 @@ std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_suppo
     };
 
     return data_to_entity_map[data_kind];
+}
+
+void StatisticsBackend::on_data_available(
+        EntityId domain_id,
+        EntityId entity_id,
+        DataKind data_kind)
+{
+    auto monitor = monitors_.find(domain_id);
+    assert(monitor != monitors_.end());
+    if (monitor->second->domain_listener == nullptr ||
+            !monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATA_AVAILABLE))
+    {
+        // No user listener or mask deactivated
+        return;
+    }
+
+    if (!monitor->second->data_mask.is_set(data_kind))
+    {
+        // Data mask deactivated
+        return;
+    }
+
+    monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
+}
+
+void StatisticsBackend::on_domain_entity_discovery(
+        EntityId domain_id,
+        EntityId entity_id,
+        CallbackKind entity_kind,
+        const DomainListener::Status& status)
+{
+    auto monitor = monitors_.find(domain_id);
+    assert(monitor != monitors_.end());
+    if (monitor->second->domain_listener == nullptr ||
+            !monitor->second->domain_callback_mask.is_set(entity_kind))
+    {
+        // No user listener or mask deactivated
+        return;
+    }
+
+    switch(entity_kind)
+    {
+        case CallbackKind::ON_PARTICIPANT_DISCOVERY:
+        {
+            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_TOPIC_DISCOVERY:
+        {
+            monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_DATAWRITER_DISCOVERY:
+        {
+            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_DATAREADER_DISCOVERY:
+        {
+            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id, status);
+            break;
+        }
+        default:
+        {
+            throw Error("wrong entity_kind");
+        }
+    }
+}
+
+void StatisticsBackend::on_physical_entity_discovery(
+        EntityId participant_id,
+        EntityId entity_id,
+        CallbackKind entity_kind,
+        const DomainListener::Status& status)
+{
+    if (physical_listener_ == nullptr ||
+            !physical_callback_mask.is_set(entity_kind))
+    {
+        // No user listener or mask deactivated
+        return;
+    }
+
+    switch(entity_kind)
+    {
+        case CallbackKind::ON_HOST_DISCOVERY:
+        {
+            physical_listener_->on_host_discovery(participant_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_USER_DISCOVERY:
+        {
+            physical_listener_->on_user_discovery(participant_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_PROCESS_DISCOVERY:
+        {
+            physical_listener_->on_process_discovery(participant_id, entity_id, status);
+            break;
+        }
+        case CallbackKind::ON_LOCATOR_DISCOVERY:
+        {
+            physical_listener_->on_locator_discovery(participant_id, entity_id, status);
+            break;
+        }
+        default:
+        {
+            throw Error("wrong entity_kind");
+        }
+    }
 }
 
 } // namespace statistics_backend
