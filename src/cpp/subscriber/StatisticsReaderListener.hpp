@@ -55,7 +55,6 @@ public:
      * @brief Constructor
      */
     StatisticsReaderListener(
-            DataKindMask mask,
             database::DatabaseDataQueue* data_queue) noexcept;
 
     /**
@@ -65,28 +64,11 @@ public:
     void on_data_available(
             eprosima::fastdds::dds::DataReader* reader) override;
 
-    /**
-     * @brief Sets the mask for the data kind.
-     * @param mask The new mask
-     * @return The old mask
-     */
-    DataKindMask set_mask(
-            DataKindMask mask);
-
-    /**
-     * @brief Retrieves the mask for the data kind.
-     * @return mask The mask for the data kind
-     * @return The old mask
-     */
-    DataKindMask get_mask();
-
 protected:
 
     //! Reference to the database queues
     database::DatabaseDataQueue* data_queue_;
 
-    //! Mask of the data kinds to process
-    DataKindMask data_mask_;
 };
 
 } //namespace database
