@@ -30,6 +30,14 @@ using namespace eprosima::statistics_backend::database;
 Database* StatisticsBackend::database_ = new database::Database();
 std::map<EntityId, Monitor*> StatisticsBackend::monitors_;
 
+PhysicalListener* StatisticsBackend::physical_listener_;
+CallbackMask StatisticsBackend::physical_callback_mask_;
+DomainListener::Status StatisticsBackend::host_status_;
+DomainListener::Status StatisticsBackend::user_status_;
+DomainListener::Status StatisticsBackend::process_status_;
+DomainListener::Status StatisticsBackend::locator_status_;
+
+
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,

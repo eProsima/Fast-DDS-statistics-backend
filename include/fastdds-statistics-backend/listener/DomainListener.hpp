@@ -64,6 +64,28 @@ public:
          * since the last time the listener was called.
          */
         int32_t current_count_change = 0;
+
+        void on_instance_discovered()
+        {
+            ++total_count;
+            ++total_count_change;
+            ++current_count;
+            ++current_count_change;
+        }
+
+        void on_instance_undiscovered()
+        {
+            assert (current_count > 0);
+            --current_count;
+            --current_count_change;
+        }
+
+        void on_status_read()
+        {
+            current_count_change = 0;
+            total_count_change = 0;
+
+        }
     };
 
     /**

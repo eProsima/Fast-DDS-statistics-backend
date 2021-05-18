@@ -54,6 +54,10 @@ struct Monitor
     std::map<std::string, fastdds::dds::Topic*> topics;
     std::map<std::string, fastdds::dds::DataReader*> readers;
     fastdds::dds::DataReaderListener* reader_listener;
+    DomainListener::Status participant_status_;
+    DomainListener::Status topic_status_;
+    DomainListener::Status datareader_status_;
+    DomainListener::Status datawriter_status_;
 
 };
 

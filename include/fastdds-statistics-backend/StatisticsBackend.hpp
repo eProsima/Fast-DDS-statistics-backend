@@ -31,10 +31,11 @@
 
 namespace eprosima {
 namespace statistics_backend {
-
 namespace database {
 
 class Database;
+class DatabaseDataQueue;
+class DatabaseEntityQueue;
 
 } // namespace database
 
@@ -42,6 +43,9 @@ struct Monitor;
 
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
+
+    friend class database::DatabaseDataQueue;
+    friend class database::DatabaseEntityQueue;
 
 public:
 
@@ -440,13 +444,11 @@ protected:
      * @param domain_id The domain where the entity was discovered
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind CallbackKind of the discovery event
-     * @param status The status of the discovered entity
      */
     static void on_domain_entity_discovery(
             EntityId domain_id,
             EntityId entity_id,
-            CallbackKind entity_kind,
-            const DomainListener::Status& status);
+            EntityKind entity_kind);
 
     /**
      * @brief Notify the user about a new discovered entity
@@ -454,13 +456,11 @@ protected:
      * @param participant_id Entity ID of the participant that discovered the entity.
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind CallbackKind of the discovery event
-     * @param status The status of the discovered entity
      */
     static void on_physical_entity_discovery(
             EntityId participant_id,
             EntityId entity_id,
-            CallbackKind entity_kind,
-            const DomainListener::Status& status);
+            EntityKind entity_kind);
 
     /**
      * @brief Notify the user about a new available data
@@ -484,7 +484,19 @@ protected:
     static PhysicalListener* physical_listener_;
 
     //! Mask for the physical listener 
-    static CallbackMask physical_callback_mask;
+    static CallbackMask physical_callback_mask_;
+
+    //! Status for the Hosts
+    static DomainListener::Status host_status_;
+
+    //! Status for the Users
+    static DomainListener::Status user_status_;
+
+    //! Status for the Processes
+    static DomainListener::Status process_status_;
+
+    //! Status for the Locators
+    static DomainListener::Status locator_status_;
 
 };
 
