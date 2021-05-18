@@ -219,9 +219,9 @@ TEST_F(database_queue_tests, start_stop_flush)
     // Add something to the stopped queue
     EXPECT_CALL(database, insert(_)).Times(0);
     EXPECT_TRUE(entity_queue.stop_consumer());
-    entity_queue.push(timestamp, host);
-    entity_queue.push(timestamp, user);
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {host, 0});
+    entity_queue.push(timestamp, {user, 0});
+    entity_queue.push(timestamp, {process, 0});
 
     EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
     EXPECT_EQ(3, entity_queue.get_background_queue().size());
@@ -293,7 +293,7 @@ TEST_F(database_queue_tests, push_host)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, host);
+    entity_queue.push(timestamp, {host, 0});
     entity_queue.flush();
 }
 
@@ -352,7 +352,7 @@ TEST_F(database_queue_tests, push_user)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, user);
+    entity_queue.push(timestamp, {user, 0});
     entity_queue.flush();
 }
 
@@ -418,7 +418,7 @@ TEST_F(database_queue_tests, push_process)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {process, 0});
     entity_queue.flush();
 }
 
@@ -481,7 +481,7 @@ TEST_F(database_queue_tests, push_domain)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, domain);
+    entity_queue.push(timestamp, {domain, 0});
     entity_queue.flush();
 }
 
@@ -551,7 +551,7 @@ TEST_F(database_queue_tests, push_participant_process_exists)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, participant);
+    entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
 }
 
@@ -586,7 +586,7 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, participant);
+    entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
 }
 
@@ -617,7 +617,7 @@ TEST_F(database_queue_tests, push_topic)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, topic);
+    entity_queue.push(timestamp, {topic, 0});
     entity_queue.flush();
 }
 
@@ -687,7 +687,7 @@ TEST_F(database_queue_tests, push_datawriter)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, datawriter);
+    entity_queue.push(timestamp, {datawriter, 0});
     entity_queue.flush();
 }
 
@@ -761,7 +761,7 @@ TEST_F(database_queue_tests, push_datareader)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, datareader);
+    entity_queue.push(timestamp, {datareader, 0});
     entity_queue.flush();
 }
 
@@ -826,7 +826,7 @@ TEST_F(database_queue_tests, push_locator)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, locator);
+    entity_queue.push(timestamp, {locator, 0});
     entity_queue.flush();
 }
 
