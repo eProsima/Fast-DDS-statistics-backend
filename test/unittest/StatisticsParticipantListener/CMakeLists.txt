@@ -20,8 +20,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     find_package(Threads REQUIRED)
 
     add_executable(statistics_participant_listener_tests StatisticsParticipantListenerTests.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
@@ -31,6 +31,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     target_include_directories(statistics_participant_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
         ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
         ${PROJECT_SOURCE_DIR}/include

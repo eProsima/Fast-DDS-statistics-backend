@@ -29,6 +29,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     target_include_directories(statistics_reader_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
         ${PROJECT_SOURCE_DIR}/test/mock/dds/DataReader
         ${PROJECT_SOURCE_DIR}/include
