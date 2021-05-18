@@ -45,7 +45,7 @@ bool EntityId::is_valid() const noexcept
 
 bool EntityId::is_all() const noexcept
 {
-    return (value_ != ENTITY_ID_ALL);
+    return (value_ == ENTITY_ID_ALL);
 }
 
 void EntityId::invalidate() noexcept

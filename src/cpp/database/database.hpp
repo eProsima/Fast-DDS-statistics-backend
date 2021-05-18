@@ -377,7 +377,8 @@ protected:
      */
     template<typename T>
     EntityId insert_ddsendpoint(
-            std::shared_ptr<T>& endpoint)
+            std::shared_ptr<T>& endpoint,
+            const EntityId& entity_id)
     {
         /* Check that name is not empty */
         if (endpoint->name.empty())
@@ -446,10 +447,17 @@ protected:
             }
         }
 
-        /* Insert endpoint in the database */
-        endpoint->data.clear();
-        endpoint->id = generate_entity_id();
-        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
+        /* Add endpoint to participant' collection */
+        if (!entity_id.is_valid() || entity_id.is_all())
+        {
+            endpoint->id = generate_entity_id();
+        }
+        else
+        {
+            endpoint->id = entity_id;
+        }
+
+        (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
         /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
@@ -521,13 +529,20 @@ protected:
             const std::shared_ptr<Entity>& entity,
             const EntityId& entity_id);
 
+    void insert_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample,
+            const bool& loading = false,
+            const bool& loading_last_reported = false);
+
     void link_participant_with_process_nts(
             const EntityId& participant_id,
             const EntityId& process_id);
 
-    bool check_key_json(
+    void check_keys_json(
             const DatabaseDump& dump,
-            const char* key);
+            const std::vector<std::string>& keys);
 
     void load_data(
             const DatabaseDump& dump,

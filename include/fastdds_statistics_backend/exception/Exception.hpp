@@ -251,7 +251,7 @@ public:
 };
 
 /**
- * @brief Exception to signal that a file with an unxpected format has been loaded
+ * @brief Exception to signal that a file with an unexpected format has been loaded
  */
 class FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile : public Exception
 {

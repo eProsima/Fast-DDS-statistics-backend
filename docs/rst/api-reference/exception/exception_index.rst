@@ -6,6 +6,7 @@ Exception
 .. toctree::
 
     /rst/api-reference/exception/badparameter
+    /rst/api-reference/exception/corruptedfile
     /rst/api-reference/exception/error
     /rst/api-reference/exception/exception
     /rst/api-reference/exception/nodata
