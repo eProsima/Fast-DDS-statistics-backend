@@ -35,9 +35,6 @@ namespace subscriber {
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::rtps;
 
-const StatusMask StatisticsParticipantListener::StatisticsParticipantMask =
-        StatusMask::none();
-
 template<typename T>
 std::string to_string(
         T data)
@@ -93,7 +90,10 @@ void StatisticsParticipantListener::process_endpoint_discovery(
             info.info.typeName().to_string(),
             domain);
 
-        entity_queue_->push(timestamp, topic);
+        database::EntityDiscoveryInfo entity_discovery_info;
+        entity_discovery_info.domain_id = domain_id_;
+        entity_discovery_info.entity = topic;
+        entity_queue_->push(timestamp, entity_discovery_info);
     }
     else
     {
@@ -186,7 +186,10 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     }
 
     // Push the endpoint
-    entity_queue_->push(timestamp, endpoint);
+    database::EntityDiscoveryInfo entity_discovery_info;
+    entity_discovery_info.domain_id = domain_id_;
+    entity_discovery_info.entity = endpoint;
+    entity_queue_->push(timestamp, entity_discovery_info);
 }
 
 template<>
@@ -266,7 +269,10 @@ void StatisticsParticipantListener::on_participant_discovery(
                 std::shared_ptr<database::Process>(),
                 domain);
 
-            entity_queue_->push(timestamp, participant);
+            database::EntityDiscoveryInfo entity_discovery_info;
+            entity_discovery_info.domain_id = domain_id_;
+            entity_discovery_info.entity = participant;
+            entity_queue_->push(timestamp, entity_discovery_info);
         }
         break;
 

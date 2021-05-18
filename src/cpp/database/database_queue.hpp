@@ -36,6 +36,7 @@
 #include <database/entities.hpp>
 #include <topic_types/types.h>
 #include <exception/Exception.hpp>
+#include <StatisticsBackend.hpp>
 
 
 namespace eprosima {
@@ -325,14 +326,20 @@ protected:
     unsigned char current_loop_;
 };
 
-class DatabaseEntityQueue : public DatabaseQueue<std::shared_ptr<Entity>>
+struct EntityDiscoveryInfo
+{
+    std::shared_ptr<Entity> entity;
+    EntityId domain_id;
+};
+
+class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
 {
 
 public:
 
     DatabaseEntityQueue(
             database::Database* database)
-        : DatabaseQueue<std::shared_ptr<Entity>>()
+        : DatabaseQueue<EntityDiscoveryInfo>()
         , database_(database)
     {
     }
@@ -349,6 +356,7 @@ protected:
         try
         {
             database_->insert(front().second);
+            StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, front().second.entity->id, front().second.entity->kind);
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {

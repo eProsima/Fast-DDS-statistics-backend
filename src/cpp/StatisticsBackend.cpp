@@ -338,38 +338,69 @@ void StatisticsBackend::on_data_available(
 void StatisticsBackend::on_domain_entity_discovery(
         EntityId domain_id,
         EntityId entity_id,
-        CallbackKind entity_kind,
-        const DomainListener::Status& status)
+        EntityKind entity_kind)
 {
     auto monitor = monitors_.find(domain_id);
     assert(monitor != monitors_.end());
-    if (monitor->second->domain_listener == nullptr ||
-            !monitor->second->domain_callback_mask.is_set(entity_kind))
+    if (monitor->second->domain_listener == nullptr)
     {
-        // No user listener or mask deactivated
+        // No user listener
         return;
     }
 
     switch(entity_kind)
     {
-        case CallbackKind::ON_PARTICIPANT_DISCOVERY:
+        case EntityKind::PARTICIPANT:
         {
-            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id, status);
+            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_PARTICIPANT_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            // Update the status before calling the
+            monitor->second->participant_status_.on_instance_discovered();
+            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id, monitor->second->participant_status_);
+            monitor->second->participant_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_TOPIC_DISCOVERY:
+        case EntityKind::TOPIC:
         {
-            monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, status);
+            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_TOPIC_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            monitor->second->topic_status_.on_instance_discovered();
+            monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, monitor->second->topic_status_);
+            monitor->second->topic_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_DATAWRITER_DISCOVERY:
+        case EntityKind::DATAWRITER:
         {
-            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id, status);
+            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAWRITER_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            monitor->second->datawriter_status_.on_instance_discovered();
+            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id, monitor->second->datawriter_status_);
+            monitor->second->datawriter_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_DATAREADER_DISCOVERY:
+        case EntityKind::DATAREADER:
         {
-            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id, status);
+            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAREADER_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            monitor->second->datareader_status_.on_instance_discovered();
+            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id, monitor->second->datareader_status_);
+            monitor->second->datareader_status_.on_status_read();
             break;
         }
         default:
@@ -382,36 +413,66 @@ void StatisticsBackend::on_domain_entity_discovery(
 void StatisticsBackend::on_physical_entity_discovery(
         EntityId participant_id,
         EntityId entity_id,
-        CallbackKind entity_kind,
-        const DomainListener::Status& status)
+        EntityKind entity_kind)
 {
-    if (physical_listener_ == nullptr ||
-            !physical_callback_mask.is_set(entity_kind))
+    if (physical_listener_ == nullptr)
     {
-        // No user listener or mask deactivated
+        // No user listener
         return;
     }
 
     switch(entity_kind)
     {
-        case CallbackKind::ON_HOST_DISCOVERY:
+        case EntityKind::HOST:
         {
-            physical_listener_->on_host_discovery(participant_id, entity_id, status);
+            if (!physical_callback_mask_.is_set(CallbackKind::ON_HOST_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            host_status_.on_instance_discovered();
+            physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
+            host_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_USER_DISCOVERY:
+        case EntityKind::USER:
         {
-            physical_listener_->on_user_discovery(participant_id, entity_id, status);
+            if (!physical_callback_mask_.is_set(CallbackKind::ON_USER_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            user_status_.on_instance_discovered();
+            physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
+            user_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_PROCESS_DISCOVERY:
+        case EntityKind::PROCESS:
         {
-            physical_listener_->on_process_discovery(participant_id, entity_id, status);
+            if (!physical_callback_mask_.is_set(CallbackKind::ON_PROCESS_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            process_status_.on_instance_discovered();
+            physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
+            process_status_.on_status_read();
             break;
         }
-        case CallbackKind::ON_LOCATOR_DISCOVERY:
+        case EntityKind::LOCATOR:
         {
-            physical_listener_->on_locator_discovery(participant_id, entity_id, status);
+            if (!physical_callback_mask_.is_set(CallbackKind::ON_LOCATOR_DISCOVERY))
+            {
+                // mask deactivated
+                return;
+            }
+
+            locator_status_.on_instance_discovered();
+            physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
+            locator_status_.on_status_read();
             break;
         }
         default:

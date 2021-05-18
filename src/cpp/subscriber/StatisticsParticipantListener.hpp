@@ -49,11 +49,6 @@ class StatisticsParticipantListener : public eprosima::fastdds::dds::DomainParti
 public:
 
     /**
-     * @brief Mask to be used by the statistics participants
-     */
-    static const eprosima::fastdds::dds::StatusMask StatisticsParticipantMask;
-
-    /**
      * @brief Constructor
      */
     StatisticsParticipantListener(
