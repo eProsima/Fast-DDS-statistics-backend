@@ -109,6 +109,7 @@ public:
     {
         return next_id_;
     }
+
 };
 
 /**
@@ -320,7 +321,7 @@ protected:
         entities[20] = writer_locator2;
 
         // Insert datas on domain2
-        
+
         // participants
         {
             EntityId domainId = participant2->domain->id;
@@ -331,7 +332,7 @@ protected:
                 DiscoveryTimeSample sample;
 
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(2));
-                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));    
+                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
                 sample.remote_entity = EntityId(entityId);
                 sample.discovered = true;
 
@@ -342,9 +343,9 @@ protected:
             {
                 PdpCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(0)); 
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(0));
                 sample.count = 1;
-                
+
                 db.insert(domainId, entityId, sample);
             }
 
@@ -354,7 +355,7 @@ protected:
 
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
                 sample.count = 0;
-                
+
                 db.insert(domainId, entityId, sample);
             }
 
@@ -365,7 +366,7 @@ protected:
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
                 sample.count = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
-                
+
                 db.insert(domainId, entityId, sample);
             }
 
@@ -377,7 +378,7 @@ protected:
                 sample.count = 0;
                 sample.magnitude_order = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
-                
+
                 db.insert(domainId, entityId, sample);
             }
 
@@ -385,10 +386,10 @@ protected:
             {
                 RtpsPacketsLostSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));   
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
                 sample.count = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
-                
+
                 db.insert(domainId, entityId, sample);
             }
 
@@ -396,11 +397,11 @@ protected:
             {
                 RtpsBytesLostSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));  
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
                 sample.count = 0;
                 sample.magnitude_order = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
-                
+
                 db.insert(domainId, entityId, sample);
             }
         }
@@ -555,18 +556,27 @@ protected:
 };
 
 template <typename Map>
-bool key_compare (Map const &lhs, Map const &rhs) {
+bool key_compare (
+        Map const& lhs,
+        Map const& rhs)
+{
     return lhs.size() == rhs.size()
-        && std::equal(lhs.begin(), lhs.end(), rhs.begin(), 
-                      [] (auto a, auto b) { return a.first == b.first; });
+           && std::equal(lhs.begin(), lhs.end(), rhs.begin(),
+                   [](auto a, auto b)
+                   {
+                       return a.first == b.first;
+                   });
 }
 
 template <typename Map>
-bool map_compare (Map const &lhs, Map const &rhs) {
+bool map_compare (
+        Map const& lhs,
+        Map const& rhs)
+{
     // No predicate needed because there is operator== for pairs already.
     return lhs.size() == rhs.size()
-        && std::equal(lhs.begin(), lhs.end(),
-                      rhs.begin());
+           && std::equal(lhs.begin(), lhs.end(),
+                   rhs.begin());
 }
 
 // Test the load of a database
@@ -585,16 +595,16 @@ TEST_F(database_load_tests, load_database)
     // If at() throw an exception, the db_loaded does not contain one Entity which should contain
 
     // hosts
-    ASSERT_TRUE(key_compare(db.hosts(),db_loaded.hosts()));
+    ASSERT_TRUE(key_compare(db.hosts(), db_loaded.hosts()));
 
     // users
-    ASSERT_TRUE(key_compare(db.users(),db_loaded.users()));
+    ASSERT_TRUE(key_compare(db.users(), db_loaded.users()));
 
     // processes
-    ASSERT_TRUE(key_compare(db.processes(),db_loaded.processes()));
+    ASSERT_TRUE(key_compare(db.processes(), db_loaded.processes()));
 
     // domains
-    ASSERT_TRUE(key_compare(db.domains(),db_loaded.domains()));
+    ASSERT_TRUE(key_compare(db.domains(), db_loaded.domains()));
 
     // topics
     ASSERT_TRUE(key_compare(db.topics(), db_loaded.topics()));
@@ -611,7 +621,7 @@ TEST_F(database_load_tests, load_database)
     }
 
     // locators
-    ASSERT_TRUE(key_compare(db.locators(),db_loaded.locators()));
+    ASSERT_TRUE(key_compare(db.locators(), db_loaded.locators()));
 
     // DataWriter
     ASSERT_TRUE(key_compare(db.get_dds_endpoints<DataWriter>(), db_loaded.get_dds_endpoints<DataWriter>()));
@@ -661,23 +671,23 @@ TEST_F(database_load_tests, load_database)
     for (auto domainIt = db.participants().cbegin(); domainIt != db.participants().cend(); ++domainIt)
     {
         for (auto it = db.participants().at(domainIt->first).cbegin();
-             it != db.participants().at(domainIt->first).cend(); ++it)
+                it != db.participants().at(domainIt->first).cend(); ++it)
         {
             DomainParticipantData insertedData =  db.participants().at(domainIt->first).at(it->first)->data;
             DomainParticipantData loadedData =  db_loaded.participants().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(map_compare(insertedData.rtps_packets_sent, loadedData.rtps_packets_sent));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_packets_sent_count,
-                                    loadedData.last_reported_rtps_packets_sent_count));
+                    loadedData.last_reported_rtps_packets_sent_count));
             ASSERT_TRUE(map_compare(insertedData.rtps_bytes_sent, loadedData.rtps_bytes_sent));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_bytes_sent_count,
-                                    loadedData.last_reported_rtps_bytes_sent_count));
+                    loadedData.last_reported_rtps_bytes_sent_count));
             ASSERT_TRUE(map_compare(insertedData.rtps_packets_lost, loadedData.rtps_packets_lost));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_packets_lost_count,
-                                    loadedData.last_reported_rtps_packets_lost_count));
+                    loadedData.last_reported_rtps_packets_lost_count));
             ASSERT_TRUE(map_compare(insertedData.rtps_bytes_lost, loadedData.rtps_bytes_lost));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_bytes_lost_count,
-                                    loadedData.last_reported_rtps_bytes_lost_count));
+                    loadedData.last_reported_rtps_bytes_lost_count));
             ASSERT_TRUE(map_compare(insertedData.discovered_entity, loadedData.discovered_entity));
             ASSERT_TRUE(insertedData.pdp_packets == loadedData.pdp_packets);
             ASSERT_TRUE(insertedData.last_reported_pdp_packets == loadedData.last_reported_pdp_packets);
@@ -688,15 +698,15 @@ TEST_F(database_load_tests, load_database)
 
     // DataWriter
     for (auto domainIt = db.get_dds_endpoints<DataWriter>().cbegin();
-         domainIt != db.get_dds_endpoints<DataWriter>().cend(); ++domainIt)
+            domainIt != db.get_dds_endpoints<DataWriter>().cend(); ++domainIt)
     {
         for (auto it = db.get_dds_endpoints<DataWriter>().at(domainIt->first).cbegin();
-             it != db.get_dds_endpoints<DataWriter>().at(domainIt->first).cend(); ++it)
+                it != db.get_dds_endpoints<DataWriter>().at(domainIt->first).cend(); ++it)
         {
             DataWriterData insertedData =
-                db.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
+                    db.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
             DataWriterData loadedData =
-                db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
+                    db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(insertedData.publication_throughput == loadedData.publication_throughput);
             ASSERT_TRUE(insertedData.resent_datas == loadedData.resent_datas);
@@ -714,16 +724,16 @@ TEST_F(database_load_tests, load_database)
 
     // DataReader
     for (auto domainIt = db.get_dds_endpoints<DataReader>().cbegin();
-         domainIt != db.get_dds_endpoints<DataReader>().cend(); ++domainIt)
+            domainIt != db.get_dds_endpoints<DataReader>().cend(); ++domainIt)
     {
         for (auto it = db.get_dds_endpoints<DataReader>().at(domainIt->first).cbegin();
-             it != db.get_dds_endpoints<DataReader>().at(domainIt->first).cend(); ++it)
+                it != db.get_dds_endpoints<DataReader>().at(domainIt->first).cend(); ++it)
         {
             DataReaderData insertedData =
-                db.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
+                    db.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
             DataReaderData loadedData =
-                db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
-        
+                    db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
+
             ASSERT_TRUE(insertedData.subscription_throughput == loadedData.subscription_throughput);
             ASSERT_TRUE(insertedData.acknack_count == loadedData.acknack_count);
             ASSERT_TRUE(insertedData.last_reported_acknack_count == loadedData.last_reported_acknack_count);
@@ -747,38 +757,38 @@ TEST_F(database_load_tests, load_database)
 
     // Host
     for (auto insertedIt = db.hosts().cbegin(), loadedIt = db_loaded.hosts().cbegin();
-         insertedIt != db.hosts().cend() && loadedIt != db_loaded.hosts().cend(); insertedIt++, loadedIt++)
+            insertedIt != db.hosts().cend() && loadedIt != db_loaded.hosts().cend(); insertedIt++, loadedIt++)
     {
         std::shared_ptr<Host> insertedEntity = insertedIt->second;
         std::shared_ptr<Host> loadedEntity = loadedIt->second;
 
         ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
+                insertedEntity->name == loadedEntity->name);
         ASSERT_TRUE(key_compare(insertedEntity->users, loadedEntity->users));
     }
 
     // Users
     for (auto insertedIt = db.users().cbegin(), loadedIt = db_loaded.users().cbegin();
-         insertedIt != db.users().cend() && loadedIt != db_loaded.users().cend(); insertedIt++, loadedIt++)
+            insertedIt != db.users().cend() && loadedIt != db_loaded.users().cend(); insertedIt++, loadedIt++)
     {
         std::shared_ptr<User> insertedEntity = insertedIt->second;
         std::shared_ptr<User> loadedEntity = loadedIt->second;
 
         ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
+                insertedEntity->name == loadedEntity->name);
         ASSERT_TRUE(insertedEntity->host->id == loadedEntity->host->id);
         ASSERT_TRUE(key_compare(insertedEntity->processes, loadedEntity->processes));
     }
 
     // Processes
     for (auto insertedIt = db.processes().cbegin(), loadedIt = db_loaded.processes().cbegin();
-         insertedIt != db.processes().cend() && loadedIt != db_loaded.processes().cend(); insertedIt++, loadedIt++)
+            insertedIt != db.processes().cend() && loadedIt != db_loaded.processes().cend(); insertedIt++, loadedIt++)
     {
         std::shared_ptr<Process> insertedEntity = insertedIt->second;
         std::shared_ptr<Process> loadedEntity = loadedIt->second;
 
         ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
+                insertedEntity->name == loadedEntity->name);
 
         ASSERT_TRUE(insertedEntity->pid == loadedEntity->pid);
         ASSERT_TRUE(insertedEntity->user->id == loadedEntity->user->id);
@@ -787,13 +797,13 @@ TEST_F(database_load_tests, load_database)
 
     // Locators
     for (auto insertedIt = db.locators().cbegin(), loadedIt = db_loaded.locators().cbegin();
-         insertedIt != db.locators().cend() && loadedIt != db_loaded.locators().cend(); insertedIt++, loadedIt++)
+            insertedIt != db.locators().cend() && loadedIt != db_loaded.locators().cend(); insertedIt++, loadedIt++)
     {
         std::shared_ptr<Locator> insertedEntity = insertedIt->second;
         std::shared_ptr<Locator> loadedEntity = loadedIt->second;
 
         ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
+                insertedEntity->name == loadedEntity->name);
 
         ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
         ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
@@ -801,13 +811,13 @@ TEST_F(database_load_tests, load_database)
 
     // Domains
     for (auto insertedIt = db.domains().cbegin(), loadedIt = db_loaded.domains().cbegin();
-         insertedIt != db.domains().cend() && loadedIt != db_loaded.domains().cend(); insertedIt++, loadedIt++)
+            insertedIt != db.domains().cend() && loadedIt != db_loaded.domains().cend(); insertedIt++, loadedIt++)
     {
         std::shared_ptr<Domain> insertedEntity = insertedIt->second;
         std::shared_ptr<Domain> loadedEntity = loadedIt->second;
 
         ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
+                insertedEntity->name == loadedEntity->name);
 
         ASSERT_TRUE(key_compare(insertedEntity->topics, loadedEntity->topics));
         ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
@@ -817,16 +827,16 @@ TEST_F(database_load_tests, load_database)
     for (auto domainIt = db.participants().cbegin(); domainIt != db.participants().cend(); ++domainIt)
     {
         for (auto insertedIt = db.participants().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.participants().at(domainIt->first).cbegin();
-             insertedIt != db.participants().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.participants().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.participants().at(domainIt->first).cbegin();
+                insertedIt != db.participants().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.participants().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<DomainParticipant> insertedEntity = insertedIt->second;
             std::shared_ptr<DomainParticipant> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
 
@@ -840,20 +850,20 @@ TEST_F(database_load_tests, load_database)
 
     // Datawriters
     for (auto domainIt = db.get_dds_endpoints<DataWriter>().cbegin(); domainIt !=
-                                                                      db.get_dds_endpoints<DataWriter>().cend();
-         ++domainIt)
+            db.get_dds_endpoints<DataWriter>().cend();
+            ++domainIt)
     {
         for (auto insertedIt = db.get_dds_endpoints<DataWriter>().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).cbegin();
-             insertedIt != db.get_dds_endpoints<DataWriter>().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).cbegin();
+                insertedIt != db.get_dds_endpoints<DataWriter>().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<DataWriter> insertedEntity = insertedIt->second;
             std::shared_ptr<DataWriter> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
 
@@ -866,20 +876,20 @@ TEST_F(database_load_tests, load_database)
 
     // Datareaders
     for (auto domainIt = db.get_dds_endpoints<DataReader>().cbegin(); domainIt !=
-                                                                      db.get_dds_endpoints<DataReader>().cend();
-         ++domainIt)
+            db.get_dds_endpoints<DataReader>().cend();
+            ++domainIt)
     {
         for (auto insertedIt = db.get_dds_endpoints<DataReader>().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).cbegin();
-             insertedIt != db.get_dds_endpoints<DataReader>().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).cbegin();
+                insertedIt != db.get_dds_endpoints<DataReader>().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<DataReader> insertedEntity = insertedIt->second;
             std::shared_ptr<DataReader> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
 
@@ -894,16 +904,16 @@ TEST_F(database_load_tests, load_database)
     for (auto domainIt = db.topics().cbegin(); domainIt != db.topics().cend(); ++domainIt)
     {
         for (auto insertedIt = db.topics().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.topics().at(domainIt->first).cbegin();
-             insertedIt != db.topics().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.topics().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.topics().at(domainIt->first).cbegin();
+                insertedIt != db.topics().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.topics().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<Topic> insertedEntity = insertedIt->second;
             std::shared_ptr<Topic> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->data_type == loadedEntity->data_type);
             ASSERT_TRUE(insertedEntity->domain->id == loadedEntity->domain->id);
@@ -917,19 +927,19 @@ TEST_F(database_load_tests, load_database)
     for (auto domainIt = db.domains_by_process().cbegin(); domainIt != db.domains_by_process().cend(); ++domainIt)
     {
         for (auto insertedIt = db.domains_by_process().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.domains_by_process().at(domainIt->first).cbegin();
-             insertedIt != db.domains_by_process().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.domains_by_process().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.domains_by_process().at(domainIt->first).cbegin();
+                insertedIt != db.domains_by_process().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.domains_by_process().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<Domain> insertedEntity = insertedIt->second;
             std::shared_ptr<Domain> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(key_compare(insertedEntity->topics, loadedEntity->topics));
             ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
@@ -940,16 +950,16 @@ TEST_F(database_load_tests, load_database)
     for (auto domainIt = db.processes_by_domain().cbegin(); domainIt != db.processes_by_domain().cend(); ++domainIt)
     {
         for (auto insertedIt = db.processes_by_domain().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.processes_by_domain().at(domainIt->first).cbegin();
-             insertedIt != db.processes_by_domain().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.processes_by_domain().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.processes_by_domain().at(domainIt->first).cbegin();
+                insertedIt != db.processes_by_domain().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.processes_by_domain().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<Process> insertedEntity = insertedIt->second;
             std::shared_ptr<Process> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->pid == loadedEntity->pid);
             ASSERT_TRUE(insertedEntity->user->id == loadedEntity->user->id);
@@ -958,19 +968,20 @@ TEST_F(database_load_tests, load_database)
     }
 
     // participants_by_locator
-    for (auto domainIt = db.participants_by_locator().cbegin(); domainIt != db.participants_by_locator().cend(); ++domainIt)
+    for (auto domainIt = db.participants_by_locator().cbegin(); domainIt != db.participants_by_locator().cend();
+            ++domainIt)
     {
         for (auto insertedIt = db.participants_by_locator().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.participants_by_locator().at(domainIt->first).cbegin();
-             insertedIt != db.participants_by_locator().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.participants_by_locator().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.participants_by_locator().at(domainIt->first).cbegin();
+                insertedIt != db.participants_by_locator().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.participants_by_locator().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<DomainParticipant> insertedEntity = insertedIt->second;
             std::shared_ptr<DomainParticipant> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
 
@@ -983,19 +994,20 @@ TEST_F(database_load_tests, load_database)
     }
 
     // locators_by_participant
-    for (auto domainIt = db.locators_by_participant().cbegin(); domainIt != db.locators_by_participant().cend(); ++domainIt)
+    for (auto domainIt = db.locators_by_participant().cbegin(); domainIt != db.locators_by_participant().cend();
+            ++domainIt)
     {
         for (auto insertedIt = db.locators_by_participant().at(domainIt->first).cbegin(),
-                  loadedIt = db_loaded.locators_by_participant().at(domainIt->first).cbegin();
-             insertedIt != db.locators_by_participant().at(domainIt->first).cend() &&
-             loadedIt != db_loaded.locators_by_participant().at(domainIt->first).cend();
-             insertedIt++, loadedIt++)
+                loadedIt = db_loaded.locators_by_participant().at(domainIt->first).cbegin();
+                insertedIt != db.locators_by_participant().at(domainIt->first).cend() &&
+                loadedIt != db_loaded.locators_by_participant().at(domainIt->first).cend();
+                insertedIt++, loadedIt++)
         {
             std::shared_ptr<Locator> insertedEntity = insertedIt->second;
             std::shared_ptr<Locator> loadedEntity = loadedIt->second;
 
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                        insertedEntity->name == loadedEntity->name);
+                    insertedEntity->name == loadedEntity->name);
 
             ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
             ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
@@ -1003,7 +1015,7 @@ TEST_F(database_load_tests, load_database)
     }
 
     // Compare next_id_ of both databases
-    ASSERT_EQ(db.next_id(),db_loaded.next_id());
+    ASSERT_EQ(db.next_id(), db_loaded.next_id());
 
     // Compare dump of both databases
     ASSERT_EQ(dump, db_loaded.dump_database());

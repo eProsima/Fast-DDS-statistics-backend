@@ -523,9 +523,9 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, ByteCountSample>& data);
 
-   /**
-    * TODO: LOAD
-    */
+    /**
+     * TODO: LOAD
+     */
     EntityId insert_nts(
             const std::shared_ptr<Entity>& entity,
             const EntityId& entity_id);

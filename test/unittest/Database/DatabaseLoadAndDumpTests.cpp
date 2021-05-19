@@ -56,7 +56,6 @@ DatabaseDump load_file(
     return dump;
 }
 
-
 // Test the load of a dump database without any entity
 TEST(database_load_and_dump_tests, load_and_dump_empty_database)
 {
@@ -65,7 +64,7 @@ TEST(database_load_and_dump_tests, load_and_dump_empty_database)
 
     // Create database
     Database db;
-    
+
     // Load jump in database
     db.load_database(dump);
 
@@ -84,7 +83,7 @@ TEST(database_load_and_dump_tests, load_and_dump_empty_entities_database)
 
     // Create database
     Database db;
-    
+
     // Load jump in database
     db.load_database(dump);
 
@@ -113,7 +112,7 @@ TEST(database_load_and_dump_tests, load_and_dump_simple_database)
 
     // Create database
     Database db;
-    
+
     // Load jump in database
     db.load_database(dump);
 
@@ -142,7 +141,7 @@ TEST(database_load_and_dump_tests, load_and_dump_complex_database)
 
     // Create database
     Database db;
-    
+
     // Load jump in database
     db.load_database(dump);
 

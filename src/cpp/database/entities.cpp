@@ -37,7 +37,7 @@ void Process::clear()
 void Domain::clear()
 {
     topics.clear();
-    participants.clear(); 
+    participants.clear();
 }
 
 void DomainParticipant::clear()
