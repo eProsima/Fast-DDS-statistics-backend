@@ -356,7 +356,8 @@ protected:
         try
         {
             database_->insert(front().second);
-            StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, front().second.entity->id, front().second.entity->kind);
+            StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, front().second.entity->id,
+                    front().second.entity->kind);
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {

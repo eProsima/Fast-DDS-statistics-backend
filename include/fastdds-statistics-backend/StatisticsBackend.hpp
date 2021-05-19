@@ -440,7 +440,7 @@ protected:
 
     /**
      * @brief Notify the user about a new discovered entity
-     * 
+     *
      * @param domain_id The domain where the entity was discovered
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind CallbackKind of the discovery event
@@ -452,7 +452,7 @@ protected:
 
     /**
      * @brief Notify the user about a new discovered entity
-     * 
+     *
      * @param participant_id Entity ID of the participant that discovered the entity.
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind CallbackKind of the discovery event
@@ -464,7 +464,7 @@ protected:
 
     /**
      * @brief Notify the user about a new available data
-     * 
+     *
      * @param domain_id The domain where the data is available
      * @param entity_id The entity for which the new data is available
      * @param data_kind The DataKind of the new available data
@@ -483,7 +483,7 @@ protected:
     //! Physical  listener
     static PhysicalListener* physical_listener_;
 
-    //! Mask for the physical listener 
+    //! Mask for the physical listener
     static CallbackMask physical_callback_mask_;
 
     //! Status for the Hosts

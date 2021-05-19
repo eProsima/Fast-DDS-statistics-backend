@@ -86,6 +86,7 @@ public:
             total_count_change = 0;
 
         }
+
     };
 
     /**

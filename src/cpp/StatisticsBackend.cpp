@@ -348,7 +348,7 @@ void StatisticsBackend::on_domain_entity_discovery(
         return;
     }
 
-    switch(entity_kind)
+    switch (entity_kind)
     {
         case EntityKind::PARTICIPANT:
         {
@@ -360,7 +360,8 @@ void StatisticsBackend::on_domain_entity_discovery(
 
             // Update the status before calling the
             monitor->second->participant_status_.on_instance_discovered();
-            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id, monitor->second->participant_status_);
+            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
+                    monitor->second->participant_status_);
             monitor->second->participant_status_.on_status_read();
             break;
         }
@@ -386,7 +387,8 @@ void StatisticsBackend::on_domain_entity_discovery(
             }
 
             monitor->second->datawriter_status_.on_instance_discovered();
-            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id, monitor->second->datawriter_status_);
+            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
+                    monitor->second->datawriter_status_);
             monitor->second->datawriter_status_.on_status_read();
             break;
         }
@@ -399,7 +401,8 @@ void StatisticsBackend::on_domain_entity_discovery(
             }
 
             monitor->second->datareader_status_.on_instance_discovered();
-            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id, monitor->second->datareader_status_);
+            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
+                    monitor->second->datareader_status_);
             monitor->second->datareader_status_.on_status_read();
             break;
         }
@@ -421,7 +424,7 @@ void StatisticsBackend::on_physical_entity_discovery(
         return;
     }
 
-    switch(entity_kind)
+    switch (entity_kind)
     {
         case EntityKind::HOST:
         {

@@ -31,12 +31,12 @@ namespace eprosima {
 namespace fastdds {
 namespace dds {
 
-    class DomainParticipant;
-    class DomainParticipantListener;
-    class Subscriber;
-    class Topic;
-    class DataReader;
-    class DataReaderListener;
+class DomainParticipant;
+class DomainParticipantListener;
+class Subscriber;
+class Topic;
+class DataReader;
+class DataReaderListener;
 
 } // namespace dds
 } // namespace fastdds

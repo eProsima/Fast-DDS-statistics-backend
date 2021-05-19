@@ -59,9 +59,9 @@ protected:
     }
 
     MOCK_METHOD3(mocked_on_domain_entity_discovery, void(
-            EntityId domain_id,
-            EntityId entity_id,
-            EntityKind entity_kind));
+                EntityId domain_id,
+                EntityId entity_id,
+                EntityKind entity_kind));
 
     static void on_domain_entity_discovery(
             EntityId domain_id,
@@ -69,13 +69,13 @@ protected:
             EntityKind entity_kind)
     {
         StatisticsBackend::get_instance()->mocked_on_domain_entity_discovery(
-                domain_id, entity_id, entity_kind);
+            domain_id, entity_id, entity_kind);
     }
 
     MOCK_METHOD3(mocked_on_physical_entity_discovery, void(
-            EntityId participant_id,
-            EntityId entity_id,
-            EntityKind entity_kind));
+                EntityId participant_id,
+                EntityId entity_id,
+                EntityKind entity_kind));
 
     static void on_physical_entity_discovery(
             EntityId participant_id,
@@ -83,13 +83,13 @@ protected:
             EntityKind entity_kind)
     {
         StatisticsBackend::get_instance()->mocked_on_domain_entity_discovery(
-                participant_id, entity_id, entity_kind);
+            participant_id, entity_id, entity_kind);
     }
 
     MOCK_METHOD3(mocked_on_data_available, void(
-            EntityId domain_id,
-            EntityId entity_id,
-            DataKind data_kind));
+                EntityId domain_id,
+                EntityId entity_id,
+                DataKind data_kind));
 
     static void on_data_available(
             EntityId domain_id,
@@ -97,7 +97,7 @@ protected:
             DataKind data_kind)
     {
         StatisticsBackend::get_instance()->mocked_on_data_available(
-                domain_id, entity_id, data_kind);
+            domain_id, entity_id, data_kind);
     }
 
 };
