@@ -16,10 +16,7 @@
 
 #include "database.hpp"
 
-<<<<<<< HEAD
 #include <algorithm>
-=======
->>>>>>> e654719... Refs #11315: Load and Dump test works except for discovery_time, need rebase to fix that
 #include <chrono>
 #include <iostream>
 #include <mutex>  // For std::unique_lock
