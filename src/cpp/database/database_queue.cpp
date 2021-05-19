@@ -274,8 +274,8 @@ void DatabaseDataQueue::process_sample()
                         + std::string(
                             e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::NETWORK_LATENCY:
         {
             NetworkLatencySample sample;
@@ -294,8 +294,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing NETWORK_LATENCY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::PUBLICATION_THROUGHPUT:
         {
             PublicationThroughputSample sample;
@@ -316,8 +316,8 @@ void DatabaseDataQueue::process_sample()
                         + std::string(
                             e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
         {
             SubscriptionThroughputSample sample;
@@ -338,8 +338,8 @@ void DatabaseDataQueue::process_sample()
                         + std::string(
                             e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::RTPS_SENT:
         {
             RtpsPacketsSentSample packet_sample;
@@ -376,8 +376,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::RTPS_LOST:
         {
 
@@ -414,8 +414,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::RESENT_DATAS:
         {
             ResentDataSample sample;
@@ -435,8 +435,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing RESENT_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::HEARTBEAT_COUNT:
         {
             HeartbeatCountSample sample;
@@ -456,8 +456,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing HEARTBEAT_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::ACKNACK_COUNT:
         {
             AcknackCountSample sample;
@@ -477,8 +477,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing ACKNACK_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::NACKFRAG_COUNT:
         {
             NackfragCountSample sample;
@@ -498,8 +498,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing NACKFRAG_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::GAP_COUNT:
         {
             GapCountSample sample;
@@ -519,8 +519,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing GAP_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::DATA_COUNT:
         {
             DataCountSample sample;
@@ -540,8 +540,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing DATA_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::PDP_PACKETS:
         {
             PdpCountSample sample;
@@ -561,8 +561,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing PDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::EDP_PACKETS:
         {
             EdpCountSample sample;
@@ -582,8 +582,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing EDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::DISCOVERED_ENTITY:
         {
             DiscoveryTimeSample sample;
@@ -602,8 +602,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing DISCOVERED_ENTITY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::SAMPLE_DATAS:
         {
             SampleDatasCountSample sample;
@@ -623,8 +623,8 @@ void DatabaseDataQueue::process_sample()
                         "Error processing SAMPLE_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
+            break;
         }
-        break;
         case StatisticsEventKind::PHYSICAL_DATA:
         {
             StatisticsPhysicalData item = front().second->physical_data();
@@ -735,8 +735,8 @@ void DatabaseDataQueue::process_sample()
             }
 
             database_->link_participant_with_process(participant_id, process_id);
+            break;
         }
-        break;
     }
 }
 
