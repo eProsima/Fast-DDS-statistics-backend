@@ -85,6 +85,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Insert host in the database */
@@ -145,6 +146,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Add user to users collection */         
@@ -217,6 +219,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Add process to processes collection */
@@ -259,6 +262,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Insert domain in the database */
@@ -320,6 +324,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Add topic to domain's collection */
@@ -395,6 +400,7 @@ EntityId Database::insert_nts(
             else
             {
                 entity->id = entity_id;
+                next_id_++;
             }
 
             /* Add participant to domain's collection */
@@ -2797,6 +2803,9 @@ DatabaseDump Database::dump_entity_(
         // data_count last reported
         data[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
 
+        // resent_data last reported
+        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
+
         entity_info[DATA_CONTAINER_TAG] = data;
     }
 
@@ -3248,6 +3257,7 @@ void Database::load_database(
             // insert_nts(entity, EntityId(stoi(it.key())));
 
             entity->id = EntityId(stoi(it.key()));
+            next_id_++;
 
             locators_[entity->id] = entity;
 
@@ -3370,26 +3380,24 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_STATUS_TAG});
+                check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_TIME_TAG, DATA_VALUE_REMOTE_ENTITY_TAG,
+                                        DATA_VALUE_DISCOVERED_TAG});
 
                 DiscoveryTimeSample sample;
 
-                // DataKind
-                sample.kind = DataKind::DISCOVERY_TIME;   
-                
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                uint64_t src_ts = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
 
-                // TODO: Insert correct values in time
                 // std::chrono::system_clock::time_point
-                // sample.time;
+                uint64_t time = stoi(std::string((*it)[DATA_VALUE_TIME_TAG]));
+                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));;
 
                 // EntityId
-                sample.remote_entity = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_entity = EntityId(stoi(std::string((*it)[DATA_VALUE_REMOTE_ENTITY_TAG])));
 
                 // bool
-                sample.discovered = (*it)[DATA_VALUE_STATUS_TAG];
+                sample.discovered = (*it)[DATA_VALUE_DISCOVERED_TAG];
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3408,12 +3416,10 @@ void Database::load_data(
 
             PdpCountSample sample;
 
-            // DataKind
-            sample.kind = DataKind::PDP_PACKETS;
-
             // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            
             // uint64_t
             sample.count = (*it)[DATA_VALUE_COUNT_TAG];
 
@@ -3432,9 +3438,6 @@ void Database::load_data(
             check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             EdpCountSample sample;
-
-            // DataKind
-            sample.kind = DataKind::EDP_PACKETS;
 
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3460,9 +3463,6 @@ void Database::load_data(
             {
                 check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
                 RtpsPacketsSentSample sample;
-
-                // DataKind
-                sample.kind = DataKind::RTPS_PACKETS_SENT;
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3493,9 +3493,6 @@ void Database::load_data(
                 check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
                 RtpsBytesSentSample sample;
-
-                // DataKind
-                sample.kind = DataKind::RTPS_BYTES_SENT;
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3530,9 +3527,6 @@ void Database::load_data(
 
                 RtpsPacketsLostSample sample;
 
-                // DataKind
-                sample.kind = DataKind::RTPS_PACKETS_LOST;
-
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3562,9 +3556,6 @@ void Database::load_data(
                 check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
                 RtpsBytesLostSample sample;
-
-                // DataKind
-                sample.kind = DataKind::RTPS_BYTES_LOST;
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3597,9 +3588,6 @@ void Database::load_data(
             RtpsBytesLostSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
 
-            // DataKind
-            sample.kind = DataKind::RTPS_BYTES_LOST;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3629,9 +3617,6 @@ void Database::load_data(
 
             RtpsBytesSentSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
-
-            // DataKind
-            sample.kind = DataKind::RTPS_BYTES_SENT;
 
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
@@ -3663,9 +3648,6 @@ void Database::load_data(
             RtpsPacketsLostSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
 
-            // DataKind
-            sample.kind = DataKind::RTPS_PACKETS_LOST;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3693,9 +3675,6 @@ void Database::load_data(
             RtpsPacketsSentSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
 
-            // DataKind
-            sample.kind = DataKind::RTPS_PACKETS_SENT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3713,42 +3692,44 @@ void Database::load_data(
 
     //last_reported_edp_packets
     {
-        DatabaseDump container = dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_EDP_PACKETS_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG];
 
-        EdpCountSample sample;
+            EdpCountSample sample;
 
-        //DataKind
-        sample.kind = DataKind::EDP_PACKETS;
+            //std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        //std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
     }
 
     // last_reported_pdp_packets
     {
-        DatabaseDump container = dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_PDP_PACKETS_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG];
 
-        PdpCountSample sample;
+            PdpCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::PDP_PACKETS;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
-        
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // Insert data into database
-        insert_nts(entity->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
     }
 }
 
@@ -3775,9 +3756,6 @@ void Database::load_data(
 
             PublicationThroughputSample sample;
 
-            // DataKind
-            sample.kind = DataKind::PUBLICATION_THROUGHPUT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3800,9 +3778,6 @@ void Database::load_data(
             check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             ResentDataSample sample;
-
-            // DataKind
-            sample.kind = DataKind::RESENT_DATA;
 
             // std::chrono::system_clock::time_point  
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3827,9 +3802,6 @@ void Database::load_data(
 
             HeartbeatCountSample sample;
 
-            // DataKind
-            sample.kind = DataKind::HEARTBEAT_COUNT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3852,9 +3824,6 @@ void Database::load_data(
             check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             GapCountSample sample;
-
-            // DataKind
-            sample.kind = DataKind::GAP_COUNT;
 
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3879,9 +3848,6 @@ void Database::load_data(
 
             DataCountSample sample;
 
-            // DataKind
-            sample.kind = DataKind::DATA_COUNT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -3898,25 +3864,29 @@ void Database::load_data(
     {
         DatabaseDump container = dump[DATA_KIND_SAMPLE_DATAS_TAG];
 
-        // Data iterator
-        for (auto it = container.begin(); it != container.end(); ++it)
+        // RemoteEntities iterator
+        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            SampleDatasCountSample sample;
+            // Data iterator
+            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            {
+                check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
-            // DataKind
-            sample.kind = DataKind::SAMPLE_DATAS;
+                SampleDatasCountSample sample;
 
-            // std::chrono::system_clock::time_point
-            // sample.src_ts = std::chrono::system_clock::from_time_t(stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG])));
+                // std::chrono::system_clock::time_point
+                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-            // uint64_t
-            sample.count = it.value();
+                // uint64_t
+                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
 
-            // uint64_t
-            sample.sequence_number = std::stoi(it.key());
+                // uint64_t
+                sample.sequence_number = std::stoi(remoteIt.key());
 
-            // // Insert data into database
-            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+                // // Insert data into database
+                insert_nts(entity->participant->domain->id, entity->id, sample, true);
+            }
         }
     }
 
@@ -3933,9 +3903,6 @@ void Database::load_data(
                 check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
                 HistoryLatencySample sample;
-
-                // DataKind
-                sample.kind = DataKind::FASTDDS_LATENCY;
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -3955,64 +3922,87 @@ void Database::load_data(
 
     // last_reported_data_count
     {
-        DatabaseDump container = dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_DATA_COUNT_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG];
 
-        DataCountSample sample;
+            DataCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::DATA_COUNT;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
     }
 
     // last_reported_gap_count
     {
-        DatabaseDump container = dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_GAP_COUNT_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG];
 
-        GapCountSample sample;
+            GapCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::GAP_COUNT;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
     }
 
     // last_reported_heartbeat_count
     {
-        DatabaseDump container = dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_HEARTBEAT_COUNT_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG];
 
-        HeartbeatCountSample sample;
+            HeartbeatCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::HEARTBEAT_COUNT;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
     }
 
+    // last_reported_resent_datas
+    {
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_RESENT_DATA_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG];
+
+            ResentDataSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
 }
 
 void Database::load_data(
@@ -4035,9 +4025,6 @@ void Database::load_data(
             check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
             SubscriptionThroughputSample sample;
-
-            // DataKind
-            sample.kind = DataKind::SUBSCRIPTION_THROUGHPUT;
 
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
@@ -4062,9 +4049,6 @@ void Database::load_data(
 
             AcknackCountSample sample;
 
-            // DataKind
-            sample.kind = DataKind::ACKNACK_COUNT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -4088,9 +4072,6 @@ void Database::load_data(
 
             NackfragCountSample sample;
 
-            // DataKind
-            sample.kind = DataKind::NACKFRAG_COUNT;
-
             // std::chrono::system_clock::time_point
             uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
@@ -4105,42 +4086,44 @@ void Database::load_data(
 
     // last_reported_acknack_count
     {
-        DatabaseDump container = dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_ACKNACK_COUNT_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG];
 
-        AcknackCountSample sample;
+            AcknackCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::ACKNACK_COUNT;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
     }
 
     // last_reported_nackfrag_count
     {
-        DatabaseDump container = dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG];
+        // Only insert last reported if there are at least one
+        if (!dump[DATA_KIND_NACKFRAG_COUNT_TAG].empty())
+        {
+            DatabaseDump container = dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG];
 
-        NackfragCountSample sample;
+            NackfragCountSample sample;
 
-        // DataKind
-        sample.kind = DataKind::NACKFRAG_COUNT;
+            // std::chrono::system_clock::time_point
+            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
-        // std::chrono::system_clock::time_point
-        uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
-        sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            // uint64_t count;
+            sample.count = container[DATA_VALUE_COUNT_TAG];
 
-        // uint64_t count;
-        sample.count = container[DATA_VALUE_COUNT_TAG];
-
-        // Insert data into database
-        insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
     }
 }
 
@@ -4163,9 +4146,6 @@ void Database::load_data(
                 check_keys_json((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
                 NetworkLatencySample sample;
-
-                // DataKind
-                sample.kind = DataKind::NETWORK_LATENCY;
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));

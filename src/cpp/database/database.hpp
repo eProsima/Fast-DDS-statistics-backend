@@ -455,6 +455,7 @@ protected:
         else
         {
             endpoint->id = entity_id;
+            next_id_++;
         }
 
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
