@@ -1412,7 +1412,7 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-std::pair<EntityId, EntityId> Database::get_entities_by_guid(
+std::pair<EntityId, EntityId> Database::get_entity_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
 {

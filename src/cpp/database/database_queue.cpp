@@ -39,7 +39,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string reader_guid = deserialize_guid(item.reader_guid());
     try
     {
-        auto found_reader = database_->get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
+        auto found_reader = database_->get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
         sample.reader = found_reader.second;
     }
     catch (BadParameter& e)
@@ -50,7 +50,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string writer_guid = deserialize_guid(item.writer_guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, writer_guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, writer_guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -100,7 +100,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string guid = deserialize_guid(item.guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -130,7 +130,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string guid = deserialize_guid(item.src_guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -161,7 +161,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string guid = deserialize_guid(item.src_guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -184,7 +184,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string guid = deserialize_guid(item.guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -206,7 +206,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     try
     {
-        auto found_remote_entity = database_->get_entities_by_guid(entity_kind, remote_entity_guid);
+        auto found_remote_entity = database_->get_entity_by_guid(entity_kind, remote_entity_guid);
         sample.remote_entity = found_remote_entity.second;
     }
     catch (BadParameter& e)
@@ -217,7 +217,7 @@ void DatabaseDataQueue::process_sample_type(
     std::string guid = deserialize_guid(item.local_participant_guid());
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, guid);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -241,7 +241,7 @@ void DatabaseDataQueue::process_sample_type(
     sample.sequence_number = sample_identity.second;
     try
     {
-        auto found_entity = database_->get_entities_by_guid(entity_kind, sample_identity.first);
+        auto found_entity = database_->get_entity_by_guid(entity_kind, sample_identity.first);
         domain = found_entity.first;
         entity = found_entity.second;
     }
@@ -631,7 +631,7 @@ void DatabaseDataQueue::process_sample()
 
             // Take the ID of the Participant from its GUID
             std::string participant_guid = deserialize_guid(item.participant_guid());
-            auto participants = database_->get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
+            auto participants = database_->get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
             EntityId participant_id = participants.second;
 
             // Parse the process name and PID

@@ -3958,83 +3958,83 @@ TEST_F(database_tests, select_sample_datas)
     EXPECT_EQ(data_output.size(), 0u);
 }
 
-TEST_F(database_tests, get_entities_by_guid_host)
+TEST_F(database_tests, get_entity_by_guid_host)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::HOST, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::HOST, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_user)
+TEST_F(database_tests, get_entity_by_guid_user)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::USER, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::USER, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_process)
+TEST_F(database_tests, get_entity_by_guid_process)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::PROCESS, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PROCESS, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_domain)
+TEST_F(database_tests, get_entity_by_guid_domain)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::DOMAIN, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DOMAIN, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_participant)
+TEST_F(database_tests, get_entity_by_guid_participant)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto participant = db.get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid);
+    auto participant = db.get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
     EXPECT_EQ(participant.first, domain_id);
     EXPECT_EQ(participant.second, participant_id);
 }
 
-TEST_F(database_tests, get_entities_by_guid_participant_wrong_guid)
+TEST_F(database_tests, get_entity_by_guid_participant_wrong_guid)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_topic)
+TEST_F(database_tests, get_entity_by_guid_topic)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::TOPIC, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::TOPIC, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_datawriter)
+TEST_F(database_tests, get_entity_by_guid_datawriter)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datawriter = db.get_entities_by_guid(EntityKind::DATAWRITER, writer_guid);
+    auto datawriter = db.get_entity_by_guid(EntityKind::DATAWRITER, writer_guid);
     EXPECT_EQ(datawriter.first, domain_id);
     EXPECT_EQ(datawriter.second, writer_id);
 }
 
-TEST_F(database_tests, get_entities_by_guid_datawriter_wrong_guid)
+TEST_F(database_tests, get_entity_by_guid_datawriter_wrong_guid)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_datareader)
+TEST_F(database_tests, get_entity_by_guid_datareader)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datareader = db.get_entities_by_guid(EntityKind::DATAREADER, reader_guid);
+    auto datareader = db.get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
     EXPECT_EQ(datareader.first, domain_id);
     EXPECT_EQ(datareader.second, reader_id);
 }
 
-TEST_F(database_tests, get_entities_by_guid_datareader_wrong_guid)
+TEST_F(database_tests, get_entity_by_guid_datareader_wrong_guid)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_locator)
+TEST_F(database_tests, get_entity_by_guid_locator)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::LOCATOR, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::LOCATOR, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_invalid)
+TEST_F(database_tests, get_entity_by_guid_invalid)
 {
-    EXPECT_THROW(db.get_entities_by_guid(EntityKind::INVALID, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::INVALID, "any_guid"), BadParameter);
 }
 
-TEST_F(database_tests, get_entities_by_guid_other_kind)
+TEST_F(database_tests, get_entity_by_guid_other_kind)
 {
-    EXPECT_THROW(db.get_entities_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
 }
 
 int main(

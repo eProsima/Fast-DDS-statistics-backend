@@ -267,7 +267,7 @@ public:
      * @return A pair, where the first field is the EntityId of the Domain of the matching entities,
      *         and the second is the EntityId of the matching entity.
      */
-    std::pair<EntityId, EntityId> get_entities_by_guid(
+    std::pair<EntityId, EntityId> get_entity_by_guid(
             EntityKind entity_kind,
             const std::string& guid) const;
 
