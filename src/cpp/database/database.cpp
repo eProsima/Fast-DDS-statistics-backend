@@ -3228,7 +3228,7 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  std::shared_ptr<database::Process>(),
+                (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  nullptr,
                 domains_[EntityId(stoi((std::string)(*it)[DOMAIN_ENTITY_TAG]))]);
 
             // Insert into database
@@ -3302,9 +3302,9 @@ void Database::load_database(
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
 
-            /* Add reference to endpoint to the locator */
-            for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end(); ++itLoc)
-                locators_[stoi((std::string)*itLoc)]->data_writers[entity->id] = entity; 
+            // /* Add reference to endpoint to the locator */
+            // for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end(); ++itLoc)
+            //     locators_[stoi((std::string)*itLoc)]->data_writers[entity->id] = entity; 
 
             // Load data and insert into database
             load_data((*it)[DATA_CONTAINER_TAG], entity);
@@ -3346,9 +3346,9 @@ void Database::load_database(
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
 
-            /* Add reference to endpoint to the locator */
-            for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end(); ++itLoc)
-                locators_[stoi((std::string)*itLoc)]->data_readers[entity->id] = entity; 
+            // /* Add reference to endpoint to the locator */
+            // for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end(); ++itLoc)
+            //     locators_[stoi((std::string)*itLoc)]->data_readers[entity->id] = entity; 
 
             // // Load data and insert into database
             load_data((*it)[DATA_CONTAINER_TAG], entity);
