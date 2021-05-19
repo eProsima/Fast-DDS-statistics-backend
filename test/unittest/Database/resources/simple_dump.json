@@ -259,6 +259,10 @@
                 "last_reported_heartbeat_count":{
                     "count":2,
                     "src_time":"0"
+                },
+                "last_reported_resent_datas":{
+                    "count":2,
+                    "src_time":"0"
                 }
             }
         }

@@ -268,6 +268,10 @@
                     "count":2,
                     "src_time":"2"
                 },
+                "last_reported_resent_datas":{
+                    "count":2,
+                    "src_time":"2"
+                },
                 "publication_throughput":[
                     {
                         "data":1.1,
@@ -397,6 +401,10 @@
                     "count":2,
                     "src_time":"2"
                 },
+                "last_reported_resent_datas":{
+                    "count":2,
+                    "src_time":"2"
+                },
                 "publication_throughput":[
                     {
                         "data":1.1,
@@ -523,6 +531,10 @@
                     "src_time":"2"
                 },
                 "last_reported_heartbeat_count":{
+                    "count":2,
+                    "src_time":"2"
+                },
+                "last_reported_resent_datas":{
                     "count":2,
                     "src_time":"2"
                 },
