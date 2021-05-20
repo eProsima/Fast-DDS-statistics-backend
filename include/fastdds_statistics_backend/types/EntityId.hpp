@@ -103,6 +103,12 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() const noexcept;
 
     /**
+     * @brief Check whether an EntityId is a ID representing one entity
+     * @return True if is is valid and not ENTITY_ID_ALL, false otherwise
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_single() const noexcept;
+
+    /**
      * @brief Get the internal value of the EntityId
      * @return An int64_t with the representing internal value
      */

@@ -56,6 +56,21 @@ DatabaseDump load_file(
     return dump;
 }
 
+// Test the load of a corrupted database
+TEST(database_load_and_dump_tests, load_and_dump_corrupted_database)
+{
+    // Read JSON
+    DatabaseDump dump = load_file(EMPTY_DUMP_FILE);
+    dump.erase(DOMAIN_CONTAINER_TAG); 
+
+    // Create database
+    Database db;
+
+    // Load jump in database
+    ASSERT_THROW(throw CorruptedFile("CorruptedFileTest"),CorruptedFile);
+    ASSERT_THROW(db.load_database(dump),CorruptedFile);
+}
+
 // Test the load of a dump database without any entity
 TEST(database_load_and_dump_tests, load_and_dump_empty_database)
 {

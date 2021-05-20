@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 #include "database.hpp"
 
 #include <algorithm>
@@ -78,7 +77,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }
@@ -139,7 +138,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }
@@ -212,7 +211,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }
@@ -255,7 +254,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }
@@ -317,7 +316,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }
@@ -393,7 +392,7 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_valid() || entity_id.is_all())
+            if (!entity_id.is_single())
             {
                 entity->id = generate_entity_id();
             }

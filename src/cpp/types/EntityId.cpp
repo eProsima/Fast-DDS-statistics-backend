@@ -40,12 +40,17 @@ EntityId EntityId::invalid() noexcept
 
 bool EntityId::is_valid() const noexcept
 {
-    return (value_ >= 0);
+    return (value_ >= 0 || is_all());
 }
 
 bool EntityId::is_all() const noexcept
 {
     return (value_ == ENTITY_ID_ALL);
+}
+
+bool EntityId::is_single() const noexcept
+{
+    return is_valid() && !is_all();
 }
 
 void EntityId::invalidate() noexcept

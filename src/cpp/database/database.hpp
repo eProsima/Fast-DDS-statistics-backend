@@ -449,7 +449,7 @@ protected:
         }
 
         /* Add endpoint to participant' collection */
-        if (!entity_id.is_valid() || entity_id.is_all())
+        if (!entity_id.is_single())
         {
             endpoint->id = generate_entity_id();
         }
