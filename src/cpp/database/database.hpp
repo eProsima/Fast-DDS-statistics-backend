@@ -373,6 +373,7 @@ protected:
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint
+     * @param entity_id The ID of the entity, passing EntityId::invalid() will generate a new one.
      * @return The EntityId of the inserted DDSEndpoint
      */
     template<typename T>
@@ -524,39 +525,86 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * TODO: LOAD
+     * @brief Throw a CorruptedFile exception if the dump does not had al the keys
+
+     * @param dump json
+     * @param keys keys to check on the dump
+     */
+    void check_keys_dump(
+            const DatabaseDump& dump,
+            const std::vector<std::string>& keys);
+
+   /**
+     * @brief Insert a new entity into the database. This method is not thread safe.
+     * @param entity The entity object to be inserted.
+     * @param entity_id The ID of the entity, passing EntityId::invalid() will generate a new one.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *             * If the entity already exists in the database
+     *             * If the parent entity does not exist in the database (expect for the case of
+     *               a Domainparticipant entity, for which an unregistered parent process is allowed)
+     *             * If the entity name is empty
+     *             * Depending on the type of entity, if some other identifier is empty
+     *             * For entities with GUID, if the GUID is not unique
+     *             * For entities with QoS, if the QoS is empty
+     *             * For entities with locators, if the locators' collection is empty
+     * @return The EntityId of the inserted entity
      */
     EntityId insert_nts(
             const std::shared_ptr<Entity>& entity,
             const EntityId& entity_id);
 
+    /**
+     * @brief Insert a new statistics sample into the database. This method is not thread safe.
+     * @param domain_id The EntityId to the domain that contains the entity
+     * @param entity_id The EntityId to which the sample relates.
+     * @param sample The sample to be inserted.
+     * @param loading Is a insert from the load.
+     * @param last_reported Is a insert of a last_reported data.
+     */
     void insert_nts(
             const EntityId& domain_id,
             const EntityId& entity_id,
             const StatisticsSample& sample,
             const bool& loading = false,
-            const bool& loading_last_reported = false);
+            const bool& last_reported = false);
 
+
+    /**
+     * @brief Create the link between a participant and a process. This method is not thread safe.
+     *
+     * This operation entails:
+     *     1. Adding reference to process to the participant
+     *     2. Adding the participant to the process' list of participants
+     *     3. Adding entry to domains_by_process_
+     *     4. Adding entry to processes_by_domain_
+     *
+     * @param participant_id The EntityId of the participant
+     * @param process_id The EntityId of the process
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The participant is already linked with a process
+     *            * The participant does not exist in the database
+     *            * The process does not exist in the database
+     */
     void link_participant_with_process_nts(
             const EntityId& participant_id,
             const EntityId& process_id);
 
-    void check_keys_json(
-            const DatabaseDump& dump,
-            const std::vector<std::string>& keys);
+    /**
+     * @brief Load a data from a dump.
 
+     * @param dump Reference to the .json with the info of the data.
+     * @param entity Reference to the entity where the info will be inserted.
+     * @return \c DatabaseDump object representing the data
+     */
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<DomainParticipant>& entity);
-
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<DataWriter>& entity);
-
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<DataReader>& entity);
-
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<Locator>& entity);
