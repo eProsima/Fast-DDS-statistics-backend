@@ -534,7 +534,7 @@ protected:
             const DatabaseDump& dump,
             const std::vector<std::string>& keys);
 
-   /**
+    /**
      * @brief Insert a new entity into the database. This method is not thread safe.
      * @param entity The entity object to be inserted.
      * @param entity_id The ID of the entity, passing EntityId::invalid() will generate a new one.

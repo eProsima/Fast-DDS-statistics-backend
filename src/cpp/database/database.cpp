@@ -3349,7 +3349,7 @@ void Database::load_database(
 
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
-            
+
             // // Load data and insert into database
             load_data((*it)[DATA_CONTAINER_TAG], entity);
         }
