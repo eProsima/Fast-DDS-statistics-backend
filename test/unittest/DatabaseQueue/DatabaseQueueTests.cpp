@@ -22,11 +22,14 @@
 #include <iostream>
 #include <functional>
 
+using namespace eprosima::fastdds::statistics;
+using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using EntityId = eprosima::statistics_backend::EntityId;
-using DataKind = eprosima::statistics_backend::DataKind;
-using EntityKind = eprosima::statistics_backend::EntityKind;
-using Timestamp = eprosima::statistics_backend::Timestamp;
+
+using EntityId = EntityId;
+using DataKind = DataKind;
+using EntityKind = EntityKind;
+using Timestamp = Timestamp;
 using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
@@ -34,9 +37,6 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::Throw;
 using ::testing::AnyNumber;
-
-using namespace eprosima::fastdds::statistics;
-using namespace eprosima::statistics_backend::database;
 
 // Wrapper class to expose the internal attributes of the queue
 class DatabaseEntityQueueWrapper : public DatabaseEntityQueue
@@ -312,7 +312,7 @@ TEST_F(database_queue_tests, push_host_throws)
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
@@ -321,7 +321,7 @@ TEST_F(database_queue_tests, push_host_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, host);
+    entity_queue.push(timestamp, {host, DomainId(0)});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -374,7 +374,7 @@ TEST_F(database_queue_tests, push_user_throws)
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(2);
             });
 
@@ -383,7 +383,7 @@ TEST_F(database_queue_tests, push_user_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, user);
+    entity_queue.push(timestamp, {user, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -444,7 +444,7 @@ TEST_F(database_queue_tests, push_process_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(2);
             });
 
@@ -453,7 +453,7 @@ TEST_F(database_queue_tests, push_process_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {process, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -500,7 +500,7 @@ TEST_F(database_queue_tests, push_domain_throws)
                 EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
                 EXPECT_EQ(entity->name, domain_name);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(0);
             });
 
@@ -509,7 +509,7 @@ TEST_F(database_queue_tests, push_domain_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, domain);
+    entity_queue.push(timestamp, {domain, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -641,7 +641,7 @@ TEST_F(database_queue_tests, push_topic_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
@@ -650,7 +650,7 @@ TEST_F(database_queue_tests, push_topic_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, topic);
+    entity_queue.push(timestamp, {topic, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -715,7 +715,7 @@ TEST_F(database_queue_tests, push_datawriter_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
@@ -724,7 +724,7 @@ TEST_F(database_queue_tests, push_datawriter_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, datawriter);
+    entity_queue.push(timestamp, {datawriter, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -789,7 +789,7 @@ TEST_F(database_queue_tests, push_datareader_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
@@ -798,7 +798,7 @@ TEST_F(database_queue_tests, push_datareader_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, datareader);
+    entity_queue.push(timestamp, {datareader, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -846,7 +846,7 @@ TEST_F(database_queue_tests, push_locator_throws)
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, locator_name);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
@@ -855,7 +855,7 @@ TEST_F(database_queue_tests, push_locator_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, locator);
+    entity_queue.push(timestamp, {locator, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -973,7 +973,7 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1023,7 +1023,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The reader exists and has ID 2
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -1276,7 +1276,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1365,7 +1365,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1499,7 +1499,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1692,7 +1692,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1751,7 +1751,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 
     // Precondition: The locator does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called. data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1795,7 +1795,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1807,7 +1807,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     EntityId domain;
     EntityId entity;
     EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), eprosima::statistics_backend::Error);
+            inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
@@ -1855,7 +1855,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     EntityId domain;
     EntityId entity;
     EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), eprosima::statistics_backend::Error);
+            inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -1937,7 +1937,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2026,7 +2026,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2115,7 +2115,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2204,7 +2204,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2293,7 +2293,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2382,7 +2382,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2471,7 +2471,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2560,7 +2560,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2683,7 +2683,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The remote entity exists and has ID 2
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
@@ -2743,7 +2743,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
     // Precondition: The remote entity does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2854,7 +2854,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2977,7 +2977,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
@@ -3010,7 +3010,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     data_queue.stop_consumer();
     data_queue.push(timestamp, data);
     data_queue.do_swap();
-    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::BadParameter);
+    ASSERT_THROW(data_queue.consume_sample(), BadParameter);
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_process_exists)
@@ -3171,7 +3171,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(4);
             });
 
@@ -3347,7 +3347,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(3);
             });
 
@@ -3522,7 +3522,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(4);
             });
 

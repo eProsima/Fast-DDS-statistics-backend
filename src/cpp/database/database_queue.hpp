@@ -355,7 +355,7 @@ protected:
     {
         try
         {
-            database_->insert(front().second);
+            database_->insert(front().second.entity);
             StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, front().second.entity->id,
                     front().second.entity->kind);
         }
