@@ -63,8 +63,12 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     // Get the participant from the database
     GUID_t endpoint_guid = info.info.guid();
     GUID_t participant_guid(endpoint_guid.guidPrefix, EntityId_t());
-    auto participant_ids = database_->get_entities_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
-    if (participant_ids.empty())
+    std::pair<EntityId, EntityId> participant_id;
+    try
+    {
+        participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+    }
+    catch (const Exception& e)
     {
         logError(STATISTICS_BACKEND, "endpoint " << to_string(endpoint_guid) + " discovered on Participant " + to_string(
                     participant_guid)
@@ -74,9 +78,9 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     std::shared_ptr<database::DomainParticipant> participant =
             std::const_pointer_cast<database::DomainParticipant>(
         std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
-            participant_ids.front().second)));
+            participant_id.second)));
 
-    assert(participant_ids.front().first == domain_id_);
+    assert(participant_id.first == domain_id_);
 
     // Check whether the topic is already in the database
     std::shared_ptr<database::Topic> topic;
@@ -105,13 +109,13 @@ void StatisticsParticipantListener::process_endpoint_discovery(
 
     // Get the host for the participant
     // May be empty, if the physical info didn't arrive.
-    auto hosts = database_->get_entities(EntityKind::HOST, participant_ids.front().second);
+    auto hosts = database_->get_entities(EntityKind::HOST, participant_id.second);
 
     // Take all the locators already defined for this participant.
     // This will be used only if there is no physical info.
     // Even if the host info is not available, the participant can only have one locator
     // with a given address/port combination, so we don't want to add duplicates
-    auto participant_locators = database_->get_entities(EntityKind::LOCATOR, participant_ids.front().second);
+    auto participant_locators = database_->get_entities(EntityKind::LOCATOR, participant_id.second);
 
     // Routine to process one locator from the locator list of the endpoint
     auto process_locators = [&](const Locator_t& dds_locator)

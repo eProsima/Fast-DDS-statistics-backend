@@ -173,8 +173,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -218,8 +218,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_no_doma
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -252,9 +252,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -302,9 +301,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -357,8 +355,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataReader is added to the database. We do not care about the given ID
     InsertEntityArgs insert_args([&](
@@ -403,9 +401,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -455,8 +452,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
@@ -525,9 +522,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -624,8 +620,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataReader is added to the database. We do not care about the given ID
     InsertEntityArgs insert_reader_args([&](
@@ -693,9 +689,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
 
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
     EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
@@ -785,8 +780,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataReader is added to the database. We do not care about the given ID
     InsertEntityArgs insert_reader_args([&](
@@ -850,8 +845,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participa
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -893,8 +888,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participa
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
@@ -915,8 +910,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -949,8 +944,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
     data.typeName(type_name_);
 
     // Precondition: The Reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The discovered reader contains the locator
     data.add_unicast_locator(dds_existing_unicast_locator);
@@ -978,9 +973,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -1036,9 +1030,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     std::shared_ptr<DataReader> reader =
             std::make_shared<DataReader>(reader_guid_str_, reader_info_to_backend_qos(
                         info), reader_guid_str_, participant_, topic_);
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(10)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
@@ -1089,9 +1082,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -1144,8 +1136,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataWriter is added to the database. We do not care about the given ID
     InsertEntityArgs insert_args([&](
@@ -1190,9 +1182,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -1242,8 +1233,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
@@ -1312,9 +1303,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -1411,8 +1401,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataWriter is added to the database. We do not care about the given ID
     InsertEntityArgs insert_writer_args([&](
@@ -1480,9 +1470,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
 
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
     EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
@@ -1572,8 +1561,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataWriter is added to the database. We do not care about the given ID
     InsertEntityArgs insert_writer_args([&](
@@ -1637,8 +1626,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participa
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -1680,8 +1669,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participa
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
@@ -1702,8 +1691,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -1736,8 +1725,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
     data.typeName(type_name_);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The discovered writer contains the locator
     data.add_unicast_locator(dds_existing_unicast_locator);
@@ -1765,9 +1754,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
@@ -1823,9 +1811,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     std::shared_ptr<DataWriter> writer =
             std::make_shared<DataWriter>(writer_guid_str_, writer_info_to_backend_qos(
                         info), writer_guid_str_, participant_, topic_);
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(10)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
