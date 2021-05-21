@@ -32,6 +32,7 @@ using StatisticsData = eprosima::fastdds::statistics::Data;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
+using ::testing::Throw;
 using ::testing::AnyNumber;
 
 using namespace eprosima::fastdds::statistics;
@@ -296,6 +297,36 @@ TEST_F(database_queue_tests, push_host)
     entity_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_host_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string hostname = "hostname";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+
+    // Expectation: The host creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, hostname);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, host);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_user)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -323,6 +354,39 @@ TEST_F(database_queue_tests, push_user)
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, user);
     entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_user_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string hostname = "hostname";
+    std::string username = "username";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+    std::shared_ptr<User> user = std::make_shared<User>(username, host);
+
+    // Expectation: The user creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(2);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, user);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_process)
@@ -358,6 +422,43 @@ TEST_F(database_queue_tests, push_process)
     entity_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_process_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string hostname = "hostname";
+    std::string username = "username";
+    std::string command = "command";
+    std::string pid = "1234";
+
+    // Create the entity hierarchy
+    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
+    std::shared_ptr<User> user = std::make_shared<User>(username, host);
+    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, user);
+
+    // Expectation: The process creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, command);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(2);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, process);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_domain)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -382,6 +483,36 @@ TEST_F(database_queue_tests, push_domain)
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, domain);
     entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_domain_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string domain_name = "domain name";
+
+    // Create the domain hierarchy
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(domain_name);
+
+    // Expectation: The domain creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
+                EXPECT_EQ(entity->name, domain_name);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(0);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, domain);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_participant_process_exists)
@@ -490,6 +621,41 @@ TEST_F(database_queue_tests, push_topic)
     entity_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_topic_throws)
+{
+    // Create the domain hierarchy
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string topic_name = "topic";
+    std::string type_name = "type";
+
+    std::shared_ptr<Domain> domain;
+    std::shared_ptr<Topic> topic =
+            std::make_shared<Topic>(topic_name, type_name, domain);
+
+    // Expectation: The topic creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
+                EXPECT_EQ(entity->name, topic_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, topic);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_datawriter)
 {
     // Create the domain hierarchy
@@ -523,6 +689,45 @@ TEST_F(database_queue_tests, push_datawriter)
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, datawriter);
     entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_datawriter_throws)
+{
+    // Create the domain hierarchy
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string datawriter_name = "datawriter";
+    Qos datawriter_qos;
+    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+
+    std::shared_ptr<Topic> topic;
+    std::shared_ptr<DomainParticipant> participant;
+
+    std::shared_ptr<DataWriter> datawriter =
+            std::make_shared<DataWriter>(datawriter_name, datawriter_qos, datawriter_guid_str,
+                    participant, topic);
+
+    // Expectation: The datawriter creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(entity->name, datawriter_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, datawriter);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_datareader)
@@ -560,6 +765,45 @@ TEST_F(database_queue_tests, push_datareader)
     entity_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_datareader_throws)
+{
+    // Create the domain hierarchy
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string datareader_name = "datareader";
+    Qos datareader_qos;
+    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+
+    std::shared_ptr<Topic> topic;
+    std::shared_ptr<DomainParticipant> participant;
+
+    std::shared_ptr<DataReader> datareader =
+            std::make_shared<DataReader>(datareader_name, datareader_qos, datareader_guid_str,
+                    participant, topic);
+
+    // Expectation: The datareader creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                EXPECT_EQ(entity->name, datareader_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, datareader);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_locator)
 {
     // Create the domain hierarchy
@@ -584,6 +828,37 @@ TEST_F(database_queue_tests, push_locator)
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, locator);
     entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_locator_throws)
+{
+    // Create the domain hierarchy
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string locator_name = "locator";
+
+    std::shared_ptr<Locator> locator =
+            std::make_shared<Locator>(locator_name);
+
+    // Expectation: The datareader creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, locator_name);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(1);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, locator);
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_history_latency)
@@ -625,12 +900,12 @@ TEST_F(database_queue_tests, push_history_latency)
     data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The reader exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -693,12 +968,12 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
     data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -747,12 +1022,12 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
     data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The reader exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -949,8 +1224,8 @@ TEST_F(database_queue_tests, push_publication_throughput)
     data->_d(EventKind::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1000,8 +1275,8 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
     data->_d(EventKind::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1038,8 +1313,8 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1089,8 +1364,8 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
     data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1139,9 +1414,8 @@ TEST_F(database_queue_tests, push_rtps_sent)
     data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(2)
@@ -1224,8 +1498,8 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1279,9 +1553,8 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator does_not_exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1334,9 +1607,8 @@ TEST_F(database_queue_tests, push_rtps_lost)
     data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(2)
@@ -1419,8 +1691,8 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1474,13 +1746,12 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called. data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1523,8 +1794,8 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     inner_data.byte_magnitude_order(10);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1572,9 +1843,8 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     inner_data.byte_magnitude_order(10);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1615,8 +1885,8 @@ TEST_F(database_queue_tests, push_resent_datas)
     data->_d(EventKind::RESENT_DATAS);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1666,8 +1936,8 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
     data->_d(EventKind::RESENT_DATAS);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1704,8 +1974,8 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     data->_d(EventKind::HEARTBEAT_COUNT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1755,8 +2025,8 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
     data->_d(EventKind::HEARTBEAT_COUNT);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1793,8 +2063,8 @@ TEST_F(database_queue_tests, push_acknack_count)
     data->_d(EventKind::ACKNACK_COUNT);
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1844,8 +2114,8 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
     data->_d(EventKind::ACKNACK_COUNT);
 
     // Precondition: The reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1882,8 +2152,8 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     data->_d(EventKind::NACKFRAG_COUNT);
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1933,8 +2203,8 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
     data->_d(EventKind::NACKFRAG_COUNT);
 
     // Precondition: The reader does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -1971,8 +2241,8 @@ TEST_F(database_queue_tests, push_gap_count)
     data->_d(EventKind::GAP_COUNT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2022,8 +2292,8 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
     data->_d(EventKind::GAP_COUNT);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2060,8 +2330,8 @@ TEST_F(database_queue_tests, push_data_count)
     data->_d(EventKind::DATA_COUNT);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2111,8 +2381,8 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
     data->_d(EventKind::DATA_COUNT);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2149,8 +2419,8 @@ TEST_F(database_queue_tests, push_pdp_count)
     data->_d(EventKind::PDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2200,8 +2470,8 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
     data->_d(EventKind::PDP_PACKETS);
 
     // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2238,8 +2508,8 @@ TEST_F(database_queue_tests, push_edp_count)
     data->_d(EventKind::EDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2289,8 +2559,8 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
     data->_d(EventKind::EDP_PACKETS);
 
     // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2342,12 +2612,12 @@ TEST_F(database_queue_tests, push_discovery_times)
     data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The remote entity exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2412,12 +2682,12 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The remote entity exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2468,12 +2738,12 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The remote entity does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2521,8 +2791,8 @@ TEST_F(database_queue_tests, push_sample_datas)
     data->_d(EventKind::SAMPLE_DATAS);
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2583,8 +2853,8 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     data->_d(EventKind::SAMPLE_DATAS);
 
     // Precondition: The writer does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
@@ -2631,8 +2901,8 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
@@ -2706,8 +2976,8 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
@@ -2780,8 +3050,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
@@ -2828,6 +3098,97 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+            .WillOnce(Return(host));
+
+    // Precondition: The user exists and has ID 3
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(3)))));
+
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+            .WillOnce(Return(user));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The process creation throws
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(4);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is not called
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.stop_consumer();
+    data_queue.push(timestamp, data);
+    data_queue.do_swap();
+
+    EXPECT_NO_THROW(data_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -2865,8 +3226,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
@@ -2920,6 +3281,90 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+
+    // Precondition: The host exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+            .WillOnce(Return(host));
+
+    // Precondition: The user does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The user creation throws
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(3);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is not called
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.stop_consumer();
+    data_queue.push(timestamp, data);
+    data_queue.do_swap();
+
+    EXPECT_NO_THROW(data_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -2957,8 +3402,8 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
@@ -3018,6 +3463,83 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
     data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists_host_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueue::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsPhysicalData inner_data;
+    inner_data.host(hostname);
+    inner_data.user(username);
+    inner_data.process(processname_pid);
+    inner_data.participant_guid(participant_guid);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->physical_data(inner_data);
+    data->_d(EventKind::PHYSICAL_DATA);
+
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+
+    // Precondition: The host does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The user does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The host creation throws
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, hostname);
+
+                throw eprosima::statistics_backend::BadParameter("Error");
+                return EntityId(4);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is not called
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.stop_consumer();
+    data_queue.push(timestamp, data);
+    data_queue.do_swap();
+
+    EXPECT_NO_THROW(data_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -3055,26 +3577,52 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
     data->_d(EventKind::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
+    auto host = std::make_shared<Host>(hostname);
+    host->id = EntityId(2);
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillOnce(Return(host));
+
     // Precondition: The user exists and has ID 3
     EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
 
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+    auto user = std::make_shared<User>(username, host);
+    user->id = EntityId(3);
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+            .WillOnce(Return(user));
+
+    // Precondition: The process does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname_pid)).Times(1)
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The process is created and given ID 4
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, processname_pid);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, "");
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+
+                return EntityId(4);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.stop_consumer();
     data_queue.push(timestamp, data);
-    data_queue.do_swap();
-    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::Error);
+    data_queue.flush();
 }
 
 int main(

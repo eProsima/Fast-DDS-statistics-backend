@@ -68,7 +68,7 @@ public:
                 EntityKind entity_kind,
                 const EntityId& entity_id));
 
-    MOCK_CONST_METHOD2(get_entities_by_guid, std::vector<std::pair<EntityId, EntityId>>(
+    MOCK_CONST_METHOD2(get_entity_by_guid, std::pair<EntityId, EntityId>(
                 EntityKind entity_kind,
                 const std::string& guid));
 

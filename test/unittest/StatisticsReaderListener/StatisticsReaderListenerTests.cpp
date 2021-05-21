@@ -251,14 +251,12 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The reader exists and has ID 2
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -320,14 +318,12 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received_not_in_mas
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The reader exists and has ID 2
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::FASTDDS_LATENCY);
@@ -484,9 +480,8 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -535,9 +530,8 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received_not
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::PUBLICATION_THROUGHPUT);
@@ -577,9 +571,8 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -628,9 +621,8 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received_no
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::SUBSCRIPTION_THROUGHPUT);
@@ -682,9 +674,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -765,9 +756,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -825,9 +815,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_packets_not_in_m
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -911,9 +900,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received_bytes_not_in_mas
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -997,9 +985,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1080,9 +1067,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1140,9 +1126,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_packets_not_in_m
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1225,9 +1210,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received_bytes_not_in_mas
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1299,9 +1283,8 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1350,9 +1333,8 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::RESENT_DATA);
@@ -1392,9 +1374,8 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1443,9 +1424,8 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received_not_in_mas
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::HEARTBEAT_COUNT);
@@ -1485,9 +1465,8 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1536,9 +1515,8 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::ACKNACK_COUNT);
@@ -1578,9 +1556,8 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1629,9 +1606,8 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received_not_in_mask
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The reader exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::NACKFRAG_COUNT);
@@ -1671,9 +1647,8 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1759,9 +1734,8 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1810,9 +1784,8 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::DATA_COUNT);
@@ -1852,9 +1825,8 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1940,9 +1912,8 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -1991,9 +1962,8 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::EDP_PACKETS);
@@ -2048,14 +2018,12 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The remote entity exists and has ID 2
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2118,14 +2086,12 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received_not_in_mas
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The remote entity exists and has ID 2
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::DISCOVERY_TIME);
@@ -2176,9 +2142,8 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
@@ -2238,9 +2203,8 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received_not_in_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The writer exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The event is filtered out
     clear_data_mask_bit(eprosima::statistics_backend::DataKind::SAMPLE_DATAS);
@@ -2291,9 +2255,8 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
@@ -2371,9 +2334,8 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received_no_mask)
     add_sample_to_reader_history(data, get_default_info());
 
     // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())

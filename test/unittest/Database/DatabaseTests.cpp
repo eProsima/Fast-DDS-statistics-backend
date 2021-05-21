@@ -571,19 +571,19 @@ public:
         process_id = db.insert(process);
         domain.reset(new Domain(domain_name));
         domain_id = db.insert(domain);
-        participant.reset(new DomainParticipant(participant_name, db.test_qos, "01.02.03.04", nullptr, domain));
+        participant.reset(new DomainParticipant(participant_name, db.test_qos, participant_guid, nullptr, domain));
         participant_id = db.insert(participant);
         db.link_participant_with_process(participant_id, process_id);
         topic.reset(new Topic(topic_name, topic_type, domain));
         topic_id = db.insert(topic);
         writer_locator.reset(new Locator(writer_locator_name));
         writer_locator->id = db.generate_entity_id();
-        writer.reset(new DataWriter(writer_name, db.test_qos, "writer_guid", participant, topic));
+        writer.reset(new DataWriter(writer_name, db.test_qos, writer_guid, participant, topic));
         writer->locators[writer_locator->id] = writer_locator;
         writer_id = db.insert(writer);
         reader_locator.reset(new Locator(reader_locator_name));
         reader_locator->id = db.generate_entity_id();
-        reader.reset(new DataReader(reader_name, db.test_qos, "reader_guid", participant, topic));
+        reader.reset(new DataReader(reader_name, db.test_qos, reader_guid, participant, topic));
         reader->locators[reader_locator->id] = reader_locator;
         reader_id = db.insert(reader);
     }
@@ -602,6 +602,7 @@ public:
     std::shared_ptr<Domain> domain;
     EntityId domain_id;
     std::string participant_name = "test_participant";
+    std::string participant_guid = "01.02.03.04.05.06.07.08.09.10.11.12";
     std::shared_ptr<DomainParticipant> participant;
     EntityId participant_id;
     std::string topic_name = "test_topic";
@@ -611,11 +612,13 @@ public:
     std::string writer_locator_name = "test_writer_locator";
     std::shared_ptr<Locator> writer_locator;
     std::string writer_name = "test_writer";
+    std::string writer_guid = "01.02.03.04.05.06.07.08.09.10.11.12|0.0.0.1";
     std::shared_ptr<DataWriter> writer;
     EntityId writer_id;
     std::string reader_locator_name = "test_reader_locator";
     std::shared_ptr<Locator> reader_locator;
     std::string reader_name = "test_reader";
+    std::string reader_guid = "01.02.03.04.05.06.07.08.09.10.11.12|0.0.0.2";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
 
@@ -3953,6 +3956,85 @@ TEST_F(database_tests, select_sample_datas)
     ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number_unknown, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
+}
+
+TEST_F(database_tests, get_entity_by_guid_host)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::HOST, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_user)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::USER, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_process)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PROCESS, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_domain)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DOMAIN, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_participant)
+{
+    /* Check that the inserted entity is retrieved correctly */
+    auto participant = db.get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
+    EXPECT_EQ(participant.first, domain_id);
+    EXPECT_EQ(participant.second, participant_id);
+}
+
+TEST_F(database_tests, get_entity_by_guid_participant_wrong_guid)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_topic)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::TOPIC, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_datawriter)
+{
+    /* Check that the inserted entity is retrieved correctly */
+    auto datawriter = db.get_entity_by_guid(EntityKind::DATAWRITER, writer_guid);
+    EXPECT_EQ(datawriter.first, domain_id);
+    EXPECT_EQ(datawriter.second, writer_id);
+}
+
+TEST_F(database_tests, get_entity_by_guid_datawriter_wrong_guid)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_datareader)
+{
+    /* Check that the inserted entity is retrieved correctly */
+    auto datareader = db.get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
+    EXPECT_EQ(datareader.first, domain_id);
+    EXPECT_EQ(datareader.second, reader_id);
+}
+
+TEST_F(database_tests, get_entity_by_guid_datareader_wrong_guid)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_locator)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::LOCATOR, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_invalid)
+{
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::INVALID, "any_guid"), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_by_guid_other_kind)
+{
+    EXPECT_THROW(db.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
 }
 
 int main(
