@@ -530,7 +530,7 @@ protected:
      * @param dump json
      * @param keys keys to check on the dump
      */
-    void check_keys_dump(
+    void check_dump_keys(
             const DatabaseDump& dump,
             const std::vector<std::string>& keys);
 

@@ -3103,7 +3103,7 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::check_keys_dump(
+void Database::check_dump_keys(
         const DatabaseDump& dump,
         const std::vector<std::string>& keys)
 {
@@ -3119,13 +3119,14 @@ void Database::check_keys_dump(
 void Database::load_database(
         DatabaseDump dump)
 {
-    check_keys_dump(dump, {HOST_CONTAINER_TAG, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    try{
+
+    check_dump_keys(dump, {HOST_CONTAINER_TAG, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
                            TOPIC_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
                            DATAREADER_CONTAINER_TAG,
                            LOCATOR_CONTAINER_TAG});
-
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
     // Hosts
     {
         DatabaseDump container = dump[HOST_CONTAINER_TAG];
@@ -3133,7 +3134,7 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, USER_CONTAINER_TAG});
+            check_dump_keys((*it), {NAME_INFO_TAG, USER_CONTAINER_TAG});
 
             // Create entity
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it)[NAME_INFO_TAG]);
@@ -3150,11 +3151,20 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, HOST_ENTITY_TAG, PROCESS_CONTAINER_TAG});
+            check_dump_keys((*it), {NAME_INFO_TAG, HOST_ENTITY_TAG, PROCESS_CONTAINER_TAG});
+
+            std::string hostId = (std::string)(*it)[HOST_ENTITY_TAG];
+
+            // Check user host exists
+            if (!dump[HOST_CONTAINER_TAG].contains(hostId))
+            {
+                throw CorruptedFile("Trying to create User: " + it.key() + " but Host: " +
+                                    hostId + " does not exists");
+            }
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it)[NAME_INFO_TAG],
-                            hosts_[EntityId(stoi((std::string)(*it)[HOST_ENTITY_TAG]))]);
+                            hosts_[EntityId(stoi(hostId))]);
 
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
@@ -3168,11 +3178,20 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, PID_INFO_TAG, USER_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG});
+            check_dump_keys((*it), {NAME_INFO_TAG, PID_INFO_TAG, USER_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG});
+            
+            std::string userId = (std::string)(*it)[USER_ENTITY_TAG];
+
+            // Check process user exists
+            if (!dump[USER_CONTAINER_TAG].contains(userId))
+            {
+                throw CorruptedFile("Trying to create Process: " + it.key() + " but User: " +
+                                    userId + " does not exists");
+            }
 
             // Create entity
             std::shared_ptr<Process> entity = std::make_shared<Process>((*it)[NAME_INFO_TAG], (*it)[PID_INFO_TAG],
-                            users_[EntityId(stoi((std::string)(*it)[USER_ENTITY_TAG]))]);
+                            users_[EntityId(stoi(userId))]);
 
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
@@ -3186,7 +3205,7 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, PARTICIPANT_CONTAINER_TAG, TOPIC_CONTAINER_TAG});
+            check_dump_keys((*it), {NAME_INFO_TAG, PARTICIPANT_CONTAINER_TAG, TOPIC_CONTAINER_TAG});
 
             // Create entity
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it)[NAME_INFO_TAG]);
@@ -3203,12 +3222,21 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, DATA_TYPE_INFO_TAG, DOMAIN_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+            check_dump_keys((*it), {NAME_INFO_TAG, DATA_TYPE_INFO_TAG, DOMAIN_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
                                     DATAREADER_CONTAINER_TAG});
+            
+            std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
+
+            // Check topic domain exists
+            if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
+            {
+                throw CorruptedFile("Trying to create Topic: " + it.key() + " but Domain: " +
+                                    domainId_str + " does not exists");
+            }
 
             // Create entity
             std::shared_ptr<Topic> entity = std::make_shared<Topic>((*it)[NAME_INFO_TAG], (*it)[DATA_TYPE_INFO_TAG],
-                            domains_[EntityId(stoi((std::string)(*it)[DOMAIN_ENTITY_TAG]))]);
+                            domains_[EntityId(stoi(domainId_str))]);
 
             // Insert into database
             insert_nts(entity, EntityId(stoi(it.key())));
@@ -3222,17 +3250,35 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG,
+            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG,
                                     DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATA_CONTAINER_TAG});
 
+            std::string processId_str = (std::string)(*it)[PROCESS_ENTITY_TAG];
+
+            // Check participant process exists
+            if (!dump[PROCESS_CONTAINER_TAG].contains(processId_str))
+            {
+                throw CorruptedFile("Trying to create Participant: " + it.key() + " but Process: " +
+                                    processId_str + " does not exists");
+            }
+
+            std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
+
+            // Check participant domain exists
+            if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
+            {
+                throw CorruptedFile("Trying to create Participant: " + it.key() + " but Domain: " +
+                                    domainId_str + " does not exists");
+            }
+            
             // Get keys
             EntityId entityId(stoi(it.key()));
-            EntityId processId(stoi((std::string)(*it)[PROCESS_ENTITY_TAG]));
+            EntityId processId(stoi(processId_str));
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
                 (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  nullptr,
-                domains_[EntityId(stoi((std::string)(*it)[DOMAIN_ENTITY_TAG]))]);
+                domains_[EntityId(stoi(domainId_str))]);
 
             // Insert into database
             insert_nts(entity, entityId);
@@ -3250,8 +3296,36 @@ void Database::load_database(
         DatabaseDump container = dump[LOCATOR_CONTAINER_TAG];
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
+            check_dump_keys((*it), {NAME_INFO_TAG, DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
                                     DATA_CONTAINER_TAG});
+
+            /* Check locator datawriters exists */
+            for (auto itLoc = (*it)[DATAWRITER_CONTAINER_TAG].begin(); itLoc != (*it)[DATAWRITER_CONTAINER_TAG].end();
+                    ++itLoc)
+            {
+                std::string dataId_str = (std::string)*itLoc;
+
+                // Check datawriter locators exists
+                if (!dump[DATAWRITER_CONTAINER_TAG].contains(dataId_str))
+                {
+                    throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datawriter: " +
+                                        dataId_str + " does not exists");
+                }
+            }
+
+            /* Check locator datareaders exists */
+            for (auto itLoc = (*it)[DATAREADER_CONTAINER_TAG].begin(); itLoc != (*it)[DATAREADER_CONTAINER_TAG].end();
+                    ++itLoc)
+            {
+                std::string dataId_str = (std::string)*itLoc;
+
+                // Check datareaders locators exists
+                if (!dump[DATAREADER_CONTAINER_TAG].contains(dataId_str))
+                {
+                    throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datareader: " +
+                                        dataId_str + " does not exists");
+                }
+            }
 
             // Create entity
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it)[NAME_INFO_TAG]);
@@ -3274,16 +3348,34 @@ void Database::load_database(
         // For each entity of this kind in database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
+            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
                                     TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
 
+            std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
+
+            // Check datawriter topic exists
+            if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
+            {
+                throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Topic: " +
+                                    topicId_str + " does not exists");
+            }
+
+            std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
+
+            // Check datawriter participant exists
+            if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
+            {
+                throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Participant: " +
+                                    participantId_str + " does not exists");
+            }
+            
             // Get keys
-            EntityId participantId = EntityId(stoi((std::string)(*it)[PARTICIPANT_ENTITY_TAG]));
+            EntityId participantId = EntityId(stoi(participantId_str));
             EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
                             [std::to_string(participantId.value())]
                             [DOMAIN_ENTITY_TAG]));
 
-            EntityId topicId = EntityId(stoi((std::string)(*it)[TOPIC_ENTITY_TAG]));
+            EntityId topicId = EntityId(stoi(topicId_str));
             EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
                             [std::to_string(topicId.value())]
                             [DOMAIN_ENTITY_TAG]));
@@ -3300,7 +3392,16 @@ void Database::load_database(
             for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
                     ++itLoc)
             {
-                entity->locators[stoi((std::string)*itLoc)] = locators_[EntityId(stoi((std::string)*itLoc))];
+                std::string locatorsId_str = (std::string)*itLoc;
+
+                // Check datawriter locators exists
+                if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
+                {
+                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but locator: " +
+                                        locatorsId_str + " does not exists");
+                }
+
+                entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
             }
 
             // Insert into database
@@ -3316,16 +3417,34 @@ void Database::load_database(
         DatabaseDump container = dump[DATAREADER_CONTAINER_TAG];
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
+            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
                                     TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
+            
+            std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
+
+            // Check datareader topic exists
+            if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
+            {
+                throw CorruptedFile("Trying to create Datareader: " + it.key() + " but topic: " +
+                                    topicId_str + " does not exists");
+            }
+
+            std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
+
+            // Check datareader participant exists
+            if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
+            {
+                throw CorruptedFile("Trying to create Datareader: " + it.key() + " but Participant: " +
+                                    participantId_str + " does not exists");
+            }
 
             // Get keys
-            EntityId participantId = EntityId(stoi((std::string)(*it)[PARTICIPANT_ENTITY_TAG]));
+            EntityId participantId = EntityId(stoi(participantId_str));
             EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
                             [std::to_string(participantId.value())]
                             [DOMAIN_ENTITY_TAG]));
 
-            EntityId topicId = EntityId(stoi((std::string)(*it)[TOPIC_ENTITY_TAG]));
+            EntityId topicId = EntityId(stoi(topicId_str));
             EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
                             [std::to_string(topicId.value())]
                             [DOMAIN_ENTITY_TAG]));
@@ -3338,12 +3457,20 @@ void Database::load_database(
                 participants_[participantDomainId][participantId],
                 topics_[topicDomainId][topicId]);
 
-
             /* Add reference to locator to the endpoint */
             for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
                     ++itLoc)
             {
-                entity->locators[stoi((std::string)*itLoc)] = locators_[EntityId(stoi((std::string)*itLoc))];
+                std::string locatorsId_str = (std::string)*itLoc;
+
+                // Check datareaderlocators exists
+                if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
+                {
+                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but locator: " +
+                                        locatorsId_str + " does not exists");
+                }
+
+                entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
             }
 
             // Insert into database
@@ -3354,22 +3481,35 @@ void Database::load_database(
         }
     }
 
+    }
+    catch(CorruptedFile & error)
+    {
+        std::cout << "CorruptedFile error: " << error.what() << std::endl;
+        throw CorruptedFile(error.what());
+    }
+        
+    catch (...)
+    {
+        std::cout << "Dump: wrong json format" << std::endl;
+        throw CorruptedFile("Dump: wrong json format");
+    }
+
 }
 
 void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DomainParticipant>& entity)
 {
-    check_keys_dump(dump, {DATA_KIND_DISCOVERY_TIME_TAG, DATA_KIND_PDP_PACKETS_TAG, DATA_KIND_EDP_PACKETS_TAG,
-                           DATA_KIND_RTPS_PACKETS_SENT_TAG,
-                           DATA_KIND_RTPS_BYTES_SENT_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG,
-                           DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG,
-                           DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG,
-                           DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG,
-                           DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG});
+    check_dump_keys(dump, {DATA_KIND_DISCOVERY_TIME_TAG, DATA_KIND_PDP_PACKETS_TAG, DATA_KIND_EDP_PACKETS_TAG,
+                           DATA_KIND_RTPS_PACKETS_SENT_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG,
+                           DATA_KIND_RTPS_PACKETS_LOST_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG,
+                           DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG,
+                           DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG,
+                           DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG,
+                           DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG});
 
-    check_keys_dump(dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_keys_dump(dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
 
     // discovery_time
     {
@@ -3381,7 +3521,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_TIME_TAG, DATA_VALUE_REMOTE_ENTITY_TAG,
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_TIME_TAG, DATA_VALUE_REMOTE_ENTITY_TAG,
                                         DATA_VALUE_DISCOVERED_TAG});
 
                 DiscoveryTimeSample sample;
@@ -3413,7 +3553,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             PdpCountSample sample;
 
@@ -3436,7 +3576,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             EdpCountSample sample;
 
@@ -3462,7 +3602,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
                 RtpsPacketsSentSample sample;
 
                 // std::chrono::system_clock::time_point
@@ -3491,7 +3631,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
                 RtpsBytesSentSample sample;
 
@@ -3524,7 +3664,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
                 RtpsPacketsLostSample sample;
 
@@ -3554,7 +3694,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
                 RtpsBytesLostSample sample;
 
@@ -3584,7 +3724,7 @@ void Database::load_data(
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_keys_dump(
+            check_dump_keys(
                 container[remoteIt.key()],
                 {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
@@ -3616,7 +3756,7 @@ void Database::load_data(
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_keys_dump(
+            check_dump_keys(
                 container[remoteIt.key()],
                 {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
 
@@ -3648,7 +3788,7 @@ void Database::load_data(
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_keys_dump(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             RtpsPacketsLostSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
@@ -3675,7 +3815,7 @@ void Database::load_data(
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_keys_dump(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             RtpsPacketsSentSample sample;
             DatabaseDump sampleDump = container[remoteIt.key()];
@@ -3742,17 +3882,17 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DataWriter>& entity)
 {
-    check_keys_dump(dump, {DATA_KIND_PUBLICATION_THROUGHPUT_TAG, DATA_KIND_RESENT_DATA_TAG,
+    check_dump_keys(dump, {DATA_KIND_PUBLICATION_THROUGHPUT_TAG, DATA_KIND_RESENT_DATA_TAG,
                            DATA_KIND_HEARTBEAT_COUNT_TAG, DATA_KIND_GAP_COUNT_TAG,
                            DATA_KIND_DATA_COUNT_TAG, DATA_KIND_SAMPLE_DATAS_TAG, DATA_KIND_FASTDDS_LATENCY_TAG,
                            DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG,
                            DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG, DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG,
                            DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG});
 
-    check_keys_dump(dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_keys_dump(dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_keys_dump(dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_keys_dump(dump[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
 
     // publication_throughput
     {
@@ -3761,7 +3901,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
             PublicationThroughputSample sample;
 
@@ -3784,7 +3924,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             ResentDataSample sample;
 
@@ -3807,7 +3947,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             HeartbeatCountSample sample;
 
@@ -3830,7 +3970,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             GapCountSample sample;
 
@@ -3853,7 +3993,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             DataCountSample sample;
 
@@ -3879,7 +4019,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
                 SampleDatasCountSample sample;
 
@@ -3909,7 +4049,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
                 HistoryLatencySample sample;
 
@@ -4018,12 +4158,12 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DataReader>& entity)
 {
-    check_keys_dump(dump, {DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG, DATA_KIND_ACKNACK_COUNT_TAG,
+    check_dump_keys(dump, {DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG, DATA_KIND_ACKNACK_COUNT_TAG,
                            DATA_KIND_NACKFRAG_COUNT_TAG,
                            DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG});
 
-    check_keys_dump(dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_keys_dump(dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
+    check_dump_keys(dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
 
     // subscription_throughput
     {
@@ -4032,7 +4172,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
             SubscriptionThroughputSample sample;
 
@@ -4055,7 +4195,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             AcknackCountSample sample;
 
@@ -4078,7 +4218,7 @@ void Database::load_data(
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
+            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
 
             NackfragCountSample sample;
 
@@ -4141,7 +4281,7 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<Locator>& entity)
 {
-    check_keys_dump(dump, {DATA_KIND_NETWORK_LATENCY_TAG});
+    check_dump_keys(dump, {DATA_KIND_NETWORK_LATENCY_TAG});
 
     // NetworkLatency
     {
@@ -4153,7 +4293,7 @@ void Database::load_data(
             // Data iterator
             for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
             {
-                check_keys_dump((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
+                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
 
                 NetworkLatencySample sample;
 

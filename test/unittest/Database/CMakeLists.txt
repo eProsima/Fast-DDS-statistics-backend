@@ -365,7 +365,7 @@ file(COPY
 
 
 set(DATABASE_LOAD_AND_DUMP_TEST_LIST
-    load_and_dump_corrupted_database
+    load_and_dump_erased_keys
     load_and_dump_empty_database
     load_and_dump_empty_entities_database
     load_and_dump_simple_database
