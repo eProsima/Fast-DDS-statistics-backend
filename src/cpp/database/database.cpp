@@ -3121,373 +3121,377 @@ void Database::load_database(
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
-    try{
-
-    check_dump_keys(dump, {HOST_CONTAINER_TAG, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
-                           TOPIC_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
-                           DATAREADER_CONTAINER_TAG,
-                           LOCATOR_CONTAINER_TAG});
-    // Hosts
+    try
     {
-        DatabaseDump container = dump[HOST_CONTAINER_TAG];
 
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
+        check_dump_keys(dump, {HOST_CONTAINER_TAG, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+                               TOPIC_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
+                               DATAREADER_CONTAINER_TAG,
+                               LOCATOR_CONTAINER_TAG});
+        // Hosts
         {
-            check_dump_keys((*it), {NAME_INFO_TAG, USER_CONTAINER_TAG});
+            DatabaseDump container = dump[HOST_CONTAINER_TAG];
 
-            // Create entity
-            std::shared_ptr<Host> entity = std::make_shared<Host>((*it)[NAME_INFO_TAG]);
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-        }
-    }
-
-    // Users
-    {
-        DatabaseDump container = dump[USER_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, HOST_ENTITY_TAG, PROCESS_CONTAINER_TAG});
-
-            std::string hostId = (std::string)(*it)[HOST_ENTITY_TAG];
-
-            // Check user host exists
-            if (!dump[HOST_CONTAINER_TAG].contains(hostId))
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
             {
-                throw CorruptedFile("Trying to create User: " + it.key() + " but Host: " +
-                                    hostId + " does not exists");
+                check_dump_keys((*it), {NAME_INFO_TAG, USER_CONTAINER_TAG});
+
+                // Create entity
+                std::shared_ptr<Host> entity = std::make_shared<Host>((*it)[NAME_INFO_TAG]);
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
             }
-
-            // Create entity
-            std::shared_ptr<User> entity = std::make_shared<User>((*it)[NAME_INFO_TAG],
-                            hosts_[EntityId(stoi(hostId))]);
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
         }
-    }
 
-    // Processes
-    {
-        DatabaseDump container = dump[PROCESS_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
+        // Users
         {
-            check_dump_keys((*it), {NAME_INFO_TAG, PID_INFO_TAG, USER_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG});
-            
-            std::string userId = (std::string)(*it)[USER_ENTITY_TAG];
+            DatabaseDump container = dump[USER_CONTAINER_TAG];
 
-            // Check process user exists
-            if (!dump[USER_CONTAINER_TAG].contains(userId))
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
             {
-                throw CorruptedFile("Trying to create Process: " + it.key() + " but User: " +
-                                    userId + " does not exists");
-            }
+                check_dump_keys((*it), {NAME_INFO_TAG, HOST_ENTITY_TAG, PROCESS_CONTAINER_TAG});
 
-            // Create entity
-            std::shared_ptr<Process> entity = std::make_shared<Process>((*it)[NAME_INFO_TAG], (*it)[PID_INFO_TAG],
-                            users_[EntityId(stoi(userId))]);
+                std::string hostId = (std::string)(*it)[HOST_ENTITY_TAG];
 
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-        }
-    }
-
-    // Domains
-    {
-        DatabaseDump container = dump[DOMAIN_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, PARTICIPANT_CONTAINER_TAG, TOPIC_CONTAINER_TAG});
-
-            // Create entity
-            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it)[NAME_INFO_TAG]);
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-        }
-    }
-
-    // Topics
-    {
-        DatabaseDump container = dump[TOPIC_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, DATA_TYPE_INFO_TAG, DOMAIN_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
-                                    DATAREADER_CONTAINER_TAG});
-            
-            std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
-
-            // Check topic domain exists
-            if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
-            {
-                throw CorruptedFile("Trying to create Topic: " + it.key() + " but Domain: " +
-                                    domainId_str + " does not exists");
-            }
-
-            // Create entity
-            std::shared_ptr<Topic> entity = std::make_shared<Topic>((*it)[NAME_INFO_TAG], (*it)[DATA_TYPE_INFO_TAG],
-                            domains_[EntityId(stoi(domainId_str))]);
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-        }
-    }
-
-    // Participants
-    {
-        DatabaseDump container = dump[PARTICIPANT_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG,
-                                    DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATA_CONTAINER_TAG});
-
-            std::string processId_str = (std::string)(*it)[PROCESS_ENTITY_TAG];
-
-            // Check participant process exists
-            if (!dump[PROCESS_CONTAINER_TAG].contains(processId_str))
-            {
-                throw CorruptedFile("Trying to create Participant: " + it.key() + " but Process: " +
-                                    processId_str + " does not exists");
-            }
-
-            std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
-
-            // Check participant domain exists
-            if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
-            {
-                throw CorruptedFile("Trying to create Participant: " + it.key() + " but Domain: " +
-                                    domainId_str + " does not exists");
-            }
-            
-            // Get keys
-            EntityId entityId(stoi(it.key()));
-            EntityId processId(stoi(processId_str));
-
-            // Create entity
-            std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  nullptr,
-                domains_[EntityId(stoi(domainId_str))]);
-
-            // Insert into database
-            insert_nts(entity, entityId);
-
-            // Link participant with process
-            link_participant_with_process_nts(entityId, processId);
-
-            // Load data and insert into database
-            load_data((*it)[DATA_CONTAINER_TAG], entity);
-        }
-    }
-
-    // Locators
-    {
-        DatabaseDump container = dump[LOCATOR_CONTAINER_TAG];
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
-                                    DATA_CONTAINER_TAG});
-
-            /* Check locator datawriters exists */
-            for (auto itLoc = (*it)[DATAWRITER_CONTAINER_TAG].begin(); itLoc != (*it)[DATAWRITER_CONTAINER_TAG].end();
-                    ++itLoc)
-            {
-                std::string dataId_str = (std::string)*itLoc;
-
-                // Check datawriter locators exists
-                if (!dump[DATAWRITER_CONTAINER_TAG].contains(dataId_str))
+                // Check user host exists
+                if (!dump[HOST_CONTAINER_TAG].contains(hostId))
                 {
-                    throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datawriter: " +
-                                        dataId_str + " does not exists");
-                }
-            }
-
-            /* Check locator datareaders exists */
-            for (auto itLoc = (*it)[DATAREADER_CONTAINER_TAG].begin(); itLoc != (*it)[DATAREADER_CONTAINER_TAG].end();
-                    ++itLoc)
-            {
-                std::string dataId_str = (std::string)*itLoc;
-
-                // Check datareaders locators exists
-                if (!dump[DATAREADER_CONTAINER_TAG].contains(dataId_str))
-                {
-                    throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datareader: " +
-                                        dataId_str + " does not exists");
-                }
-            }
-
-            // Create entity
-            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it)[NAME_INFO_TAG]);
-
-            // Give him a id
-            entity->id = EntityId(stoi(it.key()));
-            next_id_++;
-
-            locators_[entity->id] = entity;
-
-            // Load data and insert into database
-            load_data((*it)[DATA_CONTAINER_TAG], entity);
-        }
-    }
-
-    // DataWriters
-    {
-        DatabaseDump container = dump[DATAWRITER_CONTAINER_TAG];
-
-        // For each entity of this kind in database
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
-                                    TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
-
-            std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
-
-            // Check datawriter topic exists
-            if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
-            {
-                throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Topic: " +
-                                    topicId_str + " does not exists");
-            }
-
-            std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
-
-            // Check datawriter participant exists
-            if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
-            {
-                throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Participant: " +
-                                    participantId_str + " does not exists");
-            }
-            
-            // Get keys
-            EntityId participantId = EntityId(stoi(participantId_str));
-            EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
-                            [std::to_string(participantId.value())]
-                            [DOMAIN_ENTITY_TAG]));
-
-            EntityId topicId = EntityId(stoi(topicId_str));
-            EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
-                            [std::to_string(topicId.value())]
-                            [DOMAIN_ENTITY_TAG]));
-
-            // Create entity
-            std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
-                (*it)[NAME_INFO_TAG],
-                (*it)[QOS_INFO_TAG],
-                (*it)[GUID_INFO_TAG],
-                participants_[participantDomainId][participantId],
-                topics_[topicDomainId][topicId]);
-
-            /* Add reference to locator to the endpoint */
-            for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
-                    ++itLoc)
-            {
-                std::string locatorsId_str = (std::string)*itLoc;
-
-                // Check datawriter locators exists
-                if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
-                {
-                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but locator: " +
-                                        locatorsId_str + " does not exists");
+                    throw CorruptedFile("Trying to create User: " + it.key() + " but Host: " +
+                                  hostId + " does not exists");
                 }
 
-                entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                // Create entity
+                std::shared_ptr<User> entity = std::make_shared<User>((*it)[NAME_INFO_TAG],
+                                hosts_[EntityId(stoi(hostId))]);
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
             }
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-
-            // Load data and insert into database
-            load_data((*it)[DATA_CONTAINER_TAG], entity);
         }
-    }
 
-    // DataReaders
-    {
-        DatabaseDump container = dump[DATAREADER_CONTAINER_TAG];
-        for (auto it = container.begin(); it != container.end(); ++it)
+        // Processes
         {
-            check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
-                                    TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
-            
-            std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
+            DatabaseDump container = dump[PROCESS_CONTAINER_TAG];
 
-            // Check datareader topic exists
-            if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
             {
-                throw CorruptedFile("Trying to create Datareader: " + it.key() + " but topic: " +
-                                    topicId_str + " does not exists");
-            }
+                check_dump_keys((*it), {NAME_INFO_TAG, PID_INFO_TAG, USER_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG});
 
-            std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
+                std::string userId = (std::string)(*it)[USER_ENTITY_TAG];
 
-            // Check datareader participant exists
-            if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
-            {
-                throw CorruptedFile("Trying to create Datareader: " + it.key() + " but Participant: " +
-                                    participantId_str + " does not exists");
-            }
-
-            // Get keys
-            EntityId participantId = EntityId(stoi(participantId_str));
-            EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
-                            [std::to_string(participantId.value())]
-                            [DOMAIN_ENTITY_TAG]));
-
-            EntityId topicId = EntityId(stoi(topicId_str));
-            EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
-                            [std::to_string(topicId.value())]
-                            [DOMAIN_ENTITY_TAG]));
-
-            // Create entity
-            std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
-                (*it)[NAME_INFO_TAG],
-                (*it)[QOS_INFO_TAG],
-                (*it)[GUID_INFO_TAG],
-                participants_[participantDomainId][participantId],
-                topics_[topicDomainId][topicId]);
-
-            /* Add reference to locator to the endpoint */
-            for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
-                    ++itLoc)
-            {
-                std::string locatorsId_str = (std::string)*itLoc;
-
-                // Check datareaderlocators exists
-                if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
+                // Check process user exists
+                if (!dump[USER_CONTAINER_TAG].contains(userId))
                 {
-                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but locator: " +
-                                        locatorsId_str + " does not exists");
+                    throw CorruptedFile("Trying to create Process: " + it.key() + " but User: " +
+                                  userId + " does not exists");
                 }
 
-                entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                // Create entity
+                std::shared_ptr<Process> entity = std::make_shared<Process>((*it)[NAME_INFO_TAG], (*it)[PID_INFO_TAG],
+                                users_[EntityId(stoi(userId))]);
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
             }
-
-            // Insert into database
-            insert_nts(entity, EntityId(stoi(it.key())));
-
-            // // Load data and insert into database
-            load_data((*it)[DATA_CONTAINER_TAG], entity);
         }
-    }
+
+        // Domains
+        {
+            DatabaseDump container = dump[DOMAIN_CONTAINER_TAG];
+
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, PARTICIPANT_CONTAINER_TAG, TOPIC_CONTAINER_TAG});
+
+                // Create entity
+                std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it)[NAME_INFO_TAG]);
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
+            }
+        }
+
+        // Topics
+        {
+            DatabaseDump container = dump[TOPIC_CONTAINER_TAG];
+
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, DATA_TYPE_INFO_TAG, DOMAIN_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+                                        DATAREADER_CONTAINER_TAG});
+
+                std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
+
+                // Check topic domain exists
+                if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
+                {
+                    throw CorruptedFile("Trying to create Topic: " + it.key() + " but Domain: " +
+                                  domainId_str + " does not exists");
+                }
+
+                // Create entity
+                std::shared_ptr<Topic> entity = std::make_shared<Topic>((*it)[NAME_INFO_TAG], (*it)[DATA_TYPE_INFO_TAG],
+                                domains_[EntityId(stoi(domainId_str))]);
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
+            }
+        }
+
+        // Participants
+        {
+            DatabaseDump container = dump[PARTICIPANT_CONTAINER_TAG];
+
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PROCESS_ENTITY_TAG,
+                                        DOMAIN_ENTITY_TAG,
+                                        DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATA_CONTAINER_TAG});
+
+                std::string processId_str = (std::string)(*it)[PROCESS_ENTITY_TAG];
+
+                // Check participant process exists
+                if (!dump[PROCESS_CONTAINER_TAG].contains(processId_str))
+                {
+                    throw CorruptedFile("Trying to create Participant: " + it.key() + " but Process: " +
+                                  processId_str + " does not exists");
+                }
+
+                std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
+
+                // Check participant domain exists
+                if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
+                {
+                    throw CorruptedFile("Trying to create Participant: " + it.key() + " but Domain: " +
+                                  domainId_str + " does not exists");
+                }
+
+                // Get keys
+                EntityId entityId(stoi(it.key()));
+                EntityId processId(stoi(processId_str));
+
+                // Create entity
+                std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
+                    (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  nullptr,
+                    domains_[EntityId(stoi(domainId_str))]);
+
+                // Insert into database
+                insert_nts(entity, entityId);
+
+                // Link participant with process
+                link_participant_with_process_nts(entityId, processId);
+
+                // Load data and insert into database
+                load_data((*it)[DATA_CONTAINER_TAG], entity);
+            }
+        }
+
+        // Locators
+        {
+            DatabaseDump container = dump[LOCATOR_CONTAINER_TAG];
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
+                                        DATA_CONTAINER_TAG});
+
+                /* Check locator datawriters exists */
+                for (auto itLoc = (*it)[DATAWRITER_CONTAINER_TAG].begin();
+                        itLoc != (*it)[DATAWRITER_CONTAINER_TAG].end();
+                        ++itLoc)
+                {
+                    std::string dataId_str = (std::string)*itLoc;
+
+                    // Check datawriter locators exists
+                    if (!dump[DATAWRITER_CONTAINER_TAG].contains(dataId_str))
+                    {
+                        throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datawriter: " +
+                                      dataId_str + " does not exists");
+                    }
+                }
+
+                /* Check locator datareaders exists */
+                for (auto itLoc = (*it)[DATAREADER_CONTAINER_TAG].begin();
+                        itLoc != (*it)[DATAREADER_CONTAINER_TAG].end();
+                        ++itLoc)
+                {
+                    std::string dataId_str = (std::string)*itLoc;
+
+                    // Check datareaders locators exists
+                    if (!dump[DATAREADER_CONTAINER_TAG].contains(dataId_str))
+                    {
+                        throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datareader: " +
+                                      dataId_str + " does not exists");
+                    }
+                }
+
+                // Create entity
+                std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it)[NAME_INFO_TAG]);
+
+                // Give him a id
+                entity->id = EntityId(stoi(it.key()));
+                next_id_++;
+
+                locators_[entity->id] = entity;
+
+                // Load data and insert into database
+                load_data((*it)[DATA_CONTAINER_TAG], entity);
+            }
+        }
+
+        // DataWriters
+        {
+            DatabaseDump container = dump[DATAWRITER_CONTAINER_TAG];
+
+            // For each entity of this kind in database
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
+                                        TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
+
+                std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
+
+                // Check datawriter topic exists
+                if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
+                {
+                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Topic: " +
+                                  topicId_str + " does not exists");
+                }
+
+                std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
+
+                // Check datawriter participant exists
+                if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
+                {
+                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Participant: " +
+                                  participantId_str + " does not exists");
+                }
+
+                // Get keys
+                EntityId participantId = EntityId(stoi(participantId_str));
+                EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
+                                [std::to_string(participantId.value())]
+                                [DOMAIN_ENTITY_TAG]));
+
+                EntityId topicId = EntityId(stoi(topicId_str));
+                EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
+                                [std::to_string(topicId.value())]
+                                [DOMAIN_ENTITY_TAG]));
+
+                // Create entity
+                std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
+                    (*it)[NAME_INFO_TAG],
+                    (*it)[QOS_INFO_TAG],
+                    (*it)[GUID_INFO_TAG],
+                    participants_[participantDomainId][participantId],
+                    topics_[topicDomainId][topicId]);
+
+                /* Add reference to locator to the endpoint */
+                for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
+                        ++itLoc)
+                {
+                    std::string locatorsId_str = (std::string)*itLoc;
+
+                    // Check datawriter locators exists
+                    if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
+                    {
+                        throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but locator: " +
+                                      locatorsId_str + " does not exists");
+                    }
+
+                    entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                }
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
+
+                // Load data and insert into database
+                load_data((*it)[DATA_CONTAINER_TAG], entity);
+            }
+        }
+
+        // DataReaders
+        {
+            DatabaseDump container = dump[DATAREADER_CONTAINER_TAG];
+            for (auto it = container.begin(); it != container.end(); ++it)
+            {
+                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
+                                        TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
+
+                std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
+
+                // Check datareader topic exists
+                if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
+                {
+                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but topic: " +
+                                  topicId_str + " does not exists");
+                }
+
+                std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
+
+                // Check datareader participant exists
+                if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
+                {
+                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but Participant: " +
+                                  participantId_str + " does not exists");
+                }
+
+                // Get keys
+                EntityId participantId = EntityId(stoi(participantId_str));
+                EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
+                                [std::to_string(participantId.value())]
+                                [DOMAIN_ENTITY_TAG]));
+
+                EntityId topicId = EntityId(stoi(topicId_str));
+                EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
+                                [std::to_string(topicId.value())]
+                                [DOMAIN_ENTITY_TAG]));
+
+                // Create entity
+                std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
+                    (*it)[NAME_INFO_TAG],
+                    (*it)[QOS_INFO_TAG],
+                    (*it)[GUID_INFO_TAG],
+                    participants_[participantDomainId][participantId],
+                    topics_[topicDomainId][topicId]);
+
+                /* Add reference to locator to the endpoint */
+                for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
+                        ++itLoc)
+                {
+                    std::string locatorsId_str = (std::string)*itLoc;
+
+                    // Check datareaderlocators exists
+                    if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
+                    {
+                        throw CorruptedFile("Trying to create Datareader: " + it.key() + " but locator: " +
+                                      locatorsId_str + " does not exists");
+                    }
+
+                    entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                }
+
+                // Insert into database
+                insert_nts(entity, EntityId(stoi(it.key())));
+
+                // // Load data and insert into database
+                load_data((*it)[DATA_CONTAINER_TAG], entity);
+            }
+        }
 
     }
-    catch(CorruptedFile & error)
+    catch (CorruptedFile& error)
     {
         std::cout << "CorruptedFile error: " << error.what() << std::endl;
         throw CorruptedFile(error.what());
     }
-        
+
     catch (...)
     {
         std::cout << "Dump: wrong json format" << std::endl;
