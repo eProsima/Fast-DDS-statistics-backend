@@ -3489,14 +3489,14 @@ void Database::load_database(
     catch (CorruptedFile& error)
     {
         std::cout << "CorruptedFile error: " << error.what() << std::endl;
-        throw CorruptedFile(error.what());
+        throw;
     }
 
-    catch (...)
-    {
-        std::cout << "Dump: wrong json format" << std::endl;
-        throw CorruptedFile("Dump: wrong json format");
-    }
+    // catch (...)
+    // {
+    //     std::cout << "Dump: wrong json format" << std::endl;
+    //     throw CorruptedFile("Dump: wrong json format");
+    // }
 
 }
 
