@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+check_gtest()
+
 add_executable(TrafficInjectorTests TrafficInjectorTests.cpp)
 target_include_directories(TrafficInjectorTests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/TrafficInjector
     ${GTEST_INCLUDE_DIRS})
 
-target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} gtest)
+target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/traffic_dump.json
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

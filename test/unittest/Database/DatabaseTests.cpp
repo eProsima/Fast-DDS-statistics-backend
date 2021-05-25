@@ -563,52 +563,52 @@ public:
 
     void SetUp()
     {
-        host.reset(new Host(host_name));
-        host_id = db.insert(host);
-        user.reset(new User(user_name, host));
-        user_id = db.insert(user);
-        process.reset(new Process(process_name, "12345", user));
-        process_id = db.insert(process);
-        domain.reset(new Domain(domain_name));
-        domain_id = db.insert(domain);
-        participant.reset(new DomainParticipant(participant_name, db.test_qos, participant_guid, nullptr, domain));
-        participant_id = db.insert(participant);
-        db.link_participant_with_process(participant_id, process_id);
-        topic.reset(new Topic(topic_name, topic_type, domain));
-        topic_id = db.insert(topic);
+        host_.reset(new Host(host_name_));
+        host_id_ = db_.insert(host_);
+        user_.reset(new User(user_name_, host_));
+        user_id_ = db_.insert(user_);
+        process_.reset(new Process(process_name_, "12345", user_));
+        process_id_ = db_.insert(process_);
+        domain_.reset(new Domain(domain_name_));
+        domain_id_ = db_.insert(domain_);
+        participant_.reset(new DomainParticipant(participant_name, db_.test_qos, participant_guid, nullptr, domain_));
+        participant_id_ = db_.insert(participant_);
+        db_.link_participant_with_process(participant_id_, process_id_);
+        topic_.reset(new Topic(topic_name_, topic_type_, domain_));
+        topic_id_ = db_.insert(topic_);
         writer_locator.reset(new Locator(writer_locator_name));
-        writer_locator->id = db.generate_entity_id();
-        writer.reset(new DataWriter(writer_name, db.test_qos, writer_guid, participant, topic));
+        writer_locator->id = db_.generate_entity_id();
+        writer.reset(new DataWriter(writer_name, db_.test_qos, writer_guid, participant_, topic_));
         writer->locators[writer_locator->id] = writer_locator;
-        writer_id = db.insert(writer);
+        writer_id = db_.insert(writer);
         reader_locator.reset(new Locator(reader_locator_name));
-        reader_locator->id = db.generate_entity_id();
-        reader.reset(new DataReader(reader_name, db.test_qos, reader_guid, participant, topic));
+        reader_locator->id = db_.generate_entity_id();
+        reader.reset(new DataReader(reader_name, db_.test_qos, reader_guid, participant_, topic_));
         reader->locators[reader_locator->id] = reader_locator;
-        reader_id = db.insert(reader);
+        reader_id = db_.insert(reader);
     }
 
-    DataBaseTest db;
-    std::string host_name = "test_host";
-    std::shared_ptr<Host> host;
-    EntityId host_id;
-    std::string user_name = "test_user";
-    std::shared_ptr<User> user;
-    EntityId user_id;
-    std::string process_name = "test_process";
-    std::shared_ptr<Process> process;
-    EntityId process_id;
-    std::string domain_name = "test_domain";
-    std::shared_ptr<Domain> domain;
-    EntityId domain_id;
+    DataBaseTest db_;
+    std::string host_name_ = "test_host";
+    std::shared_ptr<Host> host_;
+    EntityId host_id_;
+    std::string user_name_ = "test_user";
+    std::shared_ptr<User> user_;
+    EntityId user_id_;
+    std::string process_name_ = "test_process";
+    std::shared_ptr<Process> process_;
+    EntityId process_id_;
+    std::string domain_name_ = "test_domain";
+    std::shared_ptr<Domain> domain_;
+    EntityId domain_id_;
     std::string participant_name = "test_participant";
     std::string participant_guid = "01.02.03.04.05.06.07.08.09.10.11.12";
-    std::shared_ptr<DomainParticipant> participant;
-    EntityId participant_id;
-    std::string topic_name = "test_topic";
-    std::string topic_type = "test_topic_type";
-    std::shared_ptr<Topic> topic;
-    EntityId topic_id;
+    std::shared_ptr<DomainParticipant> participant_;
+    EntityId participant_id_;
+    std::string topic_name_ = "test_topic";
+    std::string topic_type_ = "test_topic_type";
+    std::shared_ptr<Topic> topic_;
+    EntityId topic_id_;
     std::string writer_locator_name = "test_writer_locator";
     std::shared_ptr<Locator> writer_locator;
     std::string writer_name = "test_writer";
@@ -622,11 +622,12 @@ public:
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
 
+	// TODO(jlbueno) Windows does not support nanoseconds. We should consider having microsencond precision
     Timestamp src_ts = std::chrono::system_clock::now();
-    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
+    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::microseconds(1);
     Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
-    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
-    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
+    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::microseconds(1);
+    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::microseconds(1);
     Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
     Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
     Timestamp end_ts = src_ts + std::chrono::seconds(15);
@@ -1685,13 +1686,13 @@ TEST_F(database_tests, insert_sample_history_latency)
     sample.reader = reader_id;
     sample.data = 12;
     sample.src_ts = std::chrono::system_clock::now();
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     HistoryLatencySample sample_2;
     sample_2.reader = reader_id;
     sample_2.data = 13;
     sample_2.src_ts = std::chrono::system_clock::now();
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2);
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
@@ -1701,9 +1702,9 @@ TEST_F(database_tests, insert_sample_history_latency)
 TEST_F(database_tests, insert_sample_history_latency_wrong_entity)
 {
     HistoryLatencySample sample;
-    sample.reader = db.generate_entity_id();
+    sample.reader = db_.generate_entity_id();
     sample.data = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_network_latency)
@@ -1711,12 +1712,12 @@ TEST_F(database_tests, insert_sample_network_latency)
     NetworkLatencySample sample;
     sample.remote_locator = reader_locator->id;
     sample.data = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_locator->id, sample));
 
     NetworkLatencySample sample_2;
     sample_2.remote_locator = reader_locator->id;
     sample_2.data = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_locator->id, sample_2));
 
     ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id].size(), 2);
     ASSERT_EQ(writer_locator->data.network_latency_per_locator[reader_locator->id][0],
@@ -1728,20 +1729,20 @@ TEST_F(database_tests, insert_sample_network_latency)
 TEST_F(database_tests, insert_sample_network_latency_wrong_entity)
 {
     NetworkLatencySample sample;
-    sample.remote_locator = db.generate_entity_id();
+    sample.remote_locator = db_.generate_entity_id();
     sample.data = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput)
 {
     PublicationThroughputSample sample;
     sample.data = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     PublicationThroughputSample sample_2;
     sample_2.data = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.publication_throughput.size(), 2);
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
@@ -1752,18 +1753,18 @@ TEST_F(database_tests, insert_sample_publication_throughput_wrong_entity)
 {
     PublicationThroughputSample sample;
     sample.data = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_subscription_throughput)
 {
     SubscriptionThroughputSample sample;
     sample.data = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample));
 
     SubscriptionThroughputSample sample_2;
     sample_2.data = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
 
     ASSERT_EQ(reader->data.subscription_throughput.size(), 2);
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
@@ -1774,7 +1775,7 @@ TEST_F(database_tests, insert_sample_subscription_throughput_wrong_entity)
 {
     SubscriptionThroughputSample sample;
     sample.data = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_sent)
@@ -1782,28 +1783,28 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
     RtpsPacketsSentSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     RtpsPacketsSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id].size(), 2);
-    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][1],
+    ASSERT_EQ(participant_->data.rtps_packets_sent.size(), 1);
+    ASSERT_EQ(participant_->data.rtps_packets_sent[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant_->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant_->data.rtps_packets_sent[writer_locator->id][1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_rtps_packets_sent_count[writer_locator->id].count, sample_2.count);
+    ASSERT_EQ(participant_->data.last_reported_rtps_packets_sent_count[writer_locator->id].count, sample_2.count);
 
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_sent_wrong_entity)
 {
     RtpsPacketsSentSample sample;
-    sample.remote_locator = db.generate_entity_id();
+    sample.remote_locator = db_.generate_entity_id();
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_sent)
@@ -1812,31 +1813,31 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent)
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     RtpsBytesSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
     sample_2.magnitude_order = 3;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2);
-    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
-    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][1],
+    ASSERT_EQ(participant_->data.rtps_bytes_sent.size(), 1);
+    ASSERT_EQ(participant_->data.rtps_bytes_sent[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant_->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant_->data.rtps_bytes_sent[writer_locator->id][1],
             static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].magnitude_order,
+    ASSERT_EQ(participant_->data.last_reported_rtps_bytes_sent_count[writer_locator->id].magnitude_order,
             sample_2.magnitude_order);
-    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].count, sample_2.count);
+    ASSERT_EQ(participant_->data.last_reported_rtps_bytes_sent_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_sent_wrong_entity)
 {
     RtpsBytesSentSample sample;
-    sample.remote_locator = db.generate_entity_id();
+    sample.remote_locator = db_.generate_entity_id();
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_lost)
@@ -1844,27 +1845,27 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost)
     RtpsPacketsLostSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     RtpsPacketsLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2);
-    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][1],
+    ASSERT_EQ(participant_->data.rtps_packets_lost.size(), 1);
+    ASSERT_EQ(participant_->data.rtps_packets_lost[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant_->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant_->data.rtps_packets_lost[writer_locator->id][1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_rtps_packets_lost_count[writer_locator->id].count, sample_2.count);
+    ASSERT_EQ(participant_->data.last_reported_rtps_packets_lost_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_lost_wrong_entity)
 {
     RtpsPacketsLostSample sample;
-    sample.remote_locator = db.generate_entity_id();
+    sample.remote_locator = db_.generate_entity_id();
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_lost)
@@ -1873,42 +1874,42 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost)
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     RtpsBytesLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
     sample_2.magnitude_order = 3;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2);
-    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
-    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][1],
+    ASSERT_EQ(participant_->data.rtps_bytes_lost.size(), 1);
+    ASSERT_EQ(participant_->data.rtps_bytes_lost[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant_->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant_->data.rtps_bytes_lost[writer_locator->id][1],
             static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].magnitude_order,
+    ASSERT_EQ(participant_->data.last_reported_rtps_bytes_lost_count[writer_locator->id].magnitude_order,
             sample_2.magnitude_order);
-    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].count, sample_2.count);
+    ASSERT_EQ(participant_->data.last_reported_rtps_bytes_lost_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_bytes_lost_wrong_entity)
 {
     RtpsBytesLostSample sample;
-    sample.remote_locator = db.generate_entity_id();
+    sample.remote_locator = db_.generate_entity_id();
     sample.count = 12;
     sample.magnitude_order = 2;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_resent_data)
 {
     ResentDataSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     ResentDataSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.resent_datas.size(), 2);
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
@@ -1921,18 +1922,18 @@ TEST_F(database_tests, insert_sample_resent_data_wrong_entity)
 {
     ResentDataSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_heartbeat_count)
 {
     HeartbeatCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     HeartbeatCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.heartbeat_count.size(), 2);
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
@@ -1945,18 +1946,18 @@ TEST_F(database_tests, insert_sample_heartbeat_count_wrong_entity)
 {
     HeartbeatCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_acknack_count)
 {
     AcknackCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample));
 
     AcknackCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
 
     ASSERT_EQ(reader->data.acknack_count.size(), 2);
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
@@ -1969,18 +1970,18 @@ TEST_F(database_tests, insert_sample_acknack_count_wrong_entity)
 {
     AcknackCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_nackfrag_count)
 {
     NackfragCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample));
 
     NackfragCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
 
     ASSERT_EQ(reader->data.nackfrag_count.size(), 2);
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
@@ -1993,18 +1994,18 @@ TEST_F(database_tests, insert_sample_nackfrag_count_wrong_entity)
 {
     NackfragCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_gap_count)
 {
     GapCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     GapCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.gap_count.size(), 2);
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
@@ -2017,18 +2018,18 @@ TEST_F(database_tests, insert_sample_gap_count_wrong_entity)
 {
     GapCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_data_count)
 {
     DataCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     DataCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.data_count.size(), 2);
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
@@ -2041,55 +2042,55 @@ TEST_F(database_tests, insert_sample_data_count_wrong_entity)
 {
     DataCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_pdp_packets)
 {
     PdpCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     PdpCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.pdp_packets.size(), 2);
-    ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.pdp_packets[1],
+    ASSERT_EQ(participant_->data.pdp_packets.size(), 2);
+    ASSERT_EQ(participant_->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant_->data.pdp_packets[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_pdp_packets, sample_2);
+    ASSERT_EQ(participant_->data.last_reported_pdp_packets, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_pdp_packets_wrong_entity)
 {
     PdpCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_edp_packets)
 {
     EdpCountSample sample;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     EdpCountSample sample_2;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.edp_packets.size(), 2);
-    ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.edp_packets[1],
+    ASSERT_EQ(participant_->data.edp_packets.size(), 2);
+    ASSERT_EQ(participant_->data.edp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant_->data.edp_packets[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
-    ASSERT_EQ(participant->data.last_reported_edp_packets, sample_2);
+    ASSERT_EQ(participant_->data.last_reported_edp_packets, sample_2);
 }
 
 TEST_F(database_tests, insert_sample_edp_packets_wrong_entity)
 {
     EdpCountSample sample;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_discovery_time)
@@ -2098,27 +2099,27 @@ TEST_F(database_tests, insert_sample_discovery_time)
     sample.remote_entity = writer_id;
     sample.time = std::chrono::system_clock::now();
     sample.discovered = true;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample));
 
     DiscoveryTimeSample sample_2;
     sample_2.remote_entity = writer_id;
     sample_2.time = std::chrono::system_clock::now();
     sample_2.discovered = true;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
 
-    ASSERT_EQ(participant->data.discovered_entity.size(), 1);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
-    ASSERT_EQ(participant->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
+    ASSERT_EQ(participant_->data.discovered_entity.size(), 1);
+    ASSERT_EQ(participant_->data.discovered_entity[writer_id].size(), 2);
+    ASSERT_EQ(participant_->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
+    ASSERT_EQ(participant_->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_sample_discovery_time_wrong_entity)
 {
     DiscoveryTimeSample sample;
-    sample.remote_entity = db.generate_entity_id();
+    sample.remote_entity = db_.generate_entity_id();
     sample.time = std::chrono::system_clock::now();
     sample.discovered = true;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_sample_datas)
@@ -2126,12 +2127,12 @@ TEST_F(database_tests, insert_sample_sample_datas)
     SampleDatasCountSample sample;
     sample.sequence_number = 2;
     sample.count = 12;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample));
 
     SampleDatasCountSample sample_2;
     sample_2.sequence_number = 3;
     sample_2.count = 13;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.sample_datas.size(), 2);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample));
@@ -2143,163 +2144,163 @@ TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
     SampleDatasCountSample sample;
     sample.sequence_number = 2;
     sample.count = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, db_.generate_entity_id(), sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_invalid)
 {
     StatisticsSample sample;
-    ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+    ASSERT_THROW(db_.insert(domain_id_, writer_id, sample), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_valid_wrong_domain)
 {
     HistoryLatencySample history_lantency_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, history_lantency_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, history_lantency_sample), BadParameter);
 
     NetworkLatencySample network_lantency_sample;
-    ASSERT_NO_THROW(db.insert(db.generate_entity_id(), writer_locator->id, network_lantency_sample));
+    ASSERT_NO_THROW(db_.insert(db_.generate_entity_id(), writer_locator->id, network_lantency_sample));
 
     PublicationThroughputSample pub_throughput_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, pub_throughput_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, pub_throughput_sample), BadParameter);
 
     SubscriptionThroughputSample sub_throughput_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, sub_throughput_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), reader_id, sub_throughput_sample), BadParameter);
 
     RtpsPacketsSentSample rtps_packets_sent_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, rtps_packets_sent_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, rtps_packets_sent_sample), BadParameter);
 
     RtpsBytesSentSample rtps_bytes_sent_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, rtps_bytes_sent_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, rtps_bytes_sent_sample), BadParameter);
 
     RtpsBytesLostSample rtps_packets_lost_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, rtps_packets_lost_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, rtps_packets_lost_sample), BadParameter);
 
     RtpsBytesLostSample rtps_bytes_lost_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, rtps_bytes_lost_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, rtps_bytes_lost_sample), BadParameter);
 
     ResentDataSample resent_data_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, resent_data_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, resent_data_sample), BadParameter);
 
     HeartbeatCountSample heartbeat_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, heartbeat_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, heartbeat_count_sample), BadParameter);
 
     AcknackCountSample acknack_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, acknack_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), reader_id, acknack_count_sample), BadParameter);
 
     NackfragCountSample nackfrag_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, nackfrag_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), reader_id, nackfrag_count_sample), BadParameter);
 
     GapCountSample gap_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, gap_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, gap_count_sample), BadParameter);
 
     DataCountSample data_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, data_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, data_count_sample), BadParameter);
 
     PdpCountSample pdp_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), participant_id, pdp_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), participant_id_, pdp_count_sample), BadParameter);
 
     EdpCountSample edp_count_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), participant_id, edp_count_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), participant_id_, edp_count_sample), BadParameter);
 
     DiscoveryTimeSample discovery_time_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), participant_id, discovery_time_sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), participant_id_, discovery_time_sample), BadParameter);
 
     SampleDatasCountSample sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, sample), BadParameter);
+    ASSERT_THROW(db_.insert(db_.generate_entity_id(), writer_id, sample), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_host)
 {
-    auto local_host = db.get_entity(host_id);
-    ASSERT_EQ(local_host.get(), host.get());
+    auto local_host = db_.get_entity(host_id_);
+    ASSERT_EQ(local_host.get(), host_.get());
 }
 
 TEST_F(database_tests, get_entity_process)
 {
-    auto local_process = db.get_entity(process_id);
-    ASSERT_EQ(local_process.get(), process.get());
+    auto local_process = db_.get_entity(process_id_);
+    ASSERT_EQ(local_process.get(), process_.get());
 }
 
 TEST_F(database_tests, get_entity_user)
 {
-    auto local_user = db.get_entity(user_id);
-    ASSERT_EQ(local_user.get(), user.get());
+    auto local_user = db_.get_entity(user_id_);
+    ASSERT_EQ(local_user.get(), user_.get());
 }
 
 TEST_F(database_tests, get_entity_domain)
 {
-    auto local_domain = db.get_entity(domain_id);
-    ASSERT_EQ(local_domain.get(), domain.get());
+    auto local_domain = db_.get_entity(domain_id_);
+    ASSERT_EQ(local_domain.get(), domain_.get());
 }
 
 TEST_F(database_tests, get_entity_topic)
 {
-    auto local_topic = db.get_entity(topic_id);
-    ASSERT_EQ(local_topic.get(), topic.get());
+    auto local_topic = db_.get_entity(topic_id_);
+    ASSERT_EQ(local_topic.get(), topic_.get());
 }
 
 TEST_F(database_tests, get_entity_participant)
 {
-    auto local_participant = db.get_entity(participant_id);
-    ASSERT_EQ(local_participant.get(), participant.get());
+    auto local_participant = db_.get_entity(participant_id_);
+    ASSERT_EQ(local_participant.get(), participant_.get());
 }
 
 TEST_F(database_tests, get_entity_datareader)
 {
-    auto local_reader = db.get_entity(reader_id);
+    auto local_reader = db_.get_entity(reader_id);
     ASSERT_EQ(local_reader.get(), reader.get());
 }
 
 TEST_F(database_tests, get_entity_datawriter)
 {
-    auto local_writer = db.get_entity(writer_id);
+    auto local_writer = db_.get_entity(writer_id);
     ASSERT_EQ(local_writer.get(), writer.get());
 }
 
 TEST_F(database_tests, get_entity_locator)
 {
-    auto local_reader_locator = db.get_entity(reader_locator->id);
+    auto local_reader_locator = db_.get_entity(reader_locator->id);
     ASSERT_EQ(local_reader_locator.get(), reader_locator.get());
-    auto local_writer_locator = db.get_entity(writer_locator->id);
+    auto local_writer_locator = db_.get_entity(writer_locator->id);
     ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
 }
 
 TEST_F(database_tests, get_entity_no_existing)
 {
-    ASSERT_THROW(db.get_entity(EntityId()), BadParameter);
+    ASSERT_THROW(db_.get_entity(EntityId()), BadParameter);
 }
 
 TEST_F(database_tests, get_entities_by_name_host)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto hosts = db.get_entities_by_name(EntityKind::HOST, host_name);
+    auto hosts = db_.get_entities_by_name(EntityKind::HOST, host_name_);
     EXPECT_EQ(hosts.size(), 1);
     EXPECT_FALSE(hosts[0].first.is_valid());
-    EXPECT_EQ(hosts[0].second, host_id);
+    EXPECT_EQ(hosts[0].second, host_id_);
 }
 
 TEST_F(database_tests, get_entities_by_name_host_wrong_name)
 {
-    auto hosts = db.get_entities_by_name(EntityKind::HOST, "wrong_name");
+    auto hosts = db_.get_entities_by_name(EntityKind::HOST, "wrong_name");
     EXPECT_EQ(hosts.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_user)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto users = db.get_entities_by_name(EntityKind::USER, user_name);
+    auto users = db_.get_entities_by_name(EntityKind::USER, user_name_);
     EXPECT_EQ(users.size(), 1);
     EXPECT_FALSE(users[0].first.is_valid());
-    EXPECT_EQ(users[0].second, user_id);
+    EXPECT_EQ(users[0].second, user_id_);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
     auto host_2 = std::make_shared<Host>("host_2");
-    db.insert(host_2);
-    auto user_2 = std::make_shared<User>(user_name, host_2);
-    auto user_id_2 = db.insert(user_2);
-    std::vector<EntityId> ids = {user_id, user_id_2};
-    users = db.get_entities_by_name(EntityKind::USER, user_name);
+    db_.insert(host_2);
+    auto user_2 = std::make_shared<User>(user_name_, host_2);
+    auto user_id_2 = db_.insert(user_2);
+    std::vector<EntityId> ids = {user_id_, user_id_2};
+    users = db_.get_entities_by_name(EntityKind::USER, user_name_);
 
     EXPECT_EQ(users.size(), 2);
     for (size_t i = 0; i < users.size(); i++)
@@ -2311,23 +2312,23 @@ TEST_F(database_tests, get_entities_by_name_user)
 
 TEST_F(database_tests, get_entities_by_name_user_wrong_name)
 {
-    auto users = db.get_entities_by_name(EntityKind::USER, "wrong_name");
+    auto users = db_.get_entities_by_name(EntityKind::USER, "wrong_name");
     EXPECT_EQ(users.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_process)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
+    auto processes = db_.get_entities_by_name(EntityKind::PROCESS, process_name_);
     EXPECT_EQ(processes.size(), 1);
     EXPECT_FALSE(processes[0].first.is_valid());
-    EXPECT_EQ(processes[0].second, process_id);
+    EXPECT_EQ(processes[0].second, process_id_);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
-    auto process_2 = std::make_shared<Process>(process_name, "6789", user);
-    auto process_id_2 = db.insert(process_2);
-    std::vector<EntityId> ids = {process_id, process_id_2};
-    processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
+    auto process_2 = std::make_shared<Process>(process_name_, "6789", user_);
+    auto process_id_2 = db_.insert(process_2);
+    std::vector<EntityId> ids = {process_id_, process_id_2};
+    processes = db_.get_entities_by_name(EntityKind::PROCESS, process_name_);
 
     EXPECT_EQ(processes.size(), 2);
     for (size_t i = 0; i < processes.size(); i++)
@@ -2339,39 +2340,39 @@ TEST_F(database_tests, get_entities_by_name_process)
 
 TEST_F(database_tests, get_entities_by_name_process_wrong_name)
 {
-    auto processes = db.get_entities_by_name(EntityKind::PROCESS, "wrong_name");
+    auto processes = db_.get_entities_by_name(EntityKind::PROCESS, "wrong_name");
     EXPECT_EQ(processes.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_domain)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto domains = db.get_entities_by_name(EntityKind::DOMAIN, domain_name);
+    auto domains = db_.get_entities_by_name(EntityKind::DOMAIN_DDS, domain_name_);
     EXPECT_EQ(domains.size(), 1);
-    EXPECT_EQ(domains[0].first, domain_id);
-    EXPECT_EQ(domains[0].second, domain_id);
+    EXPECT_EQ(domains[0].first, domain_id_);
+    EXPECT_EQ(domains[0].second, domain_id_);
 }
 
 TEST_F(database_tests, get_entities_by_name_domain_wrong_name)
 {
-    auto domains = db.get_entities_by_name(EntityKind::DOMAIN, "wrong_name");
+    auto domains = db_.get_entities_by_name(EntityKind::DOMAIN_DDS, "wrong_name");
     EXPECT_EQ(domains.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_participant)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
+    auto participants = db_.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
     EXPECT_EQ(participants.size(), 1);
-    EXPECT_EQ(participants[0].first, domain_id);
-    EXPECT_EQ(participants[0].second, participant_id);
+    EXPECT_EQ(participants[0].first, domain_id_);
+    EXPECT_EQ(participants[0].second, participant_id_);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
-    auto participant_2 = std::make_shared<DomainParticipant>(participant_name, db.test_qos, "05.06.07.08", nullptr,
-                    domain);
-    auto participant_id_2 = db.insert(participant_2);
-    std::vector<EntityId> ids = {participant_id, participant_id_2};
-    participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
+    auto participant_2 = std::make_shared<DomainParticipant>(participant_name, db_.test_qos, "05.06.07.08", nullptr,
+                    domain_);
+    auto participant_id_2 = db_.insert(participant_2);
+    std::vector<EntityId> ids = {participant_id_, participant_id_2};
+    participants = db_.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
 
     EXPECT_EQ(participants.size(), 2);
     for (size_t i = 0; i < participants.size(); i++)
@@ -2383,25 +2384,25 @@ TEST_F(database_tests, get_entities_by_name_participant)
 
 TEST_F(database_tests, get_entities_by_name_participant_wrong_name)
 {
-    auto participants = db.get_entities_by_name(EntityKind::PARTICIPANT, "wrong_name");
+    auto participants = db_.get_entities_by_name(EntityKind::PARTICIPANT, "wrong_name");
     EXPECT_EQ(participants.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_topic)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
+    auto topics = db_.get_entities_by_name(EntityKind::TOPIC, topic_name_);
     EXPECT_EQ(topics.size(), 1);
-    EXPECT_EQ(topics[0].first, domain_id);
-    EXPECT_EQ(topics[0].second, topic_id);
+    EXPECT_EQ(topics[0].first, domain_id_);
+    EXPECT_EQ(topics[0].second, topic_id_);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
     auto domain_2 = std::make_shared<Domain>("domain_2");
-    db.insert(domain_2);
-    auto topic_2 = std::make_shared<Topic>(topic_name, topic_type, domain_2);
-    auto topic_id_2 = db.insert(topic_2);
-    std::vector<EntityId> ids = {topic_id, topic_id_2};
-    topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
+    db_.insert(domain_2);
+    auto topic_2 = std::make_shared<Topic>(topic_name_, topic_type_, domain_2);
+    auto topic_id_2 = db_.insert(topic_2);
+    std::vector<EntityId> ids = {topic_id_, topic_id_2};
+    topics = db_.get_entities_by_name(EntityKind::TOPIC, topic_name_);
 
     EXPECT_EQ(topics.size(), 2);
     for (size_t i = 0; i < topics.size(); i++)
@@ -2413,24 +2414,24 @@ TEST_F(database_tests, get_entities_by_name_topic)
 
 TEST_F(database_tests, get_entities_by_name_topic_wrong_name)
 {
-    auto topics = db.get_entities_by_name(EntityKind::TOPIC, "wrong_name");
+    auto topics = db_.get_entities_by_name(EntityKind::TOPIC, "wrong_name");
     EXPECT_EQ(topics.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_datawriter)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
+    auto datawriters = db_.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
     EXPECT_EQ(datawriters.size(), 1);
-    EXPECT_EQ(datawriters[0].first, domain_id);
+    EXPECT_EQ(datawriters[0].first, domain_id_);
     EXPECT_EQ(datawriters[0].second, writer_id);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
-    auto writer_2 = std::make_shared<DataWriter>(writer_name, db.test_qos, "writer_guid_2", participant, topic);
+    auto writer_2 = std::make_shared<DataWriter>(writer_name, db_.test_qos, "writer_guid_2", participant_, topic_);
     writer_2->locators[writer_locator->id] = writer_locator;
-    auto writer_id_2 = db.insert(writer_2);
+    auto writer_id_2 = db_.insert(writer_2);
     std::vector<EntityId> ids = {writer_id, writer_id_2};
-    datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
+    datawriters = db_.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
 
     EXPECT_EQ(datawriters.size(), 2);
     for (size_t i = 0; i < datawriters.size(); i++)
@@ -2442,24 +2443,24 @@ TEST_F(database_tests, get_entities_by_name_datawriter)
 
 TEST_F(database_tests, get_entities_by_name_datawriter_wrong_name)
 {
-    auto datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, "wrong_name");
+    auto datawriters = db_.get_entities_by_name(EntityKind::DATAWRITER, "wrong_name");
     EXPECT_EQ(datawriters.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_datareader)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
+    auto datareaders = db_.get_entities_by_name(EntityKind::DATAREADER, reader_name);
     EXPECT_EQ(datareaders.size(), 1);
-    EXPECT_EQ(datareaders[0].first, domain_id);
+    EXPECT_EQ(datareaders[0].first, domain_id_);
     EXPECT_EQ(datareaders[0].second, reader_id);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
-    auto reader_2 = std::make_shared<DataReader>(reader_name, db.test_qos, "reader_guid_2", participant, topic);
+    auto reader_2 = std::make_shared<DataReader>(reader_name, db_.test_qos, "reader_guid_2", participant_, topic_);
     reader_2->locators[reader_locator->id] = reader_locator;
-    auto reader_id_2 = db.insert(reader_2);
+    auto reader_id_2 = db_.insert(reader_2);
     std::vector<EntityId> ids = {reader_id, reader_id_2};
-    datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
+    datareaders = db_.get_entities_by_name(EntityKind::DATAREADER, reader_name);
 
     EXPECT_EQ(datareaders.size(), 2);
     for (size_t i = 0; i < datareaders.size(); i++)
@@ -2471,13 +2472,13 @@ TEST_F(database_tests, get_entities_by_name_datareader)
 
 TEST_F(database_tests, get_entities_by_name_datareader_wrong_name)
 {
-    auto datareaders = db.get_entities_by_name(EntityKind::DATAREADER, "wrong_name");
+    auto datareaders = db_.get_entities_by_name(EntityKind::DATAREADER, "wrong_name");
     EXPECT_EQ(datareaders.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_locator)
 {
-    auto locators = db.get_entities_by_name(EntityKind::LOCATOR, writer_locator_name);
+    auto locators = db_.get_entities_by_name(EntityKind::LOCATOR, writer_locator_name);
     EXPECT_EQ(locators.size(), 1);
     EXPECT_FALSE(locators[0].first.is_valid());
     EXPECT_EQ(locators[0].second, writer_locator->id);
@@ -2485,32 +2486,32 @@ TEST_F(database_tests, get_entities_by_name_locator)
 
 TEST_F(database_tests, get_entities_by_name_locator_wrong_name)
 {
-    auto locators = db.get_entities_by_name(EntityKind::LOCATOR, "wrong_name");
+    auto locators = db_.get_entities_by_name(EntityKind::LOCATOR, "wrong_name");
     EXPECT_EQ(locators.size(), 0);
 }
 
 TEST_F(database_tests, get_entities_by_name_invalid)
 {
-    EXPECT_THROW(db.get_entities_by_name(EntityKind::INVALID, "some_name"), BadParameter);
+    EXPECT_THROW(db_.get_entities_by_name(EntityKind::INVALID, "some_name"), BadParameter);
 }
 
 TEST_F(database_tests, get_entities_by_name_other_kind)
 {
-    EXPECT_THROW(db.get_entities_by_name(static_cast<EntityKind>(127), "some_name"), BadParameter);
+    EXPECT_THROW(db_.get_entities_by_name(static_cast<EntityKind>(127), "some_name"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_kind)
 {
-    EXPECT_EQ(EntityKind::HOST, db.get_entity_kind(host_id));
-    EXPECT_EQ(EntityKind::USER, db.get_entity_kind(user_id));
-    EXPECT_EQ(EntityKind::PROCESS, db.get_entity_kind(process_id));
-    EXPECT_EQ(EntityKind::DOMAIN, db.get_entity_kind(domain_id));
-    EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind(participant_id));
-    EXPECT_EQ(EntityKind::DATAWRITER, db.get_entity_kind(writer_id));
-    EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind(reader_id));
-    EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
-    EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
-    EXPECT_THROW(db.get_entity_kind(EntityId::invalid()), BadParameter);
+    EXPECT_EQ(EntityKind::HOST, db_.get_entity_kind(host_id_));
+    EXPECT_EQ(EntityKind::USER, db_.get_entity_kind(user_id_));
+    EXPECT_EQ(EntityKind::PROCESS, db_.get_entity_kind(process_id_));
+    EXPECT_EQ(EntityKind::DOMAIN_DDS, db_.get_entity_kind(domain_id_));
+    EXPECT_EQ(EntityKind::PARTICIPANT, db_.get_entity_kind(participant_id_));
+    EXPECT_EQ(EntityKind::DATAWRITER, db_.get_entity_kind(writer_id));
+    EXPECT_EQ(EntityKind::DATAREADER, db_.get_entity_kind(reader_id));
+    EXPECT_EQ(EntityKind::TOPIC, db_.get_entity_kind(topic_id_));
+    EXPECT_EQ(EntityKind::LOCATOR, db_.get_entity_kind(reader_locator->id));
+    EXPECT_THROW(db_.get_entity_kind(EntityId::invalid()), BadParameter);
 }
 
 TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
@@ -2518,14 +2519,14 @@ TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
     Timestamp t_from = std::chrono::system_clock::now();
     Timestamp t_to = t_from + std::chrono::seconds(1);
 
-    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SAMPLE_DATAS, writer_id, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
@@ -2533,17 +2534,17 @@ TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
     Timestamp t_from = std::chrono::system_clock::now();
     Timestamp t_to = t_from + std::chrono::seconds(1);
 
-    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RESENT_DATA, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::HEARTBEAT_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::ACKNACK_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NACKFRAG_COUNT, reader_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::GAP_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DATA_COUNT, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PDP_PACKETS, participant_id_, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::EDP_PACKETS, participant_id_, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SAMPLE_DATAS, writer_id, reader_id, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
@@ -2552,23 +2553,23 @@ TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
     Timestamp t_to = t_from + std::chrono::seconds(1);
     uint64_t sequence_number = 3;
 
-    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RESENT_DATA, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::HEARTBEAT_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::ACKNACK_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NACKFRAG_COUNT, reader_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::GAP_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DATA_COUNT, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PDP_PACKETS, participant_id_, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::EDP_PACKETS, participant_id_, sequence_number, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_invalid_entities)
@@ -2580,228 +2581,228 @@ TEST_F(database_tests, select_invalid_entities)
     Timestamp t_to = t_from + std::chrono::seconds(1);
     uint64_t sequence_number = 1;
 
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, host_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, user_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, process_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, domain_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, topic_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, participant_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, host_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, user_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, process_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, domain_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, topic_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, participant_id_, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, participant_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, host_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, user_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, process_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, domain_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, topic_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, participant_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, host_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, user_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, process_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, domain_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, topic_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, host_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, user_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, process_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, domain_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, topic_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, host_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, user_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, process_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, domain_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, topic_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, host_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, user_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, process_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, domain_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, topic_id_, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, host_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, user_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, process_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, domain_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, topic_id_, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, writer_id, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, reader_id, participant_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id_, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, host_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, user_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, process_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, domain_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, topic_id_, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_locator->id, t_from, t_to), "");
 
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, host_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, user_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, process_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, domain_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, topic_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, participant_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, reader_id, sequence_number, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, host_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, user_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, process_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, domain_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, topic_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, participant_id_, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, reader_id, sequence_number, t_from, t_to), "");
+    ASSERT_DEATH(db_.select(DataKind::SAMPLE_DATAS, writer_locator->id, sequence_number, t_from, t_to), "");
 #endif // ifndef NDEBUG
 }
 
@@ -2812,111 +2813,113 @@ TEST_F(database_tests, select_invalid_entity_id)
     uint64_t sequence_number = 1;
     EntityId invalid_id;
 
-    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, invalid_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RESENT_DATA, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::GAP_COUNT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DATA_COUNT, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, invalid_id, sequence_number, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, invalid_id, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, invalid_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PUBLICATION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RESENT_DATA, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::HEARTBEAT_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::ACKNACK_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NACKFRAG_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::GAP_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DATA_COUNT, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::EDP_PACKETS, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SAMPLE_DATAS, invalid_id, sequence_number, t_from, t_from), BadParameter);
 }
 
 TEST_F(database_tests, select_invalid_timestamps)
 {
     Timestamp t_from = std::chrono::system_clock::now();
-    Timestamp t_to = t_from - std::chrono::nanoseconds(1);
+    Timestamp t_to = t_from - std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(1));
     uint64_t sequence_number = 3;
 
-    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_from),
+    EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_to),
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, t_from, t_to),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_from),
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, t_from, t_to),
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, reader_locator->id, t_from, t_to),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_from),
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_from),
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, t_from, t_to),
+    EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_locator->id, t_from, t_to),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_from),
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_id, t_from, t_to), BadParameter);
 
-    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, participant_id, t_from, t_to), BadParameter);
-    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RESENT_DATA, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RESENT_DATA, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::HEARTBEAT_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::ACKNACK_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NACKFRAG_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::GAP_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::GAP_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DATA_COUNT, writer_id, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::DATA_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PDP_PACKETS, participant_id_, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::PDP_PACKETS, participant_id_, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::EDP_PACKETS, participant_id_, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::EDP_PACKETS, participant_id_, t_from, t_to), BadParameter);
 
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_from), BadParameter);
-    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_from), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_fastdds_latency)
 {
+	std::cout << "mid1_ts == mid2_ts: " << (mid1_ts == mid2_ts) << std::endl;
+	
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     HistoryLatencySample sample_1;
     sample_1.reader = reader_id;
     sample_1.data = 10;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     HistoryLatencySample sample_2;
     sample_2.reader = reader_id;
     sample_2.data = 20;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     HistoryLatencySample sample_3;
     sample_3.reader = reader_id;
     sample_3.data = 15;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -2926,21 +2929,21 @@ TEST_F(database_tests, select_fastdds_latency)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -2951,7 +2954,7 @@ TEST_F(database_tests, select_fastdds_latency)
 TEST_F(database_tests, select_network_latency)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -2959,20 +2962,20 @@ TEST_F(database_tests, select_network_latency)
     sample_1.remote_locator = reader_locator->id;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_locator->id, sample_1));
     NetworkLatencySample sample_2;
     sample_2.remote_locator = reader_locator->id;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_locator->id, sample_2));
     NetworkLatencySample sample_3;
     sample_3.remote_locator = reader_locator->id;
     sample_3.data = 25;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_locator->id, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
             end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
@@ -2983,24 +2986,24 @@ TEST_F(database_tests, select_network_latency)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, src_ts,
             mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid1_ts,
             mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id, mid2_ts,
             mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, writer_locator->id, reader_locator->id,
             sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
@@ -3009,7 +3012,7 @@ TEST_F(database_tests, select_network_latency)
     EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
@@ -3017,24 +3020,24 @@ TEST_F(database_tests, select_network_latency)
 TEST_F(database_tests, select_publication_throughput)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     PublicationThroughputSample sample_1;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     PublicationThroughputSample sample_2;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     PublicationThroughputSample sample_3;
     sample_3.data = 25;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -3044,21 +3047,21 @@ TEST_F(database_tests, select_publication_throughput)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PUBLICATION_THROUGHPUT, writer_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -3069,24 +3072,24 @@ TEST_F(database_tests, select_publication_throughput)
 TEST_F(database_tests, select_subscription_throughput)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     SubscriptionThroughputSample sample_1;
     sample_1.data = 15;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_1));
     SubscriptionThroughputSample sample_2;
     sample_2.data = 5;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
     SubscriptionThroughputSample sample_3;
     sample_3.data = 25;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -3096,21 +3099,21 @@ TEST_F(database_tests, select_subscription_throughput)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SUBSCRIPTION_THROUGHPUT, reader_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityDataSample*>(data_output[0]);
     sample2 = static_cast<const EntityDataSample*>(data_output[1]);
@@ -3121,7 +3124,7 @@ TEST_F(database_tests, select_subscription_throughput)
 TEST_F(database_tests, select_rtps_packets_sent)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -3129,22 +3132,22 @@ TEST_F(database_tests, select_rtps_packets_sent)
     sample_1.remote_locator = writer_locator->id;
     sample_1.count = 15;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     RtpsPacketsSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 35;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     RtpsPacketsSentSample sample_3;
     sample_3.remote_locator = writer_locator->id;
     sample_3.count = 70;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, src_ts,
             end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3155,24 +3158,24 @@ TEST_F(database_tests, select_rtps_packets_sent)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, src_ts,
             mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid1_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, mid1_ts,
             mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, mid2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, mid2_ts,
             mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3181,7 +3184,7 @@ TEST_F(database_tests, select_rtps_packets_sent)
     EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, reader_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
@@ -3189,7 +3192,7 @@ TEST_F(database_tests, select_rtps_packets_sent)
 TEST_F(database_tests, select_rtps_bytes_sent)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -3198,24 +3201,24 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     sample_1.count = 15;
     sample_1.magnitude_order = 2;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     RtpsBytesSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 5;
     sample_2.magnitude_order = 3;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     RtpsBytesSentSample sample_3;
     sample_3.remote_locator = writer_locator->id;
     sample_3.count = 25;
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     ByteCountSample db_sample_2 = sample_2 - sample_1;
     ByteCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, src_ts,
             end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
@@ -3226,24 +3229,24 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, src_ts,
             mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid1_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, mid1_ts,
             mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, mid2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, mid2_ts,
             mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
@@ -3252,7 +3255,7 @@ TEST_F(database_tests, select_rtps_bytes_sent)
     EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
@@ -3260,7 +3263,7 @@ TEST_F(database_tests, select_rtps_bytes_sent)
 TEST_F(database_tests, select_rtps_packets_lost)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -3268,22 +3271,22 @@ TEST_F(database_tests, select_rtps_packets_lost)
     sample_1.remote_locator = writer_locator->id;
     sample_1.count = 15;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     RtpsPacketsLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 25;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     RtpsPacketsLostSample sample_3;
     sample_3.remote_locator = writer_locator->id;
     sample_3.count = 65;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, src_ts,
             end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3294,24 +3297,24 @@ TEST_F(database_tests, select_rtps_packets_lost)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, src_ts,
             mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid1_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, mid1_ts,
             mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, mid2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, mid2_ts,
             mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3320,7 +3323,7 @@ TEST_F(database_tests, select_rtps_packets_lost)
     EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
@@ -3328,7 +3331,7 @@ TEST_F(database_tests, select_rtps_packets_lost)
 TEST_F(database_tests, select_rtps_bytes_lost)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
@@ -3337,24 +3340,24 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     sample_1.count = 15;
     sample_1.magnitude_order = 1;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     RtpsBytesLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 5;
     sample_2.magnitude_order = 2;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     RtpsBytesLostSample sample_3;
     sample_3.remote_locator = writer_locator->id;
     sample_3.count = 25;
     sample_3.magnitude_order = 3;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     ByteCountSample db_sample_2 = sample_2 - sample_1;
     ByteCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, src_ts,
             end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const ByteCountSample*>(data_output[0]);
@@ -3365,24 +3368,24 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, src_ts,
             mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid1_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, mid1_ts,
             mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, mid2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, mid2_ts,
             mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const ByteCountSample*>(data_output[0]);
@@ -3391,7 +3394,7 @@ TEST_F(database_tests, select_rtps_bytes_lost)
     EXPECT_EQ(*sample2, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_locator->id, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
@@ -3399,26 +3402,26 @@ TEST_F(database_tests, select_rtps_bytes_lost)
 TEST_F(database_tests, select_resent_data)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     ResentDataSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     ResentDataSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     ResentDataSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3428,21 +3431,21 @@ TEST_F(database_tests, select_resent_data)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::RESENT_DATA, writer_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::RESENT_DATA, writer_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3453,26 +3456,26 @@ TEST_F(database_tests, select_resent_data)
 TEST_F(database_tests, select_heartbeat_count)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     HeartbeatCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     HeartbeatCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     HeartbeatCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3482,21 +3485,21 @@ TEST_F(database_tests, select_heartbeat_count)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::HEARTBEAT_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::HEARTBEAT_COUNT, writer_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3507,26 +3510,26 @@ TEST_F(database_tests, select_heartbeat_count)
 TEST_F(database_tests, select_acknack_count)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     AcknackCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_1));
     AcknackCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
     AcknackCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3536,21 +3539,21 @@ TEST_F(database_tests, select_acknack_count)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::ACKNACK_COUNT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::ACKNACK_COUNT, reader_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3561,26 +3564,26 @@ TEST_F(database_tests, select_acknack_count)
 TEST_F(database_tests, select_nackfrag_count)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     NackfragCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_1));
     NackfragCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_2));
     NackfragCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, reader_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3590,21 +3593,21 @@ TEST_F(database_tests, select_nackfrag_count)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::NACKFRAG_COUNT, reader_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::NACKFRAG_COUNT, reader_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3615,26 +3618,26 @@ TEST_F(database_tests, select_nackfrag_count)
 TEST_F(database_tests, select_gap_count)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     GapCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     GapCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     GapCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3644,21 +3647,21 @@ TEST_F(database_tests, select_gap_count)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::GAP_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::GAP_COUNT, writer_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3669,26 +3672,26 @@ TEST_F(database_tests, select_gap_count)
 TEST_F(database_tests, select_data_count)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     DataCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     DataCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     DataCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3698,21 +3701,21 @@ TEST_F(database_tests, select_data_count)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DATA_COUNT, writer_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DATA_COUNT, writer_id, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3723,26 +3726,26 @@ TEST_F(database_tests, select_data_count)
 TEST_F(database_tests, select_pdp_packets)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     PdpCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     PdpCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     PdpCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3752,21 +3755,21 @@ TEST_F(database_tests, select_pdp_packets)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::PDP_PACKETS, participant_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::PDP_PACKETS, participant_id_, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3777,26 +3780,26 @@ TEST_F(database_tests, select_pdp_packets)
 TEST_F(database_tests, select_edp_packets)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     EdpCountSample sample_1;
     sample_1.count = 34;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     EdpCountSample sample_2;
     sample_2.count = 43;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     EdpCountSample sample_3;
     sample_3.count = 44;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
     EntityCountSample db_sample_2 = sample_2 - sample_1;
     EntityCountSample db_sample_3 = sample_3 - sample_2;
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3806,21 +3809,21 @@ TEST_F(database_tests, select_edp_packets)
     EXPECT_EQ(*sample3, db_sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::EDP_PACKETS, participant_id, sample2_ts, sample3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::EDP_PACKETS, participant_id_, sample2_ts, sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3831,7 +3834,7 @@ TEST_F(database_tests, select_edp_packets)
 TEST_F(database_tests, select_discovery_time)
 {
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     DiscoveryTimeSample sample_1;
@@ -3839,22 +3842,22 @@ TEST_F(database_tests, select_discovery_time)
     sample_1.time = std::chrono::system_clock::now();
     sample_1.discovered = true;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_1));
     DiscoveryTimeSample sample_2;
     sample_2.remote_entity = reader_id;
     sample_2.time = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.discovered = false;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_2));
     DiscoveryTimeSample sample_3;
     sample_3.remote_entity = reader_id;
     sample_3.time = std::chrono::system_clock::now() + std::chrono::seconds(17);
     sample_3.discovered = true;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, participant_id_, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
     auto sample2 = static_cast<const DiscoveryTimeSample*>(data_output[1]);
@@ -3864,21 +3867,21 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, reader_id, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, reader_id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const DiscoveryTimeSample*>(data_output[0]);
@@ -3887,11 +3890,11 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, participant_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, participant_id_, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::DISCOVERY_TIME, participant_id, writer_id, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
@@ -3900,27 +3903,27 @@ TEST_F(database_tests, select_sample_datas)
     uint64_t sequence_number = 3;
     uint64_t sequence_number_unknown = 14;
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     SampleDatasCountSample sample_1;
     sample_1.count = 5;
     sample_1.sequence_number = 3;
     sample_1.src_ts = sample1_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_1));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_1));
     SampleDatasCountSample sample_2;
     sample_2.count = 10;
     sample_2.sequence_number = 3;
     sample_2.src_ts = sample2_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_2));
     SampleDatasCountSample sample_3;
     sample_3.count = 24;
     sample_3.sequence_number = 3;
     sample_3.src_ts = sample3_ts;
-    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+    ASSERT_NO_THROW(db_.insert(domain_id_, writer_id, sample_3));
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, end_ts));
     ASSERT_EQ(data_output.size(), 3u);
     auto sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     auto sample2 = static_cast<const EntityCountSample*>(data_output[1]);
@@ -3930,21 +3933,21 @@ TEST_F(database_tests, select_sample_datas)
     EXPECT_EQ(*sample3, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, mid1_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, src_ts, mid1_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid1_ts, mid2_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid1_ts, mid2_ts));
     ASSERT_EQ(data_output.size(), 1u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
     EXPECT_EQ(*sample1, sample_1);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid2_ts, mid3_ts));
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, mid2_ts, mid3_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3953,88 +3956,88 @@ TEST_F(database_tests, select_sample_datas)
     EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number_unknown, src_ts,
+    ASSERT_NO_THROW(data_output = db_.select(DataKind::SAMPLE_DATAS, writer_id, sequence_number_unknown, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 }
 
 TEST_F(database_tests, get_entity_by_guid_host)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::HOST, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::HOST, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_user)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::USER, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::USER, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_process)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PROCESS, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::PROCESS, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_domain)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DOMAIN, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::DOMAIN_DDS, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_participant)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto participant = db.get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
-    EXPECT_EQ(participant.first, domain_id);
-    EXPECT_EQ(participant.second, participant_id);
+    auto participant = db_.get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
+    EXPECT_EQ(participant.first, domain_id_);
+    EXPECT_EQ(participant.second, participant_id_);
 }
 
 TEST_F(database_tests, get_entity_by_guid_participant_wrong_guid)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::PARTICIPANT, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_topic)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::TOPIC, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::TOPIC, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_datawriter)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datawriter = db.get_entity_by_guid(EntityKind::DATAWRITER, writer_guid);
-    EXPECT_EQ(datawriter.first, domain_id);
+    auto datawriter = db_.get_entity_by_guid(EntityKind::DATAWRITER, writer_guid);
+    EXPECT_EQ(datawriter.first, domain_id_);
     EXPECT_EQ(datawriter.second, writer_id);
 }
 
 TEST_F(database_tests, get_entity_by_guid_datawriter_wrong_guid)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::DATAWRITER, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_datareader)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto datareader = db.get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
-    EXPECT_EQ(datareader.first, domain_id);
+    auto datareader = db_.get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
+    EXPECT_EQ(datareader.first, domain_id_);
     EXPECT_EQ(datareader.second, reader_id);
 }
 
 TEST_F(database_tests, get_entity_by_guid_datareader_wrong_guid)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::DATAREADER, "wrong_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_locator)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::LOCATOR, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::LOCATOR, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_invalid)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::INVALID, "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(EntityKind::INVALID, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_other_kind)
 {
-    EXPECT_THROW(db.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
+    EXPECT_THROW(db_.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
 }
 
 int main(

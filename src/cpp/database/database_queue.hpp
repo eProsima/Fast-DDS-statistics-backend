@@ -379,6 +379,8 @@ public:
         stop_consumer();
     }
 
+protected:
+
     virtual void process_sample() override;
 
     /**
@@ -406,8 +408,6 @@ public:
     {
         throw BadParameter("Unsupported Sample type and Data type combination");
     }
-
-protected:
 
     std::string deserialize_guid(
             StatisticsGuid data) const

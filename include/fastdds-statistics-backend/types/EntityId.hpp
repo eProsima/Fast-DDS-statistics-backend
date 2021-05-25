@@ -33,41 +33,41 @@ public:
     /**
      * @brief Instantiate an EntityId. The internal value is set to EntityId::invalid
      */
-    EntityId() noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId() noexcept;
 
     /**
      * @brief Instantiate an EntityId from an integer.
      * @param value The value to use as internal value on the EntityId
      */
-    EntityId(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId(
             int64_t value) noexcept;
 
     /**
      * @brief Move constructor
      * @param entity_id The moved EntityId
      */
-    EntityId(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId(
             EntityId&& entity_id) noexcept = default;
 
     /**
      * @brief Copy constructor
      * @param entity_id The copied EntityId
      */
-    EntityId(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId(
             const EntityId& entity_id) noexcept = default;
 
     /**
      * @brief Copy assignment operator
      * @param entity_id The assigned EntityId
      */
-    EntityId& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId& operator =(
             const EntityId& entity_id) noexcept = default;
 
     /**
      * @brief Move assignment operator
      * @param entity_id The assigned EntityId
      */
-    EntityId& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId& operator =(
             EntityId&& entity_id) noexcept = default;
 
     /**
@@ -100,7 +100,7 @@ public:
      * @brief Get the internal value of the EntityId
      * @return An int64_t with the representing internal value
      */
-    int64_t value() const noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI int64_t value() const noexcept;
 
 protected:
 

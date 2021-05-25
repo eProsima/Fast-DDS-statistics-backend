@@ -20,12 +20,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     find_package(Threads REQUIRED)
 
     add_executable(statistics_reader_listener_tests StatisticsReaderListenerTests.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp)
+	    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+		${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+		${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp)
 
     target_include_directories(statistics_reader_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
@@ -37,8 +34,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src/cpp)
             
-    target_link_libraries(statistics_reader_listener_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    target_link_libraries(statistics_reader_listener_tests PUBLIC ${PROJECT_NAME}
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
     set(STATISTICSDATALISTENER_TEST_LIST
         mask

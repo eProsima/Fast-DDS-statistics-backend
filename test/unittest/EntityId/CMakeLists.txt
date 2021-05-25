@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+check_gtest()
+
 add_executable(entityid_tests EntityIdTests.cpp)
-target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} gtest)
+target_include_directories(entityid_tests PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
 
 set(ENTITYID_TEST_LIST
     all

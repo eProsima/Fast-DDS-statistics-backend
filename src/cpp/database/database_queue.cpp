@@ -46,6 +46,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Reader " + reader_guid + " not found");
     }
 
@@ -58,6 +59,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + writer_guid + " not found");
     }
 }
@@ -108,6 +110,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -138,6 +141,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -169,6 +173,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -192,6 +197,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -214,6 +220,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Remote entity " + remote_entity_guid + " not found");
     }
 
@@ -226,6 +233,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -250,6 +258,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
+		(void)e;
         throw Error("Entity " + sample_identity.first + " not found");
     }
 }

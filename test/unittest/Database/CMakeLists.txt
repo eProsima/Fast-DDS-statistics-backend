@@ -16,14 +16,19 @@
 # Sample tests
 ###############################################################################
 
-add_executable(sample_tests SampleTests.cpp)
+include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+check_gtest()
+
+add_executable(sample_tests SampleTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
 target_include_directories(sample_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+	${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(sample_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES})
 
 set(SAMPLES_TEST_LIST
     # Clear sample tests
@@ -71,14 +76,17 @@ endforeach()
 # Data tests
 ###############################################################################
 
-add_executable(data_tests DataTests.cpp)
+add_executable(data_tests DataTests.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
 target_include_directories(data_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+	${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(data_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES})
 
 set(DATA_TEST_LIST
     domainparticipant_data_clear
@@ -97,14 +105,19 @@ endforeach()
 # Database tests
 ###############################################################################
 
-add_executable(database_tests DatabaseTests.cpp)
+add_executable(database_tests DatabaseTests.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
 target_include_directories(database_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+	${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES})
 
 set(DATABASE_TEST_LIST
     # Insert Host test
@@ -301,14 +314,19 @@ endforeach()
 # Database Dump tests
 ###############################################################################
 
-add_executable(database_dump_tests DatabaseDumpTests.cpp)
+add_executable(database_dump_tests DatabaseDumpTests.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
 target_include_directories(database_dump_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+	${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(database_dump_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES})
 
 
 file(COPY
@@ -336,14 +354,19 @@ endforeach()
 # Database: get_entities tests
 ###############################################################################
 
-add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp)
+add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+	${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
 target_include_directories(database_get_entities_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+	${GTEST_INCLUDE_DIRS})
 
 target_link_libraries(database_get_entities_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES})
 
 set(DATABASE_GET_ENTITIES_TEST_LIST
     get_entities

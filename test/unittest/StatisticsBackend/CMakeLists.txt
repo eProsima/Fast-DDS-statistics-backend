@@ -15,9 +15,7 @@
 include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
 check_gtest()
 
-add_executable(statistics_backend_tests StatisticsBackendTests.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+add_executable(statistics_backend_tests StatisticsBackendTests.cpp)
 
 target_include_directories(statistics_backend_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
@@ -27,7 +25,7 @@ target_include_directories(statistics_backend_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
-target_link_libraries(statistics_backend_tests PUBLIC
+target_link_libraries(statistics_backend_tests PUBLIC ${PROJECT_NAME}
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
 set(DATABASEQUEUE_TEST_LIST

@@ -1529,7 +1529,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     }
                     break;
                 case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                 case EntityKind::PARTICIPANT:
                 case EntityKind::TOPIC:
                 case EntityKind::DATAREADER:
@@ -1563,7 +1563,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(process.second);
                     }
                     break;
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                 case EntityKind::PARTICIPANT:
                 case EntityKind::TOPIC:
                 case EntityKind::DATAREADER:
@@ -1603,7 +1603,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(participant.second);
                     }
                     break;
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                 case EntityKind::TOPIC:
                 case EntityKind::DATAREADER:
                 case EntityKind::DATAWRITER:
@@ -1619,12 +1619,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
             }
             break;
         }
-        case EntityKind::DOMAIN:
+        case EntityKind::DOMAIN_DDS:
         {
             const std::shared_ptr<const Domain>& domain = std::dynamic_pointer_cast<const Domain>(origin);
             switch (entity_kind)
             {
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                     entities.push_back(domain);
                     break;
                 case EntityKind::PARTICIPANT:
@@ -1672,7 +1672,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::PROCESS:
                     entities.push_back(participant->process);
                     break;
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                     entities.push_back(participant->domain);
                     break;
                 case EntityKind::PARTICIPANT:
@@ -1713,7 +1713,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
             const std::shared_ptr<const Topic>& topic = std::dynamic_pointer_cast<const Topic>(origin);
             switch (entity_kind)
             {
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                     entities.push_back(topic->domain);
                     break;
                 case EntityKind::TOPIC:
@@ -1781,7 +1781,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::HOST:
                 case EntityKind::USER:
                 case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                 {
                     auto sub_entities = get_entities(entity_kind, writer->participant);
                     entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -1821,7 +1821,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::HOST:
                 case EntityKind::USER:
                 case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                 {
                     auto sub_entities = get_entities(entity_kind, reader->participant);
                     entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -1857,7 +1857,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 case EntityKind::PROCESS:
                 case EntityKind::PARTICIPANT:
                 case EntityKind::TOPIC:
-                case EntityKind::DOMAIN:
+                case EntityKind::DOMAIN_DDS:
                     for (auto writer : locator->data_writers)
                     {
                         auto sub_entities = get_entities(entity_kind, writer.second);

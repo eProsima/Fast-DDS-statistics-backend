@@ -18,13 +18,9 @@ check_gmock()
 
 if(GTEST_FOUND AND GMOCK_FOUND)
     add_executable(database_queue_tests DatabaseQueueTests.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
+		${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+	    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+		${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp)
 
     target_include_directories(database_queue_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
@@ -36,7 +32,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(database_queue_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+		${PROJECT_NAME}
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush

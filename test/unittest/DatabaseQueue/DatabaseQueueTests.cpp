@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fastdds-statistics-backend/exception/Exception.hpp>
+
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <topic_types/types.h>
@@ -307,13 +309,12 @@ TEST_F(database_queue_tests, push_host_throws)
 
     // Expectation: The host creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -368,14 +369,13 @@ TEST_F(database_queue_tests, push_user_throws)
 
     // Expectation: The user creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -437,7 +437,7 @@ TEST_F(database_queue_tests, push_process_throws)
 
     // Expectation: The process creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, command);
@@ -445,7 +445,6 @@ TEST_F(database_queue_tests, push_process_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -471,7 +470,7 @@ TEST_F(database_queue_tests, push_domain)
     InsertEntityArgs insert_args([&](
                 std::shared_ptr<Entity> entity)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
+                EXPECT_EQ(entity->kind, EntityKind::DOMAIN_DDS);
                 EXPECT_EQ(entity->name, domain_name);
 
                 return EntityId(0);
@@ -495,13 +494,12 @@ TEST_F(database_queue_tests, push_domain_throws)
 
     // Expectation: The domain creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
-                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
+                EXPECT_EQ(entity->kind, EntityKind::DOMAIN_DDS);
                 EXPECT_EQ(entity->name, domain_name);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(0);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -634,7 +632,7 @@ TEST_F(database_queue_tests, push_topic_throws)
 
     // Expectation: The topic creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::TOPIC);
                 EXPECT_EQ(entity->name, topic_name);
@@ -642,7 +640,6 @@ TEST_F(database_queue_tests, push_topic_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -708,7 +705,7 @@ TEST_F(database_queue_tests, push_datawriter_throws)
 
     // Expectation: The datawriter creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
                 EXPECT_EQ(entity->name, datawriter_name);
@@ -716,7 +713,6 @@ TEST_F(database_queue_tests, push_datawriter_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -782,7 +778,7 @@ TEST_F(database_queue_tests, push_datareader_throws)
 
     // Expectation: The datareader creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
                 EXPECT_EQ(entity->name, datareader_name);
@@ -790,7 +786,6 @@ TEST_F(database_queue_tests, push_datareader_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -841,13 +836,12 @@ TEST_F(database_queue_tests, push_locator_throws)
 
     // Expectation: The datareader creation throws
     InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, locator_name);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -2580,8 +2574,8 @@ TEST_F(database_queue_tests, push_discovery_times)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(std::chrono::nanoseconds(
-                        discovery_time));
+	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(duration);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -2651,7 +2645,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::system_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp (duration);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -2707,7 +2702,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::system_clock::time_point discovery_timestamp (std::chrono::seconds(discovery_time));
+	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp (duration);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
@@ -3164,7 +3160,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     // Expectation: The process creation throws
     InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname);
@@ -3172,7 +3168,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -3341,14 +3336,13 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
 
     // Expectation: The user creation throws
     InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(3);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -3517,13 +3511,12 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     // Expectation: The host creation throws
     InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
+                std::shared_ptr<Entity> entity) -> EntityId
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
                 throw eprosima::statistics_backend::BadParameter("Error");
-                return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
