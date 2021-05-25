@@ -622,7 +622,7 @@ public:
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
 
-	// TODO(jlbueno) Windows does not support nanoseconds. We should consider having microsencond precision
+    // TODO(jlbueno) Windows does not support nanoseconds. We should consider having microsencond precision
     Timestamp src_ts = std::chrono::system_clock::now();
     Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::microseconds(1);
     Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
@@ -2554,7 +2554,8 @@ TEST_F(database_tests, select_sample_datas_invalid_wrong_entity)
     uint64_t sequence_number = 3;
 
     EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, sequence_number, t_from, t_to), BadParameter);
-    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::NETWORK_LATENCY, reader_locator->id, sequence_number, t_from, t_to),
+            BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, sequence_number, t_from, t_to), BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, sequence_number, t_from, t_to), BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, sequence_number, t_from, t_to), BadParameter);
@@ -2843,7 +2844,8 @@ TEST_F(database_tests, select_invalid_entity_id)
 TEST_F(database_tests, select_invalid_timestamps)
 {
     Timestamp t_from = std::chrono::system_clock::now();
-    Timestamp t_to = t_from - std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(1));
+    Timestamp t_to = t_from - std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                        1));
     uint64_t sequence_number = 3;
 
     EXPECT_THROW(db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
@@ -2858,14 +2860,16 @@ TEST_F(database_tests, select_invalid_timestamps)
             BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_SENT, participant_id_, reader_locator->id, t_from, t_to),
+            BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, reader_locator->id, t_from, t_to),
             BadParameter);
     EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, t_from, t_from),
             BadParameter);
-    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db_.select(DataKind::RTPS_BYTES_LOST, participant_id_, reader_locator->id, t_from, t_to),
+            BadParameter);
     EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_id, t_from, t_from), BadParameter);
     EXPECT_THROW(db_.select(DataKind::DISCOVERY_TIME, participant_id_, writer_id, t_from, t_to), BadParameter);
 
@@ -2896,8 +2900,6 @@ TEST_F(database_tests, select_invalid_timestamps)
 
 TEST_F(database_tests, select_fastdds_latency)
 {
-	std::cout << "mid1_ts == mid2_ts: " << (mid1_ts == mid2_ts) << std::endl;
-	
     data_output.clear();
     ASSERT_NO_THROW(data_output = db_.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
@@ -3175,7 +3177,8 @@ TEST_F(database_tests, select_rtps_packets_sent)
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output =
+            db_.select(DataKind::RTPS_PACKETS_SENT, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3314,7 +3317,8 @@ TEST_F(database_tests, select_rtps_packets_lost)
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, sample2_ts,
+    ASSERT_NO_THROW(data_output =
+            db_.select(DataKind::RTPS_PACKETS_LOST, participant_id_, writer_locator->id, sample2_ts,
             sample3_ts));
     ASSERT_EQ(data_output.size(), 2u);
     sample1 = static_cast<const EntityCountSample*>(data_output[0]);
@@ -3890,7 +3894,8 @@ TEST_F(database_tests, select_discovery_time)
     EXPECT_EQ(*sample2, sample_3);
 
     data_output.clear();
-    ASSERT_NO_THROW(data_output = db_.select(DataKind::DISCOVERY_TIME, participant_id_, participant_id_, src_ts, end_ts));
+    ASSERT_NO_THROW(data_output =
+            db_.select(DataKind::DISCOVERY_TIME, participant_id_, participant_id_, src_ts, end_ts));
     EXPECT_EQ(data_output.size(), 0u);
 
     data_output.clear();

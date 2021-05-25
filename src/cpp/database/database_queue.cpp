@@ -46,7 +46,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Reader " + reader_guid + " not found");
     }
 
@@ -59,7 +59,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + writer_guid + " not found");
     }
 }
@@ -110,7 +110,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -141,7 +141,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -173,7 +173,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -197,7 +197,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -210,8 +210,9 @@ void DatabaseDataQueue::process_sample_type(
         DiscoveryTimeSample& sample,
         const StatisticsDiscoveryTime& item) const
 {
-	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(item.time()));
-	sample.time = std::chrono::system_clock::time_point (duration);
+    std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                        item.time()));
+    sample.time = std::chrono::system_clock::time_point (duration);
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     try
     {
@@ -220,7 +221,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Remote entity " + remote_entity_guid + " not found");
     }
 
@@ -233,7 +234,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + guid + " not found");
     }
 }
@@ -258,7 +259,7 @@ void DatabaseDataQueue::process_sample_type(
     }
     catch (BadParameter& e)
     {
-		(void)e;
+        (void)e;
         throw Error("Entity " + sample_identity.first + " not found");
     }
 }

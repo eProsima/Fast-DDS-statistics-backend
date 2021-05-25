@@ -2574,7 +2574,8 @@ TEST_F(database_queue_tests, push_discovery_times)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                        discovery_time));
     std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(duration);
 
     // Build the participant GUID
@@ -2645,7 +2646,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                        discovery_time));
     std::chrono::system_clock::time_point discovery_timestamp (duration);
 
     // Build the participant GUID
@@ -2702,7 +2704,8 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-	std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(discovery_time));
+    std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                        discovery_time));
     std::chrono::system_clock::time_point discovery_timestamp (duration);
 
     // Build the participant GUID

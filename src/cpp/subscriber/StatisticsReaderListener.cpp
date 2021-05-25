@@ -178,7 +178,9 @@ void StatisticsReaderListener::on_data_available(
 
         if (process)
         {
-			std::chrono::system_clock::duration duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(info.source_timestamp.to_ns()));
+            std::chrono::system_clock::duration duration =
+                    std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::nanoseconds(
+                                info.source_timestamp.to_ns()));
             std::chrono::system_clock::time_point timestamp =
                     std::chrono::system_clock::time_point (duration);
             data_queue_->push(timestamp, data);
