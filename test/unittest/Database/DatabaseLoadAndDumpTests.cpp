@@ -104,18 +104,292 @@ DatabaseDump load_file(
    }
  */
 
+
+
+// void change_key(DatabaseDump &object, const std::string& old_key, const std::string& new_key)
+// {
+//     // get iterator to old key; TODO: error handling if key is not present
+//     DatabaseDump::iterator it = object.find(old_key);
+
+//     // create null value for new key and swap value from old key
+//     std::swap(object[new_key], it.value());
+
+//     // delete value at old key (cheap, because the value is null after swap)
+//     object.erase(it);
+// }
+
+// void check_change_key(
+//         DatabaseDump& dump,
+//         DatabaseDump& container,
+//         std::string const& key,
+//         std::string const& newKey,
+//         bool const& throwException)
+// {
+//     Database db;
+//     change_key(container, key, newKey);
+
+//     if (throwException)
+//     {
+//         ASSERT_THROW(db.load_database(dump), CorruptedFile);
+//     }
+//     else
+//     {
+//         ASSERT_NO_THROW(db.load_database(dump));
+//     }
+// }
+
+
+// void check_entity_change_key(
+//     DatabaseDump &dump,
+//     std::string const &entityTag)
+// {
+//     std::string key = dump[entityTag].begin().key();
+//     std::vector<std::string> badkeys = {"1234", "34.12", "true", "false", "qwerty"};
+
+//     for (auto badkey : badkeys)
+//     {
+//         DatabaseDump dumpCopy = dump;
+//         check_change_key(dumpCopy, dumpCopy[entityTag], key,badkey,true);
+//     }
+// }
+
+// void check_data_change_key(
+//     DatabaseDump &dump,
+//     std::string const &entityTag,
+//     std::string const &dataTag)
+// {
+
+//     std::string key = dump[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag].begin().key();
+//     std::vector<std::string> badkeys = {"true", "false", "qwerty"};
+//     std::vector<std::string> goodkeys = {"1234","34.12"};
+
+//     for (auto badkey : badkeys)
+//     {
+//         DatabaseDump dumpCopy = dump;
+//         check_change_key(dumpCopy, dumpCopy[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag],
+//                          key, badkey,true);
+//     }
+
+//     for (auto goodkey : goodkeys)
+//     {
+//         DatabaseDump dumpCopy = dump;
+//         check_change_key(dumpCopy, dumpCopy[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag],
+//                          key, goodkey,false);
+//     }
+// }
+
+// TEST(database_load_and_dump_tests, load_and_dump_modified_keys)
+// {
+//     // Read JSON
+//     DatabaseDump dump = load_file(COMPLEX_DUMP_FILE);
+
+//     // Entities
+//     // check_entity_change_key(dump,HOST_CONTAINER_TAG);
+//     // check_entity_change_key(dump,USER_CONTAINER_TAG);
+//     // check_entity_change_key(dump,PROCESS_CONTAINER_TAG);
+//     // check_entity_change_key(dump,DOMAIN_CONTAINER_TAG);
+//     // check_entity_change_key(dump,TOPIC_CONTAINER_TAG);
+//     // check_entity_change_key(dump,PARTICIPANT_CONTAINER_TAG);
+//     // check_entity_change_key(dump,DATAWRITER_CONTAINER_TAG);
+//     // check_entity_change_key(dump,DATAREADER_CONTAINER_TAG);
+//     // check_entity_change_key(dump,LOCATOR_CONTAINER_TAG);
+
+//     // Datas with index
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_DISCOVERY_TIME_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_SENT_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_SENT_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_LOST_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_LOST_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
+//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
+
+//     // check_data_change_key(dump,DATAWRITER_CONTAINER_TAG,DATA_KIND_SAMPLE_DATAS_TAG);
+//     // check_data_change_key(dump,DATAWRITER_CONTAINER_TAG,DATA_KIND_FASTDDS_LATENCY_TAG);
+
+//     // check_data_change_key(dump,LOCATOR_CONTAINER_TAG,DATA_KIND_NETWORK_LATENCY_TAG);
+// }
+
+void check_is_string(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& key)
+{
+    // Wrong
+    std::vector<DatabaseDump> wrongValues = {true, 1234, 34.12, DatabaseDump::array({"9876"}), DatabaseDump::object(
+                                                 {{"wasd", "zx"}})};
+    for (auto wrongValue: wrongValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
+        Database db;
+        ASSERT_THROW(db.load_database(dumpCopy), DatabaseDump::exception);
+    }
+
+    // Correct
+    std::vector<DatabaseDump> correctValues = {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}"};
+    for (auto correctValue: correctValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = correctValue;
+        Database db;
+        ASSERT_NO_THROW(db.load_database(dumpCopy));
+    }
+}
+
+void check_is_int_id(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& key)
+{
+    // Wrong
+    std::vector<DatabaseDump> wrongValues =
+    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
+     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
+
+    for (auto wrongValue: wrongValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
+        Database db;
+        ASSERT_ANY_THROW(db.load_database(dumpCopy));
+    }
+}
+
+void check_is_array_id(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& key)
+{
+    // Wrong
+    std::vector<DatabaseDump> wrongValues =
+    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
+     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
+
+    for (auto wrongValue: wrongValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
+        Database db;
+        ASSERT_ANY_THROW(db.load_database(dumpCopy));
+    }
+}
+
+void check_is_object(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& key)
+{
+    // Wrong
+    std::vector<DatabaseDump> wrongValues = {};
+    for (auto wrongValue: wrongValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
+        Database db;
+        ASSERT_THROW(db.load_database(dumpCopy), DatabaseDump::exception);
+    }
+
+    // Correct
+    std::vector<DatabaseDump> correctValues =
+    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
+             DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
+    for (auto correctValue: correctValues)
+    {
+        DatabaseDump dumpCopy = dump;
+        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = correctValue;
+        Database db;
+        ASSERT_NO_THROW(db.load_database(dumpCopy));
+    }
+}
+
+TEST(database_load_and_dump_tests, load_and_dump_wrong_values)
+{
+    // Read JSON
+    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+
+    // object, string, float, int, array, bool
+
+    // Host
+    check_is_string(dump, HOST_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_array_id(dump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG);
+
+    // User
+    check_is_string(dump, USER_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_int_id(dump, USER_CONTAINER_TAG, HOST_ENTITY_TAG);
+    check_is_array_id(dump, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG);
+
+    // Process
+    check_is_string(dump, PROCESS_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_string(dump, PROCESS_CONTAINER_TAG, PID_INFO_TAG);
+    check_is_int_id(dump, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
+    check_is_array_id(dump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+
+    // Domain
+    check_is_string(dump, DOMAIN_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_array_id(dump, DOMAIN_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+    check_is_array_id(dump, DOMAIN_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
+
+    // Topic
+    check_is_string(dump, TOPIC_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_string(dump, TOPIC_CONTAINER_TAG, DATA_TYPE_INFO_TAG);
+    check_is_int_id(dump, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    check_is_array_id(dump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_is_array_id(dump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+
+    // Participant
+    check_is_string(dump, PARTICIPANT_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_string(dump, PARTICIPANT_CONTAINER_TAG, GUID_INFO_TAG);
+    check_is_object(dump, PARTICIPANT_CONTAINER_TAG, QOS_INFO_TAG);
+    check_is_int_id(dump, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
+    check_is_int_id(dump, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    check_is_array_id(dump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_is_array_id(dump, PARTICIPANT_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+
+    // Locator
+    check_is_string(dump, LOCATOR_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_array_id(dump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_is_array_id(dump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+
+    // Datawriter
+    check_is_string(dump, DATAWRITER_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_string(dump, DATAWRITER_CONTAINER_TAG, GUID_INFO_TAG);
+    check_is_object(dump, DATAWRITER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_is_int_id(dump, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    check_is_int_id(dump, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    check_is_array_id(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+
+    // Datareader
+    check_is_string(dump, DATAREADER_CONTAINER_TAG, NAME_INFO_TAG);
+    check_is_string(dump, DATAREADER_CONTAINER_TAG, GUID_INFO_TAG);
+    check_is_object(dump, DATAREADER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_is_int_id(dump, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    check_is_int_id(dump, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    check_is_array_id(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+
+}
+
 // Check that the load of the 'dump 'without 'key' in 'container', throws an exception
 void check_no_key(
         DatabaseDump& dump,
         DatabaseDump& container,
-        std::string const& key)
+        std::string const& key,
+        bool error = true)
 {
     Database db;
     container.erase(key);
-    ASSERT_THROW(db.load_database(dump), CorruptedFile);
+    if (error)
+    {
+        ASSERT_ANY_THROW(db.load_database(dump));
+    }
+    else
+    {
+        ASSERT_NO_THROW(db.load_database(dump));
+    }
 }
 
-void check_entity_generic_keys(
+void check_entity_no_generic_keys(
         DatabaseDump& dump,
         std::string const& key)
 {
@@ -156,118 +430,319 @@ void check_data_no_key(
     check_no_key(dumpCopy, dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG], keyTag);
 }
 
-// Test the load of a corrupted database
+void check_data_value_no_id_key(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& keyTag)
+{
+    DatabaseDump dumpCopy = dump;
+    check_no_key(dumpCopy, dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
+            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag].begin().key(), false);
+}
+
+void check_data_value_index_no_key(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& keyTag,
+        std::string const& data_param)
+{
+    DatabaseDump dumpCopy = dump;
+    check_no_key(dumpCopy,
+            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+                    .begin().value().begin().value(),
+            data_param);
+}
+
+void check_data_value_no_key(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& keyTag,
+        std::string const& data_param)
+{
+    DatabaseDump dumpCopy = dump;
+    check_no_key(dumpCopy,
+            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+                    .begin().value(),
+            data_param);
+}
+
+void check_data_value_index_last_no_key(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& keyTag,
+        std::string const& data_param)
+{
+    DatabaseDump dumpCopy = dump;
+    check_no_key(dumpCopy,
+            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+                    .begin().value(),
+            data_param);
+}
+
+void check_data_value_last_no_key(
+        DatabaseDump& dump,
+        std::string const& entityTag,
+        std::string const& keyTag,
+        std::string const& data_param)
+{
+    DatabaseDump dumpCopy = dump;
+    check_no_key(dumpCopy,
+            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
+            data_param);
+}
+
+// Test the load of a corrupted database with erased keys
 TEST(database_load_and_dump_tests, load_and_dump_erased_keys)
 {
     // Read JSON
-    DatabaseDump emptyEntitiesDump = load_file(COMPLEX_DUMP_FILE);
+    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
 
     // ------------ HOSTS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, HOST_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, HOST_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG);
+    check_entity_no_key(dump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG);
 
     // ------------ USERS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, USER_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, USER_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, USER_CONTAINER_TAG, HOST_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG);
+    check_entity_no_key(dump, USER_CONTAINER_TAG, HOST_ENTITY_TAG);
+    check_entity_no_key(dump, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG);
 
     // ------------ PROCESSES ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, PROCESS_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, PROCESS_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, PROCESS_CONTAINER_TAG, PID_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+    check_entity_no_key(dump, PROCESS_CONTAINER_TAG, PID_INFO_TAG);
+    check_entity_no_key(dump, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
+    check_entity_no_key(dump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
 
     // ------------ DOMAINS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, DOMAIN_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, DOMAIN_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, DOMAIN_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, DOMAIN_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
+    check_entity_no_key(dump, DOMAIN_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+    check_entity_no_key(dump, DOMAIN_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
 
     // ------------ TOPICS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, TOPIC_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, TOPIC_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, TOPIC_CONTAINER_TAG, DATA_TYPE_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATA_TYPE_INFO_TAG);
+    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
 
     // ------------ PARTICIPANTS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, PARTICIPANT_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, QOS_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, GUID_INFO_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
 
     // ------------ LOCATORS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, LOCATOR_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, LOCATOR_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, LOCATOR_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
+    check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
 
     // ------------ DATAWRITERS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, DATAWRITER_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, QOS_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAWRITER_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, GUID_INFO_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
 
     // ------------ DATAREADERS ----------------
 
-    check_entity_generic_keys(emptyEntitiesDump, DATAREADER_CONTAINER_TAG);
+    check_entity_no_generic_keys(dump, DATAREADER_CONTAINER_TAG);
 
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, QOS_INFO_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
-    check_entity_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, GUID_INFO_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
 
     // ------------ PARTICIPANT DATA ----------------
 
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG);
+
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
+
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG, DATA_VALUE_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG,
+            DATA_VALUE_REMOTE_ENTITY_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG,
+            DATA_VALUE_DISCOVERED_TAG);
+    check_data_value_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG,
+            DATA_VALUE_MAGNITUDE_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG,
+            DATA_VALUE_MAGNITUDE_TAG);
+    check_data_value_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG,
+            DATA_VALUE_MAGNITUDE_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG,
+            DATA_VALUE_MAGNITUDE_TAG);
 
     // ------------ DATAWRITER DATA ----------------
 
-    check_data_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG);
-    check_data_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_TAG);
-    check_data_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_TAG);
-    check_data_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG);
-    check_data_no_key(emptyEntitiesDump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_PUBLICATION_THROUGHPUT_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_SAMPLE_DATAS_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_FASTDDS_LATENCY_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG);
+
+    check_data_value_no_id_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_SAMPLE_DATAS_TAG);
+    check_data_value_no_id_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_FASTDDS_LATENCY_TAG);
+
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_PUBLICATION_THROUGHPUT_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_PUBLICATION_THROUGHPUT_TAG, DATA_VALUE_DATA_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_SAMPLE_DATAS_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_SAMPLE_DATAS_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_index_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_FASTDDS_LATENCY_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_FASTDDS_LATENCY_TAG, DATA_VALUE_DATA_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAWRITER_CONTAINER_TAG, DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+
+    // ------------ DATAREADER DATA ----------------
+
+    check_data_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG);
+    check_data_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_TAG);
+    check_data_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_TAG);
+    check_data_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG);
+    check_data_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG);
+
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG, DATA_VALUE_DATA_TAG);
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_TAG, DATA_VALUE_COUNT_TAG);
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_TAG, DATA_VALUE_COUNT_TAG);
+
+    check_data_value_last_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
+
+    check_data_value_last_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_last_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG,
+            DATA_VALUE_COUNT_TAG);
 
     // ------------ LOCATOR DATA ----------------
 
-    check_data_no_key(emptyEntitiesDump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
+    check_data_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
+
+    check_data_value_no_id_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
+    check_data_value_index_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG, DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG, DATA_VALUE_DATA_TAG);
 }
 
 // Test the load of a dump database without any entity

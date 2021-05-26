@@ -16,6 +16,7 @@
 #include "database.hpp"
 
 #include <algorithm>
+#include <boost/lexical_cast.hpp>   // For lexical_cast
 #include <chrono>
 #include <iostream>
 #include <mutex>  // For std::unique_lock
@@ -3103,16 +3104,107 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::check_dump_keys(
-        const DatabaseDump& dump,
-        const std::vector<std::string>& keys)
+// void Database::check_is_string(
+//     const DatabaseDump &dump)
+// {
+//     if (dump.is_string())
+//         throw CorruptedFile("Dump: " + std::string(dump) + " must be a string");
+// }
+
+// Check entity reference exists
+void check_entity_exists(
+        DatabaseDump const& container,
+        std::string const& id)
 {
-    for (std::vector<std::string>::const_iterator it = keys.cbegin(); it != keys.cend(); ++it)
+    if (!container.contains(id))
     {
-        if (!dump.contains(*it))
-        {
-            throw CorruptedFile("Key: " + (*it) + " not found in JSON");
-        }
+        throw CorruptedFile("Entity container: " + container.dump() + " do not have a Entity with ID: " + id);
+    }
+}
+
+// Check entity reference have reference to entity
+void check_entity_reference(
+        DatabaseDump const& container,
+        std::string const& reference_id,
+        std::string const& entity_tag,
+        std::string const& entity_id)
+{
+    check_entity_exists(container, reference_id);
+
+    std::string id = std::to_string(boost::lexical_cast<int>((std::string)container.at(reference_id).at(entity_tag)));
+    if (id != entity_id)
+    {
+        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
+                      " have reference to " + entity_tag + ": " + id +
+                      " instead of " + entity_tag + ": " + entity_id);
+    }
+}
+
+// Check entity reference contains reference to entity
+void check_entity_reference_contains(
+        DatabaseDump const& container,
+        std::string const& reference_id,
+        std::string const& entity_tag,
+        std::string const& entity_id)
+{
+    check_entity_exists(container, reference_id);
+
+    if (container.at(reference_id).at(entity_tag).find(entity_id) !=
+            container.at(reference_id).at(entity_tag).end())
+    {
+        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
+                      " have reference to " + entity_tag + ": " +
+                      container.at(reference_id).at(entity_tag).dump() +
+                      " instead of " + entity_tag + ": " + entity_id);
+    }
+}
+
+void check_all_references(
+        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        std::string const& entity_tag,
+        std::string const& reference_tag,
+        DatabaseDump const& dump)
+{
+    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
+    DatabaseDump references_id = (*it).at(reference_tag);
+    DatabaseDump reference_container = dump.at(reference_tag);
+
+    // Check all references
+    for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
+    {
+        check_entity_reference(reference_container, std::to_string(boost::lexical_cast<int>(
+                    (std::string)*refIt)), entity_tag, entity_id);
+    }
+}
+
+void check_contains_reference(
+        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        std::string const& entity_tag,
+        std::string const& reference_container_tag,
+        std::string const& reference_tag,
+        DatabaseDump const& dump)
+{
+    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
+    std::string reference_id = std::to_string(boost::lexical_cast<int>((std::string)(*it).at(reference_tag)));
+    DatabaseDump reference_container = dump.at(reference_container_tag);
+
+    check_entity_reference_contains(reference_container, reference_id, entity_tag, entity_id);
+}
+
+void check_mutual_references(
+        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        std::string const& entity_tag,
+        std::string const& reference_tag,
+        DatabaseDump const& dump)
+{
+    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
+    DatabaseDump references_id = (*it).at(reference_tag);
+    DatabaseDump reference_container = dump.at(reference_tag);
+
+    for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
+    {
+        check_entity_reference_contains(reference_container,
+                std::to_string(boost::lexical_cast<int>((std::string)*refIt)), entity_tag, entity_id);
     }
 }
 
@@ -3123,164 +3215,129 @@ void Database::load_database(
 
     try
     {
-
-        check_dump_keys(dump, {HOST_CONTAINER_TAG, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
-                               TOPIC_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
-                               DATAREADER_CONTAINER_TAG,
-                               LOCATOR_CONTAINER_TAG});
         // Hosts
         {
-            DatabaseDump container = dump[HOST_CONTAINER_TAG];
+            DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, USER_CONTAINER_TAG});
+                // Check entity have correct references to other entities
+                check_all_references(it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<Host> entity = std::make_shared<Host>((*it)[NAME_INFO_TAG]);
+                std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
             }
         }
 
         // Users
         {
-            DatabaseDump container = dump[USER_CONTAINER_TAG];
+            DatabaseDump container = dump.at(USER_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, HOST_ENTITY_TAG, PROCESS_CONTAINER_TAG});
-
-                std::string hostId = (std::string)(*it)[HOST_ENTITY_TAG];
-
-                // Check user host exists
-                if (!dump[HOST_CONTAINER_TAG].contains(hostId))
-                {
-                    throw CorruptedFile("Trying to create User: " + it.key() + " but Host: " +
-                                  hostId + " does not exists");
-                }
+                // Check entity have correct references to other entities
+                check_contains_reference(it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG, dump);
+                check_all_references(it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<User> entity = std::make_shared<User>((*it)[NAME_INFO_TAG],
-                                hosts_[EntityId(stoi(hostId))]);
+                std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
+                                hosts_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG)))]);
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
             }
         }
 
         // Processes
         {
-            DatabaseDump container = dump[PROCESS_CONTAINER_TAG];
+            DatabaseDump container = dump.at(PROCESS_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, PID_INFO_TAG, USER_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG});
-
-                std::string userId = (std::string)(*it)[USER_ENTITY_TAG];
-
-                // Check process user exists
-                if (!dump[USER_CONTAINER_TAG].contains(userId))
-                {
-                    throw CorruptedFile("Trying to create Process: " + it.key() + " but User: " +
-                                  userId + " does not exists");
-                }
+                // Check entity have correct references to other entities
+                check_contains_reference(it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG, dump);
+                check_all_references(it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<Process> entity = std::make_shared<Process>((*it)[NAME_INFO_TAG], (*it)[PID_INFO_TAG],
-                                users_[EntityId(stoi(userId))]);
+                std::shared_ptr<Process> entity =
+                        std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
+                                users_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(USER_ENTITY_TAG)))]);
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
             }
         }
 
         // Domains
         {
-            DatabaseDump container = dump[DOMAIN_CONTAINER_TAG];
+            DatabaseDump container = dump.at(DOMAIN_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, PARTICIPANT_CONTAINER_TAG, TOPIC_CONTAINER_TAG});
+                // Check entity have correct references to other entities
+                check_all_references(it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
+                check_all_references(it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it)[NAME_INFO_TAG]);
+                std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
             }
         }
 
         // Topics
         {
-            DatabaseDump container = dump[TOPIC_CONTAINER_TAG];
+            DatabaseDump container = dump.at(TOPIC_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, DATA_TYPE_INFO_TAG, DOMAIN_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
-                                        DATAREADER_CONTAINER_TAG});
-
-                std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
-
-                // Check topic domain exists
-                if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
-                {
-                    throw CorruptedFile("Trying to create Topic: " + it.key() + " but Domain: " +
-                                  domainId_str + " does not exists");
-                }
+                // Check entity have correct references to other entities
+                check_contains_reference(it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
+                check_all_references(it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
+                check_all_references(it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<Topic> entity = std::make_shared<Topic>((*it)[NAME_INFO_TAG], (*it)[DATA_TYPE_INFO_TAG],
-                                domains_[EntityId(stoi(domainId_str))]);
+                std::shared_ptr<Topic> entity =
+                        std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
+                                domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
             }
         }
 
         // Participants
         {
-            DatabaseDump container = dump[PARTICIPANT_CONTAINER_TAG];
+            DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PROCESS_ENTITY_TAG,
-                                        DOMAIN_ENTITY_TAG,
-                                        DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATA_CONTAINER_TAG});
+                // Check entity have correct references to other entities
 
-                std::string processId_str = (std::string)(*it)[PROCESS_ENTITY_TAG];
-
-                // Check participant process exists
-                if (!dump[PROCESS_CONTAINER_TAG].contains(processId_str))
-                {
-                    throw CorruptedFile("Trying to create Participant: " + it.key() + " but Process: " +
-                                  processId_str + " does not exists");
-                }
-
-                std::string domainId_str = (std::string)(*it)[DOMAIN_ENTITY_TAG];
-
-                // Check participant domain exists
-                if (!dump[DOMAIN_CONTAINER_TAG].contains(domainId_str))
-                {
-                    throw CorruptedFile("Trying to create Participant: " + it.key() + " but Domain: " +
-                                  domainId_str + " does not exists");
-                }
+                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG,
+                        dump);
+                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
+                check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
+                check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
 
                 // Get keys
-                EntityId entityId(stoi(it.key()));
-                EntityId processId(stoi(processId_str));
+                EntityId entityId(boost::lexical_cast<int>(it.key()));
+                EntityId processId(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
 
                 // Create entity
                 std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                    (*it)[NAME_INFO_TAG], (*it)[QOS_INFO_TAG], (*it)[GUID_INFO_TAG],  nullptr,
-                    domains_[EntityId(stoi(domainId_str))]);
+                    (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
+                    domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
                 // Insert into database
                 insert_nts(entity, entityId);
@@ -3289,260 +3346,181 @@ void Database::load_database(
                 link_participant_with_process_nts(entityId, processId);
 
                 // Load data and insert into database
-                load_data((*it)[DATA_CONTAINER_TAG], entity);
+                load_data((*it).at(DATA_CONTAINER_TAG), entity);
             }
         }
 
         // Locators
         {
-            DatabaseDump container = dump[LOCATOR_CONTAINER_TAG];
+            DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, DATAWRITER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
-                                        DATA_CONTAINER_TAG});
-
-                /* Check locator datawriters exists */
-                for (auto itLoc = (*it)[DATAWRITER_CONTAINER_TAG].begin();
-                        itLoc != (*it)[DATAWRITER_CONTAINER_TAG].end();
-                        ++itLoc)
-                {
-                    std::string dataId_str = (std::string)*itLoc;
-
-                    // Check datawriter locators exists
-                    if (!dump[DATAWRITER_CONTAINER_TAG].contains(dataId_str))
-                    {
-                        throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datawriter: " +
-                                      dataId_str + " does not exists");
-                    }
-                }
-
-                /* Check locator datareaders exists */
-                for (auto itLoc = (*it)[DATAREADER_CONTAINER_TAG].begin();
-                        itLoc != (*it)[DATAREADER_CONTAINER_TAG].end();
-                        ++itLoc)
-                {
-                    std::string dataId_str = (std::string)*itLoc;
-
-                    // Check datareaders locators exists
-                    if (!dump[DATAREADER_CONTAINER_TAG].contains(dataId_str))
-                    {
-                        throw CorruptedFile("Trying to create Locator: " + it.key() + " but Datareader: " +
-                                      dataId_str + " does not exists");
-                    }
-                }
+                // Check entity have correct references to other entities
+                check_mutual_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
+                check_mutual_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
 
                 // Create entity
-                std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it)[NAME_INFO_TAG]);
+                std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
 
                 // Give him a id
-                entity->id = EntityId(stoi(it.key()));
+                entity->id = EntityId(boost::lexical_cast<int>(it.key()));
                 next_id_++;
 
                 locators_[entity->id] = entity;
 
                 // Load data and insert into database
-                load_data((*it)[DATA_CONTAINER_TAG], entity);
+                load_data((*it).at(DATA_CONTAINER_TAG), entity);
             }
         }
 
         // DataWriters
         {
-            DatabaseDump container = dump[DATAWRITER_CONTAINER_TAG];
+            DatabaseDump container = dump.at(DATAWRITER_CONTAINER_TAG);
 
             // For each entity of this kind in database
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
-                                        TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
-
-                std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
-
-                // Check datawriter topic exists
-                if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
-                {
-                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Topic: " +
-                                  topicId_str + " does not exists");
-                }
-
-                std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
-
-                // Check datawriter participant exists
-                if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
-                {
-                    throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but Participant: " +
-                                  participantId_str + " does not exists");
-                }
+                // Check entity have correct references to other entities
+                check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                        PARTICIPANT_ENTITY_TAG, dump);
+                check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
+                check_mutual_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
                 // Get keys
-                EntityId participantId = EntityId(stoi(participantId_str));
-                EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
-                                [std::to_string(participantId.value())]
-                                [DOMAIN_ENTITY_TAG]));
+                EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+                                    PARTICIPANT_ENTITY_TAG)));
+                EntityId participantDomainId =
+                        EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                                        .at(std::to_string(participantId.value()))
+                                        .at(DOMAIN_ENTITY_TAG)));
 
-                EntityId topicId = EntityId(stoi(topicId_str));
-                EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
-                                [std::to_string(topicId.value())]
-                                [DOMAIN_ENTITY_TAG]));
+                EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+                EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                        .at(std::to_string(topicId.value()))
+                                        .at(DOMAIN_ENTITY_TAG)));
 
                 // Create entity
                 std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
-                    (*it)[NAME_INFO_TAG],
-                    (*it)[QOS_INFO_TAG],
-                    (*it)[GUID_INFO_TAG],
+                    (*it).at(NAME_INFO_TAG),
+                    (*it).at(QOS_INFO_TAG),
+                    (*it).at(GUID_INFO_TAG),
                     participants_[participantDomainId][participantId],
                     topics_[topicDomainId][topicId]);
 
                 /* Add reference to locator to the endpoint */
-                for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
+                for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                        itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                         ++itLoc)
                 {
-                    std::string locatorsId_str = (std::string)*itLoc;
-
-                    // Check datawriter locators exists
-                    if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
-                    {
-                        throw CorruptedFile("Trying to create Datawriter: " + it.key() + " but locator: " +
-                                      locatorsId_str + " does not exists");
-                    }
-
-                    entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                    entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
+                            locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
                 }
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
 
                 // Load data and insert into database
-                load_data((*it)[DATA_CONTAINER_TAG], entity);
+                load_data((*it).at(DATA_CONTAINER_TAG), entity);
             }
         }
 
         // DataReaders
         {
-            DatabaseDump container = dump[DATAREADER_CONTAINER_TAG];
+            DatabaseDump container = dump.at(DATAREADER_CONTAINER_TAG);
             for (auto it = container.begin(); it != container.end(); ++it)
             {
-                check_dump_keys((*it), {NAME_INFO_TAG, GUID_INFO_TAG, QOS_INFO_TAG, PARTICIPANT_ENTITY_TAG,
-                                        TOPIC_ENTITY_TAG, LOCATOR_CONTAINER_TAG, DATA_CONTAINER_TAG});
-
-                std::string topicId_str = (std::string)(*it)[TOPIC_ENTITY_TAG];
-
-                // Check datareader topic exists
-                if (!dump[TOPIC_CONTAINER_TAG].contains(topicId_str))
-                {
-                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but topic: " +
-                                  topicId_str + " does not exists");
-                }
-
-                std::string participantId_str = (std::string)(*it)[PARTICIPANT_ENTITY_TAG];
-
-                // Check datareader participant exists
-                if (!dump[PARTICIPANT_CONTAINER_TAG].contains(participantId_str))
-                {
-                    throw CorruptedFile("Trying to create Datareader: " + it.key() + " but Participant: " +
-                                  participantId_str + " does not exists");
-                }
+                // Check entity have correct references to other entities
+                check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                        PARTICIPANT_ENTITY_TAG, dump);
+                check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
+                check_mutual_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
                 // Get keys
-                EntityId participantId = EntityId(stoi(participantId_str));
-                EntityId participantDomainId = EntityId(stoi((std::string)dump[PARTICIPANT_CONTAINER_TAG]
-                                [std::to_string(participantId.value())]
-                                [DOMAIN_ENTITY_TAG]));
+                EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+                                    PARTICIPANT_ENTITY_TAG)));
+                EntityId participantDomainId =
+                        EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                                        .at(std::to_string(participantId.value()))
+                                        .at(DOMAIN_ENTITY_TAG)));
 
-                EntityId topicId = EntityId(stoi(topicId_str));
-                EntityId topicDomainId = EntityId(stoi((std::string)dump[TOPIC_CONTAINER_TAG]
-                                [std::to_string(topicId.value())]
-                                [DOMAIN_ENTITY_TAG]));
+                EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+                EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                        .at(std::to_string(topicId.value()))
+                                        .at(DOMAIN_ENTITY_TAG)));
 
                 // Create entity
                 std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
-                    (*it)[NAME_INFO_TAG],
-                    (*it)[QOS_INFO_TAG],
-                    (*it)[GUID_INFO_TAG],
+                    (*it).at(NAME_INFO_TAG),
+                    (*it).at(QOS_INFO_TAG),
+                    (*it).at(GUID_INFO_TAG),
                     participants_[participantDomainId][participantId],
                     topics_[topicDomainId][topicId]);
 
                 /* Add reference to locator to the endpoint */
-                for (auto itLoc = (*it)[LOCATOR_CONTAINER_TAG].begin(); itLoc != (*it)[LOCATOR_CONTAINER_TAG].end();
+                for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                        itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                         ++itLoc)
                 {
-                    std::string locatorsId_str = (std::string)*itLoc;
-
-                    // Check datareaderlocators exists
-                    if (!dump[LOCATOR_CONTAINER_TAG].contains(locatorsId_str))
-                    {
-                        throw CorruptedFile("Trying to create Datareader: " + it.key() + " but locator: " +
-                                      locatorsId_str + " does not exists");
-                    }
-
-                    entity->locators[stoi(locatorsId_str)] = locators_[EntityId(stoi(locatorsId_str))];
+                    entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
+                            locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
                 }
 
                 // Insert into database
-                insert_nts(entity, EntityId(stoi(it.key())));
+                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
 
                 // // Load data and insert into database
-                load_data((*it)[DATA_CONTAINER_TAG], entity);
+                load_data((*it).at(DATA_CONTAINER_TAG), entity);
             }
         }
-
     }
     catch (CorruptedFile& error)
     {
         std::cout << "CorruptedFile error: " << error.what() << std::endl;
         throw;
     }
-
-    // catch (...)
-    // {
-    //     std::cout << "Dump: wrong json format" << std::endl;
-    //     throw CorruptedFile("Dump: wrong json format");
-    // }
-
+    catch (DatabaseDump::exception& error)
+    {
+        std::cout << "JSON error: " << error.what() << std::endl;
+        throw;
+    }
+    catch (boost::bad_lexical_cast& error)
+    {
+        std::cout << "JSON cast error: " << error.what() << std::endl;
+        throw;
+    }
 }
 
 void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DomainParticipant>& entity)
 {
-    check_dump_keys(dump, {DATA_KIND_DISCOVERY_TIME_TAG, DATA_KIND_PDP_PACKETS_TAG, DATA_KIND_EDP_PACKETS_TAG,
-                           DATA_KIND_RTPS_PACKETS_SENT_TAG, DATA_KIND_RTPS_BYTES_SENT_TAG,
-                           DATA_KIND_RTPS_PACKETS_LOST_TAG, DATA_KIND_RTPS_BYTES_LOST_TAG,
-                           DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG,
-                           DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG,
-                           DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG,
-                           DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG});
-
-    check_dump_keys(dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_dump_keys(dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-
     // discovery_time
     {
-        DatabaseDump container = dump[DATA_KIND_DISCOVERY_TIME_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_DISCOVERY_TIME_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_TIME_TAG, DATA_VALUE_REMOTE_ENTITY_TAG,
-                                        DATA_VALUE_DISCOVERED_TAG});
-
                 DiscoveryTimeSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t src_ts = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t src_ts = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_TIME_TAG)));
                 sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // EntityId
-                sample.remote_entity = EntityId(stoi(std::string((*it)[DATA_VALUE_REMOTE_ENTITY_TAG])));
+                sample.remote_entity = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+
+                (*it).at(DATA_VALUE_REMOTE_ENTITY_TAG);
 
                 // bool
-                sample.discovered = (*it)[DATA_VALUE_DISCOVERED_TAG];
+                sample.discovered = (*it).at(DATA_VALUE_DISCOVERED_TAG);
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3552,21 +3530,19 @@ void Database::load_data(
 
     // pdp_packets
     {
-        DatabaseDump container = dump[DATA_KIND_PDP_PACKETS_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_PDP_PACKETS_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3575,21 +3551,19 @@ void Database::load_data(
 
     // edp_packets
     {
-        DatabaseDump container = dump[DATA_KIND_EDP_PACKETS_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_EDP_PACKETS_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             EdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3598,26 +3572,25 @@ void Database::load_data(
 
     // rtps_packets_sent
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_SENT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
                 RtpsPacketsSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3627,30 +3600,28 @@ void Database::load_data(
 
     // rtps_bytes_sent
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_SENT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
-
                 RtpsBytesSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // int16_t
-                sample.magnitude_order = (*it)[DATA_VALUE_MAGNITUDE_TAG];
+                sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3660,27 +3631,25 @@ void Database::load_data(
 
     // rtps_packets_lost
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_LOST_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
                 RtpsPacketsLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3690,30 +3659,28 @@ void Database::load_data(
 
     // rtps_bytes_lost
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_LOST_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
-
                 RtpsBytesLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // int16_t
-                sample.magnitude_order = (*it)[DATA_VALUE_MAGNITUDE_TAG];
+                sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3723,30 +3690,26 @@ void Database::load_data(
 
     // last_reported_rtps_bytes_lost
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_dump_keys(
-                container[remoteIt.key()],
-                {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
-
             RtpsBytesLostSample sample;
-            DatabaseDump sampleDump = container[remoteIt.key()];
+            DatabaseDump sampleDump = container.at(remoteIt.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump[DATA_VALUE_COUNT_TAG];
+            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // int16_t
-            sample.magnitude_order = sampleDump[DATA_VALUE_MAGNITUDE_TAG];
+            sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3755,30 +3718,26 @@ void Database::load_data(
 
     // last_reported_rtps_bytes_sent
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_dump_keys(
-                container[remoteIt.key()],
-                {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG, DATA_VALUE_MAGNITUDE_TAG});
-
             RtpsBytesSentSample sample;
-            DatabaseDump sampleDump = container[remoteIt.key()];
+            DatabaseDump sampleDump = container.at(remoteIt.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump[DATA_VALUE_COUNT_TAG];
+            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // int16_t
-            sample.magnitude_order = sampleDump[DATA_VALUE_MAGNITUDE_TAG];
+            sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3787,25 +3746,23 @@ void Database::load_data(
 
     // last_reported_rtps_packets_lost
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_dump_keys(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             RtpsPacketsLostSample sample;
-            DatabaseDump sampleDump = container[remoteIt.key()];
+            DatabaseDump sampleDump = container.at(remoteIt.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump[DATA_VALUE_COUNT_TAG];
+            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3814,25 +3771,23 @@ void Database::load_data(
 
     // last_reported_rtps_packets_sent
     {
-        DatabaseDump container = dump[DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
-            check_dump_keys(container[remoteIt.key()], {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             RtpsPacketsSentSample sample;
-            DatabaseDump sampleDump = container[remoteIt.key()];
+            DatabaseDump sampleDump = container.at(remoteIt.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(sampleDump[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump[DATA_VALUE_COUNT_TAG];
+            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3842,18 +3797,18 @@ void Database::load_data(
     //last_reported_edp_packets
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_EDP_PACKETS_TAG].empty())
+        if (!dump.at(DATA_KIND_EDP_PACKETS_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG);
 
             EdpCountSample sample;
 
             //std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3863,18 +3818,18 @@ void Database::load_data(
     // last_reported_pdp_packets
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_PDP_PACKETS_TAG].empty())
+        if (!dump.at(DATA_KIND_PDP_PACKETS_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG);
 
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3886,35 +3841,21 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DataWriter>& entity)
 {
-    check_dump_keys(dump, {DATA_KIND_PUBLICATION_THROUGHPUT_TAG, DATA_KIND_RESENT_DATA_TAG,
-                           DATA_KIND_HEARTBEAT_COUNT_TAG, DATA_KIND_GAP_COUNT_TAG,
-                           DATA_KIND_DATA_COUNT_TAG, DATA_KIND_SAMPLE_DATAS_TAG, DATA_KIND_FASTDDS_LATENCY_TAG,
-                           DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG,
-                           DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG, DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG,
-                           DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG});
-
-    check_dump_keys(dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_dump_keys(dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_dump_keys(dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_dump_keys(dump[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-
     // publication_throughput
     {
-        DatabaseDump container = dump[DATA_KIND_PUBLICATION_THROUGHPUT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_PUBLICATION_THROUGHPUT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
-
             PublicationThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
-            sample.data = (*it)[DATA_VALUE_DATA_TAG];
+            sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3923,21 +3864,19 @@ void Database::load_data(
 
     // resent_datas
     {
-        DatabaseDump container = dump[DATA_KIND_RESENT_DATA_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_RESENT_DATA_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3946,21 +3885,19 @@ void Database::load_data(
 
     // heartbeat_count
     {
-        DatabaseDump container = dump[DATA_KIND_HEARTBEAT_COUNT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_HEARTBEAT_COUNT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3969,21 +3906,19 @@ void Database::load_data(
 
     // gap_count
     {
-        DatabaseDump container = dump[DATA_KIND_GAP_COUNT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_GAP_COUNT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3992,21 +3927,19 @@ void Database::load_data(
 
     // data_count
     {
-        DatabaseDump container = dump[DATA_KIND_DATA_COUNT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_DATA_COUNT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4015,27 +3948,25 @@ void Database::load_data(
 
     // samples_datas
     {
-        DatabaseDump container = dump[DATA_KIND_SAMPLE_DATAS_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_SAMPLE_DATAS_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
                 SampleDatasCountSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // uint64_t
-                sample.sequence_number = std::stoi(remoteIt.key());
+                sample.sequence_number = boost::lexical_cast<int>(remoteIt.key());
 
                 // // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4045,27 +3976,25 @@ void Database::load_data(
 
     // history2history_latency
     {
-        DatabaseDump container = dump[DATA_KIND_FASTDDS_LATENCY_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_FASTDDS_LATENCY_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
-
                 HistoryLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
-                sample.data = (*it)[DATA_VALUE_DATA_TAG];
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.reader = EntityId(stoi(remoteIt.key()));
+                sample.reader = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4076,18 +4005,18 @@ void Database::load_data(
     // last_reported_data_count
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_DATA_COUNT_TAG].empty())
+        if (!dump.at(DATA_KIND_DATA_COUNT_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG);
 
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4097,18 +4026,18 @@ void Database::load_data(
     // last_reported_gap_count
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_GAP_COUNT_TAG].empty())
+        if (!dump.at(DATA_KIND_GAP_COUNT_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG);
 
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4118,18 +4047,18 @@ void Database::load_data(
     // last_reported_heartbeat_count
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_HEARTBEAT_COUNT_TAG].empty())
+        if (!dump.at(DATA_KIND_HEARTBEAT_COUNT_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG);
 
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4139,18 +4068,18 @@ void Database::load_data(
     // last_reported_resent_datas
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_RESENT_DATA_TAG].empty())
+        if (!dump.at(DATA_KIND_RESENT_DATA_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG);
 
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4162,30 +4091,21 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<DataReader>& entity)
 {
-    check_dump_keys(dump, {DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG, DATA_KIND_ACKNACK_COUNT_TAG,
-                           DATA_KIND_NACKFRAG_COUNT_TAG,
-                           DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG});
-
-    check_dump_keys(dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-    check_dump_keys(dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG], {DATA_VALUE_COUNT_TAG, DATA_VALUE_SRC_TIME_TAG});
-
     // subscription_throughput
     {
-        DatabaseDump container = dump[DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
-
             SubscriptionThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
-            sample.data = (*it)[DATA_VALUE_DATA_TAG];
+            sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4194,21 +4114,19 @@ void Database::load_data(
 
     // acknack_count
     {
-        DatabaseDump container = dump[DATA_KIND_ACKNACK_COUNT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_ACKNACK_COUNT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4217,21 +4135,19 @@ void Database::load_data(
 
     // nackfrag_count
     {
-        DatabaseDump container = dump[DATA_KIND_NACKFRAG_COUNT_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_NACKFRAG_COUNT_TAG);
 
         // Data iterator
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_COUNT_TAG});
-
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it)[DATA_VALUE_COUNT_TAG];
+            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4241,18 +4157,18 @@ void Database::load_data(
     // last_reported_acknack_count
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_ACKNACK_COUNT_TAG].empty())
+        if (!dump.at(DATA_KIND_ACKNACK_COUNT_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG);
 
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4262,18 +4178,18 @@ void Database::load_data(
     // last_reported_nackfrag_count
     {
         // Only insert last reported if there are at least one
-        if (!dump[DATA_KIND_NACKFRAG_COUNT_TAG].empty())
+        if (!dump.at(DATA_KIND_NACKFRAG_COUNT_TAG).empty())
         {
-            DatabaseDump container = dump[DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG];
+            DatabaseDump container = dump.at(DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG);
 
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = stoi(std::string(container[DATA_VALUE_SRC_TIME_TAG]));
+            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container[DATA_VALUE_COUNT_TAG];
+            sample.count = container.at(DATA_VALUE_COUNT_TAG);
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4285,31 +4201,27 @@ void Database::load_data(
         const DatabaseDump& dump,
         const std::shared_ptr<Locator>& entity)
 {
-    check_dump_keys(dump, {DATA_KIND_NETWORK_LATENCY_TAG});
-
     // NetworkLatency
     {
-        DatabaseDump container = dump[DATA_KIND_NETWORK_LATENCY_TAG];
+        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
 
         // RemoteEntities iterator
         for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
         {
             // Data iterator
-            for (auto it = container[remoteIt.key()].begin(); it != container[remoteIt.key()].end(); ++it)
+            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
             {
-                check_dump_keys((*it), {DATA_VALUE_SRC_TIME_TAG, DATA_VALUE_DATA_TAG});
-
                 NetworkLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = stoi(std::string((*it)[DATA_VALUE_SRC_TIME_TAG]));
+                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
-                sample.data = (*it)[DATA_VALUE_DATA_TAG];
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(std::stoi(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
                 // Insert data into database
                 insert_nts(EntityId::invalid(), entity->id, sample, true);

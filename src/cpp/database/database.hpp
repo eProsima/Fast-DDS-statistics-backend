@@ -524,15 +524,14 @@ protected:
     DatabaseDump dump_data_(
             const std::map<EntityId, ByteCountSample>& data);
 
-    /**
-     * @brief Throw a CorruptedFile exception if the dump does not had al the keys
+    //     /**
+    //      * @brief Throw a CorruptedFile exception if the dump does not had al the keys
 
-     * @param dump json
-     * @param keys keys to check on the dump
-     */
-    void check_dump_keys(
-            const DatabaseDump& dump,
-            const std::vector<std::string>& keys);
+    //      * @param dump json
+    //      * @param keys keys to check on the dump
+    //      */
+    //     void check_is_string(
+    //             const DatabaseDump& dump);
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.
