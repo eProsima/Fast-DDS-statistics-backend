@@ -3245,7 +3245,7 @@ void Database::load_database(
 
                 // Create entity
                 std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
-                                hosts_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG)))]);
+                                hosts_[boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG))]);
 
                 // Insert into database
                 insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
@@ -3472,19 +3472,9 @@ void Database::load_database(
             }
         }
     }
-    catch (CorruptedFile& error)
+    catch (std::exception& error)
     {
         std::cout << "CorruptedFile error: " << error.what() << std::endl;
-        throw;
-    }
-    catch (DatabaseDump::exception& error)
-    {
-        std::cout << "JSON error: " << error.what() << std::endl;
-        throw;
-    }
-    catch (boost::bad_lexical_cast& error)
-    {
-        std::cout << "JSON cast error: " << error.what() << std::endl;
         throw;
     }
 }
@@ -3516,7 +3506,7 @@ void Database::load_data(
                 // EntityId
                 sample.remote_entity = EntityId(boost::lexical_cast<int>(remoteIt.key()));
 
-                (*it).at(DATA_VALUE_REMOTE_ENTITY_TAG);
+                boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
 
                 // bool
                 sample.discovered = (*it).at(DATA_VALUE_DISCOVERED_TAG);

@@ -56,162 +56,6 @@ DatabaseDump load_file(
     return dump;
 }
 
-/*
-   enum dump_type{_NULL,_OBJECT,_ARRAY,_STRING,_INT};
-
-   std::map<dump_type,DatabaseDump> test_values =
-   {
-    std::pair<dump_type,DatabaseDump>(_NULL,DatabaseDump()),
-    std::pair<dump_type,DatabaseDump>(_OBJECT,DatabaseDump::object()),
-    std::pair<dump_type,DatabaseDump>(_ARRAY,DatabaseDump::array()),
-    std::pair<dump_type,DatabaseDump>(_STRING,"wrong"),
-    std::pair<dump_type,DatabaseDump>(_INT,"1")
-   };
-
-   // Check the load of a container with all types of values
-   void check_values(DatabaseDump & dump, DatabaseDump & container, std::map<dump_type, bool>& is_wrong)
-   {
-    for (auto test_value : test_values)
-    {
-        Database db;
-        DatabaseDump aux = container;
-        container = test_value.second;
-
-        if (is_wrong[test_value.first])
-        {
-            ASSERT_THROW(db.load_database(dump), CorruptedFile);
-        }
-        else
-        {
-            ASSERT_NO_THROW(db.load_database(dump));
-        }
-
-        container = aux;
-    }
-   }
-
-   void check_wrong(DatabaseDump & dump, DatabaseDump & container)
-   {
-    std::map<dump_type, bool> is_wrong =
-        {
-            std::pair<dump_type, DatabaseDump>(_NULL, true),
-            std::pair<dump_type, DatabaseDump>(_OBJECT, true),
-            std::pair<dump_type, DatabaseDump>(_ARRAY, true),
-            std::pair<dump_type, DatabaseDump>(_STRING, true),
-            std::pair<dump_type, DatabaseDump>(_INT, true)};
-
-    check_values(dump, container, is_wrong);
-   }
- */
-
-
-
-// void change_key(DatabaseDump &object, const std::string& old_key, const std::string& new_key)
-// {
-//     // get iterator to old key; TODO: error handling if key is not present
-//     DatabaseDump::iterator it = object.find(old_key);
-
-//     // create null value for new key and swap value from old key
-//     std::swap(object[new_key], it.value());
-
-//     // delete value at old key (cheap, because the value is null after swap)
-//     object.erase(it);
-// }
-
-// void check_change_key(
-//         DatabaseDump& dump,
-//         DatabaseDump& container,
-//         std::string const& key,
-//         std::string const& newKey,
-//         bool const& throwException)
-// {
-//     Database db;
-//     change_key(container, key, newKey);
-
-//     if (throwException)
-//     {
-//         ASSERT_THROW(db.load_database(dump), CorruptedFile);
-//     }
-//     else
-//     {
-//         ASSERT_NO_THROW(db.load_database(dump));
-//     }
-// }
-
-
-// void check_entity_change_key(
-//     DatabaseDump &dump,
-//     std::string const &entityTag)
-// {
-//     std::string key = dump[entityTag].begin().key();
-//     std::vector<std::string> badkeys = {"1234", "34.12", "true", "false", "qwerty"};
-
-//     for (auto badkey : badkeys)
-//     {
-//         DatabaseDump dumpCopy = dump;
-//         check_change_key(dumpCopy, dumpCopy[entityTag], key,badkey,true);
-//     }
-// }
-
-// void check_data_change_key(
-//     DatabaseDump &dump,
-//     std::string const &entityTag,
-//     std::string const &dataTag)
-// {
-
-//     std::string key = dump[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag].begin().key();
-//     std::vector<std::string> badkeys = {"true", "false", "qwerty"};
-//     std::vector<std::string> goodkeys = {"1234","34.12"};
-
-//     for (auto badkey : badkeys)
-//     {
-//         DatabaseDump dumpCopy = dump;
-//         check_change_key(dumpCopy, dumpCopy[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag],
-//                          key, badkey,true);
-//     }
-
-//     for (auto goodkey : goodkeys)
-//     {
-//         DatabaseDump dumpCopy = dump;
-//         check_change_key(dumpCopy, dumpCopy[entityTag][dump[entityTag].begin().key()][DATA_VALUE_DATA_TAG][dataTag],
-//                          key, goodkey,false);
-//     }
-// }
-
-// TEST(database_load_and_dump_tests, load_and_dump_modified_keys)
-// {
-//     // Read JSON
-//     DatabaseDump dump = load_file(COMPLEX_DUMP_FILE);
-
-//     // Entities
-//     // check_entity_change_key(dump,HOST_CONTAINER_TAG);
-//     // check_entity_change_key(dump,USER_CONTAINER_TAG);
-//     // check_entity_change_key(dump,PROCESS_CONTAINER_TAG);
-//     // check_entity_change_key(dump,DOMAIN_CONTAINER_TAG);
-//     // check_entity_change_key(dump,TOPIC_CONTAINER_TAG);
-//     // check_entity_change_key(dump,PARTICIPANT_CONTAINER_TAG);
-//     // check_entity_change_key(dump,DATAWRITER_CONTAINER_TAG);
-//     // check_entity_change_key(dump,DATAREADER_CONTAINER_TAG);
-//     // check_entity_change_key(dump,LOCATOR_CONTAINER_TAG);
-
-//     // Datas with index
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_DISCOVERY_TIME_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_SENT_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_SENT_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_LOST_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_LOST_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
-//     // check_data_change_key(dump,PARTICIPANT_CONTAINER_TAG,DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
-
-//     // check_data_change_key(dump,DATAWRITER_CONTAINER_TAG,DATA_KIND_SAMPLE_DATAS_TAG);
-//     // check_data_change_key(dump,DATAWRITER_CONTAINER_TAG,DATA_KIND_FASTDDS_LATENCY_TAG);
-
-//     // check_data_change_key(dump,LOCATOR_CONTAINER_TAG,DATA_KIND_NETWORK_LATENCY_TAG);
-// }
-
-
 TEST(database_load_and_dump_tests, load_and_dump_wrong_references)
 {
     // Read JSON
@@ -336,97 +180,138 @@ TEST(database_load_and_dump_tests, load_and_dump_wrong_references)
     }
 }
 
-void check_is_string(
+void check_and_restore(
         DatabaseDump& dump,
-        std::string const& entityTag,
-        std::string const& key)
+        DatabaseDump& container,
+        std::vector<DatabaseDump>const& wrongValues,
+        std::vector<DatabaseDump>const& correctValues)
 {
     // Wrong
-    std::vector<DatabaseDump> wrongValues = {true, 1234, 34.12, DatabaseDump::array({"9876"}), DatabaseDump::object(
-                                                 {{"wasd", "zx"}})};
     for (auto wrongValue: wrongValues)
     {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
+        DatabaseDump aux = DatabaseDump(container);
+        container = wrongValue;
         Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), DatabaseDump::exception);
+        ASSERT_ANY_THROW(db.load_database(dump));
+        container = aux;
     }
 
-    // Correct
-    std::vector<DatabaseDump> correctValues = {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}"};
     for (auto correctValue: correctValues)
     {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = correctValue;
+        DatabaseDump aux = DatabaseDump(container);
+        container = correctValue;
         Database db;
-        ASSERT_NO_THROW(db.load_database(dumpCopy));
+        ASSERT_NO_THROW(db.load_database(dump));
+        container = aux;
     }
 }
 
-void check_is_int_id(
+void check_is_string(
         DatabaseDump& dump,
-        std::string const& entityTag,
-        std::string const& key)
+        DatabaseDump& container)
 {
-    // Wrong
-    std::vector<DatabaseDump> wrongValues =
-    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
-     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
-
-    for (auto wrongValue: wrongValues)
-    {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
-        Database db;
-        ASSERT_ANY_THROW(db.load_database(dumpCopy));
-    }
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array(
+                                                 {"array"}), true, 1234, 34.12};
+    std::vector<DatabaseDump> correctValues = {"qwerty", "1234", "34.12"};
+    check_and_restore(dump, container, wrongValues, correctValues);
 }
 
-void check_is_array_id(
+void check_is_id(
         DatabaseDump& dump,
-        std::string const& entityTag,
-        std::string const& key)
+        DatabaseDump& container)
 {
-    // Wrong
-    std::vector<DatabaseDump> wrongValues =
-    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
-     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             true, 1234, 34.12,
+                                             "qwerty", "1234", "34.12"};
 
-    for (auto wrongValue: wrongValues)
-    {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
-        Database db;
-        ASSERT_ANY_THROW(db.load_database(dumpCopy));
-    }
+    std::vector<DatabaseDump> correctValues = {};
+    check_and_restore(dump, container, wrongValues, correctValues);
 }
 
 void check_is_object(
         DatabaseDump& dump,
-        std::string const& entityTag,
-        std::string const& key)
+        DatabaseDump& container)
 {
-    // Wrong
     std::vector<DatabaseDump> wrongValues = {};
-    for (auto wrongValue: wrongValues)
-    {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = wrongValue;
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), DatabaseDump::exception);
-    }
+    std::vector<DatabaseDump> correctValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1,
+                                                                                                                     2,
+                                                                                                                     3,
+                                                                                                                     4}),
+                                               true, 1234, 34.12,
+                                               "qwerty", "1234", "34.12"};
 
-    // Correct
-    std::vector<DatabaseDump> correctValues =
-    {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
-     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
-    for (auto correctValue: correctValues)
-    {
-        DatabaseDump dumpCopy = dump;
-        dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][key] = correctValue;
-        Database db;
-        ASSERT_NO_THROW(db.load_database(dumpCopy));
-    }
+    check_and_restore(dump, container, wrongValues, correctValues);
+}
+
+void check_is_string_int(
+        DatabaseDump& dump,
+        DatabaseDump& container)
+{
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             true, 1234, 34.12,
+                                             "qwerty", "34.12"};
+
+    std::vector<DatabaseDump> correctValues = {"1234"};
+    check_and_restore(dump, container, wrongValues, correctValues);
+}
+
+void check_is_bool(
+        DatabaseDump& dump,
+        DatabaseDump& container)
+{
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             1234, 34.12,
+                                             "qwerty", "1234", "34.12"};
+
+    std::vector<DatabaseDump> correctValues = {true};
+    check_and_restore(dump, container, wrongValues, correctValues);
+}
+
+void check_is_uint(
+        DatabaseDump& dump,
+        DatabaseDump& container)
+{
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             true,
+                                             "qwerty", "1234", "34.12"};
+
+    std::vector<DatabaseDump> correctValues = {1234, 34.12};
+    check_and_restore(dump, container, wrongValues, correctValues);
+}
+
+void check_is_int(
+        DatabaseDump& dump,
+        DatabaseDump& container)
+{
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             "qwerty", "1234", "34.12"};
+
+    std::vector<DatabaseDump> correctValues = {true, 1234, 34.12};
+    check_and_restore(dump, container, wrongValues, correctValues);
+}
+
+void check_is_double(
+        DatabaseDump& dump,
+        DatabaseDump& container)
+{
+    std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2} }), DatabaseDump::array({1, 2,
+                                                                                                                   3,
+                                                                                                                   4}),
+                                             true,
+                                             "qwerty", "1234", "34.12"};
+
+    std::vector<DatabaseDump> correctValues = {1234, 34.12};
+    check_and_restore(dump, container, wrongValues, correctValues);
 }
 
 TEST(database_load_and_dump_tests, load_and_dump_wrong_values)
@@ -436,62 +321,265 @@ TEST(database_load_and_dump_tests, load_and_dump_wrong_values)
 
     // object, string, float, int, array, bool
 
-    // Host
-    check_is_string(dump, HOST_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_array_id(dump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG);
+    // // Host
+    // check_is_string(dump,dump[HOST_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_id(dump,dump[HOST_CONTAINER_TAG].begin().value()[USER_CONTAINER_TAG]);
 
-    // User
-    check_is_string(dump, USER_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_int_id(dump, USER_CONTAINER_TAG, HOST_ENTITY_TAG);
-    check_is_array_id(dump, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG);
+    // // User
+    // check_is_string(dump,dump[USER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_id(dump, dump[USER_CONTAINER_TAG].begin().value()[HOST_ENTITY_TAG]);
+    // check_is_id(dump, dump[USER_CONTAINER_TAG].begin().value()[PROCESS_CONTAINER_TAG]);
 
-    // Process
-    check_is_string(dump, PROCESS_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_string(dump, PROCESS_CONTAINER_TAG, PID_INFO_TAG);
-    check_is_int_id(dump, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
-    check_is_array_id(dump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+    // // Process
+    // check_is_string(dump,dump[PROCESS_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_string(dump,dump[PROCESS_CONTAINER_TAG].begin().value()[PID_INFO_TAG]);
+    // check_is_id(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[USER_ENTITY_TAG]);
+    // check_is_id(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG]);
 
-    // Domain
-    check_is_string(dump, DOMAIN_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_array_id(dump, DOMAIN_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
-    check_is_array_id(dump, DOMAIN_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
+    // // Domain
+    // check_is_string(dump,dump[DOMAIN_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_id(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG]);
+    // check_is_id(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[TOPIC_CONTAINER_TAG]);
 
-    // Topic
-    check_is_string(dump, TOPIC_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_string(dump, TOPIC_CONTAINER_TAG, DATA_TYPE_INFO_TAG);
-    check_is_int_id(dump, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
-    check_is_array_id(dump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_is_array_id(dump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    // // Topic
+    // check_is_string(dump,dump[TOPIC_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_string(dump,dump[TOPIC_CONTAINER_TAG].begin().value()[DATA_TYPE_INFO_TAG]);
+    // check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DOMAIN_ENTITY_TAG]);
+    // check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
+    // check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
 
-    // Participant
-    check_is_string(dump, PARTICIPANT_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_string(dump, PARTICIPANT_CONTAINER_TAG, GUID_INFO_TAG);
-    check_is_object(dump, PARTICIPANT_CONTAINER_TAG, QOS_INFO_TAG);
-    check_is_int_id(dump, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
-    check_is_int_id(dump, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
-    check_is_array_id(dump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_is_array_id(dump, PARTICIPANT_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    // // Participant
+    // check_is_string(dump,dump[PARTICIPANT_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_string(dump,dump[PARTICIPANT_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
+    // check_is_object(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    // check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG]);
+    // check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DOMAIN_ENTITY_TAG]);
+    // check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
+    // check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
 
-    // Locator
-    check_is_string(dump, LOCATOR_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_array_id(dump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-    check_is_array_id(dump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    // // Locator
+    // check_is_string(dump,dump[LOCATOR_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
+    // check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
 
-    // Datawriter
-    check_is_string(dump, DATAWRITER_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_string(dump, DATAWRITER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_is_object(dump, DATAWRITER_CONTAINER_TAG, QOS_INFO_TAG);
-    check_is_int_id(dump, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
-    check_is_int_id(dump, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-    check_is_array_id(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+    // // Datawriter
+    // check_is_string(dump,dump[DATAWRITER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_string(dump,dump[DATAWRITER_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
+    // check_is_object(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    // check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[PARTICIPANT_ENTITY_TAG]);
+    // check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[TOPIC_ENTITY_TAG]);
+    // check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG]);
 
-    // Datareader
-    check_is_string(dump, DATAREADER_CONTAINER_TAG, NAME_INFO_TAG);
-    check_is_string(dump, DATAREADER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_is_object(dump, DATAREADER_CONTAINER_TAG, QOS_INFO_TAG);
-    check_is_int_id(dump, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
-    check_is_int_id(dump, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-    check_is_array_id(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+    // // Datareader
+    // check_is_string(dump,dump[DATAREADER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
+    // check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
+    // check_is_object(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    // check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[PARTICIPANT_ENTITY_TAG]);
+    // check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[TOPIC_ENTITY_TAG]);
+    // check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG]);
+
+    /* _________________DATA_____________________ */
+
+    // --------------------- Participants ---------------------
+
+    // discovery_time
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DISCOVERY_TIME_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DISCOVERY_TIME_TAG].begin().value().begin().value()[DATA_VALUE_TIME_TAG]);
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DISCOVERY_TIME_TAG].begin().value().begin().value()[DATA_VALUE_REMOTE_ENTITY_TAG]);
+    check_is_bool(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DISCOVERY_TIME_TAG].begin().value().begin().value()[DATA_VALUE_DISCOVERED_TAG]);
+
+    // pdp_packets
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PDP_PACKETS_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PDP_PACKETS_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // edp_packets
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_EDP_PACKETS_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_EDP_PACKETS_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // rtps_packets_sent
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_SENT_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_SENT_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // rtps_bytes_sent
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_TAG].begin().value().begin().value()[DATA_VALUE_MAGNITUDE_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // rtps_packets_lost
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_LOST_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_LOST_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // rtps_bytes_lost
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_TAG].begin().value().begin().value()[DATA_VALUE_MAGNITUDE_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_edp_packets
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_pdp_packets
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_rtps_bytes_lost
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_MAGNITUDE_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_rtps_bytes_sent
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_MAGNITUDE_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_rtps_packets_lost
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_rtps_packets_sent
+    check_is_string_int(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+
+    // --------------------- Datawriters ---------------------
+
+    // publication_throughput
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PUBLICATION_THROUGHPUT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_double(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_PUBLICATION_THROUGHPUT_TAG].begin().value()[DATA_VALUE_DATA_TAG]);
+
+    // resent_datas
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RESENT_DATA_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RESENT_DATA_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // heartbeat_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_HEARTBEAT_COUNT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_HEARTBEAT_COUNT_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // gap_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_GAP_COUNT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_GAP_COUNT_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // data_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DATA_COUNT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DATA_COUNT_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // samples_datas
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_SAMPLE_DATAS_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_SAMPLE_DATAS_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // history2history_latency
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_FASTDDS_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_double(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_FASTDDS_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
+
+    // last_reported_data_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_gap_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_heartbeat_count
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_resent_datas
+    check_is_string_int(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // --------------------- Datareaders ---------------------
+
+    // subscription_throughput
+    check_is_string_int(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_double(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG].begin().value()[DATA_VALUE_DATA_TAG]);
+
+    // acknack_count
+    check_is_string_int(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_ACKNACK_COUNT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_ACKNACK_COUNT_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // nackfrag_count
+    check_is_string_int(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NACKFRAG_COUNT_TAG].begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NACKFRAG_COUNT_TAG].begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_acknack_count
+    check_is_string_int(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // last_reported_nackfrag_count
+    check_is_string_int(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
+    check_is_uint(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
+
+    // --------------------- Locators ---------------------
+
+    // network_latency_per_locator
+    check_is_string_int(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_double(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_VALUE_DATA_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
 
 }
 
