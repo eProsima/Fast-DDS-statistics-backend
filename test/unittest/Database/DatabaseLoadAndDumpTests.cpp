@@ -294,7 +294,7 @@ void check_is_object(
     // Correct
     std::vector<DatabaseDump> correctValues =
     {"qwerty", "true", "1234", "34.12", "[\"9876\"]", "{\"wasd\": \"zx\"}", true, 1234, 34.12,
-             DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
+     DatabaseDump::array({"9876"}), DatabaseDump::object({{"wasd", "zx"}})};
     for (auto correctValue: correctValues)
     {
         DatabaseDump dumpCopy = dump;
@@ -496,6 +496,11 @@ TEST(database_load_and_dump_tests, load_and_dump_erased_keys)
 {
     // Read JSON
     DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+
+    constexpr const char* char_message = "test";
+    std::string string_message = "test";
+    ASSERT_ANY_THROW(throw CorruptedFile(char_message));
+    ASSERT_ANY_THROW(throw CorruptedFile(string_message));
 
     // ------------ HOSTS ----------------
 

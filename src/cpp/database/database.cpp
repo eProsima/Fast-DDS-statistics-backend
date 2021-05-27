@@ -2807,7 +2807,7 @@ DatabaseDump Database::dump_entity_(
         data[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
 
         // resent_data last reported
-        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
+        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_resent_datas);
 
         entity_info[DATA_CONTAINER_TAG] = data;
     }
@@ -3104,15 +3104,7 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-// void Database::check_is_string(
-//     const DatabaseDump &dump)
-// {
-//     if (dump.is_string())
-//         throw CorruptedFile("Dump: " + std::string(dump) + " must be a string");
-// }
-
-// Check entity reference exists
-void check_entity_exists(
+void Database::check_entity_exists(
         DatabaseDump const& container,
         std::string const& id)
 {
@@ -3122,8 +3114,7 @@ void check_entity_exists(
     }
 }
 
-// Check entity reference have reference to entity
-void check_entity_reference(
+void Database::check_entity_reference(
         DatabaseDump const& container,
         std::string const& reference_id,
         std::string const& entity_tag,
@@ -3140,8 +3131,7 @@ void check_entity_reference(
     }
 }
 
-// Check entity reference contains reference to entity
-void check_entity_reference_contains(
+void Database::check_entity_reference_contains(
         DatabaseDump const& container,
         std::string const& reference_id,
         std::string const& entity_tag,
@@ -3159,7 +3149,7 @@ void check_entity_reference_contains(
     }
 }
 
-void check_all_references(
+void Database::check_all_references(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
         std::string const& reference_tag,
@@ -3177,7 +3167,7 @@ void check_all_references(
     }
 }
 
-void check_contains_reference(
+void Database::check_contains_reference(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
         std::string const& reference_container_tag,
@@ -3191,7 +3181,7 @@ void check_contains_reference(
     check_entity_reference_contains(reference_container, reference_id, entity_tag, entity_id);
 }
 
-void check_mutual_references(
+void Database::check_mutual_references(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
         std::string const& reference_tag,
