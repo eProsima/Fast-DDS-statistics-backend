@@ -3161,18 +3161,18 @@ void Database::check_entity_reference_contains(
 
     bool found = false;
     size_t i = 0;
-    while(i < reference_entities.size() && !found)
+    while (i < reference_entities.size() && !found)
     {
         found = (reference_entities[i] == entity_id);
         i++;
     }
 
-    if(!found)
+    if (!found)
     {
         throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
-                            " have reference to " + entity_tag + ": " +
-                            container.at(reference_id).at(entity_tag).dump() +
-                            " instead of " + entity_tag + ": " + entity_id);
+                      " have reference to " + entity_tag + ": " +
+                      container.at(reference_id).at(entity_tag).dump() +
+                      " instead of " + entity_tag + ": " + entity_id);
     }
 }
 
