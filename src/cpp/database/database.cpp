@@ -19,7 +19,7 @@
 #include <boost/lexical_cast.hpp>   // For lexical_cast
 #include <chrono>
 #include <iostream>
-#include <mutex>  // For std::unique_lock
+#include <mutex>    // For std::unique_lock
 #include <shared_mutex>
 #include <string>
 #include <vector>
@@ -3131,24 +3131,6 @@ void Database::check_entity_reference(
     }
 }
 
-void Database::check_entity_reference_contains(
-        DatabaseDump const& container,
-        std::string const& reference_id,
-        std::string const& entity_tag,
-        std::string const& entity_id)
-{
-    check_entity_exists(container, reference_id);
-
-    if (container.at(reference_id).at(entity_tag).find(entity_id) !=
-            container.at(reference_id).at(entity_tag).end())
-    {
-        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
-                      " have reference to " + entity_tag + ": " +
-                      container.at(reference_id).at(entity_tag).dump() +
-                      " instead of " + entity_tag + ": " + entity_id);
-    }
-}
-
 void Database::check_all_references(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
@@ -3167,6 +3149,33 @@ void Database::check_all_references(
     }
 }
 
+void Database::check_entity_reference_contains(
+        DatabaseDump const& container,
+        std::string const& reference_id,
+        std::string const& entity_tag,
+        std::string const& entity_id)
+{
+    check_entity_exists(container, reference_id);
+
+    std::vector <std::string> reference_entities = container.at(reference_id).at(entity_tag);
+
+    bool found = false;
+    size_t i = 0;
+    while(i < reference_entities.size() && !found)
+    {
+        found = (reference_entities[i] == entity_id);
+        i++;
+    }
+
+    if(!found)
+    {
+        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
+                            " have reference to " + entity_tag + ": " +
+                            container.at(reference_id).at(entity_tag).dump() +
+                            " instead of " + entity_tag + ": " + entity_id);
+    }
+}
+
 void Database::check_contains_reference(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
@@ -3181,7 +3190,7 @@ void Database::check_contains_reference(
     check_entity_reference_contains(reference_container, reference_id, entity_tag, entity_id);
 }
 
-void Database::check_mutual_references(
+void Database::check_contains_all_references(
         nlohmann::detail::iter_impl<nlohmann::json> const& it,
         std::string const& entity_tag,
         std::string const& reference_tag,
@@ -3346,8 +3355,8 @@ void Database::load_database(
             for (auto it = container.begin(); it != container.end(); ++it)
             {
                 // Check entity have correct references to other entities
-                check_mutual_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
-                check_mutual_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
+                check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
+                check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
 
                 // Create entity
                 std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
@@ -3374,7 +3383,7 @@ void Database::load_database(
                 check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                         PARTICIPANT_ENTITY_TAG, dump);
                 check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-                check_mutual_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+                check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
                 // Get keys
                 EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
@@ -3423,7 +3432,7 @@ void Database::load_database(
                 check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                         PARTICIPANT_ENTITY_TAG, dump);
                 check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-                check_mutual_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+                check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
                 // Get keys
                 EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(

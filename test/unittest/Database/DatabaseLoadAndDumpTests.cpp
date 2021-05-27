@@ -211,6 +211,131 @@ DatabaseDump load_file(
 //     // check_data_change_key(dump,LOCATOR_CONTAINER_TAG,DATA_KIND_NETWORK_LATENCY_TAG);
 // }
 
+
+TEST(database_load_and_dump_tests, load_and_dump_wrong_references)
+{
+	// Read JSON
+	DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+
+	// Host reference user that no exists
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "host_1";
+		entity_info[USER_CONTAINER_TAG] = DatabaseDump::array({"200"});
+		container["100"] = entity_info;
+
+		dumpCopy[HOST_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+
+	// User reference host that no exists
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "user_1";
+		entity_info[HOST_ENTITY_TAG] = "200";
+		entity_info[PROCESS_CONTAINER_TAG] = DatabaseDump::array();
+		container["100"] = entity_info;
+
+		dumpCopy[USER_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+
+	// Host reference user, which one is not referencing the host
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "host_1";
+		entity_info[USER_CONTAINER_TAG] = dumpCopy[USER_CONTAINER_TAG].begin().key();
+		container["100"] = entity_info;
+
+		dumpCopy[HOST_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+
+	// User reference host, which one is not referencing the user
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "user_1";
+		entity_info[HOST_ENTITY_TAG] = dumpCopy[HOST_CONTAINER_TAG].begin().key();
+		entity_info[PROCESS_CONTAINER_TAG] = DatabaseDump::array();
+		container["100"] = entity_info;
+
+		dumpCopy[USER_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+
+	// Locator reference datawriter that no exists
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "locator_1";
+		entity_info[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array({"200"});
+		entity_info[DATAREADER_CONTAINER_TAG] =
+			dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
+					[DATAREADER_CONTAINER_TAG];
+		entity_info[DATA_CONTAINER_TAG] =
+			dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
+					[DATA_CONTAINER_TAG];
+
+		container["100"] = entity_info;
+
+		dumpCopy[LOCATOR_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+
+	// Locator reference datawriter, which one is not referencing the locator
+	{
+		DatabaseDump dumpCopy = dump;
+
+		DatabaseDump container = DatabaseDump::object();
+
+		DatabaseDump entity_info = DatabaseDump::object();
+		entity_info[NAME_INFO_TAG] = "locator_1";
+		entity_info[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array({dumpCopy[DATAWRITER_CONTAINER_TAG].begin().key()});
+		entity_info[DATAREADER_CONTAINER_TAG] =
+			dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
+					[DATAREADER_CONTAINER_TAG];
+		entity_info[DATA_CONTAINER_TAG] =
+			dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
+					[DATA_CONTAINER_TAG];
+					
+		container["100"] = entity_info;
+
+		dumpCopy[LOCATOR_CONTAINER_TAG].insert(container.begin(), container.end());
+
+		Database db;
+		ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
+	}
+}
+
 void check_is_string(
         DatabaseDump& dump,
         std::string const& entityTag,

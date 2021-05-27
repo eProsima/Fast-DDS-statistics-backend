@@ -550,21 +550,6 @@ protected:
             std::string const& entity_id);
 
     /**
-     * @brief Check if the entity with 'reference_id' contains a reference to 'entity_id' of type 'entity_tag'
-     * on her container, throwing an exception if not.
-     *
-     * @param container Reference to the dump of the reference entity
-     * @param reference_id Key (id) of the entity to check.
-     * @param entity_tag Type of entity to check is contained reference entity
-     * @param id Key (id) the reference entity must contain on 'entity_tag'
-     */
-    void check_entity_reference_contains(
-            DatabaseDump const& container,
-            std::string const& reference_id,
-            std::string const& entity_tag,
-            std::string const& entity_id);
-
-    /**
      * @brief Check if all the references to entity type "reference_tag" on entity container 'it'
      * have also a reference of entity type 'entity_tag' to 'it'
      *
@@ -578,6 +563,21 @@ protected:
             std::string const& entity_tag,
             std::string const& reference_tag,
             DatabaseDump const& dump);
+
+    /**
+     * @brief Check if the entity with 'reference_id' contains a reference to 'entity_id' of type 'entity_tag'
+     * on her container, throwing an exception if not.
+     *
+     * @param container Reference to the dump of the reference entity
+     * @param reference_id Key (id) of the entity to check.
+     * @param entity_tag Type of entity to check is contained reference entity
+     * @param id Key (id) the reference entity must contain on 'entity_tag'
+     */
+    void check_entity_reference_contains(
+            DatabaseDump const& container,
+            std::string const& reference_id,
+            std::string const& entity_tag,
+            std::string const& entity_id);
 
     /**
      * @brief Check if the references to entity type "reference_tag" on entity container 'it'
@@ -605,7 +605,7 @@ protected:
      * @param reference_tag Type of entity to check on reference entity
      * @param dump .json where to check
      */
-    void check_mutual_references(
+    void check_contains_all_references(
             nlohmann::detail::iter_impl<nlohmann::json> const& it,
             std::string const& entity_tag,
             std::string const& reference_tag,
