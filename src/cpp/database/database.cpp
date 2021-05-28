@@ -2176,12 +2176,20 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::HOST:
                     case EntityKind::USER:
                     {
+                        // May not have the relation process - participant yet
+                    if (participant->process)
+                    {
                         auto sub_entities = get_entities(entity_kind, participant->process);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
+                    }
                     break;
                     case EntityKind::PROCESS:
+                        // May not have the relation process - participant yet
+                    if (participant->process)
+                    {
                         entities.push_back(participant->process);
+                    }
                         break;
                     case EntityKind::DOMAIN:
                         entities.push_back(participant->domain);
@@ -2677,7 +2685,14 @@ DatabaseDump Database::dump_entity_(
     entity_info[QOS_INFO_TAG] = entity->qos;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
-    entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
+    if (entity->process)
+    {
+        entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
+    }
+    else
+    {
+        entity_info[PROCESS_ENTITY_TAG] = id_to_string(EntityId::invalid());
+    }
 
     // Populate subentity array for DataWriters
     {
@@ -3212,270 +3227,266 @@ void Database::load_database(
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
-    try
+    // Hosts
     {
-        // Hosts
+        DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
         {
-            DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
+            // Check entity have correct references to other entities
+            check_all_references(it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, dump);
 
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_all_references(it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, dump);
+            // Create entity
+            std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
 
-                // Create entity
-                std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-            }
-        }
-
-        // Users
-        {
-            DatabaseDump container = dump.at(USER_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_reference(it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG, dump);
-                check_all_references(it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, dump);
-
-                // Create entity
-                std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
-                                hosts_[boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG))]);
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-            }
-        }
-
-        // Processes
-        {
-            DatabaseDump container = dump.at(PROCESS_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_reference(it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG, dump);
-                check_all_references(it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
-
-                // Create entity
-                std::shared_ptr<Process> entity =
-                        std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
-                                users_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(USER_ENTITY_TAG)))]);
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-            }
-        }
-
-        // Domains
-        {
-            DatabaseDump container = dump.at(DOMAIN_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_all_references(it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
-                check_all_references(it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, dump);
-
-                // Create entity
-                std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-            }
-        }
-
-        // Topics
-        {
-            DatabaseDump container = dump.at(TOPIC_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_reference(it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
-                check_all_references(it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
-                check_all_references(it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
-
-                // Create entity
-                std::shared_ptr<Topic> entity =
-                        std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
-                                domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-            }
-        }
-
-        // Participants
-        {
-            DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-
-                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG,
-                        dump);
-                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
-                check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
-                check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
-
-                // Get keys
-                EntityId entityId(boost::lexical_cast<int>(it.key()));
-                EntityId processId(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
-
-                // Create entity
-                std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                    (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
-                    domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
-
-                // Insert into database
-                insert_nts(entity, entityId);
-
-                // Link participant with process
-                link_participant_with_process_nts(entityId, processId);
-
-                // Load data and insert into database
-                load_data((*it).at(DATA_CONTAINER_TAG), entity);
-            }
-        }
-
-        // Locators
-        {
-            DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
-                check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
-
-                // Create entity
-                std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
-
-                // Give him a id
-                entity->id = EntityId(boost::lexical_cast<int>(it.key()));
-                next_id_++;
-
-                locators_[entity->id] = entity;
-
-                // Load data and insert into database
-                load_data((*it).at(DATA_CONTAINER_TAG), entity);
-            }
-        }
-
-        // DataWriters
-        {
-            DatabaseDump container = dump.at(DATAWRITER_CONTAINER_TAG);
-
-            // For each entity of this kind in database
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
-                        PARTICIPANT_ENTITY_TAG, dump);
-                check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-                check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
-
-                // Get keys
-                EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
-                                    PARTICIPANT_ENTITY_TAG)));
-                EntityId participantDomainId =
-                        EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
-                                        .at(std::to_string(participantId.value()))
-                                        .at(DOMAIN_ENTITY_TAG)));
-
-                EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-                EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
-                                        .at(std::to_string(topicId.value()))
-                                        .at(DOMAIN_ENTITY_TAG)));
-
-                // Create entity
-                std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
-                    (*it).at(NAME_INFO_TAG),
-                    (*it).at(QOS_INFO_TAG),
-                    (*it).at(GUID_INFO_TAG),
-                    participants_[participantDomainId][participantId],
-                    topics_[topicDomainId][topicId]);
-
-                /* Add reference to locator to the endpoint */
-                for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
-                        itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
-                        ++itLoc)
-                {
-                    entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
-                            locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
-                }
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-
-                // Load data and insert into database
-                load_data((*it).at(DATA_CONTAINER_TAG), entity);
-            }
-        }
-
-        // DataReaders
-        {
-            DatabaseDump container = dump.at(DATAREADER_CONTAINER_TAG);
-            for (auto it = container.begin(); it != container.end(); ++it)
-            {
-                // Check entity have correct references to other entities
-                check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
-                        PARTICIPANT_ENTITY_TAG, dump);
-                check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-                check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
-
-                // Get keys
-                EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
-                                    PARTICIPANT_ENTITY_TAG)));
-                EntityId participantDomainId =
-                        EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
-                                        .at(std::to_string(participantId.value()))
-                                        .at(DOMAIN_ENTITY_TAG)));
-
-                EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-                EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
-                                        .at(std::to_string(topicId.value()))
-                                        .at(DOMAIN_ENTITY_TAG)));
-
-                // Create entity
-                std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
-                    (*it).at(NAME_INFO_TAG),
-                    (*it).at(QOS_INFO_TAG),
-                    (*it).at(GUID_INFO_TAG),
-                    participants_[participantDomainId][participantId],
-                    topics_[topicDomainId][topicId]);
-
-                /* Add reference to locator to the endpoint */
-                for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
-                        itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
-                        ++itLoc)
-                {
-                    entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
-                            locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
-                }
-
-                // Insert into database
-                insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
-
-                // // Load data and insert into database
-                load_data((*it).at(DATA_CONTAINER_TAG), entity);
-            }
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
         }
     }
-    catch (std::exception& error)
+
+    // Users
     {
-        std::cout << "CorruptedFile error: " << error.what() << std::endl;
-        throw;
+        DatabaseDump container = dump.at(USER_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG, dump);
+            check_all_references(it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, dump);
+
+            // Create entity
+            std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
+                            hosts_[boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG))]);
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+        }
+    }
+
+    // Processes
+    {
+        DatabaseDump container = dump.at(PROCESS_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG, dump);
+            check_all_references(it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
+
+            // Create entity
+            std::shared_ptr<Process> entity =
+                    std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
+                            users_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(USER_ENTITY_TAG)))]);
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+        }
+    }
+
+    // Domains
+    {
+        DatabaseDump container = dump.at(DOMAIN_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_all_references(it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
+            check_all_references(it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, dump);
+
+            // Create entity
+            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+        }
+    }
+
+    // Topics
+    {
+        DatabaseDump container = dump.at(TOPIC_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
+            check_all_references(it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
+            check_all_references(it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
+
+            // Create entity
+            std::shared_ptr<Topic> entity =
+                    std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
+                            domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+        }
+    }
+
+    // Participants
+    {
+        DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
+            check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
+            check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
+
+            // Get keys
+            EntityId entityId(boost::lexical_cast<int>(it.key()));
+
+            // Create entity
+            std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
+                (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
+                domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+
+            // Insert into database
+            insert_nts(entity, entityId);
+
+            // Link participant with process
+            EntityId processId(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
+
+            if (processId != EntityId::invalid())
+            {
+                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG,
+                        dump);
+
+                link_participant_with_process_nts(entityId, processId);
+            }
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // Locators
+    {
+        DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
+            check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
+
+            // Create entity
+            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
+
+            // Give him a id
+            entity->id = EntityId(boost::lexical_cast<int>(it.key()));
+            next_id_++;
+
+            locators_[entity->id] = entity;
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // DataWriters
+    {
+        DatabaseDump container = dump.at(DATAWRITER_CONTAINER_TAG);
+
+        // For each entity of this kind in database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG, dump);
+            check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
+            check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+
+            // Get keys
+            EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+                                PARTICIPANT_ENTITY_TAG)));
+            EntityId participantDomainId =
+                    EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                                    .at(std::to_string(participantId.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topicId.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            // Create entity
+            std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
+                (*it).at(NAME_INFO_TAG),
+                (*it).at(QOS_INFO_TAG),
+                (*it).at(GUID_INFO_TAG),
+                participants_[participantDomainId][participantId],
+                topics_[topicDomainId][topicId]);
+
+            /* Add reference to locator to the endpoint */
+            for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++itLoc)
+            {
+                entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
+                        locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
+            }
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // DataReaders
+    {
+        DatabaseDump container = dump.at(DATAREADER_CONTAINER_TAG);
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check entity have correct references to other entities
+            check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG, dump);
+            check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
+            check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+
+            // Get keys
+            EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+                                PARTICIPANT_ENTITY_TAG)));
+            EntityId participantDomainId =
+                    EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                                    .at(std::to_string(participantId.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topicId.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            // Create entity
+            std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
+                (*it).at(NAME_INFO_TAG),
+                (*it).at(QOS_INFO_TAG),
+                (*it).at(GUID_INFO_TAG),
+                participants_[participantDomainId][participantId],
+                topics_[topicDomainId][topicId]);
+
+            /* Add reference to locator to the endpoint */
+            for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++itLoc)
+            {
+                entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
+                        locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
+            }
+
+            // Insert into database
+            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+
+            // // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
     }
 }
 

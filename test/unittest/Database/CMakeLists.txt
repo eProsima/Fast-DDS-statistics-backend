@@ -343,45 +343,6 @@ foreach(test_name ${DATABASE_DUMP_TEST_LIST})
 endforeach()
 
 ###############################################################################
-# Database: load_and_dump tests
-###############################################################################
-
-add_executable(database_load_and_dump_tests DatabaseLoadAndDumpTests.cpp)
-
-target_include_directories(database_load_and_dump_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
-
-target_link_libraries(database_load_and_dump_tests PUBLIC
-    ${PROJECT_NAME}
-    gtest)
-
-
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
-
-
-set(DATABASE_LOAD_AND_DUMP_TEST_LIST
-    load_and_dump_wrong_references
-    load_and_dump_wrong_values
-    load_and_dump_erased_keys
-    load_and_dump_empty_database
-    load_and_dump_empty_entities_database
-    load_and_dump_simple_database
-    load_and_dump_complex_database
-)
-
-foreach(test_name ${DATABASE_LOAD_AND_DUMP_TEST_LIST})
-    add_test(NAME database_load_and_dump_tests.${test_name}
-            COMMAND database_load_and_dump_tests
-            --gtest_filter=database_load_and_dump_tests.${test_name}:*/database_load_and_dump_tests.${test_name}/*)
-endforeach()
-
-
-###############################################################################
 # Database: get_entities tests
 ###############################################################################
 
@@ -407,7 +368,7 @@ foreach(test_name ${DATABASE_GET_ENTITIES_TEST_LIST})
 endforeach()
 
 ###############################################################################
-# Database: load tests
+# Database: load_and_dump tests
 ###############################################################################
 
 add_executable(database_load_tests DatabaseLoadTests.cpp)
@@ -419,13 +380,50 @@ target_link_libraries(database_load_tests PUBLIC
     ${PROJECT_NAME}
     gtest)
 
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
+
 set(DATABASE_LOAD_TEST_LIST
-    load_database
+    load_and_dump_empty_database
+    load_and_dump_empty_entities_database
+    load_and_dump_simple_database
+    load_and_dump_complex_database
+    load_erased_keys
+    load_wrong_values
+    load_wrong_references
 )
 
 foreach(test_name ${DATABASE_LOAD_TEST_LIST})
     add_test(NAME database_load_tests.${test_name}
             COMMAND database_load_tests
             --gtest_filter=database_load_tests.${test_name}:*/database_load_tests.${test_name}/*)
+endforeach()
+
+
+###############################################################################
+# Database: load tests
+###############################################################################
+
+add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp)
+
+target_include_directories(database_load_insert_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(database_load_insert_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(DATABASE_LOAD_INSERT_TEST_LIST
+    load_insert
+)
+
+foreach(test_name ${DATABASE_LOAD_INSERT_TEST_LIST})
+    add_test(NAME database_load_insert_tests.${test_name}
+            COMMAND database_load_insert_tests
+            --gtest_filter=database_load_insert_tests.${test_name}:*/database_load_insert_tests.${test_name}/*)
 endforeach()
 
