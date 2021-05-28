@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest/gtest.h>
+
 #include <fastdds/dds/core/policy/QosPolicies.hpp>
 
-#include "subscriber/QosSerializer.hpp"
-
 #include <database/data.hpp>
+#include <subscriber/QosSerializer.hpp>
 #include <topic_types/types.h>
-
-#include "gtest/gtest.h"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::statistics_backend::subscriber;
@@ -211,7 +210,7 @@ TEST(qos_serializer_tests, destination_order_qos_policy)
 
 TEST(qos_serializer_tests, topic_data_qos_policy)
 {
-    TopicDataQosPolicy qos(PID_PAD);
+    TopicDataQosPolicy qos;
     Qos serialized;
     Qos expected;
     std::string field("field");
@@ -242,7 +241,7 @@ TEST(qos_serializer_tests, topic_data_qos_policy)
 
 TEST(qos_serializer_tests, user_data_qos_policy)
 {
-    UserDataQosPolicy qos(PID_PAD);
+    UserDataQosPolicy qos;
     Qos serialized;
     Qos expected;
     std::string field("field");
@@ -272,7 +271,7 @@ TEST(qos_serializer_tests, user_data_qos_policy)
 
 TEST(qos_serializer_tests, group_data_qos_policy)
 {
-    GroupDataQosPolicy qos(PID_PAD);
+    GroupDataQosPolicy qos;
     Qos serialized;
     Qos expected;
     std::string field("field");
