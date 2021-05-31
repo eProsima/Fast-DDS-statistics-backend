@@ -49,7 +49,6 @@ using namespace eprosima::fastdds::statistics;
 namespace eprosima {
 namespace statistics_backend {
 
-
 static const char* topics[] =
 {
     HISTORY_LATENCY_TOPIC,
@@ -349,8 +348,68 @@ std::vector<EntityId> StatisticsBackend::get_entities(
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    static_cast<void>(entity_id);
-    return false;
+    bool is_monitor = false;
+
+    // Active means that no call to stop_monitor() has been performed since the last time the monitor was activated
+    if (is_monitor)
+    {
+        return false;
+    }
+    // Active means that there is statistical data being reported within the entity
+    else
+    {
+        // Is inactive if the data is empty
+        std::shared_ptr<const Entity> entity = details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+        switch (entity->kind)
+        {
+            case EntityKind::PARTICIPANT:
+            {
+                std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                return !(participant->data.rtps_packets_sent.empty() &&
+                    participant->data.last_reported_rtps_packets_sent_count.empty() &&
+                    participant->data.rtps_bytes_sent.empty() &&
+                    participant->data.last_reported_rtps_bytes_sent_count.empty() &&
+                    participant->data.rtps_packets_lost.empty() &&
+                    participant->data.last_reported_rtps_packets_lost_count.empty() &&
+                    participant->data.rtps_bytes_lost.empty() &&
+                    participant->data.last_reported_rtps_bytes_lost_count.empty() &&
+                    participant->data.discovered_entity.empty() && participant->data.pdp_packets.empty() &&
+                    participant->data.edp_packets.empty() &&
+                    participant->data.last_reported_pdp_packets.count == 0 &&
+                    participant->data.last_reported_edp_packets.count == 0); 
+            }
+            case EntityKind::DATAWRITER:
+            {
+                std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                return !(datawriter->data.data_count.empty() && datawriter->data.gap_count.empty() &&
+                         datawriter->data.heartbeat_count.empty() &&
+                         datawriter->data.history2history_latency.empty() &&
+                         datawriter->data.last_reported_data_count.count == 0 &&
+                         datawriter->data.last_reported_gap_count.count == 0 &&
+                         datawriter->data.last_reported_heartbeat_count.count == 0 &&
+                         datawriter->data.last_reported_resent_datas.count == 0 &&
+                         datawriter->data.publication_throughput.empty() && datawriter->data.resent_datas.empty() &&
+                         datawriter->data.sample_datas.empty());
+            }
+            case EntityKind::DATAREADER:
+            {
+                std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                return !(datareader->data.acknack_count.empty() &&
+                         datareader->data.last_reported_acknack_count.count == 0 &&
+                         datareader->data.last_reported_nackfrag_count.count == 0 &&
+                         datareader->data.nackfrag_count.empty() && datareader->data.subscription_throughput.empty());
+            }
+            case EntityKind::LOCATOR:
+            {
+                std::shared_ptr<const Locator> locator = std::dynamic_pointer_cast<const Locator>(entity);
+                return !(locator->data.network_latency_per_locator.empty());
+            }
+            default:
+            {
+                return false;
+            }
+        }
+    }
 }
 
 EntityKind StatisticsBackend::get_type(

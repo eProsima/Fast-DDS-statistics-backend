@@ -40,7 +40,6 @@ using namespace eprosima::statistics_backend::database;
 class statistics_backend_tests : public ::testing::TestWithParam<std::tuple<EntityKind, size_t, std::vector<size_t>>>
 {
 public:
-
     typedef uint32_t TestId;
 
     void SetUp()
@@ -62,7 +61,6 @@ public:
     {
         details::StatisticsBackendData::get_instance()->database_.reset(db);
     }
-
 };
 
 void check_dds_entity(
@@ -151,6 +149,287 @@ TEST_P(statistics_backend_tests, get_entities)
     {
         EXPECT_EQ(expected[i], result[i]);
     }
+void init_sample(StatisticsSample & sample)
+{
+	sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+}
+
+void init_entity_count_sample(EntityCountSample & sample)
+{
+	init_sample(sample);
+	sample.count = 2;
+}
+
+void init_entity_to_locator_count_sample(EntityToLocatorCountSample & sample, const EntityId & locatorId)
+{
+	init_entity_count_sample(sample);
+	sample.remote_locator = EntityId(locatorId);
+}
+
+void init_byte_to_locator_count_sample(ByteToLocatorCountSample & sample, const EntityId & locatorId)
+{
+	init_sample(sample);
+	sample.remote_locator = EntityId(locatorId);
+	sample.magnitude_order = 3;
+	sample.count = 4;
+}
+
+void init_entity_data_sample(EntityDataSample & sample)
+{
+	init_sample(sample);
+	sample.data = 1.1;
+}
+
+void test_is_active(Database *db_original,
+					const EntityId &domainId,
+					const EntityId &entityId,
+					const StatisticsSample &sample)
+{
+	Database db;
+	PopulateDatabase::populate_database(db);
+	std::cout << domainId << "    " << entityId << std::endl;
+	db.insert(domainId, entityId, sample);
+	StatisticsBackendTest::set_database(&db);
+
+	ASSERT_TRUE(StatisticsBackendTest::is_active(entityId));
+
+	StatisticsBackendTest::set_database(db_original);
+}
+
+// Check the is_active StatisticsBackend method
+TEST_F(statistics_backend_tests, is_active)
+{
+     ASSERT_THROW(StatisticsBackendTest::is_active(EntityId::all()), BadParameter);
+     ASSERT_THROW(StatisticsBackendTest::is_active(EntityId::invalid()), BadParameter);
+     ASSERT_THROW(StatisticsBackendTest::is_active(EntityId(1234)), BadParameter);
+
+    StatisticsBackendTest::set_database(&db);
+
+	// Participants
+	for (auto domainPair : db.participants())
+	{
+		auto domainEntities = domainPair.second;
+		for (auto pair : domainEntities)
+		{
+			EntityId domainId = domainPair.first;
+			EntityId entityId = pair.first;
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+			// discovery_time
+			{
+				DiscoveryTimeSample sample;
+
+				init_sample(sample);
+				sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+				sample.remote_entity = EntityId(entityId);
+				sample.discovered = true;
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+			// pdp_packets
+			{
+				PdpCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// edp_packets
+			{
+				EdpCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// rtps_packets_sent
+			for (auto locator : db.locators())
+			{
+				RtpsPacketsSentSample sample;
+
+				init_entity_to_locator_count_sample(sample, locator.first);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// rtps_bytes_sent
+			for (auto locator : db.locators())
+			{
+				RtpsBytesSentSample sample;
+
+				init_byte_to_locator_count_sample(sample, locator.first);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// rtps_packets_lost
+			for (auto locator : db.locators())
+			{
+				RtpsPacketsLostSample sample;
+
+				init_entity_to_locator_count_sample(sample, locator.first);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// rtps_bytes_lost
+			for (auto locator : db.locators())
+			{
+				RtpsBytesLostSample sample;
+
+				init_byte_to_locator_count_sample(sample, locator.first);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+		}
+	}
+
+	// Datawriter
+	for (auto domainPair : db.get_dds_endpoints<DataWriter>())
+	{
+		auto domainEntities = domainPair.second;
+		for (auto pair : domainEntities)
+		{
+			EntityId domainId = domainPair.first;
+			EntityId entityId = pair.first;
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+			// publication_throughput
+			{
+				PublicationThroughputSample sample;
+
+				init_entity_data_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// resent_datas
+			{
+				ResentDataSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// heartbeat_count
+			{
+				HeartbeatCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// gap_count
+			{
+				GapCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// data_count
+			{
+				DataCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// samples_datas
+			for (auto process : db.processes())
+			{
+				SampleDatasCountSample sample;
+
+				init_entity_count_sample(sample);
+				sample.sequence_number = process.first.value();
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// history2history_latency
+			for (auto locator : db.locators())
+			{
+				HistoryLatencySample sample;
+
+				init_entity_data_sample(sample);
+				sample.reader = locator.first;
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+		}
+	}
+
+	// Datareader
+	for (auto domainPair : db.get_dds_endpoints<DataReader>())
+	{
+		auto domainEntities = domainPair.second;
+		for (auto pair : domainEntities)
+		{
+			EntityId domainId = domainPair.first;
+			EntityId entityId = pair.first;
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+			// subscription_throughput
+			{
+				SubscriptionThroughputSample sample;
+
+				init_entity_data_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// acknack_count
+			{
+				AcknackCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			// nackfrag_count
+			{
+				NackfragCountSample sample;
+
+				init_entity_count_sample(sample);
+
+				test_is_active(&db, domainId, entityId, sample);
+			}
+
+			ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+		}
+	}
+
+	// locators
+	for (auto pair : db.locators())
+	{
+		EntityId domainId = EntityId::invalid();
+		EntityId entityId = pair.first;
+
+		ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+		NetworkLatencySample sample;
+
+		init_entity_data_sample(sample);
+		sample.remote_locator = EntityId(entityId);
+
+		test_is_active(&db, domainId, entityId, sample);
+
+		ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+	}
 }
 
 // Check the get_type StatisticsBackend method
@@ -227,7 +506,7 @@ TEST_F(statistics_backend_tests, get_type)
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
     }
-
+    
     ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::all()), BadParameter);
     ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::invalid()), BadParameter);
     ASSERT_THROW(StatisticsBackendTest::get_type(EntityId(1234)), BadParameter);
