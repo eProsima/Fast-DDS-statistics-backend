@@ -118,6 +118,7 @@ endforeach()
 set(USER_DATA_LISTENERS_TEST_LIST
     data_available
     data_available_callback_not_in_mask
+    data_available_data_not_in_mask
     data_available_no_listener
     data_available_no_listener_callback_not_in_mask
     data_available_no_listener_data_not_in_mask
