@@ -439,19 +439,34 @@ protected:
     }
 
     /**
+     * @brief Specifies the reason of calling the entity discovery methods
+     * 
+     */
+    enum DiscoveryStatus
+    {
+        DISCOVERY,      ///< The entity was discovered
+        UNDISCOVERY,    ///< The entity was undiscovered
+        UPDATE          ///< The entity was updated
+    };
+
+    /**
      * @brief Notify the user about a new discovered entity
      *
      * @param domain_id The domain where the entity was discovered
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind CallbackKind of the discovery event
+     * @param discovery_status The reason why the method is being called
      */
     static void on_domain_entity_discovery(
             EntityId domain_id,
             EntityId entity_id,
-            EntityKind entity_kind);
+            EntityKind entity_kind,
+            DiscoveryStatus discovery_status);
 
     /**
      * @brief Notify the user about a new discovered entity
+     * 
+     * There is no DiscoveryStatus parameter because physical entities are never undiscovered nor updated
      *
      * @param participant_id Entity ID of the participant that discovered the entity.
      * @param entity_id The entity_id of the discovered entity

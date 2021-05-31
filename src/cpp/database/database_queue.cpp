@@ -746,7 +746,7 @@ void DatabaseDataQueue::process_sample()
                 try
                 {
                     process_id = database_->insert(std::static_pointer_cast<Entity>(process));
-                    StatisticsBackend::on_physical_entity_discovery(participant_id, process->id, EntityKind::PROCESS);
+                    StatisticsBackend::on_physical_entity_discovery(participant_id, process_id, EntityKind::PROCESS);
                 }
                 catch (const std::exception& e)
                 {

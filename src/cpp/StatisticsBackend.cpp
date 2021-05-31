@@ -41,11 +41,10 @@ DomainListener::Status StatisticsBackend::locator_status_;
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,
-        DataKindMask data_mask)
+        DataKindMask /*data_mask*/)
 {
-    static_cast<void>(listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
+    StatisticsBackend::physical_listener_ = listener;
+    StatisticsBackend::physical_callback_mask_ = callback_mask;
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -338,7 +337,8 @@ void StatisticsBackend::on_data_available(
 void StatisticsBackend::on_domain_entity_discovery(
         EntityId domain_id,
         EntityId entity_id,
-        EntityKind entity_kind)
+        EntityKind entity_kind,
+        DiscoveryStatus discovery_status)
 {
     auto monitor = monitors_.find(domain_id);
     assert(monitor != monitors_.end());
@@ -358,8 +358,14 @@ void StatisticsBackend::on_domain_entity_discovery(
                 return;
             }
 
-            // Update the status before calling the
-            monitor->second->participant_status_.on_instance_discovered();
+            if (discovery_status == DISCOVERY)
+            {
+                monitor->second->participant_status_.on_instance_discovered();
+            }
+            else if (discovery_status == UNDISCOVERY)
+            {
+                monitor->second->participant_status_.on_instance_undiscovered();
+            }
             monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
                     monitor->second->participant_status_);
             monitor->second->participant_status_.on_status_read();
@@ -373,7 +379,14 @@ void StatisticsBackend::on_domain_entity_discovery(
                 return;
             }
 
-            monitor->second->topic_status_.on_instance_discovered();
+            if (discovery_status == DISCOVERY)
+            {
+                monitor->second->topic_status_.on_instance_discovered();
+            }
+            else if (discovery_status == UNDISCOVERY)
+            {
+                monitor->second->topic_status_.on_instance_undiscovered();
+            }
             monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, monitor->second->topic_status_);
             monitor->second->topic_status_.on_status_read();
             break;
@@ -386,7 +399,14 @@ void StatisticsBackend::on_domain_entity_discovery(
                 return;
             }
 
-            monitor->second->datawriter_status_.on_instance_discovered();
+            if (discovery_status == DISCOVERY)
+            {
+                monitor->second->datawriter_status_.on_instance_discovered();
+            }
+            else if (discovery_status == UNDISCOVERY)
+            {
+                monitor->second->datawriter_status_.on_instance_undiscovered();
+            }
             monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
                     monitor->second->datawriter_status_);
             monitor->second->datawriter_status_.on_status_read();
@@ -400,7 +420,14 @@ void StatisticsBackend::on_domain_entity_discovery(
                 return;
             }
 
-            monitor->second->datareader_status_.on_instance_discovered();
+            if (discovery_status == DISCOVERY)
+            {
+                monitor->second->datareader_status_.on_instance_discovered();
+            }
+            else if (discovery_status == UNDISCOVERY)
+            {
+                monitor->second->datareader_status_.on_instance_undiscovered();
+            }
             monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
                     monitor->second->datareader_status_);
             monitor->second->datareader_status_.on_status_read();

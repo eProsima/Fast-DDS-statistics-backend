@@ -355,9 +355,20 @@ protected:
     {
         try
         {
-            database_->insert(front().second.entity);
-            StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, front().second.entity->id,
-                    front().second.entity->kind);
+            auto id = database_->insert(front().second.entity);
+            if (front().second.entity->kind == EntityKind::HOST ||
+                front().second.entity->kind == EntityKind::USER ||
+                front().second.entity->kind == EntityKind::PROCESS ||
+                front().second.entity->kind == EntityKind::LOCATOR)
+            {
+                StatisticsBackend::on_physical_entity_discovery(front().second.domain_id, id,
+                        front().second.entity->kind);
+            }
+            else
+            {
+                StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, id,
+                        front().second.entity->kind, StatisticsBackend::DISCOVERY);
+            }
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {

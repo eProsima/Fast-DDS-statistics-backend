@@ -45,6 +45,7 @@ class StatisticsBackend
     friend class database::DatabaseDataQueue;
     friend class database::DatabaseEntityQueue;
 
+public:
     // Exposing the singleton instance so the tests can have expectations on mocked methods
     static StatisticsBackend* get_instance()
     {
@@ -52,44 +53,54 @@ class StatisticsBackend
         return &instance;
     }
 
-protected:
 
-    StatisticsBackend()
+    enum DiscoveryStatus
     {
-    }
+        DISCOVERY,      ///< The entity was discovered
+        UNDISCOVERY,    ///< The entity was undiscovered
+        UPDATE          ///< The entity was updated
+    };
 
-    MOCK_METHOD3(mocked_on_domain_entity_discovery, void(
+    MOCK_METHOD4(mocked_on_domain_entity_discovery, void(
                 EntityId domain_id,
                 EntityId entity_id,
-                EntityKind entity_kind));
-
-    static void on_domain_entity_discovery(
-            EntityId domain_id,
-            EntityId entity_id,
-            EntityKind entity_kind)
-    {
-        StatisticsBackend::get_instance()->mocked_on_domain_entity_discovery(
-            domain_id, entity_id, entity_kind);
-    }
+                EntityKind entity_kind,
+                DiscoveryStatus discovery_status));
 
     MOCK_METHOD3(mocked_on_physical_entity_discovery, void(
                 EntityId participant_id,
                 EntityId entity_id,
                 EntityKind entity_kind));
 
+    MOCK_METHOD3(mocked_on_data_available, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                DataKind data_kind));
+
+protected:
+
+    StatisticsBackend()
+    {
+    }
+
+    static void on_domain_entity_discovery(
+            EntityId domain_id,
+            EntityId entity_id,
+            EntityKind entity_kind,
+            DiscoveryStatus discovery_status)
+    {
+        StatisticsBackend::get_instance()->mocked_on_domain_entity_discovery(
+            domain_id, entity_id, entity_kind, discovery_status);
+    }
+
     static void on_physical_entity_discovery(
             EntityId participant_id,
             EntityId entity_id,
             EntityKind entity_kind)
     {
-        StatisticsBackend::get_instance()->mocked_on_domain_entity_discovery(
+        StatisticsBackend::get_instance()->mocked_on_physical_entity_discovery(
             participant_id, entity_id, entity_kind);
     }
-
-    MOCK_METHOD3(mocked_on_data_available, void(
-                EntityId domain_id,
-                EntityId entity_id,
-                DataKind data_kind));
 
     static void on_data_available(
             EntityId domain_id,
