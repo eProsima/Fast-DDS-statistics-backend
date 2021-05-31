@@ -292,6 +292,9 @@ TEST_F(database_queue_tests, push_host)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::HOST, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {host, 0});
     entity_queue.flush();
@@ -318,6 +321,9 @@ TEST_F(database_queue_tests, push_host_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -351,6 +357,9 @@ TEST_F(database_queue_tests, push_user)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::USER, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {user, 0});
     entity_queue.flush();
@@ -380,6 +389,9 @@ TEST_F(database_queue_tests, push_user_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -417,6 +429,9 @@ TEST_F(database_queue_tests, push_process)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::PROCESS, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {process, 0});
     entity_queue.flush();
@@ -451,6 +466,9 @@ TEST_F(database_queue_tests, push_process_throws)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
     entity_queue.push(timestamp, {process, 0});
@@ -480,6 +498,9 @@ TEST_F(database_queue_tests, push_domain)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(0), EntityKind::DOMAIN, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {domain, 0});
     entity_queue.flush();
@@ -506,6 +527,9 @@ TEST_F(database_queue_tests, push_domain_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -550,6 +574,9 @@ TEST_F(database_queue_tests, push_participant_process_exists)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
@@ -585,6 +612,9 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
@@ -615,6 +645,9 @@ TEST_F(database_queue_tests, push_topic)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::TOPIC, StatisticsBackend::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {topic, 0});
@@ -647,6 +680,9 @@ TEST_F(database_queue_tests, push_topic_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -686,6 +722,9 @@ TEST_F(database_queue_tests, push_datawriter)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAWRITER, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {datawriter, 0});
     entity_queue.flush();
@@ -721,6 +760,9 @@ TEST_F(database_queue_tests, push_datawriter_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -760,6 +802,9 @@ TEST_F(database_queue_tests, push_datareader)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAREADER, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {datareader, 0});
     entity_queue.flush();
@@ -796,6 +841,9 @@ TEST_F(database_queue_tests, push_datareader_throws)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
     entity_queue.push(timestamp, {datareader, 0});
@@ -825,6 +873,9 @@ TEST_F(database_queue_tests, push_locator)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::LOCATOR, StatisticsBackend::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {locator, 0});
     entity_queue.flush();
@@ -852,6 +903,9 @@ TEST_F(database_queue_tests, push_locator_throws)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_domain_entity_discovery(_, _, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
@@ -2934,6 +2988,9 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -3005,6 +3062,9 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     process->id = EntityId(4);
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillOnce(Return(process));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();
@@ -3089,6 +3149,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
@@ -3178,6 +3241,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(_, _, _)).Times(0);
+
+
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
 
@@ -3257,6 +3324,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
                 return EntityId(3);
             });
 
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::USER)).Times(1);
+
     // Expectation: The process is created and given ID 4
     InsertEntityArgs insert_args_process([&](
                 std::shared_ptr<Entity> entity)
@@ -3268,6 +3338,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
                 return EntityId(4);
             });
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(2)
             .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
@@ -3354,6 +3427,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert));
 
+    // Expectation: The user is not notified of the new user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(_, _, _)).Times(0);
+
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
 
@@ -3424,8 +3500,11 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                return EntityId(4);
+                return EntityId(3);
             });
+
+    // Expectation: The user is notified of the new host
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::HOST)).Times(1);
 
     // Expectation: The user is created and given ID 4
     InsertEntityArgs insert_args_user([&](
@@ -3438,6 +3517,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 return EntityId(4);
             });
 
+    // Expectation: The user is notified of the new user
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::USER)).Times(1);
+
     // Expectation: The process is created and given ID 5
     InsertEntityArgs insert_args_process([&](
                 std::shared_ptr<Entity> entity)
@@ -3449,6 +3531,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
                 return EntityId(5);
             });
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(5), EntityKind::PROCESS)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(3)
             .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
@@ -3528,6 +3613,9 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(0);
@@ -3616,6 +3704,9 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
