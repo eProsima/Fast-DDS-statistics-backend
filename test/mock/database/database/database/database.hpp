@@ -80,6 +80,18 @@ public:
                 const EntityId& participant_id,
                 const EntityId& process_id));
 
+    EntityId generate_entity_id() noexcept
+    {
+        return EntityId(next_id_++);
+    }
+
+    void set_next_entity_id(
+            int64_t id) noexcept
+    {
+        next_id_ = id;
+    }
+
+    int64_t next_id_{0};
 };
 
 } //namespace database
