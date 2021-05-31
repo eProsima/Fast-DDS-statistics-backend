@@ -978,6 +978,9 @@ TEST_F(database_queue_tests, push_history_latency)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::FASTDDS_LATENCY)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1032,6 +1035,9 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1085,6 +1091,9 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1148,6 +1157,9 @@ TEST_F(database_queue_tests, push_network_latency)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::NETWORK_LATENCY)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1197,6 +1209,9 @@ TEST_F(database_queue_tests, push_network_latency_no_source_locator)
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1245,6 +1260,9 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1297,6 +1315,9 @@ TEST_F(database_queue_tests, push_publication_throughput)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::PUBLICATION_THROUGHPUT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1334,6 +1355,9 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1386,6 +1410,9 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::SUBSCRIPTION_THROUGHPUT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1423,6 +1450,9 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1508,6 +1538,10 @@ TEST_F(database_queue_tests, push_rtps_sent)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_SENT)).Times(1);
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_SENT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1563,6 +1597,9 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1616,6 +1653,9 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
     // Expectation: The insert method is never called, ddata dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1701,6 +1741,10 @@ TEST_F(database_queue_tests, push_rtps_lost)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_LOST)).Times(1);
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_LOST)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1756,6 +1800,9 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1810,6 +1857,9 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     // Expectation: The insert method is never called. data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1855,6 +1905,9 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     ByteToLocatorCountSample sample;
@@ -1903,6 +1956,9 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     // Precondition: The locator does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed    // Add to the queue and wait to be processed
     ByteToLocatorCountSample sample;
@@ -1958,6 +2014,9 @@ TEST_F(database_queue_tests, push_resent_datas)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::RESENT_DATA)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1995,6 +2054,9 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2047,6 +2109,9 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::HEARTBEAT_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2084,6 +2149,9 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2136,6 +2204,9 @@ TEST_F(database_queue_tests, push_acknack_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::ACKNACK_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2173,6 +2244,9 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2225,6 +2299,9 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::NACKFRAG_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2262,6 +2339,9 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2314,6 +2394,9 @@ TEST_F(database_queue_tests, push_gap_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::GAP_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2351,6 +2434,9 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2403,6 +2489,9 @@ TEST_F(database_queue_tests, push_data_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::DATA_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2440,6 +2529,9 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2492,6 +2584,9 @@ TEST_F(database_queue_tests, push_pdp_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::PDP_PACKETS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2529,6 +2624,9 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2581,6 +2679,9 @@ TEST_F(database_queue_tests, push_edp_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::EDP_PACKETS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2618,6 +2719,9 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2687,6 +2791,9 @@ TEST_F(database_queue_tests, push_discovery_times)
                 EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
             });
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::DISCOVERY_TIME)).Times(1);
+
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
@@ -2746,6 +2853,9 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2801,6 +2911,9 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2864,6 +2977,9 @@ TEST_F(database_queue_tests, push_sample_datas)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(EntityId(0), EntityId(1), DataKind::SAMPLE_DATAS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2912,6 +3028,9 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*StatisticsBackend::get_instance(), mocked_on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
