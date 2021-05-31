@@ -46,13 +46,13 @@ class StatisticsBackend
     friend class database::DatabaseEntityQueue;
 
 public:
+
     // Exposing the singleton instance so the tests can have expectations on mocked methods
     static StatisticsBackend* get_instance()
     {
         static StatisticsBackend instance;
         return &instance;
     }
-
 
     enum DiscoveryStatus
     {

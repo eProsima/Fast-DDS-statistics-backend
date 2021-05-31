@@ -440,7 +440,7 @@ protected:
 
     /**
      * @brief Specifies the reason of calling the entity discovery methods
-     * 
+     *
      */
     enum DiscoveryStatus
     {
@@ -465,7 +465,7 @@ protected:
 
     /**
      * @brief Notify the user about a new discovered entity
-     * 
+     *
      * There is no DiscoveryStatus parameter because physical entities are never undiscovered nor updated
      *
      * @param participant_id Entity ID of the participant that discovered the entity.

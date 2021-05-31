@@ -31,9 +31,9 @@ struct EntityDiscoveryArgs
 {
     EntityDiscoveryArgs (
             std::function<void(
-                    EntityId base_entity_id,
-                    EntityId discovered_entity_id,
-                    const DomainListener::Status& status)> func)
+                EntityId base_entity_id,
+                EntityId discovered_entity_id,
+                const DomainListener::Status& status)> func)
         : callback_(func)
     {
     }
@@ -49,9 +49,9 @@ struct EntityDiscoveryArgs
     }
 
     std::function<void(
-            EntityId base_entity_id,
-            EntityId discovered_entity_id,
-            const DomainListener::Status& status)> callback_;
+                EntityId base_entity_id,
+                EntityId discovered_entity_id,
+                const DomainListener::Status& status)> callback_;
 
     EntityId base_entity_id_;
     EntityId discovered_entity_id_;
@@ -73,7 +73,7 @@ public:
             DiscoveryStatus discovery_status)
     {
         StatisticsBackend::on_domain_entity_discovery(
-                domain_id, entity_id, entity_kind, discovery_status);
+            domain_id, entity_id, entity_kind, discovery_status);
     }
 
     static void on_physical_entity_discovery(
@@ -82,7 +82,7 @@ public:
             EntityKind entity_kind)
     {
         StatisticsBackend::on_physical_entity_discovery(
-                participant_id, entity_id, entity_kind);
+            participant_id, entity_id, entity_kind);
     }
 
     static void on_data_available(
@@ -91,15 +91,15 @@ public:
             DataKind data_kind)
     {
         StatisticsBackend::on_data_available(
-                domain_id, entity_id, data_kind);
+            domain_id, entity_id, data_kind);
     }
 
     // TODO: Remove this method once the init_monitor of StatisticsBackend is merged
     static EntityId init_monitor(
-        DomainId /*domain*/,
-        DomainListener* domain_listener = nullptr,
-        CallbackMask callback_mask = CallbackMask::all(),
-        DataKindMask data_mask = DataKindMask::none())
+            DomainId /*domain*/,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none())
     {
         monitors_[0] = new Monitor;
         monitors_[0]->domain_listener = domain_listener;
@@ -115,24 +115,24 @@ class MockedPhysicalListener : public PhysicalListener
 public:
 
     MOCK_METHOD3(on_host_discovery, void(
-                    EntityId participant_id,
-                    EntityId host_id,
-                    const Status& status));
+                EntityId participant_id,
+                EntityId host_id,
+                const Status& status));
 
     MOCK_METHOD3(on_user_discovery, void(
-                    EntityId participant_id,
-                    EntityId user_id,
-                    const Status& status));
+                EntityId participant_id,
+                EntityId user_id,
+                const Status& status));
 
     MOCK_METHOD3(on_process_discovery, void(
-                    EntityId participant_id,
-                    EntityId process_id,
-                    const Status& status));
+                EntityId participant_id,
+                EntityId process_id,
+                const Status& status));
 
     MOCK_METHOD3(on_locator_discovery, void(
-                    EntityId participant_id,
-                    EntityId locator_id,
-                    const Status& status));
+                EntityId participant_id,
+                EntityId locator_id,
+                const Status& status));
 };
 
 class MockedDomainListener : public DomainListener
@@ -140,29 +140,29 @@ class MockedDomainListener : public DomainListener
 public:
 
     MOCK_METHOD3(on_topic_discovery, void(
-                    EntityId domain_id,
-                    EntityId topic_id,
-                    const Status& status));
+                EntityId domain_id,
+                EntityId topic_id,
+                const Status& status));
 
     MOCK_METHOD3(on_participant_discovery, void(
-                    EntityId domain_id,
-                    EntityId participant_id,
-                    const Status& status));
+                EntityId domain_id,
+                EntityId participant_id,
+                const Status& status));
 
     MOCK_METHOD3(on_datareader_discovery, void(
-                    EntityId domain_id,
-                    EntityId datareader_id,
-                    const Status& status));
+                EntityId domain_id,
+                EntityId datareader_id,
+                const Status& status));
 
     MOCK_METHOD3(on_datawriter_discovery, void(
-                    EntityId domain_id,
-                    EntityId datawriter_id,
-                    const Status& status));
+                EntityId domain_id,
+                EntityId datawriter_id,
+                const Status& status));
 
     MOCK_METHOD3(on_data_available, void(
-            EntityId domain_id,
-            EntityId entity_id,
-            DataKind data_kind));
+                EntityId domain_id,
+                EntityId entity_id,
+                DataKind data_kind));
 };
 
 TEST(calling_user_listeners_tests, host_discovered)
@@ -177,9 +177,9 @@ TEST(calling_user_listeners_tests, host_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
@@ -194,15 +194,15 @@ TEST(calling_user_listeners_tests, host_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::HOST);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::HOST);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, participant_id);
                 EXPECT_EQ(3, entity_id);
@@ -217,9 +217,9 @@ TEST(calling_user_listeners_tests, host_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::HOST);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::HOST);
 }
 
 
@@ -238,9 +238,9 @@ TEST(calling_user_listeners_tests, host_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::HOST);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::HOST);
 }
 
 TEST(calling_user_listeners_tests, host_discovered_no_listener)
@@ -258,9 +258,9 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::HOST);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::HOST);
 }
 
 TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
@@ -278,9 +278,9 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::HOST);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::HOST);
 }
 
 TEST(calling_user_listeners_tests, user_discovered)
@@ -295,9 +295,9 @@ TEST(calling_user_listeners_tests, user_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
@@ -312,15 +312,15 @@ TEST(calling_user_listeners_tests, user_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::USER);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::USER);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, participant_id);
                 EXPECT_EQ(3, entity_id);
@@ -335,9 +335,9 @@ TEST(calling_user_listeners_tests, user_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::USER);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::USER);
 }
 
 TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
@@ -355,9 +355,9 @@ TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::USER);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::USER);
 }
 
 TEST(calling_user_listeners_tests, user_discovered_no_listener)
@@ -375,9 +375,9 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::USER);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::USER);
 }
 
 TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
@@ -395,9 +395,9 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::USER);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::USER);
 }
 
 TEST(calling_user_listeners_tests, process_discovered)
@@ -412,9 +412,9 @@ TEST(calling_user_listeners_tests, process_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
@@ -429,15 +429,15 @@ TEST(calling_user_listeners_tests, process_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::PROCESS);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::PROCESS);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, participant_id);
                 EXPECT_EQ(3, entity_id);
@@ -452,9 +452,9 @@ TEST(calling_user_listeners_tests, process_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::PROCESS);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::PROCESS);
 }
 
 
@@ -473,9 +473,9 @@ TEST(calling_user_listeners_tests, process_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::PROCESS);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::PROCESS);
 }
 
 TEST(calling_user_listeners_tests, process_discovered_no_listener)
@@ -493,9 +493,9 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::PROCESS);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::PROCESS);
 }
 
 TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
@@ -513,9 +513,9 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::PROCESS);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::PROCESS);
 }
 
 TEST(calling_user_listeners_tests, locator_discovered)
@@ -530,9 +530,9 @@ TEST(calling_user_listeners_tests, locator_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
@@ -547,15 +547,15 @@ TEST(calling_user_listeners_tests, locator_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::LOCATOR);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::LOCATOR);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId participant_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, participant_id);
                 EXPECT_EQ(3, entity_id);
@@ -570,9 +570,9 @@ TEST(calling_user_listeners_tests, locator_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::LOCATOR);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::LOCATOR);
 }
 
 
@@ -591,9 +591,9 @@ TEST(calling_user_listeners_tests, locator_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::LOCATOR);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::LOCATOR);
 }
 
 TEST(calling_user_listeners_tests, locator_discovered_no_listener)
@@ -611,9 +611,9 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::LOCATOR);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::LOCATOR);
 }
 
 TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
@@ -631,9 +631,9 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_physical_entity_discovery(
-            EntityId(0),
-            EntityId(1),
-            EntityKind::LOCATOR);
+        EntityId(0),
+        EntityId(1),
+        EntityKind::LOCATOR);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered)
@@ -645,9 +645,9 @@ TEST(calling_user_listeners_tests, participant_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, domain_id);
                 EXPECT_EQ(1, entity_id);
@@ -662,16 +662,16 @@ TEST(calling_user_listeners_tests, participant_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -686,16 +686,16 @@ TEST(calling_user_listeners_tests, participant_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -710,16 +710,16 @@ TEST(calling_user_listeners_tests, participant_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -734,10 +734,10 @@ TEST(calling_user_listeners_tests, participant_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
@@ -752,22 +752,22 @@ TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_no_listener)
@@ -782,22 +782,22 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mask)
@@ -812,22 +812,22 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mas
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::PARTICIPANT,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::PARTICIPANT,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered)
@@ -839,9 +839,9 @@ TEST(calling_user_listeners_tests, topic_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, domain_id);
                 EXPECT_EQ(1, entity_id);
@@ -856,16 +856,16 @@ TEST(calling_user_listeners_tests, topic_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -880,16 +880,16 @@ TEST(calling_user_listeners_tests, topic_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -904,16 +904,16 @@ TEST(calling_user_listeners_tests, topic_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -928,10 +928,10 @@ TEST(calling_user_listeners_tests, topic_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
@@ -946,22 +946,22 @@ TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_no_listener)
@@ -976,22 +976,22 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
@@ -1006,22 +1006,22 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::TOPIC,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::TOPIC,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered)
@@ -1033,9 +1033,9 @@ TEST(calling_user_listeners_tests, datareader_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, domain_id);
                 EXPECT_EQ(1, entity_id);
@@ -1050,16 +1050,16 @@ TEST(calling_user_listeners_tests, datareader_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1074,16 +1074,16 @@ TEST(calling_user_listeners_tests, datareader_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1098,16 +1098,16 @@ TEST(calling_user_listeners_tests, datareader_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1122,10 +1122,10 @@ TEST(calling_user_listeners_tests, datareader_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
@@ -1140,22 +1140,22 @@ TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
@@ -1170,22 +1170,22 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask)
@@ -1200,22 +1200,22 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAREADER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAREADER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered)
@@ -1227,9 +1227,9 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
 
     // Expectation: The user listener is called
     EntityDiscoveryArgs discovery_args([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(0, domain_id);
                 EXPECT_EQ(1, entity_id);
@@ -1244,16 +1244,16 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1268,16 +1268,16 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1292,16 +1292,16 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
-                    EntityId domain_id,
-                    EntityId entity_id,
-                    const DomainListener::Status& status)
+                EntityId domain_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
             {
                 EXPECT_EQ(2, domain_id);
                 EXPECT_EQ(3, entity_id);
@@ -1316,10 +1316,10 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
@@ -1334,22 +1334,22 @@ TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
@@ -1364,22 +1364,22 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask)
@@ -1394,22 +1394,22 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
 
     StatisticsBackendWrapper::on_domain_entity_discovery(
-            monitor_id,
-            EntityId(1),
-            EntityKind::DATAWRITER,
-            StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        monitor_id,
+        EntityId(1),
+        EntityKind::DATAWRITER,
+        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, wrong_entity_kind)
@@ -1417,7 +1417,8 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
 
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, CallbackMask::all(), DataKindMask::all());
+    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, CallbackMask::all(),
+                    DataKindMask::all());
     StatisticsBackendWrapper::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
@@ -1587,18 +1588,18 @@ TEST_P(calling_user_data_listeners_tests, data_available)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 
     // Expectation: The user listener is called again
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(1);
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
@@ -1617,9 +1618,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
@@ -1638,9 +1639,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
@@ -1659,9 +1660,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_not_in_mask)
@@ -1680,9 +1681,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in_mask)
@@ -1701,9 +1702,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in
 
     // Execution: Call the listener
     StatisticsBackendWrapper::on_data_available(
-            monitor_id,
-            EntityId(1),
-            data_kind);
+        monitor_id,
+        EntityId(1),
+        data_kind);
 }
 
 
@@ -1735,7 +1736,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::EDP_PACKETS),
         std::make_tuple(DataKind::DISCOVERY_TIME),
         std::make_tuple(DataKind::SAMPLE_DATAS)
-    ));
+        ));
 
 
 int main(
