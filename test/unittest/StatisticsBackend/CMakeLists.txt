@@ -16,7 +16,13 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
 check_gtest()
 
 add_executable(statistics_backend_tests StatisticsBackendTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(statistics_backend_tests PRIVATE
@@ -31,6 +37,7 @@ target_link_libraries(statistics_backend_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
 set(DATABASEQUEUE_TEST_LIST
+    get_type
     get_data_supported_entity_kinds
     )
 
