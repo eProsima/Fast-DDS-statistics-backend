@@ -364,40 +364,41 @@ bool StatisticsBackend::is_active(
         {
             case EntityKind::PARTICIPANT:
             {
-                std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                std::shared_ptr<const DomainParticipant> participant =
+                        std::dynamic_pointer_cast<const DomainParticipant>(entity);
                 return !(participant->data.rtps_packets_sent.empty() &&
-                    participant->data.last_reported_rtps_packets_sent_count.empty() &&
-                    participant->data.rtps_bytes_sent.empty() &&
-                    participant->data.last_reported_rtps_bytes_sent_count.empty() &&
-                    participant->data.rtps_packets_lost.empty() &&
-                    participant->data.last_reported_rtps_packets_lost_count.empty() &&
-                    participant->data.rtps_bytes_lost.empty() &&
-                    participant->data.last_reported_rtps_bytes_lost_count.empty() &&
-                    participant->data.discovered_entity.empty() && participant->data.pdp_packets.empty() &&
-                    participant->data.edp_packets.empty() &&
-                    participant->data.last_reported_pdp_packets.count == 0 &&
-                    participant->data.last_reported_edp_packets.count == 0); 
+                       participant->data.last_reported_rtps_packets_sent_count.empty() &&
+                       participant->data.rtps_bytes_sent.empty() &&
+                       participant->data.last_reported_rtps_bytes_sent_count.empty() &&
+                       participant->data.rtps_packets_lost.empty() &&
+                       participant->data.last_reported_rtps_packets_lost_count.empty() &&
+                       participant->data.rtps_bytes_lost.empty() &&
+                       participant->data.last_reported_rtps_bytes_lost_count.empty() &&
+                       participant->data.discovered_entity.empty() && participant->data.pdp_packets.empty() &&
+                       participant->data.edp_packets.empty() &&
+                       participant->data.last_reported_pdp_packets.count == 0 &&
+                       participant->data.last_reported_edp_packets.count == 0);
             }
             case EntityKind::DATAWRITER:
             {
                 std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
                 return !(datawriter->data.data_count.empty() && datawriter->data.gap_count.empty() &&
-                         datawriter->data.heartbeat_count.empty() &&
-                         datawriter->data.history2history_latency.empty() &&
-                         datawriter->data.last_reported_data_count.count == 0 &&
-                         datawriter->data.last_reported_gap_count.count == 0 &&
-                         datawriter->data.last_reported_heartbeat_count.count == 0 &&
-                         datawriter->data.last_reported_resent_datas.count == 0 &&
-                         datawriter->data.publication_throughput.empty() && datawriter->data.resent_datas.empty() &&
-                         datawriter->data.sample_datas.empty());
+                       datawriter->data.heartbeat_count.empty() &&
+                       datawriter->data.history2history_latency.empty() &&
+                       datawriter->data.last_reported_data_count.count == 0 &&
+                       datawriter->data.last_reported_gap_count.count == 0 &&
+                       datawriter->data.last_reported_heartbeat_count.count == 0 &&
+                       datawriter->data.last_reported_resent_datas.count == 0 &&
+                       datawriter->data.publication_throughput.empty() && datawriter->data.resent_datas.empty() &&
+                       datawriter->data.sample_datas.empty());
             }
             case EntityKind::DATAREADER:
             {
                 std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
                 return !(datareader->data.acknack_count.empty() &&
-                         datareader->data.last_reported_acknack_count.count == 0 &&
-                         datareader->data.last_reported_nackfrag_count.count == 0 &&
-                         datareader->data.nackfrag_count.empty() && datareader->data.subscription_throughput.empty());
+                       datareader->data.last_reported_acknack_count.count == 0 &&
+                       datareader->data.last_reported_nackfrag_count.count == 0 &&
+                       datareader->data.nackfrag_count.empty() && datareader->data.subscription_throughput.empty());
             }
             case EntityKind::LOCATOR:
             {
