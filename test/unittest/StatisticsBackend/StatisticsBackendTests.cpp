@@ -27,7 +27,7 @@ using namespace eprosima::statistics_backend::database;
  * @brief Fixture for the statistics_backend class tests
  *
  * \c get_type Returns the entity kind of a given id.
- * 
+ *
  * This fixture populates a database with several entities and several relations among them.
  * Since the tests need to know these relations, each entity is given a unique identifier within the fixture,
  * and the fixture keeps all these entities on a map,
@@ -128,6 +128,7 @@ using namespace eprosima::statistics_backend::database;
 class statistics_backend_tests : public ::testing::Test
 {
 public:
+
     void SetUp()
     {
         populate_database();
@@ -186,30 +187,32 @@ class StatisticsBackendTest : public StatisticsBackend
 {
 public:
 
-     static void set_database(Database * db)
-     {
-          database_ = db;
-     }
+    static void set_database(
+            Database* db)
+    {
+        database_ = db;
+    }
+
 };
 
 // Check the get_type StatisticsBackend method
 TEST_F(statistics_backend_tests, get_type)
 {
-	StatisticsBackendTest::set_database(&db);
-	ASSERT_EQ(StatisticsBackendTest::get_type(host->id), host->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(user->id), user->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(process->id), process->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(domain->id), domain->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(participant->id), participant->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(topic->id), topic->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(datareader->id), datareader->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(reader_locator->id), reader_locator->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(datawriter->id), datawriter->kind);
-	ASSERT_EQ(StatisticsBackendTest::get_type(writer_locator->id), writer_locator->kind);
+    StatisticsBackendTest::set_database(&db);
+    ASSERT_EQ(StatisticsBackendTest::get_type(host->id), host->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(user->id), user->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(process->id), process->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(domain->id), domain->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(participant->id), participant->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(topic->id), topic->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(datareader->id), datareader->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(reader_locator->id), reader_locator->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(datawriter->id), datawriter->kind);
+    ASSERT_EQ(StatisticsBackendTest::get_type(writer_locator->id), writer_locator->kind);
 
-	ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::all()),BadParameter);
-	ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::invalid()),BadParameter);
-	ASSERT_THROW(StatisticsBackendTest::get_type(EntityId(1234)),BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::all()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::invalid()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId(1234)), BadParameter);
 }
 
 // Check the get_data_supported_entity_kinds StatisticsBackend method

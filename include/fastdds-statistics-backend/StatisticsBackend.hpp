@@ -429,7 +429,7 @@ protected:
     }
 
     //! Reference to the Database
-	static database::Database* database_;
+    static database::Database* database_;
 
 };
 
