@@ -183,6 +183,14 @@ constexpr const char* DATA_VALUE_REMOTE_ENTITY_TAG  = "remote_id";
 //! Key tag for discovered (bool) value in data
 constexpr const char* DATA_VALUE_DISCOVERED_TAG     = "discovered";
 
+/////
+// StatisticsBackend info
+
+//! Key tag for the ID of an entity
+constexpr const char* ID_INFO_TAG                   = "id";
+//! Key tag for the EntityKind of an entity
+constexpr const char* KIND_INFO_TAG                 = "kind";
+
 } //namespace statistics_backend
 } //namespace eprosima
 

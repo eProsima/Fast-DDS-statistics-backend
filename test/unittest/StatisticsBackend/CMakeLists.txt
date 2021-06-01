@@ -37,6 +37,7 @@ target_link_libraries(statistics_backend_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
 set(DATABASEQUEUE_TEST_LIST
+    get_info
     get_type
     get_data_supported_entity_kinds
     )

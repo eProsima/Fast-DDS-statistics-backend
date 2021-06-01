@@ -19,11 +19,16 @@
 #include <fastdds-statistics-backend/StatisticsBackend.hpp>
 
 #include "database/database.hpp"
+#include <fastdds-statistics-backend/types/JSONTags.h>
 
 namespace eprosima {
 namespace statistics_backend {
 
+using namespace eprosima::statistics_backend::database;
+
 database::Database* StatisticsBackend::database_ = new database::Database();
+const char* StatisticsBackend::entity_kind_str[] =
+{"Invalid", "Host", "User", "Process", "Domain", "Topic", "Participant", "Datawriter", "Datareader", "Locator"};
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
@@ -116,8 +121,47 @@ EntityKind StatisticsBackend::get_type(
 Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
-    static_cast<void>(entity_id);
-    return Info();
+    Info info = Info::object();
+
+    std::shared_ptr<const Entity> entity = database_->get_entity(entity_id);
+
+    info[ID_INFO_TAG] = entity_id.value();
+    info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
+    info[NAME_INFO_TAG] = entity->name;
+
+    switch (entity->kind)
+    {
+        case EntityKind::PROCESS:
+        {
+            std::shared_ptr<const Process> entity =
+                    std::dynamic_pointer_cast<const Process>(database_->get_entity(entity_id));
+            info[PID_INFO_TAG] = entity->pid;
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            std::shared_ptr<const Topic> entity =
+                    std::dynamic_pointer_cast<const Topic>(database_->get_entity(entity_id));
+            info[DATA_TYPE_INFO_TAG] = entity->data_type;
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        case EntityKind::DATAWRITER:
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DDSEntity> entity =
+                    std::dynamic_pointer_cast<const DDSEntity>(database_->get_entity(entity_id));
+            info[GUID_INFO_TAG] = entity->guid;
+            info[QOS_INFO_TAG] = entity->qos;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return info;
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
