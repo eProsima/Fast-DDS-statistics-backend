@@ -100,7 +100,8 @@ endforeach()
 add_executable(database_tests DatabaseTests.cpp)
 
 target_include_directories(database_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
@@ -339,7 +340,8 @@ endforeach()
 add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp)
 
 target_include_directories(database_get_entities_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_get_entities_tests PUBLIC
     ${PROJECT_NAME}
