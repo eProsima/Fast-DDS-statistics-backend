@@ -1615,8 +1615,8 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
 }
 
 std::vector<EntityId> Database::get_entity_ids(
-    EntityKind entity_kind,
-    const EntityId &entity_id) const
+        EntityKind entity_kind,
+        const EntityId& entity_id) const
 {
     std::vector<EntityId> entitiesIds;
     for (auto entity : get_entities(entity_kind, entity_id))
