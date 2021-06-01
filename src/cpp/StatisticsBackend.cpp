@@ -98,9 +98,13 @@ std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    static_cast<void>(entity_type);
-    static_cast<void>(entity_id);
-    return std::vector<EntityId>();
+    std::vector<EntityId> entitiesIds;
+    for (auto entity : database_->get_entities(entity_type, entity_id))
+    {
+        entitiesIds.push_back(entity->id);
+    }
+
+    return entitiesIds;
 }
 
 bool StatisticsBackend::is_active(
