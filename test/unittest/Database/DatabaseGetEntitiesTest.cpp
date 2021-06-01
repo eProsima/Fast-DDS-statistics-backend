@@ -72,7 +72,7 @@ TEST_P(database_get_entities_tests, get_entities)
         expected.push_back(entities[it]);
     }
 
-    EXPECT_THROW(db.get_entities(kind,db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(db.get_entities(kind, db.generate_entity_id()), BadParameter);
     EXPECT_THROW(db.get_entities(EntityKind::INVALID, origin), BadParameter);
 
 

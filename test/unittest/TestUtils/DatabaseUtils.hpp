@@ -24,7 +24,7 @@ using namespace eprosima::statistics_backend::database;
  * This identifier is independent of the EntityId given by the database,
  * and is totally under control of the class and the tests.
  * This is important to keep the tests stable even if the Database implementation to assign an EntityId changes.
- * 
+ *
  * The following Json object describes the populated database objects and their given unique identifiers:
  *
  * \code
@@ -120,7 +120,8 @@ public:
 
     typedef uint32_t TestId;
 
-    static std::map<TestId, std::shared_ptr<const Entity>> populate_database(Database & db)
+    static std::map<TestId, std::shared_ptr<const Entity>> populate_database(
+            Database& db)
     {
         std::map<TestId, std::shared_ptr<const Entity>> entities;
 
