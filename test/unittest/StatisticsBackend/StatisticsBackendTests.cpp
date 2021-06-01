@@ -212,230 +212,244 @@ TEST_F(statistics_backend_tests, is_active)
 
     StatisticsBackendTest::set_database(&db);
 
-    // Participants
-    for (auto domainPair : db.participants())
+    /* Monitor tests: Active means that no call to stop_monitor()
+       has been performed since the last time the monitor was activated*/
+    for (auto pair : db.domains())
     {
-        auto domainEntities = domainPair.second;
-        for (auto pair : domainEntities)
+        EntityId monitorId = StatisticsBackendTest::init_monitor(pair.first.value());
+        ASSERT_TRUE(StatisticsBackendTest::is_active(monitorId));
+
+        StatisticsBackendTest::stop_monitor(monitorId);
+        ASSERT_FALSE(StatisticsBackendTest::is_active(monitorId));
+    }
+
+    // No monitor tests: Active means that there is statistical data being reported within the entity
+    {
+        // Participants
+        for (auto domainPair : db.participants())
         {
-            EntityId domainId = domainPair.first;
+            auto domainEntities = domainPair.second;
+            for (auto pair : domainEntities)
+            {
+                EntityId domainId = domainPair.first;
+                EntityId entityId = pair.first;
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+                // discovery_time
+                {
+                    DiscoveryTimeSample sample;
+
+                    init_sample(sample);
+                    sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                    sample.remote_entity = EntityId(entityId);
+                    sample.discovered = true;
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+                // pdp_packets
+                {
+                    PdpCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // edp_packets
+                {
+                    EdpCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // rtps_packets_sent
+                for (auto locator : db.locators())
+                {
+                    RtpsPacketsSentSample sample;
+
+                    init_entity_to_locator_count_sample(sample, locator.first);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // rtps_bytes_sent
+                for (auto locator : db.locators())
+                {
+                    RtpsBytesSentSample sample;
+
+                    init_byte_to_locator_count_sample(sample, locator.first);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // rtps_packets_lost
+                for (auto locator : db.locators())
+                {
+                    RtpsPacketsLostSample sample;
+
+                    init_entity_to_locator_count_sample(sample, locator.first);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // rtps_bytes_lost
+                for (auto locator : db.locators())
+                {
+                    RtpsBytesLostSample sample;
+
+                    init_byte_to_locator_count_sample(sample, locator.first);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+            }
+        }
+
+        // Datawriter
+        for (auto domainPair : db.get_dds_endpoints<DataWriter>())
+        {
+            auto domainEntities = domainPair.second;
+            for (auto pair : domainEntities)
+            {
+                EntityId domainId = domainPair.first;
+                EntityId entityId = pair.first;
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+                // publication_throughput
+                {
+                    PublicationThroughputSample sample;
+
+                    init_entity_data_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // resent_datas
+                {
+                    ResentDataSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // heartbeat_count
+                {
+                    HeartbeatCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // gap_count
+                {
+                    GapCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // data_count
+                {
+                    DataCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // samples_datas
+                for (auto process : db.processes())
+                {
+                    SampleDatasCountSample sample;
+
+                    init_entity_count_sample(sample);
+                    sample.sequence_number = process.first.value();
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // history2history_latency
+                for (auto locator : db.locators())
+                {
+                    HistoryLatencySample sample;
+
+                    init_entity_data_sample(sample);
+                    sample.reader = locator.first;
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+            }
+        }
+
+        // Datareader
+        for (auto domainPair : db.get_dds_endpoints<DataReader>())
+        {
+            auto domainEntities = domainPair.second;
+            for (auto pair : domainEntities)
+            {
+                EntityId domainId = domainPair.first;
+                EntityId entityId = pair.first;
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+
+                // subscription_throughput
+                {
+                    SubscriptionThroughputSample sample;
+
+                    init_entity_data_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // acknack_count
+                {
+                    AcknackCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                // nackfrag_count
+                {
+                    NackfragCountSample sample;
+
+                    init_entity_count_sample(sample);
+
+                    test_is_active(&db, domainId, entityId, sample);
+                }
+
+                ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
+            }
+        }
+
+        // locators
+        for (auto pair : db.locators())
+        {
+            EntityId domainId = EntityId::invalid();
             EntityId entityId = pair.first;
 
             ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
 
-            // discovery_time
-            {
-                DiscoveryTimeSample sample;
+            NetworkLatencySample sample;
 
-                init_sample(sample);
-                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
-                sample.remote_entity = EntityId(entityId);
-                sample.discovered = true;
+            init_entity_data_sample(sample);
+            sample.remote_locator = EntityId(entityId);
 
-                test_is_active(&db, domainId, entityId, sample);
-            }
-            // pdp_packets
-            {
-                PdpCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // edp_packets
-            {
-                EdpCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // rtps_packets_sent
-            for (auto locator : db.locators())
-            {
-                RtpsPacketsSentSample sample;
-
-                init_entity_to_locator_count_sample(sample, locator.first);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // rtps_bytes_sent
-            for (auto locator : db.locators())
-            {
-                RtpsBytesSentSample sample;
-
-                init_byte_to_locator_count_sample(sample, locator.first);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // rtps_packets_lost
-            for (auto locator : db.locators())
-            {
-                RtpsPacketsLostSample sample;
-
-                init_entity_to_locator_count_sample(sample, locator.first);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // rtps_bytes_lost
-            for (auto locator : db.locators())
-            {
-                RtpsBytesLostSample sample;
-
-                init_byte_to_locator_count_sample(sample, locator.first);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
+            test_is_active(&db, domainId, entityId, sample);
 
             ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
         }
-    }
-
-    // Datawriter
-    for (auto domainPair : db.get_dds_endpoints<DataWriter>())
-    {
-        auto domainEntities = domainPair.second;
-        for (auto pair : domainEntities)
-        {
-            EntityId domainId = domainPair.first;
-            EntityId entityId = pair.first;
-
-            ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
-
-            // publication_throughput
-            {
-                PublicationThroughputSample sample;
-
-                init_entity_data_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // resent_datas
-            {
-                ResentDataSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // heartbeat_count
-            {
-                HeartbeatCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // gap_count
-            {
-                GapCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // data_count
-            {
-                DataCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // samples_datas
-            for (auto process : db.processes())
-            {
-                SampleDatasCountSample sample;
-
-                init_entity_count_sample(sample);
-                sample.sequence_number = process.first.value();
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // history2history_latency
-            for (auto locator : db.locators())
-            {
-                HistoryLatencySample sample;
-
-                init_entity_data_sample(sample);
-                sample.reader = locator.first;
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
-        }
-    }
-
-    // Datareader
-    for (auto domainPair : db.get_dds_endpoints<DataReader>())
-    {
-        auto domainEntities = domainPair.second;
-        for (auto pair : domainEntities)
-        {
-            EntityId domainId = domainPair.first;
-            EntityId entityId = pair.first;
-
-            ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
-
-            // subscription_throughput
-            {
-                SubscriptionThroughputSample sample;
-
-                init_entity_data_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // acknack_count
-            {
-                AcknackCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            // nackfrag_count
-            {
-                NackfragCountSample sample;
-
-                init_entity_count_sample(sample);
-
-                test_is_active(&db, domainId, entityId, sample);
-            }
-
-            ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
-        }
-    }
-
-    // locators
-    for (auto pair : db.locators())
-    {
-        EntityId domainId = EntityId::invalid();
-        EntityId entityId = pair.first;
-
-        ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
-
-        NetworkLatencySample sample;
-
-        init_entity_data_sample(sample);
-        sample.remote_locator = EntityId(entityId);
-
-        test_is_active(&db, domainId, entityId, sample);
-
-        ASSERT_FALSE(StatisticsBackendTest::is_active(entityId));
     }
 }
 
