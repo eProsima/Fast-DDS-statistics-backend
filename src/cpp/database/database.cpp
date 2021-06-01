@@ -1614,6 +1614,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     return entities;
 }
 
+std::vector<EntityId> Database::get_entity_ids(
+    EntityKind entity_kind,
+    const EntityId &entity_id) const
+{
+    std::vector<EntityId> entitiesIds;
+    for (auto entity : get_entities(entity_kind, entity_id))
+    {
+        entitiesIds.push_back(entity->id);
+    }
+
+    return entitiesIds;
+}
+
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
         const std::shared_ptr<const Entity>& origin) const

@@ -86,6 +86,30 @@ TEST_P(database_get_entities_tests, get_entities)
     }
 }
 
+TEST_P(database_get_entities_tests, get_entity_ids)
+{
+    EntityKind kind = std::get<0>(GetParam());
+    EntityId origin = entities[std::get<1>(GetParam())]->id;
+    std::vector<EntityId> expected;
+    for (auto it : std::get<2>(GetParam()))
+    {
+        expected.push_back(entities[it]->id);
+    }
+
+    EXPECT_THROW(db.get_entity_ids(kind, db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(db.get_entity_ids(EntityKind::INVALID, origin), BadParameter);
+
+
+    auto result = db.get_entity_ids(kind, origin);
+    ASSERT_EQ(expected.size(), result.size());
+    std::sort(expected.begin(), expected.end());
+    std::sort(result.begin(), result.end());
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        EXPECT_EQ(expected[i], result[i]);
+    }
+}
+
 #ifdef INSTANTIATE_TEST_SUITE_P
 #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
 #else

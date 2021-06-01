@@ -127,7 +127,7 @@ void get_data_examples()
 
         //CONF-GET-DATA-DATAWRITER-FASTDDS_LATENCY
         /* Get the DataReaders related to a given DataWriter */
-        std::vector<EntityId> datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, datawriter_id);
+        std::vector<EntityId> datareaders = StatisticsBackend::get_entity_ids(EntityKind::DATAREADER, datawriter_id);
 
         /* Get the current time */
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -153,8 +153,8 @@ void get_data_examples()
 
         //CONF-GET-DATA-TOPIC-FASTDDS_LATENCY
         /* Get the DataWriters and DataReaders in a Topic */
-        std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, topic_id);
-        std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, topic_id);
+        std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entity_ids(EntityKind::DATAWRITER, topic_id);
+        std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entity_ids(EntityKind::DATAREADER, topic_id);
 
         /* Get the current time */
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -179,7 +179,7 @@ void get_data_examples()
         EntityId participant_id;
 
         //CONF-GET-DATA-TOPIC-HEARTBEAT_COUNT
-        std::vector<EntityId> participant_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER,
+        std::vector<EntityId> participant_datawriters = StatisticsBackend::get_entity_ids(EntityKind::DATAWRITER,
                         participant_id);
 
         /* Get the current time */
@@ -205,8 +205,8 @@ void get_data_examples()
         EntityId host2_id;
 
         //CONF-GET-ALL-POINTS-EXAMPLE
-        std::vector<EntityId> host1_datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, host1_id);
-        std::vector<EntityId> host2_datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, host2_id);
+        std::vector<EntityId> host1_datawriters = StatisticsBackend::get_entity_ids(EntityKind::DATAWRITER, host1_id);
+        std::vector<EntityId> host2_datareaders = StatisticsBackend::get_entity_ids(EntityKind::DATAREADER, host2_id);
 
         /* Get the current time */
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -245,8 +245,8 @@ void get_data_supported_entity_kinds_examples()
             /* Take the data for this pair and append it to the existing data */
             std::vector<StatisticsData> tmp = StatisticsBackend::get_data(
                 DataKind::DISCOVERY_TIME,
-                StatisticsBackend::get_entities(type_pair.first, host1_id),
-                StatisticsBackend::get_entities(type_pair.second, host2_id));
+                StatisticsBackend::get_entity_ids(type_pair.first, host1_id),
+                StatisticsBackend::get_entity_ids(type_pair.second, host2_id));
 
             discovery_times.insert(discovery_times.end(), tmp.begin(), tmp.end());
         }
@@ -324,7 +324,7 @@ void get_entities_example()
     {
         //CONF-GET-ENTITIES-ALL-EXAMPLE
         // Get all hosts
-        std::vector<EntityId> hosts = StatisticsBackend::get_entities(EntityKind::HOST);
+        std::vector<EntityId> hosts = StatisticsBackend::get_entity_ids(EntityKind::HOST);
         for (EntityId host : hosts)
         {
             std::cout << "Host ID: " << host << std::endl;
@@ -335,7 +335,7 @@ void get_entities_example()
         EntityId host_id;
         //CONF-GET-ENTITIES-EXAMPLE
         // Get all participants running in a host
-        std::vector<EntityId> participants = StatisticsBackend::get_entities(EntityKind::PARTICIPANT, host_id);
+        std::vector<EntityId> participants = StatisticsBackend::get_entity_ids(EntityKind::PARTICIPANT, host_id);
         for (EntityId participant : participants)
         {
             std::cout << "Participant ID: " << participant << std::endl;

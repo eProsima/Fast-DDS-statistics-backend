@@ -125,10 +125,10 @@ TEST_P(statistics_backend_tests, get_entities)
 {
     EntityKind kind = std::get<0>(GetParam());
     EntityId origin = entities[std::get<1>(GetParam())]->id;
-    std::vector<EntityId> expected;
+    std::vector<std::shared_ptr<const Entity>> expected;
     for (auto it : std::get<2>(GetParam()))
     {
-        expected.push_back(entities[it]->id);
+        expected.push_back(entities[it]);
     }
 
     StatisticsBackendTest::set_database(&db);
@@ -137,6 +137,32 @@ TEST_P(statistics_backend_tests, get_entities)
     EXPECT_THROW(StatisticsBackendTest::get_entities(EntityKind::INVALID, origin), BadParameter);
 
     auto result = StatisticsBackendTest::get_entities(kind, origin);
+    ASSERT_EQ(expected.size(), result.size());
+    std::sort(expected.begin(), expected.end());
+    std::sort(result.begin(), result.end());
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        EXPECT_EQ(expected[i].get(), result[i].get());
+    }
+}
+
+// Check the get_entities StatisticsBackend method
+TEST_P(statistics_backend_tests, get_entity_ids)
+{
+    EntityKind kind = std::get<0>(GetParam());
+    EntityId origin = entities[std::get<1>(GetParam())]->id;
+    std::vector<EntityId> expected;
+    for (auto it : std::get<2>(GetParam()))
+    {
+        expected.push_back(entities[it]->id);
+    }
+
+    StatisticsBackendTest::set_database(&db);
+
+    EXPECT_THROW(StatisticsBackendTest::get_entity_ids(kind, db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(StatisticsBackendTest::get_entity_ids(EntityKind::INVALID, origin), BadParameter);
+
+    auto result = StatisticsBackendTest::get_entity_ids(kind, origin);
     ASSERT_EQ(expected.size(), result.size());
     std::sort(expected.begin(), expected.end());
     std::sort(result.begin(), result.end());

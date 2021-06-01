@@ -94,17 +94,18 @@ void StatisticsBackend::set_domain_listener(
     static_cast<void>(data_mask);
 }
 
-std::vector<EntityId> StatisticsBackend::get_entities(
+const std::vector<std::shared_ptr<const Entity>> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    std::vector<EntityId> entitiesIds;
-    for (auto entity : database_->get_entities(entity_type, entity_id))
-    {
-        entitiesIds.push_back(entity->id);
-    }
+    return database_->get_entities(entity_type, entity_id);
+}
 
-    return entitiesIds;
+std::vector<EntityId> StatisticsBackend::get_entity_ids(
+        EntityKind entity_type,
+        EntityId entity_id)
+{
+    return database_->get_entity_ids(entity_type, entity_id);
 }
 
 bool StatisticsBackend::is_active(

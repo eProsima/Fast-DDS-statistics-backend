@@ -39,6 +39,7 @@ target_link_libraries(statistics_backend_tests PUBLIC
 set(DATABASEQUEUE_TEST_LIST
     get_info
     get_entities
+    get_entitiy_ids
     get_type
     get_data_supported_entity_kinds
     )
