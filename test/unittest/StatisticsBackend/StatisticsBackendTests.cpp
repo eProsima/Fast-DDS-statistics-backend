@@ -354,6 +354,24 @@ GTEST_INSTANTIATE_TEST_MACRO(
     statistics_backend_tests,
     statistics_backend_tests,
     ::testing::Values(
+        // ALL - HOST
+        std::make_tuple(EntityKind::HOST, 0, std::vector<size_t>{1, 2}),
+        // ALL - USER
+        std::make_tuple(EntityKind::USER, 0, std::vector<size_t>{3, 4}),
+        // ALL - PROCESS
+        std::make_tuple(EntityKind::PROCESS, 0, std::vector<size_t>{5, 6}),
+        // ALL - DOMAIN
+        std::make_tuple(EntityKind::DOMAIN, 0, std::vector<size_t>{7, 8}),
+        // ALL - PARTICIPANT
+        std::make_tuple(EntityKind::PARTICIPANT, 0, std::vector<size_t>{9, 10}),
+        // ALL - TOPIC
+        std::make_tuple(EntityKind::TOPIC, 0, std::vector<size_t>{11, 12}),
+        // ALL - DATAREADER
+        std::make_tuple(EntityKind::DATAREADER, 0, std::vector<size_t>{13, 14}),
+        // ALL - DATAWRITER
+        std::make_tuple(EntityKind::DATAWRITER, 0, std::vector<size_t>{15, 16}),
+        // ALL - LOCATOR
+        std::make_tuple(EntityKind::LOCATOR, 0, std::vector<size_t>{17, 18, 19, 20}),
         // HOST - HOST
         std::make_tuple(EntityKind::HOST, 2, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 1, std::vector<size_t> { 1 }),

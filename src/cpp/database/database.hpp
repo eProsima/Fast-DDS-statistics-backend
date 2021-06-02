@@ -242,11 +242,12 @@ public:
             const EntityId& entity_id) const;
 
     /**
-     * Get all entities of a given EntityKind related to another entity
+     * Get all EntityIds of a given EntityKind related to another entity
      *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
+	 * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      * @return A vector containing the EntityIds of the entities
      */
     std::vector<EntityId> get_entity_ids(
@@ -339,8 +340,9 @@ protected:
      */
     template<typename T>
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
+	
 
-    /**
+	/**
      * Get all entities of a given EntityKind related to another entity
      *
      * @param entity constant reference to the entity to which the returned

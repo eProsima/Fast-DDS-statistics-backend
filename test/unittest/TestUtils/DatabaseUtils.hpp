@@ -125,6 +125,10 @@ public:
     {
         std::map<TestId, std::shared_ptr<const Entity>> entities;
 
+        auto entityAll = std::make_shared<Entity>(EntityKind::INVALID, "ALL");
+        entityAll->id = EntityId::all();
+        entities[0] = entityAll;
+
         auto host1 = std::make_shared<Host>("host1");
         db.insert(host1);
         entities[1] = host1;
