@@ -87,6 +87,25 @@ public:
             const EntityId& participant_id,
             const EntityId& process_id);
 
+	/**
+     * @brief Create the link between a endpoint and a locator
+     *
+     * This operation entails:
+     *     1. Adding the endpoint to the locator's list of endpoints
+     *     2. Adding the locator to the endpoint's list of locators
+     *     3. Adding entry to locators_by_participant_
+     *     4. Adding entry to participants_by_locator_
+     *
+     * @param endpoint_id The EntityId of the endpoint
+     * @param locator_id The EntityId of the locator
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The endpoint does not exist in the database
+     *            * The locator does not exist in the database
+     */
+    void link_endpoint_with_locator(
+            const EntityId& endpoint_id,
+            const EntityId& locator_id);
+
     /**
      * @brief Erase all the data related to a domain
      *
@@ -377,12 +396,6 @@ protected:
             throw BadParameter("Endpoint GUID cannot be empty");
         }
 
-        /* Check that locators is not empty */
-        if (endpoint->locators.empty())
-        {
-            throw BadParameter("Endpoint locators cannot be empty");
-        }
-
         /* Check that participant exits */
         bool participant_exists = false;
         for (auto participant_it : participants_[endpoint->participant->domain->id])
@@ -435,19 +448,6 @@ protected:
         /* Add endpoint to participant' collection */
         endpoint->id = generate_entity_id();
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
-
-        /* Add to x_by_y_ collections and to locators_ */
-        for (auto locator_it : endpoint->locators)
-        {
-            // Add locator to locators_
-            locators_[locator_it.first] = locator_it.second;
-            // Add reader's locators to locators_by_participant_
-            locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
-            // Add reader's participant to participants_by_locator_
-            participants_by_locator_[locator_it.first][endpoint->participant->id] = endpoint->participant;
-            // Add endpoint to locator's collection
-            insert_ddsendpoint_to_locator(endpoint, locator_it.second);
-        }
 
         /* Add endpoint to topics's collection */
         endpoint->data.clear();
