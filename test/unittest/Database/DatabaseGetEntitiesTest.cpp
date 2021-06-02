@@ -101,14 +101,11 @@ TEST_P(database_get_entities_tests, get_entity_ids)
 
 
     auto result = db.get_entity_ids(kind, origin);
-
-
     ASSERT_EQ(expected.size(), result.size());
     std::sort(expected.begin(), expected.end());
     std::sort(result.begin(), result.end());
     for (size_t i = 0; i < expected.size(); ++i)
     {
-        // std::cout << "Expected: " << expected[i] << " / Result: " << result[i] << std::endl;
         EXPECT_EQ(expected[i], result[i]);
     }
 }
