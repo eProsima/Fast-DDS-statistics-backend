@@ -60,8 +60,8 @@ void serialize<fastrtps::Duration_t> (
         database::Qos& serialized)
 {
     database::Qos duration;
-    duration["seconds"] = qos.seconds;
-    duration["nanoseconds"] = qos.nanosec;
+    duration[duration_seconds_tag] = qos.seconds;
+    duration[duration_nanoseconds_tag] = qos.nanosec;
     serialized[fieldname] = duration;
 }
 
@@ -72,7 +72,7 @@ void serialize<fastdds::dds::DeadlineQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos deadline;
-    serialize(qos.period, "period", deadline);
+    serialize(qos.period, duration_period_tag, deadline);
     serialized[fieldname] = deadline;
 }
 
@@ -83,7 +83,7 @@ void serialize<fastdds::dds::LatencyBudgetQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos latency;
-    serialize(qos.duration, "duration", latency);
+    serialize(qos.duration, duration_tag, latency);
     serialized[fieldname] = latency;
 }
 
@@ -309,7 +309,7 @@ void serialize<fastdds::dds::LifespanQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos lifespan;
-    serialize(qos.duration, "duration", lifespan);
+    serialize(qos.duration, duration_tag, lifespan);
     serialized[fieldname] = lifespan;
 }
 
@@ -370,7 +370,7 @@ void serialize<fastdds::dds::DisablePositiveACKsQosPolicy> (
 {
     database::Qos disable_acks;
     serialize(qos.enabled, enabled_tag, disable_acks);
-    serialize(qos.duration, "duration", disable_acks);
+    serialize(qos.duration, duration_tag, disable_acks);
     serialized[fieldname] = disable_acks;
 }
 
