@@ -174,6 +174,7 @@ constexpr const char* DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG                     
 constexpr const char* DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG                    = "last_reported_data_count";
 //! Key tag for container of last data reported in data kind RESENT_DATA
 constexpr const char* DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG                    = "last_reported_resent_datas";
+
 /////
 // Samples values
 
