@@ -160,10 +160,10 @@ void serialize<fastdds::dds::DestinationOrderQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order[kind_tag] = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = destination_order_reception_tag;
             break;
         case fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order[kind_tag] = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = destination_order_source_tag;
             break;
     }
     serialized[fieldname] = destination_order;
@@ -461,7 +461,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
     serialize(reader_info.info.m_qos.m_reliability, reliability_tag, reader);
     serialize(reader_info.info.m_qos.m_ownership, ownership_tag, reader);
-    serialize(reader_info.info.m_qos.m_destinationOrder, "destination_order", reader);
+    serialize(reader_info.info.m_qos.m_destinationOrder, destination_order_tag, reader);
     serialize(reader_info.info.m_qos.m_userData, "user_data", reader);
     serialize(reader_info.info.m_qos.m_timeBasedFilter, "time_based_filter", reader);
     serialize(reader_info.info.m_qos.m_presentation, "presentation", reader);
@@ -494,7 +494,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_timeBasedFilter, "time_based_filter", writer);
     serialize(writer_info.info.m_qos.m_ownership, ownership_tag, writer);
     serialize(writer_info.info.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
-    serialize(writer_info.info.m_qos.m_destinationOrder, "destination_order", writer);
+    serialize(writer_info.info.m_qos.m_destinationOrder, destination_order_tag, writer);
     serialize(writer_info.info.m_qos.m_presentation, "presentation", writer);
     serialize(writer_info.info.m_qos.m_partition, "partition", writer);
     serialize(writer_info.info.m_qos.m_topicData, "topic_data", writer);
