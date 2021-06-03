@@ -14,7 +14,7 @@
 
 #include <fstream>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <fastdds-statistics-backend/exception/Exception.hpp>
 #include <fastdds-statistics-backend/types/JSONTags.h>
@@ -55,110 +55,57 @@ DatabaseDump load_file(
     return dump;
 }
 
-// Test the load of a dump database without any entity
-TEST(database_load_tests, load_and_dump_empty_database)
+void load_and_dump(
+        std::string filename)
 {
     // Read JSON
-    DatabaseDump dump = load_file(EMPTY_DUMP_FILE);
+    DatabaseDump dump = load_file(filename);
 
     // Create database
     Database db;
 
-    // Load jump in database
+    // Load dump in database
     db.load_database(dump);
 
     // Dump loaded database
     DatabaseDump loadedDump = db.dump_database();
 
     // Compare two dumps
+    ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
+    ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
+    ASSERT_EQ(dump[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
+    ASSERT_EQ(dump[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
+    ASSERT_EQ(dump[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
+    ASSERT_EQ(dump[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
+
     ASSERT_EQ(dump, loadedDump);
+}
+
+// Test the load of a dump database without any entity
+TEST(database_load_tests, load_and_dump_empty_database)
+{
+    load_and_dump(EMPTY_DUMP_FILE);
 }
 
 // Test the load of a dump database with one entity of each kind
 TEST(database_load_tests, load_and_dump_empty_entities_database)
 {
-    // Read JSON
-    DatabaseDump dump = load_file(EMPTY_ENTITIES_DUMP_FILE);
-
-    // Create database
-    Database db;
-
-    // Load jump in database
-    db.load_database(dump);
-
-    // Dump loaded database
-    DatabaseDump loadedDump = db.dump_database();
-
-    // Compare two dumps
-    ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
-    ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
-    ASSERT_EQ(dump[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
-    ASSERT_EQ(dump[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
-
-    ASSERT_EQ(dump, loadedDump);
+    load_and_dump(EMPTY_ENTITIES_DUMP_FILE);
 }
 
 // Test the load of a dump database with one entity of each kind and one data of each kind
 TEST(database_load_tests, load_and_dump_simple_database)
 {
-    // Read JSON
-    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
-
-    // Create database
-    Database db;
-
-    // Load jump in database
-    db.load_database(dump);
-
-    // Dump loaded database
-    DatabaseDump loadedDump = db.dump_database();
-
-    // Compare two dumps
-    ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
-    ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
-    ASSERT_EQ(dump[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
-    ASSERT_EQ(dump[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
-
-    ASSERT_EQ(dump, loadedDump);
+    load_and_dump(SIMPLE_DUMP_FILE);
 }
 
 // Test the load of a dump database with three entities of each kind and three datas of each kind
 TEST(database_load_tests, load_and_dump_complex_database)
 {
-    // Read JSON
-    DatabaseDump dump = load_file(COMPLEX_DUMP_FILE);
-
-    // Create database
-    Database db;
-
-    // Load jump in database
-    db.load_database(dump);
-
-    // Dump loaded database
-    DatabaseDump loadedDump = db.dump_database();
-
-    // Compare two dumps
-    ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
-    ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
-    ASSERT_EQ(dump[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
-    ASSERT_EQ(dump[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
-    ASSERT_EQ(dump[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
-    ASSERT_EQ(dump[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
-
-    ASSERT_EQ(dump, loadedDump);
+    load_and_dump(COMPLEX_DUMP_FILE);
 }
 
 // Test the load of a dump database with one entity of each kind
@@ -170,11 +117,10 @@ TEST(database_load_tests, load_twice)
     // Create database
     Database db;
 
-    // Load jump in database
+    // Load dump in database
     db.load_database(dump);
     ASSERT_THROW(db.load_database(dump), Error);
 }
-
 
 // Check that the load of the 'dump 'without 'key' in 'container', throws an exception
 void check_no_key(
@@ -978,7 +924,7 @@ TEST(database_load_tests, load_wrong_references)
     // Read JSON
     DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
 
-    // Host reference user that no exists
+    // Host references User that does not exists
     {
         DatabaseDump dumpCopy = dump;
 
@@ -995,7 +941,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // User reference host that no exists
+    // User references Host that does not exists
     {
         DatabaseDump dumpCopy = dump;
 
@@ -1013,7 +959,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // Host reference user, which one is not referencing the host
+    // Host references User which does not references Host
     {
         DatabaseDump dumpCopy = dump;
 
@@ -1030,7 +976,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // User reference host, which one is not referencing the user
+    // User references Host which does not references User
     {
         DatabaseDump dumpCopy = dump;
 
@@ -1048,7 +994,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // Locator reference datawriter that no exists
+    // Locator references Datawriter that does not exists
     {
         DatabaseDump dumpCopy = dump;
 
@@ -1072,7 +1018,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // Locator reference datawriter, which one is not referencing the locator
+    // Locator references Datawriter which does not references Locator
     {
         DatabaseDump dumpCopy = dump;
 
@@ -1096,7 +1042,7 @@ TEST(database_load_tests, load_wrong_references)
         ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
     }
 
-    // Participant not referencing any process
+    // Participant not referencing any Process
     {
         DataBaseTest db;
         db.load_database(dump);

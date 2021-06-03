@@ -938,9 +938,6 @@ TEST_F(database_load_insert_tests, load_insert)
             ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
                     insertedEntity->name == loadedEntity->name);
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
             ASSERT_TRUE(key_compare(insertedEntity->topics, loadedEntity->topics));
             ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
         }

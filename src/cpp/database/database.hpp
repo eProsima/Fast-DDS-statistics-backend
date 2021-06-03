@@ -533,10 +533,11 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * @brief Check if a key (id) exists on a container, throwing an exception if not.
+     * @brief Check if a key (id) exists in the given container, throwing an exception if not.
 
      * @param container Reference to the dump where the key must be.
      * @param id key (id) of the entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the key does not exist in the container.
      */
     void check_entity_exists(
             DatabaseDump const& container,
@@ -546,10 +547,10 @@ protected:
      * @brief Check if the entity with 'reference_id' have reference to 'entity_id' of type 'entity_tag'
      * on her container, throwing an exception if not.
      *
-     * @param container Reference to the dump of the reference entity
+     * @param container Reference to the dump of the 'reference_id' entity
      * @param reference_id Key (id) of the entity to check.
-     * @param entity_tag Type of entity to check on reference entity
-     * @param id Key (id) the reference entity must have on 'entity_tag'
+     * @param entity_tag Type of entity to check within 'reference_id' entity
+     * @param id entity_id Key (id) the 'reference_id' must have on 'entity_tag'
      */
     void check_entity_reference(
             DatabaseDump const& container,
@@ -558,13 +559,13 @@ protected:
             std::string const& entity_id);
 
     /**
-     * @brief Check if all the references to entity type "reference_tag" on entity container 'it'
-     * have also a reference of entity type 'entity_tag' to 'it'
+     * @brief Check that all the references of 'reference_tag' type entities contained in 'it'
+     * are also referenced within 'dump' under 'entity_tag'.
      *
-     * @param container Reference to the dump of the reference entity
+     * @param it Reference iterator to the dump of the referenced entity
      * @param entity_tag Type of entity to check on entity
-     * @param reference_tag Type of entity to check on reference entity
-     * @param dump .json where to check
+     * @param reference_tag Type of entity to check on the referenced entity
+     * @param dump where to check the references consistency
      */
     void check_all_references(
             nlohmann::detail::iter_impl<nlohmann::json> const& it,
@@ -649,8 +650,8 @@ protected:
             const EntityId& domain_id,
             const EntityId& entity_id,
             const StatisticsSample& sample,
-            const bool& loading = false,
-            const bool& last_reported = false);
+            const bool loading = false,
+            const bool last_reported = false);
 
 
     /**

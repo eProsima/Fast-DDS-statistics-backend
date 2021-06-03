@@ -473,8 +473,8 @@ void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
         const StatisticsSample& sample,
-        const bool& loading,
-        const bool& last_reported)
+        const bool loading,
+        const bool last_reported)
 {
 
     /* Check that domain_id refers to a known domain */
@@ -2429,7 +2429,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : hosts_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2442,7 +2442,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : users_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2455,7 +2455,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : processes_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2468,7 +2468,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : domains_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2483,7 +2483,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : topics_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2498,7 +2498,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : participants_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2513,7 +2513,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : datawriters_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2528,7 +2528,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : datareaders_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2541,7 +2541,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : locators_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2812,6 +2812,9 @@ DatabaseDump Database::dump_entity_(
         // history2history_latency
         data[DATA_KIND_FASTDDS_LATENCY_TAG] = dump_data_(entity->data.history2history_latency);
 
+        // resent_data last reported
+        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_resent_datas);
+
         // heartbeat_count last reported
         data[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_heartbeat_count);
 
@@ -2820,9 +2823,6 @@ DatabaseDump Database::dump_entity_(
 
         // data_count last reported
         data[DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_data_count);
-
-        // resent_data last reported
-        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_resent_datas);
 
         entity_info[DATA_CONTAINER_TAG] = data;
     }
@@ -3141,7 +3141,7 @@ void Database::check_entity_reference(
     if (id != entity_id)
     {
         throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
-                      " have reference to " + entity_tag + ": " + id +
+                      " has reference to " + entity_tag + ": " + id +
                       " instead of " + entity_tag + ": " + entity_id);
     }
 }
@@ -3174,15 +3174,7 @@ void Database::check_entity_reference_contains(
 
     std::vector <std::string> reference_entities = container.at(reference_id).at(entity_tag);
 
-    bool found = false;
-    size_t i = 0;
-    while (i < reference_entities.size() && !found)
-    {
-        found = (reference_entities[i] == entity_id);
-        i++;
-    }
-
-    if (!found)
+    if (std::find(reference_entities.begin(), reference_entities.end(), entity_id) == reference_entities.end())
     {
         throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
                       " have reference to " + entity_tag + ": " +
@@ -3236,10 +3228,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_all_references(it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, dump);
 
             // Create entity
@@ -3255,10 +3247,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(USER_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG, dump);
             check_all_references(it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, dump);
 
@@ -3276,10 +3268,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(PROCESS_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG, dump);
             check_all_references(it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
 
@@ -3298,10 +3290,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(DOMAIN_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_all_references(it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
             check_all_references(it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, dump);
 
@@ -3318,10 +3310,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(TOPIC_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
             check_all_references(it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
             check_all_references(it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
@@ -3341,10 +3333,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
             check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
             check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
@@ -3379,7 +3371,7 @@ void Database::load_database(
         DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
             check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
 
@@ -3401,10 +3393,10 @@ void Database::load_database(
     {
         DatabaseDump container = dump.at(DATAWRITER_CONTAINER_TAG);
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                     PARTICIPANT_ENTITY_TAG, dump);
             check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
@@ -3454,7 +3446,7 @@ void Database::load_database(
         DatabaseDump container = dump.at(DATAREADER_CONTAINER_TAG);
         for (auto it = container.begin(); it != container.end(); ++it)
         {
-            // Check entity have correct references to other entities
+            // Check that entity has correct references to other entities
             check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                     PARTICIPANT_ENTITY_TAG, dump);
             check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
