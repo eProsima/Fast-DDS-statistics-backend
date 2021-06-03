@@ -82,9 +82,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
@@ -143,9 +143,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
@@ -216,9 +216,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
@@ -258,9 +258,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
@@ -320,9 +320,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
@@ -396,9 +396,9 @@ void Database::insert_nts(
             {
                 entity_id = generate_entity_id();
             }
-            else
+            else if (entity_id.value() >= next_id_)
             {
-                next_id_++;
+                next_id_ = entity_id.value() + 1;
             }
             entity->id = entity_id;
 
