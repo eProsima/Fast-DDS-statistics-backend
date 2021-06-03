@@ -230,11 +230,11 @@ void serialize<bool> (
 {
     if (qos)
     {
-        serialized[fieldname] = "true";
+        serialized[fieldname] = true_tag;
     }
     else
     {
-        serialized[fieldname] = "false";
+        serialized[fieldname] = false_tag;
     }
 }
 
@@ -369,7 +369,7 @@ void serialize<fastdds::dds::DisablePositiveACKsQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos disable_acks;
-    serialize(qos.enabled, "enabled", disable_acks);
+    serialize(qos.enabled, enabled_tag, disable_acks);
     serialize(qos.duration, "duration", disable_acks);
     serialized[fieldname] = disable_acks;
 }
@@ -410,7 +410,7 @@ void serialize<fastdds::dds::OwnershipStrengthQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos strength;
-    strength["value"] = qos.value;
+    strength[value_tag] = qos.value;
     serialized[fieldname] = strength;
 }
 
@@ -443,8 +443,8 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
     for (auto p : qos)
     {
         database::Qos property;
-        property["name"] = p.first();
-        property["value"] = p.second();
+        property[name_tag] = p.first();
+        property[value_tag] = p.second();
         properties.push_back(property);
     }
     serialized[fieldname] = properties;

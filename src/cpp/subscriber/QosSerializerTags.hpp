@@ -23,7 +23,15 @@ namespace eprosima {
 namespace statistics_backend {
 namespace subscriber {
 
+// Some generic tags
+static constexpr const char* enabled_tag = "enabled";
 static constexpr const char* kind_tag = "kind";
+static constexpr const char* name_tag = "name";
+static constexpr const char* value_tag = "value";
+
+// For boolean serialization
+static constexpr const char* false_tag = "false";
+static constexpr const char* true_tag = "true";
 
 #include "QosSerializer/DurabilityTags.ipp"
 
