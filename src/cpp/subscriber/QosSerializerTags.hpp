@@ -36,6 +36,7 @@ static constexpr const char* true_tag = "true";
 #include "QosSerializer/DurabilityTags.ipp"
 #include "QosSerializer/DurationTags.ipp"
 #include "QosSerializer/LivelinessTags.ipp"
+#include "QosSerializer/OwnershipTags.ipp"
 #include "QosSerializer/ReliabilityTags.ipp"
 
 } // namespace subscriber

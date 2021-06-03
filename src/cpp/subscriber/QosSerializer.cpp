@@ -141,10 +141,10 @@ void serialize<fastdds::dds::OwnershipQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SHARED_OWNERSHIP_QOS:
-            ownership[kind_tag] = "SHARED_OWNERSHIP_QOS";
+            ownership[kind_tag] = ownership_shared_tag;
             break;
         case fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS:
-            ownership[kind_tag] = "EXCLUSIVE_OWNERSHIP_QOS";
+            ownership[kind_tag] = ownership_exclusive_tag;
             break;
     }
     serialized[fieldname] = ownership;
@@ -460,7 +460,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
     serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
     serialize(reader_info.info.m_qos.m_reliability, reliability_tag, reader);
-    serialize(reader_info.info.m_qos.m_ownership, "ownership", reader);
+    serialize(reader_info.info.m_qos.m_ownership, ownership_tag, reader);
     serialize(reader_info.info.m_qos.m_destinationOrder, "destination_order", reader);
     serialize(reader_info.info.m_qos.m_userData, "user_data", reader);
     serialize(reader_info.info.m_qos.m_timeBasedFilter, "time_based_filter", reader);
@@ -492,8 +492,8 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_lifespan, "lifespan", writer);
     serialize(writer_info.info.m_qos.m_userData, "user_data", writer);
     serialize(writer_info.info.m_qos.m_timeBasedFilter, "time_based_filter", writer);
-    serialize(writer_info.info.m_qos.m_ownership, "ownership", writer);
-    serialize(writer_info.info.m_qos.m_ownershipStrength, "ownership_strength", writer);
+    serialize(writer_info.info.m_qos.m_ownership, ownership_tag, writer);
+    serialize(writer_info.info.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
     serialize(writer_info.info.m_qos.m_destinationOrder, "destination_order", writer);
     serialize(writer_info.info.m_qos.m_presentation, "presentation", writer);
     serialize(writer_info.info.m_qos.m_partition, "partition", writer);
