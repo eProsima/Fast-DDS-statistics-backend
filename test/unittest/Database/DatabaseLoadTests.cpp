@@ -1094,10 +1094,9 @@ TEST(database_load_tests, load_wrong_references)
 
         DatabaseDump dumpCopy = db.dump_database();
         DataBaseTest newDb;
-        ASSERT_NO_THROW(newDb.load_database(dumpCopy); );
+        ASSERT_NO_THROW(newDb.load_database(dumpCopy));
     }
 }
-
 
 int main(
         int argc,

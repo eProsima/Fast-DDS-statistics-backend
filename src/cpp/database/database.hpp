@@ -341,6 +341,16 @@ protected:
         return s;
     }
 
+    inline int id_string_to_int(
+            std::string const& str)
+    {
+        if (str.find_first_not_of("-1234567890") != std::string::npos)
+        {
+            throw CorruptedFile("ID string must be an integer: " + str);
+        }
+        return stoi(str);
+    }
+
     /**
      * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
      * a.k.a DataReader or DataWriter.

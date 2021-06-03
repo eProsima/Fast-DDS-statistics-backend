@@ -16,7 +16,6 @@
 #include "database.hpp"
 
 #include <algorithm>
-#include <boost/lexical_cast.hpp>   // For lexical_cast
 #include <chrono>
 #include <iostream>
 #include <mutex>  // For std::unique_lock
@@ -3138,7 +3137,7 @@ void Database::check_entity_reference(
 {
     check_entity_exists(container, reference_id);
 
-    std::string id = std::to_string(boost::lexical_cast<int>((std::string)container.at(reference_id).at(entity_tag)));
+    std::string id = std::to_string(id_string_to_int((std::string)container.at(reference_id).at(entity_tag)));
     if (id != entity_id)
     {
         throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
@@ -3153,14 +3152,14 @@ void Database::check_all_references(
         std::string const& reference_tag,
         DatabaseDump const& dump)
 {
-    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
+    std::string entity_id = std::to_string(id_string_to_int(it.key()));
     DatabaseDump references_id = (*it).at(reference_tag);
     DatabaseDump reference_container = dump.at(reference_tag);
 
     // Check all references
     for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
     {
-        check_entity_reference(reference_container, std::to_string(boost::lexical_cast<int>(
+        check_entity_reference(reference_container, std::to_string(id_string_to_int(
                     (std::string)*refIt)), entity_tag, entity_id);
     }
 }
@@ -3199,8 +3198,8 @@ void Database::check_contains_reference(
         std::string const& reference_tag,
         DatabaseDump const& dump)
 {
-    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
-    std::string reference_id = std::to_string(boost::lexical_cast<int>((std::string)(*it).at(reference_tag)));
+    std::string entity_id = std::to_string(id_string_to_int(it.key()));
+    std::string reference_id = std::to_string(id_string_to_int((std::string)(*it).at(reference_tag)));
     DatabaseDump reference_container = dump.at(reference_container_tag);
 
     check_entity_reference_contains(reference_container, reference_id, entity_tag, entity_id);
@@ -3212,14 +3211,14 @@ void Database::check_contains_all_references(
         std::string const& reference_tag,
         DatabaseDump const& dump)
 {
-    std::string entity_id = std::to_string(boost::lexical_cast<int>(it.key()));
+    std::string entity_id = std::to_string(id_string_to_int(it.key()));
     DatabaseDump references_id = (*it).at(reference_tag);
     DatabaseDump reference_container = dump.at(reference_tag);
 
     for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
     {
         check_entity_reference_contains(reference_container,
-                std::to_string(boost::lexical_cast<int>((std::string)*refIt)), entity_tag, entity_id);
+                std::to_string(id_string_to_int((std::string)*refIt)), entity_tag, entity_id);
     }
 }
 
@@ -3242,7 +3241,7 @@ void Database::load_database(
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3260,10 +3259,10 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
-                            hosts_[boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG))]);
+                            hosts_[id_string_to_int((std::string)(*it).at(HOST_ENTITY_TAG))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3282,10 +3281,10 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<Process> entity =
                     std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
-                            users_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(USER_ENTITY_TAG)))]);
+                            users_[EntityId(id_string_to_int((std::string)(*it).at(USER_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3305,7 +3304,7 @@ void Database::load_database(
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3325,10 +3324,10 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<Topic> entity =
                     std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
-                            domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+                            domains_[EntityId(id_string_to_int((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3348,14 +3347,14 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
                 (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
-                domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+                domains_[EntityId(id_string_to_int((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Link participant with process
-            EntityId process_id(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
+            EntityId process_id(id_string_to_int((std::string)(*it).at(PROCESS_ENTITY_TAG)));
 
             if (process_id != EntityId::invalid())
             {
@@ -3383,7 +3382,7 @@ void Database::load_database(
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
 
             // Give him a id
-            entity->id = EntityId(boost::lexical_cast<int>(it.key()));
+            entity->id = EntityId(id_string_to_int(it.key()));
             next_id_++;
 
             locators_[entity->id] = entity;
@@ -3407,15 +3406,15 @@ void Database::load_database(
             check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
             // Get keys
-            EntityId participant_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+            EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
                                 PARTICIPANT_ENTITY_TAG)));
             EntityId participant_domain_id =
-                    EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                    EntityId(id_string_to_int((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
                                     .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topic_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topic_domain_id = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+            EntityId topic_id = EntityId(id_string_to_int((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(id_string_to_int((std::string)dump.at(TOPIC_CONTAINER_TAG)
                                     .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
@@ -3432,12 +3431,12 @@ void Database::load_database(
                     it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++it_loc)
             {
-                entity->locators[boost::lexical_cast<int>((std::string)*it_loc)] =
-                        locators_[EntityId(boost::lexical_cast<int>((std::string)*it_loc))];
+                entity->locators[id_string_to_int((std::string)*it_loc)] =
+                        locators_[EntityId(id_string_to_int((std::string)*it_loc))];
             }
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Load data and insert into database
@@ -3457,15 +3456,15 @@ void Database::load_database(
             check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
             // Get keys
-            EntityId participant_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+            EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
                                 PARTICIPANT_ENTITY_TAG)));
             EntityId participant_domain_id =
-                    EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                    EntityId(id_string_to_int((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
                                     .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topic_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topic_domain_id = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+            EntityId topic_id = EntityId(id_string_to_int((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(id_string_to_int((std::string)dump.at(TOPIC_CONTAINER_TAG)
                                     .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
@@ -3482,12 +3481,12 @@ void Database::load_database(
                     itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++itLoc)
             {
-                entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
-                        locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
+                entity->locators[id_string_to_int((std::string)*itLoc)] =
+                        locators_[EntityId(id_string_to_int((std::string)*itLoc))];
             }
 
             // Insert into database
-            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            EntityId entity_id = EntityId(id_string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Load data and insert into database
@@ -3513,17 +3512,17 @@ void Database::load_data(
                 DiscoveryTimeSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t src_ts = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t src_ts = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_TIME_TAG)));
                 sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // EntityId
-                sample.remote_entity = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_entity = EntityId(id_string_to_int(remote_it.key()));
 
-                boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
+                id_string_to_int(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
 
                 // bool
                 sample.discovered = (*it).at(DATA_VALUE_DISCOVERED_TAG);
@@ -3544,7 +3543,7 @@ void Database::load_data(
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3565,7 +3564,7 @@ void Database::load_data(
             EdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3589,14 +3588,14 @@ void Database::load_data(
                 RtpsPacketsSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3617,7 +3616,7 @@ void Database::load_data(
                 RtpsBytesSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
@@ -3627,7 +3626,7 @@ void Database::load_data(
                 sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3648,14 +3647,14 @@ void Database::load_data(
                 RtpsPacketsLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3676,7 +3675,7 @@ void Database::load_data(
                 RtpsBytesLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
@@ -3686,7 +3685,7 @@ void Database::load_data(
                 sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3705,7 +3704,7 @@ void Database::load_data(
             DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3715,7 +3714,7 @@ void Database::load_data(
             sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3733,7 +3732,7 @@ void Database::load_data(
             DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3743,7 +3742,7 @@ void Database::load_data(
             sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3761,14 +3760,14 @@ void Database::load_data(
             DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
             sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3786,14 +3785,14 @@ void Database::load_data(
             DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
             sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3810,7 +3809,7 @@ void Database::load_data(
             EdpCountSample sample;
 
             //std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -3831,7 +3830,7 @@ void Database::load_data(
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -3857,7 +3856,7 @@ void Database::load_data(
             PublicationThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
@@ -3878,7 +3877,7 @@ void Database::load_data(
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3899,7 +3898,7 @@ void Database::load_data(
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3920,7 +3919,7 @@ void Database::load_data(
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3941,7 +3940,7 @@ void Database::load_data(
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -3965,14 +3964,14 @@ void Database::load_data(
                 SampleDatasCountSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // uint64_t
-                sample.sequence_number = boost::lexical_cast<int>(remote_it.key());
+                sample.sequence_number = id_string_to_int(remote_it.key());
 
                 // // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3993,14 +3992,14 @@ void Database::load_data(
                 HistoryLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.reader = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.reader = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4018,7 +4017,7 @@ void Database::load_data(
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4039,7 +4038,7 @@ void Database::load_data(
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4060,7 +4059,7 @@ void Database::load_data(
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4081,7 +4080,7 @@ void Database::load_data(
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4107,7 +4106,7 @@ void Database::load_data(
             SubscriptionThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
@@ -4128,7 +4127,7 @@ void Database::load_data(
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -4149,7 +4148,7 @@ void Database::load_data(
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
@@ -4170,7 +4169,7 @@ void Database::load_data(
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4191,7 +4190,7 @@ void Database::load_data(
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = boost::lexical_cast<int>(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
@@ -4220,14 +4219,14 @@ void Database::load_data(
                 NetworkLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
+                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(EntityId::invalid(), entity->id, sample, true);
