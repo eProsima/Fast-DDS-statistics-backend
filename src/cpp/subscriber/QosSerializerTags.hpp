@@ -49,6 +49,7 @@ static constexpr const char* available_builtin_endpoints_tag = "available_builti
 #include "QosSerializer/OwnershipTags.ipp"
 #include "QosSerializer/PresentationTags.ipp"
 #include "QosSerializer/ReliabilityTags.ipp"
+#include "QosSerializer/ResourceTags.ipp"
 
 } // namespace subscriber
 } // namespace statistics_backend

@@ -284,18 +284,17 @@ void serialize<fastdds::dds::DurabilityServiceQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos durability;
-    durability["history_depth"] = qos.history_depth;
-    durability["max_instances"] = qos.max_instances;
-    durability["max_samples"] = qos.max_samples;
-    durability["max_samples_per_instance"] = qos.max_samples_per_instance;
-    durability["history_depth"] = qos.history_depth;
+    durability[max_instances_tag] = qos.max_instances;
+    durability[max_samples_tag] = qos.max_samples;
+    durability[max_samples_per_instance_tag] = qos.max_samples_per_instance;
+    durability[history_depth_tag] = qos.history_depth;
     switch (qos.history_kind)
     {
         case fastdds::dds::KEEP_LAST_HISTORY_QOS:
-            durability["history_kind"] = "KEEP_LAST_HISTORY_QOS";
+            durability[history_kind_tag] = history_keep_last_tag;
             break;
         case fastdds::dds::KEEP_ALL_HISTORY_QOS:
-            durability["history_kind"] = "KEEP_ALL_HISTORY_QOS";
+            durability[history_kind_tag] = history_keep_all_tag;
             break;
     }
     serialize(qos.service_cleanup_delay, service_cleanup_delay_tag, durability);
