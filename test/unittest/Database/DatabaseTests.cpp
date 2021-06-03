@@ -45,7 +45,7 @@ void insert_ddsendpoint_valid()
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
-    auto participant_id = db.insert(participant);
+    db.insert(participant);
     auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
     db.insert(topic);
 
@@ -54,11 +54,7 @@ void insert_ddsendpoint_valid()
     std::string endpoint_guid = "test_guid";
     auto endpoint = std::make_shared<T>(
         endpoint_name, db.test_qos, endpoint_guid, participant, topic);
-    // Create a locator for the endpoint
-    auto locator = std::make_shared<Locator>("test_locator");
-    auto locator_id = db.insert(locator);
     auto endpoint_id = db.insert(endpoint);
-    db.link_endpoint_with_locator(endpoint_id, locator_id);
 
     /* Check that the endpoint is correctly inserted in participant */
     ASSERT_EQ(participant->ddsendpoints<T>().size(), 1);
@@ -67,28 +63,6 @@ void insert_ddsendpoint_valid()
     /* Check that the endpoint is correctly inserted in topic */
     ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
-
-    /* Check x_by_y_ collections and locators_ */
-    auto locators = db.locators();
-    auto locators_by_participant = db.locators_by_participant();
-    auto participants_by_locator = db.participants_by_locator();
-    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size());
-    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
-    for (auto locator_it : endpoint->locators)
-    {
-        // Check that the endpoint's locators are correctly inserted in locators_
-        ASSERT_NE(
-            locators.find(locator_it.first),
-            locators.end());
-        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
-        ASSERT_NE(
-            locators_by_participant[participant_id].find(locator_it.first),
-            locators_by_participant[participant_id].end());
-        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
-        ASSERT_NE(
-            participants_by_locator[locator_it.first].find(participant_id),
-            participants_by_locator[locator_it.first].end());
-    }
 
     /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
     auto endpoints = db.get_dds_endpoints<T>();
@@ -115,7 +89,7 @@ void insert_ddsendpoint_two_valid()
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
-    auto participant_id = db.insert(participant);
+    db.insert(participant);
     auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
     db.insert(topic);
 
@@ -124,19 +98,13 @@ void insert_ddsendpoint_two_valid()
     std::string endpoint_guid = "test_guid";
     auto endpoint = std::make_shared<T>(
         endpoint_name, db.test_qos, endpoint_guid, participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    auto locator_id = db.insert(locator);
     auto endpoint_id = db.insert(endpoint);
-    db.link_endpoint_with_locator(endpoint_id, locator_id);
 
     std::string endpoint_name_2 = "test_endpoint_2";
     std::string endpoint_guid_2 = "test_guid_2";
     auto endpoint_2 = std::make_shared<T>(
         endpoint_name_2, db.test_qos, endpoint_guid_2, participant, topic);
-    auto locator_2 = std::make_shared<Locator>("test_locator_2");
-    auto locator_id_2 = db.insert(locator_2);
     auto endpoint_id_2 = db.insert(endpoint_2);
-    db.link_endpoint_with_locator(endpoint_id_2, locator_id_2);
 
     /* Check that the endpoints are correctly inserted in participant */
     ASSERT_EQ(participant->ddsendpoints<T>().size(), 2);
@@ -147,45 +115,6 @@ void insert_ddsendpoint_two_valid()
     ASSERT_EQ(topic->ddsendpoints<T>().size(), 2);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
-
-    /* Check x_by_y_ collections and locators_ */
-    auto locators = db.locators();
-    auto locators_by_participant = db.locators_by_participant();
-    auto participants_by_locator = db.participants_by_locator();
-    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size() * 2);
-    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
-    ASSERT_EQ(participants_by_locator[locator_2->id].size(), endpoint_2->locators.size());
-    for (auto locator_it : endpoint->locators)
-    {
-        // Check that the endpoint's locators are correctly inserted in locators_
-        ASSERT_NE(
-            locators.find(locator_it.first),
-            locators.end());
-        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
-        ASSERT_NE(
-            locators_by_participant[participant_id].find(locator_it.first),
-            locators_by_participant[participant_id].end());
-        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
-        ASSERT_NE(
-            participants_by_locator[locator_it.first].find(participant_id),
-            participants_by_locator[locator_it.first].end());
-    }
-
-    for (auto locator_it : endpoint_2->locators)
-    {
-        // Check that the endpoint's locators are correctly inserted in locators_
-        ASSERT_NE(
-            locators.find(locator_it.first),
-            locators.end());
-        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
-        ASSERT_NE(
-            locators_by_participant[participant_id].find(locator_it.first),
-            locators_by_participant[participant_id].end());
-        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
-        ASSERT_NE(
-            participants_by_locator[locator_it.first].find(participant_id),
-            participants_by_locator[locator_it.first].end());
-    }
 
     /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
     auto endpoints = db.get_dds_endpoints<T>();
@@ -223,9 +152,6 @@ void insert_ddsendpoint_duplicated()
     /* Insert a DDSEndpoint twice */
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -254,9 +180,6 @@ void insert_ddsendpoint_wrong_participant()
         "test_participant_2", db.test_qos, "01.02.03.04.05", process, domain);
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant_2, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
 
@@ -283,9 +206,6 @@ void insert_ddsendpoint_wrong_topic()
     auto topic_2 = std::make_shared<Topic>("test_topic_name_2", "test_topic_type_2", domain);
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant, topic_2);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
 
@@ -311,9 +231,6 @@ void insert_ddsendpoint_empty_name()
     /* Insert a DDSEndpoint with a non-inserted topic */
     auto endpoint = std::make_shared<T>(
         "", db.test_qos, "test_guid", participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
 
@@ -339,9 +256,6 @@ void insert_ddsendpoint_empty_qos()
     /* Insert a DDSEndpoint with a non-inserted topic */
     auto endpoint = std::make_shared<T>(
         "test_endpoint", Qos(), "test_guid", participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
 
@@ -367,9 +281,6 @@ void insert_ddsendpoint_empty_guid()
     /* Insert a DDSEndpoint with a non-inserted topic */
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "", participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
 
@@ -421,14 +332,10 @@ void insert_ddsendpoint_two_same_domain_same_guid()
     std::string endpoint_guid = "test_guid";
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
 
     auto endpoint_2 = std::make_shared<T>(
         "test_endpoint_2", db.test_qos, endpoint_guid, participant, topic);
-    endpoint_2->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint_2), BadParameter);
 }
 
@@ -462,14 +369,10 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     std::string endpoint_guid = "test_guid";
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
-    auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
-    endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
 
     auto endpoint_2 = std::make_shared<T>(
         "test_endpoint_2", db.test_qos, endpoint_guid, participant_2, topic_2);
-    endpoint_2->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint_2), BadParameter);
 }
 
@@ -496,12 +399,12 @@ public:
         db.insert(writer_locator);
         writer.reset(new DataWriter(writer_name, db.test_qos, writer_guid, participant, topic));
         writer_id = db.insert(writer);
-        db.link_endpoint_with_locator(writer_id,writer_locator->id);
+        db.link_endpoint_with_locator(writer_id, writer_locator->id);
         reader_locator.reset(new Locator(reader_locator_name));
         db.insert(reader_locator);
         reader.reset(new DataReader(reader_name, db.test_qos, reader_guid, participant, topic));
         reader_id = db.insert(reader);
-        db.link_endpoint_with_locator(reader_id,reader_locator->id);
+        db.link_endpoint_with_locator(reader_id, reader_locator->id);
     }
 
     DataBaseTest db;
@@ -1496,6 +1399,54 @@ TEST_F(database_tests, insert_locator)
     ASSERT_EQ(locator_name, locators[locator_id]->name);
 }
 
+TEST_F(database_tests, insert_locator_two)
+{
+    /* Insert two locators */
+    DataBaseTest db;
+    std::string locator_name = "test_locator";
+    std::string locator_name_2 = "test_locator_2";
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>(locator_name);
+    std::shared_ptr<Locator> locator_2 = std::make_shared<Locator>(locator_name_2);
+    EntityId locator_id = db.insert(locator);
+    EntityId locator_id_2 = db.insert(locator_2);
+
+    /* Check that the locators are inserted correctly */
+    std::map<EntityId, std::shared_ptr<Locator>> locators = db.locators();
+    ASSERT_EQ(locators.size(), 2);
+    ASSERT_NE(locators.find(locator_id), locators.end());
+    ASSERT_NE(locators.find(locator_id_2), locators.end());
+    ASSERT_EQ(locator_name, locators[locator_id]->name);
+    ASSERT_EQ(locator_name_2, locators[locator_id_2]->name);
+}
+
+TEST_F(database_tests, insert_locator_two_same_name)
+{
+    /* Insert two locators */
+    DataBaseTest db;
+    std::string locator_name = "test_locator";
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>(locator_name);
+    std::shared_ptr<Locator> locator_2 = std::make_shared<Locator>(locator_name);
+    db.insert(locator);
+    ASSERT_THROW(db.insert(locator_2), BadParameter);
+}
+
+TEST_F(database_tests, insert_locator_duplicated)
+{
+    /* Insert a locator twice */
+    DataBaseTest db;
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>("test_locator");
+    db.insert(locator);
+    ASSERT_THROW(db.insert(locator), BadParameter);
+}
+
+TEST_F(database_tests, insert_locator_empty_name)
+{
+    /* Insert a locator with empty name */
+    DataBaseTest db;
+    auto locator = std::make_shared<Locator>("");
+    ASSERT_THROW(db.insert(locator), BadParameter);
+}
+
 TEST_F(database_tests, insert_invalid)
 {
     /* Insert an entity */
@@ -1600,6 +1551,227 @@ TEST_F(database_tests, link_participant_with_process_linked_participant)
     /* Link participant with process twice */
     ASSERT_NO_THROW(db.link_participant_with_process(participant_id, process_id));
     ASSERT_THROW(db.link_participant_with_process(participant_id, process_id), BadParameter);
+}
+
+template<typename T>
+void link_endpoint_with_locator_unlinked()
+{
+    /* Insert a host, user,process, domain, topic, participant, endpoint, and locator */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    // Create a locator for the endpoint
+    auto locator = std::make_shared<Locator>("test_locator");
+    auto locator_id = db.insert(locator);
+    auto endpoint_id = db.insert(endpoint);
+    db.link_endpoint_with_locator(endpoint_id, locator_id);
+
+    /* Check x_by_y_ collections and locators_ */
+    auto locators = db.locators();
+    auto locators_by_participant = db.locators_by_participant();
+    auto participants_by_locator = db.participants_by_locator();
+    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size());
+    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
+    for (auto locator_it : endpoint->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+}
+
+TEST_F(database_tests, link_endpoint_with_locator_unlinked)
+{
+    link_endpoint_with_locator_unlinked<DataReader>();
+    link_endpoint_with_locator_unlinked<DataWriter>();
+}
+
+template<typename T>
+void link_endpoint_with_locator_wrong_endpoint()
+{
+    /* Insert a host, user,process, domain, topic, participant, endpoint, and locator */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    // Create a locator for the endpoint
+    auto locator = std::make_shared<Locator>("test_locator");
+    auto locator_id = db.insert(locator);
+    db.insert(endpoint);
+
+    /* Link another endpoint with locator */
+    ASSERT_THROW(db.link_endpoint_with_locator(EntityId(12), locator_id), BadParameter);
+}
+
+TEST_F(database_tests, link_endpoint_with_locator_wrong_endpoint)
+{
+    link_endpoint_with_locator_wrong_endpoint<DataReader>();
+    link_endpoint_with_locator_wrong_endpoint<DataWriter>();
+}
+
+template<typename T>
+void link_endpoint_with_locator_wrong_locator()
+{
+    /* Insert a host, user,process, domain, topic, participant, endpoint, and locator */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    // Create a locator for the endpoint
+    auto locator = std::make_shared<Locator>("test_locator");
+    db.insert(locator);
+    auto endpoint_id = db.insert(endpoint);
+
+    /* Link endpoint with another locator */
+    ASSERT_THROW(db.link_endpoint_with_locator(endpoint_id, EntityId(12)), BadParameter);
+}
+
+TEST_F(database_tests, link_endpoint_with_locator_wrong_locator)
+{
+    link_endpoint_with_locator_wrong_locator<DataReader>();
+    link_endpoint_with_locator_wrong_locator<DataWriter>();
+}
+
+template<typename T>
+void link_endpoint_with_locator_two_valid()
+{
+    /* Insert a host, user,process, domain, topic, participant, endpoint, and locator */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert two DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+    auto locator = std::make_shared<Locator>("test_locator");
+    auto locator_id = db.insert(locator);
+    auto endpoint_id = db.insert(endpoint);
+    db.link_endpoint_with_locator(endpoint_id, locator_id);
+
+    std::string endpoint_name_2 = "test_endpoint_2";
+    std::string endpoint_guid_2 = "test_guid_2";
+    auto endpoint_2 = std::make_shared<T>(
+        endpoint_name_2, db.test_qos, endpoint_guid_2, participant, topic);
+    auto locator_2 = std::make_shared<Locator>("test_locator_2");
+    auto locator_id_2 = db.insert(locator_2);
+    auto endpoint_id_2 = db.insert(endpoint_2);
+    db.link_endpoint_with_locator(endpoint_id_2, locator_id_2);
+
+    /* Check x_by_y_ collections and locators_ */
+    auto locators = db.locators();
+    auto locators_by_participant = db.locators_by_participant();
+    auto participants_by_locator = db.participants_by_locator();
+    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size() * 2);
+    ASSERT_EQ(participants_by_locator[locator->id].size(), endpoint->locators.size());
+    ASSERT_EQ(participants_by_locator[locator_2->id].size(), endpoint_2->locators.size());
+    for (auto locator_it : endpoint->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+
+    for (auto locator_it : endpoint_2->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+}
+
+TEST_F(database_tests, link_endpoint_with_locator_two_valid)
+{
+    link_endpoint_with_locator_two_valid<DataReader>();
+    link_endpoint_with_locator_two_valid<DataWriter>();
 }
 
 TEST_F(database_tests, insert_sample_history_latency)

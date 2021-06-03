@@ -796,7 +796,7 @@ void Database::link_endpoint_with_locator(
         }
         if (dw_exists)
         {
-            endpoint = dw_it->second;    
+            endpoint = dw_it->second;
         }
         else
         {
@@ -819,7 +819,8 @@ void Database::link_endpoint_with_locator(
             }
             else
             {
-                throw BadParameter("EntityId " + std::to_string(endpoint_id.value()) + " does not identify a known endpoint");
+                throw BadParameter("EntityId " + std::to_string(
+                                  endpoint_id.value()) + " does not identify a known endpoint");
             }
         }
     }
@@ -836,7 +837,7 @@ void Database::link_endpoint_with_locator(
     auto locator = locator_it->second;
 
     // Add endpoint to locator's collection
-    if(endpoint->kind == EntityKind::DATAWRITER)
+    if (endpoint->kind == EntityKind::DATAWRITER)
     {
         locator->data_writers[endpoint->id] = std::dynamic_pointer_cast<DataWriter> (endpoint);
     }
@@ -2009,22 +2010,6 @@ template<>
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
 {
     return datawriters_;
-}
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataWriter>& endpoint,
-        std::shared_ptr<Locator>& locator)
-{
-    locator->data_writers[endpoint->id] = endpoint;
-}
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataReader>& endpoint,
-        std::shared_ptr<Locator>& locator)
-{
-    locator->data_readers[endpoint->id] = endpoint;
 }
 
 DatabaseDump Database::dump_database()

@@ -87,7 +87,7 @@ public:
             const EntityId& participant_id,
             const EntityId& process_id);
 
-	/**
+    /**
      * @brief Create the link between a endpoint and a locator
      *
      * This operation entails:
@@ -355,19 +355,6 @@ protected:
             const std::shared_ptr<const Entity>& entity) const;
 
     /**
-     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it
-     *
-     * @tparam T The DDSEndpoint to add to the Locator list. Only DDSEndpoint and its derived classes are allowed.
-     * @param endpoint The endpoint of type T to add to the list of the locator
-     * @param locator The locator that will be updated with endpoint
-     * @return The EntityId of the inserted DDSEndpoint
-     */
-    template<typename T>
-    void insert_ddsendpoint_to_locator(
-            std::shared_ptr<T>& endpoint,
-            std::shared_ptr<Locator>& locator);
-
-    /**
      * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
@@ -577,17 +564,6 @@ protected:
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;
 };
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataWriter>& endpoint,
-        std::shared_ptr<Locator>& locator);
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataReader>& endpoint,
-        std::shared_ptr<Locator>& locator);
-
 
 } //namespace database
 } //namespace statistics_backend

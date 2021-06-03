@@ -172,11 +172,20 @@ set(DATABASE_TEST_LIST
     # Insert invalid
     insert_invalid
     insert_locator
+    insert_locator_two
+    insert_locator_two_same_name
+    insert_locator_duplicated
+    insert_locator_empty_name
     # Link participant with process
     link_participant_with_process_unlinked
     link_participant_with_process_wrong_participant
     link_participant_with_process_wrong_process
     link_participant_with_process_linked_participant
+    # Link endpoint with locator
+    link_endpoint_with_locator_unlinked
+    link_endpoint_with_locator_wrong_endpoint
+    link_endpoint_with_locator_wrong_locator
+    link_endpoint_with_locator_two_valid
     # Insert samples
     insert_sample_history_latency
     insert_sample_history_latency_wrong_entity
