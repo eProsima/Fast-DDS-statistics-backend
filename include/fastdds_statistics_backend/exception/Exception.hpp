@@ -31,7 +31,7 @@ namespace statistics_backend {
  * @brief Base class for all exceptions thrown by the eProsima statistics backend library.
  *
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI Exception : public std::exception
+class Exception : public std::exception
 {
 
 public:
@@ -41,7 +41,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Exception(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Exception(
             const char* message) noexcept;
 
     /**
@@ -49,7 +49,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Exception(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Exception(
             const std::string& message);
 
     /**
@@ -57,7 +57,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    Exception(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Exception(
             const Exception& other) = default;
 
     /**
@@ -66,7 +66,7 @@ public:
      * @param other The original exception object to copy
      * @return the current statistics_backend::Exception object after the copy
      */
-    Exception& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Exception& operator =(
             const Exception& other) = default;
 
     /**
@@ -74,7 +74,7 @@ public:
      *
      * @return Null-terminated string with the explanatory information
      */
-    virtual const char* what() const noexcept override;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual const char* what() const noexcept override;
 
 protected:
 
@@ -85,7 +85,7 @@ protected:
 /**
  * @brief Exception to signal a generic error that falls in no other specific category
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI Error : public Exception
+class  Error : public Exception
 {
 
 public:
@@ -95,7 +95,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Error(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Error(
             const char* message) noexcept;
 
     /**
@@ -103,7 +103,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Error(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Error(
             const std::string& message);
 
     /**
@@ -111,7 +111,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    Error(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Error(
             const Error& other) = default;
 
     /**
@@ -120,14 +120,14 @@ public:
      * @param other The original statistics_backend::Error exception to copy
      * @return the current statistics_backend::Error exception after the copy
      */
-    Error& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Error& operator =(
             const Error& other) = default;
 };
 
 /**
  * @brief Exception to signal that an operation is not supported
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported : public Exception
+class  Unsupported : public Exception
 {
 
 public:
@@ -137,7 +137,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Unsupported(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported(
             const char* message) noexcept;
 
     /**
@@ -145,7 +145,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    Unsupported(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported(
             const std::string& message);
 
     /**
@@ -153,7 +153,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    Unsupported(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported(
             const Unsupported& other) = default;
 
     /**
@@ -162,14 +162,14 @@ public:
      * @param other The original statistics_backend::Unsupported exception to copy
      * @return the current statistics_backend::Unsupported exception after the copy
      */
-    Unsupported& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported& operator =(
             const Unsupported& other) = default;
 };
 
 /**
  * @brief Exception to signal that an operation has been called with an invalid parameter
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter : public Exception
+class  BadParameter : public Exception
 {
 
 public:
@@ -179,7 +179,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    BadParameter(
+    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter(
             const char* message) noexcept;
 
     /**
@@ -187,7 +187,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    BadParameter(
+    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter(
             const std::string& message);
 
     /**
@@ -195,7 +195,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    BadParameter(
+    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter(
             const BadParameter& other) = default;
 
     /**
@@ -204,14 +204,14 @@ public:
      * @param other The original statistics_backend::BadParameter exception to copy
      * @return the current statistics_backend::BadParameter exception after the copy
      */
-    BadParameter& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter& operator =(
             const BadParameter& other) = default;
 };
 
 /**
  * @brief Exception to signal that an operation found no data to return
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI NoData : public Exception
+class  NoData : public Exception
 {
 
 public:
@@ -221,7 +221,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    NoData(
+    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
             const char* message) noexcept;
 
     /**
@@ -229,7 +229,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    NoData(
+    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
             const std::string& message);
 
     /**
@@ -237,7 +237,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    NoData(
+    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
             const NoData& other) = default;
 
     /**
@@ -246,7 +246,7 @@ public:
      * @param other The original statistics_backend::NoData exception to copy
      * @return the current statistics_backend::NoData exception after the copy
      */
-    NoData& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI NoData& operator =(
             const NoData& other) = default;
 };
 
