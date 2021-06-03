@@ -38,16 +38,16 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
     switch (qos.durabilityKind())
     {
         case fastdds::dds::VOLATILE_DURABILITY_QOS:
-            kind[kind_tag] = "VOLATILE_DURABILITY_QOS";
+            kind[kind_tag] = durability_volatile_tag;
             break;
         case fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS:
-            kind[kind_tag] = "TRANSIENT_LOCAL_DURABILITY_QOS";
+            kind[kind_tag] = durability_transient_local_tag;
             break;
         case fastdds::dds::TRANSIENT_DURABILITY_QOS:
-            kind[kind_tag] = "TRANSIENT_DURABILITY_QOS";
+            kind[kind_tag] = durability_transient_tag;
             break;
         case fastdds::dds::PERSISTENT_DURABILITY_QOS:
-            kind[kind_tag] = "PERSISTENT_DURABILITY_QOS";
+            kind[kind_tag] = durability_persistent_tag;
             break;
     }
     serialized[fieldname] = kind;
@@ -455,7 +455,7 @@ database::Qos reader_info_to_backend_qos(
 {
     database::Qos reader;
 
-    serialize(reader_info.info.m_qos.m_durability, "durability", reader);
+    serialize(reader_info.info.m_qos.m_durability, durability_tag, reader);
     serialize(reader_info.info.m_qos.m_deadline, "deadline", reader);
     serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
     serialize(reader_info.info.m_qos.m_liveliness, "liveliness", reader);
@@ -483,7 +483,7 @@ database::Qos writer_info_to_backend_qos(
 {
     database::Qos writer;
 
-    serialize(writer_info.info.m_qos.m_durability, "durability", writer);
+    serialize(writer_info.info.m_qos.m_durability, durability_tag, writer);
     serialize(writer_info.info.m_qos.m_durabilityService, "durability_service", writer);
     serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
     serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);

@@ -13,22 +13,11 @@
 // limitations under the License.
 
 /**
- * @file QosSerializerTags.hpp
+ * @file DurabilityTags.ipp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZERTAGS_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZERTAGS_HPP_
-
-namespace eprosima {
-namespace statistics_backend {
-namespace subscriber {
-
-static constexpr const char* kind_tag = "kind";
-
-#include "QosSerializer/DurabilityTags.ipp"
-
-} // namespace subscriber
-} // namespace statistics_backend
-} // namespace eprosima
-
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZERTAGS_HPP_
+static constexpr const char* durability_tag = "durability";
+static constexpr const char* durability_volatile_tag = "VOLATILE_DURABILITY_QOS";
+static constexpr const char* durability_transient_local_tag = "TRANSIENT_LOCAL_DURABILITY_QOS";
+static constexpr const char* durability_transient_tag = "TRANSIENT_DURABILITY_QOS";
+static constexpr const char* durability_persistent_tag = "PERSISTENT_DURABILITY_QOS";
