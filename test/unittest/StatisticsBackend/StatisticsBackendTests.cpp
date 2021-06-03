@@ -14,13 +14,12 @@
 
 #include <list>
 
+#include <gtest/gtest.h>
+
+#include <database/database.hpp>
+#include <DatabaseUtils.hpp>
 #include <StatisticsBackend.hpp>
 #include <types/types.hpp>
-#include "database/database.hpp"
-
-#include "gtest/gtest.h"
-
-#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -229,7 +228,6 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
         }
     }
 }
-
 
 int main(
         int argc,

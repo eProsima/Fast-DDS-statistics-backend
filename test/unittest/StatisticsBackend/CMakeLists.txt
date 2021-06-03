@@ -22,7 +22,6 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(statistics_backend_tests PRIVATE
