@@ -97,17 +97,17 @@ void serialize<fastdds::dds::LivelinessQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::AUTOMATIC_LIVELINESS_QOS:
-            liveliness[kind_tag] = "AUTOMATIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_automatic_tag;
             break;
         case fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS:
-            liveliness[kind_tag] = "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_manual_participant_tag;
             break;
         case fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS:
-            liveliness[kind_tag] = "MANUAL_BY_TOPIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_manual_topic_tag;
             break;
     }
-    serialize(qos.announcement_period, "announcement_period", liveliness);
-    serialize(qos.lease_duration, "lease_duration", liveliness);
+    serialize(qos.announcement_period, announcement_period_tag, liveliness);
+    serialize(qos.lease_duration, lease_duration_tag, liveliness);
     serialized[fieldname] = liveliness;
 }
 
@@ -458,7 +458,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_durability, durability_tag, reader);
     serialize(reader_info.info.m_qos.m_deadline, "deadline", reader);
     serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
-    serialize(reader_info.info.m_qos.m_liveliness, "liveliness", reader);
+    serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
     serialize(reader_info.info.m_qos.m_reliability, "reliability", reader);
     serialize(reader_info.info.m_qos.m_ownership, "ownership", reader);
     serialize(reader_info.info.m_qos.m_destinationOrder, "destination_order", reader);
@@ -487,7 +487,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_durabilityService, durability_service_tag, writer);
     serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
     serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);
-    serialize(writer_info.info.m_qos.m_liveliness, "liveliness", writer);
+    serialize(writer_info.info.m_qos.m_liveliness, liveliness_tag, writer);
     serialize(writer_info.info.m_qos.m_reliability, "reliability", writer);
     serialize(writer_info.info.m_qos.m_lifespan, "lifespan", writer);
     serialize(writer_info.info.m_qos.m_userData, "user_data", writer);
@@ -513,7 +513,7 @@ database::Qos participant_info_to_backend_qos(
     database::Qos participant;
 
     participant["available_builtin_endpoints"] = participant_info.info.m_availableBuiltinEndpoints;
-    serialize(participant_info.info.m_leaseDuration, "lease_duration", participant);
+    serialize(participant_info.info.m_leaseDuration, lease_duration_tag, participant);
     serialize(participant_info.info.m_properties, "properties", participant);
     serialize(participant_info.info.m_userData, "user_data", participant);
     participant["vendor_id"] = participant_info.info.m_VendorId;
