@@ -423,10 +423,10 @@ void serialize<fastdds::dds::PublishModeQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SYNCHRONOUS_PUBLISH_MODE:
-            publishmode[kind_tag] = "SYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = publish_mode_sync_tag;
             break;
         case fastdds::dds::ASYNCHRONOUS_PUBLISH_MODE:
-            publishmode[kind_tag] = "ASYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = publish_mode_async_tag;
             break;
     }
     serialized[fieldname] = publishmode;
@@ -498,7 +498,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_partition, partition_tag, writer);
     serialize(writer_info.info.m_qos.m_topicData, topic_data_tag, writer);
     serialize(writer_info.info.m_qos.m_groupData, group_data_tag, writer);
-    serialize(writer_info.info.m_qos.m_publishMode, "publish_mode", writer);
+    serialize(writer_info.info.m_qos.m_publishMode, publish_mode_tag, writer);
     serialize(writer_info.info.m_qos.representation, "representation", writer);
     serialize(writer_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
     serialize(writer_info.info.m_qos.data_sharing, data_sharing_tag, writer);
