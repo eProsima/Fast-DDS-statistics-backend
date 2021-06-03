@@ -383,21 +383,21 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
     switch (qos.kind())
     {
         case fastdds::dds::AUTO:
-            datasharing[kind_tag] = "AUTO";
+            datasharing[kind_tag] = data_sharing_auto_tag;
             break;
         case fastdds::dds::ON:
-            datasharing[kind_tag] = "ON";
+            datasharing[kind_tag] = data_sharing_on_tag;
             break;
         case fastdds::dds::OFF:
-            datasharing[kind_tag] = "OFF";
+            datasharing[kind_tag] = data_sharing_off_tag;
             break;
     }
-    datasharing["max_domains"] = qos.max_domains();
-    datasharing["shm_directory"] = qos.shm_directory();
-    datasharing["domain_ids"] = database::Qos::array();
+    datasharing[max_domains_tag] = qos.max_domains();
+    datasharing[shm_directory_tag] = qos.shm_directory();
+    datasharing[domain_ids_tag] = database::Qos::array();
     for (auto id : qos.domain_ids())
     {
-        datasharing["domain_ids"].push_back(id);
+        datasharing[domain_ids_tag].push_back(id);
     }
     serialized[fieldname] = datasharing;
 }
@@ -472,7 +472,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.representation, "representation", reader);
     serialize(reader_info.info.m_qos.type_consistency, "type_consistency", reader);
     serialize(reader_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
-    serialize(reader_info.info.m_qos.data_sharing, "data_sharing", reader);
+    serialize(reader_info.info.m_qos.data_sharing, data_sharing_tag, reader);
 
     return reader;
 }
@@ -501,7 +501,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_publishMode, "publish_mode", writer);
     serialize(writer_info.info.m_qos.representation, "representation", writer);
     serialize(writer_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
-    serialize(writer_info.info.m_qos.data_sharing, "data_sharing", writer);
+    serialize(writer_info.info.m_qos.data_sharing, data_sharing_tag, writer);
 
     return writer;
 }

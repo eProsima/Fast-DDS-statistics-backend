@@ -42,6 +42,7 @@ static constexpr const char* properties_tag = "properties";
 static constexpr const char* vendor_id_tag = "vendor_id";
 static constexpr const char* available_builtin_endpoints_tag = "available_builtin_endpoints";
 
+#include "QosSerializer/DataSharingTags.ipp"
 #include "QosSerializer/DestinationOrderTags.ipp"
 #include "QosSerializer/DurabilityTags.ipp"
 #include "QosSerializer/DurationTags.ipp"
