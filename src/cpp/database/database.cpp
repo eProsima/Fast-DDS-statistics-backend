@@ -1866,7 +1866,7 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
 
     throw BadParameter("No entity of type " + std::to_string(
                       static_cast<int>(entity_kind)) + " and GUID " + guid + " exists");
-    return std::make_pair<EntityId, EntityId>(EntityId::invalid(), EntityId::invalid());
+    // return std::make_pair<EntityId, EntityId>(EntityId::invalid(), EntityId::invalid());
 }
 
 EntityKind Database::get_entity_kind(
