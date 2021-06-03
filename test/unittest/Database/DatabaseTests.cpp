@@ -2372,7 +2372,7 @@ TEST_F(database_tests, get_entities_by_name_host)
     /* Check that the inserted entity is retrieved correctly */
     auto hosts = db.get_entities_by_name(EntityKind::HOST, host_name);
     EXPECT_EQ(hosts.size(), 1);
-    EXPECT_FALSE(hosts[0].first.is_valid());
+    EXPECT_FALSE(hosts[0].first.is_valid_and_unique());
     EXPECT_EQ(hosts[0].second, host_id);
 }
 
@@ -2387,7 +2387,7 @@ TEST_F(database_tests, get_entities_by_name_user)
     /* Check that the inserted entity is retrieved correctly */
     auto users = db.get_entities_by_name(EntityKind::USER, user_name);
     EXPECT_EQ(users.size(), 1);
-    EXPECT_FALSE(users[0].first.is_valid());
+    EXPECT_FALSE(users[0].first.is_valid_and_unique());
     EXPECT_EQ(users[0].second, user_id);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
@@ -2401,7 +2401,7 @@ TEST_F(database_tests, get_entities_by_name_user)
     EXPECT_EQ(users.size(), 2);
     for (size_t i = 0; i < users.size(); i++)
     {
-        EXPECT_FALSE(users[i].first.is_valid());
+        EXPECT_FALSE(users[i].first.is_valid_and_unique());
         EXPECT_EQ(users[i].second, ids[i]);
     }
 }
@@ -2417,7 +2417,7 @@ TEST_F(database_tests, get_entities_by_name_process)
     /* Check that the inserted entity is retrieved correctly */
     auto processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
     EXPECT_EQ(processes.size(), 1);
-    EXPECT_FALSE(processes[0].first.is_valid());
+    EXPECT_FALSE(processes[0].first.is_valid_and_unique());
     EXPECT_EQ(processes[0].second, process_id);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
@@ -2429,7 +2429,7 @@ TEST_F(database_tests, get_entities_by_name_process)
     EXPECT_EQ(processes.size(), 2);
     for (size_t i = 0; i < processes.size(); i++)
     {
-        EXPECT_FALSE(processes[i].first.is_valid());
+        EXPECT_FALSE(processes[i].first.is_valid_and_unique());
         EXPECT_EQ(processes[i].second, ids[i]);
     }
 }
@@ -2473,7 +2473,7 @@ TEST_F(database_tests, get_entities_by_name_participant)
     EXPECT_EQ(participants.size(), 2);
     for (size_t i = 0; i < participants.size(); i++)
     {
-        EXPECT_TRUE(participants[i].first.is_valid());
+        EXPECT_TRUE(participants[i].first.is_valid_and_unique());
         EXPECT_EQ(participants[i].second, ids[i]);
     }
 }
@@ -2503,7 +2503,7 @@ TEST_F(database_tests, get_entities_by_name_topic)
     EXPECT_EQ(topics.size(), 2);
     for (size_t i = 0; i < topics.size(); i++)
     {
-        EXPECT_TRUE(topics[i].first.is_valid());
+        EXPECT_TRUE(topics[i].first.is_valid_and_unique());
         EXPECT_EQ(topics[i].second, ids[i]);
     }
 }
@@ -2532,7 +2532,7 @@ TEST_F(database_tests, get_entities_by_name_datawriter)
     EXPECT_EQ(datawriters.size(), 2);
     for (size_t i = 0; i < datawriters.size(); i++)
     {
-        EXPECT_TRUE(datawriters[i].first.is_valid());
+        EXPECT_TRUE(datawriters[i].first.is_valid_and_unique());
         EXPECT_EQ(datawriters[i].second, ids[i]);
     }
 }
@@ -2561,7 +2561,7 @@ TEST_F(database_tests, get_entities_by_name_datareader)
     EXPECT_EQ(datareaders.size(), 2);
     for (size_t i = 0; i < datareaders.size(); i++)
     {
-        EXPECT_TRUE(datareaders[i].first.is_valid());
+        EXPECT_TRUE(datareaders[i].first.is_valid_and_unique());
         EXPECT_EQ(datareaders[i].second, ids[i]);
     }
 }
@@ -2576,8 +2576,8 @@ TEST_F(database_tests, get_entities_by_name_locator)
 {
     auto locators = db.get_entities_by_name(EntityKind::LOCATOR, writer_locator_name);
     EXPECT_EQ(locators.size(), 1);
-    EXPECT_FALSE(locators[0].first.is_valid());
-    EXPECT_EQ(locators[0].second, writer_locator_id);
+    EXPECT_FALSE(locators[0].first.is_valid_and_unique());
+    EXPECT_EQ(locators[0].second, writer_locator->id);
 }
 
 TEST_F(database_tests, get_entities_by_name_locator_wrong_name)
