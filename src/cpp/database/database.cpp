@@ -42,9 +42,6 @@ EntityId Database::insert(
     EntityId entity_id = EntityId::invalid();
     insert_nts(entity, entity_id);
 
-    // Clear the entity
-    entity->clear();
-
     return entity_id;
 }
 
@@ -52,6 +49,9 @@ void Database::insert_nts(
         const std::shared_ptr<Entity>& entity,
         EntityId& entity_id)
 {
+    // Clear the entity
+    entity->clear();
+
     switch (entity->kind)
     {
         case EntityKind::HOST:

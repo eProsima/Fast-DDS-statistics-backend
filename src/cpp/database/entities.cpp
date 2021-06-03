@@ -42,7 +42,6 @@ void Domain::clear()
 
 void DomainParticipant::clear()
 {
-    DDSEntity::clear();
     data_readers.clear();
     data_writers.clear();
     data.clear();
