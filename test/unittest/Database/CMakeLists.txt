@@ -392,6 +392,7 @@ set(DATABASE_LOAD_TEST_LIST
     load_and_dump_empty_entities_database
     load_and_dump_simple_database
     load_and_dump_complex_database
+    load_twice
     load_erased_keys
     load_wrong_values
     load_wrong_references

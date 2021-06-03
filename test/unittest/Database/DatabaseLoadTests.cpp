@@ -161,6 +161,20 @@ TEST(database_load_tests, load_and_dump_complex_database)
     ASSERT_EQ(dump, loadedDump);
 }
 
+// Test the load of a dump database with one entity of each kind
+TEST(database_load_tests, load_twice)
+{
+    // Read JSON
+    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+
+    // Create database
+    Database db;
+
+    // Load jump in database
+    db.load_database(dump);
+    ASSERT_THROW(db.load_database(dump), Error);
+}
+
 
 // Check that the load of the 'dump 'without 'key' in 'container', throws an exception
 void check_no_key(

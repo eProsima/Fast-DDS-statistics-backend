@@ -3227,6 +3227,11 @@ void Database::load_database(
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
+    if (next_id_ != 0)
+    {
+        throw Error("Error: Database must be empty before call load_database()");
+    }
+
     // Hosts
     {
         DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
