@@ -22,7 +22,7 @@ set(ENTITYID_TEST_LIST
     invalidate
     valid
     value
-    single
+    valid_and_unique
     operator_ostream
     operator_less
     operator_less_equal

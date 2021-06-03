@@ -48,7 +48,7 @@ bool EntityId::is_all() const noexcept
     return (value_ == ENTITY_ID_ALL);
 }
 
-bool EntityId::is_single() const noexcept
+bool EntityId::is_valid_and_unique() const noexcept
 {
     return is_valid() && !is_all();
 }

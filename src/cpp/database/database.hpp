@@ -377,9 +377,9 @@ protected:
      * @return The EntityId of the inserted DDSEndpoint
      */
     template<typename T>
-    EntityId insert_ddsendpoint(
+    void insert_ddsendpoint(
             std::shared_ptr<T>& endpoint,
-            const EntityId& entity_id)
+            EntityId& entity_id)
     {
         /* Check that name is not empty */
         if (endpoint->name.empty())
@@ -449,25 +449,24 @@ protected:
         }
 
         /* Add endpoint to participant' collection */
-        if (!entity_id.is_single())
+        if (!entity_id.is_valid_and_unique())
         {
-            endpoint->id = generate_entity_id();
+            entity_id = generate_entity_id();
         }
         else
         {
-            endpoint->id = entity_id;
             next_id_++;
         }
+        endpoint->id = entity_id;
 
-        (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
+        /* Insert endpoint in the database */
+        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
 
         /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
         /* Add endpoint to topics's collection */
         (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
-
-        return endpoint->id;
     }
 
     /**
@@ -626,9 +625,9 @@ protected:
      *             * For entities with locators, if the locators' collection is empty
      * @return The EntityId of the inserted entity
      */
-    EntityId insert_nts(
+    void insert_nts(
             const std::shared_ptr<Entity>& entity,
-            const EntityId& entity_id);
+            EntityId& entity_id);
 
     /**
      * @brief Insert a new statistics sample into the database. This method is not thread safe.

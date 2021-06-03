@@ -66,14 +66,14 @@ TEST(entityid, value)
     EXPECT_EQ(value, EntityId(value).value());
 }
 
-TEST(entityid, single)
+TEST(entityid, valid_and_unique)
 {
-    EXPECT_FALSE(EntityId().is_single());
-    EXPECT_FALSE(EntityId::invalid().is_single());
-    EXPECT_FALSE(EntityId::all().is_single());
-    EXPECT_TRUE(EntityId(0).is_single());
-    EXPECT_TRUE(EntityId(1).is_single());
-    EXPECT_FALSE(EntityId(-5).is_single());
+    EXPECT_FALSE(EntityId().is_valid_and_unique());
+    EXPECT_FALSE(EntityId::invalid().is_valid_and_unique());
+    EXPECT_FALSE(EntityId::all().is_valid_and_unique());
+    EXPECT_TRUE(EntityId(0).is_valid_and_unique());
+    EXPECT_TRUE(EntityId(1).is_valid_and_unique());
+    EXPECT_FALSE(EntityId(-5).is_valid_and_unique());
 }
 
 TEST(entityid, operator_ostream)

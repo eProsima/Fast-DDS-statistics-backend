@@ -106,7 +106,7 @@ public:
      * @brief Check whether an EntityId is an ID representing one specific entity
      * @return True if it is valid and not ENTITY_ID_ALL, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_single() const noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid_and_unique() const noexcept;
 
     /**
      * @brief Get the internal value of the EntityId

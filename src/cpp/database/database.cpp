@@ -40,17 +40,18 @@ EntityId Database::insert(
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Insert in the database with a unique ID
-    EntityId entityId = insert_nts(entity, EntityId::invalid());
+    EntityId entity_id = EntityId::invalid();
+    insert_nts(entity, entity_id);
 
     // Clear the entity
     entity->clear();
 
-    return entityId;
+    return entity_id;
 }
 
-EntityId Database::insert_nts(
+void Database::insert_nts(
         const std::shared_ptr<Entity>& entity,
-        const EntityId& entity_id)
+        EntityId& entity_id)
 {
     switch (entity->kind)
     {
@@ -78,19 +79,19 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Insert host in the database */
             hosts_[host->id] = host;
-            return host->id;
+            break;
         }
         case EntityKind::USER:
         {
@@ -139,22 +140,22 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Add user to users collection */
             users_[user->id] = user;
 
             /* Add user to host's users collection */
             user->host->users[user->id] = user;
-            return user->id;
+            break;
         }
         case EntityKind::PROCESS:
         {
@@ -212,22 +213,21 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Add process to processes collection */
             processes_[process->id] = process;
 
             /* Add process to user's processes collection */
             process->user->processes[process->id] = process;
-            return process->id;
             break;
         }
         case EntityKind::DOMAIN:
@@ -255,19 +255,19 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Insert domain in the database */
             domains_[domain->id] = domain;
-            return domain->id;
+            break;
         }
         case EntityKind::TOPIC:
         {
@@ -317,22 +317,22 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Add topic to domain's collection */
             domains_[topic->domain->id]->topics[topic->id] = topic;
 
             /* Insert topic in the database */
             topics_[topic->domain->id][topic->id] = topic;
-            return topic->id;
+            break;
         }
         case EntityKind::PARTICIPANT:
         {
@@ -393,32 +393,34 @@ EntityId Database::insert_nts(
             }
 
             // Add id to the entity
-            if (!entity_id.is_single())
+            if (!entity_id.is_valid_and_unique())
             {
-                entity->id = generate_entity_id();
+                entity_id = generate_entity_id();
             }
             else
             {
-                entity->id = entity_id;
                 next_id_++;
             }
+            entity->id = entity_id;
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
 
             /* Insert participant in the database */
             participants_[participant->domain->id][participant->id] = participant;
-            return participant->id;
+            break;
         }
         case EntityKind::DATAREADER:
         {
             auto data_reader = std::static_pointer_cast<DataReader>(entity);
-            return insert_ddsendpoint<DataReader>(data_reader, entity_id);
+            insert_ddsendpoint<DataReader>(data_reader, entity_id);
+            break;
         }
         case EntityKind::DATAWRITER:
         {
             auto data_writer = std::static_pointer_cast<DataWriter>(entity);
-            return insert_ddsendpoint<DataWriter>(data_writer, entity_id);
+            insert_ddsendpoint<DataWriter>(data_writer, entity_id);
+            break;
         }
         case EntityKind::LOCATOR:
         {
@@ -456,7 +458,6 @@ EntityId Database::insert_nts(
             break;
         }
     }
-    return EntityId();
 }
 
 void Database::insert(
@@ -3241,7 +3242,8 @@ void Database::load_database(
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
         }
     }
 
@@ -3261,7 +3263,8 @@ void Database::load_database(
                             hosts_[boost::lexical_cast<int>((std::string)(*it).at(HOST_ENTITY_TAG))]);
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
         }
     }
 
@@ -3282,7 +3285,8 @@ void Database::load_database(
                             users_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(USER_ENTITY_TAG)))]);
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
         }
     }
 
@@ -3301,7 +3305,8 @@ void Database::load_database(
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
         }
     }
 
@@ -3323,7 +3328,8 @@ void Database::load_database(
                             domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
         }
     }
 
@@ -3339,26 +3345,24 @@ void Database::load_database(
             check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
             check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
 
-            // Get keys
-            EntityId entityId(boost::lexical_cast<int>(it.key()));
-
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
                 (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
                 domains_[EntityId(boost::lexical_cast<int>((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            insert_nts(entity, entityId);
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
 
             // Link participant with process
-            EntityId processId(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
+            EntityId process_id(boost::lexical_cast<int>((std::string)(*it).at(PROCESS_ENTITY_TAG)));
 
-            if (processId != EntityId::invalid())
+            if (process_id != EntityId::invalid())
             {
                 check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG,
                         dump);
 
-                link_participant_with_process_nts(entityId, processId);
+                link_participant_with_process_nts(entity->id, process_id);
             }
 
             // Load data and insert into database
@@ -3403,16 +3407,16 @@ void Database::load_database(
             check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
             // Get keys
-            EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+            EntityId participant_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
                                 PARTICIPANT_ENTITY_TAG)));
-            EntityId participantDomainId =
+            EntityId participant_domain_id =
                     EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
-                                    .at(std::to_string(participantId.value()))
+                                    .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
-                                    .at(std::to_string(topicId.value()))
+            EntityId topic_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
             // Create entity
@@ -3420,20 +3424,21 @@ void Database::load_database(
                 (*it).at(NAME_INFO_TAG),
                 (*it).at(QOS_INFO_TAG),
                 (*it).at(GUID_INFO_TAG),
-                participants_[participantDomainId][participantId],
-                topics_[topicDomainId][topicId]);
+                participants_[participant_domain_id][participant_id],
+                topics_[topic_domain_id][topic_id]);
 
             /* Add reference to locator to the endpoint */
-            for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
-                    itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
-                    ++itLoc)
+            for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++it_loc)
             {
-                entity->locators[boost::lexical_cast<int>((std::string)*itLoc)] =
-                        locators_[EntityId(boost::lexical_cast<int>((std::string)*itLoc))];
+                entity->locators[boost::lexical_cast<int>((std::string)*it_loc)] =
+                        locators_[EntityId(boost::lexical_cast<int>((std::string)*it_loc))];
             }
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
@@ -3452,16 +3457,16 @@ void Database::load_database(
             check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
 
             // Get keys
-            EntityId participantId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
+            EntityId participant_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(
                                 PARTICIPANT_ENTITY_TAG)));
-            EntityId participantDomainId =
+            EntityId participant_domain_id =
                     EntityId(boost::lexical_cast<int>((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
-                                    .at(std::to_string(participantId.value()))
+                                    .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topicId = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topicDomainId = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
-                                    .at(std::to_string(topicId.value()))
+            EntityId topic_id = EntityId(boost::lexical_cast<int>((std::string)(*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(boost::lexical_cast<int>((std::string)dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
             // Create entity
@@ -3469,8 +3474,8 @@ void Database::load_database(
                 (*it).at(NAME_INFO_TAG),
                 (*it).at(QOS_INFO_TAG),
                 (*it).at(GUID_INFO_TAG),
-                participants_[participantDomainId][participantId],
-                topics_[topicDomainId][topicId]);
+                participants_[participant_domain_id][participant_id],
+                topics_[topic_domain_id][topic_id]);
 
             /* Add reference to locator to the endpoint */
             for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
@@ -3482,9 +3487,10 @@ void Database::load_database(
             }
 
             // Insert into database
-            insert_nts(entity, EntityId(boost::lexical_cast<int>(it.key())));
+            EntityId entity_id = EntityId(boost::lexical_cast<int>(it.key()));
+            insert_nts(entity, entity_id);
 
-            // // Load data and insert into database
+            // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
         }
     }
@@ -3499,10 +3505,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_DISCOVERY_TIME_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 DiscoveryTimeSample sample;
 
@@ -3515,7 +3521,7 @@ void Database::load_data(
                 sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // EntityId
-                sample.remote_entity = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_entity = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 boost::lexical_cast<int>(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
 
@@ -3575,10 +3581,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 RtpsPacketsSentSample sample;
 
@@ -3590,7 +3596,7 @@ void Database::load_data(
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3603,10 +3609,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 RtpsBytesSentSample sample;
 
@@ -3621,7 +3627,7 @@ void Database::load_data(
                 sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3634,10 +3640,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 RtpsPacketsLostSample sample;
 
@@ -3649,7 +3655,7 @@ void Database::load_data(
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3662,10 +3668,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 RtpsBytesLostSample sample;
 
@@ -3680,7 +3686,7 @@ void Database::load_data(
                 sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3693,10 +3699,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsBytesLostSample sample;
-            DatabaseDump sampleDump = container.at(remoteIt.key());
+            DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
             uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
@@ -3709,7 +3715,7 @@ void Database::load_data(
             sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3721,10 +3727,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsBytesSentSample sample;
-            DatabaseDump sampleDump = container.at(remoteIt.key());
+            DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
             uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
@@ -3737,7 +3743,7 @@ void Database::load_data(
             sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3749,10 +3755,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsPacketsLostSample sample;
-            DatabaseDump sampleDump = container.at(remoteIt.key());
+            DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
             uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
@@ -3762,7 +3768,7 @@ void Database::load_data(
             sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3774,10 +3780,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsPacketsSentSample sample;
-            DatabaseDump sampleDump = container.at(remoteIt.key());
+            DatabaseDump sampleDump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
             uint64_t time = boost::lexical_cast<int>(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
@@ -3787,7 +3793,7 @@ void Database::load_data(
             sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
-            sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+            sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3951,10 +3957,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_SAMPLE_DATAS_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 SampleDatasCountSample sample;
 
@@ -3966,7 +3972,7 @@ void Database::load_data(
                 sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
 
                 // uint64_t
-                sample.sequence_number = boost::lexical_cast<int>(remoteIt.key());
+                sample.sequence_number = boost::lexical_cast<int>(remote_it.key());
 
                 // // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3979,10 +3985,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_FASTDDS_LATENCY_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 HistoryLatencySample sample;
 
@@ -3994,7 +4000,7 @@ void Database::load_data(
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.reader = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.reader = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4206,10 +4212,10 @@ void Database::load_data(
         DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
 
         // RemoteEntities iterator
-        for (auto remoteIt = container.begin(); remoteIt != container.end(); ++remoteIt)
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             // Data iterator
-            for (auto it = container.at(remoteIt.key()).begin(); it != container.at(remoteIt.key()).end(); ++it)
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
             {
                 NetworkLatencySample sample;
 
@@ -4221,7 +4227,7 @@ void Database::load_data(
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(boost::lexical_cast<int>(remoteIt.key()));
+                sample.remote_locator = EntityId(boost::lexical_cast<int>(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(EntityId::invalid(), entity->id, sample, true);
