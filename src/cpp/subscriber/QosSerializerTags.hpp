@@ -47,6 +47,7 @@ static constexpr const char* available_builtin_endpoints_tag = "available_builti
 #include "QosSerializer/DurationTags.ipp"
 #include "QosSerializer/LivelinessTags.ipp"
 #include "QosSerializer/OwnershipTags.ipp"
+#include "QosSerializer/PresentationTags.ipp"
 #include "QosSerializer/ReliabilityTags.ipp"
 
 } // namespace subscriber
