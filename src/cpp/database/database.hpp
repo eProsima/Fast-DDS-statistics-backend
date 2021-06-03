@@ -664,11 +664,10 @@ protected:
             const EntityId& process_id);
 
     /**
-     * @brief Load a data from a dump.
+     * @brief Load data from a dump.
 
      * @param dump Reference to the .json with the info of the data.
      * @param entity Reference to the entity where the info will be inserted.
-     * @return \c DatabaseDump object representing the data
      */
     void load_data(
             const DatabaseDump& dump,
