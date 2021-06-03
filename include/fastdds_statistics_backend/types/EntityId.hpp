@@ -103,8 +103,8 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() const noexcept;
 
     /**
-     * @brief Check whether an EntityId is a ID representing one entity
-     * @return True if is is valid and not ENTITY_ID_ALL, false otherwise
+     * @brief Check whether an EntityId is an ID representing one specific entity
+     * @return True if it is valid and not ENTITY_ID_ALL, false otherwise
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI bool is_single() const noexcept;
 
