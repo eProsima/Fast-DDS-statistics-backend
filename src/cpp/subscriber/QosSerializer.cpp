@@ -17,6 +17,7 @@
  */
 
 #include "QosSerializer.hpp"
+#include "QosSerializerTags.hpp"
 
 #include <fastdds/dds/core/policy/QosPolicies.hpp>
 
@@ -37,16 +38,16 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
     switch (qos.durabilityKind())
     {
         case fastdds::dds::VOLATILE_DURABILITY_QOS:
-            kind["kind"] = "VOLATILE_DURABILITY_QOS";
+            kind[kind_tag] = "VOLATILE_DURABILITY_QOS";
             break;
         case fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS:
-            kind["kind"] = "TRANSIENT_LOCAL_DURABILITY_QOS";
+            kind[kind_tag] = "TRANSIENT_LOCAL_DURABILITY_QOS";
             break;
         case fastdds::dds::TRANSIENT_DURABILITY_QOS:
-            kind["kind"] = "TRANSIENT_DURABILITY_QOS";
+            kind[kind_tag] = "TRANSIENT_DURABILITY_QOS";
             break;
         case fastdds::dds::PERSISTENT_DURABILITY_QOS:
-            kind["kind"] = "PERSISTENT_DURABILITY_QOS";
+            kind[kind_tag] = "PERSISTENT_DURABILITY_QOS";
             break;
     }
     serialized[fieldname] = kind;
@@ -96,13 +97,13 @@ void serialize<fastdds::dds::LivelinessQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::AUTOMATIC_LIVELINESS_QOS:
-            liveliness["kind"] = "AUTOMATIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = "AUTOMATIC_LIVELINESS_QOS";
             break;
         case fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS:
-            liveliness["kind"] = "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS";
+            liveliness[kind_tag] = "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS";
             break;
         case fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS:
-            liveliness["kind"] = "MANUAL_BY_TOPIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = "MANUAL_BY_TOPIC_LIVELINESS_QOS";
             break;
     }
     serialize(qos.announcement_period, "announcement_period", liveliness);
@@ -120,10 +121,10 @@ void serialize<fastdds::dds::ReliabilityQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BEST_EFFORT_RELIABILITY_QOS:
-            reliability["kind"] = "BEST_EFFORT_RELIABILITY_QOS";
+            reliability[kind_tag] = "BEST_EFFORT_RELIABILITY_QOS";
             break;
         case fastdds::dds::RELIABLE_RELIABILITY_QOS:
-            reliability["kind"] = "RELIABLE_RELIABILITY_QOS";
+            reliability[kind_tag] = "RELIABLE_RELIABILITY_QOS";
             break;
     }
     serialize(qos.max_blocking_time, "max_blocking_time", reliability);
@@ -140,10 +141,10 @@ void serialize<fastdds::dds::OwnershipQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SHARED_OWNERSHIP_QOS:
-            ownership["kind"] = "SHARED_OWNERSHIP_QOS";
+            ownership[kind_tag] = "SHARED_OWNERSHIP_QOS";
             break;
         case fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS:
-            ownership["kind"] = "EXCLUSIVE_OWNERSHIP_QOS";
+            ownership[kind_tag] = "EXCLUSIVE_OWNERSHIP_QOS";
             break;
     }
     serialized[fieldname] = ownership;
@@ -159,10 +160,10 @@ void serialize<fastdds::dds::DestinationOrderQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order["kind"] = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
             break;
         case fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order["kind"] = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
             break;
     }
     serialized[fieldname] = destination_order;
@@ -347,10 +348,10 @@ void serialize<fastdds::dds::TypeConsistencyEnforcementQosPolicy> (
     switch (qos.m_kind)
     {
         case fastdds::dds::DISALLOW_TYPE_COERCION:
-            type_consistency["kind"] = "DISALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = "DISALLOW_TYPE_COERCION";
             break;
         case fastdds::dds::ALLOW_TYPE_COERCION:
-            type_consistency["kind"] = "ALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = "ALLOW_TYPE_COERCION";
             break;
     }
     serialize(qos.m_ignore_sequence_bounds, "ignore_sequence_bounds", type_consistency);
@@ -383,13 +384,13 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
     switch (qos.kind())
     {
         case fastdds::dds::AUTO:
-            datasharing["kind"] = "AUTO";
+            datasharing[kind_tag] = "AUTO";
             break;
         case fastdds::dds::ON:
-            datasharing["kind"] = "ON";
+            datasharing[kind_tag] = "ON";
             break;
         case fastdds::dds::OFF:
-            datasharing["kind"] = "OFF";
+            datasharing[kind_tag] = "OFF";
             break;
     }
     datasharing["max_domains"] = qos.max_domains();
@@ -423,10 +424,10 @@ void serialize<fastdds::dds::PublishModeQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SYNCHRONOUS_PUBLISH_MODE:
-            publishmode["kind"] = "SYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = "SYNCHRONOUS_PUBLISH_MODE";
             break;
         case fastdds::dds::ASYNCHRONOUS_PUBLISH_MODE:
-            publishmode["kind"] = "ASYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = "ASYNCHRONOUS_PUBLISH_MODE";
             break;
     }
     serialized[fieldname] = publishmode;
