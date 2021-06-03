@@ -65,7 +65,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     {
         participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
     }
-    catch (const Exception& e)
+    catch (const Exception&)
     {
         logError(STATISTICS_BACKEND, "endpoint " << to_string(endpoint_guid) + " discovered on Participant " + to_string(
                     participant_guid)

@@ -42,8 +42,28 @@
 
 namespace eprosima {
 namespace statistics_backend {
-namespace database {
 
+/**
+ * std::chrono::duration uses sfinae to prevent information losses on construction. Some OS system_clock implemenations
+ * are not accurate enough to handle a nanosecond resolution. For example on windows the system_clock resolution is 100
+ * nanoseconds. Truncation must be enforced in those cases.
+ * As reference on a linux distro over an i5 processor the actual system_clock tested resolution is in average 30 ns
+ * with a standard deviation of 40 ns. The worse case scenario is about 70 ns ~ 100 ns used by windows.
+ *
+ * @param nanosecs from posix epoch 1970-01-01
+ * @return argument date on local system_clock time point
+ */
+inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(uint64_t nanosecs)
+{
+#if defined(_WIN32)
+    auto span_since_epoch = std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(nanosecs/100);
+#elif
+    auto span_since_epoch = std::chrono::nanoseconds(nanosecs);
+#endif
+    return std::chrono::system_clock::time_point(span_since_epoch);
+}
+
+namespace database {
 
 /**
  * Double buffered, threadsafe queue for MPSC (multi-producer, single-consumer) comms.
