@@ -33,6 +33,15 @@ static constexpr const char* value_tag = "value";
 static constexpr const char* false_tag = "false";
 static constexpr const char* true_tag = "true";
 
+// Primitive types tags
+static constexpr const char* group_data_tag = "group_data";
+static constexpr const char* topic_data_tag = "topic_data";
+static constexpr const char* user_data_tag = "user_data";
+static constexpr const char* partition_tag = "partition";
+static constexpr const char* properties_tag = "properties";
+static constexpr const char* vendor_id_tag = "vendor_id";
+static constexpr const char* available_builtin_endpoints_tag = "available_builtin_endpoints";
+
 #include "QosSerializer/DestinationOrderTags.ipp"
 #include "QosSerializer/DurabilityTags.ipp"
 #include "QosSerializer/DurationTags.ipp"
