@@ -17,7 +17,13 @@
  */
 
 static constexpr const char* durability_tag = "durability";
+
+// Durability kind
 static constexpr const char* durability_volatile_tag = "VOLATILE_DURABILITY_QOS";
 static constexpr const char* durability_transient_local_tag = "TRANSIENT_LOCAL_DURABILITY_QOS";
 static constexpr const char* durability_transient_tag = "TRANSIENT_DURABILITY_QOS";
 static constexpr const char* durability_persistent_tag = "PERSISTENT_DURABILITY_QOS";
+
+// Durability service
+static constexpr const char* durability_service_tag = "durability_service";
+static constexpr const char* service_cleanup_delay_tag = "service_cleanup_delay";

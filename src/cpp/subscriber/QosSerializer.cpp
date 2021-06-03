@@ -298,7 +298,7 @@ void serialize<fastdds::dds::DurabilityServiceQosPolicy> (
             durability["history_kind"] = "KEEP_ALL_HISTORY_QOS";
             break;
     }
-    serialize(qos.service_cleanup_delay, "service_cleanup_delay", durability);
+    serialize(qos.service_cleanup_delay, service_cleanup_delay_tag, durability);
     serialized[fieldname] = durability;
 }
 
@@ -468,7 +468,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_partition, "partition", reader);
     serialize(reader_info.info.m_qos.m_topicData, "topic_data", reader);
     serialize(reader_info.info.m_qos.m_groupData, "group_data", reader);
-    serialize(reader_info.info.m_qos.m_durabilityService, "durability_service", reader);
+    serialize(reader_info.info.m_qos.m_durabilityService, durability_service_tag, reader);
     serialize(reader_info.info.m_qos.m_lifespan, "lifespan", reader);
     serialize(reader_info.info.m_qos.representation, "representation", reader);
     serialize(reader_info.info.m_qos.type_consistency, "type_consistency", reader);
@@ -484,7 +484,7 @@ database::Qos writer_info_to_backend_qos(
     database::Qos writer;
 
     serialize(writer_info.info.m_qos.m_durability, durability_tag, writer);
-    serialize(writer_info.info.m_qos.m_durabilityService, "durability_service", writer);
+    serialize(writer_info.info.m_qos.m_durabilityService, durability_service_tag, writer);
     serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
     serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);
     serialize(writer_info.info.m_qos.m_liveliness, "liveliness", writer);
