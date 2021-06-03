@@ -218,7 +218,7 @@ void serialize<fastdds::dds::TimeBasedFilterQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos filter;
-    serialize(qos.minimum_separation, "minimum_separation", filter);
+    serialize(qos.minimum_separation, minimum_separation_tag, filter);
     serialized[fieldname] = filter;
 }
 
@@ -456,23 +456,23 @@ database::Qos reader_info_to_backend_qos(
     database::Qos reader;
 
     serialize(reader_info.info.m_qos.m_durability, durability_tag, reader);
-    serialize(reader_info.info.m_qos.m_deadline, "deadline", reader);
-    serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
+    serialize(reader_info.info.m_qos.m_deadline, deadline_tag, reader);
+    serialize(reader_info.info.m_qos.m_latencyBudget, latency_budget_tag, reader);
     serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
     serialize(reader_info.info.m_qos.m_reliability, reliability_tag, reader);
     serialize(reader_info.info.m_qos.m_ownership, ownership_tag, reader);
     serialize(reader_info.info.m_qos.m_destinationOrder, destination_order_tag, reader);
     serialize(reader_info.info.m_qos.m_userData, "user_data", reader);
-    serialize(reader_info.info.m_qos.m_timeBasedFilter, "time_based_filter", reader);
+    serialize(reader_info.info.m_qos.m_timeBasedFilter, time_based_filter_tag, reader);
     serialize(reader_info.info.m_qos.m_presentation, "presentation", reader);
     serialize(reader_info.info.m_qos.m_partition, "partition", reader);
     serialize(reader_info.info.m_qos.m_topicData, "topic_data", reader);
     serialize(reader_info.info.m_qos.m_groupData, "group_data", reader);
     serialize(reader_info.info.m_qos.m_durabilityService, durability_service_tag, reader);
-    serialize(reader_info.info.m_qos.m_lifespan, "lifespan", reader);
+    serialize(reader_info.info.m_qos.m_lifespan, lifespan_tag, reader);
     serialize(reader_info.info.m_qos.representation, "representation", reader);
     serialize(reader_info.info.m_qos.type_consistency, "type_consistency", reader);
-    serialize(reader_info.info.m_qos.m_disablePositiveACKs, "disable_positive_acks", reader);
+    serialize(reader_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
     serialize(reader_info.info.m_qos.data_sharing, "data_sharing", reader);
 
     return reader;
@@ -485,13 +485,13 @@ database::Qos writer_info_to_backend_qos(
 
     serialize(writer_info.info.m_qos.m_durability, durability_tag, writer);
     serialize(writer_info.info.m_qos.m_durabilityService, durability_service_tag, writer);
-    serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
-    serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);
+    serialize(writer_info.info.m_qos.m_deadline, deadline_tag, writer);
+    serialize(writer_info.info.m_qos.m_latencyBudget, latency_budget_tag, writer);
     serialize(writer_info.info.m_qos.m_liveliness, liveliness_tag, writer);
     serialize(writer_info.info.m_qos.m_reliability, reliability_tag, writer);
-    serialize(writer_info.info.m_qos.m_lifespan, "lifespan", writer);
+    serialize(writer_info.info.m_qos.m_lifespan, lifespan_tag, writer);
     serialize(writer_info.info.m_qos.m_userData, "user_data", writer);
-    serialize(writer_info.info.m_qos.m_timeBasedFilter, "time_based_filter", writer);
+    serialize(writer_info.info.m_qos.m_timeBasedFilter, time_based_filter_tag, writer);
     serialize(writer_info.info.m_qos.m_ownership, ownership_tag, writer);
     serialize(writer_info.info.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
     serialize(writer_info.info.m_qos.m_destinationOrder, destination_order_tag, writer);
@@ -501,7 +501,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_groupData, "group_data", writer);
     serialize(writer_info.info.m_qos.m_publishMode, "publish_mode", writer);
     serialize(writer_info.info.m_qos.representation, "representation", writer);
-    serialize(writer_info.info.m_qos.m_disablePositiveACKs, "disable_positive_acks", writer);
+    serialize(writer_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
     serialize(writer_info.info.m_qos.data_sharing, "data_sharing", writer);
 
     return writer;

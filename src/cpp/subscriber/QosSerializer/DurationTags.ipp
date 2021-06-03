@@ -20,3 +20,13 @@ static constexpr const char* duration_tag = "duration";
 static constexpr const char* duration_period_tag = "period";
 static constexpr const char* duration_seconds_tag = "seconds";
 static constexpr const char* duration_nanoseconds_tag = "nanoseconds";
+
+// Time based filter tags
+static constexpr const char* time_based_filter_tag = "time_based_filter";
+static constexpr const char* minimum_separation_tag = "minimum_separation";
+
+// Other duration valued tags
+static constexpr const char* deadline_tag = "deadline";
+static constexpr const char* latency_budget_tag = "latency_budget";
+static constexpr const char* lifespan_tag = "lifespan";
+static constexpr const char* disable_positive_acks_tag = "disable_positive_acks";
