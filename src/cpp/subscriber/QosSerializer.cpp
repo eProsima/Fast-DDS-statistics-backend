@@ -121,13 +121,13 @@ void serialize<fastdds::dds::ReliabilityQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BEST_EFFORT_RELIABILITY_QOS:
-            reliability[kind_tag] = "BEST_EFFORT_RELIABILITY_QOS";
+            reliability[kind_tag] = reliability_best_effort_tag;
             break;
         case fastdds::dds::RELIABLE_RELIABILITY_QOS:
-            reliability[kind_tag] = "RELIABLE_RELIABILITY_QOS";
+            reliability[kind_tag] = reliability_reliable_tag;
             break;
     }
-    serialize(qos.max_blocking_time, "max_blocking_time", reliability);
+    serialize(qos.max_blocking_time, max_blocking_time_tag, reliability);
     serialized[fieldname] = reliability;
 }
 
@@ -459,7 +459,7 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_deadline, "deadline", reader);
     serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
     serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
-    serialize(reader_info.info.m_qos.m_reliability, "reliability", reader);
+    serialize(reader_info.info.m_qos.m_reliability, reliability_tag, reader);
     serialize(reader_info.info.m_qos.m_ownership, "ownership", reader);
     serialize(reader_info.info.m_qos.m_destinationOrder, "destination_order", reader);
     serialize(reader_info.info.m_qos.m_userData, "user_data", reader);
@@ -488,7 +488,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
     serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);
     serialize(writer_info.info.m_qos.m_liveliness, liveliness_tag, writer);
-    serialize(writer_info.info.m_qos.m_reliability, "reliability", writer);
+    serialize(writer_info.info.m_qos.m_reliability, reliability_tag, writer);
     serialize(writer_info.info.m_qos.m_lifespan, "lifespan", writer);
     serialize(writer_info.info.m_qos.m_userData, "user_data", writer);
     serialize(writer_info.info.m_qos.m_timeBasedFilter, "time_based_filter", writer);
