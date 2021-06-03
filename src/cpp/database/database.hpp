@@ -373,8 +373,7 @@ protected:
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint
-     * @param entity_id The ID of the entity, passing EntityId::invalid() will generate a new one.
-     * @return The EntityId of the inserted DDSEndpoint
+     * @param entity_id The ID of the entity, passing a entity with EntityId::invalid() will generate a new one.
      */
     template<typename T>
     void insert_ddsendpoint(
@@ -613,7 +612,7 @@ protected:
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.
      * @param entity The entity object to be inserted.
-     * @param entity_id The ID of the entity, passing EntityId::invalid() will generate a new one.
+     * @param entity_id The ID of the entity, passing a entity with EntityId::invalid() will generate a new one.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *             * If the entity already exists in the database
      *             * If the parent entity does not exist in the database (expect for the case of
@@ -623,7 +622,6 @@ protected:
      *             * For entities with GUID, if the GUID is not unique
      *             * For entities with QoS, if the QoS is empty
      *             * For entities with locators, if the locators' collection is empty
-     * @return The EntityId of the inserted entity
      */
     void insert_nts(
             const std::shared_ptr<Entity>& entity,
@@ -634,7 +632,7 @@ protected:
      * @param domain_id The EntityId to the domain that contains the entity
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
-     * @param loading Is a insert from the load.
+     * @param loading Is a insert coming from loading a database dump.
      * @param last_reported Is a insert of a last_reported data.
      */
     void insert_nts(
