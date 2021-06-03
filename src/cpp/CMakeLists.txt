@@ -45,7 +45,7 @@ configure_file(${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/config.h.in
 # If Windows, set define for export dll functions
 add_definitions(-DFASTDDS_STATISTICS_BACKEND_SOURCE)
 if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0501)
+    add_definitions(-D_WIN32_WINNT=0x0603 -D_CRT_DECLARE_NONSTDC_NAMES=0)
 endif()
 
 # Create library
