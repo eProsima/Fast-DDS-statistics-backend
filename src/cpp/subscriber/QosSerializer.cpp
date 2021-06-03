@@ -324,13 +324,13 @@ void serialize<fastdds::dds::DataRepresentationQosPolicy> (
         switch (p)
         {
             case fastdds::dds::XCDR_DATA_REPRESENTATION:
-                representation.push_back("XCDR_DATA_REPRESENTATION");
+                representation.push_back(representation_xcdr_tag);
                 break;
             case fastdds::dds::XML_DATA_REPRESENTATION:
-                representation.push_back("XML_DATA_REPRESENTATION");
+                representation.push_back(representation_xml_tag);
                 break;
             case fastdds::dds::XCDR2_DATA_REPRESENTATION:
-                representation.push_back("XCDR2_DATA_REPRESENTATION");
+                representation.push_back(representation_xcdr2_tag);
                 break;
         }
     }
@@ -347,17 +347,17 @@ void serialize<fastdds::dds::TypeConsistencyEnforcementQosPolicy> (
     switch (qos.m_kind)
     {
         case fastdds::dds::DISALLOW_TYPE_COERCION:
-            type_consistency[kind_tag] = "DISALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = type_consistency_coercion_disallow_tag;
             break;
         case fastdds::dds::ALLOW_TYPE_COERCION:
-            type_consistency[kind_tag] = "ALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = type_consistency_coercion_allow_tag;
             break;
     }
-    serialize(qos.m_ignore_sequence_bounds, "ignore_sequence_bounds", type_consistency);
-    serialize(qos.m_ignore_string_bounds, "ignore_string_bounds", type_consistency);
-    serialize(qos.m_ignore_member_names, "ignore_member_names", type_consistency);
-    serialize(qos.m_prevent_type_widening, "prevent_type_widening", type_consistency);
-    serialize(qos.m_force_type_validation, "force_type_validation", type_consistency);
+    serialize(qos.m_ignore_sequence_bounds, ignore_sequence_bounds_tag, type_consistency);
+    serialize(qos.m_ignore_string_bounds, ignore_string_bounds_tag, type_consistency);
+    serialize(qos.m_ignore_member_names, ignore_member_names_tag, type_consistency);
+    serialize(qos.m_prevent_type_widening, prevent_type_widening_tag, type_consistency);
+    serialize(qos.m_force_type_validation, force_type_validation_tag, type_consistency);
     serialized[fieldname] = type_consistency;
 }
 
@@ -469,8 +469,8 @@ database::Qos reader_info_to_backend_qos(
     serialize(reader_info.info.m_qos.m_groupData, group_data_tag, reader);
     serialize(reader_info.info.m_qos.m_durabilityService, durability_service_tag, reader);
     serialize(reader_info.info.m_qos.m_lifespan, lifespan_tag, reader);
-    serialize(reader_info.info.m_qos.representation, "representation", reader);
-    serialize(reader_info.info.m_qos.type_consistency, "type_consistency", reader);
+    serialize(reader_info.info.m_qos.representation, representation_tag, reader);
+    serialize(reader_info.info.m_qos.type_consistency, type_consistency_tag, reader);
     serialize(reader_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
     serialize(reader_info.info.m_qos.data_sharing, data_sharing_tag, reader);
 
@@ -499,7 +499,7 @@ database::Qos writer_info_to_backend_qos(
     serialize(writer_info.info.m_qos.m_topicData, topic_data_tag, writer);
     serialize(writer_info.info.m_qos.m_groupData, group_data_tag, writer);
     serialize(writer_info.info.m_qos.m_publishMode, publish_mode_tag, writer);
-    serialize(writer_info.info.m_qos.representation, "representation", writer);
+    serialize(writer_info.info.m_qos.representation, representation_tag, writer);
     serialize(writer_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
     serialize(writer_info.info.m_qos.data_sharing, data_sharing_tag, writer);
 
