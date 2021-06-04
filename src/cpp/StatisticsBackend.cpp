@@ -23,6 +23,8 @@
 namespace eprosima {
 namespace statistics_backend {
 
+database::Database* StatisticsBackend::database_ = new database::Database();
+
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,
@@ -108,8 +110,7 @@ bool StatisticsBackend::is_active(
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
-    static_cast<void>(entity_id);
-    return EntityKind::HOST;
+    return database_->get_entity_kind(entity_id);
 }
 
 Info StatisticsBackend::get_info(

@@ -25,94 +25,10 @@
 #include <database/entities.hpp>
 #include <database/samples.hpp>
 
+#include <DatabaseUtils.hpp>
+
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-
-class DataBaseTest : public Database
-{
-public:
-
-    const std::map<EntityId, std::shared_ptr<Host>>& hosts()
-    {
-        return hosts_;
-    }
-
-    const std::map<EntityId, std::shared_ptr<User>>& users()
-    {
-        return users_;
-    }
-
-    const std::map<EntityId, std::shared_ptr<Process>>& processes()
-    {
-        return processes_;
-    }
-
-    const std::map<EntityId, std::shared_ptr<Domain>>& domains()
-    {
-        return domains_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>>& topics()
-    {
-        return topics_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants()
-    {
-        return participants_;
-    }
-
-    const std::map<EntityId, std::shared_ptr<Locator>>& locators()
-    {
-        return locators_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant()
-    {
-        return locators_by_participant_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants_by_locator()
-    {
-        return participants_by_locator_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>>& domains_by_process()
-    {
-        return domains_by_process_;
-    }
-
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>>& processes_by_domain()
-    {
-        return processes_by_domain_;
-    }
-
-    template<typename T>
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& get_dds_endpoints()
-    {
-        return dds_endpoints<T>();
-    }
-
-    Qos test_qos = {
-        {"available_builtin_endpoints", 3135},
-        {"lease_duration", {
-             {"nanoseconds", 0},
-             {"seconds", 3}
-         }},
-        {"properties", {
-             {
-                 {"name", "PARTICIPANT_TYPE"},
-                 {"value", "CLIENT"}
-             },
-             {
-                 {"name", "DS_VERSION"},
-                 {"value", "2.0"}
-             }
-         }},
-        {"user_data", "656e636c6176653d2f3b00"},
-        {"vendor_id", "010f"}
-    };
-};
 
 template<typename T>
 void insert_ddsendpoint_valid()

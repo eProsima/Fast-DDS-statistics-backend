@@ -14,15 +14,132 @@
 
 #include <list>
 
+#include <gtest/gtest.h>
+
 #include <StatisticsBackend.hpp>
 #include <types/types.hpp>
 
-#include "gtest/gtest.h"
+#include <database/database.hpp>
+#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
+using namespace eprosima::statistics_backend::database;
+
+/**
+ * @brief Fixture for the statistics_backend class tests
+ *
+ * \c get_type Returns the entity kind of a given id.
+ *
+ */
+class statistics_backend_tests : public ::testing::Test
+{
+public:
+
+    typedef uint32_t TestId;
+
+    void SetUp()
+    {
+        entities = PopulateDatabase::populate_database(db);
+    }
+
+    DataBaseTest db;
+    std::map<TestId, std::shared_ptr<const Entity>> entities;
+};
+
+class StatisticsBackendTest : public StatisticsBackend
+{
+public:
+
+    static void set_database(
+            Database* db)
+    {
+        database_ = db;
+    }
+
+};
+
+// Check the get_type StatisticsBackend method
+TEST_F(statistics_backend_tests, get_type)
+{
+    StatisticsBackendTest::set_database(&db);
+
+    for (auto pair : db.hosts())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+    }
+
+    for (auto pair : db.users())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+    }
+
+    for (auto pair : db.processes())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+    }
+
+    for (auto pair : db.domains())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+    }
+
+    for (auto domainPair : db.participants())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+        }
+    }
+
+    for (auto domainPair : db.topics())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+        }
+    }
+
+    for (auto domainPair : db.get_dds_endpoints<DataReader>())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+        }
+    }
+
+    for (auto domainPair : db.get_dds_endpoints<DataWriter>())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+        }
+    }
+
+    for (auto pair : db.locators())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
+    }
+
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::all()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId::invalid()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_type(EntityId(1234)), BadParameter);
+}
 
 // Check the get_data_supported_entity_kinds StatisticsBackend method
-TEST(statistics_backend_tests, get_data_supported_entity_kinds)
+TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
 {
     std::map<DataKind, std::pair<EntityKind, EntityKind>> data_to_entity_map =
     {
