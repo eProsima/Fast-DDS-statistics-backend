@@ -55,6 +55,14 @@ DatabaseDump load_file(
     return dump;
 }
 
+/**
+ * Auxiliar function for the load_and_dump tests.
+ * This function:
+ * 1. Read a .json file, storing it in a dump.
+ * 2. Load a database with the dump
+ * 3. Make a dump of the loaded database
+ * 4. Compare that the .json dump and the loaded dump is the same
+ */
 void load_and_dump(
         std::string filename)
 {
