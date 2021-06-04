@@ -16,10 +16,11 @@
 
 #include <gtest/gtest.h>
 
-#include <database/database.hpp>
-#include <DatabaseUtils.hpp>
 #include <StatisticsBackend.hpp>
 #include <types/types.hpp>
+
+#include <database/database.hpp>
+#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
