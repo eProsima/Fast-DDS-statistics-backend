@@ -5,7 +5,7 @@
 Get entity type
 ---------------
 
-Is also possible to retrieve the |EntityKind-api| of an entity given its |EntityId-api|:
+It is also possible to retrieve the |EntityKind-api| of an entity given its |EntityId-api|:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
