@@ -1635,7 +1635,7 @@ std::vector<EntityId> Database::get_entity_ids(
 
 // Auxiliar function to convert a map to a vector
 template<typename T>
-void map_to_vec(
+void map_to_vector(
         const std::map<EntityId, std::shared_ptr<T>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
 {
@@ -1647,13 +1647,13 @@ void map_to_vec(
 
 // Auxiliar function to convert a map of maps to a vector
 template <typename T>
-void map_of_maps_to_vec(
+void map_of_maps_to_vector(
         const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
 {
     for (auto elem : map)
     {
-        map_to_vec(elem.second, vec);
+        map_to_vector(elem.second, vec);
     }
 }
 
@@ -1669,31 +1669,31 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         switch (entity_kind)
         {
             case EntityKind::HOST:
-                map_to_vec(hosts_, entities);
+                map_to_vector(hosts_, entities);
                 break;
             case EntityKind::USER:
-                map_to_vec(users_, entities);
+                map_to_vector(users_, entities);
                 break;
             case EntityKind::PROCESS:
-                map_to_vec(processes_, entities);
+                map_to_vector(processes_, entities);
                 break;
             case EntityKind::DOMAIN:
-                map_to_vec(domains_, entities);
+                map_to_vector(domains_, entities);
                 break;
             case EntityKind::TOPIC:
-                map_of_maps_to_vec(topics_, entities);
+                map_of_maps_to_vector(topics_, entities);
                 break;
             case EntityKind::PARTICIPANT:
-                map_of_maps_to_vec(participants_, entities);
+                map_of_maps_to_vector(participants_, entities);
                 break;
             case EntityKind::DATAWRITER:
-                map_of_maps_to_vec(datawriters_, entities);
+                map_of_maps_to_vector(datawriters_, entities);
                 break;
             case EntityKind::DATAREADER:
-                map_of_maps_to_vec(datareaders_, entities);
+                map_of_maps_to_vector(datareaders_, entities);
                 break;
             case EntityKind::LOCATOR:
-                map_to_vec(locators_, entities);
+                map_to_vector(locators_, entities);
                 break;
             default:
                 throw BadParameter("Invalid EntityKind");

@@ -75,7 +75,6 @@ TEST_P(database_get_entities_tests, get_entities)
     EXPECT_THROW(db.get_entities(kind, db.generate_entity_id()), BadParameter);
     EXPECT_THROW(db.get_entities(EntityKind::INVALID, origin), BadParameter);
 
-
     auto result = db.get_entities(kind, origin);
     ASSERT_EQ(expected.size(), result.size());
     std::sort(expected.begin(), expected.end());
@@ -98,7 +97,6 @@ TEST_P(database_get_entities_tests, get_entity_ids)
 
     EXPECT_THROW(db.get_entity_ids(kind, db.generate_entity_id()), BadParameter);
     EXPECT_THROW(db.get_entity_ids(EntityKind::INVALID, origin), BadParameter);
-
 
     auto result = db.get_entity_ids(kind, origin);
     ASSERT_EQ(expected.size(), result.size());

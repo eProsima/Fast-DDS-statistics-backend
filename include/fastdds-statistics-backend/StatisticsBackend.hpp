@@ -149,7 +149,6 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none());
 
-
     /**
      * @brief Get all the entities of a given type related to another entity
      *

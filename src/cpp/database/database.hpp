@@ -341,7 +341,6 @@ protected:
     template<typename T>
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
 
-
     /**
      * Get all entities of a given EntityKind related to another entity
      *
