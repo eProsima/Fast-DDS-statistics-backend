@@ -25,7 +25,6 @@
 #include <fastdds-statistics-backend/listener/CallbackMask.hpp>
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
-#include "database/entities.hpp"
 
 #include <chrono>
 #include <string>
@@ -152,7 +151,7 @@ public:
     /**
      * @brief Get all the entities of a given type related to another entity
      *
-     * Get all the entities for every entity of kind \c entity_type that is connected with entity \c entity_id
+     * Get all the entity ids for every entity of kind \c entity_type that is connected with entity \c entity_id
      * Connection between entities means they are directly connected by a contained/connect relation
      * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it
      *
@@ -166,28 +165,7 @@ public:
      * @param entity_id The ID of the entity to which the resulting entities are related
      * @return All entities of type \c entity_type that are related to \c entity_id
      */
-    static const std::vector<std::shared_ptr<const database::Entity>> get_entities(
-            EntityKind entity_type,
-            EntityId entity_id = EntityId::all());
-
-    /**
-     * @brief Get all the EntityIds of a given type related to another entity
-     *
-     * Get all the entity ids for every entity of kind \c entity_type that is connected with entity \c entity_id
-     * Connection between entities means they are directly connected by a contained/connect relation
-     * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it
-     *
-     * Use case: To get all host in the system, use arguments HOST and EntityId::all()
-     * Use case: To get all locators from a participant with id X, use arguments LOCATOR and X, this will
-     *  get all the locators that are connected with the endpoints this participant has.
-     *
-     * In case the \c entity_id is not specified, all entities of type \c entity_type are returned
-     *
-     * @param entity_type The type of entities for which the search is performed
-     * @param entity_id The ID of the entity to which the resulting entities are related
-     * @return All EntityIds of type \c entity_type that are related to \c entity_id
-     */
-    static std::vector<EntityId> get_entity_ids(
+    static std::vector<EntityId> get_entities(
             EntityKind entity_type,
             EntityId entity_id = EntityId::all());
 
@@ -403,8 +381,8 @@ public:
      * accepted by @ref get_data for the given DataKind.
      * This is convenient to prepare a call to @ref get_data from an EntityKind.
      * First, call @ref get_data_supported_entity_kinds with the EntityKind to get the EntityKinds of the related entities.
-     * Then, call @ref get_entity_ids to get the available entities for that kind.
-     * Finally, call @ref get_data with the pairs that @ref get_entity_ids returns.
+     * Then, call @ref get_entities to get the available entities for that kind.
+     * Finally, call @ref get_data with the pairs that @ref get_entities returns.
      *
      * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1
      * @code
@@ -419,8 +397,8 @@ public:
      *     // Take the data for this pair and append it to the existing data
      *     std::vector<StatisticsData> tmp = StatisticsBackend::get_data(
      *             DataKind::DISCOVERY_TIME,
-     *             StatisticsBackend::get_entity_ids(type_pair.first, host1_id),
-     *             StatisticsBackend::get_entity_ids(type_pair.second, host2_id));
+     *             StatisticsBackend::get_entities(type_pair.first, host1_id),
+     *             StatisticsBackend::get_entities(type_pair.second, host2_id));
      *
      *     discovery_times.insert(discovery_times.end(), tmp.begin(), tmp.end());
      * }

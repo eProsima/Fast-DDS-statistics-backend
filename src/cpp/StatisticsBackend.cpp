@@ -94,14 +94,7 @@ void StatisticsBackend::set_domain_listener(
     static_cast<void>(data_mask);
 }
 
-const std::vector<std::shared_ptr<const Entity>> StatisticsBackend::get_entities(
-        EntityKind entity_type,
-        EntityId entity_id)
-{
-    return database_->get_entities(entity_type, entity_id);
-}
-
-std::vector<EntityId> StatisticsBackend::get_entity_ids(
+std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
