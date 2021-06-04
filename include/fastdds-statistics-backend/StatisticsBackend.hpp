@@ -163,6 +163,8 @@ public:
      *
      * @param entity_type The type of entities for which the search is performed
      * @param entity_id The ID of the entity to which the resulting entities are related
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and
+     * is not Entity::all().
      * @return All entities of type \c entity_type that are related to \c entity_id
      */
     static std::vector<EntityId> get_entities(

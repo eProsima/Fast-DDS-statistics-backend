@@ -5,10 +5,6 @@
 Get entities of a given kind
 ----------------------------
 
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
-
 The |StatisticsBackend-api| singleton can be queried about all the entities of a given |EntityKind-api|.
 For example, |get_entities-api| function can be used to retrieve all the |HOST-api| for which statistics are reported.
 
@@ -33,6 +29,8 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
     :start-after: //CONF-GET-ENTITIES-EXAMPLE
     :end-before: //!
     :dedent: 8
+
+Throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and is not Entity::all().
 
 This function returns the related entities according to the following table:
 

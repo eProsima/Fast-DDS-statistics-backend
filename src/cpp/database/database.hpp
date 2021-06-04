@@ -231,10 +231,13 @@ public:
     /**
      * Get all entities of a given EntityKind related to another entity
      *
+     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned
+     *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
-     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and
+     * is not Entity::all().
      * @return A constant vector of shared pointers to the entities
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
@@ -244,10 +247,13 @@ public:
     /**
      * Get all EntityIds of a given EntityKind related to another entity
      *
+     * In case the \c entity_id is EntityId::all(), all EntityIds of type \c entity_type are returned
+     *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
-     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and
+     * is not Entity::all().
      * @return A vector containing the EntityIds of the entities
      */
     std::vector<EntityId> get_entity_ids(
@@ -343,6 +349,8 @@ protected:
 
     /**
      * Get all entities of a given EntityKind related to another entity
+     *
+     * In case the \c entity is nullptr, all EntityIds of type \c entity_type are returned
      *
      * @param entity constant reference to the entity to which the returned
      *                  entities are related
