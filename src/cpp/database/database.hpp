@@ -544,8 +544,8 @@ protected:
             std::string const& id);
 
     /**
-     * @brief Check if the entity with 'reference_id' have reference to 'entity_id' of type 'entity_tag'
-     * on her container, throwing an exception if not.
+     * @brief Ensure internal consistency of the database, checking if the 'reference_id' entity has a reference to 'entity_id' of type 'entity_tag'
+     * on the given container, throwing an exception if not.
      *
      * @param container Reference to the dump of the 'reference_id' entity
      * @param reference_id Key (id) of the entity to check.
@@ -568,7 +568,7 @@ protected:
      * @param dump where to check the references consistency
      */
     void check_all_references(
-            nlohmann::detail::iter_impl<nlohmann::json> const& it,
+            nlohmann::json::iterator const& it,
             std::string const& entity_tag,
             std::string const& reference_tag,
             DatabaseDump const& dump);
@@ -592,14 +592,14 @@ protected:
      * @brief Check if the references to entity type "reference_tag" on entity container 'it'
      * contains also a reference of entity type 'entity_tag' to 'it'
      *
-     * @param container Reference to the dump of the reference entity
+     * @param it Reference to the dump of the reference entity
      * @param entity_tag Type of entity to check on entity
      * @param reference_container_tag Type of entity container to check on reference entity
      * @param reference_tag Type of entity to check on reference entity
      * @param dump .json where to check
      */
     void check_contains_reference(
-            nlohmann::detail::iter_impl<nlohmann::json> const& it,
+            nlohmann::json::iterator const& it,
             std::string const& entity_tag,
             std::string const& reference_container_tag,
             std::string const& reference_tag,
@@ -615,7 +615,7 @@ protected:
      * @param dump .json where to check
      */
     void check_contains_all_references(
-            nlohmann::detail::iter_impl<nlohmann::json> const& it,
+            nlohmann::json::iterator const& it,
             std::string const& entity_tag,
             std::string const& reference_tag,
             DatabaseDump const& dump);

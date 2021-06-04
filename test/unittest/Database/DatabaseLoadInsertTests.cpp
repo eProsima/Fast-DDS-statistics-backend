@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <database/database.hpp>
 
@@ -113,20 +113,10 @@ public:
 };
 
 /**
- * @brief Fixture for the get_entities method tests
+ * @brief Fixture for the database_load_insert method tests
  *
- * \c get_entities retrieves all the entities of a given kind that are reachable from a given entity.
- * The casuistry for this functionality is rather complex,
- * and the tests need a populated database with several entity combinations in order to be able to
- * test all this casuistry.
- *
- * This fixture populates a database with several entities and several relations among them.
- * Since the tests need to know these relations, each entity is given a unique identifier within the fixture,
- * and the fixture keeps all these entities on a map,
- * for the test to be able to get them and check the result of the execution.
- * This identifier is independent of the EntityId given by the database,
- * and is totally under control of the fixture and the tests.
- * This is important to keep the tests stable even if the Database implementation to assign an EntityId changes.
+ * This fixture populates a database with several entities, whit several relations among them and with all types
+ * of StatisticsData.
  *
  * The following Json object describes the populated database objects and their given unique identifiers:
  *
@@ -217,11 +207,7 @@ public:
  * }
  * \endcode
  *
- *
- * Parameteres to the tests are:
- *  - std::get<0>(GetParam()) The EntityKind we are looking for
- *  - std::get<1>(GetParam()) The unique identifier of the origin Entity, as given by the fixture/testing
- *  - std::get<2>(GetParam()) A list containing the unique identifiers of the entities expected in the result
+ * Also insert Statistics data of all types with test values in participant2, datawriter2, datareader2 and locator2
  */
 class database_load_insert_tests : public ::testing::Test
 {
@@ -238,61 +224,47 @@ protected:
     {
         auto host1 = std::make_shared<Host>("host1");
         db.insert(host1);
-        entities[1] = host1;
 
         auto host2 = std::make_shared<Host>("host2");
         db.insert(host2);
-        entities[2] = host2;
 
         auto user1 = std::make_shared<User>("user1", host2);
         db.insert(user1);
-        entities[3] = user1;
 
         auto user2 = std::make_shared<User>("user2", host2);
         db.insert(user2);
-        entities[4] = user2;
 
         auto process1 = std::make_shared<Process>("process1", "123", user2);
         db.insert(process1);
-        entities[5] = process1;
 
         auto process2 = std::make_shared<Process>("process2", "345", user2);
         db.insert(process2);
-        entities[6] = process2;
 
         auto domain1 = std::make_shared<Domain>("domain1");
         db.insert(domain1);
-        entities[7] = domain1;
 
         auto domain2 = std::make_shared<Domain>("domain2");
         db.insert(domain2);
-        entities[8] = domain2;
 
         auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos", "1.2.3.4", nullptr, domain2);
         db.insert(participant1);
         db.link_participant_with_process(participant1->id, process2->id);
-        entities[9] = participant1;
 
         auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos", "5.6.7.8", nullptr, domain2);
         db.insert(participant2);
         db.link_participant_with_process(participant2->id, process2->id);
-        entities[10] = participant2;
 
         auto topic1 = std::make_shared<Topic>("topic1", "type", domain2);
         db.insert(topic1);
-        entities[11] = topic1;
 
         auto topic2 = std::make_shared<Topic>("topic2", "type", domain2);
         db.insert(topic2);
-        entities[12] = topic2;
 
         auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant2, topic2);
         auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
         reader_locator1->id = db.generate_entity_id();
         datareader1->locators[reader_locator1->id] = reader_locator1;
         db.insert(datareader1);
-        entities[13] = datareader1;
-        entities[17] = reader_locator1;
 
         auto datareader2 = std::make_shared<DataReader>("datareader2", "qos", "15.16.17.18", participant2, topic2);
         auto reader_locator2 = std::make_shared<Locator>("reader_locator2");
@@ -300,16 +272,12 @@ protected:
         datareader2->locators[reader_locator1->id] = reader_locator1;
         datareader2->locators[reader_locator2->id] = reader_locator2;
         db.insert(datareader2);
-        entities[14] = datareader2;
-        entities[18] = reader_locator2;
 
         auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant2, topic2);
         auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
         writer_locator1->id = db.generate_entity_id();
         datawriter1->locators[writer_locator1->id] = writer_locator1;
         db.insert(datawriter1);
-        entities[15] = datawriter1;
-        entities[19] = writer_locator1;
 
         auto datawriter2 = std::make_shared<DataWriter>("datawriter2", "qos", "25.26.27.28", participant2, topic2);
         auto writer_locator2 = std::make_shared<Locator>("writer_locator2");
@@ -317,8 +285,6 @@ protected:
         datawriter2->locators[writer_locator1->id] = writer_locator1;
         datawriter2->locators[writer_locator2->id] = writer_locator2;
         db.insert(datawriter2);
-        entities[16] = datawriter2;
-        entities[20] = writer_locator2;
 
         // Insert datas on domain2
 
@@ -552,7 +518,6 @@ protected:
     }
 
     DataBaseTest db;
-    std::map<TestId, std::shared_ptr<const Entity>> entities;
 };
 
 template <typename Map>
@@ -579,7 +544,11 @@ bool map_compare (
                    rhs.begin());
 }
 
-// Test the load of a database
+/**
+ * Test to check that load_database() fills the exactly same database that using database.insert()
+ * with equivalent entities does. The fixture is necessary for populate a database
+ * and then check the results with load the dump of the inserted one.
+ */
 TEST_F(database_load_insert_tests, load_insert)
 {
     // Dump of the database with inserted datas
@@ -608,16 +577,16 @@ TEST_F(database_load_insert_tests, load_insert)
 
     // topics
     ASSERT_TRUE(key_compare(db.topics(), db_loaded.topics()));
-    for (auto it = db.topics().cbegin(); it != db.topics().cend(); ++it)
+    for (auto topic : db.topics())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.topics().at(it->first)));
+        ASSERT_TRUE(key_compare(topic.second, db_loaded.topics().at(topic.first)));
     }
 
     // participants
     ASSERT_TRUE(key_compare(db.participants(), db_loaded.participants()));
-    for (auto it = db.participants().cbegin(); it != db.participants().cend(); ++it)
+    for (auto participant : db.participants())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.participants().at(it->first)));
+        ASSERT_TRUE(key_compare(participant.second, db_loaded.participants().at(participant.first)));
     }
 
     // locators
@@ -625,44 +594,44 @@ TEST_F(database_load_insert_tests, load_insert)
 
     // DataWriter
     ASSERT_TRUE(key_compare(db.get_dds_endpoints<DataWriter>(), db_loaded.get_dds_endpoints<DataWriter>()));
-    for (auto it = db.get_dds_endpoints<DataWriter>().cbegin(); it != db.get_dds_endpoints<DataWriter>().cend(); ++it)
+    for (auto datawriter : db.get_dds_endpoints<DataWriter>())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.get_dds_endpoints<DataWriter>().at(it->first)));
+        ASSERT_TRUE(key_compare(datawriter.second, db_loaded.get_dds_endpoints<DataWriter>().at(datawriter.first)));
     }
 
     // DataReader
     ASSERT_TRUE(key_compare(db.get_dds_endpoints<DataReader>(), db_loaded.get_dds_endpoints<DataReader>()));
-    for (auto it = db.get_dds_endpoints<DataReader>().cbegin(); it != db.get_dds_endpoints<DataReader>().cend(); ++it)
+    for (auto datareader : db.get_dds_endpoints<DataReader>())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.get_dds_endpoints<DataReader>().at(it->first)));
+        ASSERT_TRUE(key_compare(datareader.second, db_loaded.get_dds_endpoints<DataReader>().at(datareader.first)));
     }
 
     // locators_by_participant
     ASSERT_TRUE(key_compare(db.locators_by_participant(), db_loaded.locators_by_participant()));
-    for (auto it = db.locators_by_participant().cbegin(); it != db.locators_by_participant().cend(); ++it)
+    for (auto locator : db.locators_by_participant())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.locators_by_participant().at(it->first)));
+        ASSERT_TRUE(key_compare(locator.second, db_loaded.locators_by_participant().at(locator.first)));
     }
 
     // participants_by_locator
     ASSERT_TRUE(key_compare(db.participants_by_locator(), db_loaded.participants_by_locator()));
-    for (auto it = db.participants_by_locator().cbegin(); it != db.participants_by_locator().cend(); ++it)
+    for (auto participant : db.participants_by_locator())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.participants_by_locator().at(it->first)));
+        ASSERT_TRUE(key_compare(participant.second, db_loaded.participants_by_locator().at(participant.first)));
     }
 
     // domains_by_process
     ASSERT_TRUE(key_compare(db.domains_by_process(), db_loaded.domains_by_process()));
-    for (auto it = db.domains_by_process().cbegin(); it != db.domains_by_process().cend(); ++it)
+    for (auto domain : db.domains_by_process())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.domains_by_process().at(it->first)));
+        ASSERT_TRUE(key_compare(domain.second, db_loaded.domains_by_process().at(domain.first)));
     }
 
     // processes_by_domain
     ASSERT_TRUE(key_compare(db.processes_by_domain(), db_loaded.processes_by_domain()));
-    for (auto it = db.processes_by_domain().cbegin(); it != db.processes_by_domain().cend(); ++it)
+    for (auto process : db.processes_by_domain())
     {
-        ASSERT_TRUE(key_compare(it->second, db_loaded.processes_by_domain().at(it->first)));
+        ASSERT_TRUE(key_compare(process.second, db_loaded.processes_by_domain().at(process.first)));
     }
 
     // ------------------ Compare data ------------------------

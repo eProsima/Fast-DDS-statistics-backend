@@ -3147,7 +3147,7 @@ void Database::check_entity_reference(
 }
 
 void Database::check_all_references(
-        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        nlohmann::json::iterator const& it,
         std::string const& entity_tag,
         std::string const& reference_tag,
         DatabaseDump const& dump)
@@ -3184,7 +3184,7 @@ void Database::check_entity_reference_contains(
 }
 
 void Database::check_contains_reference(
-        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        nlohmann::json::iterator const& it,
         std::string const& entity_tag,
         std::string const& reference_container_tag,
         std::string const& reference_tag,
@@ -3198,7 +3198,7 @@ void Database::check_contains_reference(
 }
 
 void Database::check_contains_all_references(
-        nlohmann::detail::iter_impl<nlohmann::json> const& it,
+        nlohmann::json::iterator const& it,
         std::string const& entity_tag,
         std::string const& reference_tag,
         DatabaseDump const& dump)
@@ -3380,7 +3380,10 @@ void Database::load_database(
 
             // Give him a id
             entity->id = EntityId(id_string_to_int(it.key()));
-            next_id_++;
+            if (entity->id.value() >= next_id_)
+            {
+                next_id_ = entity->id.value() + 1;
+            }
 
             locators_[entity->id] = entity;
 
