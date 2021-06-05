@@ -29,8 +29,6 @@
 #include <topic_types/types.h>
 
 using eprosima::fastrtps::types::ReturnCode_t;
-using StatisticsData = eprosima::fastdds::statistics::Data;
-
 
 namespace eprosima {
 namespace fastdds {
@@ -41,9 +39,44 @@ class DataReader
 {
 protected:
 
+    using StatisticsEventKind = eprosima::fastdds::statistics::EventKind;
+    using StatisticsData = eprosima::fastdds::statistics::Data;
     using Sample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
 
+    using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
+    using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
+    using StatisticsEntityData = eprosima::fastdds::statistics::EntityData;
+    using StatisticsEntity2LocatorTraffic = eprosima::fastdds::statistics::Entity2LocatorTraffic;
+    using StatisticsEntityCount = eprosima::fastdds::statistics::EntityCount;
+    using StatisticsDiscoveryTime = eprosima::fastdds::statistics::DiscoveryTime;
+    using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
+    using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
+    using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
+    using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
+    using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
+    using StatisticsSequenceNumber = eprosima::fastdds::statistics::detail::SequenceNumber_s;
+    using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
+    using StatisticsLocator = eprosima::fastdds::statistics::detail::Locator_s;
+
 public:
+
+    class TopicDescription
+    {
+    public:
+
+        void set_name(
+                const std::string name)
+        {
+            topic_name_ = name;
+        }
+
+        const std::string get_name() const
+        {
+            return topic_name_;
+        }
+
+        std::string topic_name_;
+    };
 
     DataReader() = default;
 
@@ -56,7 +89,43 @@ public:
             return ReturnCode_t::RETCODE_NO_DATA;
         }
 
-        *static_cast<StatisticsData*>(data) = *(history_.front().first.get());
+        switch (history_.front().first.get()->_d())
+        {
+            case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
+                *static_cast<StatisticsWriterReaderData*>(data) = history_.front().first->writer_reader_data();
+                break;
+            case StatisticsEventKind::NETWORK_LATENCY:
+                *static_cast<StatisticsLocator2LocatorData*>(data) = history_.front().first->locator2locator_data();
+                break;
+            case StatisticsEventKind::PUBLICATION_THROUGHPUT:
+            case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
+                *static_cast<StatisticsEntityData*>(data) = history_.front().first->entity_data();
+                break;
+            case StatisticsEventKind::RTPS_SENT:
+            case StatisticsEventKind::RTPS_LOST:
+                *static_cast<StatisticsEntity2LocatorTraffic*>(data) = history_.front().first->entity2locator_traffic();
+                break;
+            case StatisticsEventKind::RESENT_DATAS:
+            case StatisticsEventKind::HEARTBEAT_COUNT:
+            case StatisticsEventKind::ACKNACK_COUNT:
+            case StatisticsEventKind::NACKFRAG_COUNT:
+            case StatisticsEventKind::GAP_COUNT:
+            case StatisticsEventKind::DATA_COUNT:
+            case StatisticsEventKind::PDP_PACKETS:
+            case StatisticsEventKind::EDP_PACKETS:
+                *static_cast<StatisticsEntityCount*>(data) = history_.front().first->entity_count();
+                break;
+            case StatisticsEventKind::DISCOVERED_ENTITY:
+                *static_cast<StatisticsDiscoveryTime*>(data) = history_.front().first->discovery_time();
+                break;
+            case StatisticsEventKind::SAMPLE_DATAS:
+                *static_cast<StatisticsSampleIdentityCount*>(data) = history_.front().first->sample_identity_count();
+                break;
+            case StatisticsEventKind::PHYSICAL_DATA:
+                *static_cast<StatisticsPhysicalData*>(data) = history_.front().first->physical_data();
+                break;
+        }
+
         *info = *(history_.front().second.get());
         history_.pop();
         return ReturnCode_t::RETCODE_OK;
@@ -87,10 +156,22 @@ public:
         guid_ = guid;
     }
 
+    void set_topic_name(
+            const std::string& name)
+    {
+        topic_description_.set_name(name);
+    }
+
+    const TopicDescription* get_topicdescription()
+    {
+        return &topic_description_;
+    }
+
 protected:
 
     fastrtps::rtps::GUID_t guid_;
     std::queue<Sample> history_;
+    TopicDescription topic_description_;
 
 };
 
