@@ -15,7 +15,8 @@
 #include <chrono>
 #include <limits>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <database/samples.hpp>
 

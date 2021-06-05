@@ -34,6 +34,7 @@ macro(check_gtest)
                 file(TO_CMAKE_PATH "${GTEST_ROOT}/${MSVC_ARCH}" GTEST_ROOT)
             endif()
         endif()
+
         find_package(GTest)
 
         if(GTEST_FOUND)

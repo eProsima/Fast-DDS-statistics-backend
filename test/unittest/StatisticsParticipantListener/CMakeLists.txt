@@ -30,6 +30,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+    if(MSVC)
+        target_compile_definitions(statistics_participant_listener_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    endif(MSVC)
+
     target_include_directories(statistics_participant_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend

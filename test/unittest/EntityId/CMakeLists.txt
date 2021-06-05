@@ -13,7 +13,8 @@
 # limitations under the License.
 
 add_executable(entityid_tests EntityIdTests.cpp)
-target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} gtest)
+
+target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
 
 set(ENTITYID_TEST_LIST
     all

@@ -21,6 +21,10 @@ if(GTEST_FOUND)
     add_executable(qos_serializer_tests QosSerializerTests.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp)
 
+    if(MSVC)
+        target_compile_definitions(qos_serializer_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    endif(MSVC)
+
     target_include_directories(qos_serializer_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/include

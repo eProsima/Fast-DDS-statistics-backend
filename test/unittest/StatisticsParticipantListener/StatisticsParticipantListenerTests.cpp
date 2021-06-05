@@ -20,7 +20,8 @@
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <topic_types/types.h>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 using ::testing::_;

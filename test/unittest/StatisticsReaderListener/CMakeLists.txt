@@ -40,6 +40,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src/cpp)
             
+    if(MSVC)
+        target_compile_definitions(statistics_reader_listener_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    endif(MSVC)
+
     target_link_libraries(statistics_reader_listener_tests PUBLIC
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 

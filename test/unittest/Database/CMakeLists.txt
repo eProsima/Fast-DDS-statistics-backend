@@ -18,12 +18,17 @@
 
 add_executable(sample_tests SampleTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(sample_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_include_directories(sample_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(sample_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
 
 set(SAMPLES_TEST_LIST
     # Clear sample tests
@@ -73,12 +78,17 @@ endforeach()
 
 add_executable(data_tests DataTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(data_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_include_directories(data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(data_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
 
 set(DATA_TEST_LIST
     domainparticipant_data_clear
@@ -99,13 +109,18 @@ endforeach()
 
 add_executable(database_tests DatabaseTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(database_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_include_directories(database_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
 
 set(DATABASE_TEST_LIST
     # Insert Host test
@@ -314,6 +329,10 @@ endforeach()
 
 add_executable(database_dump_tests DatabaseDumpTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(database_dump_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_include_directories(database_dump_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
@@ -321,8 +340,8 @@ target_include_directories(database_dump_tests PRIVATE
 
 target_link_libraries(database_dump_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
-
+    ${GTEST_LIBRARIES}
+    )
 
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
@@ -356,13 +375,18 @@ endforeach()
 
 add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp)
 
+if(MSVC)
+    target_compile_definitions(database_get_entities_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_include_directories(database_get_entities_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_get_entities_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
 
 set(DATABASE_GET_ENTITIES_TEST_LIST
     get_entities
