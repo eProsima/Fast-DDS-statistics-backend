@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# add utils dependency to all targets
+include_directories("utils")
+
+include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+check_gtest()
+
 add_subdirectory(Database)
 add_subdirectory(DatabaseQueue)
 add_subdirectory(EntityId)

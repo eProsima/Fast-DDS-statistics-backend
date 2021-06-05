@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <iostream>
+#include <functional>
+
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <topic_types/types.h>
-
-#include "gtest/gtest.h"
-#include <gmock/gmock.h>
-
-#include <iostream>
-#include <functional>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
@@ -2770,8 +2771,8 @@ TEST_F(database_queue_tests, push_discovery_times)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(std::chrono::nanoseconds(
-                        discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp =
+            eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;

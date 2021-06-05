@@ -14,13 +14,13 @@
 
 #include <list>
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
-
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
 

@@ -16,7 +16,8 @@
 #include <memory>
 #include <string>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -444,10 +445,13 @@ public:
     EntityId reader_id;
 
     Timestamp src_ts = std::chrono::system_clock::now();
-    Timestamp mid1_ts = src_ts + std::chrono::seconds(1) - std::chrono::nanoseconds(1);
+    Timestamp mid1_ts = src_ts + std::chrono::seconds(1)
+            - std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(1);
     Timestamp sample1_ts = src_ts + std::chrono::seconds(1);
-    Timestamp mid2_ts = src_ts + std::chrono::seconds(1) + std::chrono::nanoseconds(1);
-    Timestamp mid3_ts = src_ts + std::chrono::seconds(5) - std::chrono::nanoseconds(1);
+    Timestamp mid2_ts = src_ts + std::chrono::seconds(1)
+            + std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(1);
+    Timestamp mid3_ts = src_ts + std::chrono::seconds(5)
+            - std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(1);
     Timestamp sample2_ts = src_ts + std::chrono::seconds(5);
     Timestamp sample3_ts = src_ts + std::chrono::seconds(11);
     Timestamp end_ts = src_ts + std::chrono::seconds(15);
@@ -2939,7 +2943,7 @@ TEST_F(database_tests, select_invalid_entity_id)
 TEST_F(database_tests, select_invalid_timestamps)
 {
     Timestamp t_from = std::chrono::system_clock::now();
-    Timestamp t_to = t_from - std::chrono::nanoseconds(1);
+    Timestamp t_to = t_from - std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(1);
     uint64_t sequence_number = 3;
 
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, reader_id, t_from, t_from), BadParameter);
