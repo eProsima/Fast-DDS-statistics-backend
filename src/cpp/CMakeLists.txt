@@ -151,25 +151,39 @@ install(EXPORT ${PROJECT_NAME}-targets
 
 if(MSVC OR MSVC_IDE)
 
-        # first try dll symbols
-        get_target_property(PDB_FILE ${PROJECT_NAME} PDB_NAME_DEBUG)
-        if(PDB_FILE)
-            get_target_property(PDB_DIR ${PROJECT_NAME} PDB_OUTPUT_DIRECTORY)
-            set(PDB_FILE "${PDB_DIR}/${PDB_FILE}.pdb")
-        else()
-            # fallback to static lib symbols
-            get_target_property(PDB_FILE ${PROJECT_NAME} COMPILE_PDB_NAME_DEBUG)
-            if(PDB_FILE)
-                get_target_property(PDB_DIR ${PROJECT_NAME} COMPILE_PDB_OUTPUT_DIRECTORY)
-                set(PDB_FILE "${PDB_DIR}/${PDB_FILE}.pdb")
-            endif()
-        endif()
+        foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
 
-        # Install symbols
-        install(FILES ${PDB_FILE}
-            DESTINATION ${LIB_INSTALL_DIR}
-            COMPONENT symbols
-            )
+            # first try dll symbols
+            set(PDB_PROPERTY PDB_NAME_${CONFIG})
+            string(TOUPPER ${PDB_PROPERTY} PDB_PROPERTY)
+            get_target_property(PDB_FILE ${PROJECT_NAME} ${PDB_PROPERTY})
+
+            if(PDB_FILE)
+                get_target_property(PDB_DIR ${PROJECT_NAME} PDB_OUTPUT_DIRECTORY)
+                set(PDB_FILE "${PDB_DIR}/${CONFIG}/${PDB_FILE}.pdb")
+            else()
+                # fallback to static lib symbols
+                set(PDB_PROPERTY COMPILE_PDB_NAME_${CONFIG})
+                string(TOUPPER ${PDB_PROPERTY} PDB_PROPERTY)
+                get_target_property(PDB_FILE ${PROJECT_NAME} COMPILE_PDB_NAME_${CONFIG})
+
+                if(PDB_FILE)
+                    get_target_property(PDB_DIR ${PROJECT_NAME} COMPILE_PDB_OUTPUT_DIRECTORY)
+                    set(PDB_FILE "${PDB_DIR}/${PDB_FILE}.pdb")
+                endif()
+            endif()
+
+            if(PDB_FILE)
+                # Install symbols
+                install(FILES ${PDB_FILE}
+                    DESTINATION ${LIB_INSTALL_DIR}
+                    COMPONENT symbols
+                    OPTIONAL
+                    )
+            endif()
+
+        endforeach()
+
 endif()
 
 ###############################################################################
