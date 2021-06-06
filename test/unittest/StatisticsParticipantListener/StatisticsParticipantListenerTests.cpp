@@ -163,6 +163,8 @@ public:
 
 };
 
+// Windows dll do not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
 TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
@@ -290,6 +292,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
     entity_queue.flush();
 }
+#endif // !defined(_WIN32)
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {

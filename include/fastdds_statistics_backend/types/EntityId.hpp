@@ -26,7 +26,7 @@
 namespace eprosima {
 namespace statistics_backend {
 
-class EntityId
+class FASTDDS_STATISTICS_BACKEND_DllAPI EntityId
 {
 public:
 
@@ -74,13 +74,13 @@ public:
      * @brief Get the EntityId to refer all entities at once
      * @return An ID that refers all entities.
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId all() noexcept;
+    static EntityId all() noexcept;
 
     /**
      * @brief Get an invalid EntityId
      * @return An ID that is invalid
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI static EntityId invalid() noexcept;
+    static EntityId invalid() noexcept;
 
     /**
      * @brief Invalidate an EntityId
@@ -88,25 +88,13 @@ public:
      * @post
      *     is_valid() returns false
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void invalidate() noexcept;
+    void invalidate() noexcept;
 
     /**
      * @brief Check whether an EntityId is valid
      * @return True if valid, false otherwise
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() const noexcept;
-
-    /**
-     * @brief Check whether an EntityId is the ID representing all entities
-     * @return True if is ENTITY_ID_ALL, false otherwise
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_all() const noexcept;
-
-    /**
-     * @brief Check whether an EntityId is an ID representing one specific entity
-     * @return True if it is valid and not ENTITY_ID_ALL, false otherwise
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid_and_unique() const noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI bool is_valid() noexcept;
 
     /**
      * @brief Get the internal value of the EntityId
@@ -131,7 +119,7 @@ protected:
  * @param output The output std::ostream
  * @param entity_id The EntityId to serialize
  */
-inline std::ostream& operator <<(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline std::ostream& operator <<(
         std::ostream& output,
         const EntityId& entity_id)
 {
@@ -143,7 +131,7 @@ inline std::ostream& operator <<(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator <(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator <(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {
@@ -155,7 +143,7 @@ inline bool operator <(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator <=(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator <=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {
@@ -167,7 +155,7 @@ inline bool operator <=(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator >(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator >(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {
@@ -179,7 +167,7 @@ inline bool operator >(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator >=(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator >=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {
@@ -191,7 +179,7 @@ inline bool operator >=(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator ==(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {
@@ -203,7 +191,7 @@ inline bool operator ==(
  * @param entity_id_1 The left-side of the operation
  * @param entity_id_2 The right-side of the operation
  */
-inline bool operator !=(
+FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
         const EntityId& entity_id_1,
         const EntityId& entity_id_2)
 {

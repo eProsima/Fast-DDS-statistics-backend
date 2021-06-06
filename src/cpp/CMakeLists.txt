@@ -91,8 +91,12 @@ if(MSVC OR MSVC_IDE)
 
     get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
     if(TARGET_TYPE STREQUAL "SHARED_LIBRARY")
+
         # Export symbols in DLL library
-        target_compile_definitions(${PROJECT_NAME} PUBLIC ${PROJECT_NAME_UPPER}_DYN_LINK)
+        string(REPLACE "-" "_" PREPROCESS_DYN_LINK "${PROJECT_NAME_UPPER}_DYN_LINK")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ${PREPROCESS_DYN_LINK})
+
+        # Define how to export symbol's info
         set_target_properties(${PROJECT_NAME} PROPERTIES
             PDB_NAME_DEBUG "${PROJECT_NAME}d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
             PDB_NAME_RELWITHDEBINFO "${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"

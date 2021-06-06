@@ -34,23 +34,23 @@ namespace database {
  */
 struct StatisticsSample
 {
-    StatisticsSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsSample(
             DataKind sample_kind = DataKind::INVALID)
         : kind(sample_kind)
     {
     }
 
-    virtual ~StatisticsSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~StatisticsSample() = default;
 
-    virtual void clear();
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear();
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const StatisticsSample& other) const noexcept
     {
         return (kind == other.kind && src_ts == other.src_ts);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const StatisticsSample& other) const noexcept
     {
         return !(*this == other);
@@ -65,24 +65,24 @@ struct StatisticsSample
  */
 struct EntityDataSample : StatisticsSample
 {
-    EntityDataSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityDataSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
         , data(0)
     {
     }
 
-    virtual ~EntityDataSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~EntityDataSample() = default;
 
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const EntityDataSample& other) const noexcept
     {
         return (StatisticsSample::operator ==(other) && data == other.data);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const EntityDataSample& other) const noexcept
     {
         return !(*this == other);
@@ -96,30 +96,30 @@ struct EntityDataSample : StatisticsSample
  */
 struct EntityCountSample : StatisticsSample
 {
-    EntityCountSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
         , count(0)
     {
     }
 
-    virtual ~EntityCountSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~EntityCountSample() = default;
 
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const EntityCountSample& other) const noexcept
     {
         return (StatisticsSample::operator ==(other) && count == other.count);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const EntityCountSample& other) const noexcept
     {
         return !(*this == other);
     }
 
-    inline EntityCountSample operator -(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline EntityCountSample operator -(
             const EntityCountSample& other) const noexcept
     {
         assert(count >= other.count);
@@ -137,7 +137,7 @@ struct EntityCountSample : StatisticsSample
  */
 struct ByteCountSample : StatisticsSample
 {
-    ByteCountSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI ByteCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
         , count(0)
@@ -145,18 +145,18 @@ struct ByteCountSample : StatisticsSample
     {
     }
 
-    virtual ~ByteCountSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~ByteCountSample() = default;
 
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const ByteCountSample& other) const noexcept
     {
         return (StatisticsSample::operator ==(other) && count == other.count &&
                magnitude_order == other.magnitude_order);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const ByteCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -176,7 +176,7 @@ struct ByteCountSample : StatisticsSample
      *     ByteCountSample
      *         -9 = (-1, 2^64 - 9) -> This is interpreted as (-(1 * 2^64) + (2^64 - 9)) = -2^64 + 2^64 -9 = -9
      */
-    inline ByteCountSample operator -(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline ByteCountSample operator -(
             const ByteCountSample& other) const
     {
         ByteCountSample ret(kind);
@@ -203,21 +203,21 @@ struct ByteCountSample : StatisticsSample
  */
 struct TimepointSample : StatisticsSample
 {
-    TimepointSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI TimepointSample(
             DataKind sample_kind = DataKind::INVALID)
         : StatisticsSample(sample_kind)
     {
     }
 
-    virtual ~TimepointSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~TimepointSample() = default;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const TimepointSample& other) const noexcept
     {
         return (StatisticsSample::operator ==(other) && time == other.time);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const TimepointSample& other) const noexcept
     {
         return !(*this == other);
@@ -231,22 +231,22 @@ struct TimepointSample : StatisticsSample
  */
 struct EntityToLocatorCountSample : EntityCountSample
 {
-    EntityToLocatorCountSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityToLocatorCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : EntityCountSample(sample_kind)
         , remote_locator(EntityId::invalid())
     {
     }
 
-    virtual ~EntityToLocatorCountSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~EntityToLocatorCountSample() = default;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const EntityToLocatorCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other) && remote_locator == other.remote_locator);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const EntityToLocatorCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -261,22 +261,22 @@ struct EntityToLocatorCountSample : EntityCountSample
  */
 struct ByteToLocatorCountSample : ByteCountSample
 {
-    ByteToLocatorCountSample(
+    FASTDDS_STATISTICS_BACKEND_DllAPI ByteToLocatorCountSample(
             DataKind sample_kind = DataKind::INVALID)
         : ByteCountSample(sample_kind)
         , remote_locator(EntityId::invalid())
     {
     }
 
-    virtual ~ByteToLocatorCountSample() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~ByteToLocatorCountSample() = default;
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const ByteToLocatorCountSample& other) const noexcept
     {
         return (ByteCountSample::operator ==(other) && remote_locator == other.remote_locator);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const ByteToLocatorCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -291,19 +291,19 @@ struct ByteToLocatorCountSample : ByteCountSample
  */
 struct HistoryLatencySample : EntityDataSample
 {
-    HistoryLatencySample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI HistoryLatencySample()
         : EntityDataSample(DataKind::FASTDDS_LATENCY)
         , reader(EntityId::invalid())
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const HistoryLatencySample& other) const noexcept
     {
         return (EntityDataSample::operator ==(other) && reader == other.reader);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const HistoryLatencySample& other) const noexcept
     {
         return !(*this == other);
@@ -317,19 +317,19 @@ struct HistoryLatencySample : EntityDataSample
  */
 struct NetworkLatencySample : EntityDataSample
 {
-    NetworkLatencySample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI NetworkLatencySample()
         : EntityDataSample(DataKind::NETWORK_LATENCY)
         , remote_locator(EntityId::invalid())
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const NetworkLatencySample& other) const noexcept
     {
         return (EntityDataSample::operator ==(other) && remote_locator == other.remote_locator);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const NetworkLatencySample& other) const noexcept
     {
         return !(*this == other);
@@ -343,18 +343,18 @@ struct NetworkLatencySample : EntityDataSample
  */
 struct PublicationThroughputSample : EntityDataSample
 {
-    PublicationThroughputSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI PublicationThroughputSample()
         : EntityDataSample(DataKind::PUBLICATION_THROUGHPUT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const PublicationThroughputSample& other) const noexcept
     {
         return (EntityDataSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const PublicationThroughputSample& other) const noexcept
     {
         return !(*this == other);
@@ -367,18 +367,18 @@ struct PublicationThroughputSample : EntityDataSample
  */
 struct SubscriptionThroughputSample : EntityDataSample
 {
-    SubscriptionThroughputSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI SubscriptionThroughputSample()
         : EntityDataSample(DataKind::SUBSCRIPTION_THROUGHPUT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const SubscriptionThroughputSample& other) const noexcept
     {
         return (EntityDataSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const SubscriptionThroughputSample& other) const noexcept
     {
         return !(*this == other);
@@ -391,18 +391,18 @@ struct SubscriptionThroughputSample : EntityDataSample
  */
 struct RtpsPacketsSentSample : EntityToLocatorCountSample
 {
-    RtpsPacketsSentSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI RtpsPacketsSentSample()
         : EntityToLocatorCountSample(DataKind::RTPS_PACKETS_SENT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const RtpsPacketsSentSample& other) const noexcept
     {
         return (EntityToLocatorCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const RtpsPacketsSentSample& other) const noexcept
     {
         return !(*this == other);
@@ -415,18 +415,18 @@ struct RtpsPacketsSentSample : EntityToLocatorCountSample
  */
 struct RtpsBytesSentSample : ByteToLocatorCountSample
 {
-    RtpsBytesSentSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI RtpsBytesSentSample()
         : ByteToLocatorCountSample(DataKind::RTPS_BYTES_SENT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const RtpsBytesSentSample& other) const noexcept
     {
         return (ByteToLocatorCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const RtpsBytesSentSample& other) const noexcept
     {
         return !(*this == other);
@@ -439,18 +439,18 @@ struct RtpsBytesSentSample : ByteToLocatorCountSample
  */
 struct RtpsPacketsLostSample : EntityToLocatorCountSample
 {
-    RtpsPacketsLostSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI RtpsPacketsLostSample()
         : EntityToLocatorCountSample(DataKind::RTPS_PACKETS_LOST)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const RtpsPacketsLostSample& other) const noexcept
     {
         return (EntityToLocatorCountSample::operator ==(other) && remote_locator == other.remote_locator);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const RtpsPacketsLostSample& other) const noexcept
     {
         return !(*this == other);
@@ -463,18 +463,18 @@ struct RtpsPacketsLostSample : EntityToLocatorCountSample
  */
 struct RtpsBytesLostSample : ByteToLocatorCountSample
 {
-    RtpsBytesLostSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI RtpsBytesLostSample()
         : ByteToLocatorCountSample(DataKind::RTPS_BYTES_LOST)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const RtpsBytesLostSample& other) const noexcept
     {
         return (ByteToLocatorCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const RtpsBytesLostSample& other) const noexcept
     {
         return !(*this == other);
@@ -487,18 +487,18 @@ struct RtpsBytesLostSample : ByteToLocatorCountSample
  */
 struct ResentDataSample : EntityCountSample
 {
-    ResentDataSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI ResentDataSample()
         : EntityCountSample(DataKind::RESENT_DATA)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const ResentDataSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const ResentDataSample& other) const noexcept
     {
         return !(*this == other);
@@ -511,18 +511,18 @@ struct ResentDataSample : EntityCountSample
  */
 struct HeartbeatCountSample : EntityCountSample
 {
-    HeartbeatCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI HeartbeatCountSample()
         : EntityCountSample(DataKind::HEARTBEAT_COUNT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const HeartbeatCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const HeartbeatCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -536,18 +536,18 @@ struct HeartbeatCountSample : EntityCountSample
  */
 struct AcknackCountSample : EntityCountSample
 {
-    AcknackCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI AcknackCountSample()
         : EntityCountSample(DataKind::ACKNACK_COUNT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const AcknackCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const AcknackCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -561,18 +561,18 @@ struct AcknackCountSample : EntityCountSample
  */
 struct NackfragCountSample : EntityCountSample
 {
-    NackfragCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI NackfragCountSample()
         : EntityCountSample(DataKind::NACKFRAG_COUNT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const NackfragCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const NackfragCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -585,18 +585,18 @@ struct NackfragCountSample : EntityCountSample
  */
 struct GapCountSample : EntityCountSample
 {
-    GapCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI GapCountSample()
         : EntityCountSample(DataKind::GAP_COUNT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const GapCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const GapCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -609,18 +609,18 @@ struct GapCountSample : EntityCountSample
  */
 struct DataCountSample : EntityCountSample
 {
-    DataCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI DataCountSample()
         : EntityCountSample(DataKind::DATA_COUNT)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const DataCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const DataCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -633,18 +633,18 @@ struct DataCountSample : EntityCountSample
  */
 struct PdpCountSample : EntityCountSample
 {
-    PdpCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI PdpCountSample()
         : EntityCountSample(DataKind::PDP_PACKETS)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const PdpCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const PdpCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -657,18 +657,18 @@ struct PdpCountSample : EntityCountSample
  */
 struct EdpCountSample : EntityCountSample
 {
-    EdpCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI EdpCountSample()
         : EntityCountSample(DataKind::EDP_PACKETS)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const EdpCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other));
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const EdpCountSample& other) const noexcept
     {
         return !(*this == other);
@@ -681,21 +681,21 @@ struct EdpCountSample : EntityCountSample
  */
 struct DiscoveryTimeSample : TimepointSample
 {
-    DiscoveryTimeSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI DiscoveryTimeSample()
         : TimepointSample(DataKind::DISCOVERY_TIME)
         , remote_entity(EntityId::invalid())
         , discovered(false)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const DiscoveryTimeSample& other) const noexcept
     {
         return (TimepointSample::operator ==(other) && remote_entity == other.remote_entity &&
                discovered == other.discovered);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const DiscoveryTimeSample& other) const noexcept
     {
         return !(*this == other);
@@ -712,19 +712,19 @@ struct DiscoveryTimeSample : TimepointSample
  */
 struct SampleDatasCountSample : EntityCountSample
 {
-    SampleDatasCountSample()
+    FASTDDS_STATISTICS_BACKEND_DllAPI SampleDatasCountSample()
         : EntityCountSample(DataKind::SAMPLE_DATAS)
         , sequence_number(0)
     {
     }
 
-    inline bool operator ==(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator ==(
             const SampleDatasCountSample& other) const noexcept
     {
         return (EntityCountSample::operator ==(other) && sequence_number == other.sequence_number);
     }
 
-    inline bool operator !=(
+    FASTDDS_STATISTICS_BACKEND_DllAPI inline bool operator !=(
             const SampleDatasCountSample& other) const noexcept
     {
         return !(*this == other);

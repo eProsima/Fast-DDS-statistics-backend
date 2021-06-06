@@ -513,6 +513,7 @@ public:
     }
 
     template<typename T>
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& get_dds_endpoints()
     {
         return dds_endpoints<T>();
