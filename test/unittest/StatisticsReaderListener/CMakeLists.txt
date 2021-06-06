@@ -41,11 +41,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
             
     if(MSVC)
-        target_compile_definitions(statistics_reader_listener_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+        target_compile_definitions(statistics_reader_listener_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
     endif(MSVC)
 
     target_link_libraries(statistics_reader_listener_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
     set(STATISTICSDATALISTENER_TEST_LIST
         not_valid_data

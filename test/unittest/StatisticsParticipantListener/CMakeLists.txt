@@ -31,7 +31,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
     if(MSVC)
-        target_compile_definitions(statistics_participant_listener_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+        target_compile_definitions(statistics_participant_listener_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
     endif(MSVC)
 
     target_include_directories(statistics_participant_listener_tests PRIVATE
@@ -46,7 +47,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(statistics_participant_listener_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
