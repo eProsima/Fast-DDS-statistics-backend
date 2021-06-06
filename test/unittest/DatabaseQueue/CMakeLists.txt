@@ -43,7 +43,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(database_queue_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush

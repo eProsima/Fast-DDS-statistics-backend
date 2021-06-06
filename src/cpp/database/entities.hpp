@@ -48,7 +48,7 @@ struct Locator;
  */
 struct Entity
 {
-    Entity(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Entity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID") noexcept
         : kind(entity_kind)
@@ -56,7 +56,7 @@ struct Entity
     {
     }
 
-    virtual ~Entity() = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~Entity() = default;
 
     //! The unique identification of the entity
     EntityId id;
@@ -73,7 +73,7 @@ struct Entity
  */
 struct Host : Entity
 {
-    Host(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Host(
             std::string host_name) noexcept
         : Entity(EntityKind::HOST, host_name)
     {
@@ -91,7 +91,7 @@ struct Host : Entity
  */
 struct User : Entity
 {
-    User(
+    FASTDDS_STATISTICS_BACKEND_DllAPI User(
             std::string user_name,
             std::shared_ptr<Host> user_host) noexcept
         : Entity(EntityKind::USER, user_name)
@@ -114,7 +114,7 @@ struct User : Entity
  */
 struct Process : Entity
 {
-    Process(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Process(
             std::string process_name,
             std::string process_id,
             std::shared_ptr<User> process_user) noexcept
@@ -143,7 +143,7 @@ struct Process : Entity
  */
 struct Domain : Entity
 {
-    Domain(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Domain(
             std::string domain_name) noexcept
         : Entity(EntityKind::DOMAIN, domain_name)
     {
@@ -167,7 +167,7 @@ struct Domain : Entity
  */
 struct DDSEntity : Entity
 {
-    DDSEntity(
+    FASTDDS_STATISTICS_BACKEND_DllAPI DDSEntity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string dds_entity_name = "INVALID",
             Qos dds_entity_qos = {},
@@ -190,7 +190,7 @@ struct DDSEntity : Entity
  */
 struct DomainParticipant : DDSEntity
 {
-    DomainParticipant(
+    FASTDDS_STATISTICS_BACKEND_DllAPI DomainParticipant(
             std::string participant_name,
             Qos participant_qos,
             std::string participant_guid,
@@ -233,7 +233,7 @@ struct DomainParticipant : DDSEntity
  */
 struct Topic : Entity
 {
-    Topic(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Topic(
             std::string topic_name,
             std::string topic_type,
             std::shared_ptr<Domain> topic_domain) noexcept
@@ -270,7 +270,7 @@ struct Topic : Entity
  */
 struct DDSEndpoint : DDSEntity
 {
-    DDSEndpoint(
+    FASTDDS_STATISTICS_BACKEND_DllAPI DDSEndpoint(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string endpoint_name = "INVALID",
             Qos endpoint_qos = {},
@@ -301,7 +301,7 @@ struct DDSEndpoint : DDSEntity
  */
 struct DataReader : DDSEndpoint
 {
-    DataReader(
+    FASTDDS_STATISTICS_BACKEND_DllAPI DataReader(
             std::string datareader_name,
             Qos datareader_qos,
             std::string datareader_guid,
@@ -321,7 +321,7 @@ struct DataReader : DDSEndpoint
  */
 struct DataWriter : DDSEndpoint
 {
-    DataWriter(
+    FASTDDS_STATISTICS_BACKEND_DllAPI DataWriter(
             std::string datawriter_name,
             Qos datawriter_qos,
             std::string datawriter_guid,
@@ -342,7 +342,7 @@ struct DataWriter : DDSEndpoint
  */
 struct Locator : Entity
 {
-    Locator(
+    FASTDDS_STATISTICS_BACKEND_DllAPI Locator(
             std::string locator_name) noexcept
         : Entity(EntityKind::LOCATOR, locator_name)
     {

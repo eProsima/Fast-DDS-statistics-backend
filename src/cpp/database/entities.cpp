@@ -20,24 +20,28 @@ namespace statistics_backend {
 namespace database {
 
 template<>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::shared_ptr<DataReader>>& DomainParticipant::ddsendpoints<DataReader>()
 {
     return data_readers;
 }
 
 template<>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::shared_ptr<DataWriter>>& DomainParticipant::ddsendpoints<DataWriter>()
 {
     return data_writers;
 }
 
 template<>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::shared_ptr<DataReader>>& Topic::ddsendpoints<DataReader>()
 {
     return data_readers;
 }
 
 template<>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::shared_ptr<DataWriter>>& Topic::ddsendpoints<DataWriter>()
 {
     return data_writers;

@@ -74,7 +74,7 @@ public:
      *             * For entities with locators, if the locators' collection is empty
      * @return The EntityId of the inserted entity
      */
-    EntityId insert(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId insert(
             const std::shared_ptr<Entity>& entity);
 
     /**
@@ -83,7 +83,7 @@ public:
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      */
-    void insert(
+    FASTDDS_STATISTICS_BACKEND_DllAPI void insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
             const StatisticsSample& sample);
@@ -104,7 +104,7 @@ public:
      *            * The participant does not exist in the database
      *            * The process does not exist in the database
      */
-    void link_participant_with_process(
+    FASTDDS_STATISTICS_BACKEND_DllAPI void link_participant_with_process(
             const EntityId& participant_id,
             const EntityId& process_id);
 
@@ -134,7 +134,7 @@ public:
      *
      * @param domain_id The EntityId of the domain to be erased.
      */
-    void erase(
+    FASTDDS_STATISTICS_BACKEND_DllAPI void erase(
             EntityId& domain_id);
 
     /**
@@ -165,7 +165,7 @@ public:
      * 2. data_type must be of a type that relates to two entities.
      * @return A vector of pointers to StatisticSamples.
      */
-    std::vector<const StatisticsSample*> select(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id_source,
             EntityId entity_id_target,
@@ -199,7 +199,7 @@ public:
      * 2. data_type must be of a type that relates to a single entity except SAMPLE_DATAS.
      * @return A vector of pointers to StatisticSamples.
      */
-    std::vector<const StatisticsSample*> select(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id,
             Timestamp t_from,
@@ -232,7 +232,7 @@ public:
      * 2. data_type must be of a SAMPLE_DATAS type.
      * @return A vector of pointers to StatisticSamples.
      */
-    std::vector<const StatisticsSample*> select(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id,
             uint64_t sequence_number,
@@ -246,7 +246,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if there is not entity with the given ID.
      * @return A constant shared pointer to the Entity
      */
-    const std::shared_ptr<const Entity> get_entity(
+    FASTDDS_STATISTICS_BACKEND_DllAPI const std::shared_ptr<const Entity> get_entity(
             const EntityId& entity_id) const;
 
     /**
@@ -263,7 +263,7 @@ public:
      *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
      * @return A constant vector of shared pointers to the entities
      */
-    const std::vector<std::shared_ptr<const Entity>> get_entities(
+    FASTDDS_STATISTICS_BACKEND_DllAPI const std::vector<std::shared_ptr<const Entity>> get_entities(
             EntityKind entity_kind,
             const EntityId& entity_id) const;
 
@@ -281,7 +281,7 @@ public:
      *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
      * @return A vector containing the EntityIds of the entities
      */
-    std::vector<EntityId> get_entity_ids(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::vector<EntityId> get_entity_ids(
             EntityKind entity_type,
             const EntityId& entity_id) const;
 
@@ -290,7 +290,7 @@ public:
      *
      * @return The unique EntityId
      */
-    EntityId generate_entity_id() noexcept;
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityId generate_entity_id() noexcept;
 
     /**
      * Get all entities of a given EntityKind that match with the requested name
@@ -303,7 +303,7 @@ public:
      *         Locator) the returned Domain EntityId is EntityId::INVALID, as it has no meaning since these entities
      *         do not belong to a Domain.
      */
-    std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
             EntityKind entity_kind,
             const std::string& name) const;
 
@@ -318,7 +318,7 @@ public:
      * @return A pair, where the first field is the EntityId of the Domain of the matching entities,
      *         and the second is the EntityId of the matching entity.
      */
-    std::pair<EntityId, EntityId> get_entity_by_guid(
+    FASTDDS_STATISTICS_BACKEND_DllAPI std::pair<EntityId, EntityId> get_entity_by_guid(
             EntityKind entity_kind,
             const std::string& guid) const;
 
@@ -328,7 +328,7 @@ public:
      * @param entity_id The EntityId of the entity
      * @return The EntityKind of the given entity
      */
-    EntityKind get_entity_kind(
+    FASTDDS_STATISTICS_BACKEND_DllAPI EntityKind get_entity_kind(
             EntityId entity_id) const;
 
     /**
@@ -336,14 +336,14 @@ public:
      *
      * @return DatabaseDump object representing the backend database
      */
-    DatabaseDump dump_database();
+    FASTDDS_STATISTICS_BACKEND_DllAPI DatabaseDump dump_database();
 
     /**
      * @brief Load Entities and their data from dump (json) object
      *
      * @param dump Object with the object with the dump to load
      */
-    void load_database(
+    FASTDDS_STATISTICS_BACKEND_DllAPI void load_database(
             DatabaseDump dump);
 
 protected:
