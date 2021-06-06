@@ -30,7 +30,8 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
-    target_compile_definitions(statistics_backend_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(statistics_backend_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
 target_include_directories(statistics_backend_tests PRIVATE

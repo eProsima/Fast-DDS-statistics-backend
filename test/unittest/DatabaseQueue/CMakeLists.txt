@@ -28,7 +28,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
 
     if(MSVC)
-        target_compile_definitions(database_queue_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+        target_compile_definitions(database_queue_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
     endif(MSVC)
 
     target_include_directories(database_queue_tests PRIVATE

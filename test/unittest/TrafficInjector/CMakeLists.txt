@@ -21,7 +21,8 @@ target_include_directories(TrafficInjectorTests PRIVATE
     ${GTEST_INCLUDE_DIRS})
 
 if(MSVC)
-    target_compile_definitions(TrafficInjectorTests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(TrafficInjectorTests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
 target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})

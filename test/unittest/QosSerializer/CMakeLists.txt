@@ -22,7 +22,8 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp)
 
     if(MSVC)
-        target_compile_definitions(qos_serializer_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+        target_compile_definitions(qos_serializer_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
     endif(MSVC)
 
     target_include_directories(qos_serializer_tests PRIVATE

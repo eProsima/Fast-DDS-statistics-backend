@@ -49,7 +49,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
 target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         FASTDDS_STATISTICS_BACKEND_SOURCE
     )
 
@@ -144,7 +144,7 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 install(EXPORT ${PROJECT_NAME}-targets
-    NAMESPACE eProsima
+    NAMESPACE eProsima::
     DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     COMPONENT cmake
     )
