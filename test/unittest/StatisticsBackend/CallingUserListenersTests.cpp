@@ -18,6 +18,8 @@
 #include <exception/Exception.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
+#include <Monitor.hpp>
 #include <types/types.hpp>
 
 using ::testing::_;
@@ -64,36 +66,6 @@ class StatisticsBackendWrapper : public StatisticsBackend
 {
 public:
 
-    using StatisticsBackend::DiscoveryStatus;
-
-    static void on_domain_entity_discovery(
-            EntityId domain_id,
-            EntityId entity_id,
-            EntityKind entity_kind,
-            DiscoveryStatus discovery_status)
-    {
-        StatisticsBackend::on_domain_entity_discovery(
-            domain_id, entity_id, entity_kind, discovery_status);
-    }
-
-    static void on_physical_entity_discovery(
-            EntityId participant_id,
-            EntityId entity_id,
-            EntityKind entity_kind)
-    {
-        StatisticsBackend::on_physical_entity_discovery(
-            participant_id, entity_id, entity_kind);
-    }
-
-    static void on_data_available(
-            EntityId domain_id,
-            EntityId entity_id,
-            DataKind data_kind)
-    {
-        StatisticsBackend::on_data_available(
-            domain_id, entity_id, data_kind);
-    }
-
     // TODO: Remove this method once the init_monitor of StatisticsBackend is merged
     static EntityId init_monitor(
             DomainId /*domain*/,
@@ -101,10 +73,10 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none())
     {
-        monitors_[0] = new Monitor;
-        monitors_[0]->domain_listener = domain_listener;
-        monitors_[0]->domain_callback_mask = callback_mask;
-        monitors_[0]->data_mask = data_mask;
+        details::StatisticsBackendData::get_instance()->monitors_.emplace(0, std::unique_ptr<details::Monitor>(new details::Monitor));
+        details::StatisticsBackendData::get_instance()->monitors_[0]->domain_listener = domain_listener;
+        details::StatisticsBackendData::get_instance()->monitors_[0]->domain_callback_mask = callback_mask;
+        details::StatisticsBackendData::get_instance()->monitors_[0]->data_mask = data_mask;
         return EntityId(0);
     }
 
@@ -193,7 +165,7 @@ TEST(calling_user_listeners_tests, host_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::HOST);
@@ -216,7 +188,7 @@ TEST(calling_user_listeners_tests, host_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::HOST);
@@ -237,7 +209,7 @@ TEST(calling_user_listeners_tests, host_discovered_not_in_mask)
     EXPECT_CALL(physical_listener, on_host_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::HOST);
@@ -257,7 +229,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener)
     EXPECT_CALL(physical_listener, on_host_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::HOST);
@@ -277,7 +249,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
     EXPECT_CALL(physical_listener, on_host_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::HOST);
@@ -311,7 +283,7 @@ TEST(calling_user_listeners_tests, user_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::USER);
@@ -334,7 +306,7 @@ TEST(calling_user_listeners_tests, user_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::USER);
@@ -354,7 +326,7 @@ TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
     EXPECT_CALL(physical_listener, on_user_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::USER);
@@ -374,7 +346,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener)
     EXPECT_CALL(physical_listener, on_user_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::USER);
@@ -394,7 +366,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
     EXPECT_CALL(physical_listener, on_user_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::USER);
@@ -428,7 +400,7 @@ TEST(calling_user_listeners_tests, process_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::PROCESS);
@@ -451,7 +423,7 @@ TEST(calling_user_listeners_tests, process_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::PROCESS);
@@ -472,7 +444,7 @@ TEST(calling_user_listeners_tests, process_discovered_not_in_mask)
     EXPECT_CALL(physical_listener, on_process_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::PROCESS);
@@ -492,7 +464,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener)
     EXPECT_CALL(physical_listener, on_process_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::PROCESS);
@@ -512,7 +484,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
     EXPECT_CALL(physical_listener, on_process_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::PROCESS);
@@ -546,7 +518,7 @@ TEST(calling_user_listeners_tests, locator_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::LOCATOR);
@@ -569,7 +541,7 @@ TEST(calling_user_listeners_tests, locator_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::LOCATOR);
@@ -590,7 +562,7 @@ TEST(calling_user_listeners_tests, locator_discovered_not_in_mask)
     EXPECT_CALL(physical_listener, on_locator_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::LOCATOR);
@@ -610,7 +582,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener)
     EXPECT_CALL(physical_listener, on_locator_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::LOCATOR);
@@ -630,7 +602,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
     EXPECT_CALL(physical_listener, on_locator_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_physical_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         EntityId(0),
         EntityId(1),
         EntityKind::LOCATOR);
@@ -661,11 +633,11 @@ TEST(calling_user_listeners_tests, participant_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
@@ -685,11 +657,11 @@ TEST(calling_user_listeners_tests, participant_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
@@ -709,11 +681,11 @@ TEST(calling_user_listeners_tests, participant_discovered)
             .WillOnce(Invoke(&discovery_args_3, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
@@ -733,11 +705,11 @@ TEST(calling_user_listeners_tests, participant_discovered)
             .WillOnce(Invoke(&discovery_args_4, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
@@ -751,23 +723,23 @@ TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
     EXPECT_CALL(domain_listener, on_participant_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_no_listener)
@@ -781,23 +753,23 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener)
     EXPECT_CALL(domain_listener, on_participant_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mask)
@@ -811,23 +783,23 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mas
     EXPECT_CALL(domain_listener, on_participant_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::PARTICIPANT,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered)
@@ -855,11 +827,11 @@ TEST(calling_user_listeners_tests, topic_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
@@ -879,11 +851,11 @@ TEST(calling_user_listeners_tests, topic_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
@@ -903,11 +875,11 @@ TEST(calling_user_listeners_tests, topic_discovered)
             .WillOnce(Invoke(&discovery_args_3, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
@@ -927,11 +899,11 @@ TEST(calling_user_listeners_tests, topic_discovered)
             .WillOnce(Invoke(&discovery_args_4, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
@@ -945,23 +917,23 @@ TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
     EXPECT_CALL(domain_listener, on_topic_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_no_listener)
@@ -975,23 +947,23 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener)
     EXPECT_CALL(domain_listener, on_topic_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
@@ -1005,23 +977,23 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
     EXPECT_CALL(domain_listener, on_topic_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::TOPIC,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered)
@@ -1049,11 +1021,11 @@ TEST(calling_user_listeners_tests, datareader_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
@@ -1073,11 +1045,11 @@ TEST(calling_user_listeners_tests, datareader_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
@@ -1097,11 +1069,11 @@ TEST(calling_user_listeners_tests, datareader_discovered)
             .WillOnce(Invoke(&discovery_args_3, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
@@ -1121,11 +1093,11 @@ TEST(calling_user_listeners_tests, datareader_discovered)
             .WillOnce(Invoke(&discovery_args_4, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
@@ -1139,23 +1111,23 @@ TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
     EXPECT_CALL(domain_listener, on_datareader_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
@@ -1169,23 +1141,23 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
     EXPECT_CALL(domain_listener, on_datareader_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask)
@@ -1199,23 +1171,23 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask
     EXPECT_CALL(domain_listener, on_datareader_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAREADER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered)
@@ -1243,11 +1215,11 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
             .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called again
     EntityDiscoveryArgs discovery_args_2([&](
@@ -1267,11 +1239,11 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
             .WillOnce(Invoke(&discovery_args_2, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
     // Expectation: The user listener is called with updates
     EntityDiscoveryArgs discovery_args_3([&](
@@ -1291,11 +1263,11 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
             .WillOnce(Invoke(&discovery_args_3, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
     // Expectation: The user listener is called with removel
     EntityDiscoveryArgs discovery_args_4([&](
@@ -1315,11 +1287,11 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
             .WillOnce(Invoke(&discovery_args_4, &EntityDiscoveryArgs::on_discovery));
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
@@ -1333,23 +1305,23 @@ TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
     EXPECT_CALL(domain_listener, on_datawriter_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
@@ -1363,23 +1335,23 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
     EXPECT_CALL(domain_listener, on_datawriter_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask)
@@ -1393,23 +1365,23 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask
     EXPECT_CALL(domain_listener, on_datawriter_discovery(_, _, _)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UPDATE);
+        details::StatisticsBackendData::DiscoveryStatus::UPDATE);
 
-    StatisticsBackendWrapper::on_domain_entity_discovery(
+    details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
         monitor_id,
         EntityId(1),
         EntityKind::DATAWRITER,
-        StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY);
+        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST(calling_user_listeners_tests, wrong_entity_kind)
@@ -1425,145 +1397,145 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
         DataKindMask::all());
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DOMAIN),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::PARTICIPANT),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::TOPIC),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DATAREADER),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DATAWRITER),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_physical_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::INVALID),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
-                StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
-                StatisticsBackendWrapper::DiscoveryStatus::UPDATE),
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
-                StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
-                StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
-                StatisticsBackendWrapper::DiscoveryStatus::UPDATE),
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
-                StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
-                StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
-                StatisticsBackendWrapper::DiscoveryStatus::UPDATE),
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
-                StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
-                StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
-                StatisticsBackendWrapper::DiscoveryStatus::UPDATE),
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
-                StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             eprosima::statistics_backend::Error);
 
     // Expectation: The call throws
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
-                StatisticsBackendWrapper::DiscoveryStatus::DISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
-                StatisticsBackendWrapper::DiscoveryStatus::UPDATE),
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             eprosima::statistics_backend::Error);
-    ASSERT_THROW(StatisticsBackendWrapper::on_domain_entity_discovery(
+    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
-                StatisticsBackendWrapper::DiscoveryStatus::UNDISCOVERY),
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             eprosima::statistics_backend::Error);
 }
 
@@ -1587,7 +1559,7 @@ TEST_P(calling_user_data_listeners_tests, data_available)
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(1);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1596,7 +1568,7 @@ TEST_P(calling_user_data_listeners_tests, data_available)
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(1);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1617,7 +1589,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1638,7 +1610,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1659,7 +1631,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1680,7 +1652,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);
@@ -1701,7 +1673,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in
     EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
 
     // Execution: Call the listener
-    StatisticsBackendWrapper::on_data_available(
+    details::StatisticsBackendData::get_instance()->on_data_available(
         monitor_id,
         EntityId(1),
         data_kind);

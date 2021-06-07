@@ -78,7 +78,7 @@ public:
 
     // Rely this method to the mock of get_entity
     EntityKind get_entity_kind(
-                EntityId entity_id) const
+            EntityId entity_id) const
     {
         return get_entity(entity_id).get()->kind;
     }

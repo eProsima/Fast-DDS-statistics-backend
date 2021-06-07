@@ -37,6 +37,7 @@
 #include <topic_types/types.h>
 #include <exception/Exception.hpp>
 #include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
 
 
 namespace eprosima {
@@ -361,13 +362,13 @@ protected:
                     EntityKind::PROCESS == front().second.entity->kind ||
                     EntityKind::LOCATOR == front().second.entity->kind)
             {
-                StatisticsBackend::on_physical_entity_discovery(front().second.domain_id, id,
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(front().second.domain_id, id,
                         front().second.entity->kind);
             }
             else
             {
-                StatisticsBackend::on_domain_entity_discovery(front().second.domain_id, id,
-                        front().second.entity->kind, StatisticsBackend::DISCOVERY);
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(front().second.domain_id, id,
+                        front().second.entity->kind, details::StatisticsBackendData::DISCOVERY);
             }
         }
         catch (const eprosima::statistics_backend::Exception& e)

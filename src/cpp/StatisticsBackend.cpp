@@ -20,22 +20,10 @@
 #include <fastdds-statistics-backend/types/JSONTags.h>
 
 #include <database/database.hpp>
-#include "Monitor.hpp"
+#include "StatisticsBackendData.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
-
-using namespace eprosima::statistics_backend::database;
-
-Database* StatisticsBackend::database_ = new database::Database();
-std::map<EntityId, Monitor*> StatisticsBackend::monitors_;
-
-PhysicalListener* StatisticsBackend::physical_listener_;
-CallbackMask StatisticsBackend::physical_callback_mask_;
-DomainListener::Status StatisticsBackend::host_status_;
-DomainListener::Status StatisticsBackend::user_status_;
-DomainListener::Status StatisticsBackend::process_status_;
-DomainListener::Status StatisticsBackend::locator_status_;
 
 
 void StatisticsBackend::set_physical_listener(
@@ -43,8 +31,8 @@ void StatisticsBackend::set_physical_listener(
         CallbackMask callback_mask,
         DataKindMask /*data_mask*/)
 {
-    StatisticsBackend::physical_listener_ = listener;
-    StatisticsBackend::physical_callback_mask_ = callback_mask;
+    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
+    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -120,7 +108,7 @@ bool StatisticsBackend::is_active(
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
-    return database_->get_entity_kind(entity_id);
+    return details::StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
 Info StatisticsBackend::get_info(
@@ -128,7 +116,7 @@ Info StatisticsBackend::get_info(
 {
     Info info = Info::object();
 
-    std::shared_ptr<const Entity> entity = database_->get_entity(entity_id);
+    std::shared_ptr<const database::Entity> entity = details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
 
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
@@ -138,15 +126,15 @@ Info StatisticsBackend::get_info(
     {
         case EntityKind::PROCESS:
         {
-            std::shared_ptr<const Process> process =
-                    std::dynamic_pointer_cast<const Process>(entity);
+            std::shared_ptr<const database::Process> process =
+                    std::dynamic_pointer_cast<const database::Process>(entity);
             info[PID_INFO_TAG] = process->pid;
             break;
         }
         case EntityKind::TOPIC:
         {
-            std::shared_ptr<const Topic> topic =
-                    std::dynamic_pointer_cast<const Topic>(entity);
+            std::shared_ptr<const database::Topic> topic =
+                    std::dynamic_pointer_cast<const database::Topic>(entity);
             info[DATA_TYPE_INFO_TAG] = topic->data_type;
             break;
         }
@@ -154,8 +142,8 @@ Info StatisticsBackend::get_info(
         case EntityKind::DATAWRITER:
         case EntityKind::DATAREADER:
         {
-            std::shared_ptr<const DDSEntity> dds_entity =
-                    std::dynamic_pointer_cast<const DDSEntity>(entity);
+            std::shared_ptr<const database::DDSEntity> dds_entity =
+                    std::dynamic_pointer_cast<const database::DDSEntity>(entity);
             info[GUID_INFO_TAG] = dds_entity->guid;
             info[QOS_INFO_TAG] = dds_entity->qos;
             break;
@@ -309,207 +297,6 @@ std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_suppo
     };
 
     return data_to_entity_map[data_kind];
-}
-
-void StatisticsBackend::on_data_available(
-        EntityId domain_id,
-        EntityId entity_id,
-        DataKind data_kind)
-{
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
-    if (monitor->second->domain_listener == nullptr ||
-            !monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATA_AVAILABLE))
-    {
-        // No user listener or mask deactivated
-        return;
-    }
-
-    if (!monitor->second->data_mask.is_set(data_kind))
-    {
-        // Data mask deactivated
-        return;
-    }
-
-    monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
-}
-
-void StatisticsBackend::on_domain_entity_discovery(
-        EntityId domain_id,
-        EntityId entity_id,
-        EntityKind entity_kind,
-        DiscoveryStatus discovery_status)
-{
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
-    if (monitor->second->domain_listener == nullptr)
-    {
-        // No user listener
-        return;
-    }
-
-    switch (entity_kind)
-    {
-        case EntityKind::PARTICIPANT:
-        {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_PARTICIPANT_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->participant_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->participant_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
-                    monitor->second->participant_status_);
-            monitor->second->participant_status_.on_status_read();
-            break;
-        }
-        case EntityKind::TOPIC:
-        {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_TOPIC_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->topic_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->topic_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, monitor->second->topic_status_);
-            monitor->second->topic_status_.on_status_read();
-            break;
-        }
-        case EntityKind::DATAWRITER:
-        {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAWRITER_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->datawriter_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->datawriter_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
-                    monitor->second->datawriter_status_);
-            monitor->second->datawriter_status_.on_status_read();
-            break;
-        }
-        case EntityKind::DATAREADER:
-        {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAREADER_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->datareader_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->datareader_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
-                    monitor->second->datareader_status_);
-            monitor->second->datareader_status_.on_status_read();
-            break;
-        }
-        default:
-        {
-            throw Error("wrong entity_kind");
-        }
-    }
-}
-
-void StatisticsBackend::on_physical_entity_discovery(
-        EntityId participant_id,
-        EntityId entity_id,
-        EntityKind entity_kind)
-{
-    if (physical_listener_ == nullptr)
-    {
-        // No user listener
-        return;
-    }
-
-    switch (entity_kind)
-    {
-        case EntityKind::HOST:
-        {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_HOST_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            host_status_.on_instance_discovered();
-            physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
-            host_status_.on_status_read();
-            break;
-        }
-        case EntityKind::USER:
-        {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_USER_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            user_status_.on_instance_discovered();
-            physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
-            user_status_.on_status_read();
-            break;
-        }
-        case EntityKind::PROCESS:
-        {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_PROCESS_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            process_status_.on_instance_discovered();
-            physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
-            process_status_.on_status_read();
-            break;
-        }
-        case EntityKind::LOCATOR:
-        {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_LOCATOR_DISCOVERY))
-            {
-                // mask deactivated
-                return;
-            }
-
-            locator_status_.on_instance_discovered();
-            physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
-            locator_status_.on_status_read();
-            break;
-        }
-        default:
-        {
-            throw Error("wrong entity_kind");
-        }
-    }
 }
 
 } // namespace statistics_backend

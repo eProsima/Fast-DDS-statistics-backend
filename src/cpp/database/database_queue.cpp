@@ -266,7 +266,7 @@ void DatabaseDataQueue::process_sample()
             {
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->writer_reader_data());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::FASTDDS_LATENCY);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::FASTDDS_LATENCY);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -288,7 +288,7 @@ void DatabaseDataQueue::process_sample()
             {
                 process_sample_type(domain, entity, EntityKind::LOCATOR, sample, item.second->locator2locator_data());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::NETWORK_LATENCY);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::NETWORK_LATENCY);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -310,7 +310,8 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityDataSample&>(sample),
                         item.second->entity_data());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::PUBLICATION_THROUGHPUT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::PUBLICATION_THROUGHPUT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -333,7 +334,8 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityDataSample&>(sample),
                         item.second->entity_data());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::SUBSCRIPTION_THROUGHPUT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::SUBSCRIPTION_THROUGHPUT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -373,8 +375,8 @@ void DatabaseDataQueue::process_sample()
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, byte_sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::RTPS_PACKETS_SENT);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::RTPS_BYTES_SENT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_PACKETS_SENT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_BYTES_SENT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -413,8 +415,8 @@ void DatabaseDataQueue::process_sample()
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, byte_sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::RTPS_PACKETS_LOST);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::RTPS_BYTES_LOST);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_PACKETS_LOST);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_BYTES_LOST);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -436,7 +438,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::RESENT_DATA);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RESENT_DATA);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -458,7 +460,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::HEARTBEAT_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::HEARTBEAT_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -480,7 +482,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::ACKNACK_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::ACKNACK_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -502,7 +504,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::NACKFRAG_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::NACKFRAG_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -524,7 +526,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::GAP_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::GAP_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -546,7 +548,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::DATA_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::DATA_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -568,7 +570,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::PDP_PACKETS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::PDP_PACKETS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -590,7 +592,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::EDP_PACKETS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::EDP_PACKETS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -611,7 +613,7 @@ void DatabaseDataQueue::process_sample()
             {
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, sample, item.second->discovery_time());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::DISCOVERY_TIME);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::DISCOVERY_TIME);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -633,7 +635,7 @@ void DatabaseDataQueue::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
                         item.second->sample_identity_count());
                 database_->insert(domain, entity, sample);
-                StatisticsBackend::on_data_available(domain, entity, DataKind::SAMPLE_DATAS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::SAMPLE_DATAS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -677,7 +679,8 @@ void DatabaseDataQueue::process_sample()
                 try
                 {
                     host->id = database_->insert(std::static_pointer_cast<Entity>(host));
-                    StatisticsBackend::on_physical_entity_discovery(participant_id, host->id, EntityKind::HOST);
+                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id, host->id,
+                            EntityKind::HOST);
                 }
                 catch (const std::exception& e)
                 {
@@ -714,7 +717,8 @@ void DatabaseDataQueue::process_sample()
                 try
                 {
                     user->id = database_->insert(std::static_pointer_cast<Entity>(user));
-                    StatisticsBackend::on_physical_entity_discovery(participant_id, user->id, EntityKind::USER);
+                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id, user->id,
+                            EntityKind::USER);
                 }
                 catch (const std::exception& e)
                 {
@@ -746,7 +750,8 @@ void DatabaseDataQueue::process_sample()
                 try
                 {
                     process_id = database_->insert(std::static_pointer_cast<Entity>(process));
-                    StatisticsBackend::on_physical_entity_discovery(participant_id, process_id, EntityKind::PROCESS);
+                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id, process_id,
+                            EntityKind::PROCESS);
                 }
                 catch (const std::exception& e)
                 {

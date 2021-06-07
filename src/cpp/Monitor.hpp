@@ -45,7 +45,7 @@ namespace details {
 
 /**
  * @brief Structure holding all the information related to a backend monitor.
- * 
+ *
  * The backend will create and maintain an instance for each monitored domain.
  */
 struct Monitor

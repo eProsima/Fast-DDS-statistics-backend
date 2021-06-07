@@ -19,6 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 
+#include <chrono>
+#include <string>
+
 #include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 #include <fastdds-statistics-backend/listener/DomainListener.hpp>
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
@@ -26,28 +29,24 @@
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <chrono>
-#include <string>
-
 namespace eprosima {
 namespace statistics_backend {
-namespace database {
 
-class Database;
-class DatabaseDataQueue;
-class DatabaseEntityQueue;
+namespace details {
 
-} // namespace database
+class StatisticsBackendData;
 
-struct Monitor;
+} // namespace details
 
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
-    friend class database::DatabaseDataQueue;
-    friend class database::DatabaseEntityQueue;
-
 public:
+
+    /**
+     * @brief Deleted constructor, since the whole interface is static
+     */
+    StatisticsBackend() = delete;
 
     /**
      * @brief Set the listener for the physical domain events.
@@ -422,97 +421,6 @@ public:
      */
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);
-
-protected:
-
-    StatisticsBackend()
-    {
-    }
-
-    /**
-     * StatisticsBackend
-     */
-    static StatisticsBackend* get_instance()
-    {
-        static StatisticsBackend instance;
-        return &instance;
-    }
-
-    /**
-     * @brief Specifies the reason of calling the entity discovery methods
-     *
-     */
-    enum DiscoveryStatus
-    {
-        DISCOVERY,      ///< The entity was discovered
-        UNDISCOVERY,    ///< The entity was undiscovered
-        UPDATE          ///< The entity was updated
-    };
-
-    /**
-     * @brief Notify the user about a new discovered entity
-     *
-     * @param domain_id The domain where the entity was discovered
-     * @param entity_id The entity_id of the discovered entity
-     * @param entity_kind CallbackKind of the discovery event
-     * @param discovery_status The reason why the method is being called
-     */
-    static void on_domain_entity_discovery(
-            EntityId domain_id,
-            EntityId entity_id,
-            EntityKind entity_kind,
-            DiscoveryStatus discovery_status);
-
-    /**
-     * @brief Notify the user about a new discovered entity
-     *
-     * There is no DiscoveryStatus parameter because physical entities are never undiscovered nor updated
-     *
-     * @param participant_id Entity ID of the participant that discovered the entity.
-     * @param entity_id The entity_id of the discovered entity
-     * @param entity_kind CallbackKind of the discovery event
-     */
-    static void on_physical_entity_discovery(
-            EntityId participant_id,
-            EntityId entity_id,
-            EntityKind entity_kind);
-
-    /**
-     * @brief Notify the user about a new available data
-     *
-     * @param domain_id The domain where the data is available
-     * @param entity_id The entity for which the new data is available
-     * @param data_kind The DataKind of the new available data
-     */
-    static void on_data_available(
-            EntityId domain_id,
-            EntityId entity_id,
-            DataKind data_kind);
-
-    //! Reference to the Database
-    static database::Database* database_;
-
-    //! Collection of monitors
-    static std::map<EntityId, Monitor*> monitors_;
-
-    //! Physical  listener
-    static PhysicalListener* physical_listener_;
-
-    //! Mask for the physical listener
-    static CallbackMask physical_callback_mask_;
-
-    //! Status for the Hosts
-    static DomainListener::Status host_status_;
-
-    //! Status for the Users
-    static DomainListener::Status user_status_;
-
-    //! Status for the Processes
-    static DomainListener::Status process_status_;
-
-    //! Status for the Locators
-    static DomainListener::Status locator_status_;
-
 };
 
 } // namespace statistics_backend
