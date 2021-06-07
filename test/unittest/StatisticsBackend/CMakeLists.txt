@@ -57,12 +57,13 @@ endforeach()
 ##################################################################
 
 add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(calling_user_listeners_tests PRIVATE
-    ${GTEST_INCLUDE_DIRS}
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/database/database
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include

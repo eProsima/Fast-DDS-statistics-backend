@@ -76,6 +76,13 @@ public:
                 EntityKind entity_kind,
                 const std::string& name));
 
+    // Rely this method to the mock of get_entity
+    EntityKind get_entity_kind(
+                EntityId entity_id) const
+    {
+        return get_entity(entity_id).get()->kind;
+    }
+
     MOCK_CONST_METHOD2(link_participant_with_process, void(
                 const EntityId& participant_id,
                 const EntityId& process_id));

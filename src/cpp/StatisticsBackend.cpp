@@ -19,7 +19,7 @@
 #include <fastdds-statistics-backend/StatisticsBackend.hpp>
 #include <fastdds-statistics-backend/types/JSONTags.h>
 
-#include "database/database.hpp"
+#include <database/database.hpp>
 #include "Monitor.hpp"
 
 namespace eprosima {
