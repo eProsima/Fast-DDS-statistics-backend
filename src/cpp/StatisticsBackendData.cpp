@@ -24,11 +24,19 @@
 #include "Monitor.hpp"
 
 #include <database/database.hpp>
+#include <database/database_queue.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
-
 namespace details {
+
+StatisticsBackendData::StatisticsBackendData()
+        : database_(new database::Database)
+        , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
+        , data_queue_(new database::DatabaseDataQueue(database_.get()))
+        , physical_listener_(nullptr)
+{
+}
 
 
 void StatisticsBackendData::on_data_available(
@@ -36,8 +44,8 @@ void StatisticsBackendData::on_data_available(
         EntityId entity_id,
         DataKind data_kind)
 {
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
+    auto monitor = monitors_by_entity_.find(domain_id);
+    assert(monitor != monitors_by_entity_.end());
 
     if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
@@ -50,7 +58,7 @@ void StatisticsBackendData::on_data_available(
 }
 
 bool StatisticsBackendData::should_call_domain_listener(
-        std::unique_ptr<Monitor>& monitor,
+        std::shared_ptr<Monitor>& monitor,
         CallbackKind callback_kind,
         DataKind data_kind)
 {
@@ -124,8 +132,8 @@ void StatisticsBackendData::on_domain_entity_discovery(
         EntityKind entity_kind,
         DiscoveryStatus discovery_status)
 {
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
+    auto monitor = monitors_by_entity_.find(domain_id);
+    assert(monitor != monitors_by_entity_.end());
 
     switch (entity_kind)
     {

@@ -33,6 +33,14 @@
 
 namespace eprosima {
 namespace statistics_backend {
+
+namespace database {
+
+class DatabaseEntityQueue;
+class DatabaseDataQueue;
+
+} // namespace database
+
 namespace details {
 
 
@@ -46,8 +54,15 @@ public:
     //! Reference to the Database
     std::unique_ptr<database::Database> database_;
 
+    //! Reference to the Database entity queue
+    database::DatabaseEntityQueue* entity_queue_;
+
+    //! Reference to the Database data queue
+    database::DatabaseDataQueue* data_queue_;
+
     //! Collection of monitors
-    std::map<EntityId, std::unique_ptr<Monitor>> monitors_;
+    std::map<DomainId, std::shared_ptr<Monitor>> monitors_by_domain_;
+    std::map<EntityId, std::shared_ptr<Monitor>> monitors_by_entity_;
 
     //! Physical  listener
     PhysicalListener* physical_listener_;
@@ -137,11 +152,7 @@ protected:
     /**
      * @brief Protected constructor of the singleton
      */
-    StatisticsBackendData()
-        : database_(new database::Database)
-        , physical_listener_(nullptr)
-    {
-    }
+    StatisticsBackendData();
 
     /**
      * @brief Check whether the domain listener should be called given the arguments
@@ -160,7 +171,7 @@ protected:
      * @return true if the listener should be called. False otherwise.
      */
     bool should_call_domain_listener(
-            std::unique_ptr<Monitor>& monitor,
+            std::shared_ptr<Monitor>& monitor,
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 

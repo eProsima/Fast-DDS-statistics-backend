@@ -50,6 +50,9 @@ namespace details {
  */
 struct Monitor
 {
+    //! The EntityId of the monitored domain
+    EntityId id;
+
     //! The user listener for this monitor
     DomainListener* domain_listener;
 
