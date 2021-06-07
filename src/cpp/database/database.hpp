@@ -48,7 +48,7 @@ inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(uint64_t
 {
 #if defined(_WIN32)
     auto span_since_epoch = std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(nanosecs/100);
-#elif
+#else
     auto span_since_epoch = std::chrono::nanoseconds(nanosecs);
 #endif
     return std::chrono::system_clock::time_point(span_since_epoch);
