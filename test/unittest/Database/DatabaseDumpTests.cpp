@@ -38,6 +38,7 @@ constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
 constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
 constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
 constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
+constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
 
 constexpr const char* GUID_DEFAULT = "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00";
 constexpr const char* PID_DEFAULT = "36000";
@@ -73,27 +74,6 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define TIME_DEFAULT(x) std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
 
-void initialize_database(
-        Database& db,
-        int n_entity,
-        int n_data);
-
-void initialize_participant_data(
-        Database& db,
-        int index,
-        int time);
-void initialize_datawriter_data(
-        Database& db,
-        int index,
-        int time);
-void initialize_datareader_data(
-        Database& db,
-        int index,
-        int time);
-void initialize_locator_data(
-        Database& db,
-        int index,
-        int time);
 
 DatabaseDump load_file(
         std::string filename)
@@ -120,7 +100,8 @@ DatabaseDump load_file(
 
 void initialize_empty_entities(
         Database& db,
-        int index)
+        int index,
+        bool link_process_participant)
 {
     std::shared_ptr<Host> host = std::make_shared<Host>(std::string(HOST_DEFAULT_NAME(index)));
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
@@ -151,27 +132,12 @@ void initialize_empty_entities(
     ASSERT_NE(db.insert(dw), EntityId::invalid());
     ASSERT_NE(db.insert(dr), EntityId::invalid());
 
-    db.link_participant_with_process(participant->id, process->id);
+    if (link_process_participant)
+    {
+        db.link_participant_with_process(participant->id, process->id);
+    }
     locator->data_writers[dw->id] = dw;
     locator->data_readers[dr->id] = dr;
-}
-
-void initialize_database(
-        Database& db,
-        int n_entity,
-        int n_data)
-{
-    for (int i = 0; i < n_entity; ++i)
-    {
-        initialize_empty_entities(db, i);
-        for (int j = 0; j < n_data; ++j)
-        {
-            initialize_participant_data(db, i, j);
-            initialize_datawriter_data(db, i, j);
-            initialize_datareader_data(db, i, j);
-            initialize_locator_data(db, i, j);
-        }
-    }
 }
 
 void initialize_participant_data(
@@ -354,6 +320,25 @@ void initialize_locator_data(
     }
 }
 
+void initialize_database(
+        Database& db,
+        int n_entity,
+        int n_data,
+        bool link_process_participant = true)
+{
+    for (int i = 0; i < n_entity; ++i)
+    {
+        initialize_empty_entities(db, i, link_process_participant);
+        for (int j = 0; j < n_data; ++j)
+        {
+            initialize_participant_data(db, i, j);
+            initialize_datawriter_data(db, i, j);
+            initialize_datareader_data(db, i, j);
+            initialize_locator_data(db, i, j);
+        }
+    }
+}
+
 class database : public ::testing::Test
 {
 public:
@@ -385,6 +370,14 @@ TEST(database, dump_simple_database)
     Database db;
     initialize_database(db, 1, 1);
     ASSERT_EQ(db.dump_database(), load_file(SIMPLE_DUMP_FILE));
+}
+
+// Test the dump of a database with no links between process and participant
+TEST(database, dump_no_process_participant_link)
+{
+    Database db;
+    initialize_database(db, 1, 1, false);
+    ASSERT_EQ(db.dump_database(), load_file(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE));
 }
 
 // Test the dump of a database with three entities of each kind and three datas of each kind

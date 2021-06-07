@@ -1,0 +1,338 @@
+{
+    "description": "DB dump with 1 entity of each EntityKind and 1 data of each DataKind",
+
+    "version": "0.0",
+
+    "hosts":
+    {
+        "1":
+        {
+            "name": "host_0",
+            "users": ["2"]
+        }
+    },
+
+    "users":
+    {
+        "2":
+        {
+            "name": "user_0",
+            "host": "1",
+            "processes": ["3"]
+        }
+    },
+
+    "processes":
+    {
+        "3":
+        {
+            "name": "process_0",
+            "pid": "36000",
+            "user": "2",
+            "participants": []
+        }
+    },
+
+    "domains":
+    {
+        "4":
+        {
+            "name": "domain_0",
+            "participants": ["6"],
+            "topics": ["5"]
+        }
+    },
+
+    "topics":
+    {
+        "5":
+        {
+            "name": "topic_0",
+            "data_type": "data_type",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"]
+        }
+    },
+
+    "participants":
+    {
+        "6":
+        {
+            "name": "participant_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos": "empty"},
+
+            "process": "-1",
+            "domain": "4",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "discovery_time":
+                {
+                    "6":
+                    [
+                        {
+                            "src_time": "1",
+                            "time": "0",
+                            "remote_id": "6",
+                            "discovered": true
+                        }
+                    ]
+                },
+                "pdp_packets":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "edp_packets":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+
+                "rtps_packets_sent":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_bytes_sent":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "magnitude": 0,
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_packets_lost":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        }
+                    ]
+                },
+                "rtps_bytes_lost":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "magnitude": 0,
+                            "count": 2
+                        }
+                    ]
+                },
+
+                "last_reported_edp_packets":{
+                    "count":2,
+                    "src_time":"0"
+                },
+                "last_reported_pdp_packets":{
+                    "count":2,
+                    "src_time":"0"
+                },
+                "last_reported_rtps_bytes_lost":{
+                    "0":{
+                        "count":2,
+                        "magnitude":0,
+                        "src_time":"0"
+                    }
+                },
+                "last_reported_rtps_bytes_sent":{
+                    "0":{
+                        "count":2,
+                        "magnitude":0,
+                        "src_time":"0"
+                    }
+                },
+                "last_reported_rtps_packets_lost":{
+                    "0":{
+                        "count":2,
+                        "src_time":"0"
+                    }
+                },
+                "last_reported_rtps_packets_sent":{
+                    "0":{
+                        "count":2,
+                        "src_time":"0"
+                    }
+                }
+            }
+        }
+    },
+
+    "datawriters":
+    {
+        "7":
+        {
+            "name": "datawriter_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos": "empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "publication_throughput":
+                [
+                    {
+                        "src_time": "0",
+                        "data": 1.1
+                    }
+                ],
+                "resent_datas":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "heartbeat_count":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "gap_count":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "data_count":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "samples_datas":
+                {
+                    "3":
+                    [
+                        {
+                            "src_time": "0",
+                            "count": 2
+                        }
+                    ]
+                },
+                "history2history_latency":
+                {
+                    "8":
+                    [
+                        {
+                            "src_time": "0",
+                            "data": 1.1
+                        }
+                    ]
+                },
+
+                "last_reported_data_count":{
+                    "count":2,
+                    "src_time":"0"
+                },
+                "last_reported_gap_count":{
+                    "count":2,
+                    "src_time":"0"
+                },
+                "last_reported_heartbeat_count":{
+                    "count":2,
+                    "src_time":"0"
+                }
+            }
+        }
+    },
+
+    "datareaders":
+    {
+        "8":
+        {
+            "name": "datareader_0",
+            "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "qos": {"qos": "empty"},
+
+            "participant": "6",
+            "topic": "5",
+            "locators": ["0"],
+
+            "data":
+            {
+                "subscription_throughput":
+                [
+                    {
+                        "src_time": "0",
+                        "data": 1.1
+                    }
+                ],
+                "acknack_count":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+                "nackfrag_count":
+                [
+                    {
+                        "src_time": "0",
+                        "count": 2
+                    }
+                ],
+
+                "last_reported_acknack_count":{
+                    "count":2,
+                    "src_time":"0"
+                },
+                "last_reported_nackfrag_count":{
+                    "count":2,
+                    "src_time":"0"
+                }
+            }
+        }
+    },
+
+    "locators":
+    {
+        "0":
+        {
+            "name": "locator_0",
+            "datawriters": ["7"],
+            "datareaders": ["8"],
+
+            "data":
+            {
+                "network_latency_per_locator":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "data": 1.1
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

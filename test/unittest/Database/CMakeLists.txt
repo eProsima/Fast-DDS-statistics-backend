@@ -328,6 +328,7 @@ file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump_no_process_participant_link.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
@@ -340,7 +341,8 @@ set(DATABASE_DUMP_TEST_LIST
     dump_unlinked_database
     id_to_string
     time_to_string
-)
+    dump_no_process_participant_link
+    )
 
 foreach(test_name ${DATABASE_DUMP_TEST_LIST})
     add_test(NAME database.${test_name}
