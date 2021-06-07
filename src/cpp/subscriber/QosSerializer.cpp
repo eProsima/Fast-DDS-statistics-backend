@@ -17,6 +17,7 @@
  */
 
 #include "QosSerializer.hpp"
+#include "QosSerializerTags.hpp"
 
 #include <fastdds/dds/core/policy/QosPolicies.hpp>
 
@@ -37,16 +38,16 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
     switch (qos.durabilityKind())
     {
         case fastdds::dds::VOLATILE_DURABILITY_QOS:
-            kind["kind"] = "VOLATILE_DURABILITY_QOS";
+            kind[kind_tag] = durability_volatile_tag;
             break;
         case fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS:
-            kind["kind"] = "TRANSIENT_LOCAL_DURABILITY_QOS";
+            kind[kind_tag] = durability_transient_local_tag;
             break;
         case fastdds::dds::TRANSIENT_DURABILITY_QOS:
-            kind["kind"] = "TRANSIENT_DURABILITY_QOS";
+            kind[kind_tag] = durability_transient_tag;
             break;
         case fastdds::dds::PERSISTENT_DURABILITY_QOS:
-            kind["kind"] = "PERSISTENT_DURABILITY_QOS";
+            kind[kind_tag] = durability_persistent_tag;
             break;
     }
     serialized[fieldname] = kind;
@@ -59,8 +60,8 @@ void serialize<fastrtps::Duration_t> (
         database::Qos& serialized)
 {
     database::Qos duration;
-    duration["seconds"] = qos.seconds;
-    duration["nanoseconds"] = qos.nanosec;
+    duration[duration_seconds_tag] = qos.seconds;
+    duration[duration_nanoseconds_tag] = qos.nanosec;
     serialized[fieldname] = duration;
 }
 
@@ -71,7 +72,7 @@ void serialize<fastdds::dds::DeadlineQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos deadline;
-    serialize(qos.period, "period", deadline);
+    serialize(qos.period, duration_period_tag, deadline);
     serialized[fieldname] = deadline;
 }
 
@@ -82,7 +83,7 @@ void serialize<fastdds::dds::LatencyBudgetQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos latency;
-    serialize(qos.duration, "duration", latency);
+    serialize(qos.duration, duration_tag, latency);
     serialized[fieldname] = latency;
 }
 
@@ -96,17 +97,17 @@ void serialize<fastdds::dds::LivelinessQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::AUTOMATIC_LIVELINESS_QOS:
-            liveliness["kind"] = "AUTOMATIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_automatic_tag;
             break;
         case fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS:
-            liveliness["kind"] = "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_manual_participant_tag;
             break;
         case fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS:
-            liveliness["kind"] = "MANUAL_BY_TOPIC_LIVELINESS_QOS";
+            liveliness[kind_tag] = liveliness_manual_topic_tag;
             break;
     }
-    serialize(qos.announcement_period, "announcement_period", liveliness);
-    serialize(qos.lease_duration, "lease_duration", liveliness);
+    serialize(qos.announcement_period, announcement_period_tag, liveliness);
+    serialize(qos.lease_duration, lease_duration_tag, liveliness);
     serialized[fieldname] = liveliness;
 }
 
@@ -120,13 +121,13 @@ void serialize<fastdds::dds::ReliabilityQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BEST_EFFORT_RELIABILITY_QOS:
-            reliability["kind"] = "BEST_EFFORT_RELIABILITY_QOS";
+            reliability[kind_tag] = reliability_best_effort_tag;
             break;
         case fastdds::dds::RELIABLE_RELIABILITY_QOS:
-            reliability["kind"] = "RELIABLE_RELIABILITY_QOS";
+            reliability[kind_tag] = reliability_reliable_tag;
             break;
     }
-    serialize(qos.max_blocking_time, "max_blocking_time", reliability);
+    serialize(qos.max_blocking_time, max_blocking_time_tag, reliability);
     serialized[fieldname] = reliability;
 }
 
@@ -140,10 +141,10 @@ void serialize<fastdds::dds::OwnershipQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SHARED_OWNERSHIP_QOS:
-            ownership["kind"] = "SHARED_OWNERSHIP_QOS";
+            ownership[kind_tag] = ownership_shared_tag;
             break;
         case fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS:
-            ownership["kind"] = "EXCLUSIVE_OWNERSHIP_QOS";
+            ownership[kind_tag] = ownership_exclusive_tag;
             break;
     }
     serialized[fieldname] = ownership;
@@ -159,10 +160,10 @@ void serialize<fastdds::dds::DestinationOrderQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order["kind"] = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = destination_order_reception_tag;
             break;
         case fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS:
-            destination_order["kind"] = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
+            destination_order[kind_tag] = destination_order_source_tag;
             break;
     }
     serialized[fieldname] = destination_order;
@@ -217,7 +218,7 @@ void serialize<fastdds::dds::TimeBasedFilterQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos filter;
-    serialize(qos.minimum_separation, "minimum_separation", filter);
+    serialize(qos.minimum_separation, minimum_separation_tag, filter);
     serialized[fieldname] = filter;
 }
 
@@ -229,11 +230,11 @@ void serialize<bool> (
 {
     if (qos)
     {
-        serialized[fieldname] = "true";
+        serialized[fieldname] = true_tag;
     }
     else
     {
-        serialized[fieldname] = "false";
+        serialized[fieldname] = false_tag;
     }
 }
 
@@ -247,18 +248,18 @@ void serialize<fastdds::dds::PresentationQosPolicy> (
     switch (qos.access_scope)
     {
         case fastdds::dds::INSTANCE_PRESENTATION_QOS:
-            presentation["access_scope"] = "INSTANCE_PRESENTATION_QOS";
+            presentation[access_scope_tag] = access_scope_instance_tag;
             break;
         case fastdds::dds::TOPIC_PRESENTATION_QOS:
-            presentation["access_scope"] = "TOPIC_PRESENTATION_QOS";
+            presentation[access_scope_tag] = access_scope_topic_tag;
             break;
         case fastdds::dds::GROUP_PRESENTATION_QOS:
-            presentation["access_scope"] = "GROUP_PRESENTATION_QOS";
+            presentation[access_scope_tag] = access_scope_group_tag;
             break;
     }
 
-    serialize(qos.coherent_access, "coherent_access", presentation);
-    serialize(qos.ordered_access, "ordered_access", presentation);
+    serialize(qos.coherent_access, coherent_access_tag, presentation);
+    serialize(qos.ordered_access, ordered_access_tag, presentation);
     serialized[fieldname] = presentation;
 }
 
@@ -283,21 +284,20 @@ void serialize<fastdds::dds::DurabilityServiceQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos durability;
-    durability["history_depth"] = qos.history_depth;
-    durability["max_instances"] = qos.max_instances;
-    durability["max_samples"] = qos.max_samples;
-    durability["max_samples_per_instance"] = qos.max_samples_per_instance;
-    durability["history_depth"] = qos.history_depth;
+    durability[max_instances_tag] = qos.max_instances;
+    durability[max_samples_tag] = qos.max_samples;
+    durability[max_samples_per_instance_tag] = qos.max_samples_per_instance;
+    durability[history_depth_tag] = qos.history_depth;
     switch (qos.history_kind)
     {
         case fastdds::dds::KEEP_LAST_HISTORY_QOS:
-            durability["history_kind"] = "KEEP_LAST_HISTORY_QOS";
+            durability[history_kind_tag] = history_keep_last_tag;
             break;
         case fastdds::dds::KEEP_ALL_HISTORY_QOS:
-            durability["history_kind"] = "KEEP_ALL_HISTORY_QOS";
+            durability[history_kind_tag] = history_keep_all_tag;
             break;
     }
-    serialize(qos.service_cleanup_delay, "service_cleanup_delay", durability);
+    serialize(qos.service_cleanup_delay, service_cleanup_delay_tag, durability);
     serialized[fieldname] = durability;
 }
 
@@ -308,7 +308,7 @@ void serialize<fastdds::dds::LifespanQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos lifespan;
-    serialize(qos.duration, "duration", lifespan);
+    serialize(qos.duration, duration_tag, lifespan);
     serialized[fieldname] = lifespan;
 }
 
@@ -324,13 +324,13 @@ void serialize<fastdds::dds::DataRepresentationQosPolicy> (
         switch (p)
         {
             case fastdds::dds::XCDR_DATA_REPRESENTATION:
-                representation.push_back("XCDR_DATA_REPRESENTATION");
+                representation.push_back(representation_xcdr_tag);
                 break;
             case fastdds::dds::XML_DATA_REPRESENTATION:
-                representation.push_back("XML_DATA_REPRESENTATION");
+                representation.push_back(representation_xml_tag);
                 break;
             case fastdds::dds::XCDR2_DATA_REPRESENTATION:
-                representation.push_back("XCDR2_DATA_REPRESENTATION");
+                representation.push_back(representation_xcdr2_tag);
                 break;
         }
     }
@@ -347,17 +347,17 @@ void serialize<fastdds::dds::TypeConsistencyEnforcementQosPolicy> (
     switch (qos.m_kind)
     {
         case fastdds::dds::DISALLOW_TYPE_COERCION:
-            type_consistency["kind"] = "DISALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = type_consistency_coercion_disallow_tag;
             break;
         case fastdds::dds::ALLOW_TYPE_COERCION:
-            type_consistency["kind"] = "ALLOW_TYPE_COERCION";
+            type_consistency[kind_tag] = type_consistency_coercion_allow_tag;
             break;
     }
-    serialize(qos.m_ignore_sequence_bounds, "ignore_sequence_bounds", type_consistency);
-    serialize(qos.m_ignore_string_bounds, "ignore_string_bounds", type_consistency);
-    serialize(qos.m_ignore_member_names, "ignore_member_names", type_consistency);
-    serialize(qos.m_prevent_type_widening, "prevent_type_widening", type_consistency);
-    serialize(qos.m_force_type_validation, "force_type_validation", type_consistency);
+    serialize(qos.m_ignore_sequence_bounds, ignore_sequence_bounds_tag, type_consistency);
+    serialize(qos.m_ignore_string_bounds, ignore_string_bounds_tag, type_consistency);
+    serialize(qos.m_ignore_member_names, ignore_member_names_tag, type_consistency);
+    serialize(qos.m_prevent_type_widening, prevent_type_widening_tag, type_consistency);
+    serialize(qos.m_force_type_validation, force_type_validation_tag, type_consistency);
     serialized[fieldname] = type_consistency;
 }
 
@@ -368,8 +368,8 @@ void serialize<fastdds::dds::DisablePositiveACKsQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos disable_acks;
-    serialize(qos.enabled, "enabled", disable_acks);
-    serialize(qos.duration, "duration", disable_acks);
+    serialize(qos.enabled, enabled_tag, disable_acks);
+    serialize(qos.duration, duration_tag, disable_acks);
     serialized[fieldname] = disable_acks;
 }
 
@@ -383,21 +383,21 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
     switch (qos.kind())
     {
         case fastdds::dds::AUTO:
-            datasharing["kind"] = "AUTO";
+            datasharing[kind_tag] = data_sharing_auto_tag;
             break;
         case fastdds::dds::ON:
-            datasharing["kind"] = "ON";
+            datasharing[kind_tag] = data_sharing_on_tag;
             break;
         case fastdds::dds::OFF:
-            datasharing["kind"] = "OFF";
+            datasharing[kind_tag] = data_sharing_off_tag;
             break;
     }
-    datasharing["max_domains"] = qos.max_domains();
-    datasharing["shm_directory"] = qos.shm_directory();
-    datasharing["domain_ids"] = database::Qos::array();
+    datasharing[max_domains_tag] = qos.max_domains();
+    datasharing[shm_directory_tag] = qos.shm_directory();
+    datasharing[domain_ids_tag] = database::Qos::array();
     for (auto id : qos.domain_ids())
     {
-        datasharing["domain_ids"].push_back(id);
+        datasharing[domain_ids_tag].push_back(id);
     }
     serialized[fieldname] = datasharing;
 }
@@ -409,7 +409,7 @@ void serialize<fastdds::dds::OwnershipStrengthQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos strength;
-    strength["value"] = qos.value;
+    strength[value_tag] = qos.value;
     serialized[fieldname] = strength;
 }
 
@@ -423,10 +423,10 @@ void serialize<fastdds::dds::PublishModeQosPolicy> (
     switch (qos.kind)
     {
         case fastdds::dds::SYNCHRONOUS_PUBLISH_MODE:
-            publishmode["kind"] = "SYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = publish_mode_sync_tag;
             break;
         case fastdds::dds::ASYNCHRONOUS_PUBLISH_MODE:
-            publishmode["kind"] = "ASYNCHRONOUS_PUBLISH_MODE";
+            publishmode[kind_tag] = publish_mode_async_tag;
             break;
     }
     serialized[fieldname] = publishmode;
@@ -442,8 +442,8 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
     for (auto p : qos)
     {
         database::Qos property;
-        property["name"] = p.first();
-        property["value"] = p.second();
+        property[name_tag] = p.first();
+        property[value_tag] = p.second();
         properties.push_back(property);
     }
     serialized[fieldname] = properties;
@@ -454,25 +454,25 @@ database::Qos reader_info_to_backend_qos(
 {
     database::Qos reader;
 
-    serialize(reader_info.info.m_qos.m_durability, "durability", reader);
-    serialize(reader_info.info.m_qos.m_deadline, "deadline", reader);
-    serialize(reader_info.info.m_qos.m_latencyBudget, "latency_budget", reader);
-    serialize(reader_info.info.m_qos.m_liveliness, "liveliness", reader);
-    serialize(reader_info.info.m_qos.m_reliability, "reliability", reader);
-    serialize(reader_info.info.m_qos.m_ownership, "ownership", reader);
-    serialize(reader_info.info.m_qos.m_destinationOrder, "destination_order", reader);
-    serialize(reader_info.info.m_qos.m_userData, "user_data", reader);
-    serialize(reader_info.info.m_qos.m_timeBasedFilter, "time_based_filter", reader);
-    serialize(reader_info.info.m_qos.m_presentation, "presentation", reader);
-    serialize(reader_info.info.m_qos.m_partition, "partition", reader);
-    serialize(reader_info.info.m_qos.m_topicData, "topic_data", reader);
-    serialize(reader_info.info.m_qos.m_groupData, "group_data", reader);
-    serialize(reader_info.info.m_qos.m_durabilityService, "durability_service", reader);
-    serialize(reader_info.info.m_qos.m_lifespan, "lifespan", reader);
-    serialize(reader_info.info.m_qos.representation, "representation", reader);
-    serialize(reader_info.info.m_qos.type_consistency, "type_consistency", reader);
-    serialize(reader_info.info.m_qos.m_disablePositiveACKs, "disable_positive_acks", reader);
-    serialize(reader_info.info.m_qos.data_sharing, "data_sharing", reader);
+    serialize(reader_info.info.m_qos.m_durability, durability_tag, reader);
+    serialize(reader_info.info.m_qos.m_deadline, deadline_tag, reader);
+    serialize(reader_info.info.m_qos.m_latencyBudget, latency_budget_tag, reader);
+    serialize(reader_info.info.m_qos.m_liveliness, liveliness_tag, reader);
+    serialize(reader_info.info.m_qos.m_reliability, reliability_tag, reader);
+    serialize(reader_info.info.m_qos.m_ownership, ownership_tag, reader);
+    serialize(reader_info.info.m_qos.m_destinationOrder, destination_order_tag, reader);
+    serialize(reader_info.info.m_qos.m_userData, user_data_tag, reader);
+    serialize(reader_info.info.m_qos.m_timeBasedFilter, time_based_filter_tag, reader);
+    serialize(reader_info.info.m_qos.m_presentation, presentation_tag, reader);
+    serialize(reader_info.info.m_qos.m_partition, partition_tag, reader);
+    serialize(reader_info.info.m_qos.m_topicData, topic_data_tag, reader);
+    serialize(reader_info.info.m_qos.m_groupData, group_data_tag, reader);
+    serialize(reader_info.info.m_qos.m_durabilityService, durability_service_tag, reader);
+    serialize(reader_info.info.m_qos.m_lifespan, lifespan_tag, reader);
+    serialize(reader_info.info.m_qos.representation, representation_tag, reader);
+    serialize(reader_info.info.m_qos.type_consistency, type_consistency_tag, reader);
+    serialize(reader_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
+    serialize(reader_info.info.m_qos.data_sharing, data_sharing_tag, reader);
 
     return reader;
 }
@@ -482,26 +482,26 @@ database::Qos writer_info_to_backend_qos(
 {
     database::Qos writer;
 
-    serialize(writer_info.info.m_qos.m_durability, "durability", writer);
-    serialize(writer_info.info.m_qos.m_durabilityService, "durability_service", writer);
-    serialize(writer_info.info.m_qos.m_deadline, "deadline", writer);
-    serialize(writer_info.info.m_qos.m_latencyBudget, "latency_budget", writer);
-    serialize(writer_info.info.m_qos.m_liveliness, "liveliness", writer);
-    serialize(writer_info.info.m_qos.m_reliability, "reliability", writer);
-    serialize(writer_info.info.m_qos.m_lifespan, "lifespan", writer);
-    serialize(writer_info.info.m_qos.m_userData, "user_data", writer);
-    serialize(writer_info.info.m_qos.m_timeBasedFilter, "time_based_filter", writer);
-    serialize(writer_info.info.m_qos.m_ownership, "ownership", writer);
-    serialize(writer_info.info.m_qos.m_ownershipStrength, "ownership_strength", writer);
-    serialize(writer_info.info.m_qos.m_destinationOrder, "destination_order", writer);
-    serialize(writer_info.info.m_qos.m_presentation, "presentation", writer);
-    serialize(writer_info.info.m_qos.m_partition, "partition", writer);
-    serialize(writer_info.info.m_qos.m_topicData, "topic_data", writer);
-    serialize(writer_info.info.m_qos.m_groupData, "group_data", writer);
-    serialize(writer_info.info.m_qos.m_publishMode, "publish_mode", writer);
-    serialize(writer_info.info.m_qos.representation, "representation", writer);
-    serialize(writer_info.info.m_qos.m_disablePositiveACKs, "disable_positive_acks", writer);
-    serialize(writer_info.info.m_qos.data_sharing, "data_sharing", writer);
+    serialize(writer_info.info.m_qos.m_durability, durability_tag, writer);
+    serialize(writer_info.info.m_qos.m_durabilityService, durability_service_tag, writer);
+    serialize(writer_info.info.m_qos.m_deadline, deadline_tag, writer);
+    serialize(writer_info.info.m_qos.m_latencyBudget, latency_budget_tag, writer);
+    serialize(writer_info.info.m_qos.m_liveliness, liveliness_tag, writer);
+    serialize(writer_info.info.m_qos.m_reliability, reliability_tag, writer);
+    serialize(writer_info.info.m_qos.m_lifespan, lifespan_tag, writer);
+    serialize(writer_info.info.m_qos.m_userData, user_data_tag, writer);
+    serialize(writer_info.info.m_qos.m_timeBasedFilter, time_based_filter_tag, writer);
+    serialize(writer_info.info.m_qos.m_ownership, ownership_tag, writer);
+    serialize(writer_info.info.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
+    serialize(writer_info.info.m_qos.m_destinationOrder, destination_order_tag, writer);
+    serialize(writer_info.info.m_qos.m_presentation, presentation_tag, writer);
+    serialize(writer_info.info.m_qos.m_partition, partition_tag, writer);
+    serialize(writer_info.info.m_qos.m_topicData, topic_data_tag, writer);
+    serialize(writer_info.info.m_qos.m_groupData, group_data_tag, writer);
+    serialize(writer_info.info.m_qos.m_publishMode, publish_mode_tag, writer);
+    serialize(writer_info.info.m_qos.representation, representation_tag, writer);
+    serialize(writer_info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
+    serialize(writer_info.info.m_qos.data_sharing, data_sharing_tag, writer);
 
     return writer;
 }
@@ -511,11 +511,11 @@ database::Qos participant_info_to_backend_qos(
 {
     database::Qos participant;
 
-    participant["available_builtin_endpoints"] = participant_info.info.m_availableBuiltinEndpoints;
-    serialize(participant_info.info.m_leaseDuration, "lease_duration", participant);
-    serialize(participant_info.info.m_properties, "properties", participant);
-    serialize(participant_info.info.m_userData, "user_data", participant);
-    participant["vendor_id"] = participant_info.info.m_VendorId;
+    participant[available_builtin_endpoints_tag] = participant_info.info.m_availableBuiltinEndpoints;
+    serialize(participant_info.info.m_leaseDuration, lease_duration_tag, participant);
+    serialize(participant_info.info.m_properties, properties_tag, participant);
+    serialize(participant_info.info.m_userData, user_data_tag, participant);
+    participant[vendor_id_tag] = participant_info.info.m_VendorId;
 
     return participant;
 }
