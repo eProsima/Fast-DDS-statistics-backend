@@ -20,16 +20,31 @@
 #ifndef _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 #define _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 
+#include "gtest/gtest.h"
+#include <gmock/gmock.h>
+
+#include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/topic/TypeSupport.hpp>
+#include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/rtps/common/Guid.h>
 #include <fastrtps/types/TypesBase.h>
-
 
 using eprosima::fastrtps::types::ReturnCode_t;
 
 namespace eprosima {
 namespace fastdds {
 namespace dds {
+
+class TopicDescription;
+class TopicListener;
+class Topic;
+class PublisherListener;
+class Publisher;
+class SubscriberListener;
+class Subscriber;
 
 /**
  * Mock for Class DomainParticipant.
@@ -70,9 +85,89 @@ public:
         return domain_id_;
     }
 
+    const fastrtps::rtps::GUID_t& guid()
+    {
+        return guid_;
+    }
+
+    MOCK_METHOD5(
+        create_topic,
+        Topic*
+        (
+            const std::string& topic_name,
+            const std::string& type_name,
+            const TopicQos& qos,
+            TopicListener* listener,
+            const StatusMask& mask
+        ));
+
+    MOCK_METHOD4(
+        create_topic,
+        Topic*
+        (
+            const std::string& topic_name,
+            const std::string& type_name,
+            const TopicQos& qos,
+            TopicListener* listener
+        ));
+
+    MOCK_METHOD3(
+        create_topic,
+        Topic*
+        (
+            const std::string& topic_name,
+            const std::string& type_name,
+            const TopicQos& qos
+        ));
+
+    MOCK_METHOD3(
+        create_publisher,
+        Publisher*
+        (
+            const PublisherQos& qos,
+            PublisherListener* listener,
+            const StatusMask& mask
+        ));
+
+    MOCK_METHOD3(
+        create_subscriber,
+        Subscriber*
+        (
+            const SubscriberQos& qos,
+            SubscriberListener* listener,
+            const StatusMask& mask
+        ));
+
+    MOCK_CONST_METHOD0(
+        get_default_topic_qos,
+        TopicQos&());
+
+    MOCK_CONST_METHOD0(
+        get_default_subscriber_qos,
+        SubscriberQos&());
+
+    MOCK_CONST_METHOD0(
+        get_default_publisher_qos,
+        PublisherQos&());
+
+    MOCK_CONST_METHOD1(
+        lookup_topicdescription,
+        TopicDescription*
+        (
+            const std::string& topic_name
+        ));
+
+    MOCK_METHOD2(
+        register_type,
+        ReturnCode_t
+        (
+            TypeSupport type,
+            const std::string& type_name
+        ));
+
     DomainParticipantQos qos_;
     DomainId_t domain_id_;
-
+    eprosima::fastrtps::rtps::GUID_t guid_;
 };
 
 } // namespace dds
