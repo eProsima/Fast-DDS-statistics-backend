@@ -3701,17 +3701,17 @@ void Database::load_data(
         for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsBytesLostSample sample;
-            DatabaseDump sampleDump = container.at(remote_it.key());
+            DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
 
             // int16_t
-            sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
+            sample.magnitude_order = sample_dump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
             sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
@@ -3729,17 +3729,17 @@ void Database::load_data(
         for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsBytesSentSample sample;
-            DatabaseDump sampleDump = container.at(remote_it.key());
+            DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
 
             // int16_t
-            sample.magnitude_order = sampleDump.at(DATA_VALUE_MAGNITUDE_TAG);
+            sample.magnitude_order = sample_dump.at(DATA_VALUE_MAGNITUDE_TAG);
 
             // EntityId
             sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
@@ -3757,14 +3757,14 @@ void Database::load_data(
         for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsPacketsLostSample sample;
-            DatabaseDump sampleDump = container.at(remote_it.key());
+            DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
             sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
@@ -3782,14 +3782,14 @@ void Database::load_data(
         for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
         {
             RtpsPacketsSentSample sample;
-            DatabaseDump sampleDump = container.at(remote_it.key());
+            DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sampleDump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sampleDump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
 
             // EntityId
             sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
