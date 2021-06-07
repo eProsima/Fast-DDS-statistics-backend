@@ -132,12 +132,13 @@ public:
         // Domain entity
         domain_name_ = std::to_string(statistics_participant.domain_id_);
         domain_ = std::make_shared<Domain>(domain_name_);
+        domain_->id = 0;
 
         // Participant entity
         participant_name_ = "participant_ name";
         participant_prefix_str_ = "01.02.03.04.05.06.07.08.09.0a.0b.0c";
         std::stringstream(participant_prefix_str_) >> guid_prefix_;
-        participant_guid_str_ = participant_prefix_str_ + "|0.0.0.0";
+        participant_guid_str_ = participant_prefix_str_ + "|0.0.1.c1";
         std::stringstream(participant_guid_str_) >> participant_guid_;
         participant_ =
                 std::make_shared<DomainParticipant>(participant_name_, participant_qos_, participant_guid_str_,

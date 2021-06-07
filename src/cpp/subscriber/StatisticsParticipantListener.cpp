@@ -59,7 +59,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
 
     // Get the participant from the database
     GUID_t endpoint_guid = info.info.guid();
-    GUID_t participant_guid(endpoint_guid.guidPrefix, EntityId_t());
+    GUID_t participant_guid(endpoint_guid.guidPrefix, c_EntityId_RTPSParticipant);
     std::pair<EntityId, EntityId> participant_id;
     try
     {
