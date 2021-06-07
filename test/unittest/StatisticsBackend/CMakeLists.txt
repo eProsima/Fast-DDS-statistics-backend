@@ -109,9 +109,8 @@ set(USER_LISTENERS_TEST_LIST
     wrong_entity_kind
     )
 
-
 foreach(test_name ${USER_LISTENERS_TEST_LIST})
-add_test(NAME calling_user_listeners_tests.${test_name}
+    add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
 endforeach()

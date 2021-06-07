@@ -356,10 +356,10 @@ protected:
         try
         {
             auto id = database_->insert(front().second.entity);
-            if (front().second.entity->kind == EntityKind::HOST ||
-                    front().second.entity->kind == EntityKind::USER ||
-                    front().second.entity->kind == EntityKind::PROCESS ||
-                    front().second.entity->kind == EntityKind::LOCATOR)
+            if (EntityKind::HOST  == front().second.entity->kind ||
+                    EntityKind::USER == front().second.entity->kind ||
+                    EntityKind::PROCESS == front().second.entity->kind ||
+                    EntityKind::LOCATOR == front().second.entity->kind)
             {
                 StatisticsBackend::on_physical_entity_discovery(front().second.domain_id, id,
                         front().second.entity->kind);
