@@ -69,6 +69,8 @@ public:
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
      * @return The ID of the created statistics Domain.
+     * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain
+     * @throws eprosima::statistics_backend::Error if the creation of the monitor fails
      */
     static EntityId init_monitor(
             DomainId domain,
