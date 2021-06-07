@@ -21,8 +21,6 @@
 
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
-
-#include <DatabaseUtils.hpp>
 #include <fastdds-statistics-backend/types/JSONTags.h>
 
 using namespace eprosima::statistics_backend;
