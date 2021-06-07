@@ -134,3 +134,48 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
             COMMAND calling_user_listeners_tests
             --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
 endforeach()
+
+# init_monitor_tests
+##################################################################
+
+add_executable(init_monitor_tests InitMonitorTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx)
+
+target_include_directories(init_monitor_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(init_monitor_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+set(INIT_MONITOR_TEST_LIST
+    init_monitor_domain_id_all_callback_all_data
+    init_monitor_domain_id_no_callback_all_data
+    init_monitor_domain_id_all_callback_no_data
+    init_monitor_domain_id_null_listener_all_data
+    init_monitor_several_monitors
+    init_monitor_dds_factory_fails
+    )
+
+foreach(test_name ${INIT_MONITOR_TEST_LIST})
+    add_test(NAME init_monitor_tests.${test_name}
+            COMMAND init_monitor_tests
+            --gtest_filter=init_monitor_tests.${test_name}:*/init_monitor_tests.${test_name}/*)
+endforeach()
