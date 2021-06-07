@@ -68,9 +68,9 @@ StatisticsReaderListener::StatisticsReaderListener(
 
 template<typename T>
 bool StatisticsReaderListener::get_available_data(
-    eprosima::fastdds::dds::DataReader* reader,
-    T& inner_data,
-    std::chrono::system_clock::time_point& timestamp)
+        eprosima::fastdds::dds::DataReader* reader,
+        T& inner_data,
+        std::chrono::system_clock::time_point& timestamp)
 {
     SampleInfo info;
     if (reader->take_next_sample(&inner_data, &info) == ReturnCode_t::RETCODE_OK)

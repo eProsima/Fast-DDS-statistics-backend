@@ -75,7 +75,8 @@ class TrafficInjector
 
 public:
 
-    TrafficInjector(DomainId domain_id = 0)
+    TrafficInjector(
+            DomainId domain_id = 0)
     {
         participant_ = DomainParticipantFactory::get_instance()->create_participant(
             domain_id, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);

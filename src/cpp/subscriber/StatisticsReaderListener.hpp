@@ -68,9 +68,9 @@ protected:
 
     template<typename T>
     bool get_available_data(
-        eprosima::fastdds::dds::DataReader* reader,
-        T& inner_data,
-        std::chrono::system_clock::time_point& timestamp);
+            eprosima::fastdds::dds::DataReader* reader,
+            T& inner_data,
+            std::chrono::system_clock::time_point& timestamp);
 
     //! Reference to the database queues
     database::DatabaseDataQueue* data_queue_;
