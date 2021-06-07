@@ -22,4 +22,4 @@ static constexpr const char* destination_order_tag = "destination_order";
 static constexpr const char* destination_order_reception_tag = "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS";
 static constexpr const char* destination_order_source_tag = "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS";
 
-// Other ownership related tags
+// Other destination order related tags
