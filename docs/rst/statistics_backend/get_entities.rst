@@ -30,7 +30,7 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
     :end-before: //!
     :dedent: 8
 
-Throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and is not Entity::all().
+Throws |BadParameter-api| if there is no entity with the given |EntityId-api| and is not |EntityId:all-api|.
 
 This function returns the related entities according to the following table:
 
