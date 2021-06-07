@@ -44,11 +44,34 @@ std::string to_string(
     return ss.str();
 }
 
+/**
+ * Checks whether an entity id corresponds to a builtin statistics writer.
+ * @param [in] entity_id The entity id to check.
+ * @return true when the entity id corresponds to a builtin statistics writer.
+ */
+inline bool is_statistics_builtin(
+        const fastrtps::rtps::EntityId_t& entity_id)
+{
+    return 0x60 == (0xE0 & entity_id.value[3]);
+}
+
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
-        eprosima::fastdds::dds::DomainParticipant* /*statistics_participant*/,
+        eprosima::fastdds::dds::DomainParticipant* statistics_participant,
         T&& info)
 {
+    // Filter out our own statistics readers
+    if (statistics_participant->guid().guidPrefix == info.info.guid().guidPrefix)
+    {
+        return;
+    }
+
+    // Filter out other statistics writers
+    if (is_statistics_builtin(info.info.guid().entityId))
+    {
+        return;
+    }
+    
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database
