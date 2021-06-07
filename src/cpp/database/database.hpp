@@ -88,7 +88,7 @@ public:
             const EntityId& process_id);
 
     /**
-     * @brief Create the link between a endpoint and a locator
+     * @brief Create the link between an endpoint and a locator
      *
      * This operation entails:
      *     1. Adding the endpoint to the locator's list of endpoints
@@ -432,16 +432,17 @@ protected:
             }
         }
 
-        /* Add endpoint to participant' collection */
+        /* Insert endpoint in the database */
+        endpoint->data.clear();
         endpoint->id = generate_entity_id();
+        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
+
+        /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
         /* Add endpoint to topics's collection */
-        endpoint->data.clear();
         (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
-        /* Insert endpoint in the database */
-        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
         return endpoint->id;
     }
 

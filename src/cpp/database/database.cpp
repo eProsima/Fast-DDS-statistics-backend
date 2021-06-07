@@ -791,14 +791,11 @@ void Database::link_endpoint_with_locator(
             if (dw_it != domain_it.second.end())
             {
                 dw_exists = true;
+                endpoint = dw_it->second;
                 break;
             }
         }
-        if (dw_exists)
-        {
-            endpoint = dw_it->second;
-        }
-        else
+        if (!dw_exists)
         {
             /* Get the Datareader */
             std::map<EntityId, std::shared_ptr<DataReader>>::iterator dr_it;
@@ -809,15 +806,12 @@ void Database::link_endpoint_with_locator(
                 if (dr_it != domain_it.second.end())
                 {
                     dr_exists = true;
+                    endpoint = dr_it->second;
                     break;
                 }
             }
 
-            if (dr_exists)
-            {
-                endpoint = dr_it->second;
-            }
-            else
+            if (!dr_exists)
             {
                 throw BadParameter("EntityId " + std::to_string(
                                   endpoint_id.value()) + " does not identify a known endpoint");
