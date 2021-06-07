@@ -333,7 +333,7 @@ void get_entities_example()
     }
     {
         //CONF-GET-ENTITIES-ALL-EXAMPLE
-        StatisticsBackend::get_entities(EntityKind::HOST,EntityId::all());
+        StatisticsBackend::get_entities(EntityKind::HOST, EntityId::all());
         //!--
     }
     {
