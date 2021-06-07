@@ -17,11 +17,11 @@
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
+#include <fastdds-statistics-backend/types/JSONTags.h>
 #include <types/types.hpp>
 
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
-#include <fastdds-statistics-backend/types/JSONTags.h>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -57,18 +57,12 @@ public:
         database_ = db;
     }
 
-    static const char* get_entity_kind_str(
-            EntityKind kind)
-    {
-        return entity_kind_str[(int)kind];
-    }
-
 };
 
 void check_dds_entity(
-        std::shared_ptr<const DDSEntity> const& entity)
+        std::shared_ptr<const DDSEntity> const& entity,
+        Info const& info)
 {
-    Info info = StatisticsBackendTest::get_info(entity->id);
     ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
     ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
 }
@@ -78,62 +72,49 @@ TEST_F(statistics_backend_tests, get_info)
 {
     StatisticsBackendTest::set_database(&db);
 
-    // Check generic info
     for (auto pair : entities)
     {
         std::shared_ptr<const Entity> entity = pair.second;
         Info info = StatisticsBackendTest::get_info(entity->id);
 
+        // Check generic info
         ASSERT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
-        ASSERT_EQ(StatisticsBackendTest::get_entity_kind_str(entity->kind), info[KIND_INFO_TAG]);
+        ASSERT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
         ASSERT_EQ(entity->name, info[NAME_INFO_TAG]);
-    }
 
-    // Process
-    for (auto pair : db.processes())
-    {
-        std::shared_ptr<const Process> entity = pair.second;
-        Info info = StatisticsBackendTest::get_info(entity->id);
-        ASSERT_EQ(entity->pid, info[PID_INFO_TAG]);
-    }
-
-    // Topic
-    for (auto domainPair : db.topics())
-    {
-        for (auto pair : domainPair.second)
+        // Check specific info
+        switch (entity->kind)
         {
-            std::shared_ptr<const Topic> entity = pair.second;
-            Info info = StatisticsBackendTest::get_info(entity->id);
-            ASSERT_EQ(entity->data_type, info[DATA_TYPE_INFO_TAG]);
+            case EntityKind::PROCESS:
+            {
+                std::shared_ptr<const Process> process =
+                        std::dynamic_pointer_cast<const Process>(entity);
+                ASSERT_EQ(process->pid, info[PID_INFO_TAG]);
+                break;
+            }
+            case EntityKind::TOPIC:
+            {
+                std::shared_ptr<const Topic> topic =
+                        std::dynamic_pointer_cast<const Topic>(entity);
+                ASSERT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
+                break;
+            }
+            case EntityKind::PARTICIPANT:
+            case EntityKind::DATAWRITER:
+            case EntityKind::DATAREADER:
+            {
+                std::shared_ptr<const DDSEntity> dds_entity =
+                        std::dynamic_pointer_cast<const DDSEntity>(entity);
+                check_dds_entity(dds_entity, info);
+                break;
+            }
+            default:
+            {
+                break;
+            }
         }
     }
 
-    // Participant
-    for (auto domainPair : db.participants())
-    {
-        for (auto pair : domainPair.second)
-        {
-            check_dds_entity(pair.second);
-        }
-    }
-
-    // Datawriter
-    for (auto domainPair : db.get_dds_endpoints<DataWriter>())
-    {
-        for (auto pair : domainPair.second)
-        {
-            check_dds_entity(pair.second);
-        }
-    }
-
-    // Datareader
-    for (auto domainPair : db.get_dds_endpoints<DataReader>())
-    {
-        for (auto pair : domainPair.second)
-        {
-            check_dds_entity(pair.second);
-        }
-    }
 }
 
 // Check the get_type StatisticsBackend method

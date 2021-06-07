@@ -1,4 +1,6 @@
 {
+    "id": 3,
+    "kind": "process",
     "name": "process_name",
     "pid": "9564"
 }

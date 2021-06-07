@@ -430,8 +430,6 @@ protected:
 
     //! Reference to the Database
     static database::Database* database_;
-
-    static const char* entity_kind_str[];
 };
 
 } // namespace statistics_backend

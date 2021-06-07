@@ -26,9 +26,7 @@ namespace statistics_backend {
 
 using namespace eprosima::statistics_backend::database;
 
-database::Database* StatisticsBackend::database_ = new database::Database();
-const char* StatisticsBackend::entity_kind_str[] =
-{"Invalid", "Host", "User", "Process", "Domain", "Topic", "Participant", "Datawriter", "Datareader", "Locator"};
+Database* StatisticsBackend::database_ = new database::Database();
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
@@ -133,26 +131,26 @@ Info StatisticsBackend::get_info(
     {
         case EntityKind::PROCESS:
         {
-            std::shared_ptr<const Process> entity =
-                    std::dynamic_pointer_cast<const Process>(database_->get_entity(entity_id));
-            info[PID_INFO_TAG] = entity->pid;
+            std::shared_ptr<const Process> process =
+                    std::dynamic_pointer_cast<const Process>(entity);
+            info[PID_INFO_TAG] = process->pid;
             break;
         }
         case EntityKind::TOPIC:
         {
-            std::shared_ptr<const Topic> entity =
-                    std::dynamic_pointer_cast<const Topic>(database_->get_entity(entity_id));
-            info[DATA_TYPE_INFO_TAG] = entity->data_type;
+            std::shared_ptr<const Topic> topic =
+                    std::dynamic_pointer_cast<const Topic>(entity);
+            info[DATA_TYPE_INFO_TAG] = topic->data_type;
             break;
         }
         case EntityKind::PARTICIPANT:
         case EntityKind::DATAWRITER:
         case EntityKind::DATAREADER:
         {
-            std::shared_ptr<const DDSEntity> entity =
-                    std::dynamic_pointer_cast<const DDSEntity>(database_->get_entity(entity_id));
-            info[GUID_INFO_TAG] = entity->guid;
-            info[QOS_INFO_TAG] = entity->qos;
+            std::shared_ptr<const DDSEntity> dds_entity =
+                    std::dynamic_pointer_cast<const DDSEntity>(entity);
+            info[GUID_INFO_TAG] = dds_entity->guid;
+            info[QOS_INFO_TAG] = dds_entity->qos;
             break;
         }
         default:
