@@ -520,7 +520,7 @@ TEST(qos_serializer_tests, data_sharing_qos_policy)
     expected[field.c_str()][max_domains_tag] = 0;
     expected[field.c_str()][shm_directory_tag] = "datasharing_directory";
     expected[field.c_str()][domain_ids_tag].push_back(25);
-    EXPECT_EQ(expected, serialized);    eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
+    EXPECT_EQ(expected, serialized);
 
     qos.on("datasharing_directory");
     qos.set_max_domains(2);
@@ -534,7 +534,7 @@ TEST(qos_serializer_tests, data_sharing_qos_policy)
     expected[field.c_str()][domain_ids_tag] = Qos::array();
     expected[field.c_str()][domain_ids_tag].push_back(25);
     expected[field.c_str()][domain_ids_tag].push_back(30);
-    EXPECT_EQ(expected, serialized);    eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
+    EXPECT_EQ(expected, serialized);
 }
 
 TEST(qos_serializer_tests, ownership_strength_qos_policy)
