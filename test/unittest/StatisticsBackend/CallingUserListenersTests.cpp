@@ -20,6 +20,8 @@
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <Monitor.hpp>
+#include <database/database.hpp>
+#include <database/database_queue.hpp>
 #include <types/types.hpp>
 
 using ::testing::_;
@@ -60,28 +62,6 @@ struct EntityDiscoveryArgs
     DomainListener::Status status_;
 };
 
-
-// A wrapper around StatisticsBackend to access the listeners to test
-class StatisticsBackendWrapper : public StatisticsBackend
-{
-public:
-
-    // TODO: Remove this method once the init_monitor of StatisticsBackend is merged
-    static EntityId init_monitor(
-            DomainId /*domain*/,
-            DomainListener* domain_listener = nullptr,
-            CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none())
-    {
-        details::StatisticsBackendData::get_instance()->monitors_.emplace(0,
-                std::unique_ptr<details::Monitor>(new details::Monitor));
-        details::StatisticsBackendData::get_instance()->monitors_[0]->domain_listener = domain_listener;
-        details::StatisticsBackendData::get_instance()->monitors_[0]->domain_callback_mask = callback_mask;
-        details::StatisticsBackendData::get_instance()->monitors_[0]->data_mask = data_mask;
-        return EntityId(0);
-    }
-
-};
 
 class MockedPhysicalListener : public PhysicalListener
 {
@@ -169,7 +149,7 @@ TEST(calling_user_listeners_tests, host_discovered)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_HOST_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -227,7 +207,7 @@ TEST(calling_user_listeners_tests, host_discovered_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_HOST_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -247,7 +227,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_HOST_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -267,7 +247,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_HOST_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -287,7 +267,7 @@ TEST(calling_user_listeners_tests, user_discovered)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_USER_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -344,7 +324,7 @@ TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_USER_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -364,7 +344,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_USER_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -384,7 +364,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_USER_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -404,7 +384,7 @@ TEST(calling_user_listeners_tests, process_discovered)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PROCESS_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -462,7 +442,7 @@ TEST(calling_user_listeners_tests, process_discovered_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_PROCESS_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -482,7 +462,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PROCESS_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -502,7 +482,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_PROCESS_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -522,7 +502,7 @@ TEST(calling_user_listeners_tests, locator_discovered)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_LOCATOR_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -580,7 +560,7 @@ TEST(calling_user_listeners_tests, locator_discovered_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_LOCATOR_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -600,7 +580,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_LOCATOR_DISCOVERY);
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -620,7 +600,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_LOCATOR_DISCOVERY;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -640,10 +620,10 @@ TEST(calling_user_listeners_tests, participant_discovered)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PARTICIPANT_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         CallbackMask::all(),
         DataKindMask::all());
@@ -753,10 +733,10 @@ TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_PARTICIPANT_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -790,7 +770,7 @@ TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PARTICIPANT_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -897,10 +877,10 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PARTICIPANT_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -934,7 +914,7 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PARTICIPANT_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1041,10 +1021,10 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mas
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_PARTICIPANT_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -1078,7 +1058,7 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mas
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_PARTICIPANT_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1185,10 +1165,10 @@ TEST(calling_user_listeners_tests, topic_discovered)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_TOPIC_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
         DataKindMask::all());
@@ -1298,10 +1278,10 @@ TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_TOPIC_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1335,7 +1315,7 @@ TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_TOPIC_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1442,10 +1422,10 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_TOPIC_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -1479,7 +1459,7 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_TOPIC_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1586,10 +1566,10 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_TOPIC_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -1623,7 +1603,7 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_TOPIC_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1730,10 +1710,10 @@ TEST(calling_user_listeners_tests, datareader_discovered)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAREADER_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
         DataKindMask::all());
@@ -1843,10 +1823,10 @@ TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_DATAREADER_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1880,7 +1860,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAREADER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -1987,10 +1967,10 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAREADER_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -2024,7 +2004,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAREADER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2131,10 +2111,10 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_DATAREADER_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -2168,7 +2148,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAREADER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2275,10 +2255,10 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAWRITER_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
         DataKindMask::all());
@@ -2388,10 +2368,10 @@ TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_DATAWRITER_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2425,7 +2405,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAWRITER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2532,10 +2512,10 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAWRITER_DISCOVERY);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -2569,7 +2549,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAWRITER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2676,10 +2656,10 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
     mask ^= CallbackKind::ON_DATAWRITER_DISCOVERY;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, mask, DataKindMask::all());
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, mask, DataKindMask::all());
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
@@ -2713,7 +2693,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask
     mask = CallbackMask::none();
     mask.set(CallbackKind::ON_DATAWRITER_DISCOVERY);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         mask,
         DataKindMask::all());
@@ -2820,9 +2800,9 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
 
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, CallbackMask::all(),
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, CallbackMask::all(),
                     DataKindMask::all());
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
         DataKindMask::all());
@@ -2970,24 +2950,27 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
             ".*");
 }
 
-class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
+class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DomainId, DataKind>>
 {
-
+    // Each of these tests initialize a new Monitor with appropriate params
+    // However, the Backend is not reset from one parameterized run to the next
+    // so initializing another monitor with the same DomainID results in an error.
+    // Therefore, each parameterized run is created with its own DomainId, set in the tuple.
 };
 
 TEST_P(calling_user_data_listeners_tests, data_available)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         CallbackMask::all(),
         DataKindMask::all());
@@ -3016,17 +2999,17 @@ TEST_P(calling_user_data_listeners_tests, data_available)
 
 TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3049,7 +3032,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
     data_mask = DataKindMask::none();
     data_mask.set(data_kind);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3066,17 +3049,17 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
 
 TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
     data_mask ^= data_kind;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3099,7 +3082,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
     data_mask = DataKindMask::none();
     data_mask.set(data_kind);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3116,17 +3099,17 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         nullptr,
         callback_mask,
         data_mask);
@@ -3149,7 +3132,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
     data_mask = DataKindMask::none();
     data_mask.set(data_kind);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3166,17 +3149,17 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3199,7 +3182,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
     data_mask = DataKindMask::none();
     data_mask.set(data_kind);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3216,17 +3199,17 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
+    DataKind data_kind = std::get<1>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
     data_mask ^= data_kind;
-    auto monitor_id = StatisticsBackendWrapper::init_monitor(0, nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3249,7 +3232,7 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in
     data_mask = DataKindMask::none();
     data_mask.set(data_kind);
 
-    StatisticsBackendWrapper::set_physical_listener(
+    StatisticsBackend::set_physical_listener(
         &physical_listener,
         callback_mask,
         data_mask);
@@ -3275,24 +3258,24 @@ GTEST_INSTANTIATE_TEST_MACRO(
     calling_user_data_listeners_tests,
     calling_user_data_listeners_tests,
     ::testing::Values(
-        std::make_tuple(DataKind::FASTDDS_LATENCY),
-        std::make_tuple(DataKind::NETWORK_LATENCY),
-        std::make_tuple(DataKind::PUBLICATION_THROUGHPUT),
-        std::make_tuple(DataKind::SUBSCRIPTION_THROUGHPUT),
-        std::make_tuple(DataKind::RTPS_PACKETS_SENT),
-        std::make_tuple(DataKind::RTPS_BYTES_SENT),
-        std::make_tuple(DataKind::RTPS_PACKETS_LOST),
-        std::make_tuple(DataKind::RTPS_BYTES_LOST),
-        std::make_tuple(DataKind::RESENT_DATA),
-        std::make_tuple(DataKind::HEARTBEAT_COUNT),
-        std::make_tuple(DataKind::ACKNACK_COUNT),
-        std::make_tuple(DataKind::NACKFRAG_COUNT),
-        std::make_tuple(DataKind::GAP_COUNT),
-        std::make_tuple(DataKind::DATA_COUNT),
-        std::make_tuple(DataKind::PDP_PACKETS),
-        std::make_tuple(DataKind::EDP_PACKETS),
-        std::make_tuple(DataKind::DISCOVERY_TIME),
-        std::make_tuple(DataKind::SAMPLE_DATAS)
+        std::make_tuple(DomainId(1), DataKind::FASTDDS_LATENCY),
+        std::make_tuple(DomainId(2), DataKind::NETWORK_LATENCY),
+        std::make_tuple(DomainId(3), DataKind::PUBLICATION_THROUGHPUT),
+        std::make_tuple(DomainId(4), DataKind::SUBSCRIPTION_THROUGHPUT),
+        std::make_tuple(DomainId(5), DataKind::RTPS_PACKETS_SENT),
+        std::make_tuple(DomainId(6), DataKind::RTPS_BYTES_SENT),
+        std::make_tuple(DomainId(7), DataKind::RTPS_PACKETS_LOST),
+        std::make_tuple(DomainId(8), DataKind::RTPS_BYTES_LOST),
+        std::make_tuple(DomainId(9), DataKind::RESENT_DATA),
+        std::make_tuple(DomainId(10), DataKind::HEARTBEAT_COUNT),
+        std::make_tuple(DomainId(11), DataKind::ACKNACK_COUNT),
+        std::make_tuple(DomainId(12), DataKind::NACKFRAG_COUNT),
+        std::make_tuple(DomainId(13), DataKind::GAP_COUNT),
+        std::make_tuple(DomainId(14), DataKind::DATA_COUNT),
+        std::make_tuple(DomainId(15), DataKind::PDP_PACKETS),
+        std::make_tuple(DomainId(16), DataKind::EDP_PACKETS),
+        std::make_tuple(DomainId(17), DataKind::DISCOVERY_TIME),
+        std::make_tuple(DomainId(18), DataKind::SAMPLE_DATAS)
         ));
 
 
