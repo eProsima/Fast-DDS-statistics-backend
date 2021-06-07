@@ -137,6 +137,12 @@ void StatisticsBackendData::on_domain_entity_discovery(
 
     switch (entity_kind)
     {
+        case EntityKind::DOMAIN:
+        {
+            // this will be called for Domain entities too. Skip those.
+            // Among other things, this may be called before the monitor is complete
+            return;
+        }
         case EntityKind::PARTICIPANT:
         {
             if (should_call_domain_listener(monitor->second, CallbackKind::ON_PARTICIPANT_DISCOVERY))
