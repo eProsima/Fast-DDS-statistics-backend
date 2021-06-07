@@ -25,8 +25,8 @@ using namespace eprosima::statistics_backend::database;
  * and is totally under control of the class and the tests.
  * This is important to keep the tests stable even if the Database implementation to assign an EntityId changes.
  *
- * The id: '0' is not used on the map of entities to track any entity,
- * instead is used to insert here a entity with EntityId:all() for use that on several tests.
+ * Identifier '0' does not track any entity, instead is used to insert an entity with EntityId:all()
+ * for use on several tests.
  *
  * The following Json object describes the populated database objects and their given unique identifiers:
  *

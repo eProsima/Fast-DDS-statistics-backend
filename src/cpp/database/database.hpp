@@ -229,15 +229,17 @@ public:
             const EntityId& entity_id) const;
 
     /**
-     * Get all entities of a given EntityKind related to another entity
+     * Get all entities of a given EntityKind related to another entity.
      *
      * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned
      *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
-     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and
-     * is not Entity::all().
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *                  * if the \c entity_kind is \c INVALID
+     *                  * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
      * @return A constant vector of shared pointers to the entities
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
@@ -245,15 +247,17 @@ public:
             const EntityId& entity_id) const;
 
     /**
-     * Get all EntityIds of a given EntityKind related to another entity
+     * Get all EntityIds of a given EntityKind related to another entity.
      *
      * In case the \c entity_id is EntityId::all(), all EntityIds of type \c entity_type are returned
      *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
-     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID and
-     * is not Entity::all().
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *                  * if the \c entity_kind is \c INVALID
+     *                  * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
      * @return A vector containing the EntityIds of the entities
      */
     std::vector<EntityId> get_entity_ids(
@@ -355,8 +359,9 @@ protected:
      * @param entity constant reference to the entity to which the returned
      *                  entities are related
      * @param entity_kind The EntityKind of the fetched entities
-     * @throws eprosima::statistics_backend::BadParameter if the \c entity_kind
-     *         is \c INVALID or the kind of the \c entity is \c INVALID.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *                  * if the \c entity_kind is \c INVALID
+     *                  * if the kind of the \c entity is \c INVALID
      * @return A constant vector of shared pointers to the entities
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
