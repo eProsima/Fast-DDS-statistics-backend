@@ -641,7 +641,8 @@ TEST(qos_serializer_tests, writer_info_serializer)
             serialized_timeBasedFilter);
     expected[time_based_filter_tag] = serialized_timeBasedFilter[time_based_filter_tag];
     Qos serialized_ownership;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag, serialized_ownership);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag,
+            serialized_ownership);
     expected[ownership_tag] = serialized_ownership[ownership_tag];
     Qos serialized_ownershipStrength;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownershipStrength, ownership_strength_tag,
@@ -656,7 +657,8 @@ TEST(qos_serializer_tests, writer_info_serializer)
             serialized_presentation);
     expected[presentation_tag] = serialized_presentation[presentation_tag];
     Qos serialized_partition;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag, serialized_partition);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag,
+            serialized_partition);
     expected[partition_tag] = serialized_partition[partition_tag];
     Qos serialized_topicData;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_topicData, topic_data_tag,
@@ -675,8 +677,8 @@ TEST(qos_serializer_tests, writer_info_serializer)
             serialized_representation);
     expected[representation_tag] = serialized_representation[representation_tag];
     Qos serialized_m_disablePositiveACKs;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag,
-            serialized_m_disablePositiveACKs);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs,
+            disable_positive_acks_tag, serialized_m_disablePositiveACKs);
     expected[disable_positive_acks_tag] = serialized_m_disablePositiveACKs[disable_positive_acks_tag];
     Qos serialized_data_sharing;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.data_sharing, data_sharing_tag,
@@ -731,7 +733,8 @@ TEST(qos_serializer_tests, reader_info_serializer)
             serialized_timeBasedFilter);
     expected[time_based_filter_tag] = serialized_timeBasedFilter[time_based_filter_tag];
     Qos serialized_ownership;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag, serialized_ownership);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag,
+            serialized_ownership);
     expected[ownership_tag] = serialized_ownership[ownership_tag];
     Qos serialized_destinationOrder;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_destinationOrder, destination_order_tag,
@@ -742,7 +745,8 @@ TEST(qos_serializer_tests, reader_info_serializer)
             serialized_presentation);
     expected[presentation_tag] = serialized_presentation[presentation_tag];
     Qos serialized_partition;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag, serialized_partition);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag,
+            serialized_partition);
     expected[partition_tag] = serialized_partition[partition_tag];
     Qos serialized_topicData;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_topicData, topic_data_tag,
@@ -757,8 +761,8 @@ TEST(qos_serializer_tests, reader_info_serializer)
             serialized_representation);
     expected[representation_tag] = serialized_representation[representation_tag];
     Qos serialized_m_disablePositiveACKs;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs, disable_positive_acks_tag,
-            serialized_m_disablePositiveACKs);
+    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs,
+            disable_positive_acks_tag, serialized_m_disablePositiveACKs);
     expected[disable_positive_acks_tag] = serialized_m_disablePositiveACKs[disable_positive_acks_tag];
     Qos serialized_data_sharing;
     eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.data_sharing, data_sharing_tag,
