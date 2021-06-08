@@ -26,10 +26,6 @@ using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-using EntityId = EntityId;
-using DataKind = DataKind;
-using EntityKind = EntityKind;
-using Timestamp = Timestamp;
 using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;

@@ -73,7 +73,8 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none())
     {
-        details::StatisticsBackendData::get_instance()->monitors_.emplace(0, std::unique_ptr<details::Monitor>(new details::Monitor));
+        details::StatisticsBackendData::get_instance()->monitors_.emplace(0,
+                std::unique_ptr<details::Monitor>(new details::Monitor));
         details::StatisticsBackendData::get_instance()->monitors_[0]->domain_listener = domain_listener;
         details::StatisticsBackendData::get_instance()->monitors_[0]->domain_callback_mask = callback_mask;
         details::StatisticsBackendData::get_instance()->monitors_[0]->data_mask = data_mask;
@@ -1396,147 +1397,147 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
         CallbackMask::all(),
         DataKindMask::all());
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DOMAIN),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::PARTICIPANT),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::TOPIC),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DATAREADER),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::DATAWRITER),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
                 EntityKind::INVALID),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::HOST,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::USER,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::PROCESS,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::LOCATOR,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            eprosima::statistics_backend::Error);
+            ".*");
 
-    // Expectation: The call throws
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+    // Expectation: The call asserts
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            eprosima::statistics_backend::Error);
-    ASSERT_THROW(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
                 EntityKind::INVALID,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            eprosima::statistics_backend::Error);
+            ".*");
 }
 
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>

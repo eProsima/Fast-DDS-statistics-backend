@@ -33,16 +33,7 @@
 
 namespace eprosima {
 namespace statistics_backend {
-
-namespace database {
-
-class DatabaseEntityQueue;
-
-} // namespace database
-
 namespace details {
-
-struct Monitor;
 
 
 /**
@@ -140,7 +131,6 @@ protected:
         , physical_listener_(nullptr)
     {
     }
-
 
 };
 

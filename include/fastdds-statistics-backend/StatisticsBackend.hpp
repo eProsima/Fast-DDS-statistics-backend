@@ -32,12 +32,6 @@
 namespace eprosima {
 namespace statistics_backend {
 
-namespace details {
-
-class StatisticsBackendData;
-
-} // namespace details
-
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 

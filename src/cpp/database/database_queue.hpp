@@ -362,8 +362,9 @@ protected:
                     EntityKind::PROCESS == front().second.entity->kind ||
                     EntityKind::LOCATOR == front().second.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(front().second.domain_id, id,
-                        front().second.entity->kind);
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                    front().second.domain_id, id,
+                    front().second.entity->kind);
             }
             else
             {

@@ -28,12 +28,6 @@
 namespace eprosima {
 namespace statistics_backend {
 
-namespace database {
-
-class DatabaseEntityQueue;
-
-} // namespace database
-
 namespace details {
 
 
@@ -68,100 +62,80 @@ void StatisticsBackendData::on_domain_entity_discovery(
 {
     auto monitor = monitors_.find(domain_id);
     assert(monitor != monitors_.end());
-    if (monitor->second->domain_listener == nullptr)
-    {
-        // No user listener
-        return;
-    }
+
+    auto preprocess_entity_discovery = [&monitor, &discovery_status](
+        CallbackKind callback_kind,
+        DomainListener::Status& status)
+            {
+                if (nullptr == monitor->second->domain_listener)
+                {
+                    // No user listener
+                    return false;
+                }
+
+                if (!monitor->second->domain_callback_mask.is_set(callback_kind))
+                {
+                    // mask deactivated
+                    return false;
+                }
+
+                if (DISCOVERY == discovery_status)
+                {
+                    status.on_instance_discovered();
+                }
+                else if (UNDISCOVERY == discovery_status)
+                {
+                    status.on_instance_undiscovered();
+                }
+                return true;
+            };
 
     switch (entity_kind)
     {
         case EntityKind::PARTICIPANT:
         {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_PARTICIPANT_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_PARTICIPANT_DISCOVERY,
+                    monitor->second->participant_status_))
             {
-                // mask deactivated
-                return;
+                monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
+                        monitor->second->participant_status_);
+                monitor->second->participant_status_.on_status_read();
             }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->participant_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->participant_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
-                    monitor->second->participant_status_);
-            monitor->second->participant_status_.on_status_read();
             break;
         }
         case EntityKind::TOPIC:
         {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_TOPIC_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_TOPIC_DISCOVERY, monitor->second->topic_status_))
             {
-                // mask deactivated
-                return;
+                monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id,
+                        monitor->second->topic_status_);
+                monitor->second->topic_status_.on_status_read();
             }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->topic_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->topic_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id, monitor->second->topic_status_);
-            monitor->second->topic_status_.on_status_read();
             break;
         }
         case EntityKind::DATAWRITER:
         {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAWRITER_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_DATAWRITER_DISCOVERY, monitor->second->datawriter_status_))
             {
-                // mask deactivated
-                return;
+                monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
+                        monitor->second->datawriter_status_);
+                monitor->second->datawriter_status_.on_status_read();
             }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->datawriter_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->datawriter_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
-                    monitor->second->datawriter_status_);
-            monitor->second->datawriter_status_.on_status_read();
             break;
         }
         case EntityKind::DATAREADER:
         {
-            if (!monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATAREADER_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_DATAREADER_DISCOVERY, monitor->second->datareader_status_))
             {
-                // mask deactivated
-                return;
+                monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
+                        monitor->second->datareader_status_);
+                monitor->second->datareader_status_.on_status_read();
             }
-
-            if (discovery_status == DISCOVERY)
-            {
-                monitor->second->datareader_status_.on_instance_discovered();
-            }
-            else if (discovery_status == UNDISCOVERY)
-            {
-                monitor->second->datareader_status_.on_instance_undiscovered();
-            }
-            monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
-                    monitor->second->datareader_status_);
-            monitor->second->datareader_status_.on_status_read();
             break;
         }
         default:
         {
-            throw Error("wrong entity_kind");
+            assert(false && "Invalid domain entity kind");
         }
     }
 }
@@ -171,69 +145,68 @@ void StatisticsBackendData::on_physical_entity_discovery(
         EntityId entity_id,
         EntityKind entity_kind)
 {
-    if (physical_listener_ == nullptr)
-    {
-        // No user listener
-        return;
-    }
+    auto preprocess_entity_discovery = [&](
+        CallbackKind callback_kind,
+        DomainListener::Status& status)
+            {
+                if ( nullptr == physical_listener_)
+                {
+                    // No user listener
+                    return false;
+                }
+
+                if (!physical_callback_mask_.is_set(callback_kind))
+                {
+                    // mask deactivated
+                    return false;
+                }
+
+                status.on_instance_discovered();
+                return true;
+            };
+
 
     switch (entity_kind)
     {
         case EntityKind::HOST:
         {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_HOST_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_HOST_DISCOVERY, host_status_))
             {
-                // mask deactivated
-                return;
+                physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
+                host_status_.on_status_read();
             }
-
-            host_status_.on_instance_discovered();
-            physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
-            host_status_.on_status_read();
             break;
         }
         case EntityKind::USER:
         {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_USER_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_USER_DISCOVERY, user_status_))
             {
-                // mask deactivated
-                return;
+                physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
+                user_status_.on_status_read();
             }
-
-            user_status_.on_instance_discovered();
-            physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
-            user_status_.on_status_read();
             break;
         }
         case EntityKind::PROCESS:
         {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_PROCESS_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_PROCESS_DISCOVERY, process_status_))
             {
-                // mask deactivated
-                return;
+                physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
+                process_status_.on_status_read();
             }
-
-            process_status_.on_instance_discovered();
-            physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
-            process_status_.on_status_read();
             break;
         }
         case EntityKind::LOCATOR:
         {
-            if (!physical_callback_mask_.is_set(CallbackKind::ON_LOCATOR_DISCOVERY))
+            if (preprocess_entity_discovery(CallbackKind::ON_LOCATOR_DISCOVERY, locator_status_))
             {
-                // mask deactivated
-                return;
+                physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
+                locator_status_.on_status_read();
             }
-
-            locator_status_.on_instance_discovered();
-            physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
-            locator_status_.on_status_read();
             break;
         }
         default:
         {
-            throw Error("wrong entity_kind");
+            assert(false && "Invalid physical entity kind");
         }
     }
 }
