@@ -88,6 +88,25 @@ public:
             const EntityId& process_id);
 
     /**
+     * @brief Create the link between an endpoint and a locator
+     *
+     * This operation entails:
+     *     1. Adding the endpoint to the locator's list of endpoints
+     *     2. Adding the locator to the endpoint's list of locators
+     *     3. Adding entry to locators_by_participant_
+     *     4. Adding entry to participants_by_locator_
+     *
+     * @param endpoint_id The EntityId of the endpoint
+     * @param locator_id The EntityId of the locator
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The endpoint does not exist in the database
+     *            * The locator does not exist in the database
+     */
+    void link_endpoint_with_locator(
+            const EntityId& endpoint_id,
+            const EntityId& locator_id);
+
+    /**
      * @brief Erase all the data related to a domain
      *
      * After the operation, the domain_id becomes invalid.
@@ -336,19 +355,6 @@ protected:
             const std::shared_ptr<const Entity>& entity) const;
 
     /**
-     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it
-     *
-     * @tparam T The DDSEndpoint to add to the Locator list. Only DDSEndpoint and its derived classes are allowed.
-     * @param endpoint The endpoint of type T to add to the list of the locator
-     * @param locator The locator that will be updated with endpoint
-     * @return The EntityId of the inserted DDSEndpoint
-     */
-    template<typename T>
-    void insert_ddsendpoint_to_locator(
-            std::shared_ptr<T>& endpoint,
-            std::shared_ptr<Locator>& locator);
-
-    /**
      * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
@@ -375,12 +381,6 @@ protected:
         if (endpoint->guid.empty())
         {
             throw BadParameter("Endpoint GUID cannot be empty");
-        }
-
-        /* Check that locators is not empty */
-        if (endpoint->locators.empty())
-        {
-            throw BadParameter("Endpoint locators cannot be empty");
         }
 
         /* Check that participant exits */
@@ -432,29 +432,17 @@ protected:
             }
         }
 
-        /* Add endpoint to participant' collection */
+        /* Insert endpoint in the database */
+        endpoint->data.clear();
         endpoint->id = generate_entity_id();
+        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
+
+        /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
-        /* Add to x_by_y_ collections and to locators_ */
-        for (auto locator_it : endpoint->locators)
-        {
-            // Add locator to locators_
-            locators_[locator_it.first] = locator_it.second;
-            // Add reader's locators to locators_by_participant_
-            locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
-            // Add reader's participant to participants_by_locator_
-            participants_by_locator_[locator_it.first][endpoint->participant->id] = endpoint->participant;
-            // Add endpoint to locator's collection
-            insert_ddsendpoint_to_locator(endpoint, locator_it.second);
-        }
-
         /* Add endpoint to topics's collection */
-        endpoint->data.clear();
         (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
-        /* Insert endpoint in the database */
-        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
         return endpoint->id;
     }
 
@@ -577,17 +565,6 @@ protected:
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;
 };
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataWriter>& endpoint,
-        std::shared_ptr<Locator>& locator);
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataReader>& endpoint,
-        std::shared_ptr<Locator>& locator);
-
 
 } //namespace database
 } //namespace statistics_backend

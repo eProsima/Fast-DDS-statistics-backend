@@ -356,6 +356,37 @@ EntityId Database::insert(
             auto data_writer = std::static_pointer_cast<DataWriter>(entity);
             return insert_ddsendpoint<DataWriter>(data_writer);
         }
+        case EntityKind::LOCATOR:
+        {
+            std::shared_ptr<Locator> locator = std::static_pointer_cast<Locator>(entity);
+
+            /* Check that locator name is not empty */
+            if (locator->name.empty())
+            {
+                throw BadParameter("Locator name cannot be empty");
+            }
+
+            /* Check that this is indeed a new locator, and that its name is unique */
+            for (auto locator_it: locators_)
+            {
+                if (locator.get() == locator_it.second.get())
+                {
+                    throw BadParameter("Locator already exists in the database");
+                }
+                if (locator->name == locator_it.second->name)
+                {
+                    throw BadParameter("Locator with name " + locator->name + " already exists in the database");
+                }
+            }
+
+            /* Insert locator in the database */
+            locator->data_readers.clear();
+            locator->data_writers.clear();
+            locator->data.clear();
+            locator->id = generate_entity_id();
+            locators_[locator->id] = locator;
+            return locator->id;
+        }
         default:
         {
             break;
@@ -740,6 +771,83 @@ void Database::link_participant_with_process(
 
     /* Add entry to processes_by_domain_ */
     processes_by_domain_[domain_id][process_it->first] = process_it->second;
+}
+
+void Database::link_endpoint_with_locator(
+        const EntityId& endpoint_id,
+        const EntityId& locator_id)
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    /* Get the endpoint */
+    std::shared_ptr<DDSEndpoint> endpoint;
+    {
+        /* Get the Datawriter */
+        std::map<EntityId, std::shared_ptr<DataWriter>>::iterator dw_it;
+        bool dw_exists = false;
+        for (auto domain_it : datawriters_)
+        {
+            dw_it = domain_it.second.find(endpoint_id);
+            if (dw_it != domain_it.second.end())
+            {
+                dw_exists = true;
+                endpoint = dw_it->second;
+                break;
+            }
+        }
+        if (!dw_exists)
+        {
+            /* Get the Datareader */
+            std::map<EntityId, std::shared_ptr<DataReader>>::iterator dr_it;
+            bool dr_exists = false;
+            for (auto domain_it : datareaders_)
+            {
+                dr_it = domain_it.second.find(endpoint_id);
+                if (dr_it != domain_it.second.end())
+                {
+                    dr_exists = true;
+                    endpoint = dr_it->second;
+                    break;
+                }
+            }
+
+            if (!dr_exists)
+            {
+                throw BadParameter("EntityId " + std::to_string(
+                                  endpoint_id.value()) + " does not identify a known endpoint");
+            }
+        }
+    }
+
+    /* Get the locator */
+    auto locator_it = locators_.find(locator_id);
+    if (locator_it == locators_.end())
+    {
+        throw BadParameter("EntityId " + std::to_string(locator_id.value()) + " does not identify a known locator");
+    }
+
+    // Not storing the std::shared_ptr<Locator> in a local variable results in the locator->second
+    // being moved when inserting it into the map. This causes a SEGFAULT later on when accessing to it.
+    auto locator = locator_it->second;
+
+    // Add endpoint to locator's collection
+    if (endpoint->kind == EntityKind::DATAWRITER)
+    {
+        locator->data_writers[endpoint->id] = std::dynamic_pointer_cast<DataWriter> (endpoint);
+    }
+    else // Datareader
+    {
+        locator->data_readers[endpoint->id] = std::dynamic_pointer_cast<DataReader> (endpoint);
+    }
+
+    // Add locator to endpoint's collection
+    endpoint->locators[locator_id] = locator;
+
+    // Add reader's locators to locators_by_participant_
+    locators_by_participant_[endpoint->participant->id][locator_id] = locator;
+
+    // Add reader's participant to participants_by_locator_
+    participants_by_locator_[locator_id][endpoint->participant->id] = endpoint->participant;
 }
 
 const std::shared_ptr<const Entity> Database::get_entity(
@@ -1896,22 +2004,6 @@ template<>
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
 {
     return datawriters_;
-}
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataWriter>& endpoint,
-        std::shared_ptr<Locator>& locator)
-{
-    locator->data_writers[endpoint->id] = endpoint;
-}
-
-template<>
-void Database::insert_ddsendpoint_to_locator(
-        std::shared_ptr<DataReader>& endpoint,
-        std::shared_ptr<Locator>& locator)
-{
-    locator->data_readers[endpoint->id] = endpoint;
 }
 
 DatabaseDump Database::dump_database()
