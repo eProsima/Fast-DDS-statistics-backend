@@ -96,7 +96,7 @@ std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    return database_->get_entity_ids(entity_type, entity_id);
+    return details::StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
 }
 
 bool StatisticsBackend::is_active(

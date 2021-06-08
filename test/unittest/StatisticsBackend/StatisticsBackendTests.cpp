@@ -138,9 +138,9 @@ TEST_P(statistics_backend_tests, get_entities)
         expected.push_back(entities[it]->id);
     }
 
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
-    EXPECT_THROW(StatisticsBackendTest::get_entities(kind, db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(StatisticsBackendTest::get_entities(kind, db->generate_entity_id()), BadParameter);
     EXPECT_THROW(StatisticsBackendTest::get_entities(EntityKind::INVALID, origin), BadParameter);
 
     auto result = StatisticsBackendTest::get_entities(kind, origin);
