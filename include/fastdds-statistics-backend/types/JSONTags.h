@@ -85,6 +85,10 @@ constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 /////
 // Internal info
 
+//! Key tag for the ID of an entity
+constexpr const char* ID_INFO_TAG                   = "id";
+//! Key tag for the EntityKind of an entity
+constexpr const char* KIND_INFO_TAG                 = "kind";
 //! Key tag for name of an entity
 constexpr const char* NAME_INFO_TAG                 = "name";
 //! Key tag for process id of a process entity
@@ -95,6 +99,10 @@ constexpr const char* DATA_TYPE_INFO_TAG            = "data_type";
 constexpr const char* GUID_INFO_TAG                 = "guid";
 //! Key tag for QoS of a participant, datawriter or datareader entity
 constexpr const char* QOS_INFO_TAG                  = "qos";
+//! Conversion from EntityKind to string
+constexpr const char* entity_kind_str[] =
+{"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
+ PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
 
 /////
 // Data container

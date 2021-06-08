@@ -1,3 +1,5 @@
 {
+    "id": 1,
+    "kind": "host",
     "name": "host_name"
 }

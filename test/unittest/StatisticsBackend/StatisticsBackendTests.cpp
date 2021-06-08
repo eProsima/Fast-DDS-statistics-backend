@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
+#include <types/JSONTags.h>
 #include <types/types.hpp>
 
 #include <database/database.hpp>
@@ -57,6 +58,64 @@ public:
     }
 
 };
+
+void check_dds_entity(
+        std::shared_ptr<const DDSEntity> const& entity,
+        Info const& info)
+{
+    ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
+    ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
+}
+
+// Check the get_type StatisticsBackend method
+TEST_F(statistics_backend_tests, get_info)
+{
+    StatisticsBackendTest::set_database(&db);
+
+    for (auto pair : entities)
+    {
+        std::shared_ptr<const Entity> entity = pair.second;
+        Info info = StatisticsBackendTest::get_info(entity->id);
+
+        // Check generic info
+        ASSERT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
+        ASSERT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
+        ASSERT_EQ(entity->name, info[NAME_INFO_TAG]);
+
+        // Check specific info
+        switch (entity->kind)
+        {
+            case EntityKind::PROCESS:
+            {
+                std::shared_ptr<const Process> process =
+                        std::dynamic_pointer_cast<const Process>(entity);
+                ASSERT_EQ(process->pid, info[PID_INFO_TAG]);
+                break;
+            }
+            case EntityKind::TOPIC:
+            {
+                std::shared_ptr<const Topic> topic =
+                        std::dynamic_pointer_cast<const Topic>(entity);
+                ASSERT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
+                break;
+            }
+            case EntityKind::PARTICIPANT:
+            case EntityKind::DATAWRITER:
+            case EntityKind::DATAREADER:
+            {
+                std::shared_ptr<const DDSEntity> dds_entity =
+                        std::dynamic_pointer_cast<const DDSEntity>(entity);
+                check_dds_entity(dds_entity, info);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+
+}
 
 // Check the get_type StatisticsBackend method
 TEST_F(statistics_backend_tests, get_type)

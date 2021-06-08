@@ -1,3 +1,5 @@
 {
+    "id": 2,
+    "kind": "user",
     "name": "user_name"
 }

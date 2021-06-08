@@ -1,4 +1,6 @@
 {
+    "id": 5,
+    "kind": "participant",
     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
     "name": "participant_name",
     "process": "4157b5c0-4a58-415b-a2bc-8aa9123fb635",
