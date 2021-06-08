@@ -49,6 +49,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     target_link_libraries(statistics_participant_listener_tests PUBLIC
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
+    get_win32_path_dependencies(statistics_participant_listener_tests TEST_FRIENDLY_PATH)
+
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
         new_participant_discovered_no_domain
@@ -74,5 +76,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         add_test(NAME statistics_participant_listener_tests.${test_name}
                 COMMAND statistics_participant_listener_tests
                 --gtest_filter=statistics_participant_listener_tests.${test_name}:*/statistics_participant_listener_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(statistics_participant_listener_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()

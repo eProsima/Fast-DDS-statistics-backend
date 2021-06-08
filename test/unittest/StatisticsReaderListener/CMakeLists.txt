@@ -48,6 +48,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     target_link_libraries(statistics_reader_listener_tests PUBLIC
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
+    get_win32_path_dependencies(statistics_reader_listener_tests TEST_FRIENDLY_PATH)
+
     set(STATISTICSDATALISTENER_TEST_LIST
         not_valid_data
         new_history_latency_received
@@ -73,5 +75,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         add_test(NAME statistics_reader_listener_tests.${test_name}
                 COMMAND statistics_reader_listener_tests
                 --gtest_filter=statistics_reader_listener_tests.${test_name}:*/statistics_reader_listener_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(statistics_reader_listener_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()

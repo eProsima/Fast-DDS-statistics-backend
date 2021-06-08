@@ -45,6 +45,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     target_link_libraries(database_queue_tests PUBLIC
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
+    get_win32_path_dependencies(database_queue_tests TEST_FRIENDLY_PATH)
+
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush
         push_host
@@ -117,5 +119,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         add_test(NAME database_queue_tests.${test_name}
                 COMMAND database_queue_tests
                 --gtest_filter=database_queue_tests.${test_name}:*/database_queue_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(database_queue_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+
     endforeach()
 endif()

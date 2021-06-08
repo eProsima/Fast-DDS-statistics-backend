@@ -16,6 +16,8 @@ add_executable(entityid_tests EntityIdTests.cpp)
 
 target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
 
+get_win32_path_dependencies(entityid_tests TEST_FRIENDLY_PATH)
+
 set(ENTITYID_TEST_LIST
     all
     is_all
@@ -36,4 +38,8 @@ foreach(test_name ${ENTITYID_TEST_LIST})
     add_test(NAME entityid.${test_name}
             COMMAND entityid_tests
             --gtest_filter=entityid.${test_name}:*/entityid.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(entityid.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()

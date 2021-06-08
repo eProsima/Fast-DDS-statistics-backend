@@ -2768,7 +2768,9 @@ TEST_F(database_queue_tests, push_discovery_times)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
-    uint64_t discovery_time = 1024;
+    // discovery time must be rounded to tenths of nanosecond to avoid truncation by
+    // windows system_clock
+    uint64_t discovery_time = 1000;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::system_clock::time_point discovery_timestamp =

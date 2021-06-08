@@ -202,7 +202,7 @@ void DatabaseDataQueue::process_sample_type(
         DiscoveryTimeSample& sample,
         const StatisticsDiscoveryTime& item) const
 {
-    sample.time = nanoseconds_to_systemclock(item.time()/100);
+    sample.time = nanoseconds_to_systemclock(item.time());
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     try
     {
