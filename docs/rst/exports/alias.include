@@ -40,6 +40,7 @@
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
 .. |EntityKind-api| replace:: :cpp:type:`EntityKind<eprosima::statistics_backend::EntityKind>`
 .. |EntityId-api| replace:: :cpp:type:`EntityId<eprosima::statistics_backend::EntityId>`
+.. |EntityId:all-api| replace:: :cpp:func:`EntityId::all()<eprosima::statistics_backend::EntityId::all>`
 .. |EntityIds-api| replace:: :cpp:type:`EntityIds<eprosima::statistics_backend::EntityId>`
 .. |Info-api| replace:: :cpp:type:`Info<eprosima::statistics_backend::Info>`
 .. |Graph-api| replace:: :cpp:type:`Graph<eprosima::statistics_backend::Graph>`
@@ -54,3 +55,5 @@
 .. |DATAWRITER-api| replace:: :cpp:enumerator:`DATAWRITER<eprosima::statistics_backend::EntityKind::DATAWRITER>`
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
+
+.. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`

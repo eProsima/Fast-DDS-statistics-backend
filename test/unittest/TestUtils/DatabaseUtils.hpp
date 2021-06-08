@@ -25,6 +25,9 @@ using namespace eprosima::statistics_backend::database;
  * and is totally under control of the class and the tests.
  * This is important to keep the tests stable even if the Database implementation to assign an EntityId changes.
  *
+ * Identifier '0' does not track any entity, instead is used to insert an entity with EntityId:all()
+ * for use on several tests.
+ *
  * The following Json object describes the populated database objects and their given unique identifiers:
  *
  * \code
@@ -124,6 +127,10 @@ public:
             Database& db)
     {
         std::map<TestId, std::shared_ptr<const Entity>> entities;
+
+        auto entityAll = std::make_shared<Entity>(EntityKind::INVALID, "ALL");
+        entityAll->id = EntityId::all();
+        entities[0] = entityAll;
 
         auto host1 = std::make_shared<Host>("host1");
         db.insert(host1);

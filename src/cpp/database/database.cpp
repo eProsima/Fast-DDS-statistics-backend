@@ -1589,10 +1589,16 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
         const EntityId& entity_id) const
 {
-    // This call will throw BadParameter if there is no such entity.
-    // We let this exception through, as it meets expectations
-    std::shared_ptr<const Entity> origin = get_entity(entity_id);
-    assert (origin->kind != EntityKind::INVALID);
+    std::shared_ptr<const Entity> origin;
+
+    // If entity_id is all, return all the entities of type entity_kind
+    if (entity_id != EntityId::all())
+    {
+        // This call will throw BadParameter if there is no such entity.
+        // We let this exception through, as it meets expectations
+        origin = get_entity(entity_id);
+        assert(origin->kind != EntityKind::INVALID);
+    }
 
     auto entities = get_entities(entity_kind, origin);
 
@@ -1614,376 +1620,452 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     return entities;
 }
 
+std::vector<EntityId> Database::get_entity_ids(
+        EntityKind entity_kind,
+        const EntityId& entity_id) const
+{
+    std::vector<EntityId> entitiesIds;
+    for (auto entity : get_entities(entity_kind, entity_id))
+    {
+        entitiesIds.push_back(entity->id);
+    }
+
+    return entitiesIds;
+}
+
+// Auxiliar function to convert a map to a vector
+template<typename T>
+void map_to_vector(
+        const std::map<EntityId, std::shared_ptr<T>>& map,
+        std::vector<std::shared_ptr<const Entity>>& vec)
+{
+    for (auto elem : map)
+    {
+        vec.push_back(elem.second);
+    }
+}
+
+// Auxiliar function to convert a map of maps to a vector
+template <typename T>
+void map_of_maps_to_vector(
+        const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
+        std::vector<std::shared_ptr<const Entity>>& vec)
+{
+    for (auto elem : map)
+    {
+        map_to_vector(elem.second, vec);
+    }
+}
+
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
         const std::shared_ptr<const Entity>& origin) const
 {
     std::vector<std::shared_ptr<const Entity>> entities;
 
-    switch (origin->kind)
+    // If entity_id is all, origin is nullptr. Return all the entities of type entity_kind
+    if (origin == nullptr)
     {
-        case EntityKind::HOST:
+        switch (entity_kind)
         {
-            const std::shared_ptr<const Host>& host = std::dynamic_pointer_cast<const Host>(origin);
-            switch (entity_kind)
-            {
-                case EntityKind::HOST:
-                    entities.push_back(host);
-                    break;
-                case EntityKind::USER:
-                    for (auto user : host->users)
-                    {
-                        entities.push_back(user.second);
-                    }
-                    break;
-                case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
-                case EntityKind::PARTICIPANT:
-                case EntityKind::TOPIC:
-                case EntityKind::DATAREADER:
-                case EntityKind::DATAWRITER:
-                case EntityKind::LOCATOR:
-                    for (auto user : host->users)
-                    {
-                        auto sub_entities = get_entities(entity_kind, user.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
-            }
-            break;
+            case EntityKind::HOST:
+                map_to_vector(hosts_, entities);
+                break;
+            case EntityKind::USER:
+                map_to_vector(users_, entities);
+                break;
+            case EntityKind::PROCESS:
+                map_to_vector(processes_, entities);
+                break;
+            case EntityKind::DOMAIN:
+                map_to_vector(domains_, entities);
+                break;
+            case EntityKind::TOPIC:
+                map_of_maps_to_vector(topics_, entities);
+                break;
+            case EntityKind::PARTICIPANT:
+                map_of_maps_to_vector(participants_, entities);
+                break;
+            case EntityKind::DATAWRITER:
+                map_of_maps_to_vector(datawriters_, entities);
+                break;
+            case EntityKind::DATAREADER:
+                map_of_maps_to_vector(datareaders_, entities);
+                break;
+            case EntityKind::LOCATOR:
+                map_to_vector(locators_, entities);
+                break;
+            default:
+                throw BadParameter("Invalid EntityKind");
         }
-        case EntityKind::USER:
+    }
+    else
+    {
+        switch (origin->kind)
         {
-            const std::shared_ptr<const User>& user = std::dynamic_pointer_cast<const User>(origin);
-            switch (entity_kind)
+            case EntityKind::HOST:
             {
-                case EntityKind::HOST:
-                    entities.push_back(user->host);
-                    break;
-                case EntityKind::USER:
-                    entities.push_back(user);
-                    break;
-                case EntityKind::PROCESS:
-                    for (auto process : user->processes)
-                    {
-                        entities.push_back(process.second);
-                    }
-                    break;
-                case EntityKind::DOMAIN:
-                case EntityKind::PARTICIPANT:
-                case EntityKind::TOPIC:
-                case EntityKind::DATAREADER:
-                case EntityKind::DATAWRITER:
-                case EntityKind::LOCATOR:
-                    for (auto process : user->processes)
-                    {
-                        auto sub_entities = get_entities(entity_kind, process.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
-            }
-            break;
-        }
-        case EntityKind::PROCESS:
-        {
-            const std::shared_ptr<const Process>& process = std::dynamic_pointer_cast<const Process>(origin);
-            switch (entity_kind)
-            {
-                case EntityKind::HOST:
+                const std::shared_ptr<const Host>& host = std::dynamic_pointer_cast<const Host>(origin);
+                switch (entity_kind)
                 {
-                    auto sub_entities = get_entities(entity_kind, process->user);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    case EntityKind::HOST:
+                        entities.push_back(host);
+                        break;
+                    case EntityKind::USER:
+                        for (auto user : host->users)
+                        {
+                            entities.push_back(user.second);
+                        }
+                        break;
+                    case EntityKind::PROCESS:
+                    case EntityKind::DOMAIN:
+                    case EntityKind::PARTICIPANT:
+                    case EntityKind::TOPIC:
+                    case EntityKind::DATAREADER:
+                    case EntityKind::DATAWRITER:
+                    case EntityKind::LOCATOR:
+                        for (auto user : host->users)
+                        {
+                            auto sub_entities = get_entities(entity_kind, user.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
                 }
                 break;
-                case EntityKind::USER:
-                    entities.push_back(process->user);
-                    break;
-                case EntityKind::PROCESS:
-                    entities.push_back(process);
-                    break;
-                case EntityKind::PARTICIPANT:
-                    for (auto participant : process->participants)
-                    {
-                        entities.push_back(participant.second);
-                    }
-                    break;
-                case EntityKind::DOMAIN:
-                case EntityKind::TOPIC:
-                case EntityKind::DATAREADER:
-                case EntityKind::DATAWRITER:
-                case EntityKind::LOCATOR:
-                    for (auto participant : process->participants)
-                    {
-                        auto sub_entities = get_entities(entity_kind, participant.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
             }
-            break;
-        }
-        case EntityKind::DOMAIN:
-        {
-            const std::shared_ptr<const Domain>& domain = std::dynamic_pointer_cast<const Domain>(origin);
-            switch (entity_kind)
+            case EntityKind::USER:
             {
-                case EntityKind::DOMAIN:
-                    entities.push_back(domain);
-                    break;
-                case EntityKind::PARTICIPANT:
-                    for (auto participant : domain->participants)
-                    {
-                        entities.push_back(participant.second);
-                    }
-                    break;
-                case EntityKind::TOPIC:
-                    for (auto topic : domain->topics)
-                    {
-                        entities.push_back(topic.second);
-                    }
-                    break;
-                case EntityKind::HOST:
-                case EntityKind::USER:
-                case EntityKind::PROCESS:
-                case EntityKind::DATAREADER:
-                case EntityKind::DATAWRITER:
-                case EntityKind::LOCATOR:
-                    for (auto participant : domain->participants)
-                    {
-                        auto sub_entities = get_entities(entity_kind, participant.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
-            }
-            break;
-        }
-        case EntityKind::PARTICIPANT:
-        {
-            const std::shared_ptr<const DomainParticipant>& participant =
-                    std::dynamic_pointer_cast<const DomainParticipant>(origin);
-            switch (entity_kind)
-            {
-                case EntityKind::HOST:
-                case EntityKind::USER:
+                const std::shared_ptr<const User>& user = std::dynamic_pointer_cast<const User>(origin);
+                switch (entity_kind)
                 {
-                    auto sub_entities = get_entities(entity_kind, participant->process);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    case EntityKind::HOST:
+                        entities.push_back(user->host);
+                        break;
+                    case EntityKind::USER:
+                        entities.push_back(user);
+                        break;
+                    case EntityKind::PROCESS:
+                        for (auto process : user->processes)
+                        {
+                            entities.push_back(process.second);
+                        }
+                        break;
+                    case EntityKind::DOMAIN:
+                    case EntityKind::PARTICIPANT:
+                    case EntityKind::TOPIC:
+                    case EntityKind::DATAREADER:
+                    case EntityKind::DATAWRITER:
+                    case EntityKind::LOCATOR:
+                        for (auto process : user->processes)
+                        {
+                            auto sub_entities = get_entities(entity_kind, process.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
                 }
                 break;
-                case EntityKind::PROCESS:
-                    entities.push_back(participant->process);
-                    break;
-                case EntityKind::DOMAIN:
-                    entities.push_back(participant->domain);
-                    break;
-                case EntityKind::PARTICIPANT:
-                    entities.push_back(participant);
-                    break;
-                case EntityKind::DATAWRITER:
-                    for (auto writer : participant->data_writers)
-                    {
-                        entities.push_back(writer.second);
-                    }
-                    break;
-                case EntityKind::DATAREADER:
-                    for (auto reader : participant->data_readers)
-                    {
-                        entities.push_back(reader.second);
-                    }
-                    break;
-                case EntityKind::TOPIC:
-                case EntityKind::LOCATOR:
-                    for (auto writer : participant->data_writers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, writer.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    for (auto reader : participant->data_readers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, reader.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
             }
-            break;
-        }
-        case EntityKind::TOPIC:
-        {
-            const std::shared_ptr<const Topic>& topic = std::dynamic_pointer_cast<const Topic>(origin);
-            switch (entity_kind)
+            case EntityKind::PROCESS:
             {
-                case EntityKind::DOMAIN:
-                    entities.push_back(topic->domain);
-                    break;
-                case EntityKind::TOPIC:
-                    entities.push_back(topic);
-                    break;
-                case EntityKind::DATAWRITER:
-                    for (auto writer : topic->data_writers)
-                    {
-                        entities.push_back(writer.second);
-                    }
-                    break;
-                case EntityKind::DATAREADER:
-                    for (auto reader : topic->data_readers)
-                    {
-                        entities.push_back(reader.second);
-                    }
-                    break;
-                case EntityKind::HOST:
-                case EntityKind::USER:
-                case EntityKind::PROCESS:
-                case EntityKind::PARTICIPANT:
-                case EntityKind::LOCATOR:
-                    for (auto writer : topic->data_writers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, writer.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    for (auto reader : topic->data_readers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, reader.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
-            }
-            break;
-        }
-        case EntityKind::DATAWRITER:
-        {
-            const std::shared_ptr<const DataWriter>& writer = std::dynamic_pointer_cast<const DataWriter>(origin);
-            switch (entity_kind)
-            {
-                case EntityKind::TOPIC:
-                    entities.push_back(writer->topic);
-                    break;
-                case EntityKind::PARTICIPANT:
-                    entities.push_back(writer->participant);
-                    break;
-                case EntityKind::DATAWRITER:
-                    entities.push_back(writer);
-                    break;
-                case EntityKind::LOCATOR:
-                    for (auto locator : writer->locators)
-                    {
-                        entities.push_back(locator.second);
-                    }
-                    break;
-                case EntityKind::DATAREADER:
+                const std::shared_ptr<const Process>& process = std::dynamic_pointer_cast<const Process>(origin);
+                switch (entity_kind)
                 {
-                    auto sub_entities = get_entities(entity_kind, writer->topic);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    case EntityKind::HOST:
+                    {
+                        auto sub_entities = get_entities(entity_kind, process->user);
+                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    }
+                    break;
+                    case EntityKind::USER:
+                        entities.push_back(process->user);
+                        break;
+                    case EntityKind::PROCESS:
+                        entities.push_back(process);
+                        break;
+                    case EntityKind::PARTICIPANT:
+                        for (auto participant : process->participants)
+                        {
+                            entities.push_back(participant.second);
+                        }
+                        break;
+                    case EntityKind::DOMAIN:
+                    case EntityKind::TOPIC:
+                    case EntityKind::DATAREADER:
+                    case EntityKind::DATAWRITER:
+                    case EntityKind::LOCATOR:
+                        for (auto participant : process->participants)
+                        {
+                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
                 }
                 break;
-                case EntityKind::HOST:
-                case EntityKind::USER:
-                case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
-                {
-                    auto sub_entities = get_entities(entity_kind, writer->participant);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                }
-                break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
             }
-            break;
-        }
-        case EntityKind::DATAREADER:
-        {
-            const std::shared_ptr<const DataReader>& reader = std::dynamic_pointer_cast<const DataReader>(origin);
-            switch (entity_kind)
+            case EntityKind::DOMAIN:
             {
-                case EntityKind::TOPIC:
-                    entities.push_back(reader->topic);
-                    break;
-                case EntityKind::PARTICIPANT:
-                    entities.push_back(reader->participant);
-                    break;
-                case EntityKind::DATAREADER:
-                    entities.push_back(reader);
-                    break;
-                case EntityKind::LOCATOR:
-                    for (auto locator : reader->locators)
-                    {
-                        entities.push_back(locator.second);
-                    }
-                    break;
-                case EntityKind::DATAWRITER:
+                const std::shared_ptr<const Domain>& domain = std::dynamic_pointer_cast<const Domain>(origin);
+                switch (entity_kind)
                 {
-                    auto sub_entities = get_entities(entity_kind, reader->topic);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    case EntityKind::DOMAIN:
+                        entities.push_back(domain);
+                        break;
+                    case EntityKind::PARTICIPANT:
+                        for (auto participant : domain->participants)
+                        {
+                            entities.push_back(participant.second);
+                        }
+                        break;
+                    case EntityKind::TOPIC:
+                        for (auto topic : domain->topics)
+                        {
+                            entities.push_back(topic.second);
+                        }
+                        break;
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
+                    case EntityKind::PROCESS:
+                    case EntityKind::DATAREADER:
+                    case EntityKind::DATAWRITER:
+                    case EntityKind::LOCATOR:
+                        for (auto participant : domain->participants)
+                        {
+                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
                 }
                 break;
-                case EntityKind::HOST:
-                case EntityKind::USER:
-                case EntityKind::PROCESS:
-                case EntityKind::DOMAIN:
-                {
-                    auto sub_entities = get_entities(entity_kind, reader->participant);
-                    entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                }
-                break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
             }
-            break;
-        }
-        case EntityKind::LOCATOR:
-        {
-            const std::shared_ptr<const Locator>& locator = std::dynamic_pointer_cast<const Locator>(origin);
-            switch (entity_kind)
+            case EntityKind::PARTICIPANT:
             {
-                case EntityKind::DATAREADER:
-                    for (auto reader : locator->data_readers)
+                const std::shared_ptr<const DomainParticipant>& participant =
+                        std::dynamic_pointer_cast<const DomainParticipant>(origin);
+                switch (entity_kind)
+                {
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
                     {
-                        entities.push_back(reader.second);
-                    }
-                    break;
-                case EntityKind::DATAWRITER:
-                    for (auto writer : locator->data_writers)
-                    {
-                        entities.push_back(writer.second);
-                    }
-                    break;
-                case EntityKind::LOCATOR:
-                    entities.push_back(locator);
-                    break;
-                case EntityKind::HOST:
-                case EntityKind::USER:
-                case EntityKind::PROCESS:
-                case EntityKind::PARTICIPANT:
-                case EntityKind::TOPIC:
-                case EntityKind::DOMAIN:
-                    for (auto writer : locator->data_writers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, writer.second);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
-                    for (auto reader : locator->data_readers)
-                    {
-                        auto sub_entities = get_entities(entity_kind, reader.second);
+                        auto sub_entities = get_entities(entity_kind, participant->process);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
-                default:
-                    throw BadParameter("Invalid EntityKind");
+                    case EntityKind::PROCESS:
+                        entities.push_back(participant->process);
+                        break;
+                    case EntityKind::DOMAIN:
+                        entities.push_back(participant->domain);
+                        break;
+                    case EntityKind::PARTICIPANT:
+                        entities.push_back(participant);
+                        break;
+                    case EntityKind::DATAWRITER:
+                        for (auto writer : participant->data_writers)
+                        {
+                            entities.push_back(writer.second);
+                        }
+                        break;
+                    case EntityKind::DATAREADER:
+                        for (auto reader : participant->data_readers)
+                        {
+                            entities.push_back(reader.second);
+                        }
+                        break;
+                    case EntityKind::TOPIC:
+                    case EntityKind::LOCATOR:
+                        for (auto writer : participant->data_writers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        for (auto reader : participant->data_readers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
+                }
+                break;
             }
-            break;
+            case EntityKind::TOPIC:
+            {
+                const std::shared_ptr<const Topic>& topic = std::dynamic_pointer_cast<const Topic>(origin);
+                switch (entity_kind)
+                {
+                    case EntityKind::DOMAIN:
+                        entities.push_back(topic->domain);
+                        break;
+                    case EntityKind::TOPIC:
+                        entities.push_back(topic);
+                        break;
+                    case EntityKind::DATAWRITER:
+                        for (auto writer : topic->data_writers)
+                        {
+                            entities.push_back(writer.second);
+                        }
+                        break;
+                    case EntityKind::DATAREADER:
+                        for (auto reader : topic->data_readers)
+                        {
+                            entities.push_back(reader.second);
+                        }
+                        break;
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
+                    case EntityKind::PROCESS:
+                    case EntityKind::PARTICIPANT:
+                    case EntityKind::LOCATOR:
+                        for (auto writer : topic->data_writers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        for (auto reader : topic->data_readers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
+                }
+                break;
+            }
+            case EntityKind::DATAWRITER:
+            {
+                const std::shared_ptr<const DataWriter>& writer = std::dynamic_pointer_cast<const DataWriter>(origin);
+                switch (entity_kind)
+                {
+                    case EntityKind::TOPIC:
+                        entities.push_back(writer->topic);
+                        break;
+                    case EntityKind::PARTICIPANT:
+                        entities.push_back(writer->participant);
+                        break;
+                    case EntityKind::DATAWRITER:
+                        entities.push_back(writer);
+                        break;
+                    case EntityKind::LOCATOR:
+                        for (auto locator : writer->locators)
+                        {
+                            entities.push_back(locator.second);
+                        }
+                        break;
+                    case EntityKind::DATAREADER:
+                    {
+                        auto sub_entities = get_entities(entity_kind, writer->topic);
+                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    }
+                    break;
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
+                    case EntityKind::PROCESS:
+                    case EntityKind::DOMAIN:
+                    {
+                        auto sub_entities = get_entities(entity_kind, writer->participant);
+                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    }
+                    break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
+                }
+                break;
+            }
+            case EntityKind::DATAREADER:
+            {
+                const std::shared_ptr<const DataReader>& reader = std::dynamic_pointer_cast<const DataReader>(origin);
+                switch (entity_kind)
+                {
+                    case EntityKind::TOPIC:
+                        entities.push_back(reader->topic);
+                        break;
+                    case EntityKind::PARTICIPANT:
+                        entities.push_back(reader->participant);
+                        break;
+                    case EntityKind::DATAREADER:
+                        entities.push_back(reader);
+                        break;
+                    case EntityKind::LOCATOR:
+                        for (auto locator : reader->locators)
+                        {
+                            entities.push_back(locator.second);
+                        }
+                        break;
+                    case EntityKind::DATAWRITER:
+                    {
+                        auto sub_entities = get_entities(entity_kind, reader->topic);
+                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    }
+                    break;
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
+                    case EntityKind::PROCESS:
+                    case EntityKind::DOMAIN:
+                    {
+                        auto sub_entities = get_entities(entity_kind, reader->participant);
+                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                    }
+                    break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
+                }
+                break;
+            }
+            case EntityKind::LOCATOR:
+            {
+                const std::shared_ptr<const Locator>& locator = std::dynamic_pointer_cast<const Locator>(origin);
+                switch (entity_kind)
+                {
+                    case EntityKind::DATAREADER:
+                        for (auto reader : locator->data_readers)
+                        {
+                            entities.push_back(reader.second);
+                        }
+                        break;
+                    case EntityKind::DATAWRITER:
+                        for (auto writer : locator->data_writers)
+                        {
+                            entities.push_back(writer.second);
+                        }
+                        break;
+                    case EntityKind::LOCATOR:
+                        entities.push_back(locator);
+                        break;
+                    case EntityKind::HOST:
+                    case EntityKind::USER:
+                    case EntityKind::PROCESS:
+                    case EntityKind::PARTICIPANT:
+                    case EntityKind::TOPIC:
+                    case EntityKind::DOMAIN:
+                        for (auto writer : locator->data_writers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        for (auto reader : locator->data_readers)
+                        {
+                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
+                        break;
+                    default:
+                        throw BadParameter("Invalid EntityKind");
+                }
+                break;
+            }
+            default:
+                throw BadParameter("Invalid EntityKind");
         }
-        default:
-            throw BadParameter("Invalid EntityKind");
     }
 
     return entities;

@@ -5,20 +5,24 @@
 Get entities of a given kind
 ----------------------------
 
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
-
 The |StatisticsBackend-api| singleton can be queried about all the entities of a given |EntityKind-api|.
 For example, |get_entities-api| function can be used to retrieve all the |HOST-api| for which statistics are reported.
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //CONF-GET-ENTITIES-DEFAULT-EXAMPLE
+    :end-before: //!
+    :dedent: 8
+
+.. _statistics_backend_get_entities:
+
+This call to |get_entities-api| is the same as:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
     :start-after: //CONF-GET-ENTITIES-ALL-EXAMPLE
     :end-before: //!
     :dedent: 8
-
-.. _statistics_backend_get_entities:
 
 Get entities of a given kind related to another entity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33,6 +37,12 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
     :start-after: //CONF-GET-ENTITIES-EXAMPLE
     :end-before: //!
     :dedent: 8
+
+|get_entities-api| throws |BadParameter-api| in the following case:
+
+* if the |EntityKind-api| is |EntityKind_INVALID-api|
+* if the |EntityId-api| does not reference a entity contained in the database or is not |EntityId:all-api|.
+* if the |EntityKind-api| of the |EntityId-api| is |EntityKind_INVALID-api|
 
 This function returns the related entities according to the following table:
 

@@ -322,13 +322,18 @@ int get_graph_examples(
 void get_entities_example()
 {
     {
-        //CONF-GET-ENTITIES-ALL-EXAMPLE
+        //CONF-GET-ENTITIES-DEFAULT-EXAMPLE
         // Get all hosts
         std::vector<EntityId> hosts = StatisticsBackend::get_entities(EntityKind::HOST);
         for (EntityId host : hosts)
         {
             std::cout << "Host ID: " << host << std::endl;
         }
+        //!--
+    }
+    {
+        //CONF-GET-ENTITIES-ALL-EXAMPLE
+        StatisticsBackend::get_entities(EntityKind::HOST, EntityId::all());
         //!--
     }
     {

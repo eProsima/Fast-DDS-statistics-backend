@@ -75,7 +75,6 @@ TEST_P(database_get_entities_tests, get_entities)
     EXPECT_THROW(db.get_entities(kind, db.generate_entity_id()), BadParameter);
     EXPECT_THROW(db.get_entities(EntityKind::INVALID, origin), BadParameter);
 
-
     auto result = db.get_entities(kind, origin);
     ASSERT_EQ(expected.size(), result.size());
     std::sort(expected.begin(), expected.end());
@@ -83,6 +82,29 @@ TEST_P(database_get_entities_tests, get_entities)
     for (size_t i = 0; i < expected.size(); ++i)
     {
         EXPECT_EQ(expected[i].get(), result[i].get());
+    }
+}
+
+TEST_P(database_get_entities_tests, get_entity_ids)
+{
+    EntityKind kind = std::get<0>(GetParam());
+    EntityId origin = entities[std::get<1>(GetParam())]->id;
+    std::vector<EntityId> expected;
+    for (auto it : std::get<2>(GetParam()))
+    {
+        expected.push_back(entities[it]->id);
+    }
+
+    EXPECT_THROW(db.get_entity_ids(kind, db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(db.get_entity_ids(EntityKind::INVALID, origin), BadParameter);
+
+    auto result = db.get_entity_ids(kind, origin);
+    ASSERT_EQ(expected.size(), result.size());
+    std::sort(expected.begin(), expected.end());
+    std::sort(result.begin(), result.end());
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        EXPECT_EQ(expected[i], result[i]);
     }
 }
 
@@ -96,6 +118,24 @@ GTEST_INSTANTIATE_TEST_MACRO(
     database_get_entities_tests,
     database_get_entities_tests,
     ::testing::Values(
+        // ALL - HOST
+        std::make_tuple(EntityKind::HOST, 0, std::vector<size_t>{1, 2}),
+        // ALL - USER
+        std::make_tuple(EntityKind::USER, 0, std::vector<size_t>{3, 4}),
+        // ALL - PROCESS
+        std::make_tuple(EntityKind::PROCESS, 0, std::vector<size_t>{5, 6}),
+        // ALL - DOMAIN
+        std::make_tuple(EntityKind::DOMAIN, 0, std::vector<size_t>{7, 8}),
+        // ALL - PARTICIPANT
+        std::make_tuple(EntityKind::PARTICIPANT, 0, std::vector<size_t>{9, 10}),
+        // ALL - TOPIC
+        std::make_tuple(EntityKind::TOPIC, 0, std::vector<size_t>{11, 12}),
+        // ALL - DATAREADER
+        std::make_tuple(EntityKind::DATAREADER, 0, std::vector<size_t>{13, 14}),
+        // ALL - DATAWRITER
+        std::make_tuple(EntityKind::DATAWRITER, 0, std::vector<size_t>{15, 16}),
+        // ALL - LOCATOR
+        std::make_tuple(EntityKind::LOCATOR, 0, std::vector<size_t>{17, 18, 19, 20}),
         // HOST - HOST
         std::make_tuple(EntityKind::HOST, 2, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 1, std::vector<size_t> { 1 }),

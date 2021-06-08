@@ -358,6 +358,7 @@ target_link_libraries(database_get_entities_tests PUBLIC
 
 set(DATABASE_GET_ENTITIES_TEST_LIST
     get_entities
+    get_entity_ids
 )
 
 foreach(test_name ${DATABASE_GET_ENTITIES_TEST_LIST})
