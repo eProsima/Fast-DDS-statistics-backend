@@ -23,11 +23,21 @@
 
 #include <stdio.h>
 
-int __cdecl chdir(char const* _Path);
-FILE* __cdecl fdopen(int _FileHandle, char const* _Format);
-int __cdecl read(int _FileHandle, void* _DstBuf, unsigned int _MaxCharCount);
-int __cdecl write(int _FileHandle, void const* _Buf, unsigned int _MaxCharCount);
-int __cdecl close(int _FileHandle);
+int __cdecl chdir(
+        char const* _Path);
+FILE* __cdecl fdopen(
+        int _FileHandle,
+        char const* _Format);
+int __cdecl read(
+        int _FileHandle,
+        void* _DstBuf,
+        unsigned int _MaxCharCount);
+int __cdecl write(
+        int _FileHandle,
+        void const* _Buf,
+        unsigned int _MaxCharCount);
+int __cdecl close(
+        int _FileHandle);
 
 #endif // _WIN32
 

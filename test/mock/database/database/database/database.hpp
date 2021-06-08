@@ -39,13 +39,14 @@ namespace statistics_backend {
  * @param nanosecs from posix epoch 1970-01-01
  * @return argument date on local system_clock time point
  */
-inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(uint64_t nanosecs)
+inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(
+        uint64_t nanosecs)
 {
 #if defined(_WIN32)
-    auto span_since_epoch = std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(nanosecs/100);
+    auto span_since_epoch = std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(nanosecs / 100);
 #else
     auto span_since_epoch = std::chrono::nanoseconds(nanosecs);
-#endif
+#endif // if defined(_WIN32)
     return std::chrono::system_clock::time_point(span_since_epoch);
 }
 

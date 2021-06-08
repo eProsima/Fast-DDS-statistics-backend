@@ -85,7 +85,7 @@ protected:
 /**
  * @brief Exception to signal a generic error that falls in no other specific category
  */
-class  Error : public Exception
+class Error : public Exception
 {
 
 public:
@@ -127,7 +127,7 @@ public:
 /**
  * @brief Exception to signal that an operation is not supported
  */
-class  Unsupported : public Exception
+class Unsupported : public Exception
 {
 
 public:
@@ -169,7 +169,7 @@ public:
 /**
  * @brief Exception to signal that an operation has been called with an invalid parameter
  */
-class  BadParameter : public Exception
+class BadParameter : public Exception
 {
 
 public:
@@ -211,7 +211,7 @@ public:
 /**
  * @brief Exception to signal that an operation found no data to return
  */
-class  NoData : public Exception
+class NoData : public Exception
 {
 
 public:
