@@ -51,12 +51,6 @@ protected:
     using StatisticsDiscoveryTime = eprosima::fastdds::statistics::DiscoveryTime;
     using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
     using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
-    using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
-    using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
-    using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
-    using StatisticsSequenceNumber = eprosima::fastdds::statistics::detail::SequenceNumber_s;
-    using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
-    using StatisticsLocator = eprosima::fastdds::statistics::detail::Locator_s;
 
 public:
 

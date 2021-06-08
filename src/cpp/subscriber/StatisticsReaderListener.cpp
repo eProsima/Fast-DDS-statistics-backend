@@ -26,7 +26,6 @@
 #include <fastrtps/types/TypesBase.h>
 
 #include <database/database_queue.hpp>
-
 #include <topic_types/types.h>
 
 namespace eprosima {
