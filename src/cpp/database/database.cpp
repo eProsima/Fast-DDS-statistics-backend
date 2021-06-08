@@ -3215,7 +3215,7 @@ void Database::load_database(
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3233,10 +3233,10 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
-                            hosts_[id_string_to_int((std::string)(*it).at(HOST_ENTITY_TAG))]);
+                            hosts_[string_to_int((*it).at(HOST_ENTITY_TAG))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3255,10 +3255,10 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<Process> entity =
                     std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
-                            users_[EntityId(id_string_to_int((std::string)(*it).at(USER_ENTITY_TAG)))]);
+                            users_[EntityId(string_to_int((*it).at(USER_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3278,7 +3278,7 @@ void Database::load_database(
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3299,10 +3299,10 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<Topic> entity =
                     std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
-                            domains_[EntityId(id_string_to_int((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+                            domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
         }
     }
@@ -3323,14 +3323,14 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
                 (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
-                domains_[EntityId(id_string_to_int((std::string)(*it).at(DOMAIN_ENTITY_TAG)))]);
+                domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Link participant with process
-            EntityId process_id(id_string_to_int((std::string)(*it).at(PROCESS_ENTITY_TAG)));
+            EntityId process_id(string_to_int((*it).at(PROCESS_ENTITY_TAG)));
 
             if (process_id != EntityId::invalid())
             {
@@ -3360,7 +3360,7 @@ void Database::load_database(
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
 
             // Give him a id
-            entity->id = EntityId(id_string_to_int(it.key()));
+            entity->id = EntityId(string_to_int(it.key()));
             if (entity->id.value() >= next_id_)
             {
                 next_id_ = entity->id.value() + 1;
@@ -3389,15 +3389,14 @@ void Database::load_database(
                     LOCATOR_CONTAINER_TAG);
 
             // Get keys
-            EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
-                                PARTICIPANT_ENTITY_TAG)));
+            EntityId participant_id = EntityId(string_to_int((*it).at(PARTICIPANT_ENTITY_TAG)));
             EntityId participant_domain_id =
-                    EntityId(id_string_to_int((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                    EntityId(string_to_int(dump.at(PARTICIPANT_CONTAINER_TAG)
                                     .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topic_id = EntityId(id_string_to_int((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topic_domain_id = EntityId(id_string_to_int((std::string)dump.at(TOPIC_CONTAINER_TAG)
+            EntityId topic_id = EntityId(string_to_int((*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(string_to_int(dump.at(TOPIC_CONTAINER_TAG)
                                     .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
@@ -3414,12 +3413,12 @@ void Database::load_database(
                     it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++it_loc)
             {
-                entity->locators[id_string_to_int((std::string)*it_loc)] =
-                        locators_[EntityId(id_string_to_int((std::string)*it_loc))];
+                entity->locators[string_to_int(*it_loc)] =
+                        locators_[EntityId(string_to_int(*it_loc))];
             }
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Load data and insert into database
@@ -3441,15 +3440,15 @@ void Database::load_database(
                     LOCATOR_CONTAINER_TAG);
 
             // Get keys
-            EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
+            EntityId participant_id = EntityId(string_to_int((*it).at(
                                 PARTICIPANT_ENTITY_TAG)));
             EntityId participant_domain_id =
-                    EntityId(id_string_to_int((std::string)dump.at(PARTICIPANT_CONTAINER_TAG)
+                    EntityId(string_to_int(dump.at(PARTICIPANT_CONTAINER_TAG)
                                     .at(std::to_string(participant_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
-            EntityId topic_id = EntityId(id_string_to_int((std::string)(*it).at(TOPIC_ENTITY_TAG)));
-            EntityId topic_domain_id = EntityId(id_string_to_int((std::string)dump.at(TOPIC_CONTAINER_TAG)
+            EntityId topic_id = EntityId(string_to_int((*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(string_to_int(dump.at(TOPIC_CONTAINER_TAG)
                                     .at(std::to_string(topic_id.value()))
                                     .at(DOMAIN_ENTITY_TAG)));
 
@@ -3466,12 +3465,12 @@ void Database::load_database(
                     itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++itLoc)
             {
-                entity->locators[id_string_to_int((std::string)*itLoc)] =
-                        locators_[EntityId(id_string_to_int((std::string)*itLoc))];
+                entity->locators[string_to_int(*itLoc)] =
+                        locators_[EntityId(string_to_int(*itLoc))];
             }
 
             // Insert into database
-            EntityId entity_id = EntityId(id_string_to_int(it.key()));
+            EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
 
             // Load data and insert into database
@@ -3497,17 +3496,17 @@ void Database::load_data(
                 DiscoveryTimeSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t src_ts = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t src_ts = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_TIME_TAG)));
+                uint64_t time = string_to_uint(std::string((*it).at(DATA_VALUE_TIME_TAG)));
                 sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // EntityId
-                sample.remote_entity = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_entity = EntityId(string_to_int(remote_it.key()));
 
-                id_string_to_int(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
+                string_to_int(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
 
                 // bool
                 sample.discovered = (*it).at(DATA_VALUE_DISCOVERED_TAG);
@@ -3528,11 +3527,11 @@ void Database::load_data(
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3549,11 +3548,11 @@ void Database::load_data(
             EdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3573,14 +3572,14 @@ void Database::load_data(
                 RtpsPacketsSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // EntityId
-                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3601,17 +3600,17 @@ void Database::load_data(
                 RtpsBytesSentSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
+                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
 
                 // EntityId
-                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3632,14 +3631,14 @@ void Database::load_data(
                 RtpsPacketsLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // EntityId
-                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3660,17 +3659,17 @@ void Database::load_data(
                 RtpsBytesLostSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = (*it).at(DATA_VALUE_MAGNITUDE_TAG);
+                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
 
                 // EntityId
-                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->domain->id, entity->id, sample, true);
@@ -3689,17 +3688,17 @@ void Database::load_data(
             DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = sample_dump.at(DATA_VALUE_MAGNITUDE_TAG);
+            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
 
             // EntityId
-            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3717,17 +3716,17 @@ void Database::load_data(
             DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = sample_dump.at(DATA_VALUE_MAGNITUDE_TAG);
+            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
 
             // EntityId
-            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3745,14 +3744,14 @@ void Database::load_data(
             DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // EntityId
-            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3770,14 +3769,14 @@ void Database::load_data(
             DatabaseDump sample_dump = container.at(remote_it.key());
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = sample_dump.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // EntityId
-            sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3794,11 +3793,11 @@ void Database::load_data(
             EdpCountSample sample;
 
             //std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3815,11 +3814,11 @@ void Database::load_data(
             PdpCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->domain->id, entity->id, sample, true, true);
@@ -3841,7 +3840,7 @@ void Database::load_data(
             PublicationThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
@@ -3862,11 +3861,11 @@ void Database::load_data(
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3883,11 +3882,11 @@ void Database::load_data(
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3904,11 +3903,11 @@ void Database::load_data(
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3925,11 +3924,11 @@ void Database::load_data(
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3949,14 +3948,14 @@ void Database::load_data(
                 SampleDatasCountSample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // uint64_t
-                sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // uint64_t
-                sample.sequence_number = id_string_to_int(remote_it.key());
+                sample.sequence_number = string_to_int(remote_it.key());
 
                 // // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -3977,14 +3976,14 @@ void Database::load_data(
                 HistoryLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.reader = EntityId(id_string_to_int(remote_it.key()));
+                sample.reader = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4002,11 +4001,11 @@ void Database::load_data(
             DataCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4023,11 +4022,11 @@ void Database::load_data(
             GapCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4044,11 +4043,11 @@ void Database::load_data(
             HeartbeatCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4065,11 +4064,11 @@ void Database::load_data(
             ResentDataSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4091,7 +4090,7 @@ void Database::load_data(
             SubscriptionThroughputSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // double
@@ -4112,11 +4111,11 @@ void Database::load_data(
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4133,11 +4132,11 @@ void Database::load_data(
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t
-            sample.count = (*it).at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true);
@@ -4154,11 +4153,11 @@ void Database::load_data(
             AcknackCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4175,11 +4174,11 @@ void Database::load_data(
             NackfragCountSample sample;
 
             // std::chrono::system_clock::time_point
-            uint64_t time = id_string_to_int(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
             sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
             // uint64_t count;
-            sample.count = container.at(DATA_VALUE_COUNT_TAG);
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
@@ -4204,14 +4203,14 @@ void Database::load_data(
                 NetworkLatencySample sample;
 
                 // std::chrono::system_clock::time_point
-                uint64_t time = id_string_to_int(std::string((*it).at(DATA_VALUE_SRC_TIME_TAG)));
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
                 sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
-                sample.remote_locator = EntityId(id_string_to_int(remote_it.key()));
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
 
                 // Insert data into database
                 insert_nts(EntityId::invalid(), entity->id, sample, true);

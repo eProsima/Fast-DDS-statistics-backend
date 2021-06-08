@@ -341,12 +341,22 @@ protected:
         return s;
     }
 
-    inline int id_string_to_int(
+    inline int string_to_int(
             std::string const& str)
     {
         if (str.find_first_not_of("-1234567890") != std::string::npos)
         {
-            throw CorruptedFile("ID string must be an integer: " + str);
+            throw CorruptedFile("string must be an integer: " + str);
+        }
+        return stoi(str);
+    }
+
+    inline uint string_to_uint(
+            std::string const& str)
+    {
+        if (str.find_first_not_of("1234567890") != std::string::npos)
+        {
+            throw CorruptedFile("string must be an unsigned integer: " + str);
         }
         return stoi(str);
     }
