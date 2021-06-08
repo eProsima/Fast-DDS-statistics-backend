@@ -16,7 +16,7 @@ For example, |get_entities-api| function can be used to retrieve all the |HOST-a
 
 .. _statistics_backend_get_entities:
 
-This call to |get_entities-api| with default value in |EntityId-api| parameter is the same as:
+This call to |get_entities-api| is the same as:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
