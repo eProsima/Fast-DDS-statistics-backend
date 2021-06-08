@@ -123,7 +123,7 @@ public:
      *            * The endpoint does not exist in the database
      *            * The locator does not exist in the database
      */
-    void link_endpoint_with_locator(
+    FASTDDS_STATISTICS_BACKEND_DllAPI void link_endpoint_with_locator(
             const EntityId& endpoint_id,
             const EntityId& locator_id);
 

@@ -121,7 +121,7 @@ class PopulateDatabase
 {
 public:
 
-    typedef uint32_t TestId;
+    typedef size_t TestId;
 
     static std::map<TestId, std::shared_ptr<const Entity>> populate_database(
             Database& db)
