@@ -52,7 +52,7 @@ class database_get_entities_tests : public ::testing::TestWithParam<std::tuple<E
 {
 public:
 
-    typedef uint32_t TestId;
+    typedef size_t TestId;
 
     void SetUp()
     {
