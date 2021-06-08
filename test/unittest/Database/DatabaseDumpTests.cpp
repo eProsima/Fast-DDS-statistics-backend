@@ -70,7 +70,8 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define DATAWRITER_DEFAULT_ID(x) EntityId(x * 9 + 7)
 #define DATAREADER_DEFAULT_ID(x) EntityId(x * 9 + 8)
 
-#define TIME_DEFAULT(x) nanoseconds_to_systemclock(x)
+// at least pass microseconds tenths to avoid windows system_clock resolution issue
+#define TIME_DEFAULT(x) nanoseconds_to_systemclock(100 * (x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
 
 void initialize_database(

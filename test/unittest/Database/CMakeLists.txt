@@ -30,6 +30,8 @@ target_link_libraries(sample_tests PUBLIC
     ${GTEST_LIBRARIES}
     )
 
+get_win32_path_dependencies(sample_tests TEST_FRIENDLY_PATH)
+
 set(SAMPLES_TEST_LIST
     # Clear sample tests
     statistics_sample_clear
@@ -67,9 +69,15 @@ set(SAMPLES_TEST_LIST
 )
 
 foreach(test_name ${SAMPLES_TEST_LIST})
+
     add_test(NAME database.${test_name}
             COMMAND sample_tests
             --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 ###############################################################################
@@ -90,6 +98,8 @@ target_link_libraries(data_tests PUBLIC
     ${GTEST_LIBRARIES}
     )
 
+get_win32_path_dependencies(data_tests TEST_FRIENDLY_PATH)
+
 set(DATA_TEST_LIST
     domainparticipant_data_clear
     datareader_data_clear
@@ -101,6 +111,11 @@ foreach(test_name ${DATA_TEST_LIST})
     add_test(NAME database.${test_name}
             COMMAND data_tests
             --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 ###############################################################################
@@ -121,6 +136,8 @@ target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
     ${GTEST_LIBRARIES}
     )
+
+get_win32_path_dependencies(database_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_TEST_LIST
     # Insert Host test
@@ -320,6 +337,10 @@ foreach(test_name ${DATABASE_TEST_LIST})
     add_test(NAME database_tests.${test_name}
             COMMAND database_tests
             --gtest_filter=database_tests.${test_name}:*/database_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 ###############################################################################
@@ -331,7 +352,6 @@ add_executable(database_dump_tests DatabaseDumpTests.cpp)
 if(MSVC)
     target_compile_definitions(database_dump_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
 endif(MSVC)
-
 target_include_directories(database_dump_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
@@ -340,13 +360,14 @@ target_link_libraries(database_dump_tests PUBLIC
     ${GTEST_LIBRARIES}
     )
 
+get_win32_path_dependencies(database_dump_tests TEST_FRIENDLY_PATH)
+
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
-
 
 set(DATABASE_DUMP_TEST_LIST
     dump_empty_database
@@ -359,6 +380,14 @@ foreach(test_name ${DATABASE_DUMP_TEST_LIST})
     add_test(NAME database.${test_name}
             COMMAND database_dump_tests
             --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+    # Hint where the resource files can be found
+    set_tests_properties(database.${test_name} PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+
 endforeach()
 
 ###############################################################################
@@ -380,6 +409,8 @@ target_link_libraries(database_get_entities_tests PUBLIC
     ${GTEST_LIBRARIES}
     )
 
+get_win32_path_dependencies(database_get_entities_tests TEST_FRIENDLY_PATH)
+
 set(DATABASE_GET_ENTITIES_TEST_LIST
     get_entities
     get_entity_ids
@@ -389,5 +420,9 @@ foreach(test_name ${DATABASE_GET_ENTITIES_TEST_LIST})
     add_test(NAME database_get_entities_tests.${test_name}
             COMMAND database_get_entities_tests
             --gtest_filter=database_get_entities_tests.${test_name}:*/database_get_entities_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_get_entities_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 

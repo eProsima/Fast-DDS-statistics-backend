@@ -726,7 +726,7 @@ void Database::link_participant_with_process(
     EntityId domain_id;
     std::map<EntityId, std::shared_ptr<DomainParticipant>>::iterator participant_it;
     bool participant_exists = false;
-    for (auto domain_it : participants_)
+    for (auto& domain_it : participants_)
     {
         participant_it = domain_it.second.find(participant_id);
         if (participant_it != domain_it.second.end())
