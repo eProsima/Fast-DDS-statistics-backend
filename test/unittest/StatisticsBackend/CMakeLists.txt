@@ -46,8 +46,7 @@ target_include_directories(statistics_backend_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(statistics_backend_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)

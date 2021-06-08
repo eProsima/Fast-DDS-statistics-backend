@@ -131,8 +131,7 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(database_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_tests PUBLIC
     ${PROJECT_NAME}
@@ -411,8 +410,7 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(database_get_entities_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_get_entities_tests PUBLIC
     ${PROJECT_NAME}

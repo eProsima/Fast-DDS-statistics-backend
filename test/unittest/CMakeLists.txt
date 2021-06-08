@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # add utils dependency to all targets
-include_directories("utils")
+include_directories("TestUtils")
 
 include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
 check_gtest()
