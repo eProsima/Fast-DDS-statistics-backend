@@ -84,10 +84,9 @@ TEST_F(statistics_backend_tests, get_info)
     for (auto pair : entities)
     {
         std::shared_ptr<const Entity> entity = pair.second;
-        std::cout << entity->id;
         Info info = StatisticsBackendTest::get_info(entity->id);
 
-        //Check generic info
+        // Check generic info
         ASSERT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
         ASSERT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
         ASSERT_EQ(entity->name, info[NAME_INFO_TAG]);
