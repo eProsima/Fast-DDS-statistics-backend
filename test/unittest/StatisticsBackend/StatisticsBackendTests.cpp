@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
-#include <fastdds-statistics-backend/types/JSONTags.h>
+#include <types/JSONTags.h>
 #include <types/types.hpp>
 
 #include <database/database.hpp>
