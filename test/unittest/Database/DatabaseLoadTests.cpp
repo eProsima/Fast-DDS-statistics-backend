@@ -16,11 +16,10 @@
 
 #include <gtest/gtest.h>
 
-#include <fastdds-statistics-backend/exception/Exception.hpp>
-#include <fastdds-statistics-backend/types/JSONTags.h>
-#include <fastdds-statistics-backend/types/types.hpp>
-
 #include <database/database.hpp>
+#include <exception/Exception.hpp>
+#include <types/JSONTags.h>
+#include <types/types.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -1063,18 +1062,6 @@ TEST(database_load_tests, load_wrong_values)
     check_is_double(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
             [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
 }
-
-
-class DataBaseTest : public Database
-{
-public:
-
-    const std::map<EntityId, std::shared_ptr<Domain>>& domains()
-    {
-        return domains_;
-    }
-
-};
 
 // Test the load of a database with wrong references
 TEST(database_load_tests, load_wrong_references)
