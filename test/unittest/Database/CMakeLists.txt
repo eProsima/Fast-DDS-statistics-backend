@@ -374,7 +374,8 @@ endforeach()
 add_executable(database_load_tests DatabaseLoadTests.cpp)
 
 target_include_directories(database_load_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_tests PUBLIC
     ${PROJECT_NAME}
@@ -412,7 +413,8 @@ endforeach()
 add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp)
 
 target_include_directories(database_load_insert_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_insert_tests PUBLIC
     ${PROJECT_NAME}
