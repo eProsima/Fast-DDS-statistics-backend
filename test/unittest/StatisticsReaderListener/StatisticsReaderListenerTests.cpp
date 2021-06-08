@@ -1118,7 +1118,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::system_clock::time_point discovery_timestamp
-            = eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
+        = eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
