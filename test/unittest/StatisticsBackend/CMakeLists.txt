@@ -51,6 +51,8 @@ target_include_directories(statistics_backend_tests PRIVATE
 target_link_libraries(statistics_backend_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
+get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
+
 set(BACKEND_TEST_LIST
     get_info
     get_entities
@@ -62,6 +64,11 @@ foreach(test_name ${BACKEND_TEST_LIST})
     add_test(NAME statistics_backend_tests.${test_name}
             COMMAND statistics_backend_tests
             --gtest_filter=statistics_backend_tests.${test_name}:*/statistics_backend_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(statistics_backend_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 # calling_user_listeners
@@ -93,6 +100,13 @@ target_include_directories(calling_user_listeners_tests PRIVATE
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+if(MSVC)
+    target_compile_definitions(calling_user_listeners_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+get_win32_path_dependencies(calling_user_listeners_tests TEST_FRIENDLY_PATH)
 
 set(USER_LISTENERS_TEST_LIST
     host_discovered
@@ -133,6 +147,11 @@ foreach(test_name ${USER_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 set(USER_LISTENERS_DEATH_TEST_LIST
@@ -158,6 +177,10 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
             COMMAND calling_user_listeners_tests
             --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 
