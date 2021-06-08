@@ -25,6 +25,28 @@ import subprocess
 
 import requests
 
+def get_cmake_project_version(cmakelists):
+    """
+    Get the project version from a file
+
+    The function looks for project(<name> VERSION major.minor.patch)
+
+    :param cmakelists: The file to scan for the version
+    :return: A dict in the manner:
+        {
+            'major': int,
+            'minor': int,
+            'patch': int
+        }
+    """
+    matches = re.findall(
+        'project\(.*VERSION\s+(\d+)\.(\d+)\.(\d+)',
+        "".join(open(cmakelists, 'r').readlines()),
+        flags=re.MULTILINE)[0]
+    return {
+        'major': matches[0],
+        'minor': matches[1],
+        'patch': matches[2] }
 
 def get_version(cmakelists):
     """
@@ -263,7 +285,7 @@ author = u'eProsima'
 # built documents.
 #
 # The short X.Y version.
-versions = get_version(
+versions = get_cmake_project_version(
     os.path.abspath('{}/../CMakeLists.txt'.format(script_path)))
 version = u'{}.{}'.format(versions['major'], versions['minor'])
 # The full version, including alpha/beta/rc tags.
