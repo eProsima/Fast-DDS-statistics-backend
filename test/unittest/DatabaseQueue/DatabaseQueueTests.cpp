@@ -22,11 +22,10 @@
 #include <iostream>
 #include <functional>
 
+using namespace eprosima::fastdds::statistics;
+using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using EntityId = eprosima::statistics_backend::EntityId;
-using DataKind = eprosima::statistics_backend::DataKind;
-using EntityKind = eprosima::statistics_backend::EntityKind;
-using Timestamp = eprosima::statistics_backend::Timestamp;
+
 using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
@@ -34,9 +33,6 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::Throw;
 using ::testing::AnyNumber;
-
-using namespace eprosima::fastdds::statistics;
-using namespace eprosima::statistics_backend::database;
 
 // Wrapper class to expose the internal attributes of the queue
 class DatabaseEntityQueueWrapper : public DatabaseEntityQueue
@@ -219,9 +215,9 @@ TEST_F(database_queue_tests, start_stop_flush)
     // Add something to the stopped queue
     EXPECT_CALL(database, insert(_)).Times(0);
     EXPECT_TRUE(entity_queue.stop_consumer());
-    entity_queue.push(timestamp, host);
-    entity_queue.push(timestamp, user);
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {host, 0});
+    entity_queue.push(timestamp, {user, 0});
+    entity_queue.push(timestamp, {process, 0});
 
     EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
     EXPECT_EQ(3, entity_queue.get_background_queue().size());
@@ -292,8 +288,13 @@ TEST_F(database_queue_tests, push_host)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::HOST,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, host);
+    entity_queue.push(timestamp, {host, 0});
     entity_queue.flush();
 }
 
@@ -312,16 +313,19 @@ TEST_F(database_queue_tests, push_host_throws)
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, host);
+    entity_queue.push(timestamp, {host, DomainId(0)});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -351,8 +355,13 @@ TEST_F(database_queue_tests, push_user)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::USER,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, user);
+    entity_queue.push(timestamp, {user, 0});
     entity_queue.flush();
 }
 
@@ -374,16 +383,19 @@ TEST_F(database_queue_tests, push_user_throws)
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, user);
+    entity_queue.push(timestamp, {user, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -417,8 +429,13 @@ TEST_F(database_queue_tests, push_process)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::PROCESS,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {process, 0});
     entity_queue.flush();
 }
 
@@ -444,16 +461,19 @@ TEST_F(database_queue_tests, push_process_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, process);
+    entity_queue.push(timestamp, {process, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -480,8 +500,13 @@ TEST_F(database_queue_tests, push_domain)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(
+                0), EntityKind::DOMAIN, details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, domain);
+    entity_queue.push(timestamp, {domain, 0});
     entity_queue.flush();
 }
 
@@ -500,16 +525,19 @@ TEST_F(database_queue_tests, push_domain_throws)
                 EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
                 EXPECT_EQ(entity->name, domain_name);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(0);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, domain);
+    entity_queue.push(timestamp, {domain, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -550,8 +578,13 @@ TEST_F(database_queue_tests, push_participant_process_exists)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, participant);
+    entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
 }
 
@@ -585,8 +618,13 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, participant);
+    entity_queue.push(timestamp, {participant, 0});
     entity_queue.flush();
 }
 
@@ -616,8 +654,13 @@ TEST_F(database_queue_tests, push_topic)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::TOPIC,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, topic);
+    entity_queue.push(timestamp, {topic, 0});
     entity_queue.flush();
 }
 
@@ -641,16 +684,19 @@ TEST_F(database_queue_tests, push_topic_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, topic);
+    entity_queue.push(timestamp, {topic, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -686,8 +732,13 @@ TEST_F(database_queue_tests, push_datawriter)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAWRITER,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, datawriter);
+    entity_queue.push(timestamp, {datawriter, 0});
     entity_queue.flush();
 }
 
@@ -715,16 +766,19 @@ TEST_F(database_queue_tests, push_datawriter_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, datawriter);
+    entity_queue.push(timestamp, {datawriter, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -760,8 +814,13 @@ TEST_F(database_queue_tests, push_datareader)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAREADER,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, datareader);
+    entity_queue.push(timestamp, {datareader, 0});
     entity_queue.flush();
 }
 
@@ -789,16 +848,19 @@ TEST_F(database_queue_tests, push_datareader_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, datareader);
+    entity_queue.push(timestamp, {datareader, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -825,8 +887,13 @@ TEST_F(database_queue_tests, push_locator)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::LOCATOR,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, locator);
+    entity_queue.push(timestamp, {locator, 0});
     entity_queue.flush();
 }
 
@@ -846,16 +913,19 @@ TEST_F(database_queue_tests, push_locator_throws)
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, locator_name);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, locator);
+    entity_queue.push(timestamp, {locator, 0});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -924,6 +994,10 @@ TEST_F(database_queue_tests, push_history_latency)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::FASTDDS_LATENCY)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -973,10 +1047,13 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1023,7 +1100,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The reader exists and has ID 2
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -1031,6 +1108,9 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     // Expectation: The insert method is not called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1094,6 +1174,10 @@ TEST_F(database_queue_tests, push_network_latency)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::NETWORK_LATENCY)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1143,6 +1227,9 @@ TEST_F(database_queue_tests, push_network_latency_no_source_locator)
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1191,6 +1278,9 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1243,6 +1333,10 @@ TEST_F(database_queue_tests, push_publication_throughput)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::PUBLICATION_THROUGHPUT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1276,10 +1370,13 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1332,6 +1429,10 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::SUBSCRIPTION_THROUGHPUT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1365,10 +1466,13 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1454,6 +1558,12 @@ TEST_F(database_queue_tests, push_rtps_sent)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_SENT)).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_SENT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1499,7 +1609,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1508,6 +1618,9 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1562,6 +1675,9 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
     // Expectation: The insert method is never called, ddata dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1647,6 +1763,12 @@ TEST_F(database_queue_tests, push_rtps_lost)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_LOST)).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_LOST)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1692,7 +1814,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1701,6 +1823,9 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1751,10 +1876,13 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 
     // Precondition: The locator does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called. data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1795,19 +1923,22 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillRepeatedly(Throw(BadParameter("Error")));
 
     // Precondition: The locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
     EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), eprosima::statistics_backend::Error);
+            inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
@@ -1850,12 +1981,15 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed    // Add to the queue and wait to be processed
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
     EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), eprosima::statistics_backend::Error);
+            inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -1904,6 +2038,10 @@ TEST_F(database_queue_tests, push_resent_datas)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RESENT_DATA)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -1937,10 +2075,13 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1993,6 +2134,10 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::HEARTBEAT_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2026,10 +2171,13 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2082,6 +2230,10 @@ TEST_F(database_queue_tests, push_acknack_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::ACKNACK_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2115,10 +2267,13 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2171,6 +2326,10 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::NACKFRAG_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2204,10 +2363,13 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2260,6 +2422,10 @@ TEST_F(database_queue_tests, push_gap_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::GAP_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2293,10 +2459,13 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2349,6 +2518,10 @@ TEST_F(database_queue_tests, push_data_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::DATA_COUNT)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2382,10 +2555,13 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2438,6 +2614,10 @@ TEST_F(database_queue_tests, push_pdp_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::PDP_PACKETS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2471,10 +2651,13 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2527,6 +2710,10 @@ TEST_F(database_queue_tests, push_edp_count)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::EDP_PACKETS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2560,10 +2747,13 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2633,6 +2823,10 @@ TEST_F(database_queue_tests, push_discovery_times)
                 EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
             });
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::DISCOVERY_TIME)).Times(1);
+
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
@@ -2683,7 +2877,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The remote entity exists and has ID 2
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
@@ -2691,6 +2885,9 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2743,10 +2940,13 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
     // Precondition: The remote entity does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, remote_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2810,6 +3010,10 @@ TEST_F(database_queue_tests, push_sample_datas)
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::SAMPLE_DATAS)).Times(1);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2854,10 +3058,13 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -2934,6 +3141,9 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
@@ -2977,7 +3187,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(BadParameter("Error")));
 
     // Precondition: The host exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
@@ -3006,11 +3216,14 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillOnce(Return(process));
 
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
+
     // Add to the queue and wait to be processed
     data_queue.stop_consumer();
     data_queue.push(timestamp, data);
     data_queue.do_swap();
-    ASSERT_THROW(data_queue.consume_sample(), eprosima::statistics_backend::BadParameter);
+    ASSERT_THROW(data_queue.consume_sample(), BadParameter);
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_process_exists)
@@ -3089,6 +3302,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
@@ -3171,12 +3388,16 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
+
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
@@ -3257,6 +3478,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
                 return EntityId(3);
             });
 
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::USER)).Times(1);
+
     // Expectation: The process is created and given ID 4
     InsertEntityArgs insert_args_process([&](
                 std::shared_ptr<Entity> entity)
@@ -3268,6 +3493,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
                 return EntityId(4);
             });
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(2)
             .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
@@ -3347,12 +3576,15 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
                 EXPECT_EQ(entity->name, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(3);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert));
+
+    // Expectation: The user is not notified of the new user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
@@ -3424,8 +3656,12 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                return EntityId(4);
+                return EntityId(3);
             });
+
+    // Expectation: The user is notified of the new host
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::HOST)).Times(1);
 
     // Expectation: The user is created and given ID 4
     InsertEntityArgs insert_args_user([&](
@@ -3438,6 +3674,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 return EntityId(4);
             });
 
+    // Expectation: The user is notified of the new user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::USER)).Times(1);
+
     // Expectation: The process is created and given ID 5
     InsertEntityArgs insert_args_process([&](
                 std::shared_ptr<Entity> entity)
@@ -3449,6 +3689,10 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
                 return EntityId(5);
             });
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(5), EntityKind::PROCESS)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(3)
             .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
@@ -3522,12 +3766,15 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
 
-                throw eprosima::statistics_backend::BadParameter("Error");
+                throw BadParameter("Error");
                 return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert));
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(0);
@@ -3616,6 +3863,10 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+
+    // Expectation: The user is notified of the new process
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);

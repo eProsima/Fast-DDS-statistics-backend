@@ -19,6 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_STATISTICSBACKEND_HPP_
 
+#include <chrono>
+#include <string>
+
 #include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
 #include <fastdds-statistics-backend/listener/DomainListener.hpp>
 #include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
@@ -26,22 +29,18 @@
 #include <fastdds-statistics-backend/types/types.hpp>
 #include <fastdds-statistics-backend/types/EntityId.hpp>
 
-#include <chrono>
-#include <string>
-
 namespace eprosima {
 namespace statistics_backend {
-
-namespace database {
-
-class Database;
-
-} // namespace database
 
 class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 {
 
 public:
+
+    /**
+     * @brief Deleted constructor, since the whole interface is static
+     */
+    StatisticsBackend() = delete;
 
     /**
      * @brief Set the listener for the physical domain events.
@@ -416,24 +415,6 @@ public:
      */
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);
-
-protected:
-
-    StatisticsBackend()
-    {
-    }
-
-    /**
-     * StatisticsBackend
-     */
-    static StatisticsBackend* get_instance()
-    {
-        static StatisticsBackend instance;
-        return &instance;
-    }
-
-    //! Reference to the Database
-    static database::Database* database_;
 };
 
 } // namespace statistics_backend

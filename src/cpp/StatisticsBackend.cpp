@@ -19,23 +19,21 @@
 #include <fastdds-statistics-backend/StatisticsBackend.hpp>
 #include <fastdds-statistics-backend/types/JSONTags.h>
 
-#include "database/database.hpp"
+#include <database/database.hpp>
+#include "StatisticsBackendData.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
 
-using namespace eprosima::statistics_backend::database;
-
-Database* StatisticsBackend::database_ = new database::Database();
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    static_cast<void>(listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
+    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
+    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
+    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -98,7 +96,7 @@ std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    return database_->get_entity_ids(entity_type, entity_id);
+    return details::StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
 }
 
 bool StatisticsBackend::is_active(
@@ -111,7 +109,7 @@ bool StatisticsBackend::is_active(
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
-    return database_->get_entity_kind(entity_id);
+    return details::StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
 Info StatisticsBackend::get_info(
@@ -119,7 +117,8 @@ Info StatisticsBackend::get_info(
 {
     Info info = Info::object();
 
-    std::shared_ptr<const Entity> entity = database_->get_entity(entity_id);
+    std::shared_ptr<const database::Entity> entity =
+            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
 
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
@@ -129,15 +128,15 @@ Info StatisticsBackend::get_info(
     {
         case EntityKind::PROCESS:
         {
-            std::shared_ptr<const Process> process =
-                    std::dynamic_pointer_cast<const Process>(entity);
+            std::shared_ptr<const database::Process> process =
+                    std::dynamic_pointer_cast<const database::Process>(entity);
             info[PID_INFO_TAG] = process->pid;
             break;
         }
         case EntityKind::TOPIC:
         {
-            std::shared_ptr<const Topic> topic =
-                    std::dynamic_pointer_cast<const Topic>(entity);
+            std::shared_ptr<const database::Topic> topic =
+                    std::dynamic_pointer_cast<const database::Topic>(entity);
             info[DATA_TYPE_INFO_TAG] = topic->data_type;
             break;
         }
@@ -145,8 +144,8 @@ Info StatisticsBackend::get_info(
         case EntityKind::DATAWRITER:
         case EntityKind::DATAREADER:
         {
-            std::shared_ptr<const DDSEntity> dds_entity =
-                    std::dynamic_pointer_cast<const DDSEntity>(entity);
+            std::shared_ptr<const database::DDSEntity> dds_entity =
+                    std::dynamic_pointer_cast<const database::DDSEntity>(entity);
             info[GUID_INFO_TAG] = dds_entity->guid;
             info[QOS_INFO_TAG] = dds_entity->qos;
             break;

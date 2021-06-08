@@ -19,6 +19,7 @@ check_gmock()
 if(GTEST_FOUND AND GMOCK_FOUND)
     add_executable(database_queue_tests DatabaseQueueTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
@@ -29,6 +30,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     target_include_directories(database_queue_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
+        ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include

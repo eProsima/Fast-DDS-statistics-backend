@@ -36,6 +36,8 @@
 #include <database/entities.hpp>
 #include <topic_types/types.h>
 #include <exception/Exception.hpp>
+#include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
 
 
 namespace eprosima {
@@ -325,14 +327,20 @@ protected:
     unsigned char current_loop_;
 };
 
-class DatabaseEntityQueue : public DatabaseQueue<std::shared_ptr<Entity>>
+struct EntityDiscoveryInfo
+{
+    std::shared_ptr<Entity> entity;
+    EntityId domain_id;
+};
+
+class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
 {
 
 public:
 
     DatabaseEntityQueue(
             database::Database* database)
-        : DatabaseQueue<std::shared_ptr<Entity>>()
+        : DatabaseQueue<EntityDiscoveryInfo>()
         , database_(database)
     {
     }
@@ -348,7 +356,21 @@ protected:
     {
         try
         {
-            database_->insert(front().second);
+            auto id = database_->insert(front().second.entity);
+            if (EntityKind::HOST  == front().second.entity->kind ||
+                    EntityKind::USER == front().second.entity->kind ||
+                    EntityKind::PROCESS == front().second.entity->kind ||
+                    EntityKind::LOCATOR == front().second.entity->kind)
+            {
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                    front().second.domain_id, id,
+                    front().second.entity->kind);
+            }
+            else
+            {
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(front().second.domain_id, id,
+                        front().second.entity->kind, details::StatisticsBackendData::DISCOVERY);
+            }
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {

@@ -14,6 +14,10 @@
 
 include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
 check_gtest()
+check_gmock()
+
+# statistics_backend_tests
+##################################################################
 
 add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
@@ -22,6 +26,7 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(statistics_backend_tests PRIVATE
@@ -36,15 +41,93 @@ target_include_directories(statistics_backend_tests PRIVATE
 target_link_libraries(statistics_backend_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
-set(DATABASEQUEUE_TEST_LIST
+set(BACKEND_TEST_LIST
     get_info
     get_entities
     get_type
     get_data_supported_entity_kinds
     )
 
-foreach(test_name ${DATABASEQUEUE_TEST_LIST})
+foreach(test_name ${BACKEND_TEST_LIST})
     add_test(NAME statistics_backend_tests.${test_name}
             COMMAND statistics_backend_tests
             --gtest_filter=statistics_backend_tests.${test_name}:*/statistics_backend_tests.${test_name}/*)
+endforeach()
+
+# calling_user_listeners
+##################################################################
+
+add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+target_include_directories(calling_user_listeners_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/database/database
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(calling_user_listeners_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+set(USER_LISTENERS_TEST_LIST
+    host_discovered
+    host_discovered_not_in_mask
+    host_discovered_no_listener
+    host_discovered_no_listener_not_in_mask
+    user_discovered
+    user_discovered_not_in_mask
+    user_discovered_no_listener
+    user_discovered_no_listener_not_in_mask
+    process_discovered
+    process_discovered_not_in_mask
+    process_discovered_no_listener
+    process_discovered_no_listener_not_in_mask
+    locator_discovered
+    locator_discovered_not_in_mask
+    locator_discovered_no_listener
+    locator_discovered_no_listener_not_in_mask
+    participant_discovered
+    participant_discovered_not_in_mask
+    participant_discovered_no_listener
+    participant_discovered_no_listener_not_in_mask
+    topic_discovered
+    topic_discovered_not_in_mask
+    topic_discovered_no_listener
+    topic_discovered_no_listener_not_in_mask
+    datareader_discovered
+    datareader_discovered_not_in_mask
+    datareader_discovered_no_listener
+    datareader_discovered_no_listener_not_in_mask
+    datawriter_discovered
+    datawriter_discovered_not_in_mask
+    datawriter_discovered_no_listener
+    datawriter_discovered_no_listener_not_in_mask
+    wrong_entity_kind
+    )
+
+foreach(test_name ${USER_LISTENERS_TEST_LIST})
+    add_test(NAME calling_user_listeners_tests.${test_name}
+        COMMAND calling_user_listeners_tests
+        --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+endforeach()
+
+set(USER_DATA_LISTENERS_TEST_LIST
+    data_available
+    data_available_callback_not_in_mask
+    data_available_data_not_in_mask
+    data_available_no_listener
+    data_available_no_listener_callback_not_in_mask
+    data_available_no_listener_data_not_in_mask
+    )
+
+foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
+    add_test(NAME calling_user_listeners_tests.${test_name}
+            COMMAND calling_user_listeners_tests
+            --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
 endforeach()

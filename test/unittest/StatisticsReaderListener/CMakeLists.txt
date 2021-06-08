@@ -29,6 +29,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     target_include_directories(statistics_reader_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
         ${PROJECT_SOURCE_DIR}/test/mock/dds/DataReader
         ${PROJECT_SOURCE_DIR}/include
@@ -41,46 +42,24 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
 
     set(STATISTICSDATALISTENER_TEST_LIST
-        mask
         not_valid_data
         new_history_latency_received
-        new_history_latency_received_not_in_mask
         new_network_latency_received
-        new_network_latency_received_not_in_mask
         new_publication_throughput_received
-        new_publication_throughput_received_not_in_mask
         new_subscription_throughput_received
-        new_subscription_throughput_received_not_in_mask
         new_rtps_sent_received
-        new_rtps_sent_received_not_in_mask
-        new_rtps_sent_received_packets_not_in_mask
-        new_rtps_sent_received_bytes_not_in_mask
         new_rtps_lost_received
-        new_rtps_lost_received_not_in_mask
-        new_rtps_lost_received_packets_not_in_mask
-        new_rtps_lost_received_bytes_not_in_mask
         new_resent_datas_received
-        new_resent_datas_received_not_in_mask
         new_heartbeat_count_received
-        new_heartbeat_count_received_not_in_mask
         new_acknack_count_received
-        new_acknack_count_received_not_in_mask
         new_nackfrag_count_received
-        new_nackfrag_count_received_not_in_mask
         new_gap_count_received
-        new_gap_count_received_not_in_mask
         new_data_count_received
-        new_data_count_received_not_in_mask
         new_pdp_count_received
-        new_pdp_count_received_not_in_mask
         new_edp_count_received
-        new_edp_count_received_not_in_mask
         new_discovery_times_received
-        new_discovery_times_received_not_in_mask
         new_sample_datas_received
-        new_sample_datas_received_not_in_mask
         new_physical_data_received
-        new_physical_data_received_no_mask
         )
 
     foreach(test_name ${STATISTICSDATALISTENER_TEST_LIST})

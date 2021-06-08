@@ -28,6 +28,7 @@ set(${PROJECT_NAME}_SOURCES
     database/samples.cpp
     exception/Exception.cpp
     StatisticsBackend.cpp
+    StatisticsBackendData.cpp
     subscriber/QosSerializer.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp

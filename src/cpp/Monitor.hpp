@@ -1,0 +1,101 @@
+// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+/**
+ * @file Monitor.hpp
+ */
+
+#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_
+#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_
+
+#include <map>
+#include <string>
+
+#include <fastdds-statistics-backend/listener/DomainListener.hpp>
+#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
+#include <fastdds-statistics-backend/types/EntityId.hpp>
+
+namespace eprosima {
+namespace fastdds {
+namespace dds {
+
+class DomainParticipant;
+class DomainParticipantListener;
+class Subscriber;
+class Topic;
+class DataReader;
+class DataReaderListener;
+
+} // namespace dds
+} // namespace fastdds
+
+namespace statistics_backend {
+namespace details {
+
+/**
+ * @brief Structure holding all the information related to a backend monitor.
+ *
+ * The backend will create and maintain an instance for each monitored domain.
+ */
+struct Monitor
+{
+    //! The user listener for this monitor
+    DomainListener* domain_listener;
+
+    //! The callback mask applied to the \c domain_listener
+    CallbackMask domain_callback_mask;
+
+    //! The data mask applied to the \c domain_listener->on_data_available
+    DataKindMask data_mask;
+
+    //! The participant created to communicate with the statistics reporting endpoints in this monitor
+    fastdds::dds::DomainParticipant* participant;
+
+    //! The listener linked to the \c participant
+    //! It will process the entity discoveries
+    fastdds::dds::DomainParticipantListener* participant_listener;
+
+
+    //! The participant created to communicate with the statistics reporting publishers in this monitor
+    fastdds::dds::Subscriber* subscriber;
+
+    //! Holds the topic object created for each of the statistics topics
+    std::map<std::string, fastdds::dds::Topic*> topics;
+
+    //! Holds the datareader object created for each of the statistics topics
+    std::map<std::string, fastdds::dds::DataReader*> readers;
+
+    //! The listener linked to the \c readers
+    //! All readers will use the same listener
+    //! The listener will decide how to process the data according to the topic of the reader
+    fastdds::dds::DataReaderListener* reader_listener;
+
+    //! Participant discovery status. Used in the participant discovery user callback
+    DomainListener::Status participant_status_;
+
+    //! Topic discovery status. Used in the topic discovery user callback
+    DomainListener::Status topic_status_;
+
+    //! Datareader discovery status. Used in the datareader discovery user callback
+    DomainListener::Status datareader_status_;
+
+    //! DataWriter discovery status. Used in the datawriter discovery user callback
+    DomainListener::Status datawriter_status_;
+};
+
+} // namespace details
+} // namespace statistics_backend
+} // namespace eprosima
+
+#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_

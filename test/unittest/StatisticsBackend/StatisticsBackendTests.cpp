@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
 
@@ -44,10 +45,11 @@ public:
 
     void SetUp()
     {
-        entities = PopulateDatabase::populate_database(db);
+        db = new DataBaseTest;
+        entities = PopulateDatabase::populate_database(*db);
     }
 
-    DataBaseTest db;
+    DataBaseTest* db;
     std::map<TestId, std::shared_ptr<const Entity>> entities;
 };
 
@@ -58,7 +60,7 @@ public:
     static void set_database(
             Database* db)
     {
-        database_ = db;
+        details::StatisticsBackendData::get_instance()->database_.reset(db);
     }
 
 };
@@ -74,7 +76,7 @@ void check_dds_entity(
 // Check the get_type StatisticsBackend method
 TEST_F(statistics_backend_tests, get_info)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_ANY_THROW(StatisticsBackendTest::get_info(entities[0]->id));
 
@@ -136,9 +138,9 @@ TEST_P(statistics_backend_tests, get_entities)
         expected.push_back(entities[it]->id);
     }
 
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
-    EXPECT_THROW(StatisticsBackendTest::get_entities(kind, db.generate_entity_id()), BadParameter);
+    EXPECT_THROW(StatisticsBackendTest::get_entities(kind, db->generate_entity_id()), BadParameter);
     EXPECT_THROW(StatisticsBackendTest::get_entities(EntityKind::INVALID, origin), BadParameter);
 
     auto result = StatisticsBackendTest::get_entities(kind, origin);
@@ -154,33 +156,33 @@ TEST_P(statistics_backend_tests, get_entities)
 // Check the get_type StatisticsBackend method
 TEST_F(statistics_backend_tests, get_type)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
-    for (auto pair : db.hosts())
+    for (auto pair : db->hosts())
     {
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
     }
 
-    for (auto pair : db.users())
+    for (auto pair : db->users())
     {
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
     }
 
-    for (auto pair : db.processes())
+    for (auto pair : db->processes())
     {
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
     }
 
-    for (auto pair : db.domains())
+    for (auto pair : db->domains())
     {
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
     }
 
-    for (auto domainPair : db.participants())
+    for (auto domainPair : db->participants())
     {
         auto domainEntities = domainPair.second;
         for (auto pair : domainEntities)
@@ -190,7 +192,7 @@ TEST_F(statistics_backend_tests, get_type)
         }
     }
 
-    for (auto domainPair : db.topics())
+    for (auto domainPair : db->topics())
     {
         auto domainEntities = domainPair.second;
         for (auto pair : domainEntities)
@@ -200,7 +202,7 @@ TEST_F(statistics_backend_tests, get_type)
         }
     }
 
-    for (auto domainPair : db.get_dds_endpoints<DataReader>())
+    for (auto domainPair : db->get_dds_endpoints<DataReader>())
     {
         auto domainEntities = domainPair.second;
         for (auto pair : domainEntities)
@@ -210,7 +212,7 @@ TEST_F(statistics_backend_tests, get_type)
         }
     }
 
-    for (auto domainPair : db.get_dds_endpoints<DataWriter>())
+    for (auto domainPair : db->get_dds_endpoints<DataWriter>())
     {
         auto domainEntities = domainPair.second;
         for (auto pair : domainEntities)
@@ -220,7 +222,7 @@ TEST_F(statistics_backend_tests, get_type)
         }
     }
 
-    for (auto pair : db.locators())
+    for (auto pair : db->locators())
     {
         auto entity = pair.second;
         ASSERT_EQ(StatisticsBackendTest::get_type(entity->id), entity->kind);
