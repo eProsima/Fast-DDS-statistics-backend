@@ -3160,11 +3160,11 @@ void Database::check_entity_all_references(
 }
 
 void Database::check_entity_contains_all_references(
-    DatabaseDump const &dump,
-    nlohmann::json::iterator const &it,
-    std::string const &entity_tag,
-    std::string const& reference_container_tag,
-    std::string const &reference_tag)
+        DatabaseDump const& dump,
+        nlohmann::json::iterator const& it,
+        std::string const& entity_tag,
+        std::string const& reference_container_tag,
+        std::string const& reference_tag)
 {
     std::string entity_id = it.key();
     DatabaseDump references_id = (*it).at(reference_tag);
@@ -3182,10 +3182,11 @@ void Database::check_entity_contains_all_references(
         std::vector<std::string> referenced_entities = reference_container.at(referenced_id).at(entity_tag);
         if (std::find(referenced_entities.begin(), referenced_entities.end(), entity_id) == referenced_entities.end())
         {
-            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(referenced_id).dump() +
-                                " have reference to " + entity_tag + ": " +
-                                reference_container.at(referenced_id).at(entity_tag).dump() +
-                                " instead of " + entity_tag + ": " + entity_id);
+            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
+                              referenced_id).dump() +
+                          " have reference to " + entity_tag + ": " +
+                          reference_container.at(referenced_id).at(entity_tag).dump() +
+                          " instead of " + entity_tag + ": " + entity_id);
         }
     }
 }
@@ -3290,7 +3291,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+                    DOMAIN_ENTITY_TAG);
             check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
             check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
 
@@ -3313,7 +3315,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+                    DOMAIN_ENTITY_TAG);
             check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
             check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
 
@@ -3331,7 +3334,8 @@ void Database::load_database(
 
             if (process_id != EntityId::invalid())
             {
-                check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG);
+                check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG,
+                        PROCESS_ENTITY_TAG);
 
                 link_participant_with_process_nts(entity->id, process_id);
             }
@@ -3347,8 +3351,10 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,DATAWRITER_CONTAINER_TAG);
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
@@ -3377,8 +3383,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                     PARTICIPANT_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,LOCATOR_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG,
+                    TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,
+                    LOCATOR_CONTAINER_TAG);
 
             // Get keys
             EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
@@ -3427,8 +3435,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
                     PARTICIPANT_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,LOCATOR_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG,
+                    TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,
+                    LOCATOR_CONTAINER_TAG);
 
             // Get keys
             EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(

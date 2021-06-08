@@ -561,14 +561,14 @@ protected:
             std::string const& reference_tag);
 
     /**
-	 * @brief Auxiliar function to check that an entity contains reference to another. Check that "entities_container"
-	 * contains 'referenced_id' and that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
-	 * 
+     * @brief Auxiliar function to check that an entity contains reference to another. Check that "entities_container"
+     * contains 'referenced_id' and that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
+     *
      * @param entities_container Reference to the dump of the entities to check.
      * @param referenced_id id of the referenced entity to check.
      * @param entity_id id to check that referenced entity have.
      * @param entity_tag type of the 'entity_id' to check
-	 * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
+     * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
      */
     void check_entity_contains_reference_aux(
             DatabaseDump const& entities_container,
@@ -576,23 +576,23 @@ protected:
             std::string const& entity_id,
             std::string const& entity_tag);
 
-	/**
-	 * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+    /**
+     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
      * to entities of type 'reference_tag' is consistent and mutual. For this, the referenced entities must
-	 * contain a reference to 'it' of type 'entity_tag'
-	 * 
+     * contain a reference to 'it' of type 'entity_tag'
+     *
      * @param dump reference to the database dump.
      * @param it iterator to the dump of the entity.
      * @param entity_tag Type of the entity to check.
      * @param reference_container_tag Type of the referenced entity container to check.
      * @param reference_tag Type of the referenced entity to check.
-	 * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
+     * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
      */
     void check_entity_contains_all_references(
-			DatabaseDump const& dump,
+            DatabaseDump const& dump,
             nlohmann::json::iterator const& it,
             std::string const& entity_tag,
-			std::string const& reference_container_tag,
+            std::string const& reference_container_tag,
             std::string const& reference_tag);
 
     /**
