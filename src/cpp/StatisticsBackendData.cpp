@@ -38,20 +38,81 @@ void StatisticsBackendData::on_data_available(
 {
     auto monitor = monitors_.find(domain_id);
     assert(monitor != monitors_.end());
-    if (nullptr == monitor->second->domain_listener ||
-            !monitor->second->domain_callback_mask.is_set(CallbackKind::ON_DATA_AVAILABLE))
+
+    if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
-        // No user listener, or mask deactivated
-        return;
+        monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_DATA_AVAILABLE, data_kind))
+    {
+        physical_listener_->on_data_available(domain_id, entity_id, data_kind);
+    }
+}
+
+bool StatisticsBackendData::should_call_domain_listener(
+        std::unique_ptr<Monitor>& monitor,
+        CallbackKind callback_kind,
+        DataKind data_kind)
+{
+    if (nullptr == monitor->domain_listener)
+    {
+        // No user listener
+        return false;
     }
 
-    if (!monitor->second->data_mask.is_set(data_kind))
+    if (!monitor->domain_callback_mask.is_set(callback_kind))
+    {
+        // mask deactivated
+        return false;
+    }
+
+    if (data_kind != DataKind::INVALID && !monitor->data_mask.is_set(data_kind))
     {
         // Data mask deactivated
-        return;
+        return false;
     }
 
-    monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
+    return true;
+}
+
+bool StatisticsBackendData::should_call_physical_listener(
+        CallbackKind callback_kind,
+        DataKind data_kind)
+{
+    if ( nullptr == physical_listener_)
+    {
+        // No user listener
+        return false;
+    }
+
+    if (!physical_callback_mask_.is_set(callback_kind))
+    {
+        // mask deactivated
+        return false;
+    }
+
+    if (data_kind != DataKind::INVALID && !physical_data_mask_.is_set(data_kind))
+    {
+        // Data mask deactivated
+        return false;
+    }
+
+    return true;
+}
+
+bool StatisticsBackendData::prepare_entity_discovery_status(
+        DiscoveryStatus discovery_status,
+        DomainListener::Status& status)
+{
+    if (DISCOVERY == discovery_status)
+    {
+        status.on_instance_discovered();
+    }
+    else if (UNDISCOVERY == discovery_status)
+    {
+        status.on_instance_undiscovered();
+    }
+    return true;
 }
 
 void StatisticsBackendData::on_domain_entity_discovery(
@@ -63,41 +124,21 @@ void StatisticsBackendData::on_domain_entity_discovery(
     auto monitor = monitors_.find(domain_id);
     assert(monitor != monitors_.end());
 
-    auto preprocess_entity_discovery = [&monitor, &discovery_status](
-        CallbackKind callback_kind,
-        DomainListener::Status& status)
-            {
-                if (nullptr == monitor->second->domain_listener)
-                {
-                    // No user listener
-                    return false;
-                }
-
-                if (!monitor->second->domain_callback_mask.is_set(callback_kind))
-                {
-                    // mask deactivated
-                    return false;
-                }
-
-                if (DISCOVERY == discovery_status)
-                {
-                    status.on_instance_discovered();
-                }
-                else if (UNDISCOVERY == discovery_status)
-                {
-                    status.on_instance_undiscovered();
-                }
-                return true;
-            };
-
     switch (entity_kind)
     {
         case EntityKind::PARTICIPANT:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_PARTICIPANT_DISCOVERY,
-                    monitor->second->participant_status_))
+            if (should_call_domain_listener(monitor->second, CallbackKind::ON_PARTICIPANT_DISCOVERY))
             {
+                prepare_entity_discovery_status(discovery_status, monitor->second->participant_status_);
                 monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
+                        monitor->second->participant_status_);
+                monitor->second->participant_status_.on_status_read();
+            }
+            else if (should_call_physical_listener(CallbackKind::ON_PARTICIPANT_DISCOVERY))
+            {
+                prepare_entity_discovery_status(discovery_status, monitor->second->participant_status_);
+                physical_listener_->on_participant_discovery(domain_id, entity_id,
                         monitor->second->participant_status_);
                 monitor->second->participant_status_.on_status_read();
             }
@@ -105,30 +146,51 @@ void StatisticsBackendData::on_domain_entity_discovery(
         }
         case EntityKind::TOPIC:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_TOPIC_DISCOVERY, monitor->second->topic_status_))
+            if (should_call_domain_listener(monitor->second, CallbackKind::ON_TOPIC_DISCOVERY))
             {
+                prepare_entity_discovery_status(discovery_status, monitor->second->topic_status_);
                 monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id,
                         monitor->second->topic_status_);
+                monitor->second->topic_status_.on_status_read();
+            }
+            else if (should_call_physical_listener(CallbackKind::ON_TOPIC_DISCOVERY))
+            {
+                prepare_entity_discovery_status(discovery_status, monitor->second->topic_status_);
+                physical_listener_->on_topic_discovery(domain_id, entity_id, monitor->second->topic_status_);
                 monitor->second->topic_status_.on_status_read();
             }
             break;
         }
         case EntityKind::DATAWRITER:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_DATAWRITER_DISCOVERY, monitor->second->datawriter_status_))
+            if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATAWRITER_DISCOVERY))
             {
+                prepare_entity_discovery_status(discovery_status, monitor->second->datawriter_status_);
                 monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
                         monitor->second->datawriter_status_);
+                monitor->second->datawriter_status_.on_status_read();
+            }
+            else if (should_call_physical_listener(CallbackKind::ON_DATAWRITER_DISCOVERY))
+            {
+                prepare_entity_discovery_status(discovery_status, monitor->second->datawriter_status_);
+                physical_listener_->on_datawriter_discovery(domain_id, entity_id, monitor->second->datawriter_status_);
                 monitor->second->datawriter_status_.on_status_read();
             }
             break;
         }
         case EntityKind::DATAREADER:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_DATAREADER_DISCOVERY, monitor->second->datareader_status_))
+            if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATAREADER_DISCOVERY))
             {
+                prepare_entity_discovery_status(discovery_status, monitor->second->datareader_status_);
                 monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
                         monitor->second->datareader_status_);
+                monitor->second->datareader_status_.on_status_read();
+            }
+            else if (should_call_physical_listener(CallbackKind::ON_DATAREADER_DISCOVERY))
+            {
+                prepare_entity_discovery_status(discovery_status, monitor->second->datareader_status_);
+                physical_listener_->on_datareader_discovery(domain_id, entity_id, monitor->second->datareader_status_);
                 monitor->second->datareader_status_.on_status_read();
             }
             break;
@@ -145,33 +207,13 @@ void StatisticsBackendData::on_physical_entity_discovery(
         EntityId entity_id,
         EntityKind entity_kind)
 {
-    auto preprocess_entity_discovery = [&](
-        CallbackKind callback_kind,
-        DomainListener::Status& status)
-            {
-                if ( nullptr == physical_listener_)
-                {
-                    // No user listener
-                    return false;
-                }
-
-                if (!physical_callback_mask_.is_set(callback_kind))
-                {
-                    // mask deactivated
-                    return false;
-                }
-
-                status.on_instance_discovered();
-                return true;
-            };
-
-
     switch (entity_kind)
     {
         case EntityKind::HOST:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_HOST_DISCOVERY, host_status_))
+            if (should_call_physical_listener(CallbackKind::ON_HOST_DISCOVERY))
             {
+                prepare_entity_discovery_status(DISCOVERY, host_status_);
                 physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
                 host_status_.on_status_read();
             }
@@ -179,8 +221,9 @@ void StatisticsBackendData::on_physical_entity_discovery(
         }
         case EntityKind::USER:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_USER_DISCOVERY, user_status_))
+            if (should_call_physical_listener(CallbackKind::ON_USER_DISCOVERY))
             {
+                prepare_entity_discovery_status(DISCOVERY, user_status_);
                 physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
                 user_status_.on_status_read();
             }
@@ -188,8 +231,9 @@ void StatisticsBackendData::on_physical_entity_discovery(
         }
         case EntityKind::PROCESS:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_PROCESS_DISCOVERY, process_status_))
+            if (should_call_physical_listener(CallbackKind::ON_PROCESS_DISCOVERY))
             {
+                prepare_entity_discovery_status(DISCOVERY, process_status_);
                 physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
                 process_status_.on_status_read();
             }
@@ -197,8 +241,9 @@ void StatisticsBackendData::on_physical_entity_discovery(
         }
         case EntityKind::LOCATOR:
         {
-            if (preprocess_entity_discovery(CallbackKind::ON_LOCATOR_DISCOVERY, locator_status_))
+            if (should_call_physical_listener(CallbackKind::ON_LOCATOR_DISCOVERY))
             {
+                prepare_entity_discovery_status(DISCOVERY, locator_status_);
                 physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
                 locator_status_.on_status_read();
             }

@@ -29,10 +29,11 @@ namespace statistics_backend {
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,
-        DataKindMask /*data_mask*/)
+        DataKindMask data_mask)
 {
     details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
     details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
+    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -116,7 +117,8 @@ Info StatisticsBackend::get_info(
 {
     Info info = Info::object();
 
-    std::shared_ptr<const database::Entity> entity = details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+    std::shared_ptr<const database::Entity> entity =
+            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
 
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];

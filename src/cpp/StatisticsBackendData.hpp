@@ -55,6 +55,9 @@ public:
     //! Mask for the physical listener
     CallbackMask physical_callback_mask_;
 
+    //! Data mask for the physical listener
+    DataKindMask physical_data_mask_;
+
     //! Status for the Hosts
     DomainListener::Status host_status_;
 
@@ -132,6 +135,18 @@ protected:
     {
     }
 
+    bool should_call_domain_listener(
+            std::unique_ptr<Monitor>& monitor,
+            CallbackKind callback_kind,
+            DataKind data_kind = DataKind::INVALID);
+
+    bool should_call_physical_listener(
+            CallbackKind callback_kind,
+            DataKind data_kind = DataKind::INVALID);
+
+    bool prepare_entity_discovery_status(
+            DiscoveryStatus discovery_status,
+            DomainListener::Status& status);
 };
 
 } // namespace details
