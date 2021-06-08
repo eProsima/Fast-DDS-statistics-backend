@@ -126,6 +126,8 @@ add_executable(database_tests DatabaseTests.cpp)
 
 if(MSVC)
     target_compile_definitions(database_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    # Duplications in this testing are intended
+    target_compile_options(database_tests PRIVATE /wd4458)
 endif(MSVC)
 
 target_include_directories(database_tests PRIVATE
