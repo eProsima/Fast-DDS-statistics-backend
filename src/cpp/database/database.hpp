@@ -533,92 +533,67 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * @brief Check if a key (id) exists in the given container, throwing an exception if not.
-
-     * @param container Reference to the dump where the key must be.
-     * @param id key (id) of the entity to check.
-     * @throws eprosima::statistics_backend::FileCorrupted if the key does not exist in the container.
+     * @brief Check if 'entities_container' contains an 'id', throwing an exception if not.
+     *
+     * @param entities_container Reference to the dump of the entities to check.
+     * @param id id of the entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the 'id' does not exist in 'entities_container'.
      */
-    void check_entity_exists(
-            DatabaseDump const& container,
+    void check_entity_container_contains_id(
+            DatabaseDump const& entities_container,
             std::string const& id);
 
     /**
-     * @brief Ensure internal consistency of the database, checking if the 'reference_id' entity has a reference to 'entity_id' of type 'entity_tag'
-     * on the given container, throwing an exception if not.
+     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+     * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
+     * have reference to 'it' of type 'entity_tag'
      *
-     * @param container Reference to the dump of the 'reference_id' entity
-     * @param reference_id Key (id) of the entity to check.
-     * @param entity_tag Type of entity to check within 'reference_id' entity
-     * @param id entity_id Key (id) the 'reference_id' must have on 'entity_tag'
+     * @param dump reference to the database dump.
+     * @param it iterator to the dump of the entity.
+     * @param entity_tag Type of the entity to check.
+     * @param reference_tag Type of the referenced entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
      */
-    void check_entity_reference(
-            DatabaseDump const& container,
-            std::string const& reference_id,
-            std::string const& entity_tag,
-            std::string const& entity_id);
-
-    /**
-     * @brief Check that all the references of 'reference_tag' type entities contained in 'it'
-     * are also referenced within 'dump' under 'entity_tag'.
-     *
-     * @param it Reference iterator to the dump of the referenced entity
-     * @param entity_tag Type of entity to check on entity
-     * @param reference_tag Type of entity to check on the referenced entity
-     * @param dump where to check the references consistency
-     */
-    void check_all_references(
+    void check_entity_all_references(
+            DatabaseDump const& dump,
             nlohmann::json::iterator const& it,
             std::string const& entity_tag,
-            std::string const& reference_tag,
-            DatabaseDump const& dump);
+            std::string const& reference_tag);
 
     /**
-     * @brief Check if the entity with 'reference_id' contains a reference to 'entity_id' of type 'entity_tag'
-     * on her container, throwing an exception if not.
-     *
-     * @param container Reference to the dump of the reference entity
-     * @param reference_id Key (id) of the entity to check.
-     * @param entity_tag Type of entity to check is contained reference entity
-     * @param id Key (id) the reference entity must contain on 'entity_tag'
+	 * @brief Auxiliar function to check that an entity contains reference to another. Check that "entities_container"
+	 * contains 'referenced_id' and that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
+	 * 
+     * @param entities_container Reference to the dump of the entities to check.
+     * @param referenced_id id of the referenced entity to check.
+     * @param entity_id id to check that referenced entity have.
+     * @param entity_tag type of the 'entity_id' to check
+	 * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
      */
-    void check_entity_reference_contains(
-            DatabaseDump const& container,
-            std::string const& reference_id,
-            std::string const& entity_tag,
-            std::string const& entity_id);
+    void check_entity_contains_reference_aux(
+            DatabaseDump const& entities_container,
+            std::string const& referenced_id,
+            std::string const& entity_id,
+            std::string const& entity_tag);
 
-    /**
-     * @brief Check if the references to entity type "reference_tag" on entity container 'it'
-     * contains also a reference of entity type 'entity_tag' to 'it'
-     *
-     * @param it Reference to the dump of the reference entity
-     * @param entity_tag Type of entity to check on entity
-     * @param reference_container_tag Type of entity container to check on reference entity
-     * @param reference_tag Type of entity to check on reference entity
-     * @param dump .json where to check
+	/**
+	 * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+     * to entities of type 'reference_tag' is consistent and mutual. For this, the referenced entities must
+	 * contain a reference to 'it' of type 'entity_tag'
+	 * 
+     * @param dump reference to the database dump.
+     * @param it iterator to the dump of the entity.
+     * @param entity_tag Type of the entity to check.
+     * @param reference_container_tag Type of the referenced entity container to check.
+     * @param reference_tag Type of the referenced entity to check.
+	 * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
      */
-    void check_contains_reference(
+    void check_entity_contains_all_references(
+			DatabaseDump const& dump,
             nlohmann::json::iterator const& it,
             std::string const& entity_tag,
-            std::string const& reference_container_tag,
-            std::string const& reference_tag,
-            DatabaseDump const& dump);
-
-    /**
-     * @brief Check if all the references to entity type "reference_tag" on entity container 'it'
-     * contains also a reference of entity type 'entity_tag' to 'it'
-     *
-     * @param container Reference to the dump of the reference entity
-     * @param entity_tag Type of entity to check on entity
-     * @param reference_tag Type of entity to check on reference entity
-     * @param dump .json where to check
-     */
-    void check_contains_all_references(
-            nlohmann::json::iterator const& it,
-            std::string const& entity_tag,
-            std::string const& reference_tag,
-            DatabaseDump const& dump);
+			std::string const& reference_container_tag,
+            std::string const& reference_tag);
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.

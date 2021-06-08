@@ -3119,98 +3119,74 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::check_entity_exists(
-        DatabaseDump const& container,
+void Database::check_entity_container_contains_id(
+        DatabaseDump const& entities_container,
         std::string const& id)
 {
-    if (!container.contains(id))
+    if (!entities_container.contains(id))
     {
-        throw CorruptedFile("Entity container: " + container.dump() + " do not have a Entity with ID: " + id);
+        throw CorruptedFile("Entity container: " + entities_container.dump() + " do not have a Entity with ID: " + id);
     }
 }
 
-void Database::check_entity_reference(
-        DatabaseDump const& container,
-        std::string const& reference_id,
-        std::string const& entity_tag,
-        std::string const& entity_id)
-{
-    check_entity_exists(container, reference_id);
-
-    std::string id = std::to_string(id_string_to_int((std::string)container.at(reference_id).at(entity_tag)));
-    if (id != entity_id)
-    {
-        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
-                      " has reference to " + entity_tag + ": " + id +
-                      " instead of " + entity_tag + ": " + entity_id);
-    }
-}
-
-void Database::check_all_references(
+void Database::check_entity_all_references(
+        DatabaseDump const& dump,
         nlohmann::json::iterator const& it,
         std::string const& entity_tag,
-        std::string const& reference_tag,
-        DatabaseDump const& dump)
+        std::string const& reference_tag)
 {
-    std::string entity_id = std::to_string(id_string_to_int(it.key()));
+    std::string entity_id = it.key();
     DatabaseDump references_id = (*it).at(reference_tag);
     DatabaseDump reference_container = dump.at(reference_tag);
 
-    // Check all references
+    // Check all 'references_id' in the 'reference_container'
     for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
     {
-        check_entity_reference(reference_container, std::to_string(id_string_to_int(
-                    (std::string)*refIt)), entity_tag, entity_id);
+        std::string referenced_id = *refIt;
+
+        // 1) Check that the 'referenced_id' entity exists.
+        check_entity_container_contains_id(reference_container, referenced_id);
+
+        // 2) Check that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
+        std::string id = reference_container.at(referenced_id).at(entity_tag);
+        if (id != entity_id)
+        {
+            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
+                              referenced_id).dump() +
+                          " has reference to " + entity_tag + ": " + id +
+                          " instead of " + entity_tag + ": " + entity_id);
+        }
     }
 }
 
-void Database::check_entity_reference_contains(
-        DatabaseDump const& container,
-        std::string const& reference_id,
-        std::string const& entity_tag,
-        std::string const& entity_id)
+void Database::check_entity_contains_all_references(
+    DatabaseDump const &dump,
+    nlohmann::json::iterator const &it,
+    std::string const &entity_tag,
+    std::string const& reference_container_tag,
+    std::string const &reference_tag)
 {
-    check_entity_exists(container, reference_id);
-
-    std::vector <std::string> reference_entities = container.at(reference_id).at(entity_tag);
-
-    if (std::find(reference_entities.begin(), reference_entities.end(), entity_id) == reference_entities.end())
-    {
-        throw CorruptedFile("Entity with ID (" + reference_id + ") :" + container.at(reference_id).dump() +
-                      " have reference to " + entity_tag + ": " +
-                      container.at(reference_id).at(entity_tag).dump() +
-                      " instead of " + entity_tag + ": " + entity_id);
-    }
-}
-
-void Database::check_contains_reference(
-        nlohmann::json::iterator const& it,
-        std::string const& entity_tag,
-        std::string const& reference_container_tag,
-        std::string const& reference_tag,
-        DatabaseDump const& dump)
-{
-    std::string entity_id = std::to_string(id_string_to_int(it.key()));
-    std::string reference_id = std::to_string(id_string_to_int((std::string)(*it).at(reference_tag)));
+    std::string entity_id = it.key();
+    DatabaseDump references_id = (*it).at(reference_tag);
     DatabaseDump reference_container = dump.at(reference_container_tag);
 
-    check_entity_reference_contains(reference_container, reference_id, entity_tag, entity_id);
-}
-
-void Database::check_contains_all_references(
-        nlohmann::json::iterator const& it,
-        std::string const& entity_tag,
-        std::string const& reference_tag,
-        DatabaseDump const& dump)
-{
-    std::string entity_id = std::to_string(id_string_to_int(it.key()));
-    DatabaseDump references_id = (*it).at(reference_tag);
-    DatabaseDump reference_container = dump.at(reference_tag);
-
+    // Check all 'references_id' in the 'reference_container'
     for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
     {
-        check_entity_reference_contains(reference_container,
-                std::to_string(id_string_to_int((std::string)*refIt)), entity_tag, entity_id);
+        std::string referenced_id = *refIt;
+
+        // 1) Check that the 'referenced_id' entity exists.
+        check_entity_container_contains_id(reference_container, referenced_id);
+
+        // 2) Check that referenced entity contains a reference to an 'entity_id' of type 'entity_tag'.
+        std::vector<std::string> referenced_entities = reference_container.at(referenced_id).at(entity_tag);
+        if (std::find(referenced_entities.begin(), referenced_entities.end(), entity_id) == referenced_entities.end())
+        {
+            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(referenced_id).dump() +
+                                " have reference to " + entity_tag + ": " +
+                                reference_container.at(referenced_id).at(entity_tag).dump() +
+                                " instead of " + entity_tag + ": " + entity_id);
+        }
     }
 }
 
@@ -3232,7 +3208,7 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_all_references(it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, dump);
+            check_entity_all_references(dump, it, HOST_ENTITY_TAG, USER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
@@ -3251,8 +3227,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG, dump);
-            check_all_references(it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG);
+            check_entity_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
@@ -3272,8 +3248,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG, dump);
-            check_all_references(it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG);
+            check_entity_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Process> entity =
@@ -3294,8 +3270,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_all_references(it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, dump);
-            check_all_references(it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, dump);
+            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
+            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
@@ -3314,9 +3290,9 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
-            check_all_references(it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
-            check_all_references(it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
+            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Topic> entity =
@@ -3337,9 +3313,9 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG, dump);
-            check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, dump);
-            check_all_references(it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
+            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
@@ -3355,8 +3331,7 @@ void Database::load_database(
 
             if (process_id != EntityId::invalid())
             {
-                check_contains_reference(it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG,
-                        dump);
+                check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG, PROCESS_ENTITY_TAG);
 
                 link_participant_with_process_nts(entity->id, process_id);
             }
@@ -3372,8 +3347,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, dump);
-            check_contains_all_references(it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
@@ -3400,10 +3375,10 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
-                    PARTICIPANT_ENTITY_TAG, dump);
-            check_contains_reference(it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-            check_contains_all_references(it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,LOCATOR_CONTAINER_TAG);
 
             // Get keys
             EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
@@ -3450,10 +3425,10 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_contains_reference(it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
-                    PARTICIPANT_ENTITY_TAG, dump);
-            check_contains_reference(it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG, dump);
-            check_contains_all_references(it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG, dump);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,LOCATOR_CONTAINER_TAG);
 
             // Get keys
             EntityId participant_id = EntityId(id_string_to_int((std::string)(*it).at(
