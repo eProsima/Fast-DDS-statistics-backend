@@ -116,7 +116,7 @@ using namespace eprosima::statistics_backend::database;
  *   }
  * }
  * \endcode
- * 
+ *
  *  Also insert Statistics data of all types with test values in participant2, datawriter2, datareader2 and locator2
  */
 class PopulateDatabase
@@ -546,4 +546,5 @@ public:
     {
         return next_id_;
     }
+
 };

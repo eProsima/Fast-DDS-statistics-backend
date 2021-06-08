@@ -467,7 +467,7 @@ protected:
             }
         }
 
-        /* Add endpoint to participant' collection */
+        // Add id to the entity
         if (!entity_id.is_valid_and_unique())
         {
             entity_id = generate_entity_id();
@@ -642,6 +642,25 @@ protected:
     void link_participant_with_process_nts(
             const EntityId& participant_id,
             const EntityId& process_id);
+
+    /**
+     * @brief Create the link between an endpoint and a locator. This method is not thread safe.
+     *
+     * This operation entails:
+     *     1. Adding the endpoint to the locator's list of endpoints
+     *     2. Adding the locator to the endpoint's list of locators
+     *     3. Adding entry to locators_by_participant_
+     *     4. Adding entry to participants_by_locator_
+     *
+     * @param endpoint_id The EntityId of the endpoint
+     * @param locator_id The EntityId of the locator
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The endpoint does not exist in the database
+     *            * The locator does not exist in the database
+     */
+    void link_endpoint_with_locator_nts(
+            const EntityId& endpoint_id,
+            const EntityId& locator_id);
 
     /**
      * @brief Load data from a dump.

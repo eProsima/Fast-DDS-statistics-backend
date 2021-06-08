@@ -444,13 +444,20 @@ void Database::insert_nts(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            entity->id = entity_id;
+
             /* Insert locator in the database */
-            locator->data_readers.clear();
-            locator->data_writers.clear();
-            locator->data.clear();
-            locator->id = generate_entity_id();
             locators_[locator->id] = locator;
-            return locator->id;
+            break;
         }
         default:
         {
@@ -1101,6 +1108,13 @@ void Database::link_endpoint_with_locator(
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
+    link_endpoint_with_locator_nts(endpoint_id, locator_id);
+}
+
+void Database::link_endpoint_with_locator_nts(
+        const EntityId& endpoint_id,
+        const EntityId& locator_id)
+{
     /* Get the endpoint */
     std::shared_ptr<DDSEndpoint> endpoint;
     {
@@ -2177,19 +2191,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::USER:
                     {
                         // May not have the relation process - participant yet
-                    if (participant->process)
-                    {
-                        auto sub_entities = get_entities(entity_kind, participant->process);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
-                    }
+                        if (participant->process)
+                        {
+                            auto sub_entities = get_entities(entity_kind, participant->process);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
                     }
                     break;
                     case EntityKind::PROCESS:
                         // May not have the relation process - participant yet
-                    if (participant->process)
-                    {
-                        entities.push_back(participant->process);
-                    }
+                        if (participant->process)
+                        {
+                            entities.push_back(participant->process);
+                        }
                         break;
                     case EntityKind::DOMAIN:
                         entities.push_back(participant->domain);
@@ -3359,14 +3373,9 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
 
-            // Give him a id
-            entity->id = EntityId(string_to_int(it.key()));
-            if (entity->id.value() >= next_id_)
-            {
-                next_id_ = entity->id.value() + 1;
-            }
-
-            locators_[entity->id] = entity;
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
@@ -3408,18 +3417,17 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
 
-            /* Add reference to locator to the endpoint */
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Link endpoint with locator
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
                     it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++it_loc)
             {
-                entity->locators[string_to_int(*it_loc)] =
-                        locators_[EntityId(string_to_int(*it_loc))];
+                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
             }
-
-            // Insert into database
-            EntityId entity_id = EntityId(string_to_int(it.key()));
-            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
@@ -3460,18 +3468,17 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
 
-            /* Add reference to locator to the endpoint */
-            for (auto itLoc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
-                    itLoc != (*it).at(LOCATOR_CONTAINER_TAG).end();
-                    ++itLoc)
-            {
-                entity->locators[string_to_int(*itLoc)] =
-                        locators_[EntityId(string_to_int(*itLoc))];
-            }
-
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
+
+            // Link endpoint with locator
+            for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++it_loc)
+            {
+                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
+            }
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);

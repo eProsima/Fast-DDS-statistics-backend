@@ -69,6 +69,7 @@ void Locator::clear()
 {
     data_readers.clear();
     data_writers.clear();
+    data.clear();
 }
 
 template<>
