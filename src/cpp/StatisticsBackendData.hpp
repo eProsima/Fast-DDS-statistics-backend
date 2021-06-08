@@ -70,6 +70,11 @@ public:
     //! Status for the Locators
     DomainListener::Status locator_status_;
 
+    /**
+     * @brief Get the singleton instance object
+     *
+     * @return Raw pointer to the singleton instance
+     */
     static StatisticsBackendData* get_instance()
     {
         static StatisticsBackendData instance;
@@ -129,22 +134,62 @@ public:
 
 protected:
 
+    /**
+     * @brief Protected constructor of the singleton
+     */
     StatisticsBackendData()
         : database_(new database::Database)
         , physical_listener_(nullptr)
     {
     }
 
+    /**
+     * @brief Check whether the domain listener should be called given the arguments
+     *
+     * The result will be true if all of the following conditions are met:
+     * - The \c monitor has a non-null listener
+     * - The callback mask of the \c monitor has the \c callback_kind bit set
+     * - The \c data_kind is not INVALID or the data mask of the \c monitor has the \c data_kind bit set
+     *
+     * When the method is called on the discovery of an entity, \c data_kind = INVALID
+     * should be used, signalling that the value of the data mask set by the user is irrelevant in this case.
+     *
+     * @param monitor The monitor whose domain listener we are testing
+     * @param callback_kind The callback kind to check against the callback kind mask
+     * @param data_kind The data kind to check against the data kind mask
+     * @return true if the listener should be called. False otherwise.
+     */
     bool should_call_domain_listener(
             std::unique_ptr<Monitor>& monitor,
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 
+    /**
+     * @brief Check whether the physical listener should be called given the arguments
+     *
+     * The result will be true if all of the following conditions are met:
+     * - There is a non-null physical listener
+     * - The callback mask of the physical listener has the \c callback_kind bit set
+     * - The \c data_kind is not INVALID or the data mask of the physical listener has the \c data_kind bit set
+     *
+     * When the method is called on the discovery of an entity, \c data_kind = INVALID
+     * should be used, signalling that the value of the data mask set by the user is irrelevant in this case.
+     *
+     * @param callback_kind The callback kind to check against the callback kind mask
+     * @param data_kind The data kind to check against the data kind mask
+     * @return true if the listener should be called. False otherwise.
+     */
     bool should_call_physical_listener(
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 
-    bool prepare_entity_discovery_status(
+    /**
+     * @brief Updates the given status before calling a user listener
+     *
+     * @param discovery_status Either DISCOVERY or UNDISCOVERY or UPDATE
+     * @param status The status to update
+     */
+    void prepare_entity_discovery_status(
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
 };

@@ -66,6 +66,8 @@ bool StatisticsBackendData::should_call_domain_listener(
         return false;
     }
 
+    // If data_kind is INVALID, we do not care about the data kind mask
+    // We assume an entity was discovered
     if (data_kind != DataKind::INVALID && !monitor->data_mask.is_set(data_kind))
     {
         // Data mask deactivated
@@ -91,6 +93,8 @@ bool StatisticsBackendData::should_call_physical_listener(
         return false;
     }
 
+    // If data_kind is INVALID, we do not care about the data kind mask
+    // We assume an entity was discovered
     if (data_kind != DataKind::INVALID && !physical_data_mask_.is_set(data_kind))
     {
         // Data mask deactivated
@@ -100,7 +104,7 @@ bool StatisticsBackendData::should_call_physical_listener(
     return true;
 }
 
-bool StatisticsBackendData::prepare_entity_discovery_status(
+void StatisticsBackendData::prepare_entity_discovery_status(
         DiscoveryStatus discovery_status,
         DomainListener::Status& status)
 {
@@ -112,7 +116,6 @@ bool StatisticsBackendData::prepare_entity_discovery_status(
     {
         status.on_instance_undiscovered();
     }
-    return true;
 }
 
 void StatisticsBackendData::on_domain_entity_discovery(
