@@ -31,13 +31,12 @@ namespace statistics_backend {
 namespace details {
 
 StatisticsBackendData::StatisticsBackendData()
-        : database_(new database::Database)
-        , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
-        , data_queue_(new database::DatabaseDataQueue(database_.get()))
-        , physical_listener_(nullptr)
+    : database_(new database::Database)
+    , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
+    , data_queue_(new database::DatabaseDataQueue(database_.get()))
+    , physical_listener_(nullptr)
 {
 }
-
 
 void StatisticsBackendData::on_data_available(
         EntityId domain_id,

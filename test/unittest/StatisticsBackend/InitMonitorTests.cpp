@@ -53,39 +53,39 @@ public:
 
     // all bits in the callback mask
     static constexpr const CallbackKind all_callback_kinds_[] = {
-            CallbackKind::ON_DATA_AVAILABLE,
-            CallbackKind::ON_DATAREADER_DISCOVERY,
-            CallbackKind::ON_DATAWRITER_DISCOVERY,
-            CallbackKind::ON_HOST_DISCOVERY,
-            CallbackKind::ON_LOCATOR_DISCOVERY,
-            CallbackKind::ON_PARTICIPANT_DISCOVERY,
-            CallbackKind::ON_PROCESS_DISCOVERY,
-            CallbackKind::ON_TOPIC_DISCOVERY,
-            CallbackKind::ON_USER_DISCOVERY };
+        CallbackKind::ON_DATA_AVAILABLE,
+        CallbackKind::ON_DATAREADER_DISCOVERY,
+        CallbackKind::ON_DATAWRITER_DISCOVERY,
+        CallbackKind::ON_HOST_DISCOVERY,
+        CallbackKind::ON_LOCATOR_DISCOVERY,
+        CallbackKind::ON_PARTICIPANT_DISCOVERY,
+        CallbackKind::ON_PROCESS_DISCOVERY,
+        CallbackKind::ON_TOPIC_DISCOVERY,
+        CallbackKind::ON_USER_DISCOVERY };
 
     // a mask with all callbacks
     CallbackMask all_callback_mask_;
 
     // all bits in the datakind mask
     static constexpr const DataKind all_data_kinds_[] = {
-            DataKind::ACKNACK_COUNT,
-            DataKind::DATA_COUNT,
-            DataKind::DISCOVERY_TIME,
-            DataKind::EDP_PACKETS,
-            DataKind::FASTDDS_LATENCY,
-            DataKind::GAP_COUNT,
-            DataKind::HEARTBEAT_COUNT,
-            DataKind::NACKFRAG_COUNT,
-            DataKind::NETWORK_LATENCY,
-            DataKind::PDP_PACKETS,
-            DataKind::PUBLICATION_THROUGHPUT,
-            DataKind::RESENT_DATA,
-            DataKind::RTPS_BYTES_LOST,
-            DataKind::RTPS_BYTES_SENT,
-            DataKind::RTPS_PACKETS_LOST,
-            DataKind::RTPS_PACKETS_SENT,
-            DataKind::SAMPLE_DATAS,
-            DataKind::SUBSCRIPTION_THROUGHPUT };
+        DataKind::ACKNACK_COUNT,
+        DataKind::DATA_COUNT,
+        DataKind::DISCOVERY_TIME,
+        DataKind::EDP_PACKETS,
+        DataKind::FASTDDS_LATENCY,
+        DataKind::GAP_COUNT,
+        DataKind::HEARTBEAT_COUNT,
+        DataKind::NACKFRAG_COUNT,
+        DataKind::NETWORK_LATENCY,
+        DataKind::PDP_PACKETS,
+        DataKind::PUBLICATION_THROUGHPUT,
+        DataKind::RESENT_DATA,
+        DataKind::RTPS_BYTES_LOST,
+        DataKind::RTPS_BYTES_SENT,
+        DataKind::RTPS_PACKETS_LOST,
+        DataKind::RTPS_PACKETS_SENT,
+        DataKind::SAMPLE_DATAS,
+        DataKind::SUBSCRIPTION_THROUGHPUT };
 
     // a mask with all data kinds
     DataKindMask all_datakind_mask_;
@@ -134,6 +134,7 @@ public:
             delete it.second;
         }
     }
+
 };
 
 constexpr const CallbackKind init_monitor_tests::all_callback_kinds_[];
@@ -384,10 +385,10 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     EXPECT_TRUE(monitor_id.is_valid());
 
     EXPECT_THROW(StatisticsBackend::init_monitor(
-        domain_id,
-        nullptr,
-        CallbackMask::none(),
-        DataKindMask::none()), BadParameter);
+                domain_id,
+                nullptr,
+                CallbackMask::none(),
+                DataKindMask::none()), BadParameter);
 
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
 

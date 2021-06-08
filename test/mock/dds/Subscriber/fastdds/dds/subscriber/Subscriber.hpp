@@ -39,19 +39,20 @@ class Subscriber
 {
 
 public:
+
     MOCK_METHOD4(
         create_datareader,
-        DataReader*
+        DataReader *
         (
-            Topic* topic,
+            Topic * topic,
             const DataReaderQos& qos,
-            DataReaderListener* listener,
+            DataReaderListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_CONST_METHOD0(
         get_default_datareader_qos,
-        DataReaderQos&());
+        DataReaderQos & ());
 
 };
 

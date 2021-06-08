@@ -82,7 +82,7 @@ void find_or_create_topic_and_type(
         if (topic_desc->get_type_name() != type->getName())
         {
             throw Error(topic_name + " is not using expected type " + type->getName() +
-                    " and is using instead type " + topic_desc->get_type_name());
+                          " and is using instead type " + topic_desc->get_type_name());
         }
         monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
     }
@@ -93,7 +93,8 @@ void find_or_create_topic_and_type(
             // Name already in use
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
-        monitor->topics[topic_name] = monitor->participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+        monitor->topics[topic_name] =
+                monitor->participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
     }
 }
 
@@ -176,12 +177,12 @@ EntityId StatisticsBackend::init_monitor(
     details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
-            domain->id,
-            details::StatisticsBackendData::get_instance()->database_.get(),
-            details::StatisticsBackendData::get_instance()->entity_queue_,
-            details::StatisticsBackendData::get_instance()->data_queue_);
+        domain->id,
+        details::StatisticsBackendData::get_instance()->database_.get(),
+        details::StatisticsBackendData::get_instance()->entity_queue_,
+        details::StatisticsBackendData::get_instance()->data_queue_);
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
-            details::StatisticsBackendData::get_instance()->data_queue_);
+        details::StatisticsBackendData::get_instance()->data_queue_);
 
     /* Create DomainParticipant */
     using namespace eprosima::fastdds::dds;
@@ -204,9 +205,9 @@ EntityId StatisticsBackend::init_monitor(
     /* Create Subscriber */
     SubscriberQos subscriber_qos = monitor->participant->get_default_subscriber_qos();
     monitor->subscriber = monitor->participant->create_subscriber(
-            subscriber_qos,
-            nullptr,
-            StatusMask::none());
+        subscriber_qos,
+        nullptr,
+        StatusMask::none());
 
     if (monitor->subscriber == nullptr)
     {
@@ -226,10 +227,10 @@ EntityId StatisticsBackend::init_monitor(
         /* Create DataReaders */
         DataReaderQos data_reader_qos = monitor->subscriber->get_default_datareader_qos();
         monitor->readers[topic] = monitor->subscriber->create_datareader(
-                monitor->topics[topic],
-                data_reader_qos,
-                monitor->reader_listener,
-                StatusMask::all());
+            monitor->topics[topic],
+            data_reader_qos,
+            monitor->reader_listener,
+            StatusMask::all());
 
         if (monitor->readers[topic] == nullptr)
         {

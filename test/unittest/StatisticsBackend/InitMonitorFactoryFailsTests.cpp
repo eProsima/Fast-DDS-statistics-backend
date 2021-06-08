@@ -56,6 +56,7 @@ class init_monitor_factory_fails_tests : public ::testing::Test
 {
 
 public:
+
     DomainParticipantFactory* domain_participant_factory_;
     DomainParticipantQos domain_participant_qos_;
     DomainParticipant domain_participant_;
@@ -69,39 +70,39 @@ public:
 
     // all bits in the callback mask
     static constexpr const CallbackKind all_callback_kinds_[] = {
-            CallbackKind::ON_DATA_AVAILABLE,
-            CallbackKind::ON_DATAREADER_DISCOVERY,
-            CallbackKind::ON_DATAWRITER_DISCOVERY,
-            CallbackKind::ON_HOST_DISCOVERY,
-            CallbackKind::ON_LOCATOR_DISCOVERY,
-            CallbackKind::ON_PARTICIPANT_DISCOVERY,
-            CallbackKind::ON_PROCESS_DISCOVERY,
-            CallbackKind::ON_TOPIC_DISCOVERY,
-            CallbackKind::ON_USER_DISCOVERY };
+        CallbackKind::ON_DATA_AVAILABLE,
+        CallbackKind::ON_DATAREADER_DISCOVERY,
+        CallbackKind::ON_DATAWRITER_DISCOVERY,
+        CallbackKind::ON_HOST_DISCOVERY,
+        CallbackKind::ON_LOCATOR_DISCOVERY,
+        CallbackKind::ON_PARTICIPANT_DISCOVERY,
+        CallbackKind::ON_PROCESS_DISCOVERY,
+        CallbackKind::ON_TOPIC_DISCOVERY,
+        CallbackKind::ON_USER_DISCOVERY };
 
     // a mask with all callbacks
     CallbackMask all_callback_mask_;
 
     // all bits in the datakind mask
     static constexpr const DataKind all_data_kinds_[] = {
-            DataKind::ACKNACK_COUNT,
-            DataKind::DATA_COUNT,
-            DataKind::DISCOVERY_TIME,
-            DataKind::EDP_PACKETS,
-            DataKind::FASTDDS_LATENCY,
-            DataKind::GAP_COUNT,
-            DataKind::HEARTBEAT_COUNT,
-            DataKind::NACKFRAG_COUNT,
-            DataKind::NETWORK_LATENCY,
-            DataKind::PDP_PACKETS,
-            DataKind::PUBLICATION_THROUGHPUT,
-            DataKind::RESENT_DATA,
-            DataKind::RTPS_BYTES_LOST,
-            DataKind::RTPS_BYTES_SENT,
-            DataKind::RTPS_PACKETS_LOST,
-            DataKind::RTPS_PACKETS_SENT,
-            DataKind::SAMPLE_DATAS,
-            DataKind::SUBSCRIPTION_THROUGHPUT };
+        DataKind::ACKNACK_COUNT,
+        DataKind::DATA_COUNT,
+        DataKind::DISCOVERY_TIME,
+        DataKind::EDP_PACKETS,
+        DataKind::FASTDDS_LATENCY,
+        DataKind::GAP_COUNT,
+        DataKind::HEARTBEAT_COUNT,
+        DataKind::NACKFRAG_COUNT,
+        DataKind::NETWORK_LATENCY,
+        DataKind::PDP_PACKETS,
+        DataKind::PUBLICATION_THROUGHPUT,
+        DataKind::RESENT_DATA,
+        DataKind::RTPS_BYTES_LOST,
+        DataKind::RTPS_BYTES_SENT,
+        DataKind::RTPS_PACKETS_LOST,
+        DataKind::RTPS_PACKETS_SENT,
+        DataKind::SAMPLE_DATAS,
+        DataKind::SUBSCRIPTION_THROUGHPUT };
 
     // a mask with all data kinds
     DataKindMask all_datakind_mask_;
@@ -129,7 +130,7 @@ public:
         topic_types_[DISCOVERY_TOPIC] = new DiscoveryTimePubSubType();
         topic_types_[SAMPLE_DATAS_TOPIC] = new SampleIdentityCountPubSubType();
         topic_types_[PHYSICAL_DATA_TOPIC] = new PhysicalDataPubSubType();
-        
+
         // Set the bits for the masks
         for (auto callback : init_monitor_factory_fails_tests::all_callback_kinds_)
         {
@@ -201,7 +202,6 @@ public:
         EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(AnyNumber());
     }
 
-
     ~init_monitor_factory_fails_tests()
     {
         // Clear memory
@@ -224,12 +224,12 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails
 
     // Expect failure on the participant creation
     EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(1)
-        .WillOnce(Return(nullptr));
+            .WillOnce(Return(nullptr));
     ASSERT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
@@ -239,12 +239,12 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 
     // Expect failure on the subscriber creation
     EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(1)
-        .WillOnce(Return(nullptr));
+            .WillOnce(Return(nullptr));
     EXPECT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
@@ -254,12 +254,12 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 
     // Expect failure on the datareader creation
     EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(1)
-        .WillOnce(Return(nullptr));
+            .WillOnce(Return(nullptr));
     EXPECT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
@@ -270,16 +270,16 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
     // Expect failure on the topic creation
     // We need to cover all parameter cases to be implementation agnostic
     ON_CALL(domain_participant_, create_topic(_, _, _, _, _))
-        .WillByDefault(Return(nullptr));
+            .WillByDefault(Return(nullptr));
     ON_CALL(domain_participant_, create_topic(_, _, _, _))
-        .WillByDefault(Return(nullptr));
+            .WillByDefault(Return(nullptr));
     ON_CALL(domain_participant_, create_topic(_, _, _))
-        .WillByDefault(Return(nullptr));
+            .WillByDefault(Return(nullptr));
     EXPECT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
@@ -289,12 +289,12 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
-        .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
+            .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
     EXPECT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
@@ -315,10 +315,10 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
     EXPECT_CALL(domain_participant_, create_topic(_, _, _)).Times(0);
 
     StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_);
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)
@@ -328,12 +328,12 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_
 
     Topic topic("custom_topic", "custom_type");
     ON_CALL(domain_participant_, lookup_topicdescription(_))
-                .WillByDefault(Return(&topic));
+            .WillByDefault(Return(&topic));
     EXPECT_THROW(StatisticsBackend::init_monitor(
-            domain_id,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 int main(

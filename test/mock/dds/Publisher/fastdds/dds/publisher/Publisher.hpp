@@ -39,19 +39,20 @@ class Publisher
 {
 
 public:
+
     MOCK_METHOD4(
         create_datawriter,
-        DataWriter*
+        DataWriter *
         (
-            Topic* topic,
+            Topic * topic,
             const DataWriterQos& qos,
-            DataWriterListener* listener,
+            DataWriterListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_CONST_METHOD0(
         get_default_datawriter_qos,
-        DataWriterQos&());
+        DataWriterQos & ());
 };
 
 

@@ -92,28 +92,28 @@ public:
 
     MOCK_METHOD5(
         create_topic,
-        Topic*
+        Topic *
         (
             const std::string& topic_name,
             const std::string& type_name,
             const TopicQos& qos,
-            TopicListener* listener,
+            TopicListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_METHOD4(
         create_topic,
-        Topic*
+        Topic *
         (
             const std::string& topic_name,
             const std::string& type_name,
             const TopicQos& qos,
-            TopicListener* listener
+            TopicListener * listener
         ));
 
     MOCK_METHOD3(
         create_topic,
-        Topic*
+        Topic *
         (
             const std::string& topic_name,
             const std::string& type_name,
@@ -122,37 +122,37 @@ public:
 
     MOCK_METHOD3(
         create_publisher,
-        Publisher*
+        Publisher *
         (
             const PublisherQos& qos,
-            PublisherListener* listener,
+            PublisherListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_METHOD3(
         create_subscriber,
-        Subscriber*
+        Subscriber *
         (
             const SubscriberQos& qos,
-            SubscriberListener* listener,
+            SubscriberListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_CONST_METHOD0(
         get_default_topic_qos,
-        TopicQos&());
+        TopicQos & ());
 
     MOCK_CONST_METHOD0(
         get_default_subscriber_qos,
-        SubscriberQos&());
+        SubscriberQos & ());
 
     MOCK_CONST_METHOD0(
         get_default_publisher_qos,
-        PublisherQos&());
+        PublisherQos & ());
 
     MOCK_CONST_METHOD1(
         lookup_topicdescription,
-        TopicDescription*
+        TopicDescription *
         (
             const std::string& topic_name
         ));

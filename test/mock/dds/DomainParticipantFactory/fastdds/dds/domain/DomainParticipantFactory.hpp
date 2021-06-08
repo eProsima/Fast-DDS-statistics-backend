@@ -38,6 +38,7 @@ class DomainParticipantFactory
 {
 
 public:
+
     static DomainParticipantFactory* get_instance()
     {
         static DomainParticipantFactory instance;
@@ -46,17 +47,17 @@ public:
 
     MOCK_METHOD4(
         create_participant,
-        DomainParticipant*
+        DomainParticipant *
         (
             DomainId_t domain_id,
             const DomainParticipantQos& qos,
-            DomainParticipantListener* listener,
+            DomainParticipantListener * listener,
             const StatusMask& mask
         ));
 
     MOCK_CONST_METHOD0(
         get_default_participant_qos,
-        DomainParticipantQos&());
+        DomainParticipantQos & ());
 
 };
 

@@ -71,7 +71,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     {
         return;
     }
-    
+
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database

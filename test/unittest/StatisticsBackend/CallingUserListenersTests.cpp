@@ -2967,7 +2967,8 @@ TEST_P(calling_user_data_listeners_tests, data_available)
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
+                        GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3006,7 +3007,8 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
+                        GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3056,7 +3058,8 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
     data_mask ^= data_kind;
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
+                        GetParam()), &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
