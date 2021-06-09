@@ -95,7 +95,7 @@ python3 -m venv fastdds_statistics_backend_venv
 # Activate the environment
 source fastdds_statistics_backend_venv/bin/activate
 # Install dependencies within the environment
-pip3 install -r src/fastdds-statistics-backend/docs/requirements.txt
+pip3 install -r src/fastdds_statistics_backend/docs/requirements.txt
 # Patch sphinx to correct an issue with warnings when generating the API reference
 cd fastdds_statistics_backend_venv/lib/<python3-version>/site-packages
 curl https://patch-diff.githubusercontent.com/raw/sphinx-doc/sphinx/pull/7851.diff | git apply
@@ -110,7 +110,7 @@ python3 -V
 #### Build documentation
 
 To enable the documentation building, edit `<path_to_ws>/fastdds_statistics_backend_ws/colcon.meta`
-to set `-DBUILD_DOCUMENTATION` to `ON` within the `fastdds-statistics-backend` project.
+to set `-DBUILD_DOCUMENTATION` to `ON` within the `fastdds_statistics_backend` project.
 Then, activate the virtual environment and build the documentation.
 
 ```bash
@@ -122,7 +122,7 @@ source fastdds_statistics_backend_venv/bin/activate
 colcon build
 ```
 
-Once the build completes, the generated documentation can be found in `<path_to_ws>/fastdds_statistics_backend_ws/install/fastdds-statistics-backend/docs/fastdds-statistics-backend/sphinx/html/index.html`
+Once the build completes, the generated documentation can be found in `<path_to_ws>/fastdds_statistics_backend_ws/install/fastdds_statistics_backend/docs/fastdds_statistics_backend/sphinx/html/index.html`
 
 ##### Simulating the Read The Docs build
 
@@ -138,15 +138,15 @@ Then, set `READTHEDOCS` and run sphinx:
 # Source the python virtual environment
 source <path_to_ws>/fastdds_statistics_backend_venv/bin/activate
 # Change directories to the repository directory
-cd <path_to_ws>/src/fastdds-statistics-backend
+cd <path_to_ws>/src/fastdds_statistics_backend
 # Make sure that the are no build directories
 rm -rf build
 # Run sphinx
 READTHEDOCS=True sphinx-build \
     -b html \
-    -D breathe_projects.FastDDS=<abs_path_to_ws>/src/fastdds-statistics-backend/build/doxygen/xml \
-    -d <abs_path_to_ws>/src/fastdds-statistics-backend/build/doctrees \
-    docs <abs_path_to_ws>/src/fastdds-statistics-backend/build/html
+    -D breathe_projects.FastDDS=<abs_path_to_ws>/src/fastdds_statistics_backend/build/doxygen/xml \
+    -d <abs_path_to_ws>/src/fastdds_statistics_backend/build/doctrees \
+    docs <abs_path_to_ws>/src/fastdds_statistics_backend/build/html
 ```
 
 #### Troubleshooting
