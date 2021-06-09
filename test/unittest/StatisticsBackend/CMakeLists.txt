@@ -189,7 +189,45 @@ foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
-set(USER_DATA_LISTENERS_TEST_LIST
+set(USER_LISTENERS_TEST_LIST_PHYSICAL_ENTITIES
+    entity_discovered
+    entity_discovered_not_in_mask
+    entity_discovered_no_listener
+    entity_discovered_no_listener_not_in_mask
+    )
+
+foreach(test_name ${USER_LISTENERS_TEST_LIST_PHYSICAL_ENTITIES})
+
+    add_test(NAME calling_user_listeners_tests_physical_entities.${test_name}
+        COMMAND calling_user_listeners_tests
+        --gtest_filter=calling_user_listeners_tests_physical_entities.${test_name}:*/calling_user_listeners_tests_physical_entities.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests_physical_entities.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
+    set(USER_LISTENERS_TEST_LIST_DOMAIN_ENTITIES
+    entity_discovered
+    entity_discovered_not_in_mask
+    entity_discovered_no_listener
+    entity_discovered_no_listener_not_in_mask
+    )
+
+foreach(test_name ${USER_LISTENERS_TEST_LIST_DOMAIN_ENTITIES})
+
+    add_test(NAME calling_user_listeners_tests_domain_entities.${test_name}
+        COMMAND calling_user_listeners_tests
+        --gtest_filter=calling_user_listeners_tests_domain_entities.${test_name}:*/calling_user_listeners_tests_domain_entities.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests_domain_entities.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
+set(USER_LISTENERS_TEST_LIST_DATAS
     data_available
     data_available_callback_not_in_mask
     data_available_data_not_in_mask
@@ -198,14 +236,16 @@ set(USER_DATA_LISTENERS_TEST_LIST
     data_available_no_listener_data_not_in_mask
     )
 
-foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
-    add_test(NAME calling_user_listeners_tests.${test_name}
+foreach(test_name ${USER_LISTENERS_TEST_LIST_DATAS})
+
+    add_test(NAME calling_user_listeners_tests_datas.${test_name}
             COMMAND calling_user_listeners_tests
-            --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
+            --gtest_filter=calling_user_listeners_tests_datas.${test_name}:*/calling_user_listeners_tests_datas.${test_name}/*)
 
     if(TEST_FRIENDLY_PATH)
-        set_tests_properties(calling_user_listeners_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        set_tests_properties(calling_user_listeners_tests_datas.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 
