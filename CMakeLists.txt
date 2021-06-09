@@ -23,6 +23,7 @@ cmake_policy(VERSION 3.10...3.20)
 ###############################################################################
 set(PROJECT_NAME "fastdds-statistics-backend")
 string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
+string(REPLACE "-" "_" PROJECT_NAME_UNDERSCORED "${PROJECT_NAME}")
 
 set(PROJECT_NAME_LARGE "Fast DDS Statistics Backend")
 
