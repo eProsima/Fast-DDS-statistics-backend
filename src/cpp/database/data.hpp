@@ -23,8 +23,8 @@
 #include <chrono>
 #include <vector>
 
-#include <fastdds-statistics-backend/nlohmann-json/json.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/nlohmann-json/json.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 #include "samples.hpp"
 

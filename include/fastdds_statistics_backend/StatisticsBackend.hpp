@@ -22,12 +22,12 @@
 #include <chrono>
 #include <string>
 
-#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
-#include <fastdds-statistics-backend/listener/DomainListener.hpp>
-#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
-#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

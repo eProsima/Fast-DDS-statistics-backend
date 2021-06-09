@@ -22,8 +22,8 @@
 
 #include <chrono>
 
-#include <fastdds-statistics-backend/exception/Exception.hpp>
-#include <fastdds-statistics-backend/types/types.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

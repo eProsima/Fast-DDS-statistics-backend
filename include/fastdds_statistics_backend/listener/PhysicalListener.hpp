@@ -19,9 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
 
-#include <fastdds-statistics-backend/fastdds_statistics_backend_dll.h>
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

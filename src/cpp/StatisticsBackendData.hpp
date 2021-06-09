@@ -22,11 +22,11 @@
 #include <map>
 #include <string>
 
-#include <fastdds-statistics-backend/listener/DomainListener.hpp>
-#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
-#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 #include <database/database.hpp>
 #include "Monitor.hpp"

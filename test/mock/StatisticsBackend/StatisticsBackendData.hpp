@@ -19,8 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 
 #include <chrono>
