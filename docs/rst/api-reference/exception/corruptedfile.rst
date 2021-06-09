@@ -6,5 +6,5 @@ CorruptedFile
 -------------
 
 .. doxygenclass:: eprosima::statistics_backend::CorruptedFile
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:
