@@ -156,20 +156,20 @@ void check_entity_no_generic_keys(
 {
     // No entities key
     {
-        DatabaseDump dumpCopy = dump;
-        check_no_key(dumpCopy, dumpCopy, key);
+        DatabaseDump dump_copy = dump;
+        check_no_key(dump_copy, dump_copy, key);
     }
 
     // No entity key
     {
-        DatabaseDump dumpCopy = dump;
-        check_no_key(dumpCopy, dumpCopy[key], dumpCopy[key].begin().key());
+        DatabaseDump dump_copy = dump;
+        check_no_key(dump_copy, dump_copy[key], dump_copy[key].begin().key());
     }
 
     // No entity name key
     {
-        DatabaseDump dumpCopy = dump;
-        check_no_key(dumpCopy, dumpCopy[key][dumpCopy[key].begin().key()], NAME_INFO_TAG);
+        DatabaseDump dump_copy = dump;
+        check_no_key(dump_copy, dump_copy[key][dump_copy[key].begin().key()], NAME_INFO_TAG);
     }
 }
 
@@ -178,8 +178,8 @@ void check_entity_no_key(
         std::string const& entityTag,
         std::string const& keyTag)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy, dumpCopy[entityTag][dumpCopy[entityTag].begin().key()], keyTag);
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy, dump_copy[entityTag][dump_copy[entityTag].begin().key()], keyTag);
 }
 
 void check_data_no_key(
@@ -187,8 +187,8 @@ void check_data_no_key(
         std::string const& entityTag,
         std::string const& keyTag)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy, dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG], keyTag);
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy, dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG], keyTag);
 }
 
 void check_data_value_no_id_key(
@@ -196,9 +196,9 @@ void check_data_value_no_id_key(
         std::string const& entityTag,
         std::string const& keyTag)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy, dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
-            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag].begin().key(), false);
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy, dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
+            dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag].begin().key(), false);
 }
 
 void check_data_value_index_no_key(
@@ -207,9 +207,9 @@ void check_data_value_index_no_key(
         std::string const& keyTag,
         std::string const& data_param)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy,
-            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy,
+            dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
                     .begin().value().begin().value(),
             data_param);
 }
@@ -220,9 +220,9 @@ void check_data_value_no_key(
         std::string const& keyTag,
         std::string const& data_param)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy,
-            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy,
+            dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
                     .begin().value(),
             data_param);
 }
@@ -233,9 +233,9 @@ void check_data_value_index_last_no_key(
         std::string const& keyTag,
         std::string const& data_param)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy,
-            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy,
+            dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag]
                     .begin().value(),
             data_param);
 }
@@ -246,9 +246,9 @@ void check_data_value_last_no_key(
         std::string const& keyTag,
         std::string const& data_param)
 {
-    DatabaseDump dumpCopy = dump;
-    check_no_key(dumpCopy,
-            dumpCopy[entityTag][dumpCopy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
+    DatabaseDump dump_copy = dump;
+    check_no_key(dump_copy,
+            dump_copy[entityTag][dump_copy[entityTag].begin().key()][DATA_VALUE_DATA_TAG][keyTag],
             data_param);
 }
 
@@ -1065,144 +1065,135 @@ TEST(database_load_tests, load_wrong_values)
             [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
 }
 
+void check_reference(
+        DatabaseDump const&  dump,
+        const char* entity_container_tag,
+        const char* reference_container_tag,
+        const char* entity_tag)
+{
+    // Entity -> Reference
+    {
+        // Entity references a Reference that does not exist
+        {
+            DatabaseDump dump_copy = dump;
+
+            dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array({"1111"});
+
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+
+        // Entity references Reference which does not references Entity
+        {
+            DatabaseDump dump_copy = dump;
+
+            dump_copy[reference_container_tag].begin().value()[entity_tag] = "1111";
+
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+    }
+
+    // Reference -> Entity
+    {
+        DatabaseDump dump_copy = dump;
+
+        // Reference references Entity which does not references Reference
+        dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array();
+        {
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+
+        // Reference references a Entity that does not exist
+        dump_copy[reference_container_tag].begin().value()[entity_tag] = "1111";
+        {
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+    }
+}
+
+void check_multiple_reference(
+        DatabaseDump const&  dump,
+        const char* entity_container_tag,
+        const char* reference_container_tag)
+{
+    // Entity -> Reference
+    {
+        // Entity references a Reference that does not exist
+        {
+            DatabaseDump dump_copy = dump;
+
+            dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array({"1111"});
+
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+
+        // Entity references Reference which does not references Entity
+        {
+            DatabaseDump dump_copy = dump;
+
+            dump_copy[reference_container_tag].begin().value()[entity_container_tag] = DatabaseDump::array({"1111"});
+
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+    }
+
+    // Reference -> Entity
+    {
+        DatabaseDump dump_copy = dump;
+
+        // Reference references Entity which does not references Reference
+        dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array();
+        {
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+
+        // Reference references a Entity that does not exist
+        dump_copy[reference_container_tag].begin().value()[entity_container_tag] = DatabaseDump::array({"1111"});
+        {
+            Database db;
+            ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
+        }
+    }
+}
+
 // Test the load of a database with wrong references
 TEST(database_load_tests, load_wrong_references)
 {
     // Read JSON
     DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
 
-    // Host references User that does not exists
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "host_1";
-        entity_info[USER_CONTAINER_TAG] = DatabaseDump::array({"200"});
-        container["100"] = entity_info;
-
-        dumpCopy[HOST_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // User references Host that does not exists
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "user_1";
-        entity_info[HOST_ENTITY_TAG] = "200";
-        entity_info[PROCESS_CONTAINER_TAG] = DatabaseDump::array();
-        container["100"] = entity_info;
-
-        dumpCopy[USER_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // Host references User which does not references Host
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "host_1";
-        entity_info[USER_CONTAINER_TAG] = dumpCopy[USER_CONTAINER_TAG].begin().key();
-        container["100"] = entity_info;
-
-        dumpCopy[HOST_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // User references Host which does not references User
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "user_1";
-        entity_info[HOST_ENTITY_TAG] = dumpCopy[HOST_CONTAINER_TAG].begin().key();
-        entity_info[PROCESS_CONTAINER_TAG] = DatabaseDump::array();
-        container["100"] = entity_info;
-
-        dumpCopy[USER_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // Locator references Datawriter that does not exists
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "locator_1";
-        entity_info[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array({"200"});
-        entity_info[DATAREADER_CONTAINER_TAG] =
-                dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
-                [DATAREADER_CONTAINER_TAG];
-        entity_info[DATA_CONTAINER_TAG] =
-                dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
-                [DATA_CONTAINER_TAG];
-
-        container["100"] = entity_info;
-
-        dumpCopy[LOCATOR_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // Locator references Datawriter which does not references Locator
-    {
-        DatabaseDump dumpCopy = dump;
-
-        DatabaseDump container = DatabaseDump::object();
-
-        DatabaseDump entity_info = DatabaseDump::object();
-        entity_info[NAME_INFO_TAG] = "locator_1";
-        entity_info[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array({dumpCopy[DATAWRITER_CONTAINER_TAG].begin().key()});
-        entity_info[DATAREADER_CONTAINER_TAG] =
-                dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
-                [DATAREADER_CONTAINER_TAG];
-        entity_info[DATA_CONTAINER_TAG] =
-                dumpCopy[LOCATOR_CONTAINER_TAG][dumpCopy[LOCATOR_CONTAINER_TAG].begin().key()]
-                [DATA_CONTAINER_TAG];
-
-        container["100"] = entity_info;
-
-        dumpCopy[LOCATOR_CONTAINER_TAG].insert(container.begin(), container.end());
-
-        Database db;
-        ASSERT_THROW(db.load_database(dumpCopy), CorruptedFile);
-    }
-
-    // Participant not referencing any Process
-    {
-        DataBaseTest db;
-        db.load_database(dump);
-
-        std::map<EntityId, std::shared_ptr<Domain>> domains = db.domains();
-        std::shared_ptr<Domain> domain = domains[EntityId(std::stoi(dump[DOMAIN_CONTAINER_TAG].begin().key()))];
-        auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos", "5.6.7.8", nullptr, domain);
-        db.insert(participant2);
-
-        DatabaseDump dumpCopy = db.dump_database();
-        DataBaseTest newDb;
-        ASSERT_NO_THROW(newDb.load_database(dumpCopy));
-    }
+    // HOST <---> USER
+    check_reference(dump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG, HOST_ENTITY_TAG);
+    // USER <---> PROCESS
+    check_reference(dump, USER_CONTAINER_TAG, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
+    // PROCESS <---> PARTICIPANT
+    check_reference(dump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
+    // DOMAIN <---> PARTICIPANT
+    check_reference(dump, DOMAIN_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    // DOMAIN <---> TOPIC
+    check_reference(dump, DOMAIN_CONTAINER_TAG, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
+    // TOPIC <---> DATAWRITER
+    check_reference(dump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    // TOPIC <---> DATAREADDER
+    check_reference(dump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
+    // PARTICIPANT <---> DATAWRITER
+    check_reference(dump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    // PARTICIPANT <---> DATAREADDER
+    check_reference(dump, PARTICIPANT_CONTAINER_TAG, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
+    // LOCATOR <---> DATAWRITER
+    check_multiple_reference(dump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
+    // LOCATOR <---> DATAREADDER
+    check_multiple_reference(dump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+    // DATAWRITER <---> LOCATOR
+    check_multiple_reference(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+    // DATAREADDER <---> LOCATOR
+    check_multiple_reference(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
 }
 
 int main(
