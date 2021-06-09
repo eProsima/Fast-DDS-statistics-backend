@@ -192,6 +192,45 @@ protected:
     void prepare_entity_discovery_status(
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
+
+    typedef void (PhysicalListener::* PhysicalCallback)(
+            EntityId participant_id,
+            EntityId user_id,
+            const DomainListener::Status& status);
+
+    void process_physical_discovery(
+            PhysicalCallback callback,
+            CallbackKind callback_kind,
+            EntityId participant_id,
+            EntityId entity_id,
+            DiscoveryStatus discovery_status,
+            DomainListener::Status& status);
+
+    template<typename MonitorCallback, typename PhysicalCallback>
+    void call_discovery_listeners(
+            std::unique_ptr<Monitor>& monitor,
+            MonitorCallback monitor_cb,
+            PhysicalCallback physical_cb,
+            CallbackKind callback_kind,
+            EntityId domain_id,
+            EntityId entity_id,
+            DiscoveryStatus discovery_status,
+            DomainListener::Status& status)
+    {
+        if (should_call_domain_listener(monitor, callback_kind))
+        {
+            prepare_entity_discovery_status(discovery_status, status);
+            monitor_cb(domain_id, entity_id, status);
+            status.on_status_read();
+        }
+        else if (should_call_physical_listener(callback_kind))
+        {
+            prepare_entity_discovery_status(discovery_status, status);
+            physical_cb(domain_id, entity_id, status);
+            status.on_status_read();
+        }
+    }
+    
 };
 
 } // namespace details
