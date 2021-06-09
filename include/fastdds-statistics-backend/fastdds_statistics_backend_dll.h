@@ -64,7 +64,7 @@
     && !defined(FASTDDS_STATISTICS_BACKEND_NO_LIB)
 
 // Set properties.
-#define EPROSIMA_LIB_NAME fastdds-statistics-backend
+#define EPROSIMA_LIB_NAME fastdds_statistics_backend
 
 #if defined(EPROSIMA_ALL_DYN_LINK) || defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK)
 #define EPROSIMA_DYN_LINK
