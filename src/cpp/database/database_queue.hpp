@@ -365,7 +365,7 @@ protected:
                     front().second.domain_id, id,
                     front().second.entity->kind);
             }
-            else
+            else if(EntityKind::DOMAIN != front().second.entity->kind)
             {
                 details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(front().second.domain_id, id,
                         front().second.entity->kind, details::StatisticsBackendData::DISCOVERY);

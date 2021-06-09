@@ -505,10 +505,11 @@ TEST_F(database_queue_tests, push_domain)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
-    // Expectations: Request the backend to notify user (if needed)
+    // Expectations: Domains are not discovered, they are created on monitor initialization
+    // Never try to inform the user
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
             on_domain_entity_discovery(EntityId(0), EntityId(
-                0), EntityKind::DOMAIN, details::StatisticsBackendData::DISCOVERY)).Times(1);
+                0), EntityKind::DOMAIN, details::StatisticsBackendData::DISCOVERY)).Times(0);
 
     // Add to the queue and wait to be processed
     entity_queue.push(timestamp, {domain, 0});
