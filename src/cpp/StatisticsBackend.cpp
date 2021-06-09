@@ -174,6 +174,23 @@ void StatisticsBackend::set_physical_listener(
     details::StatisticsBackendData::get_instance()->unlock();
 }
 
+void StatisticsBackend::set_domain_listener(
+        EntityId monitor_id,
+        DomainListener* listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    auto monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
+    if (monitor == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    {
+        throw BadParameter("There is no monitor with the given ID");
+    }
+
+    monitor->second->domain_listener = listener;
+    monitor->second->domain_callback_mask = callback_mask;
+    monitor->second->data_mask = data_mask;
+}
+
 EntityId StatisticsBackend::init_monitor(
         DomainId domain_id,
         DomainListener* domain_listener,
@@ -332,18 +349,6 @@ void StatisticsBackend::clear_monitor(
         EntityId monitor_id)
 {
     static_cast<void>(monitor_id);
-}
-
-void StatisticsBackend::set_domain_listener(
-        EntityId monitor_id,
-        DomainListener* listener,
-        CallbackMask callback_mask,
-        DataKindMask data_mask)
-{
-    static_cast<void>(monitor_id);
-    static_cast<void>(listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
 }
 
 std::vector<EntityId> StatisticsBackend::get_entities(
