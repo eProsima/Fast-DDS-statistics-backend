@@ -192,6 +192,33 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     static_cast<void>(t_from);
     static_cast<void>(t_to);
     static_cast<void>(statistic);
+
+    // Validate data_type
+    auto allowed_kinds = get_data_supported_entity_kinds(data_type);
+    if (1 != allowed_kinds.size() || EntityKind::INVALID != allowed_kinds[0].second)
+    {
+        throw BadParameter("Method get_data called for single entity but data_type requires two entities");
+    }
+
+    // Validate timestamps
+    auto min_separation = std::chrono::nanoseconds(bins);
+    if (t_to <= t_from + min_separation)
+    {
+        throw BadParameter("Invalid timestamps (to should be greater than from by at least bins nanoseconds");
+    }
+
+    // Validate entity_ids
+    EntityKind allowed_kind = allowed_kinds[0].first;
+    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    for (EntityId id : entity_ids)
+    {
+        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
+        if (!entity || allowed_kind != entity->kind)
+        {
+            throw BadParameter("Wrong entity id passed in entity_ids");
+        }
+    }
+
     return std::vector<StatisticsData>();
 }
 
