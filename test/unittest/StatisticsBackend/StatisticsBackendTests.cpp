@@ -394,6 +394,181 @@ TEST_F(statistics_backend_tests, set_alias)
     }
 }
 
+TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
+{
+    StatisticsBackendTest::set_database(db);
+
+    // Will be using entities that are on the database,
+    // to make sure the error is due to the intended reason
+
+    // Check that there is a monitor with EntityId(7)
+    // This will be used in all calls to on_domain_entity_discovery
+    auto result = StatisticsBackendTest::get_entities(EntityKind::DOMAIN, EntityId(7));
+    ASSERT_EQ(1, result.size());
+    EntityId monitor_id = EntityId(7);
+
+    result = StatisticsBackendTest::get_entities(EntityKind::HOST, EntityId(1));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::USER, EntityId(3));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::PROCESS, EntityId(5));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::LOCATOR, EntityId(17));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    // Check that there is a Participant with EntityId(9)
+    // This will be used in all calls to on_physical_entity_discovery
+    result = StatisticsBackendTest::get_entities(EntityKind::PARTICIPANT, EntityId(9));
+    ASSERT_EQ(1, result.size());
+    EntityId participant_id = EntityId(9);
+
+    // Avoid a participant discovering itself
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(9),
+                EntityKind::PARTICIPANT),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(10),
+                EntityKind::PARTICIPANT),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(10),
+                EntityKind::PARTICIPANT),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::TOPIC, EntityId(11));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::DATAREADER, EntityId(13));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+
+    result = StatisticsBackendTest::get_entities(EntityKind::DATAWRITER, EntityId(15));
+    ASSERT_EQ(1, result.size());
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(15),
+                EntityKind::DATAWRITER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(15),
+                EntityKind::DATAWRITER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(15),
+                EntityKind::DATAWRITER),
+            ".*");
+}
+
 #ifdef INSTANTIATE_TEST_SUITE_P
 #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
 #else

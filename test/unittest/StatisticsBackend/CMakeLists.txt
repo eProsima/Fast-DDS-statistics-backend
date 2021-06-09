@@ -66,6 +66,7 @@ set(BACKEND_TEST_LIST
     get_type
     get_data_supported_entity_kinds
     set_alias
+    internal_callbacks_negative_cases
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})
