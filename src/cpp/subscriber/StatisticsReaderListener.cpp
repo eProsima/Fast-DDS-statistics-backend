@@ -79,8 +79,7 @@ bool StatisticsReaderListener::get_available_data(
             // Received data not valid
             return false;
         }
-        timestamp =
-                std::chrono::system_clock::time_point (std::chrono::nanoseconds(info.source_timestamp.to_ns()));
+        timestamp = nanoseconds_to_systemclock(info.source_timestamp.to_ns());
         return true;
     }
     return false;

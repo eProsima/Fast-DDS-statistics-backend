@@ -33,9 +33,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
         ${PROJECT_SOURCE_DIR}/test/mock/dds/DataReader
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
         ${PROJECT_BINARY_DIR}/include
-        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
         ${PROJECT_SOURCE_DIR}/src/cpp)
             
     if(MSVC)
