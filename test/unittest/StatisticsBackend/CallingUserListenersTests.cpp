@@ -588,8 +588,8 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(1, status.total_count);
-                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(2, status.total_count_change);
                     EXPECT_EQ(1, status.current_count);
                     EXPECT_EQ(1, status.current_count_change);
                 });
@@ -603,7 +603,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
                     EXPECT_EQ(2, status.current_count);
                     EXPECT_EQ(1, status.current_count_change);
@@ -618,7 +618,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
                     EXPECT_EQ(2, status.current_count);
                     EXPECT_EQ(0, status.current_count_change);
@@ -633,7 +633,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
                     EXPECT_EQ(1, status.current_count);
                     EXPECT_EQ(-1, status.current_count_change);
@@ -655,7 +655,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(3, status.total_count);
+                    EXPECT_EQ(4, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
                     EXPECT_EQ(2, status.current_count);
                     EXPECT_EQ(1, status.current_count_change);
@@ -670,7 +670,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
                     EXPECT_EQ(3, status.current_count);
                     EXPECT_EQ(1, status.current_count_change);
@@ -685,7 +685,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
                     EXPECT_EQ(3, status.current_count);
                     EXPECT_EQ(0, status.current_count_change);
@@ -700,7 +700,7 @@ public:
                 {
                     EXPECT_EQ(monitor_id, domain_id);
                     EXPECT_EQ(1, entity_id);
-                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
                     EXPECT_EQ(2, status.current_count);
                     EXPECT_EQ(-1, status.current_count_change);
