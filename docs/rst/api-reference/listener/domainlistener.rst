@@ -6,5 +6,5 @@ DomainListener
 --------------
 
 .. doxygenclass:: eprosima::statistics_backend::DomainListener
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:

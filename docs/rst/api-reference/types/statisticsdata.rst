@@ -6,4 +6,4 @@ StatisticsData
 --------------
 
 .. doxygentypedef:: eprosima::statistics_backend::StatisticsData
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

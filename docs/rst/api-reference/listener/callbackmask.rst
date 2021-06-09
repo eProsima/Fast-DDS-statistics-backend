@@ -6,4 +6,4 @@ CallbackMask
 ------------
 
 .. doxygentypedef:: eprosima::statistics_backend::CallbackMask
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

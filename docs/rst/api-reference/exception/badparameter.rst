@@ -6,5 +6,5 @@ BadParameter
 ------------
 
 .. doxygenclass:: eprosima::statistics_backend::BadParameter
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:

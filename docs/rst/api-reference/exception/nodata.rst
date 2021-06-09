@@ -6,5 +6,5 @@ NoData
 ------
 
 .. doxygenclass:: eprosima::statistics_backend::NoData
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:

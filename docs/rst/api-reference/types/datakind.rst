@@ -7,4 +7,4 @@ DataKind
 --------
 
 .. doxygenenum:: eprosima::statistics_backend::DataKind
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

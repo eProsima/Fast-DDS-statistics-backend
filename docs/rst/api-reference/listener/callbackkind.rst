@@ -6,4 +6,4 @@ CallbackKind
 ------------
 
 .. doxygenenum:: eprosima::statistics_backend::CallbackKind
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

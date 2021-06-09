@@ -6,5 +6,5 @@ Unsupported
 -----------
 
 .. doxygenclass:: eprosima::statistics_backend::Unsupported
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:

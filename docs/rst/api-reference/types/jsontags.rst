@@ -5,7 +5,7 @@ JSON Tags
 ---------
 
 .. doxygenvariable:: ACTUAL_DUMP_VERSION
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
 
 .. todo::
 

@@ -6,4 +6,4 @@ Timestamp
 ---------
 
 .. doxygentypedef:: eprosima::statistics_backend::Timestamp
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

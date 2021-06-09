@@ -7,4 +7,4 @@ EntityKind
 ----------
 
 .. doxygenenum:: eprosima::statistics_backend::EntityKind
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
