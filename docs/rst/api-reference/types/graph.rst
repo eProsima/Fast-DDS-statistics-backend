@@ -6,4 +6,4 @@ Graph
 -----
 
 .. doxygentypedef:: eprosima::statistics_backend::Graph
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

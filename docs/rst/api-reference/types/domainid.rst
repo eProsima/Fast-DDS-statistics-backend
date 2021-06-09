@@ -6,4 +6,4 @@ DomainId
 --------
 
 .. doxygentypedef:: eprosima::statistics_backend::DomainId
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

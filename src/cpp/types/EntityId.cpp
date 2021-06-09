@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

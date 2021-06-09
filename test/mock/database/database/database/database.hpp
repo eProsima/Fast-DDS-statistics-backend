@@ -23,7 +23,7 @@
 
 #include "database/entities.hpp"
 
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

@@ -80,7 +80,7 @@ add_custom_target(Sphinx ALL
     COMMAND
     ${SPHINX_EXECUTABLE} -b ${DOCS_BUILDER}
     # Tell Breathe where to find the Doxygen output
-    -D breathe_projects.fastdds-statistics-backend=${DOXYGEN_OUTPUT_XML_DIR}
+    -D breathe_projects.fastdds_statistics_backend=${DOXYGEN_OUTPUT_XML_DIR}
     $<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:-Dtodo_include_todos=1>
     -d "${PROJECT_BINARY_DOCS_DIR}/doctrees"
     ${PROJECT_SOURCE_DOCS_DIR}

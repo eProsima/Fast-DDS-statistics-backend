@@ -7,4 +7,4 @@ StatisticKind
 -------------
 
 .. doxygenenum:: eprosima::statistics_backend::StatisticKind
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend

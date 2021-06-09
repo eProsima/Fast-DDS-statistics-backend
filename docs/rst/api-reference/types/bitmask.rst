@@ -7,5 +7,5 @@ Bitmask
 -------
 
 .. doxygenclass:: eprosima::statistics_backend::Bitmask
-    :project: fastdds-statistics-backend
+    :project: fastdds_statistics_backend
     :members:

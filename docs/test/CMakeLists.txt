@@ -62,7 +62,7 @@ add_test(NAME documentation.code_block_check.cpp
 add_test(NAME documentation.spell_check
     COMMAND
     ${SPHINX_EXECUTABLE} -Q -W --keep-going
-    -D breathe_projects.fastdds-statistics-backend=${DOXYGEN_OUTPUT_DIR}/xml
+    -D breathe_projects.fastdds_statistics_backend=${DOXYGEN_OUTPUT_DIR}/xml
     -b spelling
     -d "${PROJECT_BINARY_DOCS_DIR}/doctrees"
     ${PROJECT_SOURCE_DOCS_DIR}

@@ -16,8 +16,8 @@
  * @file StatisticsBackend.cpp
  */
 
-#include <fastdds-statistics-backend/StatisticsBackend.hpp>
-#include <fastdds-statistics-backend/types/JSONTags.h>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <database/database.hpp>
 #include "StatisticsBackendData.hpp"

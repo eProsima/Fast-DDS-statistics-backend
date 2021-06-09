@@ -22,9 +22,9 @@
 #include <string>
 #include <vector>
 
-#include <fastdds-statistics-backend/exception/Exception.hpp>
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/JSONTags.h>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include "samples.hpp"
 

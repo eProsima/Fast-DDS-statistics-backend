@@ -44,7 +44,7 @@ jobs:
         run: |
           source install/setup.bash && \
           colcon test \
-            --packages-select fastdds-statistics-backend \
+            --packages-select fastdds_statistics_backend \
             --event-handlers=console_direct+ \
             --return-code-on-test-failure
 
@@ -54,7 +54,7 @@ jobs:
           mkdir coverage-report
           gcovr \
           --root src/Fast-DDS-statistics-backend/ \
-          --object-directory build/fastdds-statistics-backend \
+          --object-directory build/fastdds_statistics_backend \
           --output coverage-report/coverage.xml \
           --xml-pretty \
           --exclude='.*nlohmann-json/.*' \
@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: Documentation HTML
-          path: install/fastdds-statistics-backend/docs/fastdds-statistics-backend/sphinx/html/
+          path: install/fastdds_statistics_backend/docs/fastdds_statistics_backend/sphinx/html/
         if: always()
 
   clang-tidy:
@@ -115,7 +115,7 @@ jobs:
 
       - name: Run clang-tidy
         run: |
-          cd build/fastdds-statistics-backend
+          cd build/fastdds_statistics_backend
           run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus'
 
   uncrustify:

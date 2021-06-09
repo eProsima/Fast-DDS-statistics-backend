@@ -173,7 +173,7 @@ doxyfile_out = os.path.abspath(
 
 # Header files
 input_dir = os.path.abspath(
-    '{}/../include/fastdds-statistics-backend'.format(
+    '{}/../include/fastdds_statistics_backend'.format(
         script_path
     )
 )
@@ -204,9 +204,9 @@ if read_the_docs_build:
     subprocess.call('doxygen {}'.format(doxyfile_out), shell=True)
 
 breathe_projects = {
-    'fastdds-statistics-backend': os.path.abspath('{}/xml'.format(output_dir))
+    'fastdds_statistics_backend': os.path.abspath('{}/xml'.format(output_dir))
 }
-breathe_default_project = 'fastdds-statistics-backend'
+breathe_default_project = 'fastdds_statistics_backend'
 
 # -- General configuration ------------------------------------------------
 

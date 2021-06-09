@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <fastdds-statistics-backend/StatisticsBackend.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/Bitmask.hpp>
-#include <fastdds-statistics-backend/listener/DomainListener.hpp>
-#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
-#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/Bitmask.hpp>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 
 #include <iostream>
 #include <fstream>

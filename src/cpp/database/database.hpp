@@ -25,9 +25,9 @@
 #include <shared_mutex>
 #include <sstream>
 
-#include <fastdds-statistics-backend/exception/Exception.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
-#include <fastdds-statistics-backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
 
 #include "entities.hpp"
 

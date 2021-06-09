@@ -22,8 +22,8 @@
 
 #include <string>
 
-#include <fastdds-statistics-backend/types/types.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
 
 #include "data.hpp"
 
