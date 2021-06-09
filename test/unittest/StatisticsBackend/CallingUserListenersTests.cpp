@@ -289,6 +289,56 @@ public:
 
         Mock::VerifyAndClearExpectations(&physical_listener);
     }
+
+        /*
+     * This method extends the tests for the testcases where there is no callback triggered
+     * in the starting configuration.
+     * 
+     * It sets the appropriate physical listener and retests.
+     */
+    void extend_no_callback_tests()
+    {
+        EntityKind entity_kind = std::get<0>(GetParam());
+        CallbackKind callback_kind = std::get<1>(GetParam());
+
+        // Set the physical listener and test
+        CallbackMask mask = CallbackMask::none();
+        mask.set(callback_kind);
+        StatisticsBackend::set_physical_listener(
+            &physical_listener,
+            mask,
+            DataKindMask::all());
+
+        // Expectation: Only the physical listener is called
+        test_entity_discovery(PHYSICAL, entity_kind,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(0, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(2, status.total_count_change);
+                    EXPECT_EQ(2, status.current_count);
+                    EXPECT_EQ(2, status.current_count_change);
+                });
+
+        // Expectation: Only the physical listener is called again
+        test_entity_discovery(PHYSICAL, entity_kind,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(0, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(3, status.total_count);
+                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(3, status.current_count);
+                    EXPECT_EQ(1, status.current_count_change);
+                });
+    }
 };
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
@@ -348,6 +398,8 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_not_in_
 
     // Expectation: The user listener is never called
     test_entity_discovery(NONE, entity_kind);
+
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_listener)
@@ -364,6 +416,8 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_list
 
     // Expectation: The user listener is never called
     test_entity_discovery(NONE, entity_kind);
+
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_listener_not_in_mask)
@@ -380,6 +434,8 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_list
 
     // Expectation: The user listener is never called
     test_entity_discovery(NONE, entity_kind);
+
+    extend_no_callback_tests();
 }
 
 #ifdef INSTANTIATE_TEST_SUITE_P
