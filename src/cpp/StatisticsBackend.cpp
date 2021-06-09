@@ -161,8 +161,8 @@ Info StatisticsBackend::get_info(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids_source,
-        const std::vector<EntityId> entity_ids_target,
+        const std::vector<EntityId>& entity_ids_source,
+        const std::vector<EntityId>& entity_ids_target,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
@@ -180,7 +180,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids,
+        const std::vector<EntityId>& entity_ids,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
@@ -197,8 +197,8 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids_source,
-        const std::vector<EntityId> entity_ids_target,
+        const std::vector<EntityId>& entity_ids_source,
+        const std::vector<EntityId>& entity_ids_target,
         uint16_t bins,
         StatisticKind statistic)
 {
@@ -214,7 +214,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids,
+        const std::vector<EntityId>& entity_ids,
         uint16_t bins,
         StatisticKind statistic)
 {
