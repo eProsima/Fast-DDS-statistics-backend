@@ -1822,12 +1822,20 @@ TEST_F(database_tests, insert_sample_network_latency)
             static_cast<EntityDataSample>(sample_2));
 }
 
-TEST_F(database_tests, insert_sample_network_latency_wrong_entity)
+TEST_F(database_tests, insert_sample_network_latency_unknown_locator)
 {
     NetworkLatencySample sample;
-    sample.remote_locator = db.generate_entity_id();
+    EntityId remote_id = db.generate_entity_id();
+    sample.remote_locator = remote_id;
     sample.data = 12;
-    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+
+    EntityId locator_id = db.generate_entity_id();
+    ASSERT_NO_THROW(db.insert(domain_id, locator_id, sample));
+    auto locator = db.locators().at(locator_id);
+
+    ASSERT_EQ(locator->data.network_latency_per_locator[remote_id].size(), 1);
+    ASSERT_EQ(locator->data.network_latency_per_locator[remote_id][0],
+            static_cast<EntityDataSample>(sample));
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput)
