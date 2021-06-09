@@ -559,6 +559,154 @@ public:
         Mock::VerifyAndClearExpectations(&domain_listener);
     }
 
+    /*
+     * This method extends the tests for the testcases where there is no callback triggered
+     * in the starting configuration.
+     * 
+     * First it sets the appropriate physical listener and retests with DISCOVERY, UPDATE and UNDISCOVERY.
+     * Then sets the domain listener and retests with DISCOVERY, UPDATE and UNDISCOVERY.
+     */
+    void extend_no_callback_tests()
+    {
+        EntityKind entity_kind = std::get<1>(GetParam());
+        CallbackKind callback_kind = std::get<2>(GetParam());
+
+        // Set the physical listener and test
+        CallbackMask mask = CallbackMask::none();
+        mask.set(callback_kind);
+        StatisticsBackend::set_physical_listener(
+            &physical_listener,
+            mask,
+            DataKindMask::all());
+
+        // Expectation: Only the physical listener is called
+        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(1, status.total_count);
+                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(1, status.current_count);
+                    EXPECT_EQ(1, status.current_count_change);
+                });
+
+        // Expectation: Only the physical listener is called again
+        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(2, status.current_count);
+                    EXPECT_EQ(1, status.current_count_change);
+                });
+
+        // Expectation: The physical listener is called again with updates
+        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UPDATE,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(0, status.total_count_change);
+                    EXPECT_EQ(2, status.current_count);
+                    EXPECT_EQ(0, status.current_count_change);
+                });
+
+        // Expectation: The physical listener is called again with removal
+        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UNDISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(2, status.total_count);
+                    EXPECT_EQ(0, status.total_count_change);
+                    EXPECT_EQ(1, status.current_count);
+                    EXPECT_EQ(-1, status.current_count_change);
+                });
+
+        // Set the domain listener and retest
+        StatisticsBackend::set_domain_listener(
+            monitor_id,
+            &domain_listener,
+            mask,
+            DataKindMask::all());
+
+        // Expectation: Only the domain listener is called
+        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(3, status.total_count);
+                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(2, status.current_count);
+                    EXPECT_EQ(1, status.current_count_change);
+                });
+
+        // Expectation: Only the domain listener is called again
+        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(1, status.total_count_change);
+                    EXPECT_EQ(3, status.current_count);
+                    EXPECT_EQ(1, status.current_count_change);
+                });
+
+        // Expectation: The domain listener is called again with updates
+        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UPDATE,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(0, status.total_count_change);
+                    EXPECT_EQ(3, status.current_count);
+                    EXPECT_EQ(0, status.current_count_change);
+                });
+
+        // Expectation: The domain listener is called again with removal
+        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UNDISCOVERY,
+                [&](
+                    EntityId domain_id,
+                    EntityId entity_id,
+                    const DomainListener::Status& status)
+                {
+                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(1, entity_id);
+                    EXPECT_EQ(4, status.total_count);
+                    EXPECT_EQ(0, status.total_count_change);
+                    EXPECT_EQ(2, status.current_count);
+                    EXPECT_EQ(-1, status.current_count_change);
+                });
+    }
+
     calling_user_listeners_tests_domain_entities()
     {
         // Set the profile to ignore discovery data from other processes
@@ -659,6 +807,23 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
                 EXPECT_EQ(1, status.current_count);
                 EXPECT_EQ(-1, status.current_count_change);
             });
+
+    // Unset the domain listener and the physical listener
+    StatisticsBackend::set_domain_listener(
+        monitor_id,
+        nullptr,
+        mask,
+        DataKindMask::all());
+
+    StatisticsBackend::set_physical_listener(
+        nullptr,
+        CallbackMask::all(),
+        DataKindMask::all());
+
+    // Expectation: No listener is ever called
+    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::DISCOVERY);
+    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
+    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_not_in_mask)
@@ -685,73 +850,7 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_not_in_ma
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
 
-    // Set the physical listener and retest
-    mask = CallbackMask::none();
-    mask.set(callback_kind);
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        mask,
-        DataKindMask::all());
-
-    // Expectation: Only the physical listener is called
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: Only the physical listener is called again
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with updates
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UPDATE,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(0, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with removal
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UNDISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
-            });
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listener)
@@ -778,73 +877,7 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listen
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
 
-    // Set the physical listener and retest
-    mask = CallbackMask::none();
-    mask.set(callback_kind);
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        mask,
-        DataKindMask::all());
-
-    // Expectation: Only the physical listener is called
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: Only the physical listener is called again
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with updates
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UPDATE,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(0, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with removal
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UNDISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
-            });
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listener_not_in_mask)
@@ -871,74 +904,7 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listen
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
     test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
 
-    // Set the physical listener and retest
-    mask = CallbackMask::none();
-    mask.set(callback_kind);
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        mask,
-        DataKindMask::all());
-
-    // Expectation: Only the physical listener is called
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: Only the physical listener is called again
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with updates
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UPDATE,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(0, status.current_count_change);
-            });
-
-    // Expectation: The physical listener is called again with removal
-    test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UNDISCOVERY,
-            [&](
-                EntityId domain_id,
-                EntityId entity_id,
-                const DomainListener::Status& status)
-            {
-                EXPECT_EQ(monitor_id, domain_id);
-                EXPECT_EQ(1, entity_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
-            });
-
+    extend_no_callback_tests();
 }
 
 
@@ -1172,6 +1138,42 @@ public:
                 data_kind);
     }
 
+   /*
+     * This method extends the tests for the testcases where there is no callback triggered
+     * in the starting configuration.
+     * 
+     * First it sets the appropriate physical listener and retests.
+     * Then sets the domain listener and retests.
+     */
+    void extend_no_callback_tests()
+    {
+        DataKind data_kind = std::get<1>(GetParam());
+
+        // Set the physical listener and test
+        CallbackMask callback_mask = CallbackMask::none();
+        callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
+        DataKindMask data_mask = DataKindMask::none();
+        data_mask.set(data_kind);
+
+        StatisticsBackend::set_physical_listener(
+            &physical_listener,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the physical listener is called
+        test_data_availability(PHYSICAL, data_kind);
+
+        // Set the domain listener and retest
+        StatisticsBackend::set_domain_listener(
+            monitor_id,
+            &domain_listener,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the domain listener is called
+        test_data_availability(DOMAIN, data_kind);
+    }
+
     calling_user_listeners_tests_datas()
     {
         // Set the profile to ignore discovery data from other processes
@@ -1243,19 +1245,7 @@ TEST_P(calling_user_listeners_tests_datas, data_available_callback_not_in_mask)
     // Expectation: No listener is called
     test_data_availability(NONE, data_kind);
 
-    // Set the physical listener and retest
-    callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
-    data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
-
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        callback_mask,
-        data_mask);
-
-    // Expectation: Only the physical listener is called
-    test_data_availability(PHYSICAL, data_kind);
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_data_not_in_mask)
@@ -1281,19 +1271,7 @@ TEST_P(calling_user_listeners_tests_datas, data_available_data_not_in_mask)
     // Expectation: No listener is called
     test_data_availability(NONE, data_kind);
 
-    // Set the physical listener and retest
-    callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
-    data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
-
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        callback_mask,
-        data_mask);
-
-    // Expectation: Only the physical listener is called
-    test_data_availability(PHYSICAL, data_kind);
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener)
@@ -1319,19 +1297,7 @@ TEST_P(calling_user_listeners_tests_datas, data_available_no_listener)
     // Expectation: No listener is called
     test_data_availability(NONE, data_kind);
 
-    // Set the physical listener and retest
-    callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
-    data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
-
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        callback_mask,
-        data_mask);
-
-    // Expectation: Only the physical listener is called
-    test_data_availability(PHYSICAL, data_kind);
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_callback_not_in_mask)
@@ -1357,19 +1323,7 @@ TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_callback_n
     // Expectation: No listener is called
     test_data_availability(NONE, data_kind);
 
-    // Set the physical listener and retest
-    callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
-    data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
-
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        callback_mask,
-        data_mask);
-
-    // Expectation: Only the physical listener is called
-    test_data_availability(PHYSICAL, data_kind);
+    extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_data_not_in_mask)
@@ -1395,22 +1349,7 @@ TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_data_not_i
     // Expectation: No listener is called
     test_data_availability(NONE, data_kind);
 
-    // Set the physical listener and retest
-    callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
-    data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
-
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        callback_mask,
-        data_mask);
-
-    // Expectation: Only the physical listener is called
-    test_data_availability(PHYSICAL, data_kind);
-
-            EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(0);
-
+    extend_no_callback_tests();
 }
 
 
