@@ -105,25 +105,25 @@ using namespace eprosima::statistics_backend::database;
  *     "locators": ["reader_locator1"]
  *   }
  *   "datareader2": {
- *     "ID": 14,
+ *     "ID": 15,
  *     "locators": ["reader_locator1", "reader_locator2"]
  *   }
  *   "datawriter1": {
- *     "ID": 15,
+ *     "ID": 17,
  *     "locators": ["writer_locator1"]
  *   }
  *   "datawriter2": {
- *     "ID": 16,
+ *     "ID": 19,
  *     "locators": ["writer_locator1", "writer_locator2"]
  *   }
  *   "reader_locator1": {
- *     "ID": 17
+ *     "ID": 14
  *   }
  *   "reader_locator2": {
- *     "ID": 18
+ *     "ID": 16
  *   }
  *   "writer_locator1": {
- *     "ID": 19
+ *     "ID": 18
  *   }
  *   "writer_locator2": {
  *     "ID": 20
@@ -208,7 +208,7 @@ public:
         datareader1->locators[reader_locator1->id] = reader_locator1;
         db.insert(datareader1);
         entities[13] = datareader1;
-        entities[17] = reader_locator1;
+        entities[14] = reader_locator1;
 
         auto datareader2 = std::make_shared<DataReader>("datareader2", "qos", "15.16.17.18", participant2, topic2);
         auto reader_locator2 = std::make_shared<Locator>("reader_locator2");
@@ -216,16 +216,16 @@ public:
         datareader2->locators[reader_locator1->id] = reader_locator1;
         datareader2->locators[reader_locator2->id] = reader_locator2;
         db.insert(datareader2);
-        entities[14] = datareader2;
-        entities[18] = reader_locator2;
+        entities[15] = datareader2;
+        entities[16] = reader_locator2;
 
         auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant2, topic2);
         auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
         writer_locator1->id = db.generate_entity_id();
         datawriter1->locators[writer_locator1->id] = writer_locator1;
         db.insert(datawriter1);
-        entities[15] = datawriter1;
-        entities[19] = writer_locator1;
+        entities[17] = datawriter1;
+        entities[18] = writer_locator1;
 
         auto datawriter2 = std::make_shared<DataWriter>("datawriter2", "qos", "25.26.27.28", participant2, topic2);
         auto writer_locator2 = std::make_shared<Locator>("writer_locator2");
@@ -233,7 +233,7 @@ public:
         datawriter2->locators[writer_locator1->id] = writer_locator1;
         datawriter2->locators[writer_locator2->id] = writer_locator2;
         db.insert(datawriter2);
-        entities[16] = datawriter2;
+        entities[19] = datawriter2;
         entities[20] = writer_locator2;
 
         // Insert datas on domain2
