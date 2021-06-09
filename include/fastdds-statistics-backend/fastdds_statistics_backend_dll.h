@@ -21,19 +21,19 @@
 #if !defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK) && !defined(FASTDDS_STATISTICS_BACKEND_STATIC_LINK) \
     && !defined(EPROSIMA_ALL_DYN_LINK) && !defined(EPROSIMA_ALL_STATIC_LINK)
 #define FASTDDS_STATISTICS_BACKEND_STATIC_LINK
-#endif
+#endif // STATIC LINK CHECKS
 
 #if defined(EPROSIMA_ALL_DYN_LINK) && !defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK)
 #define FASTDDS_STATISTICS_BACKEND_DYN_LINK
-#endif
+#endif // DYNAMIC LINK CHECKS
 
 #if defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK) && defined(FASTDDS_STATISTICS_BACKEND_STATIC_LINK)
 #error Must not define both FASTDDS_STATISTICS_BACKEND_DYN_LINK and FASTDDS_STATISTICS_BACKEND_STATIC_LINK
-#endif
+#endif // DYNAMIC AND STATIC SANITY CHECK
 
 #if defined(EPROSIMA_ALL_NO_LIB) && !defined(FASTDDS_STATISTICS_BACKEND_NO_LIB)
 #define FASTDDS_STATISTICS_BACKEND_NO_LIB
-#endif
+#endif // NO_LIB CHECK
 
 // enable dynamic linking
 
@@ -46,7 +46,7 @@
 #endif // FASTDDS_STATISTICS_BACKEND_SOURCE
 #else
 #define FASTDDS_STATISTICS_BACKEND_DllAPI
-#endif
+#endif // DYNAMIC LINK
 #else
 #define FASTDDS_STATISTICS_BACKEND_DllAPI
 #endif // _WIN32
@@ -56,7 +56,7 @@
   #define FASTDDS_STATISTICS_BACKEND_USERDllExport __declspec(dllexport)
 #else
   #define FASTDDS_STATISTICS_BACKEND_USERDllExport
-#endif
+#endif // USER_DLL_EXPORT
 
 // Auto linking.
 
@@ -68,7 +68,7 @@
 
 #if defined(EPROSIMA_ALL_DYN_LINK) || defined(FASTDDS_STATISTICS_BACKEND_DYN_LINK)
 #define EPROSIMA_DYN_LINK
-#endif
+#endif // DYNAMIC LINK
 
 #include "eProsima_auto_link.h"
 #endif // auto-linking disabled
