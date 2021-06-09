@@ -22,6 +22,7 @@
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
+#include <Monitor.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
 #include <database/database.hpp>
