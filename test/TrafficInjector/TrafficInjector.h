@@ -23,6 +23,7 @@
 #include <exception/Exception.hpp>
 #include <topic_types/types.h>
 #include <topic_types/typesPubSubTypes.h>
+#include <types/types.hpp>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -74,10 +75,11 @@ class TrafficInjector
 
 public:
 
-    TrafficInjector()
+    TrafficInjector(
+            DomainId domain_id = 0)
     {
         participant_ = DomainParticipantFactory::get_instance()->create_participant(
-            0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
+            domain_id, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
         publisher_ = participant_->create_publisher(eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT);
     }
 
@@ -633,71 +635,71 @@ private:
         {
             case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
                 serializers_[kind]->deserialize(&data, msg.at("WriterReaderData"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.writer_reader_data());
                 break;
             case StatisticsEventKind::NETWORK_LATENCY:
                 serializers_[kind]->deserialize(&data, msg.at("locator2locator_data"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.locator2locator_data());
                 break;
             case StatisticsEventKind::PUBLICATION_THROUGHPUT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_data"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_data());
                 break;
             case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_data"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_data());
                 break;
             case StatisticsEventKind::RTPS_SENT:
                 serializers_[kind]->deserialize(&data, msg.at("entity2locator_traffic"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity2locator_traffic());
                 break;
             case StatisticsEventKind::RTPS_LOST:
                 serializers_[kind]->deserialize(&data, msg.at("entity2locator_traffic"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity2locator_traffic());
                 break;
             case StatisticsEventKind::RESENT_DATAS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::HEARTBEAT_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::ACKNACK_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::NACKFRAG_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::GAP_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::DATA_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::PDP_PACKETS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::EDP_PACKETS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.entity_count());
                 break;
             case StatisticsEventKind::DISCOVERED_ENTITY:
                 serializers_[kind]->deserialize(&data, msg.at("discovery_time"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.discovery_time());
                 break;
             case StatisticsEventKind::SAMPLE_DATAS:
                 serializers_[kind]->deserialize(&data, msg.at("sample_identity_count"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.sample_identity_count());
                 break;
             case StatisticsEventKind::PHYSICAL_DATA:
                 serializers_[kind]->deserialize(&data, msg.at("physical_data"));
-                data_writers_[kind]->write(&data);
+                data_writers_[kind]->write(&data.physical_data());
                 break;
         }
     }

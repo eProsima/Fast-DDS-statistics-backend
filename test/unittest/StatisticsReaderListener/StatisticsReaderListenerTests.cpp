@@ -14,6 +14,7 @@
 
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/statistics/topic_names.hpp>
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
@@ -116,14 +117,111 @@ TEST_F(statistics_reader_listener_tests, not_valid_data)
     std::shared_ptr<SampleInfo> info = get_default_info();
     info->valid_data = false;
 
+    // Expectation: The insert method is never called
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+
     // Add to the history
     std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
     add_sample_to_reader_history(data, info);
 
-    // Expectation: The insert method is never called
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(HISTORY_LATENCY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
 
     // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(NETWORK_LATENCY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(PUBLICATION_THROUGHPUT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(SUBSCRIPTION_THROUGHPUT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(RTPS_SENT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(RTPS_LOST_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(RESENT_DATAS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(HEARTBEAT_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(ACKNACK_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(NACKFRAG_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(GAP_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(DATA_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(PDP_PACKETS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(EDP_PACKETS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(DISCOVERY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(SAMPLE_DATAS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Insert the data on the queue and wait until processed
+    add_sample_to_reader_history(data, info);
+    datareader_.set_topic_name(PHYSICAL_DATA_TOPIC);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 
@@ -195,6 +293,12 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(HISTORY_LATENCY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -258,6 +362,12 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(NETWORK_LATENCY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -308,6 +418,12 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(PUBLICATION_THROUGHPUT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -358,6 +474,12 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(SUBSCRIPTION_THROUGHPUT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -440,6 +562,12 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(RTPS_SENT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -522,6 +650,12 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(RTPS_LOST_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -572,6 +706,12 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(RESENT_DATAS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -622,6 +762,12 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(HEARTBEAT_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -672,6 +818,12 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(ACKNACK_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -722,6 +874,12 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(NACKFRAG_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -772,6 +930,12 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(GAP_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -822,6 +986,12 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(DATA_COUNT_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -872,6 +1042,12 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(PDP_PACKETS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -922,6 +1098,12 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(EDP_PACKETS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -992,6 +1174,12 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(DISCOVERY_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1053,6 +1241,12 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(SAMPLE_DATAS_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1132,6 +1326,12 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
     EXPECT_CALL(database_, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
     // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(PHYSICAL_DATA_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
