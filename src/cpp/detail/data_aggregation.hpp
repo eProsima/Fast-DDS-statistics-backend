@@ -63,7 +63,7 @@ protected:
     virtual void add_sample(
             size_t index,
             double value) = 0;
-    
+
     virtual double initial_value() const noexcept
     {
         return std::numeric_limits<double>::quiet_NaN();
@@ -101,6 +101,7 @@ struct CountAggregator final : public IDataAggregator
     }
 
 protected:
+
     double initial_value() const noexcept
     {
         return 0;
