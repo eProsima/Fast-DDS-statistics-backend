@@ -1825,12 +1825,49 @@ TEST_F(database_tests, insert_sample_network_latency)
 TEST_F(database_tests, insert_sample_network_latency_unknown_locator)
 {
     NetworkLatencySample sample;
+    sample.remote_locator = reader_locator_id;
+    sample.data = 12;
+
+    EntityId locator_id = db.generate_entity_id();
+    ASSERT_THROW(db.get_entity(locator_id), BadParameter);
+    ASSERT_NO_THROW(db.insert(domain_id, locator_id, sample));
+    ASSERT_NO_THROW(db.get_entity(locator_id));
+    auto locator = db.locators().at(locator_id);
+
+    ASSERT_EQ(locator->data.network_latency_per_locator[reader_locator_id].size(), 1);
+    ASSERT_EQ(locator->data.network_latency_per_locator[reader_locator_id][0],
+            static_cast<EntityDataSample>(sample));
+}
+
+TEST_F(database_tests, insert_sample_network_latency_unknown_remote_locator)
+{
+    NetworkLatencySample sample;
+    EntityId remote_id = db.generate_entity_id();
+    sample.remote_locator = remote_id;
+    sample.data = 12;
+
+    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_locator_id, sample));
+    ASSERT_NO_THROW(db.get_entity(remote_id));
+
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[remote_id].size(), 1);
+    ASSERT_EQ(writer_locator->data.network_latency_per_locator[remote_id][0],
+            static_cast<EntityDataSample>(sample));
+}
+
+TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
+{
+    NetworkLatencySample sample;
     EntityId remote_id = db.generate_entity_id();
     sample.remote_locator = remote_id;
     sample.data = 12;
 
     EntityId locator_id = db.generate_entity_id();
+    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
+    ASSERT_THROW(db.get_entity(locator_id), BadParameter);
     ASSERT_NO_THROW(db.insert(domain_id, locator_id, sample));
+    ASSERT_NO_THROW(db.get_entity(locator_id));
+    ASSERT_NO_THROW(db.get_entity(remote_id));
     auto locator = db.locators().at(locator_id);
 
     ASSERT_EQ(locator->data.network_latency_per_locator[remote_id].size(), 1);

@@ -476,6 +476,29 @@ void Database::insert(
     insert_nts(domain_id, entity_id, sample);
 }
 
+std::shared_ptr<Locator> Database::get_locator_nts(
+        EntityId const& entity_id)
+{
+    std::shared_ptr<Locator> locator;
+
+    // Check if the entity is a known locator
+    auto locator_it = locators_.find(entity_id);
+
+    // If the locator has not been discovered, create it
+    if (locator_it == locators_.end())
+    {
+        // Give him a unique name, including his id
+        locator = std::make_shared<Locator>("locator_" + std::to_string(entity_id.value()));
+        EntityId locator_id = entity_id;
+        insert_nts(locator, locator_id);
+    }
+    else
+    {
+        locator = locator_it->second;
+    }
+    return locator;
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -508,24 +531,15 @@ void Database::insert_nts(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            // Check that the entity is a known locator
-            auto locator_it = locators_.find(entity_id);
+            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
 
-            // If the locator has not been discovered, create it
-            std::shared_ptr<Locator> locator;
-            if (locator_it == locators_.end())
-            {
-                locator = std::make_shared<Locator>("locator_" + std::to_string(entity_id.value()));
-                EntityId locator_id = entity_id;
-                insert_nts(locator, locator_id);
-            }
-            else
-            {
-                locator = locator_it->second;
-            }
+            // Create locator if no exists
+            std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
+
+            // Create remote_locator if no exists
+            get_locator_nts(network_latency.remote_locator);
 
             // Add the info to the locator
-            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
             locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
 
             break;

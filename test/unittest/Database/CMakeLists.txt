@@ -191,6 +191,8 @@ set(DATABASE_TEST_LIST
     insert_sample_history_latency_wrong_entity
     insert_sample_network_latency
     insert_sample_network_latency_unknown_locator
+    insert_sample_network_latency_unknown_remote_locator
+    insert_sample_network_latency_unknown_both_locators
     insert_sample_publication_throughput
     insert_sample_publication_throughput_wrong_entity
     insert_sample_subscription_throughput

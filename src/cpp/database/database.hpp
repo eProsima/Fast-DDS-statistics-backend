@@ -638,6 +638,13 @@ protected:
             EntityId& entity_id);
 
     /**
+     * @brief Get the locator with id 'entity_id', if does not exists, create and insert it into the database.
+     * This method is not thread safe.
+     */
+    std::shared_ptr<Locator>  get_locator_nts(
+            EntityId const& entity_id);
+
+    /**
      * @brief Insert a new statistics sample into the database. This method is not thread safe.
      * @param domain_id The EntityId to the domain that contains the entity
      * @param entity_id The EntityId to which the sample relates.
