@@ -156,6 +156,47 @@ protected:
 
 };
 
+struct MeanAggregator final : public IDataAggregator
+{
+    MeanAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+        num_samples_.assign(data_.size(), 0);
+    }
+
+    void finish() override
+    {
+        for (size_t n = 0; n < data_.size(); ++n)
+        {
+            if (0 != num_samples_[n])
+            {
+                data_[n].second /= num_samples_[n];
+            }
+        }
+    }
+
+protected:
+
+    void add_sample(
+            size_t index,
+            double value) override
+    {
+        if (!assign_if_nan(index, value))
+        {
+            data_[index].second += value;
+        }
+    }
+
+private:
+
+    std::vector<size_t> num_samples_;
+
+};
+
 struct MaximumAggregator final : public IDataAggregator
 {
     MaximumAggregator(
@@ -253,6 +294,10 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
 
         case StatisticKind::SUM:
             ret_val = new detail::SumAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        case StatisticKind::MEAN:
+            ret_val = new detail::MeanAggregator(bins, t_from, t_to, returned_data);
             break;
 
         case StatisticKind::MAX:
