@@ -21,6 +21,7 @@
 
 #include <database/database.hpp>
 #include "StatisticsBackendData.hpp"
+#include "detail/data_getters.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -186,11 +187,6 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         Timestamp t_to,
         StatisticKind statistic)
 {
-    static_cast<void>(data_type);
-    static_cast<void>(entity_ids);
-    static_cast<void>(bins);
-    static_cast<void>(t_from);
-    static_cast<void>(t_to);
     static_cast<void>(statistic);
 
     // Validate data_type
@@ -219,7 +215,23 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         }
     }
 
-    return std::vector<StatisticsData>();
+    std::vector<StatisticsData> ret_val;
+
+    if (0 == bins)
+    {
+        for (EntityId id : entity_ids)
+        {
+            auto data = db->select(data_type, id, t_from, t_to);
+            auto iterators = get_iterators(data_type, data);
+
+            for (auto& it = *iterators.first; it != *iterators.second; ++it)
+            {
+                ret_val.emplace_back((*it)->src_ts, it.get_value());
+            }
+        }
+    }
+
+    return ret_val;
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
