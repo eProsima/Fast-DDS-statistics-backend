@@ -89,6 +89,7 @@ protected:
     {
         return GenericIterator::sample<T>();
     }
+
 };
 
 /// Final template that should be specialized for every kind of database sample
@@ -100,6 +101,7 @@ struct StatisticsIterator final : public BasicStatisticsIterator<T>
         : BasicStatisticsIterator<T>(plain_iterator)
     {
     }
+
 };
 
 /// Iterator returned for EntityDataSample
@@ -117,6 +119,7 @@ struct StatisticsIterator<database::EntityDataSample> final
     {
         return sample().data;
     }
+
 };
 
 /// Iterator returned for EntityCountSample
@@ -134,6 +137,7 @@ struct StatisticsIterator<database::EntityCountSample> final
     {
         return sample().count;
     }
+
 };
 
 /// Iterator returned for ByteCountSample
@@ -152,6 +156,7 @@ struct StatisticsIterator<database::ByteCountSample> final
         double order = (std::max)(sample().magnitude_order, static_cast<int16_t>(0));
         return static_cast<double>(sample().count) + pow(2, 64) * order;
     }
+
 };
 
 /// Iterator returned for TimepointSample
@@ -170,6 +175,7 @@ struct StatisticsIterator<database::TimepointSample> final
         // TODO(Miguel C): How should we treat DISCOVERY_TIME?
         return 0;
     }
+
 };
 
 /// Iterator returned for PublicationThroughputSample
@@ -191,6 +197,7 @@ struct StatisticsIterator<database::PublicationThroughputSample> final
         auto diff_time = get_timestamp() - prev.get_timestamp();
         return diff / diff_time.count();
     }
+
 };
 
 /// Iterator returned for SubscriptionThroughputSample
@@ -212,6 +219,7 @@ struct StatisticsIterator<database::SubscriptionThroughputSample> final
         auto diff_time = get_timestamp() - prev.get_timestamp();
         return diff / diff_time.count();
     }
+
 };
 
 using IteratorPtr = std::unique_ptr<GenericIterator>;
@@ -227,10 +235,10 @@ IteratorPair get_iterators(
         const std::vector<const database::StatisticsSample*>& data)
 {
     return IteratorPair
-    {
-        new StatisticsIterator<T>(data.cbegin()),
-        new StatisticsIterator<T>(data.cend())
-    };
+           {
+               new StatisticsIterator<T>(data.cbegin()),
+               new StatisticsIterator<T>(data.cend())
+           };
 }
 
 /**
@@ -248,11 +256,12 @@ IteratorPair get_throughput_iterators(
     {
         ++begin;
     }
+
     return IteratorPair
-    {
-        new StatisticsIterator<T>(data.cbegin()),
-        new StatisticsIterator<T>(data.cend())
-    };
+           {
+               new StatisticsIterator<T>(data.cbegin()),
+               new StatisticsIterator<T>(data.cend())
+           };
 }
 
 // Specialization of get_iterators for PublicationThroughputSample
@@ -283,7 +292,7 @@ detail::IteratorPair get_iterators(
         DataKind data_type,
         const std::vector<const database::StatisticsSample*>& data)
 {
-    switch(data_type)
+    switch (data_type)
     {
         case DataKind::FASTDDS_LATENCY:
         case DataKind::NETWORK_LATENCY:
@@ -322,7 +331,6 @@ detail::IteratorPair get_iterators(
             throw BadParameter("Unsupported data kind");
     }
 }
-
 
 } // namespace statistics_backend
 } // namespace eprosima
