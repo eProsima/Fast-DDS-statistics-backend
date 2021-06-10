@@ -43,7 +43,7 @@ target_include_directories(statistics_backend_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(statistics_backend_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
 get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
@@ -84,7 +84,7 @@ target_include_directories(calling_user_listeners_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
 if(MSVC)
     target_compile_definitions(calling_user_listeners_tests
