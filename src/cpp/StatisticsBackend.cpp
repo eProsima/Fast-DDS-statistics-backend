@@ -188,8 +188,6 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         Timestamp t_to,
         StatisticKind statistic)
 {
-    static_cast<void>(statistic);
-
     // Validate data_type
     auto allowed_kinds = get_data_supported_entity_kinds(data_type);
     if (1 != allowed_kinds.size() || EntityKind::INVALID != allowed_kinds[0].second)
@@ -230,6 +228,17 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
                 ret_val.emplace_back(it.get_timestamp(), it.get_value());
             }
         }
+    }
+    else
+    {
+        auto processor = get_data_aggregator(bins, t_from, t_to, statistic, ret_val);
+        for (EntityId id : entity_ids)
+        {
+            auto data = db->select(data_type, id, t_from, t_to);
+            auto iterators = get_iterators(data_type, data);
+            processor->add_data(iterators);
+        }
+        processor->finish();
     }
 
     return ret_val;
