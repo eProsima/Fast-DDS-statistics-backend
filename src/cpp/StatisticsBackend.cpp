@@ -615,6 +615,12 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
+void StatisticsBackend::load_database(
+        std::string /*filename*/)
+{
+
+}
+
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(
         DataKind data_kind)
 {
