@@ -144,12 +144,25 @@ set(USER_LISTENERS_TEST_LIST
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_LIST})
+
+    # Note the Death Tests (like wrong_entity_kind) only work on Debug config because assert() will only
+    # terminate the process in that case
+
     add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
-        --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+        --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*
+    )
+
+    set_tests_properties(calling_user_listeners_tests.${test_name}
+        PROPERTIES
+            DISABLED $<AND:$<STREQUAL:${test_name},wrong_entity_kind>,$<NOT:$<CONFIG:Debug>>>
+    )
 
     if(TEST_FRIENDLY_PATH)
-        set_tests_properties(calling_user_listeners_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        set_tests_properties(calling_user_listeners_tests.${test_name}
+            PROPERTIES
+                ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}"
+        )
     endif(TEST_FRIENDLY_PATH)
 
 endforeach()
