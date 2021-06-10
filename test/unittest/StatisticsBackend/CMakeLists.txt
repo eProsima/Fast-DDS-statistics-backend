@@ -259,3 +259,64 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
             COMMAND init_monitor_factory_fails_tests
             --gtest_filter=init_monitor_factory_fails_tests.${test_name}:*/init_monitor_factory_fails_tests.${test_name}/*)
 endforeach()
+
+# get_data
+##################################################################
+
+add_executable(get_data_tests GetDataTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+
+target_include_directories(get_data_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(get_data_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
+
+set(GET_DATA_NO_DATA_TEST_LIST
+    no_data
+    )
+
+foreach(test_name ${GET_DATA_NO_DATA_TEST_LIST})
+    add_test(NAME get_data_no_data_tests.${test_name}
+        COMMAND get_data_tests
+        --gtest_filter=get_data_no_data_tests.${test_name}:*/get_data_no_data_tests.${test_name}/*)
+endforeach()
+
+set(GET_DATA_WITH_DATA_TEST_LIST
+    invalid_entity_kind
+    nonexistent_entity_id
+    )
+
+foreach(test_name ${GET_DATA_WITH_DATA_TEST_LIST})
+    add_test(NAME get_data_with_data_tests.${test_name}
+        COMMAND get_data_tests
+        --gtest_filter=get_data_with_data_tests.${test_name}:*/get_data_with_data_tests.${test_name}/*)
+endforeach()
+
+set(GET_DATAUNSUPPORTED_ENTITY_TEST_LIST
+    unsupported_entity_kind
+    )
+
+foreach(test_name ${GET_DATAUNSUPPORTED_ENTITY_TEST_LIST})
+    add_test(NAME get_data_unsupported_entities_tests.${test_name}
+        COMMAND get_data_tests
+        --gtest_filter=get_data_unsupported_entities_tests.${test_name}:*/get_data_unsupported_entities_tests.${test_name}/*)
+endforeach()
+
