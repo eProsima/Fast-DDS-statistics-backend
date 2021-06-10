@@ -22,6 +22,7 @@
 #include <database/database.hpp>
 #include "StatisticsBackendData.hpp"
 #include "detail/data_getters.hpp"
+#include "detail/data_aggregation.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
