@@ -32,6 +32,8 @@ namespace detail {
 
 struct IDataAggregator
 {
+    virtual ~IDataAggregator() = default;
+
     IDataAggregator(
             uint16_t bins,
             Timestamp t_from,
