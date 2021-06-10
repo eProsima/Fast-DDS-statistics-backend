@@ -40,7 +40,14 @@ struct GenericIterator : public std::vector<const database::StatisticsSample*>::
     {
     }
 
+    Timestamp get_timestamp() const noexcept
+    {
+        return (**this)->src_ts;
+    }
+
     virtual double get_value() const noexcept = 0;
+
+protected:
 
     template<typename T>
     const T& sample() const noexcept

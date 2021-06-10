@@ -226,7 +226,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
             for (auto& it = *iterators.first; it != *iterators.second; ++it)
             {
-                ret_val.emplace_back((*it)->src_ts, it.get_value());
+                ret_val.emplace_back(it.get_timestamp(), it.get_value());
             }
         }
     }
