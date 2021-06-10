@@ -131,6 +131,31 @@ protected:
 
 };
 
+struct SumAggregator final : public IDataAggregator
+{
+    SumAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+    }
+
+protected:
+
+    void add_sample(
+            size_t index,
+            double value) override
+    {
+        if (!assign_if_nan(index, value))
+        {
+            data_[index].second += value;
+        }
+    }
+
+};
+
 struct MaximumAggregator final : public IDataAggregator
 {
     MaximumAggregator(
@@ -224,6 +249,10 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
     {
         case StatisticKind::NONE:
             ret_val = new detail::NoneAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        case StatisticKind::SUM:
+            ret_val = new detail::SumAggregator(bins, t_from, t_to, returned_data);
             break;
 
         case StatisticKind::MAX:
