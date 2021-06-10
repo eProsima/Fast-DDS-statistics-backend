@@ -196,10 +196,27 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
         StatisticKind statistic,
         std::vector<StatisticsData>& returned_data)
 {
-    // TODO(Miguel C): Return aggregator depending on statistic
-    static_cast<void>(statistic);
+    detail::IDataAggregator* ret_val = nullptr;
 
-    detail::IDataAggregator* ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
+    switch (statistic)
+    {
+        case StatisticKind::MAX:
+            ret_val = new detail::MaximumAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        case StatisticKind::MIN:
+            ret_val = new detail::MinimumAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        case StatisticKind::COUNT:
+            ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        default:
+            ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
+            break;
+    }
+
     return std::unique_ptr<detail::IDataAggregator>(ret_val);
 }
 
