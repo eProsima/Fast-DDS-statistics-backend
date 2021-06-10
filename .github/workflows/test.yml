@@ -16,7 +16,7 @@ jobs:
       name: codecov
     env:
       CXXFLAGS: /MP
-      OPENSSL64_ROOT: "C:\Program Files\OpenSSL-Win64"
+      OPENSSL64_ROOT: "C:/Program Files/OpenSSL-Win64"
 
     steps:
       - uses: actions/checkout@v2
