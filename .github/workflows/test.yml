@@ -50,7 +50,7 @@ jobs:
         shell: pwsh 
         run: > 
           git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
-          cmake -DBUILD_SHARED_LIBS=OFF -DFOONATHAN_MEMORY_BUILD_TOOLS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+          cmake -DBUILD_SHARED_LIBS=OFF -DFOONATHAN_MEMORY_BUILD_TOOLS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON `
             -DFOONATHAN_MEMORY_BUILD_TESTS=OFF -Ax64 -T host=x64 -B build\memory memory;
           cmake --build build\memory --config Debug --target install;
           cmake --build build\memory --config Release --target install
@@ -67,8 +67,8 @@ jobs:
         shell: pwsh 
         run: > 
           git clone https://github.com/eProsima/Fast-DDS.git;
-          cmake -DTHIRDPARTY=ON -DSECURITY=ON -DCOMPILE_EXAMPLES=OFF -DEPROSIMA_BUILD_TESTS=OFF
-          -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
+          cmake -DTHIRDPARTY=ON -DSECURITY=ON -DCOMPILE_EXAMPLES=OFF -DEPROSIMA_BUILD_TESTS=OFF `
+            -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
           cmake --build build\fastcdr --config Debug --target install;
           cmake --build build\fastcdr --config Release --target install
 
