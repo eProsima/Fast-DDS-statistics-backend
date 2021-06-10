@@ -25,23 +25,26 @@ jobs:
 
       - name: install OpenSSL
         shell: pwsh 
-        if: >  
-          (cmake --find-package -DNAME=OpenSSL -DCOMPILER_ID=MSVC -DMSVC_VERSION=1920 -DLANGUAGE=CXX -DMODE=EXIST
-          -DOPENSSL_ROOT_DIR=$Env:OPENSSL64_ROOT) -notlike "OpenSSL found."
         run: > 
-          choco install openssl -y;
-          @(ls -Path C:\Windows\System32\* -Include libssl-*.dll; ls -Path C:\Windows\SysWOW64\* -Include libssl-*.dll)
-          | rm -ErrorAction SilentlyContinue
+          if ((cmake --find-package -DNAME=OpenSSL -DCOMPILER_ID=MSVC -DMSVC_VERSION=1920 -DLANGUAGE=CXX -DMODE=EXIST
+          -DOPENSSL_ROOT_DIR=$Env:OPENSSL64_ROOT) -notlike "OpenSSL found.")
+          {
+            choco install openssl -y;
+            @(ls -Path C:\Windows\System32\* -Include libssl-*.dll; ls -Path C:\Windows\SysWOW64\* -Include libssl-*.dll)
+            | rm -ErrorAction SilentlyContinue
+          }
 
       - name: install GoogleTest
         shell: pwsh 
-        if: >  
-          (cmake --find-package -DNAME=GTest -DCOMPILER_ID=MSVC -DMSVC_VERSION=1920 -DLANGUAGE=CXX -DMODE=EXIST) -notlike "GTest found."
-        run: > 
-          git clone https://github.com/google/googletest.git; 
-          cmake -Dgtest_force_shared_crt=ON -DBUILD_GMOCK=ON -B build\gtest -A x64 -T host=x64 googletest;
-          cmake --build build\gtest --config Debug --target install;
-          cmake --build build\gtest --config Release --target install
+        run: >  
+          if ((cmake --find-package -DNAME=GTest -DCOMPILER_ID=MSVC -DMSVC_VERSION=1920 -DLANGUAGE=CXX -DMODE=EXIST)
+          -notlike "GTest found.")
+          {
+            git clone https://github.com/google/googletest.git; 
+            cmake -Dgtest_force_shared_crt=ON -DBUILD_GMOCK=ON -B build\gtest -A x64 -T host=x64 googletest;
+            cmake --build build\gtest --config Debug --target install;
+            cmake --build build\gtest --config Release --target install
+          }
 
       - name: install foonatham memory
         shell: pwsh 
