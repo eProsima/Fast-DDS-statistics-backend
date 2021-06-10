@@ -19,6 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 
+#include <memory>
+
 #include <fastdds_statistics_backend/types/types.hpp>
 
 #include <database/samples.hpp>
@@ -115,6 +117,21 @@ protected:
 };
 
 } // namespace detail
+
+std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
+        uint16_t bins,
+        Timestamp t_from,
+        Timestamp t_to,
+        StatisticKind statistic,
+        std::vector<StatisticsData>& returned_data)
+{
+    // TODO(Miguel C): Return aggregator depending on statistic
+    static_cast<void>(statistic);
+
+    detail::IDataAggregator* ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
+    return std::unique_ptr<detail::IDataAggregator>(ret_val);
+}
+
 } // namespace statistics_backend
 } // namespace eprosima
 
