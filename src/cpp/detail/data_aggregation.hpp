@@ -19,9 +19,10 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 
-#include <algorithm>  // std::min, std::max
+#include <algorithm>  // std::min, std::max, std::nth_element
 #include <cmath>      // std::isnan
 #include <memory>     // std::unique_ptr
+#include <vector>     // std::vector
 
 #include <fastdds_statistics_backend/types/types.hpp>
 
@@ -197,6 +198,59 @@ private:
 
 };
 
+struct MedianAggregator final : public IDataAggregator
+{
+    MedianAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+        samples_.resize(data_.size());
+    }
+
+    void finish() override
+    {
+        for (size_t n = 0; n < data_.size(); ++n)
+        {
+            size_t n_samples = samples_[n].size();
+            if (n_samples > 0)
+            {
+                size_t index = (n_samples - 1) / 2;
+                auto begin = samples_[n].begin();
+                auto end = samples_[n].end();
+                auto med = begin;
+                std::advance(med, index);
+                std::nth_element(begin, med, end);
+                double median = *med;
+                if (0 == (n_samples % 2))
+                {
+                    ++med;
+                    std::nth_element(med, med, end);
+                    median = (median + *med) / 2;
+                }
+
+                data_[n].second = median;
+            }
+        }
+    }
+
+protected:
+
+    void add_sample(
+            size_t index,
+            double value) override
+    {
+        samples_[index].push_back(value);
+    }
+
+private:
+
+    std::vector<std::vector<double>> samples_;
+
+};
+
 struct MaximumAggregator final : public IDataAggregator
 {
     MaximumAggregator(
@@ -298,6 +352,10 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
 
         case StatisticKind::MEAN:
             ret_val = new detail::MeanAggregator(bins, t_from, t_to, returned_data);
+            break;
+
+        case StatisticKind::MEDIAN:
+            ret_val = new detail::MedianAggregator(bins, t_from, t_to, returned_data);
             break;
 
         case StatisticKind::MAX:
