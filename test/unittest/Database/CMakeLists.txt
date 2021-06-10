@@ -199,12 +199,16 @@ set(DATABASE_TEST_LIST
     insert_sample_subscription_throughput_wrong_entity
     insert_sample_rtps_packets_sent
     insert_sample_rtps_packets_sent_wrong_entity
+    insert_sample_rtps_packets_sent_unknown_remote_locator
     insert_sample_rtps_bytes_sent
     insert_sample_rtps_bytes_sent_wrong_entity
+    insert_sample_rtps_bytes_sent_unknown_remote_locator
     insert_sample_rtps_packets_lost
     insert_sample_rtps_packets_lost_wrong_entity
+    insert_sample_rtps_packets_lost_unknown_remote_locator
     insert_sample_rtps_bytes_lost
     insert_sample_rtps_bytes_lost_wrong_entity
+    insert_sample_rtps_bytes_lost_unknown_remote_locator
     insert_sample_resent_data
     insert_sample_resent_data_wrong_entity
     insert_sample_heartbeat_count
