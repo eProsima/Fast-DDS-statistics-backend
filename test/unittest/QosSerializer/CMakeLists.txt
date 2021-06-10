@@ -35,7 +35,7 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(qos_serializer_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} fastrtps fastcdr)
 
     get_win32_path_dependencies(qos_serializer_tests TEST_FRIENDLY_PATH)
 
