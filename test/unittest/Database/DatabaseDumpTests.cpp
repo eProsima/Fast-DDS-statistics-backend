@@ -137,7 +137,11 @@ void initialize_empty_entities(
                         DATAREADER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
     std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_DEFAULT_NAME(index)));
 
-    ASSERT_NE(db.insert(locator), EntityId::invalid());
+    locator->id = db.generate_entity_id();
+
+    dw->locators[locator->id] = locator;
+    dr->locators[locator->id] = locator;
+
     ASSERT_NE(db.insert(host), EntityId::invalid());
     ASSERT_NE(db.insert(user), EntityId::invalid());
     ASSERT_NE(db.insert(process), EntityId::invalid());
@@ -148,8 +152,8 @@ void initialize_empty_entities(
     ASSERT_NE(db.insert(dr), EntityId::invalid());
 
     db.link_participant_with_process(participant->id, process->id);
-    db.link_endpoint_with_locator(dw->id, locator->id);
-    db.link_endpoint_with_locator(dr->id, locator->id);
+    locator->data_writers[dw->id] = dw;
+    locator->data_readers[dr->id] = dr;
 }
 
 void initialize_database(
