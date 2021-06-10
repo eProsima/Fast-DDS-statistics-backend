@@ -87,6 +87,33 @@ protected:
     Timestamp::duration interval_;
 };
 
+struct CountAggregator final : public IDataAggregator
+{
+    CountAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+    }
+
+protected:
+    double initial_value() const noexcept
+    {
+        return 0;
+    }
+
+    void add_sample(
+            size_t index,
+            double value)
+    {
+        static_cast<void>(value);
+        data_[index].second++;
+    }
+
+};
+
 } // namespace detail
 } // namespace statistics_backend
 } // namespace eprosima
