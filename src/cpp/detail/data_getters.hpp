@@ -24,31 +24,46 @@
 #include <vector>     // std::vector
 #include <utility>    // std::pair
 
-#include "database/samples.hpp"
+#include <database/samples.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
 namespace detail {
 
-struct GenericIterator : public std::vector<const database::StatisticsSample*>::const_iterator
-{
-    using base_iterator_type = typename std::vector<const database::StatisticsSample*>::const_iterator;
+using base_iterator_type = typename std::vector<const database::StatisticsSample*>::const_iterator;
 
+/**
+ * @brief A const_iterator for statistics samples obtained from the database select operation.
+ *
+ * Provides adapter interfaces to get the timestamp and statistic (double) value of the specific database
+ * sample.
+ */
+struct GenericIterator : public base_iterator_type
+{
     explicit GenericIterator(
             const base_iterator_type& plain_iterator) noexcept
         : base_iterator_type(plain_iterator)
     {
     }
 
+    /**
+     * @brief Get the timestamp of the sample currently pointed to by this iterator.
+     * @return Timestamp of sample.
+     */
     Timestamp get_timestamp() const noexcept
     {
         return (**this)->src_ts;
     }
 
+    /**
+     * @brief Get the statistic value of the sample currently pointed to by this iterator.
+     * @return Statistic value of sample.
+     */
     virtual double get_value() const noexcept = 0;
 
 protected:
 
+    /// An utility method to get a reference to a specific child of the sample
     template<typename T>
     const T& sample() const noexcept
     {
@@ -58,17 +73,17 @@ protected:
 
 };
 
+/// Basic template which provides a concrete specialization of the reference getter.
 template<typename T>
-struct BasicStatisticsIterator
-    : public GenericIterator
+struct BasicStatisticsIterator : public GenericIterator
 {
-    using base_iterator_type = typename std::vector<const T*>::const_iterator;
-
     explicit BasicStatisticsIterator(
             const base_iterator_type& plain_iterator) noexcept
-        : GenericIterator(reinterpret_cast<const GenericIterator::base_iterator_type&>(plain_iterator))
+        : GenericIterator(plain_iterator)
     {
     }
+
+protected:
 
     const T& sample() const noexcept
     {
@@ -76,11 +91,10 @@ struct BasicStatisticsIterator
     }
 };
 
+/// Final template that should be specialized for every kind of database sample
 template<typename T>
-struct StatisticsIterator : public BasicStatisticsIterator<T>
+struct StatisticsIterator final : public BasicStatisticsIterator<T>
 {
-    using base_iterator_type = typename BasicStatisticsIterator<T>::base_iterator_type;
-
     explicit StatisticsIterator(
             const base_iterator_type& plain_iterator) noexcept
         : BasicStatisticsIterator<T>(plain_iterator)
@@ -88,8 +102,9 @@ struct StatisticsIterator : public BasicStatisticsIterator<T>
     }
 };
 
+/// Iterator returned for EntityDataSample
 template<>
-struct StatisticsIterator<database::EntityDataSample>
+struct StatisticsIterator<database::EntityDataSample> final
     : public BasicStatisticsIterator<database::EntityDataSample>
 {
     explicit StatisticsIterator(
@@ -104,8 +119,9 @@ struct StatisticsIterator<database::EntityDataSample>
     }
 };
 
+/// Iterator returned for EntityCountSample
 template<>
-struct StatisticsIterator<database::EntityCountSample>
+struct StatisticsIterator<database::EntityCountSample> final
     : public BasicStatisticsIterator<database::EntityCountSample>
 {
     explicit StatisticsIterator(
@@ -120,8 +136,9 @@ struct StatisticsIterator<database::EntityCountSample>
     }
 };
 
+/// Iterator returned for ByteCountSample
 template<>
-struct StatisticsIterator<database::ByteCountSample>
+struct StatisticsIterator<database::ByteCountSample> final
     : public BasicStatisticsIterator<database::ByteCountSample>
 {
     explicit StatisticsIterator(
@@ -137,8 +154,9 @@ struct StatisticsIterator<database::ByteCountSample>
     }
 };
 
+/// Iterator returned for TimepointSample
 template<>
-struct StatisticsIterator<database::TimepointSample>
+struct StatisticsIterator<database::TimepointSample> final
     : public BasicStatisticsIterator<database::TimepointSample>
 {
     explicit StatisticsIterator(
@@ -157,9 +175,14 @@ struct StatisticsIterator<database::TimepointSample>
 using IteratorPtr = std::unique_ptr<GenericIterator>;
 using IteratorPair = std::pair<IteratorPtr, IteratorPtr>;
 
+/**
+ * @brief Get the iterators delimiting the traversal of a database select() result.
+ * @param data The collection returned by the database select() call.
+ * @return A pair of unique pointers to GenericIterator, with the begin and end iterators.
+ */
 template<typename T>
 IteratorPair get_iterators(
-        const std::vector<const T*>& data)
+        const std::vector<const database::StatisticsSample*>& data)
 {
     return IteratorPair
     {
@@ -168,24 +191,25 @@ IteratorPair get_iterators(
     };
 }
 
-using EntityDataVector = std::vector<const database::EntityDataSample*>;
-using EntityCountVector = std::vector<const database::EntityCountSample*>;
-using ByteCountVector = std::vector<const database::ByteCountSample*>;
-using TimePointVector = std::vector<const database::TimepointSample*>;
-
 } // namespace detail
 
+/**
+ * @brief Get the iterators delimiting the traversal of a database select() result.
+ * @param data_type The type of measurement requested to the database select() call.
+ * @param data The collection returned by the database select() call.
+ * @return A pair of unique pointers to GenericIterator, with the begin and end iterators.
+ */
 detail::IteratorPair get_iterators(
-        DataKind kind,
+        DataKind data_type,
         const std::vector<const database::StatisticsSample*>& data)
 {
-    switch(kind)
+    switch(data_type)
     {
         case DataKind::FASTDDS_LATENCY:
         case DataKind::NETWORK_LATENCY:
         case DataKind::PUBLICATION_THROUGHPUT:
         case DataKind::SUBSCRIPTION_THROUGHPUT:
-            return detail::get_iterators(reinterpret_cast<const detail::EntityDataVector&>(data));
+            return detail::get_iterators<database::EntityDataSample>(data);
 
         case DataKind::RTPS_PACKETS_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -197,18 +221,18 @@ detail::IteratorPair get_iterators(
         case DataKind::DATA_COUNT:
         case DataKind::PDP_PACKETS:
         case DataKind::EDP_PACKETS:
-            return detail::get_iterators(reinterpret_cast<const detail::EntityCountVector&>(data));
+            return detail::get_iterators<database::EntityCountSample>(data);
 
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_BYTES_LOST:
-            return detail::get_iterators(reinterpret_cast<const detail::ByteCountVector&>(data));
+            return detail::get_iterators<database::ByteCountSample>(data);
 
         case DataKind::DISCOVERY_TIME:
-            return detail::get_iterators(reinterpret_cast<const detail::TimePointVector&>(data));
+            return detail::get_iterators<database::TimepointSample>(data);
 
         case DataKind::SAMPLE_DATAS:
             // TODO(Miguel C): Should be treated different?
-            return detail::get_iterators(reinterpret_cast<const detail::EntityDataVector&>(data));
+            return detail::get_iterators<database::EntityDataSample>(data);
 
         default:
             throw BadParameter("Unsupported data kind");
