@@ -19,7 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 
-#include <memory>
+#include <algorithm>  // std::min, std::max
+#include <cmath>      // std::isnan
+#include <memory>     // std::unique_ptr
 
 #include <fastdds_statistics_backend/types/types.hpp>
 
@@ -71,6 +73,23 @@ protected:
         return std::numeric_limits<double>::quiet_NaN();
     }
 
+    bool assign_if_nan(
+            size_t index,
+            double value)
+    {
+        if (std::isnan(data_[index].second))
+        {
+            data_[index].second = value;
+            return true;
+        }
+
+        return false;
+    }
+
+    std::vector<StatisticsData>& data_;
+
+private:
+
     void prepare_bins(
             uint16_t bins,
             Timestamp t_from,
@@ -87,8 +106,57 @@ protected:
         } while (bins > 0);
     }
 
-    std::vector<StatisticsData>& data_;
     Timestamp::duration interval_;
+};
+
+struct MaximumAggregator final : public IDataAggregator
+{
+    MaximumAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+    }
+
+protected:
+
+    void add_sample(
+            size_t index,
+            double value) override
+    {
+        if (!assign_if_nan(index, value))
+        {
+            data_[index].second = (std::max)(value, data_[index].second);
+        }
+    }
+
+};
+
+struct MinimumAggregator final : public IDataAggregator
+{
+    MinimumAggregator(
+            uint16_t bins,
+            Timestamp t_from,
+            Timestamp t_to,
+            std::vector<StatisticsData>& returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data)
+    {
+    }
+
+protected:
+
+    void add_sample(
+            size_t index,
+            double value) override
+    {
+        if (!assign_if_nan(index, value))
+        {
+            data_[index].second = (std::min)(value, data_[index].second);
+        }
+    }
+
 };
 
 struct CountAggregator final : public IDataAggregator
@@ -111,7 +179,7 @@ protected:
 
     void add_sample(
             size_t index,
-            double value)
+            double value) override
     {
         static_cast<void>(value);
         data_[index].second++;
