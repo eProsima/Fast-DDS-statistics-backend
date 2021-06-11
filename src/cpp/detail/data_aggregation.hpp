@@ -170,6 +170,7 @@ struct MeanAggregator final : public IDataAggregator
             std::vector<StatisticsData>& returned_data)
         : IDataAggregator(bins, t_from, t_to, returned_data)
     {
+        // Initialize all sample counts to 0
         num_samples_.assign(data_.size(), 0);
     }
 
@@ -190,10 +191,14 @@ protected:
             size_t index,
             double value) override
     {
+        // Accumulate value
         if (!assign_if_nan(index, value))
         {
             data_[index].second += value;
         }
+
+        // Increase number of samples
+        ++num_samples_[index];
     }
 
 private:
