@@ -102,9 +102,10 @@ private:
         interval_ = t_to - t_from;
         interval_ /= bins;
 
+        double value = initial_value();
         do
         {
-            data_.emplace_back(t_from, initial_value());
+            data_.emplace_back(t_from, value);
             t_from += interval_;
             bins--;
         } while (bins > 0);
