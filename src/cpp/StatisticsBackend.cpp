@@ -42,6 +42,8 @@
 #include <topic_types/typesPubSubTypes.h>
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
+#include "detail/data_getters.hpp"
+#include "detail/data_aggregation.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::statistics;
@@ -406,46 +408,180 @@ Info StatisticsBackend::get_info(
     return info;
 }
 
+static inline void check_entity_kinds(
+        EntityKind kind,
+        const std::vector<EntityId>& entity_ids,
+        database::Database* db,
+        const char* message)
+{
+    for (EntityId id : entity_ids)
+    {
+        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
+        if (!entity || kind != entity->kind)
+        {
+            throw BadParameter(message);
+        }
+    }
+}
+
+static inline void check_entity_kinds(
+        EntityKind kinds[3],
+        const std::vector<EntityId>& entity_ids,
+        database::Database* db,
+        const char* message)
+{
+    for (EntityId id : entity_ids)
+    {
+        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
+        if (!entity || (kinds[0] != entity->kind && kinds[1] != entity->kind && kinds[2] != entity->kind))
+        {
+            throw BadParameter(message);
+        }
+    }
+}
+
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids_source,
-        const std::vector<EntityId> entity_ids_target,
+        const std::vector<EntityId>& entity_ids_source,
+        const std::vector<EntityId>& entity_ids_target,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
         StatisticKind statistic)
 {
-    static_cast<void>(data_type);
-    static_cast<void>(entity_ids_source);
-    static_cast<void>(entity_ids_target);
-    static_cast<void>(bins);
-    static_cast<void>(t_from);
-    static_cast<void>(t_to);
-    static_cast<void>(statistic);
-    return std::vector<StatisticsData>();
+    // Validate data_type
+    auto allowed_kinds = get_data_supported_entity_kinds(data_type);
+    if (1 == allowed_kinds.size() && EntityKind::INVALID == allowed_kinds[0].second)
+    {
+        throw BadParameter("Method get_data called for source-target entities but data_type requires single entity");
+    }
+
+    // Validate timestamps
+    auto min_separation = std::chrono::nanoseconds(bins);
+    if (t_to <= t_from + min_separation)
+    {
+        throw BadParameter("Invalid timestamps (to should be greater than from by at least bins nanoseconds");
+    }
+
+    // Validate entity_ids_source. Note that the only case with more than one pair always has the same source kind.
+    EntityKind source_kind = allowed_kinds[0].first;
+    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    check_entity_kinds(source_kind, entity_ids_source, db, "Wrong entity id passed in entity_ids_source");
+
+    // Validate entity_ids_target.
+    if (1 == allowed_kinds.size())
+    {
+        EntityKind target_kind = allowed_kinds[0].second;
+        check_entity_kinds(target_kind, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+    }
+    else
+    {
+        // This should be the DISCOVERY_TIME case
+        assert(3 == allowed_kinds.size());
+        EntityKind target_kinds[3];
+        target_kinds[0] = allowed_kinds[0].second;
+        target_kinds[1] = allowed_kinds[1].second;
+        target_kinds[2] = allowed_kinds[2].second;
+        check_entity_kinds(target_kinds, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+    }
+
+    std::vector<StatisticsData> ret_val;
+
+    if (0 == bins)
+    {
+        for (EntityId source_id : entity_ids_source)
+        {
+            for (EntityId target_id : entity_ids_target)
+            {
+                auto data = db->select(data_type, source_id, target_id, t_from, t_to);
+                auto iterators = get_iterators(data_type, data);
+
+                for (auto& it = *iterators.first; it != *iterators.second; ++it)
+                {
+                    ret_val.emplace_back(it.get_timestamp(), it.get_value());
+                }
+            }
+        }
+    }
+    else
+    {
+        auto processor = get_data_aggregator(bins, t_from, t_to, statistic, ret_val);
+        for (EntityId source_id : entity_ids_source)
+        {
+            for (EntityId target_id : entity_ids_target)
+            {
+                auto data = db->select(data_type, source_id, target_id, t_from, t_to);
+                auto iterators = get_iterators(data_type, data);
+                processor->add_data(iterators);
+            }
+        }
+        processor->finish();
+    }
+
+    return ret_val;
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids,
+        const std::vector<EntityId>& entity_ids,
         uint16_t bins,
         Timestamp t_from,
         Timestamp t_to,
         StatisticKind statistic)
 {
-    static_cast<void>(data_type);
-    static_cast<void>(entity_ids);
-    static_cast<void>(bins);
-    static_cast<void>(t_from);
-    static_cast<void>(t_to);
-    static_cast<void>(statistic);
-    return std::vector<StatisticsData>();
+    // Validate data_type
+    auto allowed_kinds = get_data_supported_entity_kinds(data_type);
+    if (1 != allowed_kinds.size() || EntityKind::INVALID != allowed_kinds[0].second)
+    {
+        throw BadParameter("Method get_data called for single entity but data_type requires two entities");
+    }
+
+    // Validate timestamps
+    auto min_separation = std::chrono::nanoseconds(bins);
+    if (t_to <= t_from + min_separation)
+    {
+        throw BadParameter("Invalid timestamps (to should be greater than from by at least bins nanoseconds");
+    }
+
+    // Validate entity_ids
+    EntityKind allowed_kind = allowed_kinds[0].first;
+    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
+
+    std::vector<StatisticsData> ret_val;
+
+    if (0 == bins)
+    {
+        for (EntityId id : entity_ids)
+        {
+            auto data = db->select(data_type, id, t_from, t_to);
+            auto iterators = get_iterators(data_type, data);
+
+            for (auto& it = *iterators.first; it != *iterators.second; ++it)
+            {
+                ret_val.emplace_back(it.get_timestamp(), it.get_value());
+            }
+        }
+    }
+    else
+    {
+        auto processor = get_data_aggregator(bins, t_from, t_to, statistic, ret_val);
+        for (EntityId id : entity_ids)
+        {
+            auto data = db->select(data_type, id, t_from, t_to);
+            auto iterators = get_iterators(data_type, data);
+            processor->add_data(iterators);
+        }
+        processor->finish();
+    }
+
+    return ret_val;
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids_source,
-        const std::vector<EntityId> entity_ids_target,
+        const std::vector<EntityId>& entity_ids_source,
+        const std::vector<EntityId>& entity_ids_target,
         uint16_t bins,
         StatisticKind statistic)
 {
@@ -461,7 +597,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
-        const std::vector<EntityId> entity_ids,
+        const std::vector<EntityId>& entity_ids,
         uint16_t bins,
         StatisticKind statistic)
 {
