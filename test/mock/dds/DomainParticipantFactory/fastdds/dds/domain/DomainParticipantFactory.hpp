@@ -20,12 +20,12 @@
 #ifndef _FASTDDS_DOMAINPARTICIPANTFACTORY_HPP_
 #define _FASTDDS_DOMAINPARTICIPANTFACTORY_HPP_
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <fastrtps/types/TypesBase.h>
-#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastrtps/types/TypesBase.h>
 
 namespace eprosima {
 namespace fastdds {

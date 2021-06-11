@@ -20,15 +20,15 @@
 #ifndef _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 #define _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/publisher/qos/PublisherQos.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
-#include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
+#include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastdds/rtps/common/Guid.h>
 #include <fastrtps/types/TypesBase.h>
 

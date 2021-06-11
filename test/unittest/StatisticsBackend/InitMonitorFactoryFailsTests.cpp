@@ -15,26 +15,32 @@
 #include <list>
 #include <string>
 
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
+#include <fastdds/dds/topic/TopicDataType.hpp>
+#include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
+#include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
-#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
 #include <Monitor.hpp>
-#include <StatisticsBackend.hpp>
-#include <types/types.hpp>
 #include <topic_types/typesPubSubTypes.h>
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
@@ -47,10 +53,6 @@ using ::testing::ReturnRef;
 using ::testing::AnyNumber;
 using ::testing::AtLeast;
 
-
-class CustomDomainListener : public DomainListener
-{
-};
 
 class init_monitor_factory_fails_tests : public ::testing::Test
 {
@@ -108,7 +110,7 @@ public:
     DataKindMask all_datakind_mask_;
 
     // Relation between topic names and data types
-    std::map<const char*, eprosima::fastdds::dds::TopicDataType*> topic_types_;
+    std::map<const char*,TopicDataType*> topic_types_;
 
     init_monitor_factory_fails_tests()
     {
@@ -220,7 +222,7 @@ constexpr const DataKind init_monitor_factory_fails_tests::all_data_kinds_[];
 TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     // Expect failure on the participant creation
     EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(1)
@@ -235,7 +237,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     // Expect failure on the subscriber creation
     EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(1)
@@ -250,7 +252,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     // Expect failure on the datareader creation
     EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(1)
@@ -265,7 +267,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     // Expect failure on the topic creation
     // We need to cover all parameter cases to be implementation agnostic
@@ -285,7 +287,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
@@ -300,7 +302,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     for (auto topic_type : topic_types_)
     {
@@ -314,17 +316,17 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
     EXPECT_CALL(domain_participant_, create_topic(_, _, _, _)).Times(0);
     EXPECT_CALL(domain_participant_, create_topic(_, _, _)).Times(0);
 
-    StatisticsBackend::init_monitor(
+    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
         domain_id,
         &domain_listener,
         all_callback_mask_,
-        all_datakind_mask_);
+        all_datakind_mask_));
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     Topic topic("custom_topic", "custom_type");
     ON_CALL(domain_participant_, lookup_topicdescription(_))

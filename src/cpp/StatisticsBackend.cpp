@@ -18,23 +18,24 @@
 
 #include <fstream>
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
-#include <fastdds/dds/topic/qos/TopicQos.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
+#include <database/database_queue.hpp>
+#include <database/database.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
-#include <database/database.hpp>
-#include <database/database_queue.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
 #include <topic_types/typesPubSubTypes.h>
@@ -84,7 +85,17 @@ void find_or_create_topic_and_type(
             throw Error(topic_name + " is not using expected type " + type->getName() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
-        monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+
+        try
+        {
+            monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+        }
+        catch(const std::bad_cast& e)
+        {
+            // TODO[ILG]: Couls we support other TopicDescription types in this context?
+            throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
+        }
+        
     }
     else
     {
@@ -185,7 +196,6 @@ EntityId StatisticsBackend::init_monitor(
         details::StatisticsBackendData::get_instance()->data_queue_);
 
     /* Create DomainParticipant */
-    using namespace eprosima::fastdds::dds;
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_domain_" + domain_id);
 
@@ -203,9 +213,8 @@ EntityId StatisticsBackend::init_monitor(
     }
 
     /* Create Subscriber */
-    SubscriberQos subscriber_qos = monitor->participant->get_default_subscriber_qos();
     monitor->subscriber = monitor->participant->create_subscriber(
-        subscriber_qos,
+        SUBSCRIBER_QOS_DEFAULT,
         nullptr,
         StatusMask::none());
 
@@ -225,10 +234,9 @@ EntityId StatisticsBackend::init_monitor(
         }
 
         /* Create DataReaders */
-        DataReaderQos data_reader_qos = monitor->subscriber->get_default_datareader_qos();
         monitor->readers[topic] = monitor->subscriber->create_datareader(
             monitor->topics[topic],
-            data_reader_qos,
+            eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
             monitor->reader_listener,
             StatusMask::all());
 

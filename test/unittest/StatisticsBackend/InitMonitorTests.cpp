@@ -15,37 +15,27 @@
 #include <list>
 #include <string>
 
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastdds/dds/topic/Topic.hpp>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
+#include <database/database_queue.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
-#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
-#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
 #include <Monitor.hpp>
-#include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
-#include <types/types.hpp>
 #include <topic_types/typesPubSubTypes.h>
-#include <database/database_queue.hpp>
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::statistics;
 
-
-class CustomDomainListener : public DomainListener
-{
-};
 
 class init_monitor_tests : public ::testing::Test
 {
@@ -92,7 +82,7 @@ public:
     DataKindMask all_datakind_mask_;
 
     // Relation between topic names and data types
-    std::map<const char*, eprosima::fastdds::dds::TopicDataType*> topic_types_;
+    std::map<const char*, TopicDataType*> topic_types_;
 
     init_monitor_tests()
     {
@@ -146,7 +136,7 @@ constexpr const DataKind init_monitor_tests::all_data_kinds_[];
 TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     EntityId monitor_id = StatisticsBackend::init_monitor(
         domain_id,
@@ -189,7 +179,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     EntityId monitor_id = StatisticsBackend::init_monitor(
         domain_id,
@@ -232,7 +222,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
 
     EntityId monitor_id = StatisticsBackend::init_monitor(
         domain_id,
@@ -259,7 +249,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(!domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_FALSE(domain_monitors[domain_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
@@ -317,7 +307,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 TEST_F(init_monitor_tests, init_monitor_several_monitors)
 {
     DomainId domain_id1 = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
     EntityId monitor_id1 = StatisticsBackend::init_monitor(
         domain_id1,
         &domain_listener,
@@ -378,7 +368,7 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
 TEST_F(init_monitor_tests, init_monitor_twice)
 {
     DomainId domain_id = 0;
-    CustomDomainListener domain_listener;
+    DomainListener domain_listener;
     EntityId monitor_id = StatisticsBackend::init_monitor(
         domain_id,
         &domain_listener,

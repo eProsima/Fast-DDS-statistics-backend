@@ -20,10 +20,10 @@
 #ifndef _FASTDDS_TOPIC_DESCRIPTION_HPP_
 #define _FASTDDS_TOPIC_DESCRIPTION_HPP_
 
-#include "gtest/gtest.h"
-#include <gmock/gmock.h>
-
 #include <string>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 namespace eprosima {
 namespace fastdds {

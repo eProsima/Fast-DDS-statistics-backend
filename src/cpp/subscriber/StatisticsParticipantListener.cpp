@@ -19,10 +19,11 @@
 
 #include "subscriber/StatisticsParticipantListener.hpp"
 
+#include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
-#include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/log/Log.hpp>
+#include <fastdds/rtps/common/EntityId_t.hpp>
 
 #include "database/database_queue.hpp"
 #include "QosSerializer.hpp"

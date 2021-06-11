@@ -20,12 +20,12 @@
 #ifndef _FASTDDS_SUBSCRIBER_HPP_
 #define _FASTDDS_SUBSCRIBER_HPP_
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <fastrtps/types/TypesBase.h>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastrtps/types/TypesBase.h>
 
 namespace eprosima {
 namespace fastdds {

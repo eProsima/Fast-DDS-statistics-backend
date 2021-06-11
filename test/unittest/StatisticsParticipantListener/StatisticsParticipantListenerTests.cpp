@@ -333,7 +333,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -430,7 +430,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -554,7 +554,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
@@ -569,7 +569,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     existing_multicast_locator->id = 4;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
+            std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
@@ -714,7 +714,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
@@ -729,7 +729,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     existing_multicast_locator->id = 4;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
+            std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
@@ -866,7 +866,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_participa
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -928,7 +928,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_domain)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1005,7 +1005,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1114,7 +1114,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1211,7 +1211,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1335,7 +1335,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
@@ -1350,7 +1350,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     existing_multicast_locator->id = 4;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
+            std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
@@ -1495,7 +1495,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
@@ -1510,7 +1510,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     existing_multicast_locator->id = 4;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
+            std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
@@ -1647,7 +1647,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_participa
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1709,7 +1709,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_domain)
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1786,7 +1786,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
@@ -1892,7 +1892,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     existing_unicast_locator->id = 3;
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
+            std::make_pair(EntityId(), EntityId(3)))));
     EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())

@@ -15,14 +15,13 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <exception/Exception.hpp>
-#include <Monitor.hpp>
-#include <StatisticsBackend.hpp>
-#include <StatisticsBackendData.hpp>
-#include <Monitor.hpp>
-#include <database/database.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
 #include <database/database_queue.hpp>
-#include <types/types.hpp>
+#include <database/database.hpp>
+#include <Monitor.hpp>
+#include <StatisticsBackendData.hpp>
 
 using ::testing::_;
 using ::testing::Invoke;

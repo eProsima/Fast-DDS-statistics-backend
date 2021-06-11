@@ -1,5 +1,5 @@
 {
-    "description": "DB dump with 1 entity of each EntityKind and 1 data of each DataKind",
+    "description": "DB dump with 1 entity of each EntityKind and 1 data of each DataKind. No link between participant and process yet.",
 
     "version": "0.0",
 
