@@ -146,6 +146,7 @@ public:
 class calling_user_listeners_tests : public ::testing::Test
 {
 public:
+
     calling_user_listeners_tests()
     {
         details::StatisticsBackendData::reset_instance();
@@ -2962,6 +2963,7 @@ TEST_F(calling_user_listeners_tests, wrong_entity_kind)
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
 {
 public:
+
     calling_user_data_listeners_tests()
     {
         details::StatisticsBackendData::reset_instance();

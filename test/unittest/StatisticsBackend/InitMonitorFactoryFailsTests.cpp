@@ -110,7 +110,7 @@ public:
     DataKindMask all_datakind_mask_;
 
     // Relation between topic names and data types
-    std::map<const char*,TopicDataType*> topic_types_;
+    std::map<const char*, TopicDataType*> topic_types_;
 
     init_monitor_factory_fails_tests()
     {
@@ -317,10 +317,10 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
     EXPECT_CALL(domain_participant_, create_topic(_, _, _)).Times(0);
 
     EXPECT_NO_THROW(StatisticsBackend::init_monitor(
-        domain_id,
-        &domain_listener,
-        all_callback_mask_,
-        all_datakind_mask_));
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_));
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)

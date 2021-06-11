@@ -101,7 +101,7 @@ public:
 
     /**
      * @brief Resets the instance of the singleton
-     * 
+     *
      * This method exists for internal debugging / testing purposes.
      */
     static void reset_instance()

@@ -90,12 +90,12 @@ void find_or_create_topic_and_type(
         {
             monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
         }
-        catch(const std::bad_cast& e)
+        catch (const std::bad_cast& e)
         {
             // TODO[ILG]: Couls we support other TopicDescription types in this context?
             throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
         }
-        
+
     }
     else
     {
@@ -252,29 +252,29 @@ EntityId StatisticsBackend::init_monitor(
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
-        //Find the monitor
-        auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-        if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
-        {
-            throw BadParameter("No monitor with such ID");
-        }
-        auto monitor = it->second;
+    //Find the monitor
+    auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
+    if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    {
+        throw BadParameter("No monitor with such ID");
+    }
+    auto monitor = it->second;
 
-        // Delete everything created during monitor initialization
-        for (auto reader : monitor->readers)
-        {
-            monitor->subscriber->delete_datareader(reader.second);
-        }
+    // Delete everything created during monitor initialization
+    for (auto reader : monitor->readers)
+    {
+        monitor->subscriber->delete_datareader(reader.second);
+    }
 
-        for (auto topic : monitor->topics)
-        {
-            monitor->participant->delete_topic(topic.second);
-        }
+    for (auto topic : monitor->topics)
+    {
+        monitor->participant->delete_topic(topic.second);
+    }
 
-        monitor->participant->delete_subscriber(monitor->subscriber);
-        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-        delete monitor->reader_listener;
-        delete monitor->participant_listener;
+    monitor->participant->delete_subscriber(monitor->subscriber);
+    DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    delete monitor->reader_listener;
+    delete monitor->participant_listener;
 }
 
 EntityId StatisticsBackend::init_monitor(

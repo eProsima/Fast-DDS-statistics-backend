@@ -51,11 +51,11 @@ StatisticsBackendData::~StatisticsBackendData()
 
     if (entity_queue_)
     {
-            entity_queue_->flush();
+        entity_queue_->flush();
     }
     if (data_queue_)
     {
-            data_queue_->flush();
+        data_queue_->flush();
     }
 
     delete entity_queue_;
