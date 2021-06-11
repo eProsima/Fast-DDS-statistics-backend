@@ -33,6 +33,7 @@
 #include <StatisticsBackendData.hpp>
 #include <types/types.hpp>
 #include <topic_types/typesPubSubTypes.h>
+#include <database/database_queue.hpp>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -95,6 +96,8 @@ public:
 
     init_monitor_tests()
     {
+        details::StatisticsBackendData::reset_instance();
+
         // Fill the map of topics and types
         topic_types_[HISTORY_LATENCY_TOPIC] = new WriterReaderDataPubSubType();
         topic_types_[NETWORK_LATENCY_TOPIC] = new Locator2LocatorDataPubSubType();

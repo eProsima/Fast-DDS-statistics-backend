@@ -144,7 +144,17 @@ public:
                 DataKind data_kind));
 };
 
-TEST(calling_user_listeners_tests, host_discovered)
+class calling_user_listeners_tests : public ::testing::Test
+{
+public:
+    calling_user_listeners_tests()
+    {
+        details::StatisticsBackendData::reset_instance();
+    }
+
+};
+
+TEST_F(calling_user_listeners_tests, host_discovered)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -202,7 +212,7 @@ TEST(calling_user_listeners_tests, host_discovered)
 }
 
 
-TEST(calling_user_listeners_tests, host_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, host_discovered_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -222,7 +232,7 @@ TEST(calling_user_listeners_tests, host_discovered_not_in_mask)
         EntityKind::HOST);
 }
 
-TEST(calling_user_listeners_tests, host_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, host_discovered_no_listener)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -242,7 +252,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener)
         EntityKind::HOST);
 }
 
-TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -262,7 +272,7 @@ TEST(calling_user_listeners_tests, host_discovered_no_listener_not_in_mask)
         EntityKind::HOST);
 }
 
-TEST(calling_user_listeners_tests, user_discovered)
+TEST_F(calling_user_listeners_tests, user_discovered)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -319,7 +329,7 @@ TEST(calling_user_listeners_tests, user_discovered)
         EntityKind::USER);
 }
 
-TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, user_discovered_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -339,7 +349,7 @@ TEST(calling_user_listeners_tests, user_discovered_not_in_mask)
         EntityKind::USER);
 }
 
-TEST(calling_user_listeners_tests, user_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, user_discovered_no_listener)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -359,7 +369,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener)
         EntityKind::USER);
 }
 
-TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -379,7 +389,7 @@ TEST(calling_user_listeners_tests, user_discovered_no_listener_not_in_mask)
         EntityKind::USER);
 }
 
-TEST(calling_user_listeners_tests, process_discovered)
+TEST_F(calling_user_listeners_tests, process_discovered)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -437,7 +447,7 @@ TEST(calling_user_listeners_tests, process_discovered)
 }
 
 
-TEST(calling_user_listeners_tests, process_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, process_discovered_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -457,7 +467,7 @@ TEST(calling_user_listeners_tests, process_discovered_not_in_mask)
         EntityKind::PROCESS);
 }
 
-TEST(calling_user_listeners_tests, process_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, process_discovered_no_listener)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -477,7 +487,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener)
         EntityKind::PROCESS);
 }
 
-TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -497,7 +507,7 @@ TEST(calling_user_listeners_tests, process_discovered_no_listener_not_in_mask)
         EntityKind::PROCESS);
 }
 
-TEST(calling_user_listeners_tests, locator_discovered)
+TEST_F(calling_user_listeners_tests, locator_discovered)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -555,7 +565,7 @@ TEST(calling_user_listeners_tests, locator_discovered)
 }
 
 
-TEST(calling_user_listeners_tests, locator_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, locator_discovered_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -575,7 +585,7 @@ TEST(calling_user_listeners_tests, locator_discovered_not_in_mask)
         EntityKind::LOCATOR);
 }
 
-TEST(calling_user_listeners_tests, locator_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, locator_discovered_no_listener)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::none();
@@ -595,7 +605,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener)
         EntityKind::LOCATOR);
 }
 
-TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
 {
     MockedPhysicalListener physical_listener;
     CallbackMask mask = CallbackMask::all();
@@ -615,7 +625,7 @@ TEST(calling_user_listeners_tests, locator_discovered_no_listener_not_in_mask)
         EntityKind::LOCATOR);
 }
 
-TEST(calling_user_listeners_tests, participant_discovered)
+TEST_F(calling_user_listeners_tests, participant_discovered)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -728,7 +738,7 @@ TEST(calling_user_listeners_tests, participant_discovered)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, participant_discovered_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -872,7 +882,7 @@ TEST(calling_user_listeners_tests, participant_discovered_not_in_mask)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, participant_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, participant_discovered_no_listener)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -1016,7 +1026,7 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -1160,7 +1170,7 @@ TEST(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mas
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, topic_discovered)
+TEST_F(calling_user_listeners_tests, topic_discovered)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -1273,7 +1283,7 @@ TEST(calling_user_listeners_tests, topic_discovered)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, topic_discovered_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -1417,7 +1427,7 @@ TEST(calling_user_listeners_tests, topic_discovered_not_in_mask)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, topic_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, topic_discovered_no_listener)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -1561,7 +1571,7 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -1705,7 +1715,7 @@ TEST(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datareader_discovered)
+TEST_F(calling_user_listeners_tests, datareader_discovered)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -1818,7 +1828,7 @@ TEST(calling_user_listeners_tests, datareader_discovered)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, datareader_discovered_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -1962,7 +1972,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_not_in_mask)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -2106,7 +2116,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -2250,7 +2260,7 @@ TEST(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datawriter_discovered)
+TEST_F(calling_user_listeners_tests, datawriter_discovered)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -2363,7 +2373,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
+TEST_F(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -2507,7 +2517,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
+TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::none();
@@ -2651,7 +2661,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener)
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask)
+TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask)
 {
     MockedDomainListener domain_listener;
     CallbackMask mask = CallbackMask::all();
@@ -2795,7 +2805,7 @@ TEST(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
-TEST(calling_user_listeners_tests, wrong_entity_kind)
+TEST_F(calling_user_listeners_tests, wrong_entity_kind)
 {
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
@@ -2950,25 +2960,26 @@ TEST(calling_user_listeners_tests, wrong_entity_kind)
             ".*");
 }
 
-class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DomainId, DataKind>>
+class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
 {
-    // Each of these tests initialize a new Monitor with appropriate params
-    // However, the Backend is not reset from one parameterized run to the next
-    // so initializing another monitor with the same DomainID results in an error.
-    // Therefore, each parameterized run is created with its own DomainId, set in the tuple.
+public:
+    calling_user_data_listeners_tests()
+    {
+        details::StatisticsBackendData::reset_instance();
+    }
+
 };
 
 TEST_P(calling_user_data_listeners_tests, data_available)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
-                        GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3000,15 +3011,14 @@ TEST_P(calling_user_data_listeners_tests, data_available)
 
 TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
-                        GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3051,15 +3061,14 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
 
 TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
     data_mask ^= data_kind;
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(
-                        GetParam()), &domain_listener, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3102,14 +3111,14 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3152,14 +3161,14 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
     data_mask.set(data_kind);
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3202,14 +3211,14 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in_mask)
 {
-    DataKind data_kind = std::get<1>(GetParam());
+    DataKind data_kind = std::get<0>(GetParam());
 
     MockedDomainListener domain_listener;
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
     data_mask ^= data_kind;
-    auto monitor_id = StatisticsBackend::init_monitor(std::get<0>(GetParam()), nullptr, callback_mask, data_mask);
+    auto monitor_id = StatisticsBackend::init_monitor(0, nullptr, callback_mask, data_mask);
 
     MockedPhysicalListener physical_listener;
     StatisticsBackend::set_physical_listener(
@@ -3261,24 +3270,24 @@ GTEST_INSTANTIATE_TEST_MACRO(
     calling_user_data_listeners_tests,
     calling_user_data_listeners_tests,
     ::testing::Values(
-        std::make_tuple(DomainId(1), DataKind::FASTDDS_LATENCY),
-        std::make_tuple(DomainId(2), DataKind::NETWORK_LATENCY),
-        std::make_tuple(DomainId(3), DataKind::PUBLICATION_THROUGHPUT),
-        std::make_tuple(DomainId(4), DataKind::SUBSCRIPTION_THROUGHPUT),
-        std::make_tuple(DomainId(5), DataKind::RTPS_PACKETS_SENT),
-        std::make_tuple(DomainId(6), DataKind::RTPS_BYTES_SENT),
-        std::make_tuple(DomainId(7), DataKind::RTPS_PACKETS_LOST),
-        std::make_tuple(DomainId(8), DataKind::RTPS_BYTES_LOST),
-        std::make_tuple(DomainId(9), DataKind::RESENT_DATA),
-        std::make_tuple(DomainId(10), DataKind::HEARTBEAT_COUNT),
-        std::make_tuple(DomainId(11), DataKind::ACKNACK_COUNT),
-        std::make_tuple(DomainId(12), DataKind::NACKFRAG_COUNT),
-        std::make_tuple(DomainId(13), DataKind::GAP_COUNT),
-        std::make_tuple(DomainId(14), DataKind::DATA_COUNT),
-        std::make_tuple(DomainId(15), DataKind::PDP_PACKETS),
-        std::make_tuple(DomainId(16), DataKind::EDP_PACKETS),
-        std::make_tuple(DomainId(17), DataKind::DISCOVERY_TIME),
-        std::make_tuple(DomainId(18), DataKind::SAMPLE_DATAS)
+        std::make_tuple(DataKind::FASTDDS_LATENCY),
+        std::make_tuple(DataKind::NETWORK_LATENCY),
+        std::make_tuple(DataKind::PUBLICATION_THROUGHPUT),
+        std::make_tuple(DataKind::SUBSCRIPTION_THROUGHPUT),
+        std::make_tuple(DataKind::RTPS_PACKETS_SENT),
+        std::make_tuple(DataKind::RTPS_BYTES_SENT),
+        std::make_tuple(DataKind::RTPS_PACKETS_LOST),
+        std::make_tuple(DataKind::RTPS_BYTES_LOST),
+        std::make_tuple(DataKind::RESENT_DATA),
+        std::make_tuple(DataKind::HEARTBEAT_COUNT),
+        std::make_tuple(DataKind::ACKNACK_COUNT),
+        std::make_tuple(DataKind::NACKFRAG_COUNT),
+        std::make_tuple(DataKind::GAP_COUNT),
+        std::make_tuple(DataKind::DATA_COUNT),
+        std::make_tuple(DataKind::PDP_PACKETS),
+        std::make_tuple(DataKind::EDP_PACKETS),
+        std::make_tuple(DataKind::DISCOVERY_TIME),
+        std::make_tuple(DataKind::SAMPLE_DATAS)
         ));
 
 
