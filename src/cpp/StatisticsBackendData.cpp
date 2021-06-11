@@ -21,6 +21,7 @@
 #include <string>
 
 #include "StatisticsBackendData.hpp"
+#include "StatisticsBackend.hpp"
 #include "Monitor.hpp"
 
 #include <database/database.hpp>
@@ -30,12 +31,35 @@ namespace eprosima {
 namespace statistics_backend {
 namespace details {
 
+StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+
 StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
     , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
     , data_queue_(new database::DatabaseDataQueue(database_.get()))
     , physical_listener_(nullptr)
 {
+}
+
+StatisticsBackendData::~StatisticsBackendData()
+{
+    // Destroy each monitor
+    for (auto monitor : monitors_by_entity_)
+    {
+        StatisticsBackend::stop_monitor(monitor.second->id);
+    }
+
+    if (entity_queue_)
+    {
+            entity_queue_->flush();
+    }
+    if (data_queue_)
+    {
+            data_queue_->flush();
+    }
+
+    delete entity_queue_;
+    delete data_queue_;
 }
 
 void StatisticsBackendData::on_data_available(

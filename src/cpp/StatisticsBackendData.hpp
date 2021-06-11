@@ -92,8 +92,26 @@ public:
      */
     static StatisticsBackendData* get_instance()
     {
-        static StatisticsBackendData instance;
-        return &instance;
+        if (nullptr == instance_)
+        {
+            instance_ = new StatisticsBackendData();
+        }
+        return instance_;
+    }
+
+    /**
+     * @brief Resets the instance of the singleton
+     * 
+     * This method exists for internal debugging / testing purposes.
+     */
+    static void reset_instance()
+    {
+        if (nullptr != instance_)
+        {
+            delete instance_;
+        }
+
+        instance_ = new StatisticsBackendData();
     }
 
     /**
@@ -155,6 +173,12 @@ protected:
     StatisticsBackendData();
 
     /**
+     * @brief Protected destructor of the singleton
+     */
+    ~StatisticsBackendData();
+
+
+    /**
      * @brief Check whether the domain listener should be called given the arguments
      *
      * The result will be true if all of the following conditions are met:
@@ -203,6 +227,8 @@ protected:
     void prepare_entity_discovery_status(
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
+
+    static StatisticsBackendData* instance_;
 };
 
 } // namespace details
