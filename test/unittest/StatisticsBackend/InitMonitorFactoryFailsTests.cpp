@@ -23,11 +23,11 @@
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
-#include <fastdds-statistics-backend/listener/CallbackMask.hpp>
-#include <fastdds-statistics-backend/listener/DomainListener.hpp>
-#include <fastdds-statistics-backend/listener/PhysicalListener.hpp>
-#include <fastdds-statistics-backend/types/EntityId.hpp>
-#include <fastdds-statistics-backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackend.hpp>
 #include <types/types.hpp>
