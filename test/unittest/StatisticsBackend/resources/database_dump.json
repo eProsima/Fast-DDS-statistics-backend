@@ -177,7 +177,7 @@
                 "qos":"empty"
             },
             "topic":"23"
-        },
+        }
     },
     "datawriters":{
         "16":{
@@ -364,6 +364,10 @@
                     "count":10,
                     "src_time":"100"
                 },
+                "last_reported_resent_datas":{
+                    "count":2,
+                    "src_time":"2"
+                },
                 "publication_throughput":[
                     {
                         "data":1.0,
@@ -523,6 +527,10 @@
                     "src_time":"2"
                 },
                 "last_reported_heartbeat_count":{
+                    "count":2,
+                    "src_time":"2"
+                },
+                "last_reported_resent_datas":{
                     "count":2,
                     "src_time":"2"
                 },
@@ -1015,7 +1023,12 @@
             "data":{
                 "discovery_time":{
                 },
-                "edp_packets":,
+                "edp_packets":[
+                    {
+                        "count":2,
+                        "src_time":"2"
+                    }
+                ],
                 "last_reported_edp_packets":{
                     "count":2,
                     "src_time":"2"
