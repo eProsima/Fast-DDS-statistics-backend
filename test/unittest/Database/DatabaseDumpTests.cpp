@@ -425,17 +425,17 @@ void initialize_empty_entities_unlinked(
 TEST(database, dump_unlinked_database)
 {
     DataBaseTest db;
-    initialize_empty_entities_unlinked(db,0);
+    initialize_empty_entities_unlinked(db, 0);
 
     DatabaseDump dump = load_file(EMPTY_ENTITIES_DUMP_FILE);
-    dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";                    
-    dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();                   
+    dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";
+    dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();
 
-    dump[DATAWRITER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();                   
-    dump[DATAREADER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();                   
+    dump[DATAWRITER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();
+    dump[DATAREADER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();
 
-    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array();                   
-    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG] = DatabaseDump::array();                   
+    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array();
+    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG] = DatabaseDump::array();
 
     ASSERT_EQ(db.dump_database(), dump);
 }
@@ -443,13 +443,13 @@ TEST(database, dump_unlinked_database)
 // Test the database method id_to_string()
 TEST(database, id_to_string)
 {
-	DataBaseTest db;
-    ASSERT_EQ(db.get_id_to_string(EntityId(0)),"0");
-    ASSERT_EQ(db.get_id_to_string(EntityId(5)),"5");
-    ASSERT_EQ(db.get_id_to_string(EntityId(-5)),"-5");
-    ASSERT_NE(db.get_id_to_string(EntityId(0)),"5");
-    ASSERT_NE(db.get_id_to_string(EntityId(-5)),"5");
-    ASSERT_NE(db.get_id_to_string(EntityId(0)),"abc");
+    DataBaseTest db;
+    ASSERT_EQ(db.get_id_to_string(EntityId(0)), "0");
+    ASSERT_EQ(db.get_id_to_string(EntityId(5)), "5");
+    ASSERT_EQ(db.get_id_to_string(EntityId(-5)), "-5");
+    ASSERT_NE(db.get_id_to_string(EntityId(0)), "5");
+    ASSERT_NE(db.get_id_to_string(EntityId(-5)), "5");
+    ASSERT_NE(db.get_id_to_string(EntityId(0)), "abc");
 }
 
 // Test the database method time_to_string()
@@ -457,17 +457,17 @@ TEST(database, time_to_string)
 {
     DataBaseTest db;
     ASSERT_EQ(db.get_time_to_string(
-                  std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-              "1");
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "1");
     ASSERT_NE(db.get_time_to_string(
-                  std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-              "5");
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "5");
     ASSERT_EQ(db.get_time_to_string(
-                  std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(-5))),
-              "-5");
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(-5))),
+            "-5");
     ASSERT_NE(db.get_time_to_string(
-                  std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-              "ABC");
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "ABC");
 }
 
 int main(
