@@ -302,6 +302,14 @@ endforeach()
 set(GET_DATA_WITH_DATA_TEST_LIST
     invalid_entity_kind
     nonexistent_entity_id
+    get_sum_data
+    get_max_data
+    get_min_data
+    get_count_data
+    get_mean_data
+    get_median_data
+    get_stdev_data
+    get_none_data
     )
 
 foreach(test_name ${GET_DATA_WITH_DATA_TEST_LIST})
