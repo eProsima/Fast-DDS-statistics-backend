@@ -98,6 +98,11 @@ public:
         next_id_ = id;
     }
 
+    void load_database(
+        const DatabaseDump& /*dump*/)
+{
+}
+
     int64_t next_id_{0};
 };
 

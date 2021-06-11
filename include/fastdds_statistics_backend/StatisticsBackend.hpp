@@ -361,7 +361,7 @@ public:
      * @param filename The name of the file from which where the database is loaded
      */
     static void load_database(
-            std::string filename);
+            const std::string& filename);
 
     /**
      * @brief Return the EntityKind of the entities to which a DataKind refers

@@ -616,9 +616,20 @@ Graph StatisticsBackend::get_graph()
 }
 
 void StatisticsBackend::load_database(
-        std::string /*filename*/)
+        const std::string& filename)
 {
+    // Check if the file exists
+    std::ifstream file(filename);
+    if (!file.good())
+    {
+        throw BadParameter("File " + filename + " does not exist");
+    }
 
+    // Get the json file
+    DatabaseDump dump;
+    file >> dump;
+
+    details::StatisticsBackendData::get_instance()->database_->load_database(dump);
 }
 
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(
