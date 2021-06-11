@@ -50,6 +50,13 @@ public:
             const StatusMask& mask
         ));
 
+    MOCK_METHOD1(
+        delete_datawriter,
+        void
+        (
+            DataWriter * datawriter,
+        ));
+
     MOCK_CONST_METHOD0(
         get_default_datawriter_qos,
         DataWriterQos & ());

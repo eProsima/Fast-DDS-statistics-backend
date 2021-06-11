@@ -55,6 +55,13 @@ public:
             const StatusMask& mask
         ));
 
+    MOCK_METHOD1(
+        delete_participant,
+        void
+        (
+            DomainParticipant * participant
+        ));
+
     MOCK_CONST_METHOD0(
         get_default_participant_qos,
         DomainParticipantQos & ());

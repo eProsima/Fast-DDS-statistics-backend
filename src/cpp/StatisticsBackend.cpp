@@ -241,6 +241,34 @@ EntityId StatisticsBackend::init_monitor(
     return domain->id;
 }
 
+void StatisticsBackend::stop_monitor(
+        EntityId monitor_id)
+{
+        //Find the monitor
+        auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
+        if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+        {
+            throw BadParameter("No monitor with such ID");
+        }
+        auto monitor = it->second;
+
+        // Delete everything created during monitor initialization
+        for (auto reader : monitor->readers)
+        {
+            monitor->subscriber->delete_datareader(reader.second);
+        }
+
+        for (auto topic : monitor->topics)
+        {
+            monitor->participant->delete_topic(topic.second);
+        }
+
+        monitor->participant->delete_subscriber(monitor->subscriber);
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+        delete monitor->reader_listener;
+        delete monitor->participant_listener;
+}
+
 EntityId StatisticsBackend::init_monitor(
         std::string discovery_server_locators,
         DomainListener* domain_listener,
@@ -255,12 +283,6 @@ EntityId StatisticsBackend::init_monitor(
 }
 
 void StatisticsBackend::restart_monitor(
-        EntityId monitor_id)
-{
-    static_cast<void>(monitor_id);
-}
-
-void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
     static_cast<void>(monitor_id);

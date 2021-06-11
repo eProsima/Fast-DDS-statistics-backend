@@ -120,6 +120,13 @@ public:
             const TopicQos& qos
         ));
 
+    MOCK_METHOD1(
+        delete_topic,
+        void
+        (
+            Topic * topic
+        ));
+
     MOCK_METHOD3(
         create_publisher,
         Publisher *
@@ -129,6 +136,13 @@ public:
             const StatusMask& mask
         ));
 
+    MOCK_METHOD1(
+        delete_publisher,
+        void
+        (
+            Publisher * publisher
+        ));
+
     MOCK_METHOD3(
         create_subscriber,
         Subscriber *
@@ -136,6 +150,13 @@ public:
             const SubscriberQos& qos,
             SubscriberListener * listener,
             const StatusMask& mask
+        ));
+
+    MOCK_METHOD1(
+        delete_subscriber,
+        void
+        (
+            Subscriber * subscriber
         ));
 
     MOCK_CONST_METHOD0(

@@ -50,10 +50,16 @@ public:
             const StatusMask& mask
         ));
 
+    MOCK_METHOD1(
+        delete_datareader,
+        void
+        (
+            DataReader * datareader
+        ));
+
     MOCK_CONST_METHOD0(
         get_default_datareader_qos,
         DataReaderQos & ());
-
 };
 
 
