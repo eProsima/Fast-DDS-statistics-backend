@@ -20,6 +20,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
 
 #include <algorithm>  // std::min, std::max, std::nth_element
+#include <cassert>    // assert
 #include <cmath>      // std::isnan, std::sqrt
 #include <memory>     // std::unique_ptr
 #include <vector>     // std::vector
@@ -44,6 +45,7 @@ struct IDataAggregator
             std::vector<StatisticsData>& returned_data)
         : data_(returned_data)
     {
+        assert(bins > 0);
         prepare_bins(bins, t_from, t_to);
     }
 
@@ -96,6 +98,7 @@ private:
             Timestamp t_from,
             Timestamp t_to)
     {
+        data_.reserve(bins);
         interval_ = t_to - t_from;
         interval_ /= bins;
 
