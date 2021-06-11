@@ -373,12 +373,80 @@ void StatisticsParticipantListener::on_participant_discovery(
                 domain);
 
             // Build discovery info
-            database::EntityDiscoveryInfo entity_discovery_info;
-            entity_discovery_info.domain_id = domain_id_;
-            entity_discovery_info.entity = participant;
-            entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            database::EntityDiscoveryInfo participant_discovery_info;
+            participant_discovery_info.domain_id = domain_id_;
+            participant_discovery_info.entity = participant;
+            participant_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            entity_queue_->push(timestamp, participant_discovery_info);
 
-            entity_queue_->push(timestamp, entity_discovery_info);
+            // Create metatraffic entities
+            {
+                // Meaningful prefix for metatraffic entities
+                const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+                                                       std::to_string(domain_id_.value()) + "___";
+
+                std::shared_ptr<database::Topic> metatraffic_topic;
+
+                // Check if is the first participant discovered
+                if (database_->get_entities(EntityKind::PARTICIPANT, domain_id_).size() == 0)
+                {
+                    // Create the metatraffic topic
+                    metatraffic_topic = std::make_shared<database::Topic>(
+                        metatraffic_prefix + "TOPIC",
+                        metatraffic_prefix + "TYPE",
+                        domain);
+
+                    // Push it to the queue
+                    database::EntityDiscoveryInfo topic_discovery_info;
+                    topic_discovery_info.domain_id = domain_id_;
+                    topic_discovery_info.entity = metatraffic_topic;
+                    entity_queue_->push(timestamp, topic_discovery_info);
+                }
+                else
+                {
+                    // Obtain reference to metatraffic topic
+                    EntityId metatraffic_topic_id =
+                        database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")[0].second;
+                    metatraffic_topic = std::const_pointer_cast<database::Topic>(
+                        std::static_pointer_cast<const database::Topic>(database_->get_entity(metatraffic_topic_id)));
+                }
+
+                // Create metatraffic reader and writer on the metatraffic topic.
+
+                // Datawriter
+                {
+                    // Create the metatraffic datawriter
+                    auto datawriter = std::make_shared<database::DataWriter>(
+                        metatraffic_prefix + "DATAWRITER_" + to_string(participant_guid),
+                        database::Qos({}),
+                        to_string(participant_guid),
+                        participant,
+                        metatraffic_topic);
+
+                    // Push it to the queue
+                    database::EntityDiscoveryInfo datawriter_discovery_info;
+                    datawriter_discovery_info.domain_id = domain_id_;
+                    datawriter_discovery_info.entity = datawriter;
+                    entity_queue_->push(timestamp, datawriter_discovery_info);
+                }
+
+                // Datareader
+                {
+                    // Create the metatraffic datawriter
+                    auto datareader = std::make_shared<database::DataReader>(
+                        metatraffic_prefix + "DATAREADER_" + to_string(participant_guid),
+                        database::Qos({}),
+                        to_string(participant_guid),
+                        participant,
+                        metatraffic_topic);
+
+                    // Push it to the queue
+                    database::EntityDiscoveryInfo datareader_discovery_info;
+                    datareader_discovery_info.domain_id = domain_id_;
+                    datareader_discovery_info.entity = datareader;
+                    entity_queue_->push(timestamp, datareader_discovery_info);
+                }
+            }
         }
         else
         {
