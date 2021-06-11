@@ -547,4 +547,28 @@ public:
         return next_id_;
     }
 
+    inline std::string get_id_to_string(
+            EntityId id)
+    {
+        return id_to_string(id);
+    }
+
+    inline std::string get_time_to_string(
+            std::chrono::system_clock::time_point time)
+    {
+        return time_to_string(time);
+    }
+
+    inline int get_string_to_int(
+            std::string const& str)
+    {
+        return string_to_int(str);
+    }
+
+    inline uint get_string_to_uint(
+            std::string const& str)
+    {
+        return string_to_uint(str);
+    }
+
 };

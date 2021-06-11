@@ -327,13 +327,6 @@ struct DDSEndpoint : DDSEntity
     {
     }
 
-    /**
-     * Clear the maps and data
-     */
-    virtual void clear()
-    {
-    }
-
     //! Reference to the DomainParticipant in which this Endpoint runs.
     std::shared_ptr<DomainParticipant> participant;
 

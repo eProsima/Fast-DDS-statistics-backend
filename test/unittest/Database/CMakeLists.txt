@@ -314,7 +314,9 @@ endforeach()
 add_executable(database_dump_tests DatabaseDumpTests.cpp)
 
 target_include_directories(database_dump_tests PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+
 
 target_link_libraries(database_dump_tests PUBLIC
     ${PROJECT_NAME}
@@ -334,6 +336,9 @@ set(DATABASE_DUMP_TEST_LIST
     dump_empty_entities_database
     dump_simple_database
     dump_complex_database
+    dump_unlinked_database
+    id_to_string
+    time_to_string
 )
 
 foreach(test_name ${DATABASE_DUMP_TEST_LIST})
@@ -397,6 +402,8 @@ set(DATABASE_LOAD_TEST_LIST
     load_erased_keys
     load_wrong_values
     load_wrong_references
+    string_to_int
+    string_to_uint
 )
 
 foreach(test_name ${DATABASE_LOAD_TEST_LIST})

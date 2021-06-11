@@ -427,7 +427,7 @@ void entity_id()
         static_cast<void>(check);
     }
     {
-        //ENTITYID-ALL-EXAMPLE
+        //ENTITYID-IS_ALL-EXAMPLE
         EntityId entity_id;
         bool check = entity_id.is_all();
         //!--

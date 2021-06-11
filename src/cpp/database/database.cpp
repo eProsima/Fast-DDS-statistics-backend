@@ -86,7 +86,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            host->id = entity_id;
 
             /* Insert host in the database */
             hosts_[host->id] = host;
@@ -147,7 +147,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            user->id = entity_id;
 
             /* Add user to users collection */
             users_[user->id] = user;
@@ -220,7 +220,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            process->id = entity_id;
 
             /* Add process to processes collection */
             processes_[process->id] = process;
@@ -262,7 +262,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            domain->id = entity_id;
 
             /* Insert domain in the database */
             domains_[domain->id] = domain;
@@ -324,7 +324,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            topic->id = entity_id;
 
             /* Add topic to domain's collection */
             domains_[topic->domain->id]->topics[topic->id] = topic;
@@ -400,7 +400,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            participant->id = entity_id;
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
@@ -453,7 +453,7 @@ void Database::insert_nts(
             {
                 next_id_ = entity_id.value() + 1;
             }
-            entity->id = entity_id;
+            locator->id = entity_id;
 
             /* Insert locator in the database */
             locators_[locator->id] = locator;
@@ -3215,6 +3215,29 @@ void Database::load_database(
         throw Error("Error: Database must be empty before call load_database()");
     }
 
+    // Locators
+    {
+        DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
     // Hosts
     {
         DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
@@ -3353,29 +3376,6 @@ void Database::load_database(
 
                 link_participant_with_process_nts(entity->id, process_id);
             }
-
-            // Load data and insert into database
-            load_data((*it).at(DATA_CONTAINER_TAG), entity);
-        }
-    }
-
-    // Locators
-    {
-        DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
-                    DATAWRITER_CONTAINER_TAG);
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
-                    DATAREADER_CONTAINER_TAG);
-
-            // Create entity
-            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
-
-            // Insert into database
-            EntityId entity_id = EntityId(string_to_int(it.key()));
-            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
@@ -3964,7 +3964,7 @@ void Database::load_data(
                 // uint64_t
                 sample.sequence_number = string_to_int(remote_it.key());
 
-                // // Insert data into database
+                // Insert data into database
                 insert_nts(entity->participant->domain->id, entity->id, sample, true);
             }
         }

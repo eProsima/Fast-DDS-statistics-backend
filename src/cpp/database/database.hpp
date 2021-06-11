@@ -393,7 +393,7 @@ protected:
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint
-     * @param entity_id The ID of the entity, passing a entity with EntityId::invalid() will generate a new one.
+     * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
      */
     template<typename T>
     void insert_ddsendpoint(
@@ -543,7 +543,7 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * @brief Check if 'entities_container' contains an 'id', throwing an exception if not.
+     * @brief Check if 'entities_container' contains the given 'id', throwing an exception if not.
      *
      * @param entities_container Reference to the dump of the entities to check.
      * @param id id of the entity to check.
@@ -556,7 +556,22 @@ protected:
     /**
      * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
      * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
-     * have reference to 'it' of type 'entity_tag'
+     * have reference to 'it' of type 'entity_tag'.
+     *
+     * Example -> Check that each user, reference host[0]:
+     *
+     * \code
+     * {
+     *      host["0"]
+     *      {
+     *          users: ["1","5","9"]
+     *      }
+     *      user["1"]
+     *      {
+     *          host: "0"
+     *      }
+     * }
+     * \endcode
      *
      * @param dump reference to the database dump.
      * @param it iterator to the dump of the entity.
@@ -573,14 +588,29 @@ protected:
     /**
      * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
      * to entities of type 'reference_tag' is consistent and mutual. For this, the referenced entities must
-     * contain a reference to 'it' of type 'entity_tag'
+     * contain a reference to 'it' of type 'entity_tag'.
+     *
+     * Example -> Check that each datawriter, contains a reference to locator[0]:
+     *
+     * \code
+     * {
+     *      locator["0"]
+     *      {
+     *          datawriter: ["1","5","9"]
+     *      }
+     *      datawriter["1"]
+     *      {
+     *          locator: ["0"]
+     *      }
+     * }
+     * \endcode
      *
      * @param dump reference to the database dump.
      * @param it iterator to the dump of the entity.
      * @param entity_tag Type of the entity to check.
      * @param reference_container_tag Type of the referenced entity container to check.
      * @param reference_tag Type of the referenced entity to check.
-     * @throws eprosima::statistics_backend::FileCorrupted if the reference is not consistent and mutual.
+     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
      */
     void check_entity_contains_all_references(
             DatabaseDump const& dump,
@@ -592,7 +622,7 @@ protected:
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.
      * @param entity The entity object to be inserted.
-     * @param entity_id The ID of the entity, passing a entity with EntityId::invalid() will generate a new one.
+     * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *             * If the entity already exists in the database
      *             * If the parent entity does not exist in the database (expect for the case of

@@ -73,7 +73,7 @@ void load_and_dump(
     // Create database
     Database db;
 
-    // Load dump in database
+    // Load dump in the database
     db.load_database(dump);
 
     // Dump loaded database
@@ -126,7 +126,7 @@ TEST(database_load_tests, load_twice)
     // Create database
     Database db;
 
-    // Load dump in database
+    // Load dump in the database
     db.load_database(dump);
     ASSERT_THROW(db.load_database(dump), Error);
 }
@@ -1083,7 +1083,7 @@ void check_reference(
             ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
         }
 
-        // Entity references Reference which does not references Entity
+        // Entity references Reference which does not reference Entity
         {
             DatabaseDump dump_copy = dump;
 
@@ -1098,7 +1098,7 @@ void check_reference(
     {
         DatabaseDump dump_copy = dump;
 
-        // Reference references Entity which does not references Reference
+        // Reference references Entity which does not reference Reference
         dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array();
         {
             Database db;
@@ -1131,7 +1131,7 @@ void check_multiple_reference(
             ASSERT_THROW(db.load_database(dump_copy), CorruptedFile);
         }
 
-        // Entity references Reference which does not references Entity
+        // Entity references Reference which does not reference Entity
         {
             DatabaseDump dump_copy = dump;
 
@@ -1146,7 +1146,7 @@ void check_multiple_reference(
     {
         DatabaseDump dump_copy = dump;
 
-        // Reference references Entity which does not references Reference
+        // Reference references Entity which does not reference Reference
         dump_copy[entity_container_tag].begin().value()[reference_container_tag] = DatabaseDump::array();
         {
             Database db;
@@ -1194,6 +1194,28 @@ TEST(database_load_tests, load_wrong_references)
     check_multiple_reference(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
     // DATAREADDER <---> LOCATOR
     check_multiple_reference(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
+}
+
+// Test the database method string_to_int()
+TEST(database_load_tests, string_to_int)
+{
+    DataBaseTest db;
+    ASSERT_THROW(db.get_string_to_int("abc"), CorruptedFile);
+    ASSERT_THROW(db.get_string_to_int("43.21"), CorruptedFile);
+    ASSERT_THROW(db.get_string_to_int("-43.21"), CorruptedFile);
+    ASSERT_NO_THROW(db.get_string_to_int("1234"));
+    ASSERT_NO_THROW(db.get_string_to_int("-1234"));
+}
+
+// Test the database method string_to_uint()
+TEST(database_load_tests, string_to_uint)
+{
+    DataBaseTest db;
+    ASSERT_THROW(db.get_string_to_uint("abc"), CorruptedFile);
+    ASSERT_THROW(db.get_string_to_uint("43.21"), CorruptedFile);
+    ASSERT_THROW(db.get_string_to_uint("-43.21"), CorruptedFile);
+    ASSERT_NO_THROW(db.get_string_to_uint("1234"));
+    ASSERT_THROW(db.get_string_to_uint("-1234"), CorruptedFile);
 }
 
 int main(
