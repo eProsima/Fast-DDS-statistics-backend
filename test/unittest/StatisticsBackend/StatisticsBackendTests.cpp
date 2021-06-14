@@ -254,16 +254,16 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
              EntityKind::DATAREADER, EntityKind::INVALID)},
 
         {DataKind::RTPS_PACKETS_SENT, std::pair<EntityKind, EntityKind>(
-             EntityKind::DATAWRITER, EntityKind::LOCATOR)},
+             EntityKind::PARTICIPANT, EntityKind::LOCATOR)},
 
         {DataKind::RTPS_BYTES_SENT, std::pair<EntityKind, EntityKind>(
-             EntityKind::DATAWRITER, EntityKind::LOCATOR)},
+             EntityKind::PARTICIPANT, EntityKind::LOCATOR)},
 
         {DataKind::RTPS_PACKETS_LOST, std::pair<EntityKind, EntityKind>(
-             EntityKind::DATAWRITER, EntityKind::LOCATOR)},
+             EntityKind::PARTICIPANT, EntityKind::LOCATOR)},
 
         {DataKind::RTPS_BYTES_LOST, std::pair<EntityKind, EntityKind>(
-             EntityKind::DATAWRITER, EntityKind::LOCATOR)},
+             EntityKind::PARTICIPANT, EntityKind::LOCATOR)},
 
         {DataKind::RESENT_DATA, std::pair<EntityKind, EntityKind>(
              EntityKind::DATAWRITER, EntityKind::INVALID)},

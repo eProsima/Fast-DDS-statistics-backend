@@ -655,16 +655,16 @@ std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_suppo
              {std::pair<EntityKind, EntityKind> (EntityKind::DATAREADER, EntityKind::INVALID)})},
 
         {DataKind::RTPS_PACKETS_SENT, std::vector<std::pair<EntityKind, EntityKind>>(
-             {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::LOCATOR)})},
+             {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::LOCATOR)})},
 
         {DataKind::RTPS_BYTES_SENT, std::vector<std::pair<EntityKind, EntityKind>>(
-             {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::LOCATOR)})},
+             {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::LOCATOR)})},
 
         {DataKind::RTPS_PACKETS_LOST, std::vector<std::pair<EntityKind, EntityKind>>(
-             {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::LOCATOR)})},
+             {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::LOCATOR)})},
 
         {DataKind::RTPS_BYTES_LOST, std::vector<std::pair<EntityKind, EntityKind>>(
-             {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::LOCATOR)})},
+             {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::LOCATOR)})},
 
         {DataKind::RESENT_DATA, std::vector<std::pair<EntityKind, EntityKind>>(
              {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::INVALID)})},
