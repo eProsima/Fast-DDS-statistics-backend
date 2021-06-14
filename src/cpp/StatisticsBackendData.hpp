@@ -20,6 +20,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 
 #include <map>
+#include <mutex>
 #include <string>
 
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
@@ -84,6 +85,12 @@ public:
     //! Status for the Locators
     DomainListener::Status locator_status_;
 
+    //! Synchronization mutex
+    std::mutex mutex_;
+
+    //! Synchronization lock
+    std::unique_lock<std::mutex> lock_;
+
     /**
      * @brief Get the singleton instance object
      *
@@ -111,6 +118,22 @@ public:
         }
 
         instance_ = new StatisticsBackendData();
+    }
+
+    /**
+     * @brief Locks the instance for thread synchronization
+     */
+    void lock()
+    {
+        lock_.lock();
+    }
+
+    /**
+     * @brief Unlocks the instance
+     */
+    void unlock()
+    {
+        lock_.unlock();
     }
 
     /**
@@ -175,7 +198,6 @@ protected:
      * @brief Protected destructor of the singleton
      */
     ~StatisticsBackendData();
-
 
     /**
      * @brief Check whether the domain listener should be called given the arguments

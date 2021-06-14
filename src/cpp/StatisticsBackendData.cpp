@@ -38,6 +38,7 @@ StatisticsBackendData::StatisticsBackendData()
     , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
     , data_queue_(new database::DatabaseDataQueue(database_.get()))
     , physical_listener_(nullptr)
+    , lock_(mutex_, std::defer_lock)
 {
 }
 
@@ -51,11 +52,11 @@ StatisticsBackendData::~StatisticsBackendData()
 
     if (entity_queue_)
     {
-        entity_queue_->flush();
+        entity_queue_->stop_consumer();
     }
     if (data_queue_)
     {
-        data_queue_->flush();
+        data_queue_->stop_consumer();
     }
 
     delete entity_queue_;

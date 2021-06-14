@@ -163,9 +163,11 @@ void StatisticsBackend::set_physical_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    details::StatisticsBackendData::get_instance()->lock();
     details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
     details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
     details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
+    details::StatisticsBackendData::get_instance()->unlock();
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -174,12 +176,23 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    details::StatisticsBackendData::get_instance()->lock();
+
     /* Create monitor instance and register it in the database */
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::stringstream domain_name;
     domain_name << domain_id;
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name.str());
-    domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    try
+    {
+        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    }
+    catch (const std::exception& e)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw;
+    }
+
     monitor->id = domain_id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
@@ -208,6 +221,7 @@ EntityId StatisticsBackend::init_monitor(
 
     if (monitor->participant == nullptr)
     {
+        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create participant");
     }
 
@@ -219,6 +233,7 @@ EntityId StatisticsBackend::init_monitor(
 
     if (monitor->subscriber == nullptr)
     {
+        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create subscriber");
     }
 
@@ -229,6 +244,7 @@ EntityId StatisticsBackend::init_monitor(
 
         if (monitor->topics[topic] == nullptr)
         {
+            details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
         }
 
@@ -241,20 +257,25 @@ EntityId StatisticsBackend::init_monitor(
 
         if (monitor->readers[topic] == nullptr)
         {
+            details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
     }
 
+    details::StatisticsBackendData::get_instance()->unlock();
     return domain->id;
 }
 
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
+    details::StatisticsBackendData::get_instance()->lock();
+
     //Find the monitor
     auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
     if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
     {
+        details::StatisticsBackendData::get_instance()->unlock();
         throw BadParameter("No monitor with such ID");
     }
     auto monitor = it->second;
@@ -277,6 +298,8 @@ void StatisticsBackend::stop_monitor(
     DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
     delete monitor->reader_listener;
     delete monitor->participant_listener;
+
+    details::StatisticsBackendData::get_instance()->unlock();
 }
 
 EntityId StatisticsBackend::init_monitor(
