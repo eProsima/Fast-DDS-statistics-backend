@@ -652,6 +652,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[2].second = 2.0;
             expected[3].second = 2.0;
             expected[4].second = 2.0;
+            expected[5].second = 0.0;
 
             check_get_data(
                     data_type,
