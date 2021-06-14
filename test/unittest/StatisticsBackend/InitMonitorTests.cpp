@@ -86,8 +86,6 @@ public:
 
     init_monitor_tests()
     {
-        details::StatisticsBackendData::reset_instance();
-
         // Fill the map of topics and types
         topic_types_[HISTORY_LATENCY_TOPIC] = new WriterReaderDataPubSubType();
         topic_types_[NETWORK_LATENCY_TOPIC] = new Locator2LocatorDataPubSubType();
@@ -126,6 +124,8 @@ public:
         {
             delete it.second;
         }
+
+        details::StatisticsBackendData::reset_instance();
     }
 
 };
@@ -174,6 +174,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
@@ -217,6 +220,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
@@ -260,6 +266,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
@@ -302,6 +311,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(init_monitor_tests, init_monitor_several_monitors)
@@ -363,6 +375,10 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
         EXPECT_NE(nullptr, domain_monitors[monitor_id1]->readers[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id2]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id1);
+    StatisticsBackend::stop_monitor(monitor_id2);
 }
 
 TEST_F(init_monitor_tests, init_monitor_twice)
@@ -412,6 +428,9 @@ TEST_F(init_monitor_tests, init_monitor_twice)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
+
+    // Stop the monitor for to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 int main(

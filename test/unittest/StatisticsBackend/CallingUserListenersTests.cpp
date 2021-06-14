@@ -147,8 +147,13 @@ class calling_user_listeners_tests : public ::testing::Test
 {
 public:
 
-    calling_user_listeners_tests()
+    ~calling_user_listeners_tests()
     {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
         details::StatisticsBackendData::reset_instance();
     }
 
@@ -736,6 +741,9 @@ TEST_F(calling_user_listeners_tests, participant_discovered)
         EntityId(1),
         EntityKind::PARTICIPANT,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, participant_discovered_not_in_mask)
@@ -880,6 +888,9 @@ TEST_F(calling_user_listeners_tests, participant_discovered_not_in_mask)
         EntityId(1),
         EntityKind::PARTICIPANT,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, participant_discovered_no_listener)
@@ -1024,6 +1035,9 @@ TEST_F(calling_user_listeners_tests, participant_discovered_no_listener)
         EntityId(1),
         EntityKind::PARTICIPANT,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, participant_discovered_no_listener_not_in_mask)
@@ -1168,6 +1182,9 @@ TEST_F(calling_user_listeners_tests, participant_discovered_no_listener_not_in_m
         EntityId(1),
         EntityKind::PARTICIPANT,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, topic_discovered)
@@ -1281,6 +1298,9 @@ TEST_F(calling_user_listeners_tests, topic_discovered)
         EntityId(1),
         EntityKind::TOPIC,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, topic_discovered_not_in_mask)
@@ -1425,6 +1445,9 @@ TEST_F(calling_user_listeners_tests, topic_discovered_not_in_mask)
         EntityId(1),
         EntityKind::TOPIC,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, topic_discovered_no_listener)
@@ -1569,6 +1592,9 @@ TEST_F(calling_user_listeners_tests, topic_discovered_no_listener)
         EntityId(1),
         EntityKind::TOPIC,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
@@ -1713,6 +1739,9 @@ TEST_F(calling_user_listeners_tests, topic_discovered_no_listener_not_in_mask)
         EntityId(1),
         EntityKind::TOPIC,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datareader_discovered)
@@ -1826,6 +1855,9 @@ TEST_F(calling_user_listeners_tests, datareader_discovered)
         EntityId(1),
         EntityKind::DATAREADER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datareader_discovered_not_in_mask)
@@ -1970,6 +2002,9 @@ TEST_F(calling_user_listeners_tests, datareader_discovered_not_in_mask)
         EntityId(1),
         EntityKind::DATAREADER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener)
@@ -2114,6 +2149,9 @@ TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener)
         EntityId(1),
         EntityKind::DATAREADER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_mask)
@@ -2258,6 +2296,9 @@ TEST_F(calling_user_listeners_tests, datareader_discovered_no_listener_not_in_ma
         EntityId(1),
         EntityKind::DATAREADER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datawriter_discovered)
@@ -2371,6 +2412,9 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered)
         EntityId(1),
         EntityKind::DATAWRITER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
@@ -2515,6 +2559,9 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_not_in_mask)
         EntityId(1),
         EntityKind::DATAWRITER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener)
@@ -2659,6 +2706,9 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener)
         EntityId(1),
         EntityKind::DATAWRITER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_mask)
@@ -2803,6 +2853,9 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_ma
         EntityId(1),
         EntityKind::DATAWRITER,
         details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(calling_user_listeners_tests, wrong_entity_kind)
@@ -2958,14 +3011,22 @@ TEST_F(calling_user_listeners_tests, wrong_entity_kind)
                 EntityKind::INVALID,
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
             ".*");
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
 {
 public:
 
-    calling_user_data_listeners_tests()
+    ~calling_user_data_listeners_tests()
     {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
         details::StatisticsBackendData::reset_instance();
     }
 
@@ -3008,6 +3069,9 @@ TEST_P(calling_user_data_listeners_tests, data_available)
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
@@ -3058,6 +3122,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_callback_not_in_mask)
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
@@ -3108,6 +3175,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_data_not_in_mask)
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
@@ -3158,6 +3228,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener)
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_not_in_mask)
@@ -3208,6 +3281,9 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_callback_no
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in_mask)
@@ -3258,6 +3334,10 @@ TEST_P(calling_user_data_listeners_tests, data_available_no_listener_data_not_in
         monitor_id,
         EntityId(1),
         data_kind);
+
+    // Stop the monitor to avoid interfering on next tests
+    StatisticsBackend::stop_monitor(monitor_id);
+
 }
 
 
