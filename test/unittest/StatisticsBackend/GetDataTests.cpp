@@ -579,13 +579,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     expected);
 
             // Testing with 100 bins
-            fill_expected_result(expected, start, finish, 100);
-            expected[0].second = 0.0;
-            expected[20].second = 2.0;
-            expected[40].second = 0.0;
-            expected[60].second = 2.0;
-            expected[80].second = 0.0;
-
+            EXPECT_THROW(
             check_get_data(
                     data_type,
                     entity1,
@@ -594,7 +588,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     finish,
                     100,
                     statistic,
-                    expected);
+                    expected), BadParameter);
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(0);
@@ -732,13 +726,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     expected);
 
             // Testing with 100 bins
-            fill_expected_result(expected, start, finish, 100);
-            expected[0].second = 5.5;
-            expected[20].second = 1.0;
-            expected[40].second = 5.5;
-            expected[60].second = 1.0;
-            expected[80].second = 5.5;
-
+            EXPECT_THROW(
             check_get_data(
                     data_type,
                     entity1,
@@ -747,7 +735,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     finish,
                     100,
                     statistic,
-                    expected);
+                    expected),
+                BadParameter);
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(0);
