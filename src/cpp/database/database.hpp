@@ -651,7 +651,7 @@ protected:
             EntityId& entity_id);
 
     /**
-     * @brief Get the locator with id 'entity_id', if does not exists, create and insert it into the database.
+     * @brief Get the locator with id 'entity_id', if it does not exist, create and insert it into the database.
      * This method is not thread safe.
      */
     std::shared_ptr<Locator>  get_locator_nts(
