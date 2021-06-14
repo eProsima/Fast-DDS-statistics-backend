@@ -486,6 +486,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     }
 
     std::vector<StatisticsData> ret_val;
+    auto t_to_select = t_to - std::chrono::nanoseconds(1);
 
     if (0 == bins)
     {
@@ -493,7 +494,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         {
             for (EntityId target_id : entity_ids_target)
             {
-                auto data = db->select(data_type, source_id, target_id, t_from, t_to);
+                auto data = db->select(data_type, source_id, target_id, t_from, t_to_select);
                 auto iterators = get_iterators(data_type, data);
 
                 for (auto& it = *iterators.first; it != *iterators.second; ++it)
@@ -510,7 +511,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         {
             for (EntityId target_id : entity_ids_target)
             {
-                auto data = db->select(data_type, source_id, target_id, t_from, t_to);
+                auto data = db->select(data_type, source_id, target_id, t_from, t_to_select);
                 auto iterators = get_iterators(data_type, data);
                 processor->add_data(iterators);
             }
@@ -549,12 +550,13 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
+    auto t_to_select = t_to - std::chrono::nanoseconds(1);
 
     if (0 == bins)
     {
         for (EntityId id : entity_ids)
         {
-            auto data = db->select(data_type, id, t_from, t_to);
+            auto data = db->select(data_type, id, t_from, t_to_select);
             auto iterators = get_iterators(data_type, data);
 
             for (auto& it = *iterators.first; it != *iterators.second; ++it)
@@ -568,7 +570,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         auto processor = get_data_aggregator(bins, t_from, t_to, statistic, ret_val);
         for (EntityId id : entity_ids)
         {
-            auto data = db->select(data_type, id, t_from, t_to);
+            auto data = db->select(data_type, id, t_from, t_to_select);
             auto iterators = get_iterators(data_type, data);
             processor->add_data(iterators);
         }
