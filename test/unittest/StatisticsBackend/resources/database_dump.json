@@ -1024,10 +1024,6 @@
                 "discovery_time":{
                 },
                 "edp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"2"
-                    }
                 ],
                 "last_reported_edp_packets":{
                     "count":2,
