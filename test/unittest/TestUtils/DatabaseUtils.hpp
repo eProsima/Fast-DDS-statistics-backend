@@ -184,43 +184,39 @@ public:
         db.insert(topic2);
         entities[12] = topic2;
 
+        auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant2, topic2);
         auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
-        db.insert(reader_locator1);
+        reader_locator1->id = db.generate_entity_id();
+        datareader1->locators[reader_locator1->id] = reader_locator1;
+        db.insert(datareader1);
+        entities[13] = datareader1;
         entities[17] = reader_locator1;
 
-        auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant2, topic2);
-        db.insert(datareader1);
-        db.link_endpoint_with_locator(datareader1->id, reader_locator1->id);
-        entities[13] = datareader1;
-
+        auto datareader2 = std::make_shared<DataReader>("datareader2", "qos", "15.16.17.18", participant2, topic2);
         auto reader_locator2 = std::make_shared<Locator>("reader_locator2");
-        db.insert(reader_locator2);
+        reader_locator2->id = db.generate_entity_id();
+        datareader2->locators[reader_locator1->id] = reader_locator1;
+        datareader2->locators[reader_locator2->id] = reader_locator2;
+        db.insert(datareader2);
+        entities[14] = datareader2;
         entities[18] = reader_locator2;
 
-        auto datareader2 = std::make_shared<DataReader>("datareader2", "qos", "15.16.17.18", participant2, topic2);
-        db.insert(datareader2);
-        db.link_endpoint_with_locator(datareader2->id, reader_locator1->id);
-        db.link_endpoint_with_locator(datareader2->id, reader_locator2->id);
-        entities[14] = datareader2;
-
+        auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant2, topic2);
         auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
-        db.insert(writer_locator1);
+        writer_locator1->id = db.generate_entity_id();
+        datawriter1->locators[writer_locator1->id] = writer_locator1;
+        db.insert(datawriter1);
+        entities[15] = datawriter1;
         entities[19] = writer_locator1;
 
-        auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant2, topic2);
-        db.insert(datawriter1);
-        db.link_endpoint_with_locator(datawriter1->id, writer_locator1->id);
-        entities[15] = datawriter1;
-
-        auto writer_locator2 = std::make_shared<Locator>("writer_locator2");
-        db.insert(writer_locator2);
-        entities[20] = writer_locator2;
-
         auto datawriter2 = std::make_shared<DataWriter>("datawriter2", "qos", "25.26.27.28", participant2, topic2);
+        auto writer_locator2 = std::make_shared<Locator>("writer_locator2");
+        writer_locator2->id = db.generate_entity_id();
+        datawriter2->locators[writer_locator1->id] = writer_locator1;
+        datawriter2->locators[writer_locator2->id] = writer_locator2;
         db.insert(datawriter2);
-        db.link_endpoint_with_locator(datawriter2->id, writer_locator1->id);
-        db.link_endpoint_with_locator(datawriter2->id, writer_locator2->id);
         entities[16] = datawriter2;
+        entities[20] = writer_locator2;
 
         // Insert datas on domain2
 

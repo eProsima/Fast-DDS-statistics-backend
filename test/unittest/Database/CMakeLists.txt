@@ -181,28 +181,29 @@ set(DATABASE_TEST_LIST
     link_participant_with_process_wrong_participant
     link_participant_with_process_wrong_process
     link_participant_with_process_linked_participant
-    # Link endpoint with locator
-    link_endpoint_with_locator_unlinked
-    link_endpoint_with_locator_wrong_endpoint
-    link_endpoint_with_locator_wrong_locator
-    link_endpoint_with_locator_two_valid
     # Insert samples
     insert_sample_history_latency
     insert_sample_history_latency_wrong_entity
     insert_sample_network_latency
-    insert_sample_network_latency_wrong_entity
+    insert_sample_network_latency_unknown_locator
+    insert_sample_network_latency_unknown_remote_locator
+    insert_sample_network_latency_unknown_both_locators
     insert_sample_publication_throughput
     insert_sample_publication_throughput_wrong_entity
     insert_sample_subscription_throughput
     insert_sample_subscription_throughput_wrong_entity
     insert_sample_rtps_packets_sent
     insert_sample_rtps_packets_sent_wrong_entity
+    insert_sample_rtps_packets_sent_unknown_remote_locator
     insert_sample_rtps_bytes_sent
     insert_sample_rtps_bytes_sent_wrong_entity
+    insert_sample_rtps_bytes_sent_unknown_remote_locator
     insert_sample_rtps_packets_lost
     insert_sample_rtps_packets_lost_wrong_entity
+    insert_sample_rtps_packets_lost_unknown_remote_locator
     insert_sample_rtps_bytes_lost
     insert_sample_rtps_bytes_lost_wrong_entity
+    insert_sample_rtps_bytes_lost_unknown_remote_locator
     insert_sample_resent_data
     insert_sample_resent_data_wrong_entity
     insert_sample_heartbeat_count

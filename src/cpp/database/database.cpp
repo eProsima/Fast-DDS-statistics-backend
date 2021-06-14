@@ -476,6 +476,29 @@ void Database::insert(
     insert_nts(domain_id, entity_id, sample);
 }
 
+std::shared_ptr<Locator> Database::get_locator_nts(
+        EntityId const& entity_id)
+{
+    std::shared_ptr<Locator> locator;
+
+    // Check if the entity is a known locator
+    auto locator_it = locators_.find(entity_id);
+
+    // If the locator has not been discovered, create it
+    if (locator_it == locators_.end())
+    {
+        // Give him a unique name, including his id
+        locator = std::make_shared<Locator>("locator_" + std::to_string(entity_id.value()));
+        EntityId locator_id = entity_id;
+        insert_nts(locator, locator_id);
+    }
+    else
+    {
+        locator = locator_it->second;
+    }
+    return locator;
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -508,15 +531,18 @@ void Database::insert_nts(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            /* Check that the entity is a known locator */
-            auto locator = locators_[entity_id];
-            if (locator)
-            {
-                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
-                locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
-                break;
-            }
-            throw BadParameter(std::to_string(entity_id.value()) + " does not refer to a known locator");
+            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+
+            // Create locator if it does not exist
+            std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
+
+            // Create remote_locator if it does not exist
+            get_locator_nts(network_latency.remote_locator);
+
+            // Add the info to the locator
+            locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
+
+            break;
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
@@ -555,6 +581,9 @@ void Database::insert_nts(
             if (participant)
             {
                 const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
+
+                // Create remote_locator if it does not exist
+                get_locator_nts(rtps_packets_sent.remote_locator);
 
                 // Check if the insertion is from the load
                 if (loading)
@@ -597,6 +626,9 @@ void Database::insert_nts(
             {
                 const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
 
+                // Create remote_locator if it does not exist
+                get_locator_nts(rtps_bytes_sent.remote_locator);
+
                 // Check if the insertion is from the load
                 if (loading)
                 {
@@ -638,6 +670,9 @@ void Database::insert_nts(
             {
                 const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
 
+                // Create remote_locator if it does not exist
+                get_locator_nts(rtps_packets_lost.remote_locator);
+
                 // Check if the insertion is from the load
                 if (loading)
                 {
@@ -678,6 +713,9 @@ void Database::insert_nts(
             if (participant)
             {
                 const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
+
+                // Create remote_locator if it does not exist
+                get_locator_nts(rtps_bytes_lost.remote_locator);
 
                 // Check if the insertion is from the load
                 if (loading)
@@ -1100,90 +1138,6 @@ void Database::link_participant_with_process_nts(
 
     /* Add entry to processes_by_domain_ */
     processes_by_domain_[domain_id][process_it->first] = process_it->second;
-}
-
-void Database::link_endpoint_with_locator(
-        const EntityId& endpoint_id,
-        const EntityId& locator_id)
-{
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
-    link_endpoint_with_locator_nts(endpoint_id, locator_id);
-}
-
-void Database::link_endpoint_with_locator_nts(
-        const EntityId& endpoint_id,
-        const EntityId& locator_id)
-{
-    /* Get the endpoint */
-    std::shared_ptr<DDSEndpoint> endpoint;
-    {
-        /* Get the Datawriter */
-        std::map<EntityId, std::shared_ptr<DataWriter>>::iterator dw_it;
-        bool dw_exists = false;
-        for (auto domain_it : datawriters_)
-        {
-            dw_it = domain_it.second.find(endpoint_id);
-            if (dw_it != domain_it.second.end())
-            {
-                dw_exists = true;
-                endpoint = dw_it->second;
-                break;
-            }
-        }
-        if (!dw_exists)
-        {
-            /* Get the Datareader */
-            std::map<EntityId, std::shared_ptr<DataReader>>::iterator dr_it;
-            bool dr_exists = false;
-            for (auto domain_it : datareaders_)
-            {
-                dr_it = domain_it.second.find(endpoint_id);
-                if (dr_it != domain_it.second.end())
-                {
-                    dr_exists = true;
-                    endpoint = dr_it->second;
-                    break;
-                }
-            }
-
-            if (!dr_exists)
-            {
-                throw BadParameter("EntityId " + std::to_string(
-                                  endpoint_id.value()) + " does not identify a known endpoint");
-            }
-        }
-    }
-
-    /* Get the locator */
-    auto locator_it = locators_.find(locator_id);
-    if (locator_it == locators_.end())
-    {
-        throw BadParameter("EntityId " + std::to_string(locator_id.value()) + " does not identify a known locator");
-    }
-
-    // Not storing the std::shared_ptr<Locator> in a local variable results in the locator->second
-    // being moved when inserting it into the map. This causes a SEGFAULT later on when accessing to it.
-    auto locator = locator_it->second;
-
-    // Add endpoint to locator's collection
-    if (endpoint->kind == EntityKind::DATAWRITER)
-    {
-        locator->data_writers[endpoint->id] = std::dynamic_pointer_cast<DataWriter> (endpoint);
-    }
-    else // Datareader
-    {
-        locator->data_readers[endpoint->id] = std::dynamic_pointer_cast<DataReader> (endpoint);
-    }
-
-    // Add locator to endpoint's collection
-    endpoint->locators[locator_id] = locator;
-
-    // Add reader's locators to locators_by_participant_
-    locators_by_participant_[endpoint->participant->id][locator_id] = locator;
-
-    // Add reader's participant to participants_by_locator_
-    participants_by_locator_[locator_id][endpoint->participant->id] = endpoint->participant;
 }
 
 const std::shared_ptr<const Entity> Database::get_entity(
@@ -2432,6 +2386,22 @@ std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::d
     return datawriters_;
 }
 
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataWriter>& endpoint,
+        std::shared_ptr<Locator>& locator)
+{
+    locator->data_writers[endpoint->id] = endpoint;
+}
+
+template<>
+void Database::insert_ddsendpoint_to_locator(
+        std::shared_ptr<DataReader>& endpoint,
+        std::shared_ptr<Locator>& locator)
+{
+    locator->data_readers[endpoint->id] = endpoint;
+}
+
 DatabaseDump Database::dump_database()
 {
     DatabaseDump dump = DatabaseDump::object();
@@ -3417,17 +3387,18 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
 
-            // Insert into database
-            EntityId entity_id = EntityId(string_to_int(it.key()));
-            insert_nts(entity, entity_id);
-
-            // Link endpoint with locator
+            /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
                     it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++it_loc)
             {
-                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
+                entity->locators[string_to_int(*it_loc)] =
+                        locators_[EntityId(string_to_int(*it_loc))];
             }
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
@@ -3468,17 +3439,18 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
 
-            // Insert into database
-            EntityId entity_id = EntityId(string_to_int(it.key()));
-            insert_nts(entity, entity_id);
-
-            // Link endpoint with locator
+            /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
                     it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
                     ++it_loc)
             {
-                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
+                entity->locators[string_to_int(*it_loc)] =
+                        locators_[EntityId(string_to_int(*it_loc))];
             }
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
 
             // Load data and insert into database
             load_data((*it).at(DATA_CONTAINER_TAG), entity);
