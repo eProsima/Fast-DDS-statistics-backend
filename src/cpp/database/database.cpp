@@ -533,10 +533,10 @@ void Database::insert_nts(
         {
             const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
 
-            // Create locator if it does not exists
+            // Create locator if it does not exist
             std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
 
-            // Create remote_locator if it does not exists
+            // Create remote_locator if it does not exist
             get_locator_nts(network_latency.remote_locator);
 
             // Add the info to the locator
@@ -582,7 +582,7 @@ void Database::insert_nts(
             {
                 const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
 
-                // Create remote_locator if it does not exists
+                // Create remote_locator if it does not exist
                 get_locator_nts(rtps_packets_sent.remote_locator);
 
                 // Check if the insertion is from the load
@@ -626,7 +626,7 @@ void Database::insert_nts(
             {
                 const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
 
-                // Create remote_locator if it does not exists
+                // Create remote_locator if it does not exist
                 get_locator_nts(rtps_bytes_sent.remote_locator);
 
                 // Check if the insertion is from the load
@@ -670,7 +670,7 @@ void Database::insert_nts(
             {
                 const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
 
-                // Create remote_locator if it does not exists
+                // Create remote_locator if it does not exist
                 get_locator_nts(rtps_packets_lost.remote_locator);
 
                 // Check if the insertion is from the load
@@ -714,7 +714,7 @@ void Database::insert_nts(
             {
                 const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
 
-                // Create remote_locator if it does not exists
+                // Create remote_locator if it does not exist
                 get_locator_nts(rtps_bytes_lost.remote_locator);
 
                 // Check if the insertion is from the load
