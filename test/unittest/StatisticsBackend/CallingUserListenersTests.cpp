@@ -15,6 +15,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -146,6 +149,12 @@ public:
 class calling_user_listeners_tests : public ::testing::Test
 {
 public:
+
+    calling_user_listeners_tests()
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+    }
 
     ~calling_user_listeners_tests()
     {
@@ -3019,6 +3028,12 @@ TEST_F(calling_user_listeners_tests, wrong_entity_kind)
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
 {
 public:
+
+    calling_user_data_listeners_tests()
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+    }
 
     ~calling_user_data_listeners_tests()
     {

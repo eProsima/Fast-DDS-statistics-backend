@@ -146,6 +146,11 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
             --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
 endforeach()
 
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 # init_monitor_tests
 ##################################################################
 
@@ -245,4 +250,3 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
             COMMAND init_monitor_factory_fails_tests
             --gtest_filter=init_monitor_factory_fails_tests.${test_name}:*/init_monitor_factory_fails_tests.${test_name}/*)
 endforeach()
-

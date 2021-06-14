@@ -18,8 +18,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <database/database_queue.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
@@ -115,6 +117,9 @@ public:
         {
             all_datakind_mask_.set(datakind);
         }
+
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
     }
 
     ~init_monitor_tests()
