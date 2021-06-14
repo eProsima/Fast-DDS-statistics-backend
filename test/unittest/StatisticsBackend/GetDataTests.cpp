@@ -697,7 +697,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 0.4;
+            expected[0].second = 0.4e+9;
 
             check_get_data(
                     data_type,
@@ -711,10 +711,10 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[1].second = 0.1;
-            expected[2].second = 0.1;
-            expected[3].second = 0.1;
-            expected[4].second = 0.1;
+            expected[1].second = 0.1e+9;
+            expected[2].second = 0.1e+9;
+            expected[3].second = 0.1e+9;
+            expected[4].second = 0.1e+9;
 
             check_get_data(
                     data_type,
@@ -728,10 +728,10 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[2].second = 0.1;
-            expected[4].second = 0.1;
-            expected[6].second = 0.1;
-            expected[8].second = 0.1;
+            expected[2].second = 0.1e+9;
+            expected[4].second = 0.1e+9;
+            expected[6].second = 0.1e+9;
+            expected[8].second = 0.1e+9;
 
             check_get_data(
                     data_type,
@@ -762,7 +762,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 0.9;
+            expected[0].second = 0.9e+9;
 
             check_get_data(
                     data_type,
@@ -776,9 +776,9 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 0.2;
-            expected[1].second = 0.4;
-            expected[2].second = 0.3;
+            expected[0].second = 0.2e+9;
+            expected[1].second = 0.4e+9;
+            expected[2].second = 0.3e+9;
 
             check_get_data(
                     data_type,
@@ -792,11 +792,11 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[1].second = 0.2;
-            expected[2].second = 0.2;
-            expected[3].second = 0.2;
-            expected[4].second = 0.2;
-            expected[5].second = 0.1;
+            expected[1].second = 0.2e+9;
+            expected[2].second = 0.2e+9;
+            expected[3].second = 0.2e+9;
+            expected[4].second = 0.2e+9;
+            expected[5].second = 0.1e+9;
 
             check_get_data(
                     data_type,
@@ -810,15 +810,15 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[10].second = 0.1;
-            expected[15].second = 0.1;
-            expected[20].second = 0.1;
-            expected[25].second = 0.1;
-            expected[30].second = 0.1;
-            expected[35].second = 0.1;
-            expected[40].second = 0.1;
-            expected[45].second = 0.1;
-            expected[50].second = 0.1;
+            expected[10].second = 0.1e+9;
+            expected[15].second = 0.1e+9;
+            expected[20].second = 0.1e+9;
+            expected[25].second = 0.1e+9;
+            expected[30].second = 0.1e+9;
+            expected[35].second = 0.1e+9;
+            expected[40].second = 0.1e+9;
+            expected[45].second = 0.1e+9;
+            expected[50].second = 0.1e+9;
 
             check_get_data(
                     data_type,

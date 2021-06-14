@@ -196,7 +196,7 @@ struct StatisticsIterator<database::PublicationThroughputSample> final
         StatisticsIterator<database::EntityDataSample> prev(aux_prev);
         double diff = sample().data - prev.get_value();
         auto diff_time = get_timestamp() - prev.get_timestamp();
-        return diff / diff_time.count();
+        return diff * (1e+9 / diff_time.count());
     }
 
 };
@@ -219,7 +219,7 @@ struct StatisticsIterator<database::SubscriptionThroughputSample> final
         StatisticsIterator<database::EntityDataSample> prev(aux_prev);
         double diff = sample().data - prev.get_value();
         auto diff_time = get_timestamp() - prev.get_timestamp();
-        return diff / diff_time.count();
+        return diff * (1e+9 / diff_time.count());
     }
 
 };
