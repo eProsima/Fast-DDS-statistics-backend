@@ -453,7 +453,7 @@ void fill_expected_result (
     Timestamp start,
     Timestamp finish,
     uint16_t nbins,
-    bool sum = false)
+    bool count = false)
 {
     std::chrono::system_clock::duration bin_size = (finish - start) / nbins;
 
@@ -462,7 +462,7 @@ void fill_expected_result (
     {
         StatisticsData data;
         data.first = start + (bin_size * i);
-        data.second = std::numeric_limits<double>::quiet_NaN();
+        data.second = count ? 0 : std::numeric_limits<double>::quiet_NaN();
         expected.push_back(data);
     }
 }
@@ -1958,7 +1958,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
             finish = Timestamp() + std::chrono::nanoseconds(90);
 
             // Testing with a single bin
-            fill_expected_result(expected, start, finish, 1);
+            fill_expected_result(expected, start, finish, 1, true);
             expected[0].second = 5.0;
 
             check_get_data(
@@ -1972,7 +1972,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 5 bins
-            fill_expected_result(expected, start, finish, 5);
+            fill_expected_result(expected, start, finish, 5, true);
             expected[0].second = 1.0;
             expected[1].second = 1.0;
             expected[2].second = 1.0;
@@ -1990,7 +1990,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 10 bins
-            fill_expected_result(expected, start, finish, 10);
+            fill_expected_result(expected, start, finish, 10, true);
             expected[0].second = 1.0;
             expected[2].second = 1.0;
             expected[4].second = 1.0;
@@ -2024,7 +2024,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
             finish = Timestamp() + std::chrono::nanoseconds(200);
 
             // Testing with a single bin
-            fill_expected_result(expected, start, finish, 1);
+            fill_expected_result(expected, start, finish, 1, true);
             expected[0].second = 10.0;
 
             check_get_data(
@@ -2038,7 +2038,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 5 bins
-            fill_expected_result(expected, start, finish, 5);
+            fill_expected_result(expected, start, finish, 5, true);
             expected[0].second = 3.0;
             expected[1].second = 4.0;
             expected[2].second = 3.0;
@@ -2054,7 +2054,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 10 bins
-            fill_expected_result(expected, start, finish, 10);
+            fill_expected_result(expected, start, finish, 10, true);
             expected[0].second = 1.0;
             expected[1].second = 2.0;
             expected[2].second = 2.0;
@@ -2073,7 +2073,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 100 bins
-            fill_expected_result(expected, start, finish, 100);
+            fill_expected_result(expected, start, finish, 100, true);
             expected[5].second = 1.0;
             expected[10].second = 1.0;
             expected[15].second = 1.0;
@@ -2104,10 +2104,12 @@ TEST_P(get_data_with_data_tests, get_count_data)
             /************* Time span smaller than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(40);
             finish = Timestamp() + std::chrono::nanoseconds(90);
+            bool throughput = DataKind::SUBSCRIPTION_THROUGHPUT == data_type ||
+                        DataKind::PUBLICATION_THROUGHPUT == data_type;
 
             // Testing with a single bin
-            fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 5.0;
+            fill_expected_result(expected, start, finish, 1, true);
+            expected[0].second = throughput ? 4.0 : 5.0;
 
             check_get_data(
                     data_type,
@@ -2120,8 +2122,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 5 bins
-            fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 1.0;
+            fill_expected_result(expected, start, finish, 5, true);
+            expected[0].second = throughput ? 0.0 : 1.0;
             expected[1].second = 1.0;
             expected[2].second = 1.0;
             expected[3].second = 1.0;
@@ -2138,8 +2140,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 10 bins
-            fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 1.0;
+            fill_expected_result(expected, start, finish, 10, true);
+            expected[0].second = throughput ? 0.0 : 1.0;
             expected[2].second = 1.0;
             expected[4].second = 1.0;
             expected[6].second = 1.0;
@@ -2156,13 +2158,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 100 bins
-            fill_expected_result(expected, start, finish, 100);
-            expected[0].second = 1.0;
-            expected[20].second = 1.0;
-            expected[40].second = 1.0;
-            expected[60].second = 1.0;
-            expected[80].second = 1.0;
-
+            EXPECT_THROW(
             check_get_data(
                     data_type,
                     entity1,
@@ -2171,15 +2167,16 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     finish,
                     100,
                     statistic,
-                    expected);
+                    expected),
+                BadParameter);
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(0);
             finish = Timestamp() + std::chrono::nanoseconds(200);
 
             // Testing with a single bin
-            fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 10.0;
+            fill_expected_result(expected, start, finish, 1, true);
+            expected[0].second = throughput ? 9.0 : 10.0;
 
             check_get_data(
                     data_type,
@@ -2192,8 +2189,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 5 bins
-            fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 3.0;
+            fill_expected_result(expected, start, finish, 5, true);
+            expected[0].second = throughput ? 2.0 : 3.0;
             expected[1].second = 4.0;
             expected[2].second = 3.0;
 
@@ -2208,8 +2205,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 10 bins
-            fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 1.0;
+            fill_expected_result(expected, start, finish, 10, true);
+            expected[0].second = throughput ? 0.0 : 1.0;
             expected[1].second = 2.0;
             expected[2].second = 2.0;
             expected[3].second = 2.0;
@@ -2227,8 +2224,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected);
 
             // Testing with 100 bins
-            fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 1.0;
+            fill_expected_result(expected, start, finish, 100, true);
+            expected[5].second = throughput ? 0.0 : 1.0;
             expected[10].second = 1.0;
             expected[15].second = 1.0;
             expected[20].second = 1.0;
