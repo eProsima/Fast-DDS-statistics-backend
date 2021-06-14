@@ -64,6 +64,32 @@ It can be checked whether an |EntityId-api| is valid:
     :end-before: //!
     :dedent: 8
 
+.. _types_entityid_is_all:
+
+Check EntityId represents all Entities
+--------------------------------------
+
+It can be checked whether an |EntityId-api| represents all the `EntityIds`:
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //ENTITYID-IS_ALL-EXAMPLE
+    :end-before: //!
+    :dedent: 8
+
+.. _types_entityid_valid_and_unique:
+
+Check validity and uniqueness of an EntityId
+--------------------------------------------
+
+It can be checked whether an |EntityId-api| is valid and unique:
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //ENTITYID-VALID_AND_UNIQUE-EXAMPLE
+    :end-before: //!
+    :dedent: 8
+
 .. _types_entityid_comparison:
 
 Comparison operations

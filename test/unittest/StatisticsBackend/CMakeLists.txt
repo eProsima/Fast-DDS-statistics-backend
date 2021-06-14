@@ -58,9 +58,12 @@ endforeach()
 ##################################################################
 
 add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(calling_user_listeners_tests PRIVATE

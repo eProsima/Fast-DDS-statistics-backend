@@ -16,6 +16,7 @@
 #include "database.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <mutex>  // For std::unique_lock
 #include <shared_mutex>
@@ -36,6 +37,21 @@ EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    // Insert in the database with a unique ID
+    EntityId entity_id = EntityId::invalid();
+    insert_nts(entity, entity_id);
+
+    return entity_id;
+}
+
+void Database::insert_nts(
+        const std::shared_ptr<Entity>& entity,
+        EntityId& entity_id)
+{
+    // Clear the entity
+    entity->clear();
+
     switch (entity->kind)
     {
         case EntityKind::HOST:
@@ -61,11 +77,20 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            host->id = entity_id;
+
             /* Insert host in the database */
-            host->users.clear();
-            host->id = generate_entity_id();
             hosts_[host->id] = host;
-            return host->id;
+            break;
         }
         case EntityKind::USER:
         {
@@ -113,14 +138,23 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            user->id = entity_id;
+
             /* Add user to users collection */
-            user->processes.clear();
-            user->id = generate_entity_id();
             users_[user->id] = user;
 
             /* Add user to host's users collection */
             user->host->users[user->id] = user;
-            return user->id;
+            break;
         }
         case EntityKind::PROCESS:
         {
@@ -177,14 +211,22 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            process->id = entity_id;
+
             /* Add process to processes collection */
-            process->participants.clear();
-            process->id = generate_entity_id();
             processes_[process->id] = process;
 
             /* Add process to user's processes collection */
             process->user->processes[process->id] = process;
-            return process->id;
             break;
         }
         case EntityKind::DOMAIN:
@@ -211,12 +253,20 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            domain->id = entity_id;
+
             /* Insert domain in the database */
-            domain->topics.clear();
-            domain->participants.clear();
-            domain->id = generate_entity_id();
             domains_[domain->id] = domain;
-            return domain->id;
+            break;
         }
         case EntityKind::TOPIC:
         {
@@ -265,15 +315,23 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            topic->id = entity_id;
+
             /* Add topic to domain's collection */
-            topic->data_readers.clear();
-            topic->data_writers.clear();
-            topic->id = generate_entity_id();
             domains_[topic->domain->id]->topics[topic->id] = topic;
 
             /* Insert topic in the database */
             topics_[topic->domain->id][topic->id] = topic;
-            return topic->id;
+            break;
         }
         case EntityKind::PARTICIPANT:
         {
@@ -333,28 +391,35 @@ EntityId Database::insert(
                 }
             }
 
-            /* Add participant to process' collection */
-            participant->data_readers.clear();
-            participant->data_writers.clear();
-            participant->data.clear();
-            participant->id = generate_entity_id();
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            participant->id = entity_id;
 
             /* Add participant to domain's collection */
             participant->domain->participants[participant->id] = participant;
 
             /* Insert participant in the database */
             participants_[participant->domain->id][participant->id] = participant;
-            return participant->id;
+            break;
         }
         case EntityKind::DATAREADER:
         {
             auto data_reader = std::static_pointer_cast<DataReader>(entity);
-            return insert_ddsendpoint<DataReader>(data_reader);
+            insert_ddsendpoint<DataReader>(data_reader, entity_id);
+            break;
         }
         case EntityKind::DATAWRITER:
         {
             auto data_writer = std::static_pointer_cast<DataWriter>(entity);
-            return insert_ddsendpoint<DataWriter>(data_writer);
+            insert_ddsendpoint<DataWriter>(data_writer, entity_id);
+            break;
         }
         case EntityKind::LOCATOR:
         {
@@ -379,20 +444,26 @@ EntityId Database::insert(
                 }
             }
 
+            // Add id to the entity
+            if (!entity_id.is_valid_and_unique())
+            {
+                entity_id = generate_entity_id();
+            }
+            else if (entity_id.value() >= next_id_)
+            {
+                next_id_ = entity_id.value() + 1;
+            }
+            locator->id = entity_id;
+
             /* Insert locator in the database */
-            locator->data_readers.clear();
-            locator->data_writers.clear();
-            locator->data.clear();
-            locator->id = generate_entity_id();
             locators_[locator->id] = locator;
-            return locator->id;
+            break;
         }
         default:
         {
             break;
         }
     }
-    return EntityId();
 }
 
 void Database::insert(
@@ -401,6 +472,17 @@ void Database::insert(
         const StatisticsSample& sample)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    insert_nts(domain_id, entity_id, sample);
+}
+
+void Database::insert_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const StatisticsSample& sample,
+        const bool loading,
+        const bool last_reported)
+{
 
     /* Check that domain_id refers to a known domain */
     if (sample.kind != DataKind::NETWORK_LATENCY && !domains_[domain_id])
@@ -473,13 +555,34 @@ void Database::insert(
             if (participant)
             {
                 const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
-                // Store the increment since the last report
-                participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
-                    rtps_packets_sent -
-                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
-                // Update last report
-                participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
-                        rtps_packets_sent;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
+                                rtps_packets_sent;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
+                            rtps_packets_sent);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
+                        rtps_packets_sent -
+                        participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
+                    // Update last report
+                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
+                            rtps_packets_sent;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -493,12 +596,34 @@ void Database::insert(
             if (participant)
             {
                 const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
-                // Store the increment since the last report
-                participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
-                    rtps_bytes_sent -
-                    participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator]);
-                // Update last report
-                participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] = rtps_bytes_sent;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
+                                rtps_bytes_sent;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
+                            rtps_bytes_sent);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
+                        rtps_bytes_sent -
+                        participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator]);
+                    // Update last report
+                    participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
+                            rtps_bytes_sent;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -512,13 +637,34 @@ void Database::insert(
             if (participant)
             {
                 const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
-                // Store the increment since the last report
-                participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
-                    rtps_packets_lost -
-                    participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator]);
-                // Update last report
-                participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
-                        rtps_packets_lost;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
+                                rtps_packets_lost;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
+                            rtps_packets_lost);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
+                        rtps_packets_lost -
+                        participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator]);
+                    // Update last report
+                    participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
+                            rtps_packets_lost;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -532,12 +678,33 @@ void Database::insert(
             if (participant)
             {
                 const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
-                // Store the increment since the last report
-                participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
-                    rtps_bytes_lost -
-                    participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator]);
-                // Update last report
-                participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] = rtps_bytes_lost;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
+                                rtps_bytes_lost;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
+                        rtps_bytes_lost -
+                        participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator]);
+                    // Update last report
+                    participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
+                            rtps_bytes_lost;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -551,10 +718,29 @@ void Database::insert(
             if (writer)
             {
                 const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
-                // Store the increment since the last report
-                writer->data.resent_datas.push_back(resent_datas - writer->data.last_reported_resent_datas);
-                // Update last report
-                writer->data.last_reported_resent_datas = resent_datas;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        writer->data.last_reported_resent_datas = resent_datas;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        writer->data.resent_datas.push_back(resent_datas);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    writer->data.resent_datas.push_back(resent_datas - writer->data.last_reported_resent_datas);
+                    // Update last report
+                    writer->data.last_reported_resent_datas = resent_datas;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -568,10 +754,30 @@ void Database::insert(
             if (writer)
             {
                 const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
-                // Store the increment since the last report
-                writer->data.heartbeat_count.push_back(heartbeat_count - writer->data.last_reported_heartbeat_count);
-                // Update last report
-                writer->data.last_reported_heartbeat_count = heartbeat_count;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        writer->data.last_reported_heartbeat_count = heartbeat_count;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        writer->data.heartbeat_count.push_back(heartbeat_count);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    writer->data.heartbeat_count.push_back(heartbeat_count -
+                            writer->data.last_reported_heartbeat_count);
+                    // Update last report
+                    writer->data.last_reported_heartbeat_count = heartbeat_count;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -585,10 +791,29 @@ void Database::insert(
             if (reader)
             {
                 const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
-                // Store the increment since the last report
-                reader->data.acknack_count.push_back(acknack_count - reader->data.last_reported_acknack_count);
-                // Update last report
-                reader->data.last_reported_acknack_count = acknack_count;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        reader->data.last_reported_acknack_count = acknack_count;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        reader->data.acknack_count.push_back(acknack_count);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    reader->data.acknack_count.push_back(acknack_count - reader->data.last_reported_acknack_count);
+                    // Update last report
+                    reader->data.last_reported_acknack_count = acknack_count;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -602,10 +827,29 @@ void Database::insert(
             if (reader)
             {
                 const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
-                // Store the increment since the last report
-                reader->data.nackfrag_count.push_back(nackfrag_count - reader->data.last_reported_nackfrag_count);
-                // Update last report
-                reader->data.last_reported_nackfrag_count = nackfrag_count;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        reader->data.last_reported_nackfrag_count = nackfrag_count;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        reader->data.nackfrag_count.push_back(nackfrag_count);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    reader->data.nackfrag_count.push_back(nackfrag_count - reader->data.last_reported_nackfrag_count);
+                    // Update last report
+                    reader->data.last_reported_nackfrag_count = nackfrag_count;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -619,10 +863,29 @@ void Database::insert(
             if (writer)
             {
                 const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
-                // Store the increment since the last report
-                writer->data.gap_count.push_back(gap_count - writer->data.last_reported_gap_count);
-                // Update last report
-                writer->data.last_reported_gap_count = gap_count;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        writer->data.last_reported_gap_count = gap_count;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        writer->data.gap_count.push_back(gap_count);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    writer->data.gap_count.push_back(gap_count - writer->data.last_reported_gap_count);
+                    // Update last report
+                    writer->data.last_reported_gap_count = gap_count;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -636,10 +899,29 @@ void Database::insert(
             if (writer)
             {
                 const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
-                // Store the increment since the last report
-                writer->data.data_count.push_back(data_count - writer->data.last_reported_data_count);
-                // Update last report
-                writer->data.last_reported_data_count = data_count;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        writer->data.last_reported_data_count = data_count;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        writer->data.data_count.push_back(data_count);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    writer->data.data_count.push_back(data_count - writer->data.last_reported_data_count);
+                    // Update last report
+                    writer->data.last_reported_data_count = data_count;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -653,10 +935,30 @@ void Database::insert(
             if (participant)
             {
                 const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
-                // Store the increment since the last report
-                participant->data.pdp_packets.push_back(pdp_packets - participant->data.last_reported_pdp_packets);
-                // Update last report
-                participant->data.last_reported_pdp_packets = pdp_packets;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_pdp_packets = pdp_packets;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.pdp_packets.push_back(pdp_packets);
+                    }
+
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.pdp_packets.push_back(pdp_packets - participant->data.last_reported_pdp_packets);
+                    // Update last report
+                    participant->data.last_reported_pdp_packets = pdp_packets;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -670,10 +972,29 @@ void Database::insert(
             if (participant)
             {
                 const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
-                // Store the increment since the last report
-                participant->data.edp_packets.push_back(edp_packets - participant->data.last_reported_edp_packets);
-                // Update last report
-                participant->data.last_reported_edp_packets = edp_packets;
+
+                // Check if the insertion is from the load
+                if (loading)
+                {
+                    if (last_reported)
+                    {
+                        // Store last reported
+                        participant->data.last_reported_edp_packets = edp_packets;
+                    }
+                    else
+                    {
+                        // Store data directly
+                        participant->data.edp_packets.push_back(edp_packets);
+                    }
+                }
+                else
+                {
+                    // Store the increment since the last report
+                    participant->data.edp_packets.push_back(edp_packets - participant->data.last_reported_edp_packets);
+                    // Update last report
+                    participant->data.last_reported_edp_packets = edp_packets;
+                }
+
                 break;
             }
             throw BadParameter(std::to_string(
@@ -722,6 +1043,14 @@ void Database::link_participant_with_process(
         const EntityId& process_id)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    link_participant_with_process_nts(participant_id, process_id);
+}
+
+void Database::link_participant_with_process_nts(
+        const EntityId& participant_id,
+        const EntityId& process_id)
+{
     /* Get the participant and the domain */
     EntityId domain_id;
     std::map<EntityId, std::shared_ptr<DomainParticipant>>::iterator participant_it;
@@ -779,6 +1108,13 @@ void Database::link_endpoint_with_locator(
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
+    link_endpoint_with_locator_nts(endpoint_id, locator_id);
+}
+
+void Database::link_endpoint_with_locator_nts(
+        const EntityId& endpoint_id,
+        const EntityId& locator_id)
+{
     /* Get the endpoint */
     std::shared_ptr<DDSEndpoint> endpoint;
     {
@@ -1854,12 +2190,20 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::HOST:
                     case EntityKind::USER:
                     {
-                        auto sub_entities = get_entities(entity_kind, participant->process);
-                        entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        // May not have the relation process - participant yet
+                        if (participant->process)
+                        {
+                            auto sub_entities = get_entities(entity_kind, participant->process);
+                            entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
+                        }
                     }
                     break;
                     case EntityKind::PROCESS:
-                        entities.push_back(participant->process);
+                        // May not have the relation process - participant yet
+                        if (participant->process)
+                        {
+                            entities.push_back(participant->process);
+                        }
                         break;
                     case EntityKind::DOMAIN:
                         entities.push_back(participant->domain);
@@ -2099,7 +2443,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : hosts_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2112,7 +2456,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : users_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2125,7 +2469,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : processes_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2138,7 +2482,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : domains_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2153,7 +2497,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : topics_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2168,7 +2512,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : participants_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2183,7 +2527,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : datawriters_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2198,7 +2542,7 @@ DatabaseDump Database::dump_database()
         // For each domain
         for (auto super_it : datareaders_)
         {
-            // For each entity of this kind in domain
+            // For each entity of this kind in the domain
             for (auto it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2211,7 +2555,7 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
 
-        // For each entity of this kind in database
+        // For each entity of this kind in the database
         for (auto it : locators_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
@@ -2355,7 +2699,14 @@ DatabaseDump Database::dump_entity_(
     entity_info[QOS_INFO_TAG] = entity->qos;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
-    entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
+    if (entity->process)
+    {
+        entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
+    }
+    else
+    {
+        entity_info[PROCESS_ENTITY_TAG] = id_to_string(EntityId::invalid());
+    }
 
     // Populate subentity array for DataWriters
     {
@@ -2474,6 +2825,9 @@ DatabaseDump Database::dump_entity_(
 
         // history2history_latency
         data[DATA_KIND_FASTDDS_LATENCY_TAG] = dump_data_(entity->data.history2history_latency);
+
+        // resent_data last reported
+        data[DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_resent_datas);
 
         // heartbeat_count last reported
         data[DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_heartbeat_count);
@@ -2777,6 +3131,1099 @@ DatabaseDump Database::dump_data_(
     }
 
     return data_dump;
+}
+
+void Database::check_entity_container_contains_id(
+        DatabaseDump const& entities_container,
+        std::string const& id)
+{
+    if (!entities_container.contains(id))
+    {
+        throw CorruptedFile("Entity container: " + entities_container.dump() + " do not have a Entity with ID: " + id);
+    }
+}
+
+void Database::check_entity_all_references(
+        DatabaseDump const& dump,
+        nlohmann::json::iterator const& it,
+        std::string const& entity_tag,
+        std::string const& reference_tag)
+{
+    std::string entity_id = it.key();
+    DatabaseDump references_id = (*it).at(reference_tag);
+    DatabaseDump reference_container = dump.at(reference_tag);
+
+    // Check all 'references_id' in the 'reference_container'
+    for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
+    {
+        std::string referenced_id = *refIt;
+
+        // 1) Check that the 'referenced_id' entity exists.
+        check_entity_container_contains_id(reference_container, referenced_id);
+
+        // 2) Check that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
+        std::string id = reference_container.at(referenced_id).at(entity_tag);
+        if (id != entity_id)
+        {
+            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
+                              referenced_id).dump() +
+                          " has reference to " + entity_tag + ": " + id +
+                          " instead of " + entity_tag + ": " + entity_id);
+        }
+    }
+}
+
+void Database::check_entity_contains_all_references(
+        DatabaseDump const& dump,
+        nlohmann::json::iterator const& it,
+        std::string const& entity_tag,
+        std::string const& reference_container_tag,
+        std::string const& reference_tag)
+{
+    std::string entity_id = it.key();
+    DatabaseDump references_id = (*it).at(reference_tag);
+    DatabaseDump reference_container = dump.at(reference_container_tag);
+
+    // Check all 'references_id' in the 'reference_container'
+    for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
+    {
+        std::string referenced_id = *refIt;
+
+        // 1) Check that the 'referenced_id' entity exists.
+        check_entity_container_contains_id(reference_container, referenced_id);
+
+        // 2) Check that referenced entity contains a reference to an 'entity_id' of type 'entity_tag'.
+        std::vector<std::string> referenced_entities = reference_container.at(referenced_id).at(entity_tag);
+        if (std::find(referenced_entities.begin(), referenced_entities.end(), entity_id) == referenced_entities.end())
+        {
+            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
+                              referenced_id).dump() +
+                          " have reference to " + entity_tag + ": " +
+                          reference_container.at(referenced_id).at(entity_tag).dump() +
+                          " instead of " + entity_tag + ": " + entity_id);
+        }
+    }
+}
+
+void Database::load_database(
+        DatabaseDump dump)
+{
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    if (next_id_ != 0)
+    {
+        throw Error("Error: Database must be empty before call load_database()");
+    }
+
+    // Locators
+    {
+        DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // Hosts
+    {
+        DatabaseDump container = dump.at(HOST_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_all_references(dump, it, HOST_ENTITY_TAG, USER_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+        }
+    }
+
+    // Users
+    {
+        DatabaseDump container = dump.at(USER_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG);
+            check_entity_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
+                            hosts_[string_to_int((*it).at(HOST_ENTITY_TAG))]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+        }
+    }
+
+    // Processes
+    {
+        DatabaseDump container = dump.at(PROCESS_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG);
+            check_entity_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Process> entity =
+                    std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
+                            users_[EntityId(string_to_int((*it).at(USER_ENTITY_TAG)))]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+        }
+    }
+
+    // Domains
+    {
+        DatabaseDump container = dump.at(DOMAIN_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
+            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+        }
+    }
+
+    // Topics
+    {
+        DatabaseDump container = dump.at(TOPIC_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+                    DOMAIN_ENTITY_TAG);
+            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
+            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<Topic> entity =
+                    std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
+                            domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+        }
+    }
+
+    // Participants
+    {
+        DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
+                    DOMAIN_ENTITY_TAG);
+            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
+            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
+
+            // Create entity
+            std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
+                (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
+                domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Link participant with process
+            EntityId process_id(string_to_int((*it).at(PROCESS_ENTITY_TAG)));
+
+            if (process_id != EntityId::invalid())
+            {
+                check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, PROCESS_CONTAINER_TAG,
+                        PROCESS_ENTITY_TAG);
+
+                link_participant_with_process_nts(entity->id, process_id);
+            }
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // DataWriters
+    {
+        DatabaseDump container = dump.at(DATAWRITER_CONTAINER_TAG);
+
+        // For each entity of this kind in the database
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, TOPIC_CONTAINER_TAG,
+                    TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,
+                    LOCATOR_CONTAINER_TAG);
+
+            // Get keys
+            EntityId participant_id = EntityId(string_to_int((*it).at(PARTICIPANT_ENTITY_TAG)));
+            EntityId participant_domain_id =
+                    EntityId(string_to_int(dump.at(PARTICIPANT_CONTAINER_TAG)
+                                    .at(std::to_string(participant_id.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            EntityId topic_id = EntityId(string_to_int((*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(string_to_int(dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topic_id.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            // Create entity
+            std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
+                (*it).at(NAME_INFO_TAG),
+                (*it).at(QOS_INFO_TAG),
+                (*it).at(GUID_INFO_TAG),
+                participants_[participant_domain_id][participant_id],
+                topics_[topic_domain_id][topic_id]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Link endpoint with locator
+            for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++it_loc)
+            {
+                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
+            }
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+
+    // DataReaders
+    {
+        DatabaseDump container = dump.at(DATAREADER_CONTAINER_TAG);
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            // Check that entity has correct references to other entities
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, TOPIC_CONTAINER_TAG,
+                    TOPIC_ENTITY_TAG);
+            check_entity_contains_all_references(dump, it, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG,
+                    LOCATOR_CONTAINER_TAG);
+
+            // Get keys
+            EntityId participant_id = EntityId(string_to_int((*it).at(
+                                PARTICIPANT_ENTITY_TAG)));
+            EntityId participant_domain_id =
+                    EntityId(string_to_int(dump.at(PARTICIPANT_CONTAINER_TAG)
+                                    .at(std::to_string(participant_id.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            EntityId topic_id = EntityId(string_to_int((*it).at(TOPIC_ENTITY_TAG)));
+            EntityId topic_domain_id = EntityId(string_to_int(dump.at(TOPIC_CONTAINER_TAG)
+                                    .at(std::to_string(topic_id.value()))
+                                    .at(DOMAIN_ENTITY_TAG)));
+
+            // Create entity
+            std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
+                (*it).at(NAME_INFO_TAG),
+                (*it).at(QOS_INFO_TAG),
+                (*it).at(GUID_INFO_TAG),
+                participants_[participant_domain_id][participant_id],
+                topics_[topic_domain_id][topic_id]);
+
+            // Insert into database
+            EntityId entity_id = EntityId(string_to_int(it.key()));
+            insert_nts(entity, entity_id);
+
+            // Link endpoint with locator
+            for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
+                    it_loc != (*it).at(LOCATOR_CONTAINER_TAG).end();
+                    ++it_loc)
+            {
+                link_endpoint_with_locator_nts(entity->id, EntityId(string_to_int(*it_loc)));
+            }
+
+            // Load data and insert into database
+            load_data((*it).at(DATA_CONTAINER_TAG), entity);
+        }
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DomainParticipant>& entity)
+{
+    // discovery_time
+    {
+        DatabaseDump container = dump.at(DATA_KIND_DISCOVERY_TIME_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                DiscoveryTimeSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t src_ts = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint(std::string((*it).at(DATA_VALUE_TIME_TAG)));
+                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // EntityId
+                sample.remote_entity = EntityId(string_to_int(remote_it.key()));
+
+                string_to_int(std::string((*it).at(DATA_VALUE_REMOTE_ENTITY_TAG)));
+
+                // bool
+                sample.discovered = (*it).at(DATA_VALUE_DISCOVERED_TAG);
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // pdp_packets
+    {
+        DatabaseDump container = dump.at(DATA_KIND_PDP_PACKETS_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            PdpCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // edp_packets
+    {
+        DatabaseDump container = dump.at(DATA_KIND_EDP_PACKETS_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            EdpCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // rtps_packets_sent
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                RtpsPacketsSentSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // uint64_t
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // rtps_bytes_sent
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                RtpsBytesSentSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // uint64_t
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+                // int16_t
+                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // rtps_packets_lost
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                RtpsPacketsLostSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // uint64_t
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // rtps_bytes_lost
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                RtpsBytesLostSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // uint64_t
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+                // int16_t
+                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // last_reported_rtps_bytes_lost
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            RtpsBytesLostSample sample;
+            DatabaseDump sample_dump = container.at(remote_it.key());
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
+
+            // int16_t
+            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
+
+            // EntityId
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_rtps_bytes_sent
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            RtpsBytesSentSample sample;
+            DatabaseDump sample_dump = container.at(remote_it.key());
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
+
+            // int16_t
+            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
+
+            // EntityId
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_rtps_packets_lost
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            RtpsPacketsLostSample sample;
+            DatabaseDump sample_dump = container.at(remote_it.key());
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
+
+            // EntityId
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_rtps_packets_sent
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            RtpsPacketsSentSample sample;
+            DatabaseDump sample_dump = container.at(remote_it.key());
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
+
+            // EntityId
+            sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    //last_reported_edp_packets
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_EDP_PACKETS_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG);
+
+            EdpCountSample sample;
+
+            //std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_pdp_packets
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_PDP_PACKETS_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG);
+
+            PdpCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->domain->id, entity->id, sample, true, true);
+        }
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DataWriter>& entity)
+{
+    // publication_throughput
+    {
+        DatabaseDump container = dump.at(DATA_KIND_PUBLICATION_THROUGHPUT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            PublicationThroughputSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // double
+            sample.data = (*it).at(DATA_VALUE_DATA_TAG);
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // resent_datas
+    {
+        DatabaseDump container = dump.at(DATA_KIND_RESENT_DATA_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            ResentDataSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // heartbeat_count
+    {
+        DatabaseDump container = dump.at(DATA_KIND_HEARTBEAT_COUNT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            HeartbeatCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // gap_count
+    {
+        DatabaseDump container = dump.at(DATA_KIND_GAP_COUNT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            GapCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // data_count
+    {
+        DatabaseDump container = dump.at(DATA_KIND_DATA_COUNT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            DataCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // samples_datas
+    {
+        DatabaseDump container = dump.at(DATA_KIND_SAMPLE_DATAS_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                SampleDatasCountSample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // uint64_t
+                sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+                // uint64_t
+                sample.sequence_number = string_to_int(remote_it.key());
+
+                // Insert data into database
+                insert_nts(entity->participant->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // history2history_latency
+    {
+        DatabaseDump container = dump.at(DATA_KIND_FASTDDS_LATENCY_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                HistoryLatencySample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // double
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
+
+                // EntityId
+                sample.reader = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->participant->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // last_reported_data_count
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_DATA_COUNT_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_DATA_COUNT_LAST_REPORTED_TAG);
+
+            DataCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_gap_count
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_GAP_COUNT_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_GAP_COUNT_LAST_REPORTED_TAG);
+
+            GapCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_heartbeat_count
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_HEARTBEAT_COUNT_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_HEARTBEAT_COUNT_LAST_REPORTED_TAG);
+
+            HeartbeatCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_resent_datas
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_RESENT_DATA_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_RESENT_DATA_LAST_REPORTED_TAG);
+
+            ResentDataSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<DataReader>& entity)
+{
+    // subscription_throughput
+    {
+        DatabaseDump container = dump.at(DATA_KIND_SUBSCRIPTION_THROUGHPUT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            SubscriptionThroughputSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // double
+            sample.data = (*it).at(DATA_VALUE_DATA_TAG);
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // acknack_count
+    {
+        DatabaseDump container = dump.at(DATA_KIND_ACKNACK_COUNT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            AcknackCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // nackfrag_count
+    {
+        DatabaseDump container = dump.at(DATA_KIND_NACKFRAG_COUNT_TAG);
+
+        // Data iterator
+        for (auto it = container.begin(); it != container.end(); ++it)
+        {
+            NackfragCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t
+            sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true);
+        }
+    }
+
+    // last_reported_acknack_count
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_ACKNACK_COUNT_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_ACKNACK_COUNT_LAST_REPORTED_TAG);
+
+            AcknackCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+
+    // last_reported_nackfrag_count
+    {
+        // Only insert last reported if there are at least one
+        if (!dump.at(DATA_KIND_NACKFRAG_COUNT_TAG).empty())
+        {
+            DatabaseDump container = dump.at(DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG);
+
+            NackfragCountSample sample;
+
+            // std::chrono::system_clock::time_point
+            uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
+            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+            // uint64_t count;
+            sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
+
+            // Insert data into database
+            insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
+        }
+    }
+}
+
+void Database::load_data(
+        const DatabaseDump& dump,
+        const std::shared_ptr<Locator>& entity)
+{
+    // NetworkLatency
+    {
+        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                NetworkLatencySample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+
+                // double
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(EntityId::invalid(), entity->id, sample, true);
+            }
+        }
+    }
 }
 
 } //namespace database

@@ -17,10 +17,12 @@ target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} gtest)
 
 set(ENTITYID_TEST_LIST
     all
+    is_all
     invalid
     invalidate
     valid
     value
+    valid_and_unique
     operator_ostream
     operator_less
     operator_less_equal

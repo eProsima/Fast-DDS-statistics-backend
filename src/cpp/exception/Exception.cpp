@@ -86,5 +86,17 @@ NoData::NoData(
 {
 }
 
+CorruptedFile::CorruptedFile(
+        const char* message) noexcept
+    : Exception(message)
+{
+}
+
+CorruptedFile::CorruptedFile(
+        const std::string& message)
+    : Exception(message)
+{
+}
+
 } // namespace statistics_backend
 } // namespace eprosima

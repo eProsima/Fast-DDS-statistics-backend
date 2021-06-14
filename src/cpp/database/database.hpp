@@ -341,6 +341,26 @@ protected:
         return s;
     }
 
+    inline int string_to_int(
+            std::string const& str)
+    {
+        if (str.find_first_not_of("-1234567890") != std::string::npos)
+        {
+            throw CorruptedFile("string must be an integer: " + str);
+        }
+        return stoi(str);
+    }
+
+    inline uint string_to_uint(
+            std::string const& str)
+    {
+        if (str.find_first_not_of("1234567890") != std::string::npos)
+        {
+            throw CorruptedFile("string must be an unsigned integer: " + str);
+        }
+        return stoi(str);
+    }
+
     /**
      * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
      * a.k.a DataReader or DataWriter.
@@ -373,11 +393,12 @@ protected:
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint
-     * @return The EntityId of the inserted DDSEndpoint
+     * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
      */
     template<typename T>
-    EntityId insert_ddsendpoint(
-            std::shared_ptr<T>& endpoint)
+    void insert_ddsendpoint(
+            std::shared_ptr<T>& endpoint,
+            EntityId& entity_id)
     {
         /* Check that name is not empty */
         if (endpoint->name.empty())
@@ -446,9 +467,18 @@ protected:
             }
         }
 
+        // Add id to the entity
+        if (!entity_id.is_valid_and_unique())
+        {
+            entity_id = generate_entity_id();
+        }
+        else if (entity_id.value() >= next_id_)
+        {
+            next_id_ = entity_id.value() + 1;
+        }
+        endpoint->id = entity_id;
+
         /* Insert endpoint in the database */
-        endpoint->data.clear();
-        endpoint->id = generate_entity_id();
         dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
 
         /* Add endpoint to participant' collection */
@@ -456,8 +486,6 @@ protected:
 
         /* Add endpoint to topics's collection */
         (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
-
-        return endpoint->id;
     }
 
     /**
@@ -513,6 +541,175 @@ protected:
             const std::map<EntityId, EntityCountSample>& data);
     DatabaseDump dump_data_(
             const std::map<EntityId, ByteCountSample>& data);
+
+    /**
+     * @brief Check if 'entities_container' contains the given 'id', throwing an exception if not.
+     *
+     * @param entities_container Reference to the dump of the entities to check.
+     * @param id id of the entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the 'id' does not exist in 'entities_container'.
+     */
+    void check_entity_container_contains_id(
+            DatabaseDump const& entities_container,
+            std::string const& id);
+
+    /**
+     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+     * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
+     * have reference to 'it' of type 'entity_tag'.
+     *
+     * Example -> Check that each user, reference host[0]:
+     *
+     * \code
+     * {
+     *      host["0"]
+     *      {
+     *          users: ["1","5","9"]
+     *      }
+     *      user["1"]
+     *      {
+     *          host: "0"
+     *      }
+     * }
+     * \endcode
+     *
+     * @param dump reference to the database dump.
+     * @param it iterator to the dump of the entity.
+     * @param entity_tag Type of the entity to check.
+     * @param reference_tag Type of the referenced entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+     */
+    void check_entity_all_references(
+            DatabaseDump const& dump,
+            nlohmann::json::iterator const& it,
+            std::string const& entity_tag,
+            std::string const& reference_tag);
+
+    /**
+     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+     * to entities of type 'reference_tag' is consistent and mutual. For this, the referenced entities must
+     * contain a reference to 'it' of type 'entity_tag'.
+     *
+     * Example -> Check that each datawriter, contains a reference to locator[0]:
+     *
+     * \code
+     * {
+     *      locator["0"]
+     *      {
+     *          datawriter: ["1","5","9"]
+     *      }
+     *      datawriter["1"]
+     *      {
+     *          locator: ["0"]
+     *      }
+     * }
+     * \endcode
+     *
+     * @param dump reference to the database dump.
+     * @param it iterator to the dump of the entity.
+     * @param entity_tag Type of the entity to check.
+     * @param reference_container_tag Type of the referenced entity container to check.
+     * @param reference_tag Type of the referenced entity to check.
+     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+     */
+    void check_entity_contains_all_references(
+            DatabaseDump const& dump,
+            nlohmann::json::iterator const& it,
+            std::string const& entity_tag,
+            std::string const& reference_container_tag,
+            std::string const& reference_tag);
+
+    /**
+     * @brief Insert a new entity into the database. This method is not thread safe.
+     * @param entity The entity object to be inserted.
+     * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *             * If the entity already exists in the database
+     *             * If the parent entity does not exist in the database (expect for the case of
+     *               a Domainparticipant entity, for which an unregistered parent process is allowed)
+     *             * If the entity name is empty
+     *             * Depending on the type of entity, if some other identifier is empty
+     *             * For entities with GUID, if the GUID is not unique
+     *             * For entities with QoS, if the QoS is empty
+     *             * For entities with locators, if the locators' collection is empty
+     */
+    void insert_nts(
+            const std::shared_ptr<Entity>& entity,
+            EntityId& entity_id);
+
+    /**
+     * @brief Insert a new statistics sample into the database. This method is not thread safe.
+     * @param domain_id The EntityId to the domain that contains the entity
+     * @param entity_id The EntityId to which the sample relates.
+     * @param sample The sample to be inserted.
+     * @param loading Is a insert coming from loading a database dump.
+     * @param last_reported Is a insert of a last_reported data.
+     */
+    void insert_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const StatisticsSample& sample,
+            const bool loading = false,
+            const bool last_reported = false);
+
+
+    /**
+     * @brief Create the link between a participant and a process. This method is not thread safe.
+     *
+     * This operation entails:
+     *     1. Adding reference to process to the participant
+     *     2. Adding the participant to the process' list of participants
+     *     3. Adding entry to domains_by_process_
+     *     4. Adding entry to processes_by_domain_
+     *
+     * @param participant_id The EntityId of the participant
+     * @param process_id The EntityId of the process
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The participant is already linked with a process
+     *            * The participant does not exist in the database
+     *            * The process does not exist in the database
+     */
+    void link_participant_with_process_nts(
+            const EntityId& participant_id,
+            const EntityId& process_id);
+
+    /**
+     * @brief Create the link between an endpoint and a locator. This method is not thread safe.
+     *
+     * This operation entails:
+     *     1. Adding the endpoint to the locator's list of endpoints
+     *     2. Adding the locator to the endpoint's list of locators
+     *     3. Adding entry to locators_by_participant_
+     *     4. Adding entry to participants_by_locator_
+     *
+     * @param endpoint_id The EntityId of the endpoint
+     * @param locator_id The EntityId of the locator
+     * @throw eprosima::statistics_backend::BadParameter in the following cases:
+     *            * The endpoint does not exist in the database
+     *            * The locator does not exist in the database
+     */
+    void link_endpoint_with_locator_nts(
+            const EntityId& endpoint_id,
+            const EntityId& locator_id);
+
+    /**
+     * @brief Load data from a dump.
+
+     * @param dump Reference to the .json with the info of the data.
+     * @param entity Reference to the entity where the info will be inserted.
+     */
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DomainParticipant>& entity);
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DataWriter>& entity);
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<DataReader>& entity);
+    void load_data(
+            const DatabaseDump& dump,
+            const std::shared_ptr<Locator>& entity);
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;

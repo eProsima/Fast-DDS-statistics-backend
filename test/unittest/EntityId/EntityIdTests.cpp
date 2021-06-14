@@ -26,6 +26,17 @@ TEST(entityid, all)
     EXPECT_EQ(-2, EntityId::all().value());
 }
 
+TEST(entityid, is_all)
+{
+    EXPECT_FALSE(EntityId().is_all());
+    EXPECT_TRUE(EntityId::all().is_all());
+    EXPECT_FALSE(EntityId::invalid().is_all());
+    EXPECT_TRUE(EntityId(-2).is_all());
+    EXPECT_FALSE(EntityId(0).is_all());
+    EXPECT_FALSE(EntityId(1).is_all());
+    EXPECT_FALSE(EntityId(-5).is_all());
+}
+
 TEST(entityid, invalid)
 {
     EXPECT_EQ(-1, EntityId::invalid().value());
@@ -43,6 +54,7 @@ TEST(entityid, valid)
 {
     EXPECT_FALSE(EntityId().is_valid());
     EXPECT_FALSE(EntityId::invalid().is_valid());
+    EXPECT_TRUE(EntityId::all().is_valid());
     EXPECT_TRUE(EntityId(0).is_valid());
     EXPECT_TRUE(EntityId(1).is_valid());
     EXPECT_FALSE(EntityId(-5).is_valid());
@@ -52,6 +64,16 @@ TEST(entityid, value)
 {
     int64_t value = 12;
     EXPECT_EQ(value, EntityId(value).value());
+}
+
+TEST(entityid, valid_and_unique)
+{
+    EXPECT_FALSE(EntityId().is_valid_and_unique());
+    EXPECT_FALSE(EntityId::invalid().is_valid_and_unique());
+    EXPECT_FALSE(EntityId::all().is_valid_and_unique());
+    EXPECT_TRUE(EntityId(0).is_valid_and_unique());
+    EXPECT_TRUE(EntityId(1).is_valid_and_unique());
+    EXPECT_FALSE(EntityId(-5).is_valid_and_unique());
 }
 
 TEST(entityid, operator_ostream)

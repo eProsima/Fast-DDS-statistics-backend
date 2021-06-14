@@ -116,6 +116,8 @@ using namespace eprosima::statistics_backend::database;
  *   }
  * }
  * \endcode
+ *
+ *  Also insert Statistics data of all types with test values in participant2, datawriter2, datareader2 and locator2
  */
 class PopulateDatabase
 {
@@ -220,6 +222,236 @@ public:
         db.link_endpoint_with_locator(datawriter2->id, writer_locator2->id);
         entities[16] = datawriter2;
 
+        // Insert datas on domain2
+
+        // participants
+        {
+            EntityId domainId = participant2->domain->id;
+            EntityId entityId = participant2->id;
+
+            // discovery_time
+            {
+                DiscoveryTimeSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(2));
+                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.remote_entity = EntityId(entityId);
+                sample.discovered = true;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // pdp_packets
+            {
+                PdpCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(0));
+                sample.count = 1;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // edp_packets
+            {
+                EdpCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // rtps_packets_sent
+            {
+                RtpsPacketsSentSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+                sample.remote_locator = EntityId(reader_locator2->id);
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // rtps_bytes_sent
+            {
+                RtpsBytesSentSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+                sample.magnitude_order = 0;
+                sample.remote_locator = EntityId(reader_locator2->id);
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // rtps_packets_lost
+            {
+                RtpsPacketsLostSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+                sample.remote_locator = EntityId(reader_locator2->id);
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // rtps_bytes_lost
+            {
+                RtpsBytesLostSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+                sample.magnitude_order = 0;
+                sample.remote_locator = EntityId(reader_locator2->id);
+
+                db.insert(domainId, entityId, sample);
+            }
+        }
+
+        // datawriters
+        {
+            EntityId domainId = datawriter2->participant->domain->id;
+            EntityId entityId = datawriter2->id;
+
+            // publication_throughput
+            {
+                PublicationThroughputSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.data = 1.1;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // resent_datas
+            {
+                ResentDataSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // heartbeat_count
+            {
+                HeartbeatCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // gap_count
+            {
+                GapCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // data_count
+            {
+                DataCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // samples_datas
+            {
+                SampleDatasCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+                sample.sequence_number = process2->id.value();
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // history2history_latency
+            {
+                HistoryLatencySample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.data = 1.1;
+                sample.reader = (EntityId(reader_locator2->id));
+
+                db.insert(domainId, entityId, sample);
+            }
+        }
+
+        // datareaders
+        {
+            EntityId domainId = datareader2->participant->domain->id;
+            EntityId entityId = datareader2->id;
+
+            // subscription_throughput
+            {
+                SubscriptionThroughputSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.data = 1.1;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // acknack_count
+            {
+                AcknackCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+
+            // nackfrag_count
+            {
+                NackfragCountSample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.count = 0;
+
+                db.insert(domainId, entityId, sample);
+            }
+        }
+
+        // locators
+        {
+            // writer_locator
+            {
+                EntityId entityId = writer_locator2->id;
+
+                NetworkLatencySample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.data = 1.1;
+                sample.remote_locator = EntityId(entityId);
+
+                db.insert(EntityId::invalid(), entityId, sample);
+            }
+
+            // reader_locator
+            {
+                EntityId entityId = reader_locator2->id;
+
+                NetworkLatencySample sample;
+
+                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.data = 1.1;
+                sample.remote_locator = EntityId(entityId);
+
+                db.insert(EntityId::invalid(), entityId, sample);
+            }
+
+        }
+
         return entities;
     }
 
@@ -309,4 +541,34 @@ public:
         {"user_data", "656e636c6176653d2f3b00"},
         {"vendor_id", "010f"}
     };
+
+    const std::atomic<int64_t>& next_id()
+    {
+        return next_id_;
+    }
+
+    inline std::string get_id_to_string(
+            EntityId id)
+    {
+        return id_to_string(id);
+    }
+
+    inline std::string get_time_to_string(
+            std::chrono::system_clock::time_point time)
+    {
+        return time_to_string(time);
+    }
+
+    inline int get_string_to_int(
+            std::string const& str)
+    {
+        return string_to_int(str);
+    }
+
+    inline uint get_string_to_uint(
+            std::string const& str)
+    {
+        return string_to_uint(str);
+    }
+
 };

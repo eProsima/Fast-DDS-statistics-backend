@@ -27,6 +27,7 @@
 #include <database/database.hpp>
 #include <database/entities.hpp>
 #include <database/samples.hpp>
+#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -388,6 +389,85 @@ TEST(database, dump_complex_database)
     Database db;
     initialize_database(db, 3, 3);
     ASSERT_EQ(db.dump_database(), load_file(COMPLEX_DUMP_FILE));
+}
+
+void initialize_empty_entities_unlinked(
+        Database& db,
+        int index)
+{
+    std::shared_ptr<Host> host = std::make_shared<Host>(std::string(HOST_DEFAULT_NAME(index)));
+    std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
+    std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
+                        index)), PID_DEFAULT, user);
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)));
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
+                        index)), DATA_TYPE_DEFAULT, domain);
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
+                        PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), nullptr, domain);
+    std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(
+                        DATAWRITER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
+    std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(
+                        DATAREADER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
+    std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_DEFAULT_NAME(index)));
+
+    ASSERT_NE(db.insert(locator), EntityId::invalid());
+    ASSERT_NE(db.insert(host), EntityId::invalid());
+    ASSERT_NE(db.insert(user), EntityId::invalid());
+    ASSERT_NE(db.insert(process), EntityId::invalid());
+    ASSERT_NE(db.insert(domain), EntityId::invalid());
+    ASSERT_NE(db.insert(topic), EntityId::invalid());
+    ASSERT_NE(db.insert(participant), EntityId::invalid());
+    ASSERT_NE(db.insert(dw), EntityId::invalid());
+    ASSERT_NE(db.insert(dr), EntityId::invalid());
+}
+
+// Test the dump of a database with one entity of each kind with unlinked entities
+TEST(database, dump_unlinked_database)
+{
+    DataBaseTest db;
+    initialize_empty_entities_unlinked(db, 0);
+
+    DatabaseDump dump = load_file(EMPTY_ENTITIES_DUMP_FILE);
+    dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";
+    dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();
+
+    dump[DATAWRITER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();
+    dump[DATAREADER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG] = DatabaseDump::array();
+
+    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG] = DatabaseDump::array();
+    dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG] = DatabaseDump::array();
+
+    ASSERT_EQ(db.dump_database(), dump);
+}
+
+// Test the database method id_to_string()
+TEST(database, id_to_string)
+{
+    DataBaseTest db;
+    ASSERT_EQ(db.get_id_to_string(EntityId(0)), "0");
+    ASSERT_EQ(db.get_id_to_string(EntityId(5)), "5");
+    ASSERT_EQ(db.get_id_to_string(EntityId(-5)), "-5");
+    ASSERT_NE(db.get_id_to_string(EntityId(0)), "5");
+    ASSERT_NE(db.get_id_to_string(EntityId(-5)), "5");
+    ASSERT_NE(db.get_id_to_string(EntityId(0)), "abc");
+}
+
+// Test the database method time_to_string()
+TEST(database, time_to_string)
+{
+    DataBaseTest db;
+    ASSERT_EQ(db.get_time_to_string(
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "1");
+    ASSERT_NE(db.get_time_to_string(
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "5");
+    ASSERT_EQ(db.get_time_to_string(
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(-5))),
+            "-5");
+    ASSERT_NE(db.get_time_to_string(
+                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            "ABC");
 }
 
 int main(

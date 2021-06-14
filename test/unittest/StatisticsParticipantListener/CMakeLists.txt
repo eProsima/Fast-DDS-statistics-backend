@@ -20,14 +20,15 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     find_package(Threads REQUIRED)
 
     add_executable(statistics_participant_listener_tests StatisticsParticipantListenerTests.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
     target_include_directories(statistics_participant_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}

@@ -427,6 +427,22 @@ void entity_id()
         static_cast<void>(check);
     }
     {
+        //ENTITYID-IS_ALL-EXAMPLE
+        EntityId entity_id;
+        bool check = entity_id.is_all();
+        //!--
+        static_cast<void>(entity_id);
+        static_cast<void>(check);
+    }
+    {
+        //ENTITYID-VALID_AND_UNIQUE-EXAMPLE
+        EntityId entity_id;
+        bool check = entity_id.is_valid_and_unique();
+        //!--
+        static_cast<void>(entity_id);
+        static_cast<void>(check);
+    }
+    {
         //ENTITYID-COMPARE-EXAMPLE
         EntityId entity_id_1;
         EntityId entity_id_2;
