@@ -626,8 +626,8 @@ public:
      */
     void extend_no_callback_tests()
     {
-        EntityKind entity_kind = std::get<1>(GetParam());
-        CallbackKind callback_kind = std::get<2>(GetParam());
+        EntityKind entity_kind = std::get<0>(GetParam());
+        CallbackKind callback_kind = std::get<1>(GetParam());
 
         // Set the physical listener and test
         CallbackMask mask = CallbackMask::none();
@@ -1205,7 +1205,7 @@ public:
      */
     void extend_no_callback_tests()
     {
-        DataKind data_kind = std::get<1>(GetParam());
+        DataKind data_kind = std::get<0>(GetParam());
 
         // Set the physical listener and test
         CallbackMask callback_mask = CallbackMask::none();
