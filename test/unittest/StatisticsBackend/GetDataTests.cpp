@@ -40,6 +40,7 @@ public:
 
     get_data_tests_base()
     {
+        details::StatisticsBackendData::get_instance()->database_.reset(new Database);
         StatisticsBackend::load_database("resources/database_dump.json");
     }
 
