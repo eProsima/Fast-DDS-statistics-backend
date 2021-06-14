@@ -184,7 +184,6 @@ EntityId StatisticsBackend::init_monitor(
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    details::StatisticsBackendData::get_instance()->monitors_by_domain_[domain_id] = monitor;
     details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
@@ -259,17 +258,20 @@ void StatisticsBackend::stop_monitor(
         throw BadParameter("No monitor with such ID");
     }
     auto monitor = it->second;
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(it);
 
     // Delete everything created during monitor initialization
     for (auto reader : monitor->readers)
     {
         monitor->subscriber->delete_datareader(reader.second);
     }
+    monitor->readers.clear();
 
     for (auto topic : monitor->topics)
     {
         monitor->participant->delete_topic(topic.second);
     }
+    monitor->topics.clear();
 
     monitor->participant->delete_subscriber(monitor->subscriber);
     DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);

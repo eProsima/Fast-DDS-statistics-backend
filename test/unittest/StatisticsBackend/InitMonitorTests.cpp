@@ -146,33 +146,33 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[domain_id]->domain_listener);
+    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->domain_callback_mask.is_set(callback));
+        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 }
 
@@ -189,33 +189,33 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[domain_id]->domain_listener);
+    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_FALSE(domain_monitors[domain_id]->domain_callback_mask.is_set(callback));
+        EXPECT_FALSE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 }
 
@@ -232,33 +232,33 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[domain_id]->domain_listener);
+    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->domain_callback_mask.is_set(callback));
+        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_FALSE(domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_FALSE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 }
 
@@ -274,33 +274,33 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(nullptr, domain_monitors[domain_id]->domain_listener);
+    EXPECT_EQ(nullptr, domain_monitors[monitor_id]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->domain_callback_mask.is_set(callback));
+        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 }
 
@@ -325,43 +325,43 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
 
     EXPECT_TRUE(monitor_id2.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that two monitors are created */
     EXPECT_EQ(domain_monitors.size(), 2);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[domain_id1]->domain_listener);
-    EXPECT_EQ(nullptr, domain_monitors[domain_id2]->domain_listener);
+    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id1]->domain_listener);
+    EXPECT_EQ(nullptr, domain_monitors[monitor_id2]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id1]->domain_callback_mask.is_set(callback));
-        EXPECT_FALSE(domain_monitors[domain_id2]->domain_callback_mask.is_set(callback));
+        EXPECT_TRUE(domain_monitors[monitor_id1]->domain_callback_mask.is_set(callback));
+        EXPECT_FALSE(domain_monitors[monitor_id2]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id1]->data_mask.is_set(datakind));
-        EXPECT_FALSE(domain_monitors[domain_id2]->data_mask.is_set(datakind));
+        EXPECT_TRUE(domain_monitors[monitor_id1]->data_mask.is_set(datakind));
+        EXPECT_FALSE(domain_monitors[monitor_id2]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id1]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id2]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id1]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id2]->participant);
 
-    EXPECT_NE(nullptr, domain_monitors[domain_id1]->subscriber);
-    EXPECT_NE(nullptr, domain_monitors[domain_id2]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id1]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id2]->subscriber);
 
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id1]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id2]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id1]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id2]->topics[topic.first]);
 
-        EXPECT_NE(nullptr, domain_monitors[domain_id1]->readers[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id2]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id1]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id2]->readers[topic.first]);
     }
 }
 
@@ -383,34 +383,34 @@ TEST_F(init_monitor_tests, init_monitor_twice)
                 CallbackMask::none(),
                 DataKindMask::none()), BadParameter);
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_domain_;
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1);
 
     /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[domain_id]->domain_listener);
+    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
 
     /* Check that the CallbackMask is set correctly */
     for (auto callback : init_monitor_tests::all_callback_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->domain_callback_mask.is_set(callback));
+        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
     }
 
     /* Check that the DataKindMask is set correctly */
     for (auto datakind : init_monitor_tests::all_data_kinds_)
     {
-        EXPECT_TRUE(domain_monitors[domain_id]->data_mask.is_set(datakind));
+        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[domain_id]->subscriber);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
+    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
 
     for (auto topic : topic_types_)
     {
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[domain_id]->readers[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
+        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 }
 
