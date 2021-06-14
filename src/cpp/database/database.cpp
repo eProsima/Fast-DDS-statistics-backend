@@ -3314,29 +3314,6 @@ void Database::load_database(
         }
     }
 
-    // Locators
-    {
-        DatabaseDump container = dump.at(LOCATOR_CONTAINER_TAG);
-        for (auto it = container.begin(); it != container.end(); ++it)
-        {
-            // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG,
-                    DATAWRITER_CONTAINER_TAG);
-            check_entity_contains_all_references(dump, it, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG,
-                    DATAREADER_CONTAINER_TAG);
-
-            // Create entity
-            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
-
-            // Insert into database
-            EntityId entity_id = EntityId(string_to_int(it.key()));
-            insert_nts(entity, entity_id);
-
-            // Load data and insert into database
-            load_data((*it).at(DATA_CONTAINER_TAG), entity);
-        }
-    }
-
     // Participants
     {
         DatabaseDump container = dump.at(PARTICIPANT_CONTAINER_TAG);
