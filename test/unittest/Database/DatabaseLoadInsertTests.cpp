@@ -64,8 +64,8 @@ bool map_compare (
 
 /**
  * Test to check that load_database() fills the exactly same database that using database.insert()
- * with equivalent entities does. The fixture is necessary for populate a database
- * and then check the results loading the dump of the inserted oneinitially populated database.
+ * with equivalent entities does. The fixture is necessary for populating a database
+ * and then check the results loading the dump of the initially populated database.
  */
 TEST_F(database_load_insert_tests, load_insert)
 {
