@@ -24,16 +24,11 @@ struct CountAggregator final : public IDataAggregator
             Timestamp t_from,
             Timestamp t_to,
             std::vector<StatisticsData>& returned_data)
-        : IDataAggregator(bins, t_from, t_to, returned_data)
+        : IDataAggregator(bins, t_from, t_to, returned_data, 0)
     {
     }
 
 protected:
-
-    double initial_value() const noexcept
-    {
-        return 0;
-    }
 
     void add_sample(
             size_t index,

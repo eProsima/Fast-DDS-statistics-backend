@@ -55,16 +55,18 @@ struct IDataAggregator
      * @param t_from         Starting time of the returned measures
      * @param t_to           Ending time of the returned measures
      * @param returned_data  Reference to the collection to be returned by @ref StatisticsBackend::get_data
+     * @param initial_value  Value with which to initialize the contents of returned_data
      */
     IDataAggregator(
             uint16_t bins,
             Timestamp t_from,
             Timestamp t_to,
-            std::vector<StatisticsData>& returned_data)
+            std::vector<StatisticsData>& returned_data,
+            double initial_value = std::numeric_limits<double>::quiet_NaN())
         : data_(returned_data)
     {
         assert(bins > 0);
-        prepare_bins(bins, t_from, t_to);
+        prepare_bins(bins, t_from, t_to, initial_value);
     }
 
     /**
@@ -147,7 +149,8 @@ private:
     void prepare_bins(
             uint16_t bins,
             Timestamp t_from,
-            Timestamp t_to)
+            Timestamp t_to,
+            double initial_value)
     {
         // Perform a single allocation for all the returned bins
         data_.reserve(bins);
@@ -157,10 +160,9 @@ private:
         interval_ /= bins;
 
         // Fill each bin with the initial value and the initial timestamp of the bin
-        double value = initial_value();
         do
         {
-            data_.emplace_back(t_from, value);
+            data_.emplace_back(t_from, initial_value);
             t_from += interval_;
             bins--;
         } while (bins > 0);
