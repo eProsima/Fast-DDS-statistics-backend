@@ -191,9 +191,10 @@ struct StatisticsIterator<database::PublicationThroughputSample> final
 
     double get_value() const noexcept override
     {
-        auto aux_prev = *this - 1;
-        auto& prev = reinterpret_cast<decltype(*this)>(aux_prev);
-        double diff = sample().data - prev.sample().data;
+        auto aux_prev = static_cast<base_iterator_type>(*this);
+        --aux_prev;
+        StatisticsIterator<database::EntityDataSample> prev(aux_prev);
+        double diff = sample().data - prev.get_value();
         auto diff_time = get_timestamp() - prev.get_timestamp();
         return diff / diff_time.count();
     }
@@ -213,9 +214,10 @@ struct StatisticsIterator<database::SubscriptionThroughputSample> final
 
     double get_value() const noexcept override
     {
-        auto aux_prev = *this - 1;
-        auto& prev = reinterpret_cast<decltype(*this)>(aux_prev);
-        double diff = sample().data - prev.sample().data;
+        auto aux_prev = static_cast<base_iterator_type>(*this);
+        --aux_prev;
+        StatisticsIterator<database::EntityDataSample> prev(aux_prev);
+        double diff = sample().data - prev.get_value();
         auto diff_time = get_timestamp() - prev.get_timestamp();
         return diff / diff_time.count();
     }
@@ -259,7 +261,7 @@ IteratorPair get_throughput_iterators(
 
     return IteratorPair
            {
-               new StatisticsIterator<T>(data.cbegin()),
+               new StatisticsIterator<T>(begin),
                new StatisticsIterator<T>(data.cend())
            };
 }
