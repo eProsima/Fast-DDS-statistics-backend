@@ -1164,6 +1164,149 @@ TEST_P(get_data_with_data_tests, get_min_data)
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         case DataKind::PUBLICATION_THROUGHPUT:
+        {
+            /************* Time span smaller than available data ******************/
+            start = Timestamp() + std::chrono::nanoseconds(40);
+            finish = Timestamp() + std::chrono::nanoseconds(90);
+
+            // Testing with a single bin
+            fill_expected_result(expected, start, finish, 1);
+            expected[0].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    1,
+                    statistic,
+                    expected);
+
+            // Testing with 5 bins
+            fill_expected_result(expected, start, finish, 5);
+            expected[1].second = 0.1e+9;
+            expected[2].second = 0.1e+9;
+            expected[3].second = 0.1e+9;
+            expected[4].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    5,
+                    statistic,
+                    expected);
+
+            // Testing with 10 bins
+            fill_expected_result(expected, start, finish, 10);
+            expected[2].second = 0.1e+9;
+            expected[4].second = 0.1e+9;
+            expected[6].second = 0.1e+9;
+            expected[8].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    10,
+                    statistic,
+                    expected);
+
+            // Testing with 100 bins
+            EXPECT_THROW(
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    100,
+                    statistic,
+                    expected),
+                BadParameter);
+
+            /************* Time span larger than available data ******************/
+            start = Timestamp() + std::chrono::nanoseconds(0);
+            finish = Timestamp() + std::chrono::nanoseconds(200);
+
+            // Testing with a single bin
+            fill_expected_result(expected, start, finish, 1);
+            expected[0].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    1,
+                    statistic,
+                    expected);
+
+            // Testing with 5 bins
+            fill_expected_result(expected, start, finish, 5);
+            expected[0].second = 0.1e+9;
+            expected[1].second = 0.1e+9;
+            expected[2].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    5,
+                    statistic,
+                    expected);
+
+            // Testing with 10 bins
+            fill_expected_result(expected, start, finish, 10);
+            expected[1].second = 0.1e+9;
+            expected[2].second = 0.1e+9;
+            expected[3].second = 0.1e+9;
+            expected[4].second = 0.1e+9;
+            expected[5].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    10,
+                    statistic,
+                    expected);
+
+            // Testing with 100 bins
+            fill_expected_result(expected, start, finish, 100);
+            expected[10].second = 0.1e+9;
+            expected[15].second = 0.1e+9;
+            expected[20].second = 0.1e+9;
+            expected[25].second = 0.1e+9;
+            expected[30].second = 0.1e+9;
+            expected[35].second = 0.1e+9;
+            expected[40].second = 0.1e+9;
+            expected[45].second = 0.1e+9;
+            expected[50].second = 0.1e+9;
+
+            check_get_data(
+                    data_type,
+                    entity1,
+                    entity2,
+                    start,
+                    finish,
+                    100,
+                    statistic,
+                    expected);
+
+
+            break;
+        }
         case DataKind::NETWORK_LATENCY:
         case DataKind::FASTDDS_LATENCY:
         {
@@ -1240,7 +1383,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 32.5;
+            expected[0].second = 1.0;
 
             check_get_data(
                     data_type,
@@ -1292,13 +1435,13 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[5].second = 1.0;
             expected[10].second = 5.5;
             expected[15].second = 1.0;
-            expected[25].second = 5.5;
-            expected[30].second = 1.0;
-            expected[35].second = 5.5;
-            expected[40].second = 1.0;
-            expected[45].second = 5.5;
-            expected[50].second = 1.0;
-            expected[55].second = 5.5;
+            expected[20].second = 5.5;
+            expected[25].second = 1.0;
+            expected[30].second = 5.5;
+            expected[35].second = 1.0;
+            expected[40].second = 5.5;
+            expected[45].second = 1.0;
+            expected[50].second = 5.5;
 
             check_get_data(
                     data_type,
