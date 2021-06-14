@@ -427,6 +427,10 @@ void initialize_empty_entities_unlinked(
     ASSERT_NE(db.insert(participant), EntityId::invalid());
     ASSERT_NE(db.insert(dw), EntityId::invalid());
     ASSERT_NE(db.insert(dr), EntityId::invalid());
+
+    // Locator unlinked
+    std::shared_ptr<Locator> locator_2 = std::make_shared<Locator>(std::string(LOCATOR_DEFAULT_NAME(index + 1)));
+    ASSERT_NE(db.insert(locator_2), EntityId::invalid());
 }
 
 // Test the dump of a database with one entity of each kind with unlinked entities
@@ -438,6 +442,15 @@ TEST(database, dump_unlinked_database)
     DatabaseDump dump = load_file(EMPTY_ENTITIES_DUMP_FILE);
     dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";
     dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();
+
+    std::string locator2_id = std::to_string(db.next_id() - 1);
+
+    dump[LOCATOR_CONTAINER_TAG][locator2_id] = dump[LOCATOR_CONTAINER_TAG].begin().value();
+    dump[LOCATOR_CONTAINER_TAG][locator2_id][NAME_INFO_TAG] = std::string(LOCATOR_DEFAULT_NAME(1));
+
+    // Locator unlinked
+    dump[LOCATOR_CONTAINER_TAG][locator2_id][DATAWRITER_CONTAINER_TAG] = DatabaseDump::array();
+    dump[LOCATOR_CONTAINER_TAG][locator2_id][DATAREADER_CONTAINER_TAG] = DatabaseDump::array();
 
     ASSERT_EQ(db.dump_database(), dump);
 }
