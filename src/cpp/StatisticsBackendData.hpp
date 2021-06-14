@@ -96,45 +96,24 @@ public:
      *
      * @return Raw pointer to the singleton instance
      */
-    static StatisticsBackendData* get_instance()
-    {
-        if (nullptr == instance_)
-        {
-            instance_ = new StatisticsBackendData();
-        }
-        return instance_;
-    }
+    static StatisticsBackendData* get_instance();
 
     /**
      * @brief Resets the instance of the singleton
      *
      * This method exists for internal debugging / testing purposes.
      */
-    static void reset_instance()
-    {
-        if (nullptr != instance_)
-        {
-            delete instance_;
-        }
-
-        instance_ = new StatisticsBackendData();
-    }
+    static void reset_instance();
 
     /**
      * @brief Locks the instance for thread synchronization
      */
-    void lock()
-    {
-        lock_.lock();
-    }
+    void lock();
 
     /**
      * @brief Unlocks the instance
      */
-    void unlock()
-    {
-        lock_.unlock();
-    }
+    void unlock();
 
     /**
      * @brief Specifies the reason of calling the entity discovery methods

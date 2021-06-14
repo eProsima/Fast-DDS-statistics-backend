@@ -20,6 +20,8 @@
 #ifndef _FASTDDS_DDS_TOPIC_HPP_
 #define _FASTDDS_DDS_TOPIC_HPP_
 
+#include <string>
+
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastrtps/types/TypesBase.h>
 

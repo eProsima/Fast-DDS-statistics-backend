@@ -32,14 +32,14 @@
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
-#include <database/database_queue.hpp>
-#include <database/database.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
+
+#include <database/database_queue.hpp>
+#include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
 #include <topic_types/typesPubSubTypes.h>
-
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
 
@@ -92,7 +92,7 @@ void find_or_create_topic_and_type(
         }
         catch (const std::bad_cast& e)
         {
-            // TODO[ILG]: Couls we support other TopicDescription types in this context?
+            // TODO[ILG]: Could we support other TopicDescription types in this context?
             throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
         }
 

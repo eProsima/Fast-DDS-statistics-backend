@@ -23,13 +23,14 @@
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
-#include <database/database_queue.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+
+#include <database/database_queue.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
 #include <topic_types/typesPubSubTypes.h>
@@ -120,6 +121,7 @@ public:
 
         // Set the profile to ignore discovery data from other processes
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
     ~init_monitor_tests()

@@ -154,6 +154,7 @@ public:
     {
         // Set the profile to ignore discovery data from other processes
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
     ~calling_user_listeners_tests()
@@ -3033,6 +3034,7 @@ public:
     {
         // Set the profile to ignore discovery data from other processes
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
     ~calling_user_data_listeners_tests()

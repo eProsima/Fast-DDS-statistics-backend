@@ -21,11 +21,12 @@
 #include <string>
 
 #include "StatisticsBackendData.hpp"
-#include "StatisticsBackend.hpp"
-#include "Monitor.hpp"
 
-#include <database/database.hpp>
+#include "StatisticsBackend.hpp"
+
+#include "Monitor.hpp"
 #include <database/database_queue.hpp>
+#include <database/database.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -61,6 +62,35 @@ StatisticsBackendData::~StatisticsBackendData()
 
     delete entity_queue_;
     delete data_queue_;
+}
+
+StatisticsBackendData* StatisticsBackendData::get_instance()
+{
+    if (nullptr == instance_)
+    {
+        instance_ = new StatisticsBackendData();
+    }
+    return instance_;
+}
+
+void StatisticsBackendData::reset_instance()
+{
+    if (nullptr != instance_)
+    {
+        delete instance_;
+    }
+
+    instance_ = new StatisticsBackendData();
+}
+
+void StatisticsBackendData::lock()
+{
+    lock_.lock();
+}
+
+void StatisticsBackendData::unlock()
+{
+    lock_.unlock();
 }
 
 void StatisticsBackendData::on_data_available(
