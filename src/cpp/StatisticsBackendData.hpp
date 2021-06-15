@@ -20,6 +20,7 @@
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 
 #include <map>
+#include <mutex>
 #include <string>
 
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
@@ -33,6 +34,14 @@
 
 namespace eprosima {
 namespace statistics_backend {
+
+namespace database {
+
+class DatabaseEntityQueue;
+class DatabaseDataQueue;
+
+} // namespace database
+
 namespace details {
 
 
@@ -46,8 +55,14 @@ public:
     //! Reference to the Database
     std::unique_ptr<database::Database> database_;
 
+    //! Reference to the Database entity queue
+    database::DatabaseEntityQueue* entity_queue_;
+
+    //! Reference to the Database data queue
+    database::DatabaseDataQueue* data_queue_;
+
     //! Collection of monitors
-    std::map<EntityId, std::unique_ptr<Monitor>> monitors_;
+    std::map<EntityId, std::shared_ptr<Monitor>> monitors_by_entity_;
 
     //! Physical  listener
     PhysicalListener* physical_listener_;
@@ -70,16 +85,35 @@ public:
     //! Status for the Locators
     DomainListener::Status locator_status_;
 
+    //! Synchronization mutex
+    std::mutex mutex_;
+
+    //! Synchronization lock
+    std::unique_lock<std::mutex> lock_;
+
     /**
      * @brief Get the singleton instance object
      *
      * @return Raw pointer to the singleton instance
      */
-    static StatisticsBackendData* get_instance()
-    {
-        static StatisticsBackendData instance;
-        return &instance;
-    }
+    static StatisticsBackendData* get_instance();
+
+    /**
+     * @brief Resets the instance of the singleton
+     *
+     * This method exists for internal debugging / testing purposes.
+     */
+    static void reset_instance();
+
+    /**
+     * @brief Locks the instance for thread synchronization
+     */
+    void lock();
+
+    /**
+     * @brief Unlocks the instance
+     */
+    void unlock();
 
     /**
      * @brief Specifies the reason of calling the entity discovery methods
@@ -137,11 +171,12 @@ protected:
     /**
      * @brief Protected constructor of the singleton
      */
-    StatisticsBackendData()
-        : database_(new database::Database)
-        , physical_listener_(nullptr)
-    {
-    }
+    StatisticsBackendData();
+
+    /**
+     * @brief Protected destructor of the singleton
+     */
+    ~StatisticsBackendData();
 
     /**
      * @brief Check whether the domain listener should be called given the arguments
@@ -160,7 +195,7 @@ protected:
      * @return true if the listener should be called. False otherwise.
      */
     bool should_call_domain_listener(
-            std::unique_ptr<Monitor>& monitor,
+            std::shared_ptr<Monitor>& monitor,
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 
@@ -192,6 +227,8 @@ protected:
     void prepare_entity_discovery_status(
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
+
+    static StatisticsBackendData* instance_;
 };
 
 } // namespace details

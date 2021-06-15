@@ -21,14 +21,19 @@ check_gmock()
 
 add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
-
 target_include_directories(statistics_backend_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
@@ -59,16 +64,22 @@ endforeach()
 
 add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(calling_user_listeners_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/test/mock/database/database
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
@@ -111,13 +122,22 @@ set(USER_LISTENERS_TEST_LIST
     datawriter_discovered_not_in_mask
     datawriter_discovered_no_listener
     datawriter_discovered_no_listener_not_in_mask
-    wrong_entity_kind
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+endforeach()
+
+set(USER_LISTENERS_DEATH_TEST_LIST
+    wrong_entity_kind
+    )
+
+foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
+    add_test(NAME calling_user_listeners_DeathTest.${test_name}
+        COMMAND calling_user_listeners_tests
+        --gtest_filter=calling_user_listeners_DeathTest.${test_name}:*/calling_user_listeners_DeathTest.${test_name}/*)
 endforeach()
 
 set(USER_DATA_LISTENERS_TEST_LIST
@@ -133,4 +153,109 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
             COMMAND calling_user_listeners_tests
             --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
+endforeach()
+
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# init_monitor_tests
+##################################################################
+
+add_executable(init_monitor_tests InitMonitorTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+target_include_directories(init_monitor_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(init_monitor_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+set(INIT_MONITOR_TEST_LIST
+    init_monitor_domain_id_all_callback_all_data
+    init_monitor_domain_id_no_callback_all_data
+    init_monitor_domain_id_all_callback_no_data
+    init_monitor_domain_id_null_listener_all_data
+    init_monitor_several_monitors
+    init_monitor_twice
+    stop_monitor
+    )
+
+foreach(test_name ${INIT_MONITOR_TEST_LIST})
+    add_test(NAME init_monitor_tests.${test_name}
+            COMMAND init_monitor_tests
+            --gtest_filter=init_monitor_tests.${test_name}:*/init_monitor_tests.${test_name}/*)
+endforeach()
+
+# init_monitor_factory_fails_tests
+##################################################################
+
+add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+target_include_directories(init_monitor_factory_fails_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/DataReader
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipantFactory
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/Subscriber
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/Topic
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/TopicDescription
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(init_monitor_factory_fails_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+
+set(INIT_MONITOR_TEST_LIST
+    init_monitor_participant_creation_fails
+    init_monitor_subscriber_creation_fails
+    init_monitor_datareader_creation_fails
+    init_monitor_topic_creation_fails
+    init_monitor_register_type_fails
+    init_monitor_topic_exists
+    init_monitor_topic_exists_with_another_type
+    )
+
+foreach(test_name ${INIT_MONITOR_TEST_LIST})
+    add_test(NAME init_monitor_factory_fails_tests.${test_name}
+            COMMAND init_monitor_factory_fails_tests
+            --gtest_filter=init_monitor_factory_fails_tests.${test_name}:*/init_monitor_factory_fails_tests.${test_name}/*)
 endforeach()

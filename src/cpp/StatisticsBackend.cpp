@@ -16,37 +16,290 @@
  * @file StatisticsBackend.cpp
  */
 
+#include <fstream>
+
+#include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/qos/TopicQos.hpp>
+#include <fastdds/dds/topic/Topic.hpp>
+#include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/statistics/topic_names.hpp>
+
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 
+#include <database/database_queue.hpp>
 #include <database/database.hpp>
+#include <subscriber/StatisticsParticipantListener.hpp>
+#include <subscriber/StatisticsReaderListener.hpp>
+#include <topic_types/typesPubSubTypes.h>
+#include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
+
+using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::statistics;
 
 namespace eprosima {
 namespace statistics_backend {
 
+
+static const char* topics[] =
+{
+    HISTORY_LATENCY_TOPIC,
+    NETWORK_LATENCY_TOPIC,
+    PUBLICATION_THROUGHPUT_TOPIC,
+    SUBSCRIPTION_THROUGHPUT_TOPIC,
+    RTPS_SENT_TOPIC,
+    RTPS_LOST_TOPIC,
+    RESENT_DATAS_TOPIC,
+    HEARTBEAT_COUNT_TOPIC,
+    ACKNACK_COUNT_TOPIC,
+    NACKFRAG_COUNT_TOPIC,
+    GAP_COUNT_TOPIC,
+    DATA_COUNT_TOPIC,
+    PDP_PACKETS_TOPIC,
+    EDP_PACKETS_TOPIC,
+    DISCOVERY_TOPIC,
+    SAMPLE_DATAS_TOPIC,
+    PHYSICAL_DATA_TOPIC
+};
+
+void find_or_create_topic_and_type(
+        std::shared_ptr<details::Monitor> monitor,
+        const std::string& topic_name,
+        const TypeSupport& type)
+{
+    // Find if the topic has been already created and if the associated type is correct
+    TopicDescription* topic_desc = monitor->participant->lookup_topicdescription(topic_name);
+    if (nullptr != topic_desc)
+    {
+        if (topic_desc->get_type_name() != type->getName())
+        {
+            throw Error(topic_name + " is not using expected type " + type->getName() +
+                          " and is using instead type " + topic_desc->get_type_name());
+        }
+
+        try
+        {
+            monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+        }
+        catch (const std::bad_cast& e)
+        {
+            // TODO[ILG]: Could we support other TopicDescription types in this context?
+            throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
+        }
+
+    }
+    else
+    {
+        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
+        {
+            // Name already in use
+            throw Error(std::string("Type name ") + type->getName() + " is already in use");
+        }
+        monitor->topics[topic_name] =
+                monitor->participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+    }
+}
+
+void register_statistics_type_and_topic(
+        std::shared_ptr<details::Monitor> monitor,
+        const std::string& topic_name)
+{
+    if (HISTORY_LATENCY_TOPIC == topic_name)
+    {
+        TypeSupport history_latency_type(new WriterReaderDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, history_latency_type);
+    }
+    else if (NETWORK_LATENCY_TOPIC == topic_name)
+    {
+        TypeSupport network_latency_type(new Locator2LocatorDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, network_latency_type);
+    }
+    else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name || SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
+    {
+        TypeSupport throughput_type(new EntityDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, throughput_type);
+    }
+    else if (RTPS_SENT_TOPIC == topic_name || RTPS_LOST_TOPIC == topic_name)
+    {
+        TypeSupport rtps_traffic_type(new Entity2LocatorTrafficPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, rtps_traffic_type);
+    }
+    else if (RESENT_DATAS_TOPIC == topic_name || HEARTBEAT_COUNT_TOPIC == topic_name ||
+            ACKNACK_COUNT_TOPIC == topic_name || NACKFRAG_COUNT_TOPIC == topic_name ||
+            GAP_COUNT_TOPIC == topic_name || DATA_COUNT_TOPIC == topic_name ||
+            PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
+    {
+        TypeSupport count_type(new EntityCountPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, count_type);
+    }
+    else if (DISCOVERY_TOPIC == topic_name)
+    {
+        TypeSupport discovery_type(new DiscoveryTimePubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, discovery_type);
+    }
+    else if (SAMPLE_DATAS_TOPIC == topic_name)
+    {
+        TypeSupport sample_identity_count_type(new SampleIdentityCountPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, sample_identity_count_type);
+    }
+    else if (PHYSICAL_DATA_TOPIC == topic_name)
+    {
+        TypeSupport physical_data_type(new PhysicalDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, physical_data_type);
+    }
+}
 
 void StatisticsBackend::set_physical_listener(
         PhysicalListener* listener,
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    details::StatisticsBackendData::get_instance()->lock();
     details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
     details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
     details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
+    details::StatisticsBackendData::get_instance()->unlock();
 }
 
 EntityId StatisticsBackend::init_monitor(
-        DomainId domain,
+        DomainId domain_id,
         DomainListener* domain_listener,
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    static_cast<void>(domain);
-    static_cast<void>(domain_listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
-    return EntityId();
+    details::StatisticsBackendData::get_instance()->lock();
+
+    /* Create monitor instance and register it in the database */
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    std::stringstream domain_name;
+    domain_name << domain_id;
+    std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name.str());
+    try
+    {
+        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    }
+    catch (const std::exception& e)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw;
+    }
+
+    monitor->id = domain->id;
+    monitor->domain_listener = domain_listener;
+    monitor->domain_callback_mask = callback_mask;
+    monitor->data_mask = data_mask;
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
+    monitor->participant_listener = new subscriber::StatisticsParticipantListener(
+        domain->id,
+        details::StatisticsBackendData::get_instance()->database_.get(),
+        details::StatisticsBackendData::get_instance()->entity_queue_,
+        details::StatisticsBackendData::get_instance()->data_queue_);
+    monitor->reader_listener = new subscriber::StatisticsReaderListener(
+        details::StatisticsBackendData::get_instance()->data_queue_);
+
+    /* Create DomainParticipant */
+    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+    participant_qos.name("monitor_domain_" + domain_id);
+
+    StatusMask participant_mask = StatusMask::all();
+    participant_mask ^= StatusMask::data_on_readers();
+    monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
+        domain_id,
+        participant_qos,
+        monitor->participant_listener,
+        participant_mask);
+
+    if (monitor->participant == nullptr)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw Error("Error initializing monitor. Could not create participant");
+    }
+
+    /* Create Subscriber */
+    monitor->subscriber = monitor->participant->create_subscriber(
+        SUBSCRIBER_QOS_DEFAULT,
+        nullptr,
+        StatusMask::none());
+
+    if (monitor->subscriber == nullptr)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw Error("Error initializing monitor. Could not create subscriber");
+    }
+
+    for (auto topic : topics)
+    {
+        /* Register the type and topic*/
+        register_statistics_type_and_topic(monitor, topic);
+
+        if (monitor->topics[topic] == nullptr)
+        {
+            details::StatisticsBackendData::get_instance()->unlock();
+            throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
+        }
+
+        /* Create DataReaders */
+        monitor->readers[topic] = monitor->subscriber->create_datareader(
+            monitor->topics[topic],
+            eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
+            monitor->reader_listener,
+            StatusMask::all());
+
+        if (monitor->readers[topic] == nullptr)
+        {
+            details::StatisticsBackendData::get_instance()->unlock();
+            throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
+        }
+    }
+
+    details::StatisticsBackendData::get_instance()->unlock();
+    return domain->id;
+}
+
+void StatisticsBackend::stop_monitor(
+        EntityId monitor_id)
+{
+    details::StatisticsBackendData::get_instance()->lock();
+
+    //Find the monitor
+    auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
+    if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw BadParameter("No monitor with such ID");
+    }
+    auto monitor = it->second;
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(it);
+
+    // Delete everything created during monitor initialization
+    for (auto reader : monitor->readers)
+    {
+        monitor->subscriber->delete_datareader(reader.second);
+    }
+    monitor->readers.clear();
+
+    for (auto topic : monitor->topics)
+    {
+        monitor->participant->delete_topic(topic.second);
+    }
+    monitor->topics.clear();
+
+    monitor->participant->delete_subscriber(monitor->subscriber);
+    DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    delete monitor->reader_listener;
+    delete monitor->participant_listener;
+
+    details::StatisticsBackendData::get_instance()->unlock();
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -63,12 +316,6 @@ EntityId StatisticsBackend::init_monitor(
 }
 
 void StatisticsBackend::restart_monitor(
-        EntityId monitor_id)
-{
-    static_cast<void>(monitor_id);
-}
-
-void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
     static_cast<void>(monitor_id);

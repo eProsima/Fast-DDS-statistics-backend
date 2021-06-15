@@ -68,7 +68,9 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
-     * @return The ID of the created statistics DomainParticipant.
+     * @return The ID of the created statistics Domain.
+     * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain
+     * @throws eprosima::statistics_backend::Error if the creation of the monitor fails
      */
     static EntityId init_monitor(
             DomainId domain,
@@ -86,7 +88,7 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
      * @param data_mask Mask of the data types that will be monitored
-     * @return The ID of the created statistics DomainParticipant.
+     * @return The ID of the created statistics Domain.
      */
     static EntityId init_monitor(
             std::string discovery_server_locators,
@@ -415,6 +417,7 @@ public:
      */
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);
+
 };
 
 } // namespace statistics_backend

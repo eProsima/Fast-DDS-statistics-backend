@@ -21,23 +21,88 @@
 #include <string>
 
 #include "StatisticsBackendData.hpp"
-#include "Monitor.hpp"
 
+#include "StatisticsBackend.hpp"
+
+#include "Monitor.hpp"
+#include <database/database_queue.hpp>
 #include <database/database.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
-
 namespace details {
 
+StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+
+StatisticsBackendData::StatisticsBackendData()
+    : database_(new database::Database)
+    , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
+    , data_queue_(new database::DatabaseDataQueue(database_.get()))
+    , physical_listener_(nullptr)
+    , lock_(mutex_, std::defer_lock)
+{
+}
+
+StatisticsBackendData::~StatisticsBackendData()
+{
+    // Destroy each monitor
+    while (!monitors_by_entity_.empty())
+    {
+        // Beware that stop_monitor removes the monitor from monitors_by_entity_
+        // so we cannot use iterators here
+        auto monitor = monitors_by_entity_.begin()->second;
+        StatisticsBackend::stop_monitor(monitor->id);
+    }
+
+    if (entity_queue_)
+    {
+        entity_queue_->stop_consumer();
+    }
+    if (data_queue_)
+    {
+        data_queue_->stop_consumer();
+    }
+
+    delete entity_queue_;
+    delete data_queue_;
+}
+
+StatisticsBackendData* StatisticsBackendData::get_instance()
+{
+    if (nullptr == instance_)
+    {
+        instance_ = new StatisticsBackendData();
+    }
+    return instance_;
+}
+
+void StatisticsBackendData::reset_instance()
+{
+    if (nullptr != instance_)
+    {
+        delete instance_;
+    }
+
+    instance_ = new StatisticsBackendData();
+}
+
+void StatisticsBackendData::lock()
+{
+    lock_.lock();
+}
+
+void StatisticsBackendData::unlock()
+{
+    lock_.unlock();
+}
 
 void StatisticsBackendData::on_data_available(
         EntityId domain_id,
         EntityId entity_id,
         DataKind data_kind)
 {
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
+    auto monitor = monitors_by_entity_.find(domain_id);
+    assert(monitor != monitors_by_entity_.end());
 
     if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
@@ -50,7 +115,7 @@ void StatisticsBackendData::on_data_available(
 }
 
 bool StatisticsBackendData::should_call_domain_listener(
-        std::unique_ptr<Monitor>& monitor,
+        std::shared_ptr<Monitor>& monitor,
         CallbackKind callback_kind,
         DataKind data_kind)
 {
@@ -124,8 +189,8 @@ void StatisticsBackendData::on_domain_entity_discovery(
         EntityKind entity_kind,
         DiscoveryStatus discovery_status)
 {
-    auto monitor = monitors_.find(domain_id);
-    assert(monitor != monitors_.end());
+    auto monitor = monitors_by_entity_.find(domain_id);
+    assert(monitor != monitors_by_entity_.end());
 
     switch (entity_kind)
     {

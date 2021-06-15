@@ -62,6 +62,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_writer_discovered_no_participant
         new_writer_discovered_no_domain
         new_writer_discovered_writer_already_exists
+        new_writer_discovered_statistics_writer
         )
 
     foreach(test_name ${STATISTICSPARTICIPANTLISTENER_TEST_LIST})
