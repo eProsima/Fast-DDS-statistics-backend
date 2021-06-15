@@ -539,6 +539,10 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -1006,6 +1010,10 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -1473,6 +1481,10 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -1940,6 +1952,10 @@ TEST_P(get_data_with_data_tests, get_count_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -2266,6 +2282,10 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -2735,6 +2755,10 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -3200,6 +3224,10 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -3665,6 +3693,10 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
     switch (data_type)
     {
+        default:
+            GTEST_SKIP();
+            break;
+
         case DataKind::RTPS_BYTES_LOST:
         case DataKind::RTPS_BYTES_SENT:
         case DataKind::RTPS_PACKETS_LOST:
@@ -3827,8 +3859,6 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             /************* Time span smaller than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(40);
             finish = Timestamp() + std::chrono::nanoseconds(90);
-            bool throughput = DataKind::SUBSCRIPTION_THROUGHPUT == data_type ||
-                        DataKind::PUBLICATION_THROUGHPUT == data_type;
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
