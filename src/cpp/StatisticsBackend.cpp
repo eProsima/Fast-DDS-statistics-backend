@@ -359,13 +359,14 @@ bool StatisticsBackend::is_active(
     else
     {
         // Is inactive if the data is empty
-        std::shared_ptr<const Entity> entity = details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+        std::shared_ptr<const database::Entity> entity =
+                details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
         switch (entity->kind)
         {
             case EntityKind::PARTICIPANT:
             {
-                std::shared_ptr<const DomainParticipant> participant =
-                        std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                std::shared_ptr<const database::DomainParticipant> participant =
+                        std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
                 return !(participant->data.rtps_packets_sent.empty() &&
                        participant->data.last_reported_rtps_packets_sent_count.empty() &&
                        participant->data.rtps_bytes_sent.empty() &&
@@ -381,7 +382,8 @@ bool StatisticsBackend::is_active(
             }
             case EntityKind::DATAWRITER:
             {
-                std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                std::shared_ptr<const database::DataWriter> datawriter =
+                        std::dynamic_pointer_cast<const database::DataWriter>(entity);
                 return !(datawriter->data.data_count.empty() && datawriter->data.gap_count.empty() &&
                        datawriter->data.heartbeat_count.empty() &&
                        datawriter->data.history2history_latency.empty() &&
@@ -394,7 +396,8 @@ bool StatisticsBackend::is_active(
             }
             case EntityKind::DATAREADER:
             {
-                std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                std::shared_ptr<const database::DataReader> datareader =
+                        std::dynamic_pointer_cast<const database::DataReader>(entity);
                 return !(datareader->data.acknack_count.empty() &&
                        datareader->data.last_reported_acknack_count.count == 0 &&
                        datareader->data.last_reported_nackfrag_count.count == 0 &&
@@ -402,7 +405,8 @@ bool StatisticsBackend::is_active(
             }
             case EntityKind::LOCATOR:
             {
-                std::shared_ptr<const Locator> locator = std::dynamic_pointer_cast<const Locator>(entity);
+                std::shared_ptr<const database::Locator> locator = std::dynamic_pointer_cast<const database::Locator>(
+                    entity);
                 return !(locator->data.network_latency_per_locator.empty());
             }
             default:

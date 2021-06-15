@@ -31,7 +31,7 @@ public:
 
     void SetUp()
     {
-        entities = PopulateDatabase::populate_database(db);
+        entities = PopulateDatabase::populate_database(db,true);
     }
 
     DataBaseTest db;

@@ -126,7 +126,7 @@ public:
     typedef uint32_t TestId;
 
     static std::map<TestId, std::shared_ptr<const Entity>> populate_database(
-            Database& db)
+            Database& db, bool insert_datas = false)
     {
         std::map<TestId, std::shared_ptr<const Entity>> entities;
 
@@ -219,7 +219,8 @@ public:
         entities[20] = writer_locator2;
 
         // Insert datas on domain2
-
+        if (insert_datas)
+        {
         // participants
         {
             EntityId domainId = participant2->domain->id;
@@ -447,7 +448,7 @@ public:
             }
 
         }
-
+        }
         return entities;
     }
 
