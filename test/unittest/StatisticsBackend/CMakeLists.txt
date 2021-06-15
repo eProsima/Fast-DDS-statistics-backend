@@ -54,6 +54,7 @@ target_link_libraries(statistics_backend_tests PUBLIC
 get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_TEST_LIST
+    is_active
     get_info
     get_entities
     get_type
