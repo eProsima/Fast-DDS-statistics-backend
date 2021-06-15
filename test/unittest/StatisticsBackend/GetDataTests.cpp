@@ -45,33 +45,33 @@ public:
     }
 
     const std::vector<DataKind> data_kind_values_ = {
-            DataKind::FASTDDS_LATENCY,
-            DataKind::NETWORK_LATENCY,
-            DataKind::PUBLICATION_THROUGHPUT,
-            DataKind::SUBSCRIPTION_THROUGHPUT,
-            DataKind::RTPS_PACKETS_SENT,
-            DataKind::RTPS_BYTES_SENT,
-            DataKind::RTPS_PACKETS_LOST,
-            DataKind::RTPS_BYTES_LOST,
-            DataKind::RESENT_DATA,
-            DataKind::HEARTBEAT_COUNT,
-            DataKind::ACKNACK_COUNT,
-            DataKind::NACKFRAG_COUNT,
-            DataKind::GAP_COUNT,
-            DataKind::DATA_COUNT,
-            DataKind::PDP_PACKETS,
-            DataKind::EDP_PACKETS,
-            DataKind::DISCOVERY_TIME,
-            DataKind::SAMPLE_DATAS};
+        DataKind::FASTDDS_LATENCY,
+        DataKind::NETWORK_LATENCY,
+        DataKind::PUBLICATION_THROUGHPUT,
+        DataKind::SUBSCRIPTION_THROUGHPUT,
+        DataKind::RTPS_PACKETS_SENT,
+        DataKind::RTPS_BYTES_SENT,
+        DataKind::RTPS_PACKETS_LOST,
+        DataKind::RTPS_BYTES_LOST,
+        DataKind::RESENT_DATA,
+        DataKind::HEARTBEAT_COUNT,
+        DataKind::ACKNACK_COUNT,
+        DataKind::NACKFRAG_COUNT,
+        DataKind::GAP_COUNT,
+        DataKind::DATA_COUNT,
+        DataKind::PDP_PACKETS,
+        DataKind::EDP_PACKETS,
+        DataKind::DISCOVERY_TIME,
+        DataKind::SAMPLE_DATAS};
 
     const std::vector<StatisticKind> statistic_kind_values_ = {
-            StatisticKind::COUNT,
-            StatisticKind::MAX,
-            StatisticKind::MIN,
-            StatisticKind::MEDIAN,
-            StatisticKind::STANDARD_DEVIATION,
-            StatisticKind::SUM,
-            StatisticKind::NONE};
+        StatisticKind::COUNT,
+        StatisticKind::MAX,
+        StatisticKind::MIN,
+        StatisticKind::MEDIAN,
+        StatisticKind::STANDARD_DEVIATION,
+        StatisticKind::SUM,
+        StatisticKind::NONE};
 };
 
 
@@ -94,9 +94,10 @@ class get_data_no_data_tests
         DataKind data_type = std::get<0>(GetParam());
         if (DataKind::DISCOVERY_TIME == data_type || DataKind::SAMPLE_DATAS == data_type)
         {
-                GTEST_SKIP();
+            GTEST_SKIP();
         }
     }
+
 };
 
 GTEST_INSTANTIATE_TEST_MACRO(
@@ -123,7 +124,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::DISCOVERY_TIME, EntityId(24), EntityId(25)),
         std::make_tuple(DataKind::DISCOVERY_TIME, EntityId(24), EntityId(26)),
         std::make_tuple(DataKind::SAMPLE_DATAS, EntityId(25), EntityId::invalid())
-    ));
+        ));
 
 TEST_P(get_data_no_data_tests, no_data)
 {
@@ -200,9 +201,10 @@ class get_data_with_data_tests
         DataKind data_type = std::get<0>(GetParam());
         if (DataKind::DISCOVERY_TIME == data_type || DataKind::SAMPLE_DATAS == data_type)
         {
-                GTEST_SKIP();
+            GTEST_SKIP();
         }
     }
+
 };
 
 
@@ -230,7 +232,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::DISCOVERY_TIME, EntityId(15), EntityId(16)),
         std::make_tuple(DataKind::DISCOVERY_TIME, EntityId(15), EntityId(17)),
         std::make_tuple(DataKind::SAMPLE_DATAS, EntityId(16), EntityId::invalid())
-    ));
+        ));
 
 
 TEST_P(get_data_with_data_tests, invalid_entity_kind)
@@ -243,70 +245,70 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
     if (entity2.is_valid())
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    std::vector<EntityId>(1, entity2),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId::invalid()),
+                std::vector<EntityId>(1, entity2),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    std::vector<EntityId>(1, entity2),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId::invalid()),
+                std::vector<EntityId>(1, entity2),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, EntityId::invalid()),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, EntityId::invalid()),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
     else
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId::invalid()),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId::invalid()),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId::invalid()),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
 }
 
@@ -320,70 +322,70 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
     if (entity2.is_valid())
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId(200)),
-                    std::vector<EntityId>(1, entity2),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId(200)),
+                std::vector<EntityId>(1, entity2),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId(200)),
-                    std::vector<EntityId>(1, entity2),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId(200)),
+                std::vector<EntityId>(1, entity2),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, EntityId(200)),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, EntityId(200)),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, EntityId(200)),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, EntityId(200)),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
     else
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId(200)),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId(200)),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, EntityId(200)),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, EntityId(200)),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
 }
 
@@ -397,63 +399,63 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
     if (entity2.is_valid())
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, entity2),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, entity2),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, entity2),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, entity2),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
     else
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
 }
 
 /*
  * Auxiliary function to create a results vector of the appropriate size
  * given the time duration and the number of bins.
- * 
+ *
  * The values can then be adjusted by each test
  */
 void fill_expected_result (
-    std::vector<StatisticsData>& expected,
-    Timestamp start,
-    Timestamp finish,
-    uint16_t nbins,
-    bool count = false)
+        std::vector<StatisticsData>& expected,
+        Timestamp start,
+        Timestamp finish,
+        uint16_t nbins,
+        bool count = false)
 {
     std::chrono::system_clock::duration bin_size = (finish - start) / nbins;
 
@@ -468,14 +470,14 @@ void fill_expected_result (
 }
 
 void check_get_data (
-    DataKind data_type,
-    EntityId entity1,
-    EntityId entity2,
-    Timestamp start,
-    Timestamp finish,
-    uint16_t nbins,
-    StatisticKind statistic,
-    const std::vector<StatisticsData>& expected)
+        DataKind data_type,
+        EntityId entity1,
+        EntityId entity2,
+        Timestamp start,
+        Timestamp finish,
+        uint16_t nbins,
+        StatisticKind statistic,
+        const std::vector<StatisticsData>& expected)
 {
     std::vector<StatisticsData> result;
 
@@ -565,14 +567,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 4.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -583,14 +585,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -601,18 +603,18 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -620,7 +622,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     finish,
                     100,
                     statistic,
-                    expected), BadParameter);
+                    expected),
+                BadParameter);
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + std::chrono::nanoseconds(0);
@@ -631,14 +634,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 10.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -647,14 +650,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[2].second = 2.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -666,14 +669,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -689,14 +692,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -711,14 +714,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 0.4e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -728,14 +731,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -745,18 +748,18 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -776,14 +779,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 0.9e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -792,14 +795,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[2].second = 0.3e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -810,14 +813,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -832,14 +835,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -856,14 +859,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 18.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -874,14 +877,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -892,18 +895,18 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -923,14 +926,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[0].second = 32.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -939,14 +942,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[2].second = 12.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -958,14 +961,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -981,14 +984,14 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -1036,14 +1039,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1054,14 +1057,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1072,18 +1075,18 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1102,14 +1105,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1118,14 +1121,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[2].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1137,14 +1140,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1160,14 +1163,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -1182,14 +1185,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1199,14 +1202,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1216,18 +1219,18 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1247,14 +1250,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1263,14 +1266,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[2].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1281,14 +1284,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1303,14 +1306,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -1327,14 +1330,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1345,14 +1348,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1363,18 +1366,18 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1394,14 +1397,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1410,14 +1413,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[2].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1429,14 +1432,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1452,14 +1455,14 @@ TEST_P(get_data_with_data_tests, get_min_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -1507,14 +1510,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 2.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1525,14 +1528,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1543,18 +1546,18 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1573,14 +1576,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 2.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1589,14 +1592,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[2].second = 2.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1608,14 +1611,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1631,14 +1634,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -1653,14 +1656,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1670,14 +1673,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1687,18 +1690,18 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1718,14 +1721,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1734,14 +1737,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[2].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1752,14 +1755,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1774,14 +1777,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -1798,14 +1801,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1816,14 +1819,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1834,18 +1837,18 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -1865,14 +1868,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[0].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -1881,14 +1884,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[2].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -1900,14 +1903,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -1923,14 +1926,14 @@ TEST_P(get_data_with_data_tests, get_max_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -1978,14 +1981,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[0].second = 5.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5, true);
@@ -1996,14 +1999,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[4].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10, true);
@@ -2014,18 +2017,18 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[8].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2044,14 +2047,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[0].second = 10.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5, true);
@@ -2060,14 +2063,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[2].second = 3.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10, true);
@@ -2079,14 +2082,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[5].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100, true);
@@ -2102,14 +2105,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[50].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -2121,21 +2124,21 @@ TEST_P(get_data_with_data_tests, get_count_data)
             start = Timestamp() + std::chrono::nanoseconds(40);
             finish = Timestamp() + std::chrono::nanoseconds(90);
             bool throughput = DataKind::SUBSCRIPTION_THROUGHPUT == data_type ||
-                        DataKind::PUBLICATION_THROUGHPUT == data_type;
+                    DataKind::PUBLICATION_THROUGHPUT == data_type;
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
             expected[0].second = throughput ? 4.0 : 5.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5, true);
@@ -2146,14 +2149,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[4].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10, true);
@@ -2164,18 +2167,18 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[8].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2195,14 +2198,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[0].second = throughput ? 9.0 : 10.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5, true);
@@ -2211,14 +2214,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[2].second = 3.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10, true);
@@ -2230,14 +2233,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[5].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100, true);
@@ -2253,14 +2256,14 @@ TEST_P(get_data_with_data_tests, get_count_data)
             expected[50].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -2308,14 +2311,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 0.8;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2326,14 +2329,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2344,18 +2347,18 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2374,30 +2377,30 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 4.0/3.0;
+            expected[0].second = 4.0 / 3.0;
             expected[1].second = 1.0;
-            expected[2].second = 2.0/3.0;
+            expected[2].second = 2.0 / 3.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2409,14 +2412,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -2432,14 +2435,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -2454,14 +2457,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2471,14 +2474,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2488,18 +2491,18 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2519,14 +2522,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2535,14 +2538,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[2].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2553,14 +2556,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -2575,14 +2578,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -2600,14 +2603,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 3.7;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2618,14 +2621,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2636,18 +2639,18 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2667,14 +2670,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[0].second = 3.25;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2683,14 +2686,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[2].second = 4.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2702,14 +2705,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -2725,14 +2728,14 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -2781,14 +2784,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2799,14 +2802,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2817,18 +2820,18 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2847,14 +2850,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 2.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2863,14 +2866,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[2].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2882,14 +2885,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -2905,14 +2908,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -2927,14 +2930,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -2944,14 +2947,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -2961,18 +2964,18 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -2992,14 +2995,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3008,14 +3011,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[2].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3026,14 +3029,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3048,14 +3051,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -3072,14 +3075,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3090,14 +3093,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3108,18 +3111,18 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3139,14 +3142,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3155,14 +3158,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[2].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3174,14 +3177,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3197,14 +3200,14 @@ TEST_P(get_data_with_data_tests, get_none_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
     }
@@ -3250,14 +3253,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3268,14 +3271,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3286,18 +3289,18 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3316,14 +3319,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3332,14 +3335,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[2].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3351,14 +3354,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3374,14 +3377,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -3396,14 +3399,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3413,14 +3416,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[4].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3430,18 +3433,18 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[8].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3461,14 +3464,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3477,14 +3480,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[2].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3495,14 +3498,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[5].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3517,14 +3520,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[50].second = 0.1e+9;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -3541,14 +3544,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3559,14 +3562,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[4].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3577,18 +3580,18 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[8].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3608,14 +3611,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[0].second = 3.25;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3624,14 +3627,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[2].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3643,14 +3646,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[5].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3666,14 +3669,14 @@ TEST_P(get_data_with_data_tests, get_median_data)
             expected[50].second = 5.5;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
     }
@@ -3716,17 +3719,17 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = std::sqrt((8.0 - 16.0/5) / 5);
+            expected[0].second = std::sqrt((8.0 - 16.0 / 5) / 5);
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3737,14 +3740,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3755,18 +3758,18 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3785,30 +3788,30 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[0].second = 1.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = std::sqrt((8.0 - 16.0/3) / 3);
+            expected[0].second = std::sqrt((8.0 - 16.0 / 3) / 3);
             expected[1].second = 1.0;
-            expected[2].second = std::sqrt((4.0 - 4.0/3) / 3);
+            expected[2].second = std::sqrt((4.0 - 4.0 / 3) / 3);
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3820,14 +3823,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3843,14 +3846,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
@@ -3865,14 +3868,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3882,14 +3885,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3899,18 +3902,18 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -3930,14 +3933,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[0].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -3946,14 +3949,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[2].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -3964,14 +3967,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -3986,14 +3989,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
 
 
             break;
@@ -4007,17 +4010,17 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = std::sqrt((92.75 - 342.25/5) / 5);
+            expected[0].second = std::sqrt((92.75 - 342.25 / 5) / 5);
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
@@ -4028,14 +4031,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[4].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
@@ -4046,18 +4049,18 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[8].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             EXPECT_THROW(
-            check_get_data(
+                check_get_data(
                     data_type,
                     entity1,
                     entity2,
@@ -4074,52 +4077,52 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = std::sqrt((156.25 - 1056.25/10) / 10);
+            expected[0].second = std::sqrt((156.25 - 1056.25 / 10) / 10);
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    1,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                1,
+                statistic,
+                expected);
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = std::sqrt((32.25 - 56.25/3) / 3);
-            expected[1].second = std::sqrt((62.5 - 169.0/4) / 4);
-            expected[2].second = std::sqrt((61.5 - 144.0/3) / 3);
+            expected[0].second = std::sqrt((32.25 - 56.25 / 3) / 3);
+            expected[1].second = std::sqrt((62.5 - 169.0 / 4) / 4);
+            expected[2].second = std::sqrt((61.5 - 144.0 / 3) / 3);
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    5,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                5,
+                statistic,
+                expected);
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[1].second = std::sqrt((31.25 - 42.25/2) / 2);
-            expected[2].second = std::sqrt((31.25 - 42.25/2) / 2);
-            expected[3].second = std::sqrt((31.25 - 42.25/2) / 2);
-            expected[4].second = std::sqrt((31.25 - 42.25/2) / 2);
+            expected[1].second = std::sqrt((31.25 - 42.25 / 2) / 2);
+            expected[2].second = std::sqrt((31.25 - 42.25 / 2) / 2);
+            expected[3].second = std::sqrt((31.25 - 42.25 / 2) / 2);
+            expected[4].second = std::sqrt((31.25 - 42.25 / 2) / 2);
             expected[5].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    10,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                10,
+                statistic,
+                expected);
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
@@ -4135,14 +4138,14 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             expected[50].second = 0.0;
 
             check_get_data(
-                    data_type,
-                    entity1,
-                    entity2,
-                    start,
-                    finish,
-                    100,
-                    statistic,
-                    expected);
+                data_type,
+                entity1,
+                entity2,
+                start,
+                finish,
+                100,
+                statistic,
+                expected);
             break;
         }
     }
@@ -4235,7 +4238,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::SAMPLE_DATAS, EntityId(17), EntityId::invalid()),
         std::make_tuple(DataKind::SAMPLE_DATAS, EntityId(15), EntityId::invalid()),
         std::make_tuple(DataKind::SAMPLE_DATAS, EntityId(9), EntityId::invalid())
-    ));
+        ));
 
 TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
 {
@@ -4247,58 +4250,58 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
     if (entity2.is_valid())
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, entity2),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, entity2),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    std::vector<EntityId>(1, entity2),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                std::vector<EntityId>(1, entity2),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
     else
     {
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    0,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
 
         EXPECT_THROW(
-                StatisticsBackend::get_data(
-                    data_type,
-                    std::vector<EntityId>(1, entity1),
-                    10,
-                    Timestamp(),
-                    std::chrono::system_clock::now(),
-                    statistic),
-                BadParameter);
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity1),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
     }
 }
 /*
-#ifdef INSTANTIATE_TEST_SUITE_P
-#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
-#else
-#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_CASE_P(x, y, z)
-#endif // ifdef INSTANTIATE_TEST_SUITE_P
+ #ifdef INSTANTIATE_TEST_SUITE_P
+ #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
+ #else
+ #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_CASE_P(x, y, z)
+ #endif // ifdef INSTANTIATE_TEST_SUITE_P
 
-GTEST_INSTANTIATE_TEST_MACRO(
+   GTEST_INSTANTIATE_TEST_MACRO(
     get_data_bad_parameter_tests,
     get_data_bad_parameter_tests,
     ::testing::Combine(::testing::Values(DataKind::FASTDDS_LATENCY,
@@ -4326,7 +4329,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
                     StatisticKind::STANDARD_DEVIATION,
                     StatisticKind::SUM,
                     StatisticKind::NONE)));
-*/
+ */
 
 int main(
         int argc,

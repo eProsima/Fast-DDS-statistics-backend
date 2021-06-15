@@ -99,9 +99,9 @@ public:
     }
 
     void load_database(
-        const DatabaseDump& /*dump*/)
-{
-}
+            const DatabaseDump& /*dump*/)
+    {
+    }
 
     int64_t next_id_{0};
 };
