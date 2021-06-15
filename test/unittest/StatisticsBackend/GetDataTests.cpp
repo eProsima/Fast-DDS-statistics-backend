@@ -243,74 +243,69 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
     EntityId entity2 = std::get<2>(GetParam());
     StatisticKind statistic = StatisticKind::COUNT;
 
-    if (entity2.is_valid())
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId::invalid()),
-                std::vector<EntityId>(1, entity2),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId::invalid()),
+            std::vector<EntityId>(1, entity2),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId::invalid()),
-                std::vector<EntityId>(1, entity2),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId::invalid()),
+            std::vector<EntityId>(1, entity2),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, EntityId::invalid()),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, EntityId::invalid()),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, EntityId::invalid()),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
-    else
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId::invalid()),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, EntityId::invalid()),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId::invalid()),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId::invalid()),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
+
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId::invalid()),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 }
 
 TEST_P(get_data_with_data_tests, nonexistent_entity_id)
@@ -320,74 +315,69 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
     EntityId entity2 = std::get<2>(GetParam());
     StatisticKind statistic = StatisticKind::COUNT;
 
-    if (entity2.is_valid())
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId(200)),
-                std::vector<EntityId>(1, entity2),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId(200)),
+            std::vector<EntityId>(1, entity2),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId(200)),
-                std::vector<EntityId>(1, entity2),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId(200)),
+            std::vector<EntityId>(1, entity2),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, EntityId(200)),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, EntityId(200)),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, EntityId(200)),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
-    else
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId(200)),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, EntityId(200)),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, EntityId(200)),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId(200)),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
+
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, EntityId(200)),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 }
 
 TEST_P(get_data_with_data_tests, invalid_data_kind)
@@ -397,52 +387,47 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
     EntityId entity2 = std::get<2>(GetParam());
     StatisticKind statistic = StatisticKind::COUNT;
 
-    if (entity2.is_valid())
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, entity2),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, entity2),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                std::vector<EntityId>(1, entity2),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
-    else
-    {
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                0,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            std::vector<EntityId>(1, entity2),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 
-        EXPECT_THROW(
-            StatisticsBackend::get_data(
-                data_type,
-                std::vector<EntityId>(1, entity1),
-                10,
-                Timestamp(),
-                std::chrono::system_clock::now(),
-                statistic),
-            BadParameter);
-    }
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            0,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
+
+    EXPECT_THROW(
+        StatisticsBackend::get_data(
+            data_type,
+            std::vector<EntityId>(1, entity1),
+            10,
+            Timestamp(),
+            std::chrono::system_clock::now(),
+            statistic),
+        BadParameter);
 }
 
 /*
