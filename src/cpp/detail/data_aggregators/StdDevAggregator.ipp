@@ -40,9 +40,9 @@ struct StdDevAggregator final : public IDataAggregator
         {
             BinData& data = bin_data_[n];
             auto n_samples = data.num_samples;
-            if (n_samples >= 2)
+            if (n_samples > 0)
             {
-                double variance = (data.sum_sq - (data.sum * data.sum) / n_samples) / (n_samples - 1);
+                double variance = (data.sum_sq - (data.sum * data.sum) / n_samples) / n_samples;
                 data_[n].second = std::sqrt(variance);
             }
         }
