@@ -3855,7 +3855,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname_pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, "");
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, processname_pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
                 return EntityId(4);

@@ -674,9 +674,10 @@ void DatabaseDataQueue::process_sample()
             size_t separator_pos = item.process().find_last_of(':');
             if (separator_pos == std::string::npos)
             {
-                logError(BACKEND_DATABASE_QUEUE,
+                logInfo(BACKEND_DATABASE_QUEUE,
                         "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
                 process_name = item.process();
+                process_pid = item.process();
             }
             else
             {
