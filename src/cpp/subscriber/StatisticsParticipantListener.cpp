@@ -388,7 +388,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                 std::shared_ptr<database::Topic> metatraffic_topic;
 
                 // Check if is the first participant discovered
-                if (database_->get_entities(EntityKind::PARTICIPANT, domain_id_).size() == 0)
+                if (database_->get_entities(EntityKind::PARTICIPANT, domain_id_).empty())
                 {
                     // Create the metatraffic topic
                     metatraffic_topic = std::make_shared<database::Topic>(
