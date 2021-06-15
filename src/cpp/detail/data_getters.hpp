@@ -178,52 +178,6 @@ struct StatisticsIterator<database::TimepointSample> final
 
 };
 
-/// Iterator returned for PublicationThroughputSample
-template<>
-struct StatisticsIterator<database::PublicationThroughputSample> final
-    : public BasicStatisticsIterator<database::PublicationThroughputSample>
-{
-    explicit StatisticsIterator(
-            const base_iterator_type& plain_iterator) noexcept
-        : BasicStatisticsIterator<database::PublicationThroughputSample>(plain_iterator)
-    {
-    }
-
-    double get_value() const noexcept override
-    {
-        auto aux_prev = static_cast<base_iterator_type>(*this);
-        --aux_prev;
-        StatisticsIterator<database::EntityDataSample> prev(aux_prev);
-        double diff = sample().data - prev.get_value();
-        auto diff_time = get_timestamp() - prev.get_timestamp();
-        return diff * (1e+9 / diff_time.count());
-    }
-
-};
-
-/// Iterator returned for SubscriptionThroughputSample
-template<>
-struct StatisticsIterator<database::SubscriptionThroughputSample> final
-    : public BasicStatisticsIterator<database::SubscriptionThroughputSample>
-{
-    explicit StatisticsIterator(
-            const base_iterator_type& plain_iterator) noexcept
-        : BasicStatisticsIterator<database::SubscriptionThroughputSample>(plain_iterator)
-    {
-    }
-
-    double get_value() const noexcept override
-    {
-        auto aux_prev = static_cast<base_iterator_type>(*this);
-        --aux_prev;
-        StatisticsIterator<database::EntityDataSample> prev(aux_prev);
-        double diff = sample().data - prev.get_value();
-        auto diff_time = get_timestamp() - prev.get_timestamp();
-        return diff * (1e+9 / diff_time.count());
-    }
-
-};
-
 using IteratorPtr = std::unique_ptr<GenericIterator>;
 using IteratorPair = std::pair<IteratorPtr, IteratorPtr>;
 
@@ -243,45 +197,6 @@ IteratorPair get_iterators(
            };
 }
 
-/**
- * @brief Get the iterators delimiting the traversal of a database select() result for throughput types.
- * @param data The collection returned by the database select() call.
- * @return A pair of unique pointers to GenericIterator, with the begin and end iterators.
- */
-template<typename T>
-IteratorPair get_throughput_iterators(
-        const std::vector<const database::StatisticsSample*>& data)
-{
-    // As throughput iterators need access to the previous value, the first sample is ignored
-    auto begin = data.cbegin();
-    if (data.size() > 0)
-    {
-        ++begin;
-    }
-
-    return IteratorPair
-           {
-               new StatisticsIterator<T>(begin),
-               new StatisticsIterator<T>(data.cend())
-           };
-}
-
-// Specialization of get_iterators for PublicationThroughputSample
-template<>
-IteratorPair get_iterators<database::PublicationThroughputSample>(
-        const std::vector<const database::StatisticsSample*>& data)
-{
-    return get_throughput_iterators<database::PublicationThroughputSample>(data);
-}
-
-// Specialization of get_iterators for SubscriptionThroughputSample
-template<>
-IteratorPair get_iterators<database::SubscriptionThroughputSample>(
-        const std::vector<const database::StatisticsSample*>& data)
-{
-    return get_throughput_iterators<database::SubscriptionThroughputSample>(data);
-}
-
 } // namespace detail
 
 /**
@@ -298,13 +213,9 @@ detail::IteratorPair get_iterators(
     {
         case DataKind::FASTDDS_LATENCY:
         case DataKind::NETWORK_LATENCY:
-            return detail::get_iterators<database::EntityDataSample>(data);
-
         case DataKind::PUBLICATION_THROUGHPUT:
-            return detail::get_iterators<database::PublicationThroughputSample>(data);
-
         case DataKind::SUBSCRIPTION_THROUGHPUT:
-            return detail::get_iterators<database::SubscriptionThroughputSample>(data);
+            return detail::get_iterators<database::EntityDataSample>(data);
 
         case DataKind::RTPS_PACKETS_SENT:
         case DataKind::RTPS_PACKETS_LOST:
