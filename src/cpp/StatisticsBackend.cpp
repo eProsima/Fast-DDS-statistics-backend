@@ -193,7 +193,7 @@ EntityId StatisticsBackend::init_monitor(
         throw;
     }
 
-    monitor->id = domain_id;
+    monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;

@@ -2868,7 +2868,8 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_ma
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
-TEST_F(calling_user_listeners_tests, wrong_entity_kind)
+using  calling_user_listeners_DeathTest = calling_user_listeners_tests;
+TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 {
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;

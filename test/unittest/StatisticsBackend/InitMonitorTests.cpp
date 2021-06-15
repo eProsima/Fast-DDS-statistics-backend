@@ -182,7 +182,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
@@ -228,7 +228,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
@@ -274,7 +274,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
@@ -319,7 +319,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
@@ -383,7 +383,7 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
         EXPECT_NE(nullptr, domain_monitors[monitor_id2]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id1);
     StatisticsBackend::stop_monitor(monitor_id2);
 }
@@ -436,8 +436,49 @@ TEST_F(init_monitor_tests, init_monitor_twice)
         EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
     }
 
-    // Stop the monitor for to avoid interfering on the next test
+    // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);
+}
+
+TEST_F(init_monitor_tests, stop_monitor)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    EXPECT_TRUE(monitor_id.is_valid());
+
+    // Try stopping another monitor
+    EntityId other_monitor_id = EntityId(100);
+    EXPECT_THROW(StatisticsBackend::stop_monitor(other_monitor_id), BadParameter);
+
+    // Stop the proper monitor
+    EXPECT_NO_THROW(StatisticsBackend::stop_monitor(monitor_id));
+
+    // Reopen stopped monitor
+    EXPECT_THROW(StatisticsBackend::init_monitor(
+                domain_id,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_),
+            BadParameter);
+
+    // Open another monitor
+    DomainId other_domain_id = 100;
+    other_monitor_id = StatisticsBackend::init_monitor(
+        other_domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    EXPECT_TRUE(other_monitor_id.is_valid());
+
+    // Reset the singleton instead of removing the monitor
+    details::StatisticsBackendData::reset_instance();
 }
 
 int main(

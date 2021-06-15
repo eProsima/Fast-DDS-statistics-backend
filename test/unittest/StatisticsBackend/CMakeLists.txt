@@ -122,13 +122,22 @@ set(USER_LISTENERS_TEST_LIST
     datawriter_discovered_not_in_mask
     datawriter_discovered_no_listener
     datawriter_discovered_no_listener_not_in_mask
-    wrong_entity_kind
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+endforeach()
+
+set(USER_LISTENERS_DEATH_TEST_LIST
+    wrong_entity_kind
+    )
+
+foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
+    add_test(NAME calling_user_listeners_DeathTest.${test_name}
+        COMMAND calling_user_listeners_tests
+        --gtest_filter=calling_user_listeners_DeathTest.${test_name}:*/calling_user_listeners_DeathTest.${test_name}/*)
 endforeach()
 
 set(USER_DATA_LISTENERS_TEST_LIST
@@ -188,8 +197,8 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_no_data
     init_monitor_domain_id_null_listener_all_data
     init_monitor_several_monitors
-    init_monitor_dds_factory_fails
     init_monitor_twice
+    stop_monitor
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

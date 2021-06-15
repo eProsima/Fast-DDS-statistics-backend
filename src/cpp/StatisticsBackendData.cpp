@@ -46,9 +46,12 @@ StatisticsBackendData::StatisticsBackendData()
 StatisticsBackendData::~StatisticsBackendData()
 {
     // Destroy each monitor
-    for (auto monitor : monitors_by_entity_)
+    while (!monitors_by_entity_.empty())
     {
-        StatisticsBackend::stop_monitor(monitor.second->id);
+        // Beware that stop_monitor removes the monitor from monitors_by_entity_
+        // so we cannot use iterators here
+        auto monitor = monitors_by_entity_.begin()->second;
+        StatisticsBackend::stop_monitor(monitor->id);
     }
 
     if (entity_queue_)
@@ -191,12 +194,6 @@ void StatisticsBackendData::on_domain_entity_discovery(
 
     switch (entity_kind)
     {
-        case EntityKind::DOMAIN:
-        {
-            // this will be called for Domain entities too. Skip those.
-            // Among other things, this may be called before the monitor is complete
-            return;
-        }
         case EntityKind::PARTICIPANT:
         {
             if (should_call_domain_listener(monitor->second, CallbackKind::ON_PARTICIPANT_DISCOVERY))
