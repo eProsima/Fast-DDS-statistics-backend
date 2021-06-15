@@ -411,40 +411,64 @@ void StatisticsParticipantListener::on_participant_discovery(
                         std::static_pointer_cast<const database::Topic>(database_->get_entity(metatraffic_topic_id)));
                 }
 
-                // Create metatraffic reader and writer on the metatraffic topic.
-
-                // Datawriter
+                // Create metatraffic endpoint and locator on the metatraffic topic.
                 {
-                    // Create the metatraffic datawriter
+                    // Create the metatraffic endpoint
                     auto datawriter = std::make_shared<database::DataWriter>(
-                        metatraffic_prefix + "DATAWRITER_" + to_string(participant_guid),
+                        metatraffic_prefix + "ENDPOINT_" + to_string(participant_guid),
                         database::Qos({}),
                         to_string(participant_guid),
                         participant,
                         metatraffic_topic);
+
+                    // Routine to process one locator from the locator list of the particpant
+                    auto process_locators = [&](const Locator_t& dds_locator)
+                        {
+                            // Look for the locator
+                            auto locator_ids =
+                                    database_->get_entities_by_name(EntityKind::LOCATOR,
+                                            to_string(dds_locator));
+                            if (locator_ids.empty())
+                            {
+                                // The locator is not in the database. Add the new one.
+                                std::shared_ptr<database::Locator> locator =
+                                        std::make_shared<database::Locator>(to_string(dds_locator));
+
+                                locator->id = database_->generate_entity_id();
+                                datawriter->locators[locator->id] = locator;
+                            }
+                            else
+                            {
+                                // The locator exists. Add the existing one.
+                                auto existing = std::const_pointer_cast<database::Locator>(
+                                    std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.
+                                            front().second)));
+                                datawriter->locators[existing->id] = existing;
+                            }
+                        };
+
+                    for (auto dds_locator : info.info.metatraffic_locators.unicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.metatraffic_locators.multicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.default_locators.unicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.default_locators.multicast)
+                    {
+                        process_locators(dds_locator);
+                    }
 
                     // Push it to the queue
                     database::EntityDiscoveryInfo datawriter_discovery_info;
                     datawriter_discovery_info.domain_id = domain_id_;
                     datawriter_discovery_info.entity = datawriter;
                     entity_queue_->push(timestamp, datawriter_discovery_info);
-                }
-
-                // Datareader
-                {
-                    // Create the metatraffic datawriter
-                    auto datareader = std::make_shared<database::DataReader>(
-                        metatraffic_prefix + "DATAREADER_" + to_string(participant_guid),
-                        database::Qos({}),
-                        to_string(participant_guid),
-                        participant,
-                        metatraffic_topic);
-
-                    // Push it to the queue
-                    database::EntityDiscoveryInfo datareader_discovery_info;
-                    datareader_discovery_info.domain_id = domain_id_;
-                    datareader_discovery_info.entity = datareader;
-                    entity_queue_->push(timestamp, datareader_discovery_info);
                 }
             }
         }
