@@ -130,7 +130,7 @@ TEST_P(get_data_no_data_tests, no_data)
     DataKind data_type = std::get<0>(GetParam());
     EntityId entity1 = std::get<1>(GetParam());
     EntityId entity2 = std::get<2>(GetParam());
-    StatisticKind statistic = StatisticKind::COUNT;
+    StatisticKind statistic = StatisticKind::MEAN;
 
     std::vector<StatisticsData> result;
 
