@@ -507,13 +507,6 @@ void check_get_data (
     ASSERT_EQ(expected.size(), result.size());
     for (size_t i = 0; i < expected.size(); ++i)
     {
-        if (isnan(result[i].second) != isnan(expected[i].second))
-        {
-            std::cout << "!!! " << i << " !!!" << std::endl;
-        }
-    }
-    for (size_t i = 0; i < expected.size(); ++i)
-    {
         ASSERT_EQ(expected[i].first, result[i].first);
 
         if (isnan(expected[i].second))
