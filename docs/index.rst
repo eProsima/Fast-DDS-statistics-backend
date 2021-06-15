@@ -19,6 +19,7 @@
    :numbered: 5
    :hidden:
 
+   /rst/installation/linux_installation
    /rst/installation/cmake_options
 
 .. _index_statistics_backend:
