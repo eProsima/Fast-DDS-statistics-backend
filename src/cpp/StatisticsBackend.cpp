@@ -457,7 +457,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     }
 
     // Validate timestamps
-    auto min_separation = std::chrono::nanoseconds(bins);
+    auto min_separation = Timestamp::duration(bins);
     if (t_to <= t_from + min_separation)
     {
         throw BadParameter("Invalid timestamps (to should be greater than from by at least bins nanoseconds");
@@ -486,7 +486,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     }
 
     std::vector<StatisticsData> ret_val;
-    auto t_to_select = t_to - std::chrono::nanoseconds(1);
+    auto t_to_select = t_to - Timestamp::duration(1);
 
     if (0 == bins)
     {
@@ -538,7 +538,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     }
 
     // Validate timestamps
-    auto min_separation = std::chrono::nanoseconds(bins);
+    auto min_separation = Timestamp::duration(bins);
     if (t_to <= t_from + min_separation)
     {
         throw BadParameter("Invalid timestamps (to should be greater than from by at least bins nanoseconds");
@@ -550,7 +550,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
-    auto t_to_select = t_to - std::chrono::nanoseconds(1);
+    auto t_to_select = t_to - Timestamp::duration(1);
 
     if (0 == bins)
     {
