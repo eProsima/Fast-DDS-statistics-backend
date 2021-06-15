@@ -327,7 +327,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -424,7 +424,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -548,7 +548,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -563,7 +563,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
-    std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator) + "@" + host_name;
+    std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
@@ -578,7 +578,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
-    std::string new_unicast_locator_name = to_string(dds_new_unicast_locator) + "@" + host_name;
+    std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
@@ -588,7 +588,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
-    std::string new_multicast_locator_name = to_string(dds_new_multicast_locator) + "@" + host_name;
+    std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
@@ -999,7 +999,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1108,7 +1108,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1205,7 +1205,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1329,7 +1329,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1344,7 +1344,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
-    std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator) + "@" + host_name;
+    std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
@@ -1359,7 +1359,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
-    std::string new_unicast_locator_name = to_string(dds_new_unicast_locator) + "@" + host_name;
+    std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
@@ -1369,7 +1369,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
-    std::string new_multicast_locator_name = to_string(dds_new_multicast_locator) + "@" + host_name;
+    std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
@@ -1780,7 +1780,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
@@ -1886,7 +1886,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
-    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator) + "@" + host_name;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
