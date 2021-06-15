@@ -107,16 +107,6 @@ protected:
             double value) = 0;
 
     /**
-     * @brief Get the initial aggregation value.
-     * @return Initial aggregation value.
-     */
-    virtual double initial_value() const noexcept
-    {
-        // All aggregators except @ref CountAggregator will be initialized to quiet_NaN
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-
-    /**
      * @brief Assign a value to a bin if it was not given a previous value.
      *
      * This method is used on aggregators that need to take special actions the first time
@@ -227,14 +217,11 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
             ret_val = new detail::MinimumAggregator(bins, t_from, t_to, returned_data);
             break;
 
-        case StatisticKind::COUNT:
-            ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
-            break;
-
         case StatisticKind::STANDARD_DEVIATION:
             ret_val = new detail::StdDevAggregator(bins, t_from, t_to, returned_data);
             break;
 
+        case StatisticKind::COUNT:
         default:
             ret_val = new detail::CountAggregator(bins, t_from, t_to, returned_data);
             break;
