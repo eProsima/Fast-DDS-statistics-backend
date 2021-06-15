@@ -123,6 +123,12 @@ TEST_P(get_data_no_data_tests, no_data)
     EntityId entity2 = std::get<2>(GetParam());
     StatisticKind statistic = StatisticKind::MEAN;
 
+    // TODO(Miguel C): SAMPLE_DATAS needs get_data overload
+    if (DataKind::SAMPLE_DATAS == data_type)
+    {
+        return;
+    }
+
     std::vector<StatisticsData> result;
 
     if (entity2.is_valid())
