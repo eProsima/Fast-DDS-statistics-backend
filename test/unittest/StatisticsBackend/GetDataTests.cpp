@@ -212,6 +212,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
     get_data_with_data_tests,
     get_data_with_data_tests,
     ::testing::Values(
+        std::make_tuple(DataKind::INVALID, EntityId::invalid(), EntityId::invalid()),
         std::make_tuple(DataKind::FASTDDS_LATENCY, EntityId(16), EntityId(17)),
         std::make_tuple(DataKind::NETWORK_LATENCY, EntityId(9), EntityId(9)),
         std::make_tuple(DataKind::PUBLICATION_THROUGHPUT, EntityId(16), EntityId::invalid()),
