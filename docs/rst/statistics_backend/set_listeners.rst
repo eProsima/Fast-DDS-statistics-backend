@@ -5,10 +5,6 @@
 Set listeners
 -------------
 
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
-
 As explained in :ref:`listeners`, each *Fast DDS Statistics Backend* monitor has two listeners:
 
 * |PhysicalListener-api|: Registers events about changes in the physical aspects of the communication (hosts, users,

@@ -6,7 +6,7 @@ Stop and restart a monitor
 --------------------------
 
 .. warning::
-    This feature is currently not supported.
+    Restarting a stopped monitor is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 *Fast DDS Statistics Backend* allows for a monitorization to be stopped and restarted at any time.
