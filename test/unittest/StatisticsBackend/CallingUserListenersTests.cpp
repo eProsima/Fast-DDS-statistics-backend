@@ -768,7 +768,9 @@ public:
     calling_user_listeners_tests_domain_entities()
     {
         // Set the profile to ignore discovery data from other processes
+        // Set the profile to ignore discovery data from other processes
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
         monitor_id = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
     }
