@@ -54,6 +54,7 @@ struct Entity
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
+        , active(true)
     {
     }
 
@@ -77,6 +78,9 @@ struct Entity
 
     //! A user defined name for the entity
     std::string alias;
+    
+    //! Active means that there is statistical data being reported within the entity.
+    bool active;
 };
 
 /*

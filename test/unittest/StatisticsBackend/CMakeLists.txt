@@ -41,7 +41,8 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(statistics_backend_tests PRIVATE
-    ${GTEST_INCLUDE_DIRS}
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include

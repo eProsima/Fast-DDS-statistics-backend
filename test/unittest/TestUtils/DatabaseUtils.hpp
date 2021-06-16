@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fstream>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -166,12 +167,12 @@ public:
         db.insert(domain2);
         entities[8] = domain2;
 
-        auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos", "1.2.3.4", nullptr, domain2);
+        auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos", "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr, domain2);
         db.insert(participant1);
         db.link_participant_with_process(participant1->id, process2->id);
         entities[9] = participant1;
 
-        auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos", "5.6.7.8", nullptr, domain2);
+        auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos", "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2", nullptr, domain2);
         db.insert(participant2);
         db.link_participant_with_process(participant2->id, process2->id);
         entities[10] = participant2;
@@ -569,3 +570,28 @@ public:
     }
 
 };
+
+constexpr const char* DESCRIPTION_TAG = "description";
+
+DatabaseDump load_file(
+        std::string filename)
+{
+    // Check if the file exists
+    std::ifstream file(filename);
+    if (!file.good())
+    {
+        throw BadParameter("File " + filename + " does not exist");
+    }
+
+    // Get the json file
+    DatabaseDump dump;
+    file >> dump;
+
+    // Erase the description tag if existing
+    if (dump.contains(DESCRIPTION_TAG))
+    {
+        dump.erase(DESCRIPTION_TAG);
+    }
+
+    return dump;
+}

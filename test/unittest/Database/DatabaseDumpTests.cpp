@@ -33,8 +33,6 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-constexpr const char* DESCRIPTION_TAG = "description";
-
 constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
 constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
 constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
@@ -75,30 +73,6 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 // at least pass microseconds tenths to avoid windows system_clock resolution issue
 #define TIME_DEFAULT(x) nanoseconds_to_systemclock(100 * (x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
-
-
-DatabaseDump load_file(
-        std::string filename)
-{
-    // Check if the file exists
-    std::ifstream file(filename);
-    if (!file.good())
-    {
-        throw BadParameter("File " + filename + " does not exist");
-    }
-
-    // Get the json file
-    DatabaseDump dump;
-    file >> dump;
-
-    // Erase the description tag if existing
-    if (dump.contains(DESCRIPTION_TAG))
-    {
-        dump.erase(DESCRIPTION_TAG);
-    }
-
-    return dump;
-}
 
 void initialize_empty_entities(
         Database& db,

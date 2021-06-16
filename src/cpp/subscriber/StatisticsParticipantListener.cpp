@@ -289,6 +289,7 @@ void StatisticsParticipantListener::on_participant_discovery(
 
         case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
+            // EntityId participant_id =  database_->get_entity_by_guid(EntityKind::PARTICIPANT,to_string(info.info.m_guid)).second;
             // TODO [ILG] : Process these messages and save the status of the entity
             break;
     }

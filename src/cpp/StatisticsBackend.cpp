@@ -352,8 +352,7 @@ std::vector<EntityId> StatisticsBackend::get_entities(
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    static_cast<void>(entity_id);
-    return false;
+    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
 }
 
 EntityKind StatisticsBackend::get_type(

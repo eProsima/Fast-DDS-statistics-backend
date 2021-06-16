@@ -571,3 +571,37 @@ foreach(test_name ${DATABASE_LOAD_INSERT_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
+
+###############################################################################
+# Database: deactivate tests
+###############################################################################
+
+add_executable(database_deactivate_tests DatabaseDeactivateTests.cpp)
+
+target_include_directories(database_deactivate_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+
+target_link_libraries(database_deactivate_tests PUBLIC
+    ${PROJECT_NAME}
+    gtest)
+
+set(DATABASE_ACTIVATE_TEST_LIST
+    no_deactivate
+    deactivate_host
+    deactivate_user
+    deactivate_process
+    deactivate_domain
+    deactivate_topic
+    deactivate_participant
+    deactivate_datawriter
+    deactivate_datareader
+    deactivate_endpoints
+    deactivate_locator
+)
+
+foreach(test_name ${DATABASE_ACTIVATE_TEST_LIST})
+    add_test(NAME database_deactivate_tests.${test_name}
+            COMMAND database_deactivate_tests
+            --gtest_filter=database_deactivate_tests.${test_name}:*/database_deactivate_tests.${test_name}/*)
+endforeach()
