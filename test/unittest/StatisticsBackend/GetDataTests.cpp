@@ -292,6 +292,52 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
+
+    if (entity1.is_valid() &&
+            (!entity2.is_valid() || StatisticsBackend::get_type(entity1) != StatisticsBackend::get_type(entity2)))
+    {
+        EXPECT_THROW(
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity2),
+                std::vector<EntityId>(1, entity1),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
+
+        EXPECT_THROW(
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity2),
+                std::vector<EntityId>(1, entity1),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
+
+        EXPECT_THROW(
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity2),
+                0,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
+
+        EXPECT_THROW(
+            StatisticsBackend::get_data(
+                data_type,
+                std::vector<EntityId>(1, entity2),
+                10,
+                Timestamp(),
+                std::chrono::system_clock::now(),
+                statistic),
+            BadParameter);
+    }
 }
 
 TEST_P(get_data_with_data_tests, nonexistent_entity_id)
