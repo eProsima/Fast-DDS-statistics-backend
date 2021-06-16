@@ -67,6 +67,7 @@ set(BACKEND_TEST_LIST
     get_data_supported_entity_kinds
     set_alias
     internal_callbacks_negative_cases
+    set_listener_non_existent_monitor
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})

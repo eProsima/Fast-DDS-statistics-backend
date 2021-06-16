@@ -161,6 +161,9 @@ class calling_user_listeners_tests_physical_entities : public ::testing::TestWit
 public:
 
     calling_user_listeners_tests_physical_entities()
+        : entity_kind_(std::get<0>(GetParam()))
+        , callback_kind_(std::get<1>(GetParam()))
+
     {
         // Set the profile to ignore discovery data from other processes
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
@@ -177,8 +180,10 @@ public:
         details::StatisticsBackendData::reset_instance();
     }
 
-    MockedPhysicalListener physical_listener;
-    EntityDiscoveryArgs discovery_args;
+    MockedPhysicalListener physical_listener_;
+    EntityDiscoveryArgs discovery_args_;
+    EntityKind entity_kind_;
+    CallbackKind callback_kind_;
 
     enum ListenerKind
     {
@@ -188,7 +193,6 @@ public:
 
     void test_entity_discovery(
             ListenerKind listener_kind,
-            EntityKind entity_kind,
             ArgumentChecker checker = [] (
                 EntityId,
                 EntityId,
@@ -197,21 +201,21 @@ public:
     })
     {
         // Set the callback of the expectations
-        discovery_args.callback_ = checker;
+        discovery_args_.callback_ = checker;
 
-        switch (entity_kind)
+        switch (entity_kind_)
         {
             case EntityKind::HOST:
             {
                 // Set the expectations
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_host_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_host_discovery(EntityId(0), EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_host_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_host_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
@@ -226,12 +230,12 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_user_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_user_discovery(EntityId(0), EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_user_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_user_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
@@ -246,12 +250,12 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_process_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_process_discovery(EntityId(0), EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_process_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_process_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
@@ -266,12 +270,12 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_locator_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_locator_discovery(EntityId(0), EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_locator_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
@@ -288,7 +292,7 @@ public:
             }
         }
 
-        Mock::VerifyAndClearExpectations(&physical_listener);
+        Mock::VerifyAndClearExpectations(&physical_listener_);
     }
 
     /*
@@ -299,19 +303,16 @@ public:
      */
     void extend_no_callback_tests()
     {
-        EntityKind entity_kind = std::get<0>(GetParam());
-        CallbackKind callback_kind = std::get<1>(GetParam());
-
         // Set the physical listener and test
         CallbackMask mask = CallbackMask::none();
-        mask.set(callback_kind);
+        mask.set(callback_kind_);
         StatisticsBackend::set_physical_listener(
-            &physical_listener,
+            &physical_listener_,
             mask,
             DataKindMask::all());
 
         // Expectation: Only the physical listener is called
-        test_entity_discovery(PHYSICAL, entity_kind,
+        test_entity_discovery(PHYSICAL,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
@@ -326,7 +327,7 @@ public:
                 });
 
         // Expectation: Only the physical listener is called again
-        test_entity_discovery(PHYSICAL, entity_kind,
+        test_entity_discovery(PHYSICAL,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
@@ -345,18 +346,15 @@ public:
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::none();
-    mask.set(callback_kind);
+    mask.set(callback_kind_);
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         mask,
         DataKindMask::all());
 
     // Expectation: The physical listener is called
-    test_entity_discovery(PHYSICAL, entity_kind,
+    test_entity_discovery(PHYSICAL,
             [&](
                 EntityId participant_id,
                 EntityId entity_id,
@@ -371,7 +369,7 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
             });
 
     // Expectation: The physical listener is called again
-    test_entity_discovery(PHYSICAL, entity_kind,
+    test_entity_discovery(PHYSICAL,
             [&](
                 EntityId participant_id,
                 EntityId entity_id,
@@ -388,54 +386,45 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_not_in_mask)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::all();
-    mask ^= callback_kind;
+    mask ^= callback_kind_;
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         mask,
         DataKindMask::all());
 
     // Expectation: The user listener is never called
-    test_entity_discovery(NONE, entity_kind);
+    test_entity_discovery(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_listener)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::none();
-    mask.set(callback_kind);
+    mask.set(callback_kind_);
     StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
 
     // Expectation: The user listener is never called
-    test_entity_discovery(NONE, entity_kind);
+    test_entity_discovery(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_no_listener_not_in_mask)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::all();
-    mask ^= callback_kind;
+    mask ^= callback_kind_;
     StatisticsBackend::set_physical_listener(
         nullptr,
         mask,
         DataKindMask::all());
 
     // Expectation: The user listener is never called
-    test_entity_discovery(NONE, entity_kind);
+    test_entity_discovery(NONE);
 
     extend_no_callback_tests();
 }
@@ -463,10 +452,35 @@ class calling_user_listeners_tests_domain_entities
 {
 public:
 
-    MockedPhysicalListener physical_listener;
-    MockedDomainListener domain_listener;
-    EntityDiscoveryArgs discovery_args;
-    EntityId monitor_id;
+    calling_user_listeners_tests_domain_entities()
+        : entity_kind_(std::get<0>(GetParam()))
+        , callback_kind_(std::get<1>(GetParam()))
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+        monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+    }
+
+    ~calling_user_listeners_tests_domain_entities()
+    {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
+        // Stop the monitor to avoid interfering on next tests
+        StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
+    }
+
+    EntityKind entity_kind_;
+    CallbackKind callback_kind_;
+    MockedPhysicalListener physical_listener_;
+    MockedDomainListener domain_listener_;
+    EntityDiscoveryArgs discovery_args_;
+    EntityId monitor_id_;
 
     enum ListenerKind
     {
@@ -477,7 +491,6 @@ public:
 
     void test_entity_discovery(
             ListenerKind listener_kind,
-            EntityKind entity_kind,
             DiscoveryStatus discovery_status = DiscoveryStatus::DISCOVERY,
             ArgumentChecker checker = [] (
                 EntityId,
@@ -487,33 +500,33 @@ public:
     })
     {
         // Set the callback of the expectations
-        discovery_args.callback_ = checker;
+        discovery_args_.callback_ = checker;
 
-        switch (entity_kind)
+        switch (entity_kind_)
         {
             case EntityKind::PARTICIPANT:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_participant_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
-                    EXPECT_CALL(domain_listener, on_participant_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_participant_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(domain_listener_, on_participant_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
-                    EXPECT_CALL(physical_listener, on_participant_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_participant_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_participant_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_participant_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_participant_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_participant_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_participant_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                    monitor_id,
+                    monitor_id_,
                     EntityId(1),
                     EntityKind::PARTICIPANT,
                     discovery_status);
@@ -524,25 +537,25 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_topic_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
-                    EXPECT_CALL(domain_listener, on_topic_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_topic_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(domain_listener_, on_topic_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
-                    EXPECT_CALL(physical_listener, on_topic_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_topic_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_topic_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_topic_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_topic_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_topic_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_topic_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                    monitor_id,
+                    monitor_id_,
                     EntityId(1),
                     EntityKind::TOPIC,
                     discovery_status);
@@ -553,25 +566,25 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_datareader_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
-                    EXPECT_CALL(domain_listener, on_datareader_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_datareader_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(domain_listener_, on_datareader_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
-                    EXPECT_CALL(physical_listener, on_datareader_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_datareader_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_datareader_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_datareader_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_datareader_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_datareader_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_datareader_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                    monitor_id,
+                    monitor_id_,
                     EntityId(1),
                     EntityKind::DATAREADER,
                     discovery_status);
@@ -582,25 +595,25 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener, on_datawriter_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
-                    EXPECT_CALL(domain_listener, on_datawriter_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_datawriter_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(domain_listener_, on_datawriter_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
-                    EXPECT_CALL(physical_listener, on_datawriter_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_datawriter_discovery(monitor_id, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_datawriter_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener, on_datawriter_discovery(_, _, _)).Times(0);
-                    EXPECT_CALL(domain_listener, on_datawriter_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_datawriter_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(domain_listener_, on_datawriter_discovery(_, _, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                    monitor_id,
+                    monitor_id_,
                     EntityId(1),
                     EntityKind::DATAWRITER,
                     discovery_status);
@@ -613,8 +626,8 @@ public:
             }
         }
 
-        Mock::VerifyAndClearExpectations(&physical_listener);
-        Mock::VerifyAndClearExpectations(&domain_listener);
+        Mock::VerifyAndClearExpectations(&physical_listener_);
+        Mock::VerifyAndClearExpectations(&domain_listener_);
     }
 
     /*
@@ -626,25 +639,22 @@ public:
      */
     void extend_no_callback_tests()
     {
-        EntityKind entity_kind = std::get<0>(GetParam());
-        CallbackKind callback_kind = std::get<1>(GetParam());
-
         // Set the physical listener and test
         CallbackMask mask = CallbackMask::none();
-        mask.set(callback_kind);
+        mask.set(callback_kind_);
         StatisticsBackend::set_physical_listener(
-            &physical_listener,
+            &physical_listener_,
             mask,
             DataKindMask::all());
 
         // Expectation: Only the physical listener is called
-        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
+        test_entity_discovery(PHYSICAL, DiscoveryStatus::DISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(2, status.total_count);
                     EXPECT_EQ(2, status.total_count_change);
@@ -653,13 +663,13 @@ public:
                 });
 
         // Expectation: Only the physical listener is called again
-        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::DISCOVERY,
+        test_entity_discovery(PHYSICAL, DiscoveryStatus::DISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
@@ -668,13 +678,13 @@ public:
                 });
 
         // Expectation: The physical listener is called again with updates
-        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UPDATE,
+        test_entity_discovery(PHYSICAL, DiscoveryStatus::UPDATE,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
@@ -683,13 +693,13 @@ public:
                 });
 
         // Expectation: The physical listener is called again with removal
-        test_entity_discovery(PHYSICAL, entity_kind, DiscoveryStatus::UNDISCOVERY,
+        test_entity_discovery(PHYSICAL, DiscoveryStatus::UNDISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
@@ -699,19 +709,19 @@ public:
 
         // Set the domain listener and retest
         StatisticsBackend::set_domain_listener(
-            monitor_id,
-            &domain_listener,
+            monitor_id_,
+            &domain_listener_,
             mask,
             DataKindMask::all());
 
         // Expectation: Only the domain listener is called
-        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+        test_entity_discovery(DOMAIN, DiscoveryStatus::DISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(4, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
@@ -720,13 +730,13 @@ public:
                 });
 
         // Expectation: Only the domain listener is called again
-        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+        test_entity_discovery(DOMAIN, DiscoveryStatus::DISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
@@ -735,13 +745,13 @@ public:
                 });
 
         // Expectation: The domain listener is called again with updates
-        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UPDATE,
+        test_entity_discovery(DOMAIN, DiscoveryStatus::UPDATE,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
@@ -750,13 +760,13 @@ public:
                 });
 
         // Expectation: The domain listener is called again with removal
-        test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UNDISCOVERY,
+        test_entity_discovery(DOMAIN, DiscoveryStatus::UNDISCOVERY,
                 [&](
                     EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(monitor_id, domain_id);
+                    EXPECT_EQ(monitor_id_, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(5, status.total_count);
                     EXPECT_EQ(0, status.total_count_change);
@@ -765,57 +775,32 @@ public:
                 });
     }
 
-    calling_user_listeners_tests_domain_entities()
-    {
-        // Set the profile to ignore discovery data from other processes
-        // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
-
-        monitor_id = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
-    }
-
-    ~calling_user_listeners_tests_domain_entities()
-    {
-        StatisticsBackend::set_physical_listener(
-            nullptr,
-            CallbackMask::none(),
-            DataKindMask::none());
-
-        // Stop the monitor to avoid interfering on next tests
-        StatisticsBackend::stop_monitor(monitor_id);
-        details::StatisticsBackendData::reset_instance();
-    }
-
 };
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::none();
-    mask.set(callback_kind);
+    mask.set(callback_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
-        &domain_listener,
+        monitor_id_,
+        &domain_listener_,
         mask,
         DataKindMask::all());
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         CallbackMask::all(),
         DataKindMask::all());
 
     // Expectation: Only the domain listener is called
-    test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+    test_entity_discovery(DOMAIN, DiscoveryStatus::DISCOVERY,
             [&](
                 EntityId domain_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(monitor_id, domain_id);
+                EXPECT_EQ(monitor_id_, domain_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(1, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
@@ -824,13 +809,13 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
             });
 
     // Expectation: The domain listener is called again
-    test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::DISCOVERY,
+    test_entity_discovery(DOMAIN, DiscoveryStatus::DISCOVERY,
             [&](
                 EntityId domain_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(monitor_id, domain_id);
+                EXPECT_EQ(monitor_id_, domain_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
@@ -839,13 +824,13 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
             });
 
     // Expectation: The domain listener is called with updates
-    test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UPDATE,
+    test_entity_discovery(DOMAIN, DiscoveryStatus::UPDATE,
             [&](
                 EntityId domain_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(monitor_id, domain_id);
+                EXPECT_EQ(monitor_id_, domain_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(0, status.total_count_change);
@@ -854,13 +839,13 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
             });
 
     // Expectation: The user listener is called with removal
-    test_entity_discovery(DOMAIN, entity_kind, DiscoveryStatus::UNDISCOVERY,
+    test_entity_discovery(DOMAIN, DiscoveryStatus::UNDISCOVERY,
             [&](
                 EntityId domain_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(monitor_id, domain_id);
+                EXPECT_EQ(monitor_id_, domain_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(0, status.total_count_change);
@@ -870,7 +855,7 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
 
     // Unset the domain listener and the physical listener
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         mask,
         DataKindMask::all());
@@ -881,48 +866,42 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered)
         DataKindMask::all());
 
     // Expectation: No listener is ever called
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::DISCOVERY);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::DISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::UPDATE);
+    test_entity_discovery(NONE, DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_not_in_mask)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::all();
-    mask ^= callback_kind;
+    mask ^= callback_kind_;
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
-        &domain_listener,
+        monitor_id_,
+        &domain_listener_,
         mask,
         DataKindMask::all());
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         mask,
         DataKindMask::all());
 
     // Expectation: No listener is ever called
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::DISCOVERY);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::DISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::UPDATE);
+    test_entity_discovery(NONE, DiscoveryStatus::UNDISCOVERY);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listener)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::none();
-    mask.set(callback_kind);
+    mask.set(callback_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         mask,
         DataKindMask::all());
@@ -933,23 +912,20 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listen
         DataKindMask::all());
 
     // Expectation: No listener is ever called
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::DISCOVERY);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::DISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::UPDATE);
+    test_entity_discovery(NONE, DiscoveryStatus::UNDISCOVERY);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listener_not_in_mask)
 {
-    EntityKind entity_kind = std::get<0>(GetParam());
-    CallbackKind callback_kind = std::get<1>(GetParam());
-
     CallbackMask mask = CallbackMask::all();
-    mask ^= callback_kind;
+    mask ^= callback_kind_;
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         mask,
         DataKindMask::all());
@@ -960,9 +936,9 @@ TEST_P(calling_user_listeners_tests_domain_entities, entity_discovered_no_listen
         DataKindMask::all());
 
     // Expectation: No listener is ever called
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::DISCOVERY);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UPDATE);
-    test_entity_discovery(NONE, entity_kind, DiscoveryStatus::UNDISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::DISCOVERY);
+    test_entity_discovery(NONE, DiscoveryStatus::UPDATE);
+    test_entity_discovery(NONE, DiscoveryStatus::UNDISCOVERY);
 
     extend_no_callback_tests();
 }
@@ -1158,9 +1134,32 @@ class calling_user_listeners_tests_datas : public ::testing::TestWithParam<std::
 {
 public:
 
-    MockedPhysicalListener physical_listener;
-    MockedDomainListener domain_listener;
-    EntityId monitor_id;
+    calling_user_listeners_tests_datas()
+        : data_kind_(std::get<0>(GetParam()))
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+        monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+    }
+
+    ~calling_user_listeners_tests_datas()
+    {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
+        StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
+    }
+    
+    DataKind data_kind_;
+    CallbackKind callback_kind_;
+    MockedPhysicalListener physical_listener_;
+    MockedDomainListener domain_listener_;
+    EntityId monitor_id_;
 
     enum ListenerKind
     {
@@ -1170,32 +1169,31 @@ public:
     };
 
     void test_data_availability(
-            ListenerKind listener_kind,
-            DataKind data_kind)
+            ListenerKind listener_kind)
     {
 
         if (listener_kind == PHYSICAL)
         {
-            EXPECT_CALL(physical_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(1);
-            EXPECT_CALL(domain_listener, on_data_available(_, _, _)).Times(0);
+            EXPECT_CALL(physical_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
+            EXPECT_CALL(domain_listener_, on_data_available(_, _, _)).Times(0);
 
         }
         else if (listener_kind == DOMAIN)
         {
-            EXPECT_CALL(physical_listener, on_data_available(_, _, _)).Times(0);
-            EXPECT_CALL(domain_listener, on_data_available(monitor_id, EntityId(1), data_kind)).Times(1);
+            EXPECT_CALL(physical_listener_, on_data_available(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
         }
         else
         {
-            EXPECT_CALL(physical_listener, on_data_available(_, _, _)).Times(0);
-            EXPECT_CALL(domain_listener, on_data_available(_, _, _)).Times(0);
+            EXPECT_CALL(physical_listener_, on_data_available(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_data_available(_, _, _)).Times(0);
         }
 
         // Execution
         details::StatisticsBackendData::get_instance()->on_data_available(
-            monitor_id,
+            monitor_id_,
             EntityId(1),
-            data_kind);
+            data_kind_);
     }
 
     /*
@@ -1207,145 +1205,115 @@ public:
      */
     void extend_no_callback_tests()
     {
-        DataKind data_kind = std::get<0>(GetParam());
-
         // Set the physical listener and test
         CallbackMask callback_mask = CallbackMask::none();
         callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
         DataKindMask data_mask = DataKindMask::none();
-        data_mask.set(data_kind);
+        data_mask.set(data_kind_);
 
         StatisticsBackend::set_physical_listener(
-            &physical_listener,
+            &physical_listener_,
             callback_mask,
             data_mask);
 
         // Expectation: Only the physical listener is called
-        test_data_availability(PHYSICAL, data_kind);
+        test_data_availability(PHYSICAL);
 
         // Set the domain listener and retest
         StatisticsBackend::set_domain_listener(
-            monitor_id,
-            &domain_listener,
+            monitor_id_,
+            &domain_listener_,
             callback_mask,
             data_mask);
 
         // Expectation: Only the domain listener is called
-        test_data_availability(DOMAIN, data_kind);
-    }
-
-    calling_user_listeners_tests_datas()
-    {
-        // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
-
-        monitor_id = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
-    }
-
-    ~calling_user_listeners_tests_datas()
-    {
-        StatisticsBackend::set_physical_listener(
-            nullptr,
-            CallbackMask::none(),
-            DataKindMask::none());
-
-        StatisticsBackend::stop_monitor(monitor_id);
-        details::StatisticsBackendData::reset_instance();
+        test_data_availability(DOMAIN);
     }
 
 };
 
 TEST_P(calling_user_listeners_tests_datas, data_available)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
+    data_mask.set(data_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
-        &domain_listener,
+        monitor_id_,
+        &domain_listener_,
         callback_mask,
         data_mask);
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         CallbackMask::all(),
         DataKindMask::all());
 
     // Expectation: Only the domain listener is called
-    test_data_availability(DOMAIN, data_kind);
+    test_data_availability(DOMAIN);
 
     // Expectation: The domain listener is called again
-    test_data_availability(DOMAIN, data_kind);
+    test_data_availability(DOMAIN);
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
+    data_mask.set(data_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
-        &domain_listener,
+        monitor_id_,
+        &domain_listener_,
         callback_mask,
         data_mask);
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         callback_mask,
         data_mask);
 
     // Expectation: No listener is called
-    test_data_availability(NONE, data_kind);
+    test_data_availability(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_data_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
-    data_mask ^= data_kind;
+    data_mask ^= data_kind_;
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
-        &domain_listener,
+        monitor_id_,
+        &domain_listener_,
         callback_mask,
         data_mask);
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         callback_mask,
         data_mask);
 
     // Expectation: No listener is called
-    test_data_availability(NONE, data_kind);
+    test_data_availability(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
+    data_mask.set(data_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         callback_mask,
         data_mask);
@@ -1356,59 +1324,55 @@ TEST_P(calling_user_listeners_tests_datas, data_available_no_listener)
         data_mask);
 
     // Expectation: No listener is called
-    test_data_availability(NONE, data_kind);
+    test_data_availability(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_callback_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::all();
     callback_mask ^= CallbackKind::ON_DATA_AVAILABLE;
     DataKindMask data_mask = DataKindMask::none();
-    data_mask.set(data_kind);
+    data_mask.set(data_kind_);
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         callback_mask,
         data_mask);
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         callback_mask,
         data_mask);
 
     // Expectation: No listener is called
-    test_data_availability(NONE, data_kind);
+    test_data_availability(NONE);
 
     extend_no_callback_tests();
 }
 
 TEST_P(calling_user_listeners_tests_datas, data_available_no_listener_data_not_in_mask)
 {
-    DataKind data_kind = std::get<0>(GetParam());
-
     CallbackMask callback_mask = CallbackMask::none();
     callback_mask.set(CallbackKind::ON_DATA_AVAILABLE);
     DataKindMask data_mask = DataKindMask::all();
-    data_mask ^= data_kind;
+    data_mask ^= data_kind_;
 
     StatisticsBackend::set_domain_listener(
-        monitor_id,
+        monitor_id_,
         nullptr,
         callback_mask,
         data_mask);
 
     StatisticsBackend::set_physical_listener(
-        &physical_listener,
+        &physical_listener_,
         callback_mask,
         data_mask);
 
     // Expectation: No listener is called
-    test_data_availability(NONE, data_kind);
+    test_data_availability(NONE);
 
     extend_no_callback_tests();
 }

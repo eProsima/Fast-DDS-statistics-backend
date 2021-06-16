@@ -20,6 +20,9 @@
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <Monitor.hpp>
@@ -401,6 +404,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Will be using entities that are on the database,
     // to make sure the error is due to the intended reason
+    // (make sure the exceptions are not because of non existent entities)
 
     // Check that there is a monitor with EntityId(7)
     // This will be used in all calls to on_domain_entity_discovery
@@ -408,8 +412,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     ASSERT_EQ(1, result.size());
     EntityId monitor_id = EntityId(7);
 
+    // Check that there is a host with EntityId(1)
     result = StatisticsBackendTest::get_entities(EntityKind::HOST, EntityId(1));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(1),
@@ -429,8 +436,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             ".*");
 
+    // Check that there is a user with EntityId(3)
     result = StatisticsBackendTest::get_entities(EntityKind::USER, EntityId(3));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(3),
@@ -450,8 +460,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             ".*");
 
+    // Check that there is a process with EntityId(5)
     result = StatisticsBackendTest::get_entities(EntityKind::PROCESS, EntityId(5));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(5),
@@ -471,8 +484,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 details::StatisticsBackendData::DiscoveryStatus::UPDATE),
             ".*");
 
+    // Check that there is a locator with EntityId(17)
     result = StatisticsBackendTest::get_entities(EntityKind::LOCATOR, EntityId(17));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
                 monitor_id,
                 EntityId(17),
@@ -515,8 +531,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 EntityKind::PARTICIPANT),
             ".*");
 
+    // Check that there is a topic with EntityId(11)
     result = StatisticsBackendTest::get_entities(EntityKind::TOPIC, EntityId(11));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(11),
@@ -533,8 +552,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 EntityKind::TOPIC),
             ".*");
 
+    // Check that there is a datareader with EntityId(13)
     result = StatisticsBackendTest::get_entities(EntityKind::DATAREADER, EntityId(13));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(13),
@@ -551,8 +573,11 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 EntityKind::DATAREADER),
             ".*");
 
+    // Check that there is a datawriter with EntityId(17)
     result = StatisticsBackendTest::get_entities(EntityKind::DATAWRITER, EntityId(17));
     ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(17),
@@ -568,6 +593,32 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 EntityId(17),
                 EntityKind::DATAWRITER),
             ".*");
+}
+
+TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
+{
+    // Set the profile to ignore discovery data from other processes
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+    // Try to set the listener for some monitor when there is none
+    EXPECT_THROW(StatisticsBackend::set_domain_listener(
+        EntityId(1000),
+        nullptr,
+        CallbackMask::all(),
+        DataKindMask::all()),
+        BadParameter);
+
+    // Start a monitor
+    EntityId monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+
+    // Try to set the listener for another monitor
+    EXPECT_THROW(StatisticsBackend::set_domain_listener(
+        EntityId(monitor_id_.value() + 100),
+        nullptr,
+        CallbackMask::all(),
+        DataKindMask::all()),
+        BadParameter);
 }
 
 #ifdef INSTANTIATE_TEST_SUITE_P
