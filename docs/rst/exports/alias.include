@@ -47,6 +47,15 @@
 
 .. |StatisticsData-api| replace:: :cpp:type:`StatisticsData<eprosima::statistics_backend::StatisticsData>`
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
+.. |StatisticsKind::MEAN-api| replace:: :cpp:enumerator:`MEAN<eprosima::statistics_backend::StatisticKind::MEAN>`
+.. |StatisticsKind::STANDARD_DEVIATION-api| replace:: :cpp:enumerator:`STANDARD_DEVIATION<eprosima::statistics_backend::StatisticKind::STANDARD_DEVIATION>`
+.. |StatisticsKind::MAX-api| replace:: :cpp:enumerator:`MAX<eprosima::statistics_backend::StatisticKind::MAX>`
+.. |StatisticsKind::MIN-api| replace:: :cpp:enumerator:`MIN<eprosima::statistics_backend::StatisticKind::MIN>`
+.. |StatisticsKind::MEDIAN-api| replace:: :cpp:enumerator:`MEDIAN<eprosima::statistics_backend::StatisticKind::MEDIAN>`
+.. |StatisticsKind::COUNT-api| replace:: :cpp:enumerator:`COUNT<eprosima::statistics_backend::StatisticKind::COUNT>`
+.. |StatisticsKind::SUM-api| replace:: :cpp:enumerator:`SUM<eprosima::statistics_backend::StatisticKind::SUM>`
+.. |StatisticsKind::NONE-api| replace:: :cpp:enumerator:`NONE<eprosima::statistics_backend::StatisticKind::NONE>`
+
 .. |EntityKind-api| replace:: :cpp:type:`EntityKind<eprosima::statistics_backend::EntityKind>`
 .. |EntityId-api| replace:: :cpp:type:`EntityId<eprosima::statistics_backend::EntityId>`
 .. |EntityId:all-api| replace:: :cpp:func:`EntityId::all()<eprosima::statistics_backend::EntityId::all>`
