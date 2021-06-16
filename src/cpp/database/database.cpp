@@ -4194,9 +4194,9 @@ void Database::load_data(
     }
 }
 
-bool all_entities_are_inactive(    
-    std::map<EntityId, std::shared_ptr<DomainParticipant>> entities
-)
+bool all_entities_are_inactive(
+        std::map<EntityId, std::shared_ptr<DomainParticipant>> entities
+        )
 {
     for (auto entity_it : entities)
     {
@@ -4210,215 +4210,206 @@ bool all_entities_are_inactive(
 }
 
 void Database::deactivate_entity_of_kind(
-    const EntityId & entity_id,
-    EntityKind entity_kind)
+        const EntityId& entity_id,
+        EntityKind entity_kind)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
     switch (entity_kind)
     {
-    case EntityKind::HOST:
-    {
-        std::shared_ptr<Host> host;
-
-        for (auto host_it : hosts_)
+        case EntityKind::HOST:
         {
-            if (host_it.second->id == entity_id)
+            std::shared_ptr<Host> host;
+
+            for (auto host_it : hosts_)
             {
-                host = host_it.second;
-                break;
-            }
-        }
-
-        host->active = false;
-        break;
-    }
-    case EntityKind::USER:
-    {
-        std::shared_ptr<User> user;
-
-        for (auto user_it : users_)
-        {
-            if (user_it.second->id == entity_id)
-            {
-                user = user_it.second;
-                break;
-            }
-        }
-
-        user->active = false;
-
-        // host
-        {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : user->host->users)
-            {
-                if (entity_it.second->active)
+                if (host_it.second->id == entity_id)
                 {
-                    all_entities_are_inactive = false;
-                }
-            }
-
-            if (all_entities_are_inactive)
-            {
-                deactivate_entity_of_kind(user->host->id, user->host->kind);
-            }
-        }
-        break;
-    }
-    case EntityKind::PROCESS:
-    {
-        std::shared_ptr<Process> process;
-
-        for (auto process_it : processes_)
-        {
-            if (process_it.second->id == entity_id)
-            {
-                process = process_it.second;
-                break;
-            }
-        }
-
-        process->active = false;
-
-        // user
-        {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : process->user->processes)
-            {
-                if (entity_it.second->active)
-                {
-                    all_entities_are_inactive = false;
-                }
-            }
-
-            if (all_entities_are_inactive)
-            {
-                deactivate_entity_of_kind(process->user->id, process->user->kind);
-            }
-        }
-        break;
-    }
-    case EntityKind::DOMAIN:
-    {
-        std::shared_ptr<Domain> domain;
-
-        for (auto domain_it : domains_)
-        {
-            if (domain_it.second->id == entity_id)
-            {
-                domain = domain_it.second;
-                break;
-            }
-        }
-
-        domain->active = false;
-        break;
-    }
-     case EntityKind::TOPIC:
-    {
-        std::shared_ptr<Topic> topic;
-
-        for (auto domain_it : topics_)
-        {
-            for (auto topic_it : domain_it.second)
-            {
-                if (topic_it.second->id == entity_id)
-                {
-                    topic = topic_it.second;
+                    host = host_it.second;
                     break;
                 }
             }
+
+            host->active = false;
+            break;
         }
-
-        topic->active = false;
-        break;
-    }
-    case EntityKind::PARTICIPANT:
-    {
-        std::shared_ptr<DomainParticipant> participant;
-
-        for (auto domain_it : participants_)
+        case EntityKind::USER:
         {
-            for (auto participant_it : domain_it.second)
+            std::shared_ptr<User> user;
+
+            for (auto user_it : users_)
             {
-                if (participant_it.second->id == entity_id)
+                if (user_it.second->id == entity_id)
                 {
-                    participant = participant_it.second;
+                    user = user_it.second;
                     break;
                 }
             }
-        }
 
-        participant->active = false;
+            user->active = false;
 
-        // process
-        {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : participant->process->participants)
+            // host
             {
-                if (entity_it.second->active)
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : user->host->users)
                 {
-                    all_entities_are_inactive = false;
+                    if (entity_it.second->active)
+                    {
+                        all_entities_are_inactive = false;
+                    }
+                }
+
+                if (all_entities_are_inactive)
+                {
+                    deactivate_entity_of_kind(user->host->id, user->host->kind);
                 }
             }
-
-            if (all_entities_are_inactive)
-            {
-                deactivate_entity_of_kind(participant->process->id, participant->process->kind);
-            }
+            break;
         }
-
-        // domain
+        case EntityKind::PROCESS:
         {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : participant->domain->participants)
+            std::shared_ptr<Process> process;
+
+            for (auto process_it : processes_)
             {
-                if (entity_it.second->active)
+                if (process_it.second->id == entity_id)
                 {
-                    all_entities_are_inactive = false;
-                }
-            }
-
-            if (all_entities_are_inactive)
-            {
-                deactivate_entity_of_kind(participant->domain->id, participant->domain->kind);
-            }
-        }
-
-        break;
-    }
-    case EntityKind::DATAWRITER:
-    {
-        std::shared_ptr<DataWriter> datawriter;
-
-        for (auto domain_it : datawriters_)
-        {
-            for (auto datawriter_it : domain_it.second)
-            {
-                if (datawriter_it.second->id == entity_id)
-                {
-                    datawriter = datawriter_it.second;
+                    process = process_it.second;
                     break;
                 }
             }
-        }
 
-        datawriter->active = false;
+            process->active = false;
 
-        // topic
-        {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : datawriter->topic->data_writers)
+            // user
             {
-                if (entity_it.second->active)
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : process->user->processes)
                 {
-                    all_entities_are_inactive = false;
+                    if (entity_it.second->active)
+                    {
+                        all_entities_are_inactive = false;
+                    }
+                }
+
+                if (all_entities_are_inactive)
+                {
+                    deactivate_entity_of_kind(process->user->id, process->user->kind);
                 }
             }
-            if (all_entities_are_inactive)
+            break;
+        }
+        case EntityKind::DOMAIN:
+        {
+            std::shared_ptr<Domain> domain;
+
+            for (auto domain_it : domains_)
             {
-                for (auto entity_it : datawriter->topic->data_readers)
+                if (domain_it.second->id == entity_id)
+                {
+                    domain = domain_it.second;
+                    break;
+                }
+            }
+
+            domain->active = false;
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            std::shared_ptr<Topic> topic;
+
+            for (auto domain_it : topics_)
+            {
+                for (auto topic_it : domain_it.second)
+                {
+                    if (topic_it.second->id == entity_id)
+                    {
+                        topic = topic_it.second;
+                        break;
+                    }
+                }
+            }
+
+            topic->active = false;
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<DomainParticipant> participant;
+
+            for (auto domain_it : participants_)
+            {
+                for (auto participant_it : domain_it.second)
+                {
+                    if (participant_it.second->id == entity_id)
+                    {
+                        participant = participant_it.second;
+                        break;
+                    }
+                }
+            }
+
+            participant->active = false;
+
+            // process
+            {
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : participant->process->participants)
+                {
+                    if (entity_it.second->active)
+                    {
+                        all_entities_are_inactive = false;
+                    }
+                }
+
+                if (all_entities_are_inactive)
+                {
+                    deactivate_entity_of_kind(participant->process->id, participant->process->kind);
+                }
+            }
+
+            // domain
+            {
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : participant->domain->participants)
+                {
+                    if (entity_it.second->active)
+                    {
+                        all_entities_are_inactive = false;
+                    }
+                }
+
+                if (all_entities_are_inactive)
+                {
+                    deactivate_entity_of_kind(participant->domain->id, participant->domain->kind);
+                }
+            }
+
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<DataWriter> datawriter;
+
+            for (auto domain_it : datawriters_)
+            {
+                for (auto datawriter_it : domain_it.second)
+                {
+                    if (datawriter_it.second->id == entity_id)
+                    {
+                        datawriter = datawriter_it.second;
+                        break;
+                    }
+                }
+            }
+
+            datawriter->active = false;
+
+            // topic
+            {
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : datawriter->topic->data_writers)
                 {
                     if (entity_it.second->active)
                     {
@@ -4427,44 +4418,44 @@ void Database::deactivate_entity_of_kind(
                 }
                 if (all_entities_are_inactive)
                 {
-                    deactivate_entity_of_kind(datawriter->topic->id, datawriter->topic->kind);
+                    for (auto entity_it : datawriter->topic->data_readers)
+                    {
+                        if (entity_it.second->active)
+                        {
+                            all_entities_are_inactive = false;
+                        }
+                    }
+                    if (all_entities_are_inactive)
+                    {
+                        deactivate_entity_of_kind(datawriter->topic->id, datawriter->topic->kind);
+                    }
                 }
             }
+
+            break;
         }
-
-        break;
-    }
-    case EntityKind::DATAREADER:
-    {
-        std::shared_ptr<DataReader> datareader;
-
-        for (auto domain_it : datareaders_)
+        case EntityKind::DATAREADER:
         {
-            for (auto datareader_it : domain_it.second)
+            std::shared_ptr<DataReader> datareader;
+
+            for (auto domain_it : datareaders_)
             {
-                if (datareader_it.second->id == entity_id)
+                for (auto datareader_it : domain_it.second)
                 {
-                    datareader = datareader_it.second;
-                    break;
+                    if (datareader_it.second->id == entity_id)
+                    {
+                        datareader = datareader_it.second;
+                        break;
+                    }
                 }
             }
-        }
 
-        datareader->active = false;
+            datareader->active = false;
 
-        // topic
-        {
-            bool all_entities_are_inactive = true;
-            for (auto entity_it : datareader->topic->data_writers)
+            // topic
             {
-                if (entity_it.second->active)
-                {
-                    all_entities_are_inactive = false;
-                }
-            }
-            if (all_entities_are_inactive)
-            {
-                for (auto entity_it : datareader->topic->data_readers)
+                bool all_entities_are_inactive = true;
+                for (auto entity_it : datareader->topic->data_writers)
                 {
                     if (entity_it.second->active)
                     {
@@ -4473,29 +4464,38 @@ void Database::deactivate_entity_of_kind(
                 }
                 if (all_entities_are_inactive)
                 {
-                    deactivate_entity_of_kind(datareader->topic->id, datareader->topic->kind);
+                    for (auto entity_it : datareader->topic->data_readers)
+                    {
+                        if (entity_it.second->active)
+                        {
+                            all_entities_are_inactive = false;
+                        }
+                    }
+                    if (all_entities_are_inactive)
+                    {
+                        deactivate_entity_of_kind(datareader->topic->id, datareader->topic->kind);
+                    }
                 }
             }
-        }
 
-        break;
-    }
-    case EntityKind::LOCATOR:
-    {
-        break;
-    }
-    default:
-    {
-        throw BadParameter("Incorrect EntityKind");
-    }
+            break;
+        }
+        case EntityKind::LOCATOR:
+        {
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Incorrect EntityKind");
+        }
     }
 }
 
 void Database::deactivate_entity(
-    const EntityId & entity_id)
+        const EntityId& entity_id)
 {
     EntityKind entity_kind = get_entity_kind(entity_id);
-    deactivate_entity_of_kind(entity_id,entity_kind);
+    deactivate_entity_of_kind(entity_id, entity_kind);
 }
 
 } //namespace database

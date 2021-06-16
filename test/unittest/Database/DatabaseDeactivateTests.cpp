@@ -29,15 +29,15 @@ public:
     void SetUp()
     {
         db.load_database(load_file(EMPTY_ENTITIES_DUMP_FILE));
-         host = db.hosts().begin()->second;
-         user = db.users().begin()->second;
-         process = db.processes().begin()->second;
-         domain = db.domains().begin()->second;
-         topic = db.topics().begin()->second.begin()->second;
-         participant = db.participants().begin()->second.begin()->second;
-         datawriter = db.get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
-         datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
-         locator = db.locators().begin()->second;
+        host = db.hosts().begin()->second;
+        user = db.users().begin()->second;
+        process = db.processes().begin()->second;
+        domain = db.domains().begin()->second;
+        topic = db.topics().begin()->second.begin()->second;
+        participant = db.participants().begin()->second.begin()->second;
+        datawriter = db.get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
+        datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
+        locator = db.locators().begin()->second;
     }
 
     std::shared_ptr<Host> host;
