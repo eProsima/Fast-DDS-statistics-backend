@@ -31,8 +31,8 @@
    :hidden:
 
    /rst/statistics_backend/statistics_backend
-   /rst/listeners/listeners_index
    /rst/types/types_index
+   /rst/listeners/listeners_index
    /rst/full_example
    /rst/api-reference/api_reference
 
