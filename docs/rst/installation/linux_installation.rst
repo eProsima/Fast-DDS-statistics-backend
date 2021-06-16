@@ -18,12 +18,12 @@ Fast DDS Statistics Backend installation
 
 This section describes the instructions for installing *eProsima Fast DDS Statistics Backend*
 in a Linux environment from sources.
-First of all, the :ref:`requirements_source_liniux` and :ref:`dependencies_source_liniux`
+First of all, the :ref:`requirements_source_linux` and :ref:`dependencies_source_linux`
 detailed below need to be met.
 Afterwards, the user can choose whether to follow either the :ref:`colcon <colcon_installation_linux>`
 or the :ref:`CMake <cmake_installation_linux>` installation instructions.
 
-.. _requirements_source_liniux:
+.. _requirements_source_linux:
 
 
 Requirements
@@ -32,10 +32,10 @@ Requirements
 The installation of *eProsima Fast DDS Statistics Backend* in a Linux environment from sources
 requires the following tools to be installed in the system:
 
-* :ref:`cmake_gcc_pip3_wget_git_source_liniux`
-* :ref:`gtest_source_liniux` [optional]
+* :ref:`cmake_gcc_pip3_wget_git_source_linux`
+* :ref:`gtest_source_linux` [optional]
 
-.. _cmake_gcc_pip3_wget_git_source_liniux:
+.. _cmake_gcc_pip3_wget_git_source_linux:
 
 CMake, g++, pip3, wget and git
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -49,7 +49,7 @@ Linux distribution. For example, on Ubuntu use the command:
 
     sudo apt install cmake g++ python3-pip wget git
 
-.. _gtest_source_liniux:
+.. _gtest_source_linux:
 
 Gtest
 ^^^^^
@@ -68,17 +68,17 @@ For a detailed description of the Gtest installation process, please refer to th
     *eProsima Fast DDS Statistics Backend* depends on Gtest release-1.10.0 or later.
 
 
-.. _dependencies_source_liniux:
+.. _dependencies_source_linux:
 
 Dependencies
 ------------
 
 *eProsima Fast DDS Statistics Backend* has the following dependencies in a Linux environment:
 
-* :ref:`fastDDS_source_liniux`
+* :ref:`fastDDS_source_linux`
 
 
-.. _fastDDS_source_liniux:
+.. _fastDDS_source_linux:
 
 eProsima Fast DDS
 ^^^^^^^^^^^^^^^^^
@@ -142,9 +142,9 @@ CMake installation
 ------------------
 
 This section explains how to compile *eProsima Fast DDS Statistics Backend* with CMake_,
-either :ref:`locally <local_installation_source_liniux>` or :ref:`globally <global_installation_source_liniux>`.
+either :ref:`locally <local_installation_source_linux>` or :ref:`globally <global_installation_source_linux>`.
 
-.. _local_installation_source_liniux:
+.. _local_installation_source_linux:
 
 Local installation
 ^^^^^^^^^^^^^^^^^^
@@ -170,7 +170,7 @@ Local installation
     and enabling :ref:`the corresponding cmake option <cmake_options>`.
 
 
-.. _global_installation_source_liniux:
+.. _global_installation_source_linux:
 
 Global installation
 ^^^^^^^^^^^^^^^^^^^
@@ -189,7 +189,7 @@ Global installation
        cmake ..
        cmake --build . --target install
 
-.. _run_app_cmake_source_liniux:
+.. _run_app_cmake_source_linux:
 
 Run an application
 ^^^^^^^^^^^^^^^^^^
