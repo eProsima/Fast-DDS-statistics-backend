@@ -304,7 +304,7 @@ public:
      * @param dump Object with the object with the dump to load
      */
     void load_database(
-            DatabaseDump dump);
+            const DatabaseDump& dump);
 
 protected:
 

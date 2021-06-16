@@ -3176,7 +3176,7 @@ void Database::check_entity_contains_all_references(
 }
 
 void Database::load_database(
-        DatabaseDump dump)
+        const DatabaseDump& dump)
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
