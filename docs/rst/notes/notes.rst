@@ -5,9 +5,9 @@ Version 0.1.0
 
 This first release includes the following features:
 
-* Starting and stoping monitoring a DDS domain ID
+* Starting and stopping monitoring a DDS domain ID
 * Keeping track of discovered entities (hosts, users, processes, participants,
-  topics, datareaders, datawriters, and locators).
+  topics, data readers, data writers, and locators).
 * Listening and recording statistics data related to the discovered entities,
   as reported by the *Fast DDS* statistics module.
 * Retrieving the recorded statistics data, preprocessed with the requested statistic

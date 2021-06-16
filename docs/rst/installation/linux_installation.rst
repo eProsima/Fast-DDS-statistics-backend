@@ -60,7 +60,7 @@ Linux distribution. For example, on Ubuntu use the command:
 Gtest
 ^^^^^
 
-GTest is a unit testing library for C++.
+Gtest is a unit testing library for C++.
 By default, *eProsima Fast DDS Statistics Backend* does not compile tests.
 It is possible to activate them with the opportune
 `CMake configuration options <https://cmake.org/cmake/help/v3.6/manual/cmake.1.html#options>`_
@@ -111,7 +111,7 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 
        If this fails due to an Environment Error, add the :code:`--user` flag to the :code:`pip3` installation command.
 
-#. Create a :code:`Fast-DDS-statistics-backend` directory and download the repos file that will be used to install
+#. Create a :code:`Fast-DDS-statistics-backend` directory and download the `repos` file that will be used to install
    *eProsima Fast DDS Statistics Backend* and its dependencies:
 
    .. |wget-statistics-backend| replace:: wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/master/fastdds_statistics_backend.repos
