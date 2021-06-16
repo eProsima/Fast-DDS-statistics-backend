@@ -5,10 +5,6 @@
 Get statistical data
 --------------------
 
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
-
 *Fast DDS Statistics Backend* provides two overloads of |get_data-api| to retrieve statistical data of a given
 |DataKind-api| within a time frame (for more information about all the reported |DataKind-api|, please refer to
 :ref:`types_data_kind`).
@@ -21,6 +17,11 @@ The result is a collection of |StatisticsData-api| elements with size equal to t
 .. important::
    If the number of bins is set to zero, then all data points are returned and no statistic is calculated for the
    series.
+
+   .. warning::
+      Requesting zero bins is currently not supported.
+      It will be implemented on a future release of *Fast DDS Statistics Backend*.
+
 
 Depending on the |DataKind-api|, the data is related to one or two entities, e.g. |FASTDDS_LATENCY-api| measures the
 latency between a write operation on the data writer side and the notification to the user when the data is available on
@@ -68,6 +69,10 @@ The following table illustrates the expected inputs depending on the query's |Da
 +-------------------------------+------------------------------------+------------------------------------+
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
+
+.. warning::
+    |DISCOVERED_ENTITY-api| and |SAMPLE_DATAS-api| kinds are currently not supported.
+    They will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 |get_data_supported_entity_kinds-api| can be used to get all the |EntityKind-api|
 pairs suitable for a given |DataKind-api|, according to this table.

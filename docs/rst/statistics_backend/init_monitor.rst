@@ -5,9 +5,9 @@
 Initialize a monitor
 --------------------
 
-.. warning::
-    This feature is currently not supported.
-    It will be implemented on a future release of *Fast DDS Statistics Backend*.
+Initializing a monitor on a certain Domain ID makes *ePRosima Fast DDS Statistics Backend*
+start monitoring the statistics data and entity discoveries on that domain.
+No statistics data will be gathered unless there is a monitor initialized in the required domain.
 
 |StatisticsBackend-api| provides two overloads of |init_monitor-api| that can be used to start a monitorization on a
 DDS domain or a *Fast DDS* Discovery Server network.
@@ -17,6 +17,10 @@ DDS domain or a *Fast DDS* Discovery Server network.
    :start-after: //CONF-INIT-MONITOR-EXAMPLE
    :end-before: //!
    :dedent: 8
+
+.. warning::
+    Initializing a monitor for a discovery server configuration is currently not supported.
+    It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 Furthermore, it is possible to initialize a monitor with a custom |DomainListener-api|.
 Please refer to :ref:`listeners_domain_listener` for more information about the ``DomainListener`` and its

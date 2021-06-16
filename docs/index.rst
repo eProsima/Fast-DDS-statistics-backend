@@ -19,6 +19,7 @@
    :numbered: 5
    :hidden:
 
+   /rst/installation/linux_installation
    /rst/installation/cmake_options
 
 .. _index_statistics_backend:
@@ -30,8 +31,8 @@
    :hidden:
 
    /rst/statistics_backend/statistics_backend
-   /rst/listeners/listeners_index
    /rst/types/types_index
+   /rst/listeners/listeners_index
    /rst/full_example
    /rst/api-reference/api_reference
 
