@@ -6,49 +6,49 @@ DataKind
 ========
 
 The *eProsima Fast DDS Statistics Backend* records statistics data of different
-nature, as provided by *eProsima Fast DDS*, e.g., latency or message count.
+nature, as provided by *eProsima Fast DDS Statistics Module*, e.g., latency or message count.
 We refer to the nature of these data values as their |DataKind-api|.
 
 - |FASTDDS_LATENCY-api|: The latency between a write operation
-  in the data writer and the moment the data is available in the data reader
+  in the data writer and the moment the data is available in the data reader.
 
-- |NETWORK_LATENCY-api|: The Latency in the communication between two locators
+- |NETWORK_LATENCY-api|: The latency in the communication between two locators.
 
-- |PUBLICATION_THROUGHPUT-api|: Amount of data (in Mb/s) sent by a data writer
+- |PUBLICATION_THROUGHPUT-api|: Amount of data (in Mb/s) sent by a data writer.
 
-- |SUBSCRIPTION_THROUGHPUT-api|: Amount of data (in Mb/s) received by a data reader
+- |SUBSCRIPTION_THROUGHPUT-api|: Amount of data (in Mb/s) received by a data reader.
 
-- |RTPS_PACKETS_SENT-api|: Amount of packets sent from a participant to a Locator
+- |RTPS_PACKETS_SENT-api|: Amount of packets sent from a participant to a locator.
 
-- |RTPS_BYTES_SENT-api|: Amount of bytes sent from a participant to a Locator
+- |RTPS_BYTES_SENT-api|: Amount of bytes sent from a participant to a locator.
 
-- |RTPS_PACKETS_LOST-api|: Amount of packets lost from a participant to a Locator
+- |RTPS_PACKETS_LOST-api|: Amount of packets lost from a participant to a locator.
 
-- |RTPS_BYTES_LOST-api|: Amount of bytes lost from a participant to a Locator
+- |RTPS_BYTES_LOST-api|: Amount of bytes lost from a participant to a locator.
 
 - |RESENT_DATA-api|: Amount of DATA/DATAFRAG sub-messages that had to be resent
-  from a data writer
+  from a data writer.
 
-- |HEARTBEAT_COUNT-api|: Amount of HEARTBEATs that a data writer sends
+- |HEARTBEAT_COUNT-api|: Amount of HEARTBEATs that a data writer sends.
 
-- |ACKNACK_COUNT-api|: Amount of ACKNACKs that a data reader sends
+- |ACKNACK_COUNT-api|: Amount of ACKNACKs that a data reader sends.
 
-- |NACKFRAG_COUNT-api|: Amount of NACKFRAGs that a data reader sends
+- |NACKFRAG_COUNT-api|: Amount of NACKFRAGs that a data reader sends.
 
-- |GAP_COUNT-api|: Amount of GAPs that a data writer sends
+- |GAP_COUNT-api|: Amount of GAPs that a data writer sends.
 
-- |DATA_COUNT-api|: Amount of DATA/DATAFRAGs that a data writer sends
+- |DATA_COUNT-api|: Amount of DATA/DATAFRAGs that a data writer sends.
 
-- |PDP_PACKETS-api|: Amount of PDP packets sent by  Participant
+- |PDP_PACKETS-api|: Amount of PDP packets sent by a participant.
 
-- |EDP_PACKETS-api|: Amount of EDP packets sent by  Participant
+- |EDP_PACKETS-api|: Amount of EDP packets sent by a participant.
 
-- |DISCOVERED_ENTITY-api|: Time when a participant discovers another DDS entity
+- |DISCOVERED_ENTITY-api|: Time when a participant discovers another DDS entity.
 
-- |SAMPLE_DATAS-api|: Amount of DATA/DATAFRAGs needed to send a single sample
+- |SAMPLE_DATAS-api|: Amount of DATA/DATAFRAGs needed to send a single sample.
 
 
-Each data kind may relate to one or two entities where they are measured.
+Each data kind may relate to one or two :ref:`entities<types_entity_kind>` where they are measured.
 For example, a `FASTDDS_LATENCY` is always measured between a data data writer
 and a data reader, whereas `PDP_PACKETS` is always measured in a participant,
 with no other entity involved in the measurement.
@@ -56,7 +56,7 @@ The following table describes which entity kinds are involved in the
 measurement of each data kind:
 
 +-------------------------------+-------------------+---------------+
-| Signature                     | Entities source   | Entity target |
+| Signature                     | Source Entity     | Target Entity |
 +===============================+===================+===============+
 | |FASTDDS_LATENCY-api|         | DataWriter        | DataReader    |
 +-------------------------------+-------------------+---------------+

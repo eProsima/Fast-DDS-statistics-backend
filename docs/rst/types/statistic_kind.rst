@@ -5,8 +5,8 @@
 StatisticKind
 =============
 
-Retrieving data from the *eProsima Fast DDS Statistics Backend* with the |get_data-api|,
-it is possible to specify the kind of statistic we want to receive in the output.
+|get_data-api| allows for retrieving data from the *eProsima Fast DDS Statistics Backend*
+specifying the kind of statistic we want to receive in the output.
 The available statistics are:
 
 - |StatisticsKind::MEAN-api|: Numerical mean of values in the set.
