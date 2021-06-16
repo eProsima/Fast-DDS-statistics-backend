@@ -19,7 +19,7 @@ DDS domain or a *Fast DDS* Discovery Server network.
    :dedent: 8
 
 .. warning::
-    Initializing a monitor from a discovery server is currently not supported.
+    Initializing a monitor for a discovery server configuration is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
 Furthermore, it is possible to initialize a monitor with a custom |DomainListener-api|.

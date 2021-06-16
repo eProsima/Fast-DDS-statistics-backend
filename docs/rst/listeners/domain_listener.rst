@@ -30,7 +30,8 @@ DomainListener defines the following callbacks:
 
 * |DomainListener::on_participant_discovery-api|:
   A new participant has been discovered in the monitored domain,
-  or an already known participant has been updated with a new QoS value,
+  or an already known participant has been updated with a new
+  Quality of Service (QoS) value,
   or an already known participant has been removed from the network.
   The arguments in the callback specifies the ID of the participant and the domain
   to which it belongs.
