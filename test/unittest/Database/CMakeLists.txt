@@ -573,35 +573,35 @@ endforeach()
 
 
 ###############################################################################
-# Database: deactivate tests
+# Database: status tests
 ###############################################################################
 
-add_executable(database_deactivate_tests DatabaseDeactivateTests.cpp)
+add_executable(database_status_tests DatabaseStatusTests.cpp)
 
-target_include_directories(database_deactivate_tests PRIVATE
+target_include_directories(database_status_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
-target_link_libraries(database_deactivate_tests PUBLIC
+target_link_libraries(database_status_tests PUBLIC
     ${PROJECT_NAME}
     gtest)
 
-set(DATABASE_ACTIVATE_TEST_LIST
-    no_deactivate
-    deactivate_host
-    deactivate_user
-    deactivate_process
-    deactivate_domain
-    deactivate_topic
-    deactivate_participant
-    deactivate_datawriter
-    deactivate_datareader
-    deactivate_endpoints
-    deactivate_locator
+set(DATABASE_STATUS_TEST_LIST
+    initial_status
+    host
+    user
+    process
+    domain
+    topic
+    participant
+    datawriter
+    datareader
+    endpoints
+    locator
 )
 
-foreach(test_name ${DATABASE_ACTIVATE_TEST_LIST})
-    add_test(NAME database_deactivate_tests.${test_name}
-            COMMAND database_deactivate_tests
-            --gtest_filter=database_deactivate_tests.${test_name}:*/database_deactivate_tests.${test_name}/*)
+foreach(test_name ${DATABASE_STATUS_TEST_LIST})
+    add_test(NAME database_status_tests.${test_name}
+            COMMAND database_status_tests
+            --gtest_filter=database_status_tests.${test_name}:*/database_status_tests.${test_name}/*)
 endforeach()

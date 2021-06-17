@@ -59,7 +59,7 @@ public:
 };
 
 // Check the is_active StatisticsBackend method when a participant is undiscovered
-TEST_F(is_active_tests, participant_undiscovered)
+TEST_F(is_active_tests, participant)
 {
     StatisticsBackendTest::set_database(db);
 
@@ -111,10 +111,27 @@ TEST_F(is_active_tests, participant_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(datawriter->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(datareader->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo discover_info(data);
+    info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+
+    // Execution: Call the listener
+    participant_listener.on_participant_discovery(&statistics_participant, std::move(discover_info));
+
+    ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 }
 
 // Check the is_active StatisticsBackend method when a datawriter is undiscovered
-TEST_F(is_active_tests, datawriter_undiscovered)
+TEST_F(is_active_tests, datawriter)
 {
     StatisticsBackendTest::set_database(db);
 
@@ -177,7 +194,7 @@ TEST_F(is_active_tests, datawriter_undiscovered)
 }
 
 // Check the is_active StatisticsBackend method when a datareader is undiscovered
-TEST_F(is_active_tests, datareader_undiscovered)
+TEST_F(is_active_tests, datareader)
 {
     StatisticsBackendTest::set_database(db);
 
@@ -240,7 +257,7 @@ TEST_F(is_active_tests, datareader_undiscovered)
 }
 
 // Check the is_active StatisticsBackend method when the endpoints are undiscovered
-TEST_F(is_active_tests, endpoints_undiscovered)
+TEST_F(is_active_tests, endpoints)
 {
     StatisticsBackendTest::set_database(db);
 
@@ -334,7 +351,7 @@ TEST_F(is_active_tests, endpoints_undiscovered)
 }
 
 // Check the is_active StatisticsBackend method when the dds_entities are undiscovered
-TEST_F(is_active_tests, dds_entities_undiscovered)
+TEST_F(is_active_tests, dds_entities)
 {
     StatisticsBackendTest::set_database(db);
 

@@ -18,9 +18,9 @@
 #include <DatabaseUtils.hpp>
 
 /**
- * @brief Fixture for the database_deactivate_tests
+ * @brief Fixture for the database_status_tests
  */
-class database_deactivate_tests : public ::testing::Test
+class database_status_tests : public ::testing::Test
 {
 public:
 
@@ -51,7 +51,7 @@ public:
     DataBaseTest db;
 };
 
-TEST_F(database_deactivate_tests, no_deactivate)
+TEST_F(database_status_tests, initial_status)
 {
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -64,9 +64,9 @@ TEST_F(database_deactivate_tests, no_deactivate)
     ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_host)
+TEST_F(database_status_tests, host)
 {
-    db.deactivate_entity(host->id);
+    db.change_entity_status(host->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -77,11 +77,23 @@ TEST_F(database_deactivate_tests, deactivate_host)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+    db.change_entity_status(host->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_user)
+TEST_F(database_status_tests, user)
 {
-    db.deactivate_entity(user->id);
+    db.change_entity_status(user->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -92,11 +104,23 @@ TEST_F(database_deactivate_tests, deactivate_user)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(user->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_process)
+TEST_F(database_status_tests, process)
 {
-    db.deactivate_entity(process->id);
+    db.change_entity_status(process->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -107,11 +131,23 @@ TEST_F(database_deactivate_tests, deactivate_process)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(process->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_domain)
+TEST_F(database_status_tests, domain)
 {
-    db.deactivate_entity(domain->id);
+    db.change_entity_status(domain->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -122,11 +158,23 @@ TEST_F(database_deactivate_tests, deactivate_domain)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(domain->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_topic)
+TEST_F(database_status_tests, topic)
 {
-    db.deactivate_entity(topic->id);
+    db.change_entity_status(topic->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -137,11 +185,23 @@ TEST_F(database_deactivate_tests, deactivate_topic)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(topic->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_participant)
+TEST_F(database_status_tests, participant)
 {
-    db.deactivate_entity(participant->id);
+    db.change_entity_status(participant->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -152,11 +212,23 @@ TEST_F(database_deactivate_tests, deactivate_participant)
     ASSERT_TRUE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(participant->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_datawriter)
+TEST_F(database_status_tests, datawriter)
 {
-    db.deactivate_entity(datawriter->id);
+    db.change_entity_status(datawriter->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -167,11 +239,23 @@ TEST_F(database_deactivate_tests, deactivate_datawriter)
     ASSERT_FALSE(datawriter->active);
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(datawriter->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_datareader)
+TEST_F(database_status_tests, datareader)
 {
-    db.deactivate_entity(datareader->id);
+    db.change_entity_status(datareader->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -182,12 +266,24 @@ TEST_F(database_deactivate_tests, deactivate_datareader)
     ASSERT_TRUE(datawriter->active);
     ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+        db.change_entity_status(datareader->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_endpoints)
+TEST_F(database_status_tests, endpoints)
 {
-    db.deactivate_entity(datawriter->id);
-    db.deactivate_entity(datareader->id);
+    db.change_entity_status(datawriter->id, false);
+    db.change_entity_status(datareader->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -198,13 +294,26 @@ TEST_F(database_deactivate_tests, deactivate_endpoints)
     ASSERT_FALSE(datawriter->active);
     ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+    db.change_entity_status(datawriter->id, true);
+    db.change_entity_status(datareader->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_dds_entities)
+TEST_F(database_status_tests, dds_entities)
 {
-    db.deactivate_entity(participant->id);
-    db.deactivate_entity(datawriter->id);
-    db.deactivate_entity(datareader->id);
+    db.change_entity_status(participant->id, false);
+    db.change_entity_status(datawriter->id, false);
+    db.change_entity_status(datareader->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -215,11 +324,37 @@ TEST_F(database_deactivate_tests, deactivate_dds_entities)
     ASSERT_FALSE(datawriter->active);
     ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
+
+    db.change_entity_status(participant->id, true);
+    db.change_entity_status(datawriter->id, true);
+    db.change_entity_status(datareader->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
 }
 
-TEST_F(database_deactivate_tests, deactivate_locator)
+TEST_F(database_status_tests, locator)
 {
-    db.deactivate_entity(locator->id);
+    db.change_entity_status(locator->id,false);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+
+    db.change_entity_status(locator->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);

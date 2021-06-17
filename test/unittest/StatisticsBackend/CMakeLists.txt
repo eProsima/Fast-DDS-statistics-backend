@@ -460,11 +460,11 @@ file(COPY
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 set(IS_ACTIVE_TEST_LIST
-    participant_undiscovered
-    datawriter_undiscovered
-    datareader_undiscovered
-    endpoints_undiscovered
-    dds_entities_undiscovered
+    participant
+    datawriter
+    datareader
+    endpoints
+    dds_entities
 )
 
 foreach(test_name ${IS_ACTIVE_TEST_LIST})

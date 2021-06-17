@@ -315,12 +315,13 @@ public:
             const DatabaseDump& dump);
 
     /**
-     * @brief Deactivate an entity given an EntityId. Also check if the references
-     * of the entity must also be deactivated and deactivates them in that case.
+     * Change the status (active/inactive) of an entity given an EntityId.
+     * Also check if the references of the entity must also be changed and change the status in that case.
      * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid.
      */
-    void deactivate_entity(
-            const EntityId& entity_id);
+    void change_entity_status(
+            const EntityId& entity_id,
+            bool active);
 
 protected:
 
@@ -765,12 +766,13 @@ protected:
             const std::shared_ptr<Locator>& entity);
 
     /**
-     * @brief Auxiliar function to deactivate an entity given its EntityId and its EntityKind.
-     * Also check if the references of the entity must also be deactivated and deactivates them in that case.
+     * Change the status (active/inactive) of an entity given an EntityId.
+     * Also check if the references of the entity must also be changed and change the status in that case.
      * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid.
      */
-    void deactivate_entity_of_kind(
+    void change_entity_status_of_kind(
             const EntityId& entity_id,
+            bool active,
             EntityKind entity_kind);
 
     //! Collection of Hosts sorted by EntityId
