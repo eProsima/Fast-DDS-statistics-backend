@@ -446,7 +446,10 @@ target_include_directories(database_load_tests PRIVATE
 
 target_link_libraries(database_load_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
+
+get_win32_path_dependencies(database_load_tests TEST_FRIENDLY_PATH)
 
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
@@ -472,6 +475,10 @@ foreach(test_name ${DATABASE_LOAD_TEST_LIST})
     add_test(NAME database_load_tests.${test_name}
             COMMAND database_load_tests
             --gtest_filter=database_load_tests.${test_name}:*/database_load_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_load_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 
@@ -487,7 +494,10 @@ target_include_directories(database_load_insert_tests PRIVATE
 
 target_link_libraries(database_load_insert_tests PUBLIC
     ${PROJECT_NAME}
-    gtest)
+    ${GTEST_LIBRARIES}
+    )
+
+get_win32_path_dependencies(database_load_insert_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_LOAD_INSERT_TEST_LIST
     load_insert
@@ -497,5 +507,9 @@ foreach(test_name ${DATABASE_LOAD_INSERT_TEST_LIST})
     add_test(NAME database_load_insert_tests.${test_name}
             COMMAND database_load_insert_tests
             --gtest_filter=database_load_insert_tests.${test_name}:*/database_load_insert_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_load_insert_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 

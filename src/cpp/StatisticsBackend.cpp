@@ -189,7 +189,7 @@ EntityId StatisticsBackend::init_monitor(
     {
         domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
         details::StatisticsBackendData::get_instance()->unlock();
         throw;

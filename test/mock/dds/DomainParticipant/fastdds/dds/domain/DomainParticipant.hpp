@@ -20,6 +20,7 @@
 #ifndef _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 #define _FASTDDS_DOMAIN_PARTICIPANT_HPP_
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

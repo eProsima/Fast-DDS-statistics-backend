@@ -46,6 +46,10 @@ struct GenericIterator : public base_iterator_type
     {
     }
 
+    virtual ~GenericIterator()
+    {
+    }
+
     /**
      * @brief Get the timestamp of the sample currently pointed to by this iterator.
      * @return Timestamp of sample.
@@ -135,7 +139,7 @@ struct StatisticsIterator<database::EntityCountSample> final
 
     double get_value() const noexcept override
     {
-        return sample().count;
+        return static_cast<double>(sample().count);
     }
 
 };

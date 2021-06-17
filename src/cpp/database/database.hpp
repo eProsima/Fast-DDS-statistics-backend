@@ -24,6 +24,7 @@
 #include <memory>
 #include <shared_mutex>
 #include <sstream>
+#include <type_traits> // enable_if, is_integral
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -44,16 +45,34 @@ namespace statistics_backend {
  * @param nanosecs from posix epoch 1970-01-01
  * @return argument date on local system_clock time point
  */
-inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(
-        uint64_t nanosecs)
+
+template<class T,
+    typename std::enable_if<
+        std::is_integral<T>::value,
+        bool>::type = true>
+std::chrono::system_clock::duration nanoseconds_to_systemclock_duration(
+        T nanosecs)
 {
-#if defined(_WIN32)
-    auto span_since_epoch = std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(nanosecs / 100);
-#else
-    auto span_since_epoch = std::chrono::nanoseconds(nanosecs);
-#endif // if defined(_WIN32)
-    return std::chrono::system_clock::time_point(span_since_epoch);
+    using namespace std;
+    using namespace std::chrono;
+
+    auto system_clock_resolution = system_clock::duration(1);
+    return system_clock::duration(
+            nanosecs / duration_cast<nanoseconds>(system_clock_resolution).count());
 }
+
+template<class T,
+    typename std::enable_if<
+        std::is_integral<T>::value,
+        bool>::type = true>
+std::chrono::system_clock::time_point nanoseconds_to_systemclock(
+        T nanosecs)
+{
+    return std::chrono::system_clock::time_point(
+            nanoseconds_to_systemclock_duration(nanosecs));
+}
+
+
 
 namespace database {
 
@@ -344,24 +363,30 @@ protected:
         return s;
     }
 
-    inline int string_to_int(
-            std::string const& str)
+    inline long long string_to_int(
+            std::string const& str) const
     {
-        if (str.find_first_not_of("-1234567890") != std::string::npos)
+        try
+        {
+            return stoll(str);
+        }
+        catch (const std::exception&)
         {
             throw CorruptedFile("string must be an integer: " + str);
         }
-        return stoi(str);
     }
 
-    inline uint string_to_uint(
-            std::string const& str)
+    inline unsigned long long string_to_uint(
+            std::string const& str) const
     {
-        if (str.find_first_not_of("1234567890") != std::string::npos)
+        try
+        {
+            return stoull(str);
+        }
+        catch (const std::exception&)
         {
             throw CorruptedFile("string must be an unsigned integer: " + str);
         }
-        return stoi(str);
     }
 
     /**

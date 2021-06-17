@@ -61,7 +61,7 @@ struct Entity
     /**
      * Clear the maps and data
      */
-    virtual void clear()
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear()
     {
     }
 
@@ -89,7 +89,7 @@ struct Host : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     /*
      * Collection of users within the host which are involved in the communication.
@@ -114,7 +114,7 @@ struct User : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     //! Reference to the Host in which this user runs
     std::shared_ptr<Host> host;
@@ -144,7 +144,7 @@ struct Process : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     //! The PID of the process
     std::string pid;
@@ -174,7 +174,7 @@ struct Domain : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     /*
      * Collection of Topics within the Domain which are either published, subscribed, or both.
@@ -208,7 +208,7 @@ struct DDSEntity : Entity
     /**
      * Clear the maps and data
      */
-    virtual void clear()
+    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear()
     {
     }
 
@@ -239,7 +239,7 @@ struct DomainParticipant : DDSEntity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
@@ -285,7 +285,7 @@ struct Topic : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
@@ -359,7 +359,7 @@ struct DataReader : DDSEndpoint
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderData data;
@@ -384,7 +384,7 @@ struct DataWriter : DDSEndpoint
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterData data;
@@ -405,7 +405,7 @@ struct Locator : Entity
     /**
      * Clear the maps and data
      */
-    void clear() final;
+    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
 
     /*
      * Collection of DataReaders using this locator.

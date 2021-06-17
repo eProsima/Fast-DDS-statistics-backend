@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <cmath>
@@ -570,8 +571,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -637,8 +638,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -719,8 +720,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -786,8 +787,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -899,8 +900,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -965,8 +966,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1047,8 +1048,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1114,8 +1115,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1227,8 +1228,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1293,8 +1294,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1375,8 +1376,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1442,8 +1443,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1555,8 +1556,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1621,8 +1622,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1703,8 +1704,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1770,8 +1771,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1883,8 +1884,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1949,8 +1950,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2031,8 +2032,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2098,8 +2099,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2212,8 +2213,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2278,8 +2279,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2360,8 +2361,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2427,8 +2428,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2538,8 +2539,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2604,8 +2605,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2686,8 +2687,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2753,8 +2754,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2864,8 +2865,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2930,8 +2931,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3012,8 +3013,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(40);
-            finish = Timestamp() + std::chrono::nanoseconds(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3079,8 +3080,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + std::chrono::nanoseconds(0);
-            finish = Timestamp() + std::chrono::nanoseconds(200);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);

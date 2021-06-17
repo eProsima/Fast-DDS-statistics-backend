@@ -220,17 +220,22 @@ add_executable(init_monitor_tests InitMonitorTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(init_monitor_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(init_monitor_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_all_data
@@ -267,6 +272,11 @@ add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(init_monitor_factory_fails_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
@@ -277,13 +287,13 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/mock/dds/Topic
     ${PROJECT_SOURCE_DIR}/test/mock/dds/TopicDescription
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_participant_creation_fails
@@ -320,16 +330,23 @@ add_executable(get_data_tests GetDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(get_data_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(get_data_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(get_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(get_data_tests TEST_FRIENDLY_PATH)
 
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
@@ -343,6 +360,10 @@ foreach(test_name ${GET_DATA_NO_DATA_TEST_LIST})
     add_test(NAME get_data_no_data_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_no_data_tests.${test_name}:*/get_data_no_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_no_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(GET_DATA_WITH_DATA_TEST_LIST
@@ -362,6 +383,10 @@ foreach(test_name ${GET_DATA_WITH_DATA_TEST_LIST})
     add_test(NAME get_data_with_data_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_with_data_tests.${test_name}:*/get_data_with_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_with_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(GET_DATAUNSUPPORTED_ENTITY_TEST_LIST
@@ -372,5 +397,9 @@ foreach(test_name ${GET_DATAUNSUPPORTED_ENTITY_TEST_LIST})
     add_test(NAME get_data_unsupported_entities_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_unsupported_entities_tests.${test_name}:*/get_data_unsupported_entities_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_unsupported_entities_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 

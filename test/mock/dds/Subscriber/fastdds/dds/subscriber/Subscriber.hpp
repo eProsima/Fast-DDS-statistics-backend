@@ -20,6 +20,7 @@
 #ifndef _FASTDDS_SUBSCRIBER_HPP_
 #define _FASTDDS_SUBSCRIBER_HPP_
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

@@ -52,11 +52,12 @@ class database_get_entities_tests : public ::testing::TestWithParam<std::tuple<E
 {
 public:
 
-    typedef size_t TestId;
+    using TestId = PopulateDatabase::TestId;
 
     void SetUp()
     {
-        entities = PopulateDatabase::populate_database(db);
+        auto temp = PopulateDatabase::populate_database(db);
+        entities = temp;
     }
 
     Database db;

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <database/database.hpp>
@@ -27,7 +28,7 @@ class database_load_insert_tests : public ::testing::Test
 {
 public:
 
-    typedef uint32_t TestId;
+    using TestId = PopulateDatabase::TestId;
 
     void SetUp()
     {

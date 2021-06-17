@@ -467,16 +467,16 @@ TEST(database, time_to_string)
 {
     DataBaseTest db;
     ASSERT_EQ(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            nanoseconds_to_systemclock(1)),
             "1");
     ASSERT_NE(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            nanoseconds_to_systemclock(1)),
             "5");
     ASSERT_EQ(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(-5))),
+            nanoseconds_to_systemclock(-5)),
             "-5");
     ASSERT_NE(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
+            nanoseconds_to_systemclock(1)),
             "ABC");
 }
 

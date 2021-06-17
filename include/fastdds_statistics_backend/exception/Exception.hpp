@@ -253,7 +253,7 @@ public:
 /**
  * @brief Exception to signal that a file with an unexpected format has been loaded
  */
-class FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile : public Exception
+class CorruptedFile : public Exception
 {
 
 public:
@@ -263,7 +263,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    CorruptedFile(
+    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile(
             const char* message) noexcept;
 
     /**
@@ -271,7 +271,7 @@ public:
      *
      * @param message The message to be returned by what()
      */
-    CorruptedFile(
+    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile(
             const std::string& message);
 
     /**
@@ -279,7 +279,7 @@ public:
      *
      * @param other The original exception object to copy
      */
-    CorruptedFile(
+    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile(
             const CorruptedFile& other) = default;
 
     /**
@@ -288,7 +288,7 @@ public:
      * @param other The original statistics_backend::CorruptedFile exception to copy
      * @return the current statistics_backend::CorruptedFile exception after the copy
      */
-    CorruptedFile& operator =(
+    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile& operator =(
             const CorruptedFile& other) = default;
 };
 

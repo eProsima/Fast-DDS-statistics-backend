@@ -41,7 +41,7 @@ class statistics_backend_tests : public ::testing::TestWithParam<std::tuple<Enti
 {
 public:
 
-    typedef size_t TestId;
+    using TestId = PopulateDatabase::TestId;
 
     void SetUp()
     {

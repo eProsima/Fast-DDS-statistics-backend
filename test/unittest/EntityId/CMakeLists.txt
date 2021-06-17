@@ -14,6 +14,10 @@
 
 add_executable(entityid_tests EntityIdTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(entityid_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+endif(MSVC)
+
 target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
 
 get_win32_path_dependencies(entityid_tests TEST_FRIENDLY_PATH)
