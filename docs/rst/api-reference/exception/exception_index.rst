@@ -9,5 +9,5 @@ Exception
     /rst/api-reference/exception/corruptedfile
     /rst/api-reference/exception/error
     /rst/api-reference/exception/exception
-    /rst/api-reference/exception/nodata
+    /rst/api-reference/exception/preconditionnotmet
     /rst/api-reference/exception/unsupported

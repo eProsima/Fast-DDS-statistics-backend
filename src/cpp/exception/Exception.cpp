@@ -74,13 +74,13 @@ BadParameter::BadParameter(
 {
 }
 
-NoData::NoData(
+PreconditionNotMet::PreconditionNotMet(
         const char* message) noexcept
     : Exception(message)
 {
 }
 
-NoData::NoData(
+PreconditionNotMet::PreconditionNotMet(
         const std::string& message)
     : Exception(message)
 {
