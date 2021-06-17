@@ -569,6 +569,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -899,6 +900,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1228,6 +1230,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1557,6 +1560,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1886,6 +1890,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2216,6 +2221,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2543,6 +2549,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2870,6 +2877,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
         case DataKind::SAMPLE_DATAS:
+        case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
