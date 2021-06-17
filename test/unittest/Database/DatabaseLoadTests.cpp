@@ -129,7 +129,7 @@ TEST(database_load_tests, load_twice)
 
     // Load dump in the database
     db.load_database(dump);
-    ASSERT_THROW(db.load_database(dump), Error);
+    ASSERT_THROW(db.load_database(dump), PreconditionNotMet);
 }
 
 // Check that the load of the 'dump 'without 'key' in 'container', throws an exception

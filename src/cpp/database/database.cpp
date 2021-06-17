@@ -3165,7 +3165,7 @@ void Database::load_database(
 
     if (next_id_ != 0)
     {
-        throw Error("Error: Database must be empty before call load_database()");
+        throw PreconditionNotMet("Error: Database not empty");
     }
 
     // Locators
