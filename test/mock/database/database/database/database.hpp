@@ -98,9 +98,9 @@ public:
     MOCK_CONST_METHOD2(get_entities_by_name, std::vector<std::pair<EntityId, EntityId>>(
                 EntityKind entity_kind,
                 const std::string& name));
-    
+
     MOCK_METHOD1(deactivate_entity, void(
-                const EntityId & entity_id));
+                const EntityId& entity_id));
 
     // Rely this method to the mock of get_entity
     EntityKind get_entity_kind(

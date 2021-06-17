@@ -15,17 +15,13 @@
 #include <gtest/gtest.h>
 
 #include "fastdds/dds/domain/DomainParticipant.hpp"
-#include <fastdds/dds/core/status/StatusMask.hpp>
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <DatabaseUtils.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
-#include <topic_types/types.h>
 
 using namespace eprosima::statistics_backend::subscriber;
-
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
 
 /**
  * @brief Fixture for the is_active_tests
@@ -36,16 +32,17 @@ public:
 
     void SetUp()
     {
-        db.load_database(load_file(EMPTY_ENTITIES_DUMP_FILE));
-        host = db.hosts().begin()->second;
-        user = db.users().begin()->second;
-        process = db.processes().begin()->second;
-        domain = db.domains().begin()->second;
-        topic = db.topics().begin()->second.begin()->second;
-        participant = db.participants().begin()->second.begin()->second;
-        datawriter = db.get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
-        datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
-        locator = db.locators().begin()->second;
+        db = new DataBaseTest;
+        db->load_database(load_file(EMPTY_ENTITIES_DUMP_FILE));
+        host = db->hosts().begin()->second;
+        user = db->users().begin()->second;
+        process = db->processes().begin()->second;
+        domain = db->domains().begin()->second;
+        topic = db->topics().begin()->second.begin()->second;
+        participant = db->participants().begin()->second.begin()->second;
+        datawriter = db->get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
+        datareader = db->get_dds_endpoints<DataReader>().begin()->second.begin()->second;
+        locator = db->locators().begin()->second;
     }
 
     std::shared_ptr<Host> host;
@@ -58,13 +55,13 @@ public:
     std::shared_ptr<DataReader> datareader;
     std::shared_ptr<Locator> locator;
 
-    DataBaseTest db;
+    DataBaseTest* db;
 };
 
 // Check the is_active StatisticsBackend method when a participant is undiscovered
 TEST_F(is_active_tests, participant_undiscovered)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -77,16 +74,16 @@ TEST_F(is_active_tests, participant_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(&db);
+    DatabaseEntityQueue entity_queue(db);
 
     // Data queue, attached to the database
-    DatabaseDataQueue data_queue(&db);
+    DatabaseDataQueue data_queue(db);
 
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
 
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(domain->id, &db, &entity_queue, &data_queue);
+    StatisticsParticipantListener participant_listener(domain->id, db, &entity_queue, &data_queue);
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -119,7 +116,7 @@ TEST_F(is_active_tests, participant_undiscovered)
 // Check the is_active StatisticsBackend method when a datawriter is undiscovered
 TEST_F(is_active_tests, datawriter_undiscovered)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -132,16 +129,16 @@ TEST_F(is_active_tests, datawriter_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(&db);
+    DatabaseEntityQueue entity_queue(db);
 
     // Data queue, attached to the database
-    DatabaseDataQueue data_queue(&db);
+    DatabaseDataQueue data_queue(db);
 
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
 
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(domain->id, &db, &entity_queue, &data_queue);
+    StatisticsParticipantListener participant_listener(domain->id, db, &entity_queue, &data_queue);
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -182,7 +179,7 @@ TEST_F(is_active_tests, datawriter_undiscovered)
 // Check the is_active StatisticsBackend method when a datareader is undiscovered
 TEST_F(is_active_tests, datareader_undiscovered)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -195,16 +192,16 @@ TEST_F(is_active_tests, datareader_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(&db);
+    DatabaseEntityQueue entity_queue(db);
 
     // Data queue, attached to the database
-    DatabaseDataQueue data_queue(&db);
+    DatabaseDataQueue data_queue(db);
 
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
 
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(domain->id, &db, &entity_queue, &data_queue);
+    StatisticsParticipantListener participant_listener(domain->id, db, &entity_queue, &data_queue);
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -245,7 +242,7 @@ TEST_F(is_active_tests, datareader_undiscovered)
 // Check the is_active StatisticsBackend method when the endpoints are undiscovered
 TEST_F(is_active_tests, endpoints_undiscovered)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -258,16 +255,16 @@ TEST_F(is_active_tests, endpoints_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(&db);
+    DatabaseEntityQueue entity_queue(db);
 
     // Data queue, attached to the database
-    DatabaseDataQueue data_queue(&db);
+    DatabaseDataQueue data_queue(db);
 
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
 
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(domain->id, &db, &entity_queue, &data_queue);
+    StatisticsParticipantListener participant_listener(domain->id, db, &entity_queue, &data_queue);
 
     // Writer
     {
@@ -339,7 +336,7 @@ TEST_F(is_active_tests, endpoints_undiscovered)
 // Check the is_active StatisticsBackend method when the dds_entities are undiscovered
 TEST_F(is_active_tests, dds_entities_undiscovered)
 {
-    StatisticsBackendTest::set_database(&db);
+    StatisticsBackendTest::set_database(db);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -352,16 +349,16 @@ TEST_F(is_active_tests, dds_entities_undiscovered)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(&db);
+    DatabaseEntityQueue entity_queue(db);
 
     // Data queue, attached to the database
-    DatabaseDataQueue data_queue(&db);
+    DatabaseDataQueue data_queue(db);
 
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
 
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(domain->id, &db, &entity_queue, &data_queue);
+    StatisticsParticipantListener participant_listener(domain->id, db, &entity_queue, &data_queue);
 
     // Participant
     {
@@ -452,8 +449,8 @@ TEST_F(is_active_tests, dds_entities_undiscovered)
 
 int main(
 
-    int argc,
-    char **argv)
+        int argc,
+        char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

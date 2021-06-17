@@ -4194,21 +4194,6 @@ void Database::load_data(
     }
 }
 
-bool all_entities_are_inactive(
-        std::map<EntityId, std::shared_ptr<DomainParticipant>> entities
-        )
-{
-    for (auto entity_it : entities)
-    {
-        if (entity_it.second->active)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void Database::deactivate_entity_of_kind(
         const EntityId& entity_id,
         EntityKind entity_kind)

@@ -33,12 +33,6 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
-constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
-
 constexpr const char* GUID_DEFAULT = "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00";
 constexpr const char* PID_DEFAULT = "36000";
 constexpr const char* DATA_TYPE_DEFAULT = "data_type";

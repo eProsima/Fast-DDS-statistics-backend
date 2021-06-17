@@ -329,6 +329,18 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         {
             // TODO [ILG] : Process these messages
 
+            // Filter out our own statistics readers
+            if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+            {
+                return;
+            }
+
+            // Filter out other statistics writers
+            if (is_statistics_builtin(info.info.guid().entityId))
+            {
+                return;
+            }
+
             // Save the status of the entity
             EntityId reader_id =
                     database_->get_entity_by_guid(EntityKind::DATAREADER,
@@ -366,6 +378,18 @@ void StatisticsParticipantListener::on_publisher_discovery(
         case WriterDiscoveryInfo::REMOVED_WRITER:
         {
             // TODO [ILG] : Process these messages
+
+            // Filter out our own statistics readers
+            if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+            {
+                return;
+            }
+
+            // Filter out other statistics writers
+            if (is_statistics_builtin(info.info.guid().entityId))
+            {
+                return;
+            }
 
             // Save the status of the entity
             EntityId writer_id =

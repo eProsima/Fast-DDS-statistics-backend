@@ -17,8 +17,6 @@
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
 
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-
 /**
  * @brief Fixture for the database_deactivate_tests
  */

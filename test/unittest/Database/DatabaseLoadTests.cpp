@@ -25,12 +25,6 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
-constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
-
 /**
  * Auxiliar function for the load_and_dump tests.
  * This function:
