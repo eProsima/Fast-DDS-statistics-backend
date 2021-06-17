@@ -275,8 +275,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     // Expectation: The Participant is not inserted in the database.
     EXPECT_CALL(database, insert(_)).Times(0);
 
-	// Expectation: The Participant status is set to active
-    EXPECT_CALL(database, change_entity_status(EntityId(1),true)).Times(1);
+    // Expectation: The Participant status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
@@ -1156,11 +1156,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
-	// Expectation: The DataReader is not inserted in the database.
+    // Expectation: The DataReader is not inserted in the database.
     EXPECT_CALL(database, insert(_)).Times(0);
 
-	// Expectation: The DataReader status is set to active
-    EXPECT_CALL(database, change_entity_status(EntityId(10),true)).Times(1);
+    // Expectation: The DataReader status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -1913,11 +1913,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
-	// Expectation: The DataWriter is not inserted in the database.
+    // Expectation: The DataWriter is not inserted in the database.
     EXPECT_CALL(database, insert(_)).Times(0);
 
-	// Expectation: The DataWriter status is set to active
-    EXPECT_CALL(database, change_entity_status(EntityId(10),true)).Times(1);
+    // Expectation: The DataWriter status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -1982,7 +1982,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     eprosima::fastrtps::rtps::GUID_t writer_guid;
     std::stringstream(writer_guid_str) >> writer_guid;
 
-	// Precondition: The Statistics Writer does not exists
+    // Precondition: The Statistics Writer does not exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
@@ -2002,8 +2002,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-	// Expectation: The DataWriter status is set to active
-    EXPECT_CALL(database, change_entity_status(_,_)).Times(AnyNumber());
+    // Expectation: The DataWriter status is set to active
+    EXPECT_CALL(database, change_entity_status(_, _)).Times(AnyNumber());
 
     // Execution: Call the listener.
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));

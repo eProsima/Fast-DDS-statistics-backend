@@ -105,7 +105,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(user->id, true);
+    db.change_entity_status(user->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -132,7 +132,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(process->id, true);
+    db.change_entity_status(process->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -159,7 +159,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(domain->id, true);
+    db.change_entity_status(domain->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -186,7 +186,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(topic->id, true);
+    db.change_entity_status(topic->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -213,7 +213,7 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(participant->id, true);
+    db.change_entity_status(participant->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -240,7 +240,7 @@ TEST_F(database_status_tests, datawriter)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(datawriter->id, true);
+    db.change_entity_status(datawriter->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -267,7 +267,7 @@ TEST_F(database_status_tests, datareader)
     ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-        db.change_entity_status(datareader->id, true);
+    db.change_entity_status(datareader->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -342,7 +342,7 @@ TEST_F(database_status_tests, dds_entities)
 
 TEST_F(database_status_tests, locator)
 {
-    db.change_entity_status(locator->id,false);
+    db.change_entity_status(locator->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
