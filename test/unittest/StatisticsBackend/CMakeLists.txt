@@ -41,8 +41,7 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(statistics_backend_tests PRIVATE
-    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
+    ${GTEST_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
@@ -55,7 +54,6 @@ target_link_libraries(statistics_backend_tests PUBLIC
 get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_TEST_LIST
-    is_active
     get_info
     get_entities
     get_type
@@ -422,3 +420,38 @@ foreach(test_name ${GET_DATAUNSUPPORTED_ENTITY_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
+# is_active_tests
+###############################################################################
+
+add_executable(is_active_tests IsActiveTests.cpp)
+
+target_include_directories(is_active_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+
+target_link_libraries(is_active_tests PUBLIC
+    ${PROJECT_NAME}
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_entities_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/simple_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/complex_dump.json
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
+
+set(IS_ACTIVE_TEST_LIST
+    participant_undiscovered
+    datawriter_undiscovered
+    datareader_undiscovered
+    endpoints_undiscovered
+    dds_entities_undiscovered
+)
+
+foreach(test_name ${IS_ACTIVE_TEST_LIST})
+    add_test(NAME is_active_tests.${test_name}
+            COMMAND is_active_tests
+            --gtest_filter=is_active_tests.${test_name}:*/is_active_tests.${test_name}/*)
+endforeach()

@@ -202,6 +202,23 @@ TEST_F(database_deactivate_tests, deactivate_endpoints)
     ASSERT_TRUE(locator->active);
 }
 
+TEST_F(database_deactivate_tests, deactivate_dds_entities)
+{
+    db.deactivate_entity(participant->id);
+    db.deactivate_entity(datawriter->id);
+    db.deactivate_entity(datareader->id);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_FALSE(domain->active);
+    ASSERT_FALSE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
+    ASSERT_TRUE(locator->active);
+}
+
 TEST_F(database_deactivate_tests, deactivate_locator)
 {
     db.deactivate_entity(locator->id);

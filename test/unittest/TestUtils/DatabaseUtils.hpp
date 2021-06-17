@@ -14,6 +14,9 @@
 
 #include <fstream>
 
+#include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
+
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
@@ -571,6 +574,18 @@ public:
             std::string const& str)
     {
         return string_to_uint(str);
+    }
+
+};
+
+class StatisticsBackendTest : public StatisticsBackend
+{
+public:
+
+    static void set_database(
+            Database* db)
+    {
+        details::StatisticsBackendData::get_instance()->database_.reset(db);
     }
 
 };

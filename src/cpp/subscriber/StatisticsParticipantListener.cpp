@@ -289,9 +289,16 @@ void StatisticsParticipantListener::on_participant_discovery(
 
         case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
-            // EntityId participant_id =  database_->get_entity_by_guid(EntityKind::PARTICIPANT,to_string(info.info.m_guid)).second;
-            // TODO [ILG] : Process these messages and save the status of the entity
+        {
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId participant_id =  database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(
+                                info.info.m_guid)).second;
+            database_->deactivate_entity(participant_id);
+
             break;
+        }
     }
 
     // Wait until the entity queue is processed and restart the data queue
@@ -320,7 +327,14 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         }
         case ReaderDiscoveryInfo::REMOVED_READER:
         {
-            // TODO [ILG] : Process these messages and save the status of the entity
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId reader_id =
+                    database_->get_entity_by_guid(EntityKind::DATAREADER,
+                            to_string(info.info.guid())).second;
+            database_->deactivate_entity(reader_id);
+
             break;
         }
     }
@@ -351,7 +365,14 @@ void StatisticsParticipantListener::on_publisher_discovery(
         }
         case WriterDiscoveryInfo::REMOVED_WRITER:
         {
-            // TODO [ILG] : Process these messages and save the status of the entity
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId writer_id =
+                    database_->get_entity_by_guid(EntityKind::DATAWRITER,
+                            to_string(info.info.guid())).second;
+            database_->deactivate_entity(writer_id);
+
             break;
         }
     }

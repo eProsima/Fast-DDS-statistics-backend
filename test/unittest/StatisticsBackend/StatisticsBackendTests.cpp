@@ -20,21 +20,15 @@
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
-#include "fastdds/dds/domain/DomainParticipant.hpp"
-#include <fastdds/dds/core/status/StatusMask.hpp>
-
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
 #include <database/database.hpp>
-#include <database/database_queue.hpp>
-#include <subscriber/StatisticsParticipantListener.hpp>
 #include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using namespace eprosima::statistics_backend::subscriber;
 
 /**
  * @brief Fixture for the statistics_backend class tests
@@ -61,65 +55,6 @@ public:
     DataBaseTest* db;
     std::map<TestId, std::shared_ptr<const Entity>> entities;
 };
-
-class StatisticsBackendTest : public StatisticsBackend
-{
-public:
-
-    static void set_database(
-            Database* db)
-    {
-        details::StatisticsBackendData::get_instance()->database_.reset(db);
-    }
-
-};
-
-// Check the is_active StatisticsBackend method
-TEST_F(statistics_backend_tests, is_active)
-{
-    StatisticsBackendTest::set_database(db);
-
-    ASSERT_ANY_THROW(StatisticsBackendTest::is_active(entities[0]->id));
-
-    // Erase invalid entity
-    entities.erase(0);
-
-    // Check that all entities are active
-    for (auto entity_pair : entities)
-    {
-        ASSERT_TRUE(StatisticsBackend::is_active(entity_pair.second->id));
-    }
-
-    // Entity queue, attached to the database
-    DatabaseEntityQueue entity_queue(db);
-
-    // Data queue, attached to the database
-    DatabaseDataQueue data_queue(db);
-
-    // Statistics participant_, that is supposed to receive the callbacks
-    eprosima::fastdds::dds::DomainParticipant statistics_participant;
-
-    // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener participant_listener(0, db, &entity_queue, &data_queue);
-
-    // Start building the discovered reader info
-    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
-
-    // Precondition: The discovered participant has the given GUID and name
-    std::shared_ptr<DomainParticipant> participant = db->participants().begin()->second.begin()->second;
-    eprosima::fastrtps::rtps::GUID_t participant_guid_;
-    std::stringstream(participant->guid) >> participant_guid_;
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant->name;
-
-    // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
-    info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
-
-    // Execution: Call the listener
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
-}
 
 void check_dds_entity(
         std::shared_ptr<const DDSEntity> const& entity,
