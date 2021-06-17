@@ -17,12 +17,12 @@
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 
-constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
-constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
-constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
+constexpr const char* EMPTY_DUMP_FILE = "../Resources/empty_dump.json";
+constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "../Resources/empty_entities_dump.json";
+constexpr const char* SIMPLE_DUMP_FILE = "../Resources/simple_dump.json";
+constexpr const char* COMPLEX_DUMP_FILE = "../Resources/complex_dump.json";
+constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "../Resources/simple_dump_no_process_participant_link.json";
+constexpr const char* OLD_COMPLEX_DUMP_FILE = "../Resources/old_complex_dump.json";
 
 constexpr const char* DESCRIPTION_TAG = "description";
 

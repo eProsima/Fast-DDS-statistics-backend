@@ -19,28 +19,8 @@ check_gmock()
 # Auxiliary files
 ##################################################################
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/database_dump.json
-    COPYONLY)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
     ${CMAKE_CURRENT_BINARY_DIR}/profile.xml
-    COPYONLY)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_dump.json
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/empty_dump.json
-    COPYONLY)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_entities_dump.json
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/empty_entities_dump.json
-    COPYONLY)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/simple_dump.json
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/simple_dump.json
-    COPYONLY)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/complex_dump.json
-    ${CMAKE_CURRENT_BINARY_DIR}/resources/complex_dump.json
     COPYONLY)
 
 # statistics_backend_tests
@@ -439,6 +419,7 @@ foreach(test_name ${GET_DATAUNSUPPORTED_ENTITY_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
+<<<<<<< HEAD
 # is_active_tests
 ###############################################################################
 
@@ -497,3 +478,5 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()
+=======
+>>>>>>> Move dump files to a common place
