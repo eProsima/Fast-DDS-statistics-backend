@@ -16,6 +16,33 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
 check_gtest()
 check_gmock()
 
+# Auxiliary files
+##################################################################
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/database_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/profile.xml
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/empty_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_entities_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/empty_entities_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/simple_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/simple_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/complex_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/complex_dump.json
+    COPYONLY)
+
 # statistics_backend_tests
 ##################################################################
 
@@ -202,10 +229,6 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
 endforeach()
 
 
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 # init_monitor_tests
 ##################################################################
 
@@ -365,10 +388,6 @@ target_link_libraries(get_data_tests PUBLIC
 
 get_win32_path_dependencies(get_data_tests TEST_FRIENDLY_PATH)
 
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
-
 set(GET_DATA_NO_DATA_TEST_LIST
     no_data
     )
@@ -458,13 +477,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     target_link_libraries(is_active_tests PUBLIC
         ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
-
-    file(COPY
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_dump.json
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_entities_dump.json
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/simple_dump.json
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/complex_dump.json
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
     get_win32_path_dependencies(is_active_tests TEST_FRIENDLY_PATH)
 
