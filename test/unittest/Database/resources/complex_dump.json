@@ -270,7 +270,7 @@
                 },
                 "last_reported_resent_datas":{
                     "count":2,
-                    "src_time":"2"
+                    "src_time":"200"
                 },
                 "publication_throughput":[
                     {
@@ -403,7 +403,7 @@
                 },
                 "last_reported_resent_datas":{
                     "count":2,
-                    "src_time":"2"
+                    "src_time":"200"
                 },
                 "publication_throughput":[
                     {
@@ -536,7 +536,7 @@
                 },
                 "last_reported_resent_datas":{
                     "count":2,
-                    "src_time":"2"
+                    "src_time":"200"
                 },
                 "publication_throughput":[
                     {

@@ -175,6 +175,13 @@ foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
     add_test(NAME calling_user_listeners_DeathTest.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_DeathTest.${test_name}:*/calling_user_listeners_DeathTest.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_DeathTest.${test_name}
+            PROPERTIES
+                ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}"
+        )
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(USER_DATA_LISTENERS_TEST_LIST
@@ -237,6 +244,8 @@ target_include_directories(init_monitor_tests PRIVATE
 target_link_libraries(init_monitor_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
+get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
+
 set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_all_data
     init_monitor_domain_id_no_callback_all_data
@@ -251,6 +260,10 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
     add_test(NAME init_monitor_tests.${test_name}
             COMMAND init_monitor_tests
             --gtest_filter=init_monitor_tests.${test_name}:*/init_monitor_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(init_monitor_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 # init_monitor_factory_fails_tests
@@ -295,6 +308,8 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
     ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
+get_win32_path_dependencies(init_monitor_factory_fails_tests TEST_FRIENDLY_PATH)
+
 set(INIT_MONITOR_TEST_LIST
     init_monitor_participant_creation_fails
     init_monitor_subscriber_creation_fails
@@ -309,6 +324,10 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
     add_test(NAME init_monitor_factory_fails_tests.${test_name}
             COMMAND init_monitor_factory_fails_tests
             --gtest_filter=init_monitor_factory_fails_tests.${test_name}:*/init_monitor_factory_fails_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(init_monitor_factory_fails_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 # get_data

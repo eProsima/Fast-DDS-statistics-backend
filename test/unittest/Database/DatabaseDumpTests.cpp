@@ -467,16 +467,16 @@ TEST(database, time_to_string)
 {
     DataBaseTest db;
     ASSERT_EQ(db.get_time_to_string(
-            nanoseconds_to_systemclock(1)),
-            "1");
+            nanoseconds_to_systemclock(100)),
+            "100");
     ASSERT_NE(db.get_time_to_string(
-            nanoseconds_to_systemclock(1)),
-            "5");
+            nanoseconds_to_systemclock(100)),
+            "500");
     ASSERT_EQ(db.get_time_to_string(
-            nanoseconds_to_systemclock(-5)),
-            "-5");
+            nanoseconds_to_systemclock(-500)),
+            "-500");
     ASSERT_NE(db.get_time_to_string(
-            nanoseconds_to_systemclock(1)),
+            nanoseconds_to_systemclock(100)),
             "ABC");
 }
 
