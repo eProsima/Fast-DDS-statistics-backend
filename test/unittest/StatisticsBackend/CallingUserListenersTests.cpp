@@ -1154,7 +1154,7 @@ public:
         StatisticsBackend::stop_monitor(monitor_id_);
         details::StatisticsBackendData::reset_instance();
     }
-    
+
     DataKind data_kind_;
     CallbackKind callback_kind_;
     MockedPhysicalListener physical_listener_;

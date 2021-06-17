@@ -603,22 +603,22 @@ TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
 
     // Try to set the listener for some monitor when there is none
     EXPECT_THROW(StatisticsBackend::set_domain_listener(
-        EntityId(1000),
-        nullptr,
-        CallbackMask::all(),
-        DataKindMask::all()),
-        BadParameter);
+                EntityId(1000),
+                nullptr,
+                CallbackMask::all(),
+                DataKindMask::all()),
+            BadParameter);
 
     // Start a monitor
     EntityId monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
 
     // Try to set the listener for another monitor
     EXPECT_THROW(StatisticsBackend::set_domain_listener(
-        EntityId(monitor_id_.value() + 100),
-        nullptr,
-        CallbackMask::all(),
-        DataKindMask::all()),
-        BadParameter);
+                EntityId(monitor_id_.value() + 100),
+                nullptr,
+                CallbackMask::all(),
+                DataKindMask::all()),
+            BadParameter);
 }
 
 #ifdef INSTANTIATE_TEST_SUITE_P
