@@ -571,8 +571,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -639,7 +639,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -720,8 +720,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -788,7 +788,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -900,8 +900,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -967,7 +967,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1048,8 +1048,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1116,7 +1116,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1228,8 +1228,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1295,7 +1295,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1376,8 +1376,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1444,7 +1444,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1556,8 +1556,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1623,7 +1623,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1704,8 +1704,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1772,7 +1772,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1884,8 +1884,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1951,7 +1951,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2032,8 +2032,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2100,7 +2100,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2213,8 +2213,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2280,7 +2280,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2361,8 +2361,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2429,7 +2429,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2539,8 +2539,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2606,7 +2606,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2687,8 +2687,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2755,7 +2755,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2865,8 +2865,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::PDP_PACKETS:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2932,7 +2932,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3013,8 +3013,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(40);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(90);
+            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3081,7 +3081,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             /************* Time span larger than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(200);
+            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
