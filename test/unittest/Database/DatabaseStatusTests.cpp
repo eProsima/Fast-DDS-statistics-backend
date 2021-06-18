@@ -174,7 +174,6 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(user1->active);
-
 }
 
 TEST_F(database_status_tests, process)
@@ -604,8 +603,8 @@ TEST_F(database_status_tests, endpoints)
 TEST_F(database_status_tests, dds_entities)
 {
     db.change_entity_status(participant->id, false);
-    db.change_entity_status(datawriter->id, false);
     db.change_entity_status(datareader->id, false);
+    db.change_entity_status(datawriter->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -618,8 +617,8 @@ TEST_F(database_status_tests, dds_entities)
     ASSERT_TRUE(locator->active);
 
     db.change_entity_status(participant->id, true);
-    db.change_entity_status(datawriter->id, true);
     db.change_entity_status(datareader->id, true);
+    db.change_entity_status(datawriter->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -649,8 +648,9 @@ TEST_F(database_status_tests, dds_entities)
     datareader1->locators[reader_locator1->id] = reader_locator1;
     db.insert(datareader1);
 
-    db.change_entity_status(datawriter->id, false);
+    db.change_entity_status(participant->id, false);
     db.change_entity_status(datareader->id, false);
+    db.change_entity_status(datawriter->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -667,8 +667,9 @@ TEST_F(database_status_tests, dds_entities)
     ASSERT_TRUE(datawriter1->active);
     ASSERT_TRUE(writer_locator1->active);
 
-    db.change_entity_status(datawriter->id, true);
+    db.change_entity_status(participant->id, false);
     db.change_entity_status(datareader->id, true);
+    db.change_entity_status(datawriter->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);

@@ -4447,7 +4447,7 @@ void Database::change_entity_status_of_kind(
             {
                 // Check if all entitities have 'active' status
                 bool change_status = true;
-                for (auto entity_it : datareader->topic->data_writers)
+                for (auto entity_it : datareader->topic->data_readers)
                 {
                     if (entity_it.second->active != active)
                     {
@@ -4456,7 +4456,7 @@ void Database::change_entity_status_of_kind(
                 }
                 if (change_status)
                 {
-                    for (auto entity_it : datareader->topic->data_readers)
+                    for (auto entity_it : datareader->topic->data_writers)
                     {
                         if (entity_it.second->active != active)
                         {
