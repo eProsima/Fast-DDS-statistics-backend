@@ -366,27 +366,21 @@ protected:
     inline long long string_to_int(
             std::string const& str) const
     {
-        try
-        {
-            return stoll(str);
-        }
-        catch (const std::exception&)
+        if (str.find_first_not_of("-1234567890") != std::string::npos)
         {
             throw CorruptedFile("string must be an integer: " + str);
         }
+        return stoll(str);
     }
 
     inline unsigned long long string_to_uint(
             std::string const& str) const
     {
-        try
-        {
-            return stoull(str);
-        }
-        catch (const std::exception&)
+        if (str.find_first_not_of("1234567890") != std::string::npos)
         {
             throw CorruptedFile("string must be an unsigned integer: " + str);
         }
+        return stoull(str);
     }
 
     /**
