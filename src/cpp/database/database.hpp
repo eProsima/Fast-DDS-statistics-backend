@@ -51,7 +51,7 @@ template<class T,
         std::is_integral<T>::value,
         bool>::type = true>
 std::chrono::system_clock::duration nanoseconds_to_systemclock_duration(
-        T nanosecs)
+        T nanosecs) noexcept
 {
     using namespace std;
     using namespace std::chrono;
@@ -66,7 +66,7 @@ template<class T,
         std::is_integral<T>::value,
         bool>::type = true>
 std::chrono::system_clock::time_point nanoseconds_to_systemclock(
-        T nanosecs)
+        T nanosecs) noexcept
 {
     return std::chrono::system_clock::time_point(
             nanoseconds_to_systemclock_duration(nanosecs));
