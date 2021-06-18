@@ -84,12 +84,12 @@ jobs:
 
       - name: Run tests on Debug
         shell: pwsh
-        run: ctest -C Debug --test-dir build\backend -V --parallel 4 --timeout 60
+        run: ctest -C Debug --test-dir build\backend -V --timeout 60
         continue-on-error: true
           
       - name: Run tests on Release
         shell: pwsh
-        run: ctest -C Release --test-dir build\backend -V --parallel 4 --timeout 60
+        run: ctest -C Release --test-dir build\backend -V --timeout 60
 
   ubuntu-build-test:
     runs-on: ubuntu-latest
