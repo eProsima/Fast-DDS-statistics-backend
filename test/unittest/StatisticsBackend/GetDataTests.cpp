@@ -32,7 +32,12 @@ using ::testing::Throw;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-
+static inline uint16_t num_bins_adapter(
+        uint16_t num_bins)
+{
+    using namespace std::chrono;
+    return num_bins / duration_cast<nanoseconds>(Timestamp::duration(1)).count();
+}
 
 class get_data_tests_base
 {
@@ -624,7 +629,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                 statistic,
                 expected);
 
-            // Testing with 100 bins
+            // Testing more bins than time difference
             EXPECT_THROW(
                 check_get_data(
                     data_type,
@@ -632,7 +637,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -781,7 +786,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -961,7 +966,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -1109,7 +1114,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -1289,7 +1294,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -1437,7 +1442,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -1617,7 +1622,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -1765,7 +1770,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -1945,7 +1950,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -2093,7 +2098,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -2274,7 +2279,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -2422,7 +2427,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -2600,7 +2605,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -2748,7 +2753,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
@@ -2926,7 +2931,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected), BadParameter);
 
@@ -3074,7 +3079,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                     entity2,
                     start,
                     finish,
-                    100,
+                    num_bins_adapter(10000),
                     statistic,
                     expected),
                 BadParameter);
