@@ -70,6 +70,8 @@ The following table illustrates the expected inputs depending on the query's |Da
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
 
+|get_data-api| throws |BadParameter-api| if the calling parameters are not consistent.
+
 .. warning::
     |DISCOVERED_ENTITY-api| and |SAMPLE_DATAS-api| kinds are currently not supported.
     They will be implemented on a future release of *Fast DDS Statistics Backend*.

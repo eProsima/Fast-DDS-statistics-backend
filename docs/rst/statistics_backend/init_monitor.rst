@@ -5,7 +5,7 @@
 Initialize a monitor
 --------------------
 
-Initializing a monitor on a certain Domain ID makes *ePRosima Fast DDS Statistics Backend*
+Initializing a monitor on a certain Domain ID makes *eProsima Fast DDS Statistics Backend*
 start monitoring the statistics data and entity discoveries on that domain.
 No statistics data will be gathered unless there is a monitor initialized in the required domain.
 
@@ -41,3 +41,8 @@ Moreover, a mask on statistics data kind of interest can be set creating a |Data
    :start-after: //CONF-INIT-MONITOR-MASKS-EXAMPLE
    :end-before: //!
    :dedent: 8
+
+|init_monitor-api| throws exceptions in the following cases:
+
+* |BadParameter-api| if a monitor is already created for the given DDS domain or *Fast DDS* Discovery Server network.
+* |Error-api| if the creation of the monitor fails
