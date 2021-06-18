@@ -4488,6 +4488,9 @@ void Database::change_entity_status(
         bool active)
 {
     EntityKind entity_kind = get_entity_kind(entity_id);
+    assert(
+        entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
+        entity_kind == EntityKind::DATAREADER);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 

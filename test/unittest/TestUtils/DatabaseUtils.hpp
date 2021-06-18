@@ -585,6 +585,14 @@ public:
         return string_to_uint(str);
     }
 
+    void change_entity_status_test(
+            const EntityId& entity_id,
+            bool active)
+    {
+        EntityKind entity_kind = get_entity_kind(entity_id);
+        change_entity_status_of_kind(entity_id, active, entity_kind);
+    }
+
 };
 
 class StatisticsBackendTest : public StatisticsBackend

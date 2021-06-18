@@ -66,7 +66,8 @@ TEST_F(database_status_tests, initial_status)
 
 TEST_F(database_status_tests, host)
 {
-    db.change_entity_status(host->id, false);
+    ASSERT_DEATH(db.change_entity_status(host->id, false), "");
+    db.change_entity_status_test(host->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -78,7 +79,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(host->id, true);
+    db.change_entity_status_test(host->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -93,7 +94,7 @@ TEST_F(database_status_tests, host)
     auto host1 = std::make_shared<Host>("host1");
     db.insert(host1);
 
-    db.change_entity_status(host->id, false);
+    db.change_entity_status_test(host->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -106,7 +107,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(host1->active);
 
-    db.change_entity_status(host->id, true);
+    db.change_entity_status_test(host->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -122,7 +123,8 @@ TEST_F(database_status_tests, host)
 
 TEST_F(database_status_tests, user)
 {
-    db.change_entity_status(user->id, false);
+    ASSERT_DEATH(db.change_entity_status(user->id, false), "");
+    db.change_entity_status_test(user->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -134,7 +136,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(user->id, true);
+    db.change_entity_status_test(user->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -149,7 +151,7 @@ TEST_F(database_status_tests, user)
     auto user1 = std::make_shared<User>("user1", host);
     db.insert(user1);
 
-    db.change_entity_status(user->id, false);
+    db.change_entity_status_test(user->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_FALSE(user->active);
@@ -162,7 +164,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(user1->active);
 
-    db.change_entity_status(user->id, true);
+    db.change_entity_status_test(user->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -178,7 +180,8 @@ TEST_F(database_status_tests, user)
 
 TEST_F(database_status_tests, process)
 {
-    db.change_entity_status(process->id, false);
+    ASSERT_DEATH(db.change_entity_status(process->id, false), "");
+    db.change_entity_status_test(process->id, false);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -190,7 +193,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(process->id, true);
+    db.change_entity_status_test(process->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -205,7 +208,7 @@ TEST_F(database_status_tests, process)
     auto process1 = std::make_shared<Process>("process1", "123", user);
     db.insert(process1);
 
-    db.change_entity_status(process->id, false);
+    db.change_entity_status_test(process->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -218,7 +221,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(process1->active);
 
-    db.change_entity_status(process->id, true);
+    db.change_entity_status_test(process->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -234,7 +237,8 @@ TEST_F(database_status_tests, process)
 
 TEST_F(database_status_tests, domain)
 {
-    db.change_entity_status(domain->id, false);
+    ASSERT_DEATH(db.change_entity_status(domain->id, false), "");
+    db.change_entity_status_test(domain->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -246,7 +250,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(domain->id, true);
+    db.change_entity_status_test(domain->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -261,7 +265,7 @@ TEST_F(database_status_tests, domain)
     auto domain1 = std::make_shared<Domain>("domain1");
     db.insert(domain1);
 
-    db.change_entity_status(domain->id, false);
+    db.change_entity_status_test(domain->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -274,7 +278,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(domain1->active);
 
-    db.change_entity_status(domain->id, true);
+    db.change_entity_status_test(domain->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -290,7 +294,8 @@ TEST_F(database_status_tests, domain)
 
 TEST_F(database_status_tests, topic)
 {
-    db.change_entity_status(topic->id, false);
+    ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
+    db.change_entity_status_test(topic->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -302,7 +307,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(topic->id, true);
+    db.change_entity_status_test(topic->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -317,7 +322,7 @@ TEST_F(database_status_tests, topic)
     auto topic1 = std::make_shared<Topic>("topic1", "type", domain);
     db.insert(topic1);
 
-    db.change_entity_status(topic->id, false);
+    db.change_entity_status_test(topic->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -330,7 +335,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(topic1->active);
 
-    db.change_entity_status(topic->id, true);
+    db.change_entity_status_test(topic->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -689,7 +694,8 @@ TEST_F(database_status_tests, dds_entities)
 
 TEST_F(database_status_tests, locator)
 {
-    db.change_entity_status(locator->id, false);
+    ASSERT_DEATH(db.change_entity_status(locator->id, false), "");
+    db.change_entity_status_test(locator->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -701,7 +707,7 @@ TEST_F(database_status_tests, locator)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(locator->id, true);
+    db.change_entity_status_test(locator->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
