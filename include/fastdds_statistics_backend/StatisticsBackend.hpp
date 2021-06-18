@@ -376,6 +376,21 @@ public:
             const std::string& filename);
 
     /**
+     * @brief Resets the Fast DDS Statistics Backend.
+     * 
+     * After calling this method, the Fast DDS Statistics Backend
+     * reverts to its default state, as it was freshly started:
+     * - All the data in the database is erased.
+     * - All monitors are removed and cannot be restarted afterwards.
+     * - The physical listener is removed.
+     * - The physical listener callback mask is set to CallbackMask::none().
+     * - The physical listener data mask is set to DataMask::none().
+     * 
+     * @pre There are no active monitors. There can be inactive monitors.
+     */
+    static void reset();
+
+    /**
      * @brief Return the EntityKind of the entities to which a DataKind refers.
      *
      * Some DataKind relate to a single Entity of a given EntityKind.

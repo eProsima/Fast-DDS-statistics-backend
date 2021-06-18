@@ -698,6 +698,15 @@ void StatisticsBackend::load_database(
     details::StatisticsBackendData::get_instance()->database_->load_database(dump);
 }
 
+void StatisticsBackend::reset()
+{
+    if (!details::StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
+    {
+        throw PreconditionNotMet("There are active monitors");
+    }
+    details::StatisticsBackendData::get_instance()->reset_instance();
+}
+
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(
         DataKind data_kind)
 {
