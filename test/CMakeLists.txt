@@ -13,3 +13,4 @@
 # limitations under the License.
 
 add_subdirectory(unittest)
+add_subdirectory(dds/communication)
