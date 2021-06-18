@@ -3142,7 +3142,7 @@ void Database::check_entity_contains_all_references(
         {
             throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
                               referenced_id).dump() +
-                          " have reference to " + entity_tag + ": " +
+                          " has reference to " + entity_tag + ": " +
                           reference_container.at(referenced_id).at(entity_tag).dump() +
                           " instead of " + entity_tag + ": " + entity_id);
         }
