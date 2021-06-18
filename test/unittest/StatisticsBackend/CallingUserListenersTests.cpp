@@ -2872,6 +2872,7 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_ma
 using  calling_user_listeners_DeathTest = calling_user_listeners_tests;
 TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 {
+#ifndef NDEBUG
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
 
@@ -3026,6 +3027,7 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Stop the monitor to avoid interfering on next tests
     StatisticsBackend::stop_monitor(monitor_id);
+#endif
 }
 
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>
