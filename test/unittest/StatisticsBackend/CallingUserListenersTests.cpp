@@ -2872,6 +2872,10 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_ma
 using  calling_user_listeners_DeathTest = calling_user_listeners_tests;
 TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 {
+
+// Note the Death Tests (like this one) only work on Debug config because assert() will only
+// terminate the process in that case
+// TODO(Miguel C.): Check why this tests fails on termination in Windows
 #if !defined(NDEBUG) && !defined(_WIN32)
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
