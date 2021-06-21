@@ -56,8 +56,7 @@ public:
 
     void SetUp()
     {
-        auto temp = PopulateDatabase::populate_database(db);
-        entities = temp;
+        entities = PopulateDatabase::populate_database(db);
     }
 
     Database db;
