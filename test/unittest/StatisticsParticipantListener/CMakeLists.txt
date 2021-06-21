@@ -57,6 +57,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_participant_discovered_participant_already_exists
         new_reader_discovered
         new_reader_discovered_no_topic
+        new_reader_discovered_several_topics
         new_reader_discovered_several_locators
         new_reader_discovered_several_locators_no_host
         new_reader_discovered_no_participant

@@ -511,6 +511,131 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
 
 }
 
+TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_topics)
+{
+    // Precondition: The Domain 0 exists and has ID 0
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+        AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(0)))));
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain_));
+
+    // Precondition: The Participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant_));
+
+    // Precondition: The Participant is linked to a host with ID 50
+    std::string host_name = "hostname";
+    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
+
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
+    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+            .WillRepeatedly(Return(host));
+
+    // Precondition: Another topic with the same name and type exists in another domain
+    // and has ID 101
+    std::string another_domain_name = "another_domain";
+    std::shared_ptr<Domain> another_domain = std::make_shared<Domain>(another_domain_name);
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::DOMAIN, another_domain_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(100), EntityId(100)))));
+    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+            .WillRepeatedly(Return(another_domain));
+
+    std::shared_ptr<Topic> topic_another_domain = std::make_shared<Topic>(topic_name_, type_name_, another_domain);
+    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic_another_domain));
+
+    // Precondition: Another topic with the same name but different type exists in the same domain
+    // and has ID 102
+    std::string another_type_name = "another_type";
+    std::shared_ptr<Topic> topic_another_type = std::make_shared<Topic>(topic_name_, another_type_name, domain_);
+    EXPECT_CALL(database, get_entity(EntityId(102))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic_another_type));
+
+    // Precondition: The Topic exists and has ID 2
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic_));
+
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>
+            { { EntityId(100), EntityId(101) },
+                { EntityId(0), EntityId(102) },
+                { EntityId(0), EntityId(2) }}));
+
+    // Precondition: The Locator exists and has ID 3
+    eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    dds_existing_unicast_locator.address[12] = 127;
+    dds_existing_unicast_locator.address[15] = 1;
+    std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
+    std::shared_ptr<Locator> existing_unicast_locator =
+            std::make_shared<Locator>(existing_unicast_locator_name);
+    existing_unicast_locator->id = 3;
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(), EntityId(3)))));
+    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+            .WillRepeatedly(Return(existing_unicast_locator));
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
+
+    // Precondition: The discovered reader is in the participant
+    data.guid(reader_guid_);
+
+    // Precondition: The discovered reader is in the topic
+    data.topicName(topic_name_);
+    data.typeName(type_name_);
+
+    // Precondition: The discovered reader contains the locator
+    data.add_unicast_locator(dds_existing_unicast_locator);
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
+
+    // Precondition: The Reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+
+    // Expectation: The DataReader is added to the database. We do not care about the given ID
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
+
+                std::vector<std::string> expected_locator_names;
+                expected_locator_names.push_back(existing_unicast_locator_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
+                expected_locator_names.size());
+                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
+                {
+                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
+                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
+                }
+
+                return EntityId(10);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Execution: Call the listener
+    participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
+}
+
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_locators
         )
 {
