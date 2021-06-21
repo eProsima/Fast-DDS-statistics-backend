@@ -171,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: Documentation HTML
-          path: install/fastdds_statistics_backend/docs/fastdds-statistics-backend/sphinx/html/
+          path: install/fastdds_statistics_backend/docs/fastdds_statistics_backend/sphinx/html/
         if: always()
 
   clang-tidy:

@@ -41,8 +41,8 @@ set(${PROJECT_NAME}_SOURCES
 
 # Configure config file
 
-configure_file(${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/config.h.in
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}/config.h)
+configure_file(${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/config.h.in
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/config.h)
 
 # Create library
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
@@ -68,13 +68,13 @@ endif(MSVC)
 # Define public headers
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/exception>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/listener>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/nlohmann-json>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/types>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}/subscriber>
-        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/exception>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/listener>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/nlohmann-json>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/types>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/subscriber>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         $<INSTALL_INTERFACE:include>
         )
@@ -123,7 +123,7 @@ endif()
 ###############################################################################
 
 # Install headers
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     DESTINATION ${INCLUDE_INSTALL_DIR}
     COMPONENT headers
     FILES_MATCHING
@@ -132,8 +132,8 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
     )
 
 # Install config.h header
-install(FILES ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}/config.h
-DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME_UNDERSCORED}
+install(FILES ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/config.h
+DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}
 COMPONENT headers
 )
 
@@ -150,7 +150,7 @@ install(TARGETS ${PROJECT_NAME}
 
 install(EXPORT ${PROJECT_NAME}-targets
     NAMESPACE eProsima::
-    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_UNDERSCORED}
+    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     COMPONENT cmake
     )
 
@@ -208,7 +208,7 @@ write_basic_package_version_file(
     )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_UNDERSCORED}
+    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     COMPONENT cmake
     )
 

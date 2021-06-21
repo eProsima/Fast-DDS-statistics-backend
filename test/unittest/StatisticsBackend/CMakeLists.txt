@@ -43,9 +43,9 @@ endif(MSVC)
 target_include_directories(statistics_backend_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(statistics_backend_tests PUBLIC
@@ -93,9 +93,9 @@ add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
 target_include_directories(calling_user_listeners_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
@@ -236,9 +236,9 @@ target_include_directories(init_monitor_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_tests PUBLIC
@@ -300,9 +300,9 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/mock/dds/Topic
     ${PROJECT_SOURCE_DIR}/test/mock/dds/TopicDescription
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
@@ -357,9 +357,9 @@ endif(MSVC)
 target_include_directories(get_data_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(get_data_tests PUBLIC

@@ -29,9 +29,9 @@ if(GTEST_FOUND)
     target_include_directories(qos_serializer_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
-        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME_UNDERSCORED}
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(qos_serializer_tests PUBLIC
