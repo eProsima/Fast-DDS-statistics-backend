@@ -57,6 +57,8 @@ else:
     if xml_file_sub:
         real_xml_file_sub = os.path.join(script_dir, xml_file_sub)
 
+monitor_proc = subprocess.Popen([monitor_command, "--seed", str(os.getpid())])
+
 subscriber1_proc = subprocess.Popen([subscriber_command, "--seed", str(os.getpid())]
         + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
 publisher_proc = subprocess.Popen([publisher_command, "--seed", str(os.getpid())]
@@ -65,10 +67,6 @@ publisher_proc = subprocess.Popen([publisher_command, "--seed", str(os.getpid())
 subscriber2_proc = subprocess.Popen([subscriber_command, "--seed", str(os.getpid())]
         + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
 
-monitor_proc = subprocess.Popen([monitor_command, "--seed", str(os.getpid())])
-
-# monitor_proc.communicate()
-
 subscriber1_proc.communicate()
 retvalue = subscriber1_proc.returncode
 subscriber2_proc.communicate()
@@ -76,5 +74,6 @@ if retvalue == 0:
     retvalue = subscriber2_proc.returncode
 
 publisher_proc.kill()
+monitor_proc.kill()
 
 sys.exit(retvalue)

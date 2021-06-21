@@ -50,7 +50,31 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
     set(DDS_MONITOR_DYNAMIC_SOURCE
         MonitorDynamic.cpp
         )
-    add_executable(DDSSimpleCommunicationDynamicMonitor ${DDS_MONITOR_DYNAMIC_SOURCE})
+    add_executable(DDSSimpleCommunicationDynamicMonitor ${DDS_MONITOR_DYNAMIC_SOURCE}
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+    target_include_directories(DDSSimpleCommunicationDynamicMonitor PRIVATE
+        ${GTEST_INCLUDE_DIRS}
+        ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/src/cpp)
+
     target_compile_definitions(DDSSimpleCommunicationDynamicMonitor PRIVATE
         $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
         $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
