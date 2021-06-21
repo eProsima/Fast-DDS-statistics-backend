@@ -384,7 +384,6 @@ TEST_F(database_queue_tests, push_user_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw BadParameter("Error");
-                // return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -462,7 +461,6 @@ TEST_F(database_queue_tests, push_process_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
                 throw BadParameter("Error");
-                // return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -526,7 +524,6 @@ TEST_F(database_queue_tests, push_domain_throws)
                 EXPECT_EQ(entity->name, domain_name);
 
                 throw BadParameter("Error");
-                // return EntityId(0);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -685,7 +682,6 @@ TEST_F(database_queue_tests, push_topic_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
                 throw BadParameter("Error");
-                // return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -767,7 +763,6 @@ TEST_F(database_queue_tests, push_datawriter_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
                 throw BadParameter("Error");
-                // return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -849,7 +844,6 @@ TEST_F(database_queue_tests, push_datareader_throws)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
                 throw BadParameter("Error");
-                // return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -914,7 +908,6 @@ TEST_F(database_queue_tests, push_locator_throws)
                 EXPECT_EQ(entity->name, locator_name);
 
                 throw BadParameter("Error");
-                // return EntityId(1);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -3389,7 +3382,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
                 throw BadParameter("Error");
-                // return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -3577,7 +3569,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw BadParameter("Error");
-                // return EntityId(3);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
@@ -3767,7 +3758,6 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
                 EXPECT_EQ(entity->name, hostname);
 
                 throw BadParameter("Error");
-                // return EntityId(4);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
