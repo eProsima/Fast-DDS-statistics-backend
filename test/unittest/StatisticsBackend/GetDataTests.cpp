@@ -36,7 +36,7 @@ static inline uint16_t num_bins_adapter(
         uint16_t num_bins)
 {
     using namespace std::chrono;
-    return num_bins / duration_cast<nanoseconds>(Timestamp::duration(1)).count();
+    return static_cast<uint16_t>(num_bins / duration_cast<nanoseconds>(Timestamp::duration(1)).count());
 }
 
 class get_data_tests_base
