@@ -106,9 +106,31 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     // Check whether the topic is already in the database
     std::shared_ptr<database::Topic> topic;
     auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.info.topicName().to_string());
-    if (topic_ids.empty())
+
+    // Check if any of these topics is in the current domain AND shares the data type
+    for (auto topic_id : topic_ids)
     {
-        // Create the Topic and push it to the queue
+        if (topic_id.first == domain_id_)
+        {
+            topic = std::const_pointer_cast<database::Topic>(
+                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+
+            if (topic->data_type == info.info.typeName().to_string())
+            {
+                //Found the correct topic
+                break;
+            }
+            else
+            {
+                // The data type is not the same, so it must be another topic
+                topic.reset();
+            }
+        }
+    }
+
+    // If no such topic exists, create a new one
+    if (!topic)
+    {
         topic = std::make_shared<database::Topic>(
             info.info.topicName().to_string(),
             info.info.typeName().to_string(),
@@ -118,12 +140,6 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = topic;
         entity_queue_->push(timestamp, entity_discovery_info);
-    }
-    else
-    {
-        topic = std::const_pointer_cast<database::Topic>(
-            std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_ids.front().second)));
-        assert(topic_ids.front().first == domain_id_);
     }
 
     // Create the endpoint
