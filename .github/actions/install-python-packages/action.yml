@@ -5,7 +5,7 @@ runs:
   steps:
     - id: install-python-packages
       run: |
-        sudo pip3 install -U \
+        pip3 install -U \
           sphinx==3.0.3 \
           breathe==4.19.0 \
           doc8==0.8.0 \

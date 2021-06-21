@@ -1,0 +1,1 @@
+colcon test --build-base build_%1 --install-base install_%1 --packages-select fastdds_statistics_backend --event-handlers=console_direct+ --return-code-on-test-failure --ctest-args -C %1 -V --timeout 60

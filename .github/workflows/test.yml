@@ -21,7 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: Fast-DDS-statistics-backend
+          path: src/Fast-DDS-statistics-backend
+
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+      - uses: ilammy/msvc-dev-cmd@v1
 
       - name: install OpenSSL
         shell: pwsh 
@@ -44,51 +48,33 @@ jobs:
             cmake -DCMAKE_INSTALL_PREFIX='C:\Program Files\gtest' -Dgtest_force_shared_crt=ON -DBUILD_GMOCK=ON `
               -B build\gtest -A x64 -T host=x64 googletest;
             cmake --build build\gtest --config Debug --target install;
-            cmake --build build\gtest --config Release --target install
+            cmake --build build\gtest --config Release --target install;
+            rm build -r -fo;
+            rm googletest -r -fo
           }
 
-      - name: install foonatham memory
-        shell: pwsh 
+      - name: Update colcon mixin
+        shell: cmd
         run: > 
-          git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
-          cmake -DBUILD_SHARED_LIBS=OFF -DFOONATHAN_MEMORY_BUILD_TOOLS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON `
-            -DFOONATHAN_MEMORY_BUILD_TESTS=OFF -Ax64 -T host=x64 -B build\memory memory;
-          cmake --build build\memory --config Debug --target install;
-          cmake --build build\memory --config Release --target install
+          colcon mixin add default https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml;
+          colcon mixin update default
+        continue-on-error: true
 
-      - name: install Fast-CDR
-        shell: pwsh 
-        run: > 
-          git clone https://github.com/eProsima/Fast-CDR.git;
-          cmake -Ax64 -T host=x64 -B build\fastcdr Fast-CDR;
-          cmake --build build\fastcdr --config Debug --target install;
-          cmake --build build\fastcdr --config Release --target install
+      - name: Build workspace for Release
+        shell: cmd 
+        run: src/Fast-DDS-statistics-backend/.github/workflows/win_build.bat Release
 
-      - name: install Fast-DDS
-        shell: pwsh 
-        run: > 
-          git clone https://github.com/eProsima/Fast-DDS.git;
-          cmake -DTHIRDPARTY=ON -DSECURITY=ON -DCOMPILE_EXAMPLES=OFF -DEPROSIMA_BUILD_TESTS=OFF `
-            -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
-          cmake --build build\fastdds --config Debug --target install;
-          cmake --build build\fastdds --config Release --target install
-
-      - name: install Fast-DDS-statistics-backend
-        shell: pwsh 
-        run: > 
-          git clone https://github.com/eProsima/Fast-DDS-statistics-backend.git;
-          cmake -DCMAKE_PREFIX_PATH='C:\Program Files\gtest' -DBUILD_LIBRARY_TESTS=ON `
-            -B build\backend -A x64 -T host=x64 Fast-DDS-statistics-backend;
-          cmake --build build\backend --config Debug --target install;
-          cmake --build build\backend --config Release --target install
+      - name: Build workspace for Debug
+        shell: cmd 
+        run: src/Fast-DDS-statistics-backend/.github/workflows/win_build.bat Debug
 
       - name: Run tests on Release
-        shell: pwsh
-        run: ctest -C Release --test-dir build\backend -V --timeout 60
+        shell: cmd 
+        run: src/Fast-DDS-statistics-backend/.github/workflows/win_test.bat Release
 
       - name: Run tests on Debug
-        shell: pwsh
-        run: ctest -C Debug --test-dir build\backend -V --timeout 60
+        shell: cmd 
+        run: src/Fast-DDS-statistics-backend/.github/workflows/win_test.bat Debug
           
   ubuntu-build-test:
     runs-on: ubuntu-latest
@@ -118,7 +104,8 @@ jobs:
           colcon build \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
-            --mixin coverage-gcc asan-gcc
+            --mixin coverage-gcc asan-gcc \
+            --cmake-args -DCMAKE_BUILD_TYPE=Debug
 
       - name: Run tests
         run: |

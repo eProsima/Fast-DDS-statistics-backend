@@ -13,8 +13,8 @@
         {
             "cmake-args":
             [
-                "-DBUILD_DOCUMENTATION=ON",
-                "-DBUILD_TESTS=ON",
+                "-DEPROSIMA_BUILD=ON",
+                "-DBUILD_LIBRARY_TESTS=ON",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
             ]
         }
