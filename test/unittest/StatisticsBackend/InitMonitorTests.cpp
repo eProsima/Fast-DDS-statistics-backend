@@ -455,9 +455,9 @@ TEST_F(init_monitor_tests, stop_monitor)
 
     // Try stopping another monitor
     EntityId other_monitor_id = EntityId(100);
-    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id),BadParameter);
+    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id), BadParameter);
     EXPECT_THROW(StatisticsBackend::stop_monitor(other_monitor_id), BadParameter);
-    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id),BadParameter);
+    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id), BadParameter);
 
     // Stop the proper monitor
     EXPECT_TRUE(StatisticsBackend::is_active(monitor_id));
