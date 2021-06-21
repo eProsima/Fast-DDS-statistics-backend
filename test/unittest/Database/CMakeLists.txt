@@ -12,22 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+set(LIBRARY_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    )
+
 ###############################################################################
 # Sample tests
 ###############################################################################
 
-add_executable(sample_tests SampleTests.cpp)
+add_executable(sample_tests SampleTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(sample_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(sample_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
 target_include_directories(sample_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(sample_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+    ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(sample_tests TEST_FRIENDLY_PATH)
@@ -84,18 +106,22 @@ endforeach()
 # Data tests
 ###############################################################################
 
-add_executable(data_tests DataTests.cpp)
+add_executable(data_tests DataTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(data_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(data_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
 target_include_directories(data_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(data_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(data_tests TEST_FRIENDLY_PATH)
@@ -122,20 +148,24 @@ endforeach()
 # Database tests
 ###############################################################################
 
-add_executable(database_tests DatabaseTests.cpp)
+add_executable(database_tests DatabaseTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(database_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
     # Duplications in this testing are intended
     target_compile_options(database_tests PRIVATE /wd4458)
 endif(MSVC)
 
 target_include_directories(database_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_tests TEST_FRIENDLY_PATH)
@@ -349,19 +379,24 @@ endforeach()
 # Database Dump tests
 ###############################################################################
 
-add_executable(database_dump_tests DatabaseDumpTests.cpp)
+add_executable(database_dump_tests DatabaseDumpTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_dump_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(database_dump_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
+
 target_include_directories(database_dump_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 
 target_link_libraries(database_dump_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_dump_tests TEST_FRIENDLY_PATH)
@@ -403,18 +438,22 @@ endforeach()
 # Database: get_entities tests
 ###############################################################################
 
-add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp)
+add_executable(database_get_entities_tests DatabaseGetEntitiesTest.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_get_entities_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0)
+    target_compile_definitions(database_get_entities_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
 target_include_directories(database_get_entities_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_get_entities_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_get_entities_tests TEST_FRIENDLY_PATH)
@@ -438,15 +477,24 @@ endforeach()
 # Database: load_and_dump tests
 ###############################################################################
 
-add_executable(database_load_tests DatabaseLoadTests.cpp)
+add_executable(database_load_tests DatabaseLoadTests.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_load_tests PRIVATE 
+        _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
 
 target_include_directories(database_load_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_load_tests TEST_FRIENDLY_PATH)
@@ -486,15 +534,24 @@ endforeach()
 # Database: load tests
 ###############################################################################
 
-add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp)
+add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_load_insert_tests PRIVATE 
+        _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
 
 target_include_directories(database_load_insert_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_insert_tests PUBLIC
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
+        ${GTEST_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_load_insert_tests TEST_FRIENDLY_PATH)
