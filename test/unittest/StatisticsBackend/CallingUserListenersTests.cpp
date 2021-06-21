@@ -2872,7 +2872,7 @@ TEST_F(calling_user_listeners_tests, datawriter_discovered_no_listener_not_in_ma
 using  calling_user_listeners_DeathTest = calling_user_listeners_tests;
 TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(_WIN32)
     MockedPhysicalListener physical_listener;
     MockedDomainListener domain_listener;
 
