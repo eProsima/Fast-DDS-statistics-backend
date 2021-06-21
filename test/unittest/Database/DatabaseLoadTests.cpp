@@ -581,11 +581,10 @@ void check_is_string_int(
         DatabaseDump& dump,
         DatabaseDump& container)
 {
-    // on windows json implementation "34.12" and "-76.98" are valid string int values
     std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2}}), DatabaseDump::array({1, 2,
                                                                                                                   3,
                                                                                                                   4}),
-                                             true, 1234, 34.12, -9876, -76.98, "qwerty", /*"34.12", "-76.98"*/};
+                                             true, 1234, 34.12, -9876, -76.98, "qwerty", "34.12", "-76.98"};
 
     std::vector<DatabaseDump> correctValues = {"1234", "-9876"};
     check_and_restore(dump, container, wrongValues, correctValues);
@@ -595,11 +594,10 @@ void check_is_string_uint(
         DatabaseDump& dump,
         DatabaseDump& container)
 {
-    // on windows json implementation "34.12", "-9876" and "-76.98" are valid string uint values
     std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2}}), DatabaseDump::array({1, 2,
                                                                                                                   3,
                                                                                                                   4}),
-                                             true, 1234, 34.12, -9876, -76.98, "qwerty"/*, "34.12", "-9876", "-76.98"*/};
+                                             true, 1234, 34.12, -9876, -76.98, "qwerty", "34.12", "-9876", "-76.98"};
 
     std::vector<DatabaseDump> correctValues = {"1234"};
     check_and_restore(dump, container, wrongValues, correctValues);
@@ -622,11 +620,10 @@ void check_is_uint(
         DatabaseDump& dump,
         DatabaseDump& container)
 {
-    // on windows json implementation 34.12, -9876 and -76.98 are valid uint values
     std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2}}), DatabaseDump::array({1, 2,
                                                                                                                   3,
                                                                                                                   4}),
-                                             true, /*34.12, -9876, -76.98,*/ "qwerty", "1234", "34.12", /*"-9876",*/ "-76.98"};
+                                             true, 34.12, -9876, -76.98, "qwerty", "1234", "34.12", "-9876", "-76.98"};
 
     std::vector<DatabaseDump> correctValues = {1234};
     check_and_restore(dump, container, wrongValues, correctValues);
@@ -636,11 +633,10 @@ void check_is_int(
         DatabaseDump& dump,
         DatabaseDump& container)
 {
-    // on windows json implementation 34.12 and -76.98 are valid int values
     std::vector<DatabaseDump> wrongValues = {DatabaseDump::object({{"one", 1}, {"two", 2}}), DatabaseDump::array({1, 2,
                                                                                                                   3,
                                                                                                                   4}),
-                                             true, /*34.12, -76.98,*/ "qwerty", "1234", "34.12", "-9876", "-76.98"};
+                                             true, 34.12, -76.98, "qwerty", "1234", "34.12", "-9876", "-76.98"};
 
     std::vector<DatabaseDump> correctValues = {1234, -9876};
     check_and_restore(dump, container, wrongValues, correctValues);
