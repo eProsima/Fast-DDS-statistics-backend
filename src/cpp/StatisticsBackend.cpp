@@ -662,14 +662,13 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
-
 DatabaseDump StatisticsBackend::dump_database()
 {
     return details::StatisticsBackendData::get_instance()->database_->dump_database();
 }
 
 void StatisticsBackend::dump_database(
-            const std::string& filename)
+        const std::string& filename)
 {
     // Open the file
     std::ofstream file(filename);

@@ -377,7 +377,7 @@ public:
 
     /**
      * @brief Resets the Fast DDS Statistics Backend.
-     * 
+     *
      * After calling this method, the Fast DDS Statistics Backend
      * reverts to its default state, as it was freshly started:
      * - All the data in the database is erased.
@@ -385,7 +385,7 @@ public:
      * - The physical listener is removed.
      * - The physical listener callback mask is set to CallbackMask::none().
      * - The physical listener data mask is set to DataMask::none().
-     * 
+     *
      * @pre There are no active monitors. There can be inactive monitors.
      */
     static void reset();

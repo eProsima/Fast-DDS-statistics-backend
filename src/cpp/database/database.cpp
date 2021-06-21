@@ -3203,7 +3203,8 @@ void Database::load_database(
         {
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG, PROCESS_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG,
+                    PROCESS_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
@@ -3225,7 +3226,8 @@ void Database::load_database(
         {
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Process> entity =
@@ -3247,7 +3249,8 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_CONTAINER_TAG);
             check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
 
             // Create entity
@@ -3270,8 +3273,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
                     DOMAIN_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Topic> entity =
@@ -3295,8 +3300,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
                     DOMAIN_ENTITY_TAG);
-            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
-            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
