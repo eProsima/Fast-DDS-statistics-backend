@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -702,7 +703,14 @@ void StatisticsBackend::reset()
 {
     if (!details::StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
     {
-        throw PreconditionNotMet("There are active monitors");
+        std::stringstream message;
+        message << "The following monitors are still active: [ ";
+        for (auto monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+        {
+            message << monitor.first << " ";
+        }
+        message << "]";
+        throw PreconditionNotMet(message.str());
     }
     details::StatisticsBackendData::get_instance()->reset_instance();
 }

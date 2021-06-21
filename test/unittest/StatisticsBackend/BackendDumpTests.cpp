@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <list>
 #include <fstream>
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 
-#include <database/database.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -70,7 +67,7 @@ TEST(backend_dump_tests, reset)
     EXPECT_THROW(StatisticsBackend::reset(), PreconditionNotMet);
     ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
 
-    //Stop the monitor and try again
+    // Stop the monitor and try again
     StatisticsBackend::stop_monitor(monitor);
     EXPECT_NO_THROW(StatisticsBackend::reset());
     ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
@@ -111,7 +108,7 @@ TEST(backend_dump_tests, database_dump_load)
         return;
     }
 
-    // dump the load
+    // Dump the load
     StatisticsBackend::dump_database(TEST_DUMP_FILE);
 
     // Load it by the JSON library and check equality
@@ -129,7 +126,6 @@ TEST(backend_dump_tests, database_dump_load)
     StatisticsBackend::reset();
     ASSERT_THROW(StatisticsBackend::load_database(NON_EXISTENT_FILE),
             BadParameter);
-
 }
 
 int main(
