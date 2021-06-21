@@ -35,6 +35,8 @@ if not subscriber_command:
         subscriber_command = next(pf, None)
 assert subscriber_command
 
+monitor_command = os.environ.get("DDS_SIMPLE_COMMUNICATION_MONITOR_BIN")
+
 extra_pub_arg = os.environ.get("EXTRA_PUB_ARG")
 if extra_pub_arg:
     extra_pub_args = extra_pub_arg.split()
@@ -62,6 +64,10 @@ publisher_proc = subprocess.Popen([publisher_command, "--seed", str(os.getpid())
         + extra_pub_args)
 subscriber2_proc = subprocess.Popen([subscriber_command, "--seed", str(os.getpid())]
         + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
+
+monitor_proc = subprocess.Popen([monitor_command, "--seed", str(os.getpid())])
+
+# monitor_proc.communicate()
 
 subscriber1_proc.communicate()
 retvalue = subscriber1_proc.returncode

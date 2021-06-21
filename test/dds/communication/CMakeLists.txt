@@ -47,6 +47,16 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
         )
     target_link_libraries(DDSSimpleCommunicationDynamicSubscriber fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
+    set(DDS_MONITOR_DYNAMIC_SOURCE
+        MonitorDynamic.cpp
+        )
+    add_executable(DDSSimpleCommunicationDynamicMonitor ${DDS_MONITOR_DYNAMIC_SOURCE})
+    target_compile_definitions(DDSSimpleCommunicationDynamicMonitor PRIVATE
+        $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
+        $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
+        )
+    target_link_libraries(DDSSimpleCommunicationDynamicMonitor fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+
     # Standar tests
     set(COMMON_SOURCE ${PROJECT_SOURCE_DIR}/test/blackbox/types/HelloWorld.cpp
         ${PROJECT_SOURCE_DIR}/test/blackbox/types/HelloWorldType.cpp
@@ -109,9 +119,6 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
 
     list(APPEND XML_CONFIGURATION_FILES
         simple_reliable.xml
-        simple_besteffort.xml
-        simple_reliable_zerocopy.xml
-        simple_besteffort_zerocopy.xml
 )
     # Python file
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_build.py
@@ -163,6 +170,8 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
             "DDS_SIMPLE_COMMUNICATION_PUBLISHER_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicPublisher>")
         set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
             "DDS_SIMPLE_COMMUNICATION_SUBSCRIBER_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicSubscriber>")
+        set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
+            "DDS_SIMPLE_COMMUNICATION_MONITOR_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicMonitor>")
         if(WIN32)
             string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
             set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
