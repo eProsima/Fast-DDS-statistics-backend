@@ -3588,7 +3588,8 @@ void Database::load_data(
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
+                sample.magnitude_order =
+                        static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3647,7 +3648,8 @@ void Database::load_data(
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
+                sample.magnitude_order =
+                        static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3676,7 +3678,8 @@ void Database::load_data(
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
+            sample.magnitude_order =
+                    static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
 
             // EntityId
             sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3704,7 +3707,8 @@ void Database::load_data(
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
+            sample.magnitude_order =
+                    static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
 
             // EntityId
             sample.remote_locator = EntityId(string_to_int(remote_it.key()));

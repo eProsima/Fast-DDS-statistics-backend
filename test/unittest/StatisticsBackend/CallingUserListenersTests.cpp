@@ -3027,7 +3027,7 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Stop the monitor to avoid interfering on next tests
     StatisticsBackend::stop_monitor(monitor_id);
-#endif
+#endif // !defined(NDEBUG) && !defined(_WIN32)
 }
 
 class calling_user_data_listeners_tests : public ::testing::TestWithParam<std::tuple<DataKind>>

@@ -47,9 +47,9 @@ namespace statistics_backend {
  */
 
 template<class T,
-    typename std::enable_if<
-        std::is_integral<T>::value,
-        bool>::type = true>
+        typename std::enable_if<
+            std::is_integral<T>::value,
+            bool>::type = true>
 std::chrono::system_clock::duration nanoseconds_to_systemclock_duration(
         T nanosecs) noexcept
 {
@@ -58,21 +58,19 @@ std::chrono::system_clock::duration nanoseconds_to_systemclock_duration(
 
     auto system_clock_resolution = system_clock::duration(1);
     return system_clock::duration(
-            nanosecs / duration_cast<nanoseconds>(system_clock_resolution).count());
+        nanosecs / duration_cast<nanoseconds>(system_clock_resolution).count());
 }
 
 template<class T,
-    typename std::enable_if<
-        std::is_integral<T>::value,
-        bool>::type = true>
+        typename std::enable_if<
+            std::is_integral<T>::value,
+            bool>::type = true>
 std::chrono::system_clock::time_point nanoseconds_to_systemclock(
         T nanosecs) noexcept
 {
     return std::chrono::system_clock::time_point(
-            nanoseconds_to_systemclock_duration(nanosecs));
+        nanoseconds_to_systemclock_duration(nanosecs));
 }
-
-
 
 namespace database {
 
