@@ -455,10 +455,14 @@ TEST_F(init_monitor_tests, stop_monitor)
 
     // Try stopping another monitor
     EntityId other_monitor_id = EntityId(100);
+    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id),BadParameter);
     EXPECT_THROW(StatisticsBackend::stop_monitor(other_monitor_id), BadParameter);
+    EXPECT_THROW(StatisticsBackend::is_active(other_monitor_id),BadParameter);
 
     // Stop the proper monitor
+    EXPECT_TRUE(StatisticsBackend::is_active(monitor_id));
     EXPECT_NO_THROW(StatisticsBackend::stop_monitor(monitor_id));
+    EXPECT_FALSE(StatisticsBackend::is_active(monitor_id));
 
     // Reopen stopped monitor
     EXPECT_THROW(StatisticsBackend::init_monitor(
@@ -477,6 +481,7 @@ TEST_F(init_monitor_tests, stop_monitor)
         all_datakind_mask_);
 
     EXPECT_TRUE(other_monitor_id.is_valid());
+    EXPECT_TRUE(StatisticsBackend::is_active(other_monitor_id));
 
     // Reset the singleton instead of removing the monitor
     details::StatisticsBackendData::reset_instance();

@@ -302,6 +302,9 @@ void StatisticsBackend::stop_monitor(
     delete monitor->reader_listener;
     delete monitor->participant_listener;
 
+    // The monitor is inactive
+    details::StatisticsBackendData::get_instance()->database_->change_entity_status(monitor_id, false);
+
     details::StatisticsBackendData::get_instance()->unlock();
 }
 

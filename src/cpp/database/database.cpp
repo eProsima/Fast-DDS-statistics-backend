@@ -4488,9 +4488,11 @@ void Database::change_entity_status(
         bool active)
 {
     EntityKind entity_kind = get_entity_kind(entity_id);
+
+    // Check that the entity is a discovered/undiscovered dds_entity or a started/stopped monitor
     assert(
         entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
-        entity_kind == EntityKind::DATAREADER);
+        entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 

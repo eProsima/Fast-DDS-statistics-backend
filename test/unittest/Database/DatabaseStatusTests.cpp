@@ -237,8 +237,7 @@ TEST_F(database_status_tests, process)
 
 TEST_F(database_status_tests, domain)
 {
-    ASSERT_DEATH(db.change_entity_status(domain->id, false), "");
-    db.change_entity_status_test(domain->id, false);
+    db.change_entity_status(domain->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -250,7 +249,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(domain->id, true);
+    db.change_entity_status(domain->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -265,7 +264,7 @@ TEST_F(database_status_tests, domain)
     auto domain1 = std::make_shared<Domain>("domain1");
     db.insert(domain1);
 
-    db.change_entity_status_test(domain->id, false);
+    db.change_entity_status(domain->id, false);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -278,7 +277,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(domain1->active);
 
-    db.change_entity_status_test(domain->id, true);
+    db.change_entity_status(domain->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
