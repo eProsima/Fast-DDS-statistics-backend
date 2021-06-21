@@ -45,7 +45,7 @@ struct RTPSData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear() = 0;
+    virtual void clear() = 0;
 
     /*
      * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -116,7 +116,7 @@ struct DomainParticipantData : RTPSData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::DISCOVERY_TOPIC
@@ -165,7 +165,7 @@ struct DataReaderData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear();
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::SUBSCRIPTION_THROUGHPUT_TOPIC
@@ -209,7 +209,7 @@ struct DataWriterData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear();
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PUBLICATION_THROUGHPUT_TOPIC
@@ -297,7 +297,7 @@ struct LocatorData
     /**
      * Clear the vectors and maps, and set the counts to zero
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear();
+    void clear();
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC

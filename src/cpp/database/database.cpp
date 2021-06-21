@@ -2375,14 +2375,12 @@ EntityId Database::generate_entity_id() noexcept
 }
 
 template<>
-FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::dds_endpoints<DataReader>()
 {
     return datareaders_;
 }
 
 template<>
-FASTDDS_STATISTICS_BACKEND_DllAPI
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
 {
     return datawriters_;

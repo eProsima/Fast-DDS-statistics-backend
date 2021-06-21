@@ -48,7 +48,7 @@ struct Locator;
  */
 struct Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Entity(
+    Entity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID") noexcept
         : kind(entity_kind)
@@ -56,12 +56,12 @@ struct Entity
     {
     }
 
-    FASTDDS_STATISTICS_BACKEND_DllAPI virtual ~Entity() = default;
+    virtual ~Entity() = default;
 
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear()
+    virtual void clear()
     {
     }
 
@@ -80,7 +80,7 @@ struct Entity
  */
 struct Host : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Host(
+    Host(
             std::string host_name) noexcept
         : Entity(EntityKind::HOST, host_name)
     {
@@ -89,7 +89,7 @@ struct Host : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     /*
      * Collection of users within the host which are involved in the communication.
@@ -103,7 +103,7 @@ struct Host : Entity
  */
 struct User : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI User(
+    User(
             std::string user_name,
             std::shared_ptr<Host> user_host) noexcept
         : Entity(EntityKind::USER, user_name)
@@ -114,7 +114,7 @@ struct User : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     //! Reference to the Host in which this user runs
     std::shared_ptr<Host> host;
@@ -131,7 +131,7 @@ struct User : Entity
  */
 struct Process : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Process(
+    Process(
             std::string process_name,
             std::string process_id,
             std::shared_ptr<User> process_user) noexcept
@@ -144,7 +144,7 @@ struct Process : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     //! The PID of the process
     std::string pid;
@@ -165,7 +165,7 @@ struct Process : Entity
  */
 struct Domain : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Domain(
+    Domain(
             std::string domain_name) noexcept
         : Entity(EntityKind::DOMAIN, domain_name)
     {
@@ -174,7 +174,7 @@ struct Domain : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     /*
      * Collection of Topics within the Domain which are either published, subscribed, or both.
@@ -194,7 +194,7 @@ struct Domain : Entity
  */
 struct DDSEntity : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI DDSEntity(
+    DDSEntity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string dds_entity_name = "INVALID",
             Qos dds_entity_qos = {},
@@ -208,7 +208,7 @@ struct DDSEntity : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI virtual void clear()
+    virtual void clear()
     {
     }
 
@@ -224,7 +224,7 @@ struct DDSEntity : Entity
  */
 struct DomainParticipant : DDSEntity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI DomainParticipant(
+    DomainParticipant(
             std::string participant_name,
             Qos participant_qos,
             std::string participant_guid,
@@ -239,7 +239,7 @@ struct DomainParticipant : DDSEntity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
@@ -272,7 +272,7 @@ struct DomainParticipant : DDSEntity
  */
 struct Topic : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Topic(
+    Topic(
             std::string topic_name,
             std::string topic_type,
             std::shared_ptr<Domain> topic_domain) noexcept
@@ -285,7 +285,7 @@ struct Topic : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     template<typename T>
     std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
@@ -314,7 +314,7 @@ struct Topic : Entity
  */
 struct DDSEndpoint : DDSEntity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI DDSEndpoint(
+    DDSEndpoint(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string endpoint_name = "INVALID",
             Qos endpoint_qos = {},
@@ -345,7 +345,7 @@ struct DDSEndpoint : DDSEntity
  */
 struct DataReader : DDSEndpoint
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI DataReader(
+    DataReader(
             std::string datareader_name,
             Qos datareader_qos,
             std::string datareader_guid,
@@ -359,7 +359,7 @@ struct DataReader : DDSEndpoint
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderData data;
@@ -370,7 +370,7 @@ struct DataReader : DDSEndpoint
  */
 struct DataWriter : DDSEndpoint
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI DataWriter(
+    DataWriter(
             std::string datawriter_name,
             Qos datawriter_qos,
             std::string datawriter_guid,
@@ -384,7 +384,7 @@ struct DataWriter : DDSEndpoint
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterData data;
@@ -396,7 +396,7 @@ struct DataWriter : DDSEndpoint
  */
 struct Locator : Entity
 {
-    FASTDDS_STATISTICS_BACKEND_DllAPI Locator(
+    Locator(
             std::string locator_name) noexcept
         : Entity(EntityKind::LOCATOR, locator_name)
     {
@@ -405,7 +405,7 @@ struct Locator : Entity
     /**
      * Clear the maps and data
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI void clear() final;
+    void clear() final;
 
     /*
      * Collection of DataReaders using this locator.
