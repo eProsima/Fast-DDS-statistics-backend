@@ -145,9 +145,6 @@ public:
      * For data types that relate to a single entity,
      * use the overloaded function that takes a single entity as argument.
      *
-     * For SAMPLE_DATAS DataKind,
-     * use the overloaded function that takes sequence numbers as arguments.
-     *
      * \par Measurement time and intervals
      *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
@@ -180,9 +177,6 @@ public:
      * For data types that relate to two entities,
      * use the overloaded function that takes two entities as arguments.
      *
-     * For SAMPLE_DATAS DataKind,
-     * use the overloaded function that takes sequence numbers as arguments.
-
      * \par Measurement time and intervals
      *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
@@ -201,40 +195,6 @@ public:
     std::vector<const StatisticsSample*> select(
             DataKind data_type,
             EntityId entity_id,
-            Timestamp t_from,
-            Timestamp t_to);
-
-    /**
-     * @brief Select data from the database.
-     *
-     * Use this function only for SAMPLE_DATAS DataKind as described in DataType.
-     *
-     * For other data types that relate to a single entity,
-     * use the overloaded function that takes a single entity as argument.
-     *
-     * For data types that relate to two entities,
-     * use the overloaded function that takes two entities as arguments.
-     *
-     * \par Measurement time and intervals
-     *
-     * \c t_from and \c t_to define the time interval for which the measurements will be returned.
-     *
-     * \sa Database
-     *
-     * @param data_type The type of the measurement being requested
-     * @param entity_id Id of entity of the requested data
-     * @param sequence_number Sequence number of the requested sample
-     * @param t_from Starting time of the returned measures.
-     * @param t_to Ending time of the returned measures.
-     * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
-     * 1. t_from must be less than t_to
-     * 2. data_type must be of a SAMPLE_DATAS type.
-     * @return A vector of pointers to StatisticSamples.
-     */
-    std::vector<const StatisticsSample*> select(
-            DataKind data_type,
-            EntityId entity_id,
-            uint64_t sequence_number,
             Timestamp t_from,
             Timestamp t_to);
 

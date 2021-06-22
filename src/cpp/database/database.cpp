@@ -1763,55 +1763,6 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-std::vector<const StatisticsSample*> Database::select(
-        DataKind data_type,
-        EntityId entity_id,
-        uint64_t sequence_number,
-        Timestamp t_from,
-        Timestamp t_to)
-{
-    /* Check that the given timestamps are consistent */
-    if (t_to <= t_from)
-    {
-        throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
-    }
-
-    auto entity = get_entity(entity_id);
-
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    std::vector<const StatisticsSample*> samples;
-    if (DataKind::SAMPLE_DATAS == data_type)
-    {
-        assert(EntityKind::DATAWRITER == entity->kind);
-        auto writer = std::static_pointer_cast<const DataWriter>(entity);
-        /* Look if the writer has information about the required sequence number */
-        auto seq_number = writer->data.sample_datas.find(sequence_number);
-        if (seq_number != writer->data.sample_datas.end())
-        {
-            /* Look for the samples between the given timestamps */
-            // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
-            // implement a binary search (PR#58 Originally posted by @IkerLuengo in
-            // https://github.com/eProsima/Fast-DDS-statistics-backend/pull/58#discussion_r629383536)
-            for (auto& sample : seq_number->second)
-            {
-                if (sample.src_ts >= t_from && sample.src_ts <= t_to)
-                {
-                    samples.push_back(&sample);
-                }
-                else if (sample.src_ts > t_to)
-                {
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        throw BadParameter("Incorrect DataKind");
-    }
-    return samples;
-}
-
 std::pair<EntityId, EntityId> Database::get_entity_by_guid(
         EntityKind entity_kind,
         const std::string& guid) const
