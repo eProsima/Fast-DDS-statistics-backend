@@ -304,15 +304,7 @@
                     "3":
                     [
                         {
-                            "src_time": "0",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"100",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"200",
+                            "src_time": "2",
                             "count": 2
                         }
                     ]
@@ -437,15 +429,7 @@
                     "3":
                     [
                         {
-                            "src_time": "0",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"100",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"200",
+                            "src_time": "2",
                             "count": 2
                         }
                     ]
@@ -570,15 +554,7 @@
                     "3":
                     [
                         {
-                            "src_time": "0",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"100",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"200",
+                            "src_time": "2",
                             "count": 2
                         }
                     ]
