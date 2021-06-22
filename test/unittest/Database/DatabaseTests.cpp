@@ -2228,6 +2228,16 @@ TEST_F(database_tests, insert_sample_sample_datas)
     ASSERT_EQ(writer->data.sample_datas.size(), 2);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number][0], static_cast<EntityCountSample>(sample_2));
+
+    // Check that only the last sample data is saved overriden the previous information
+    SampleDatasCountSample sample_3;
+    sample_3.sequence_number = 2;
+    sample_3.count = 16;
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
+
+    ASSERT_EQ(writer->data.sample_datas.size(), 2);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number].size(), 1);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample_3));
 }
 
 TEST_F(database_tests, insert_sample_sample_datas_wrong_entity)
