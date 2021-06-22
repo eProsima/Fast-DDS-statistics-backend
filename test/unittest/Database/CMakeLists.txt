@@ -326,7 +326,6 @@ set(DATABASE_TEST_LIST
     # select
     select_single_entity_invalid_needs_two_entities
     select_double_entity_invalid_needs_one_entity
-    select_sample_datas_invalid_wrong_entity
     select_invalid_entities
     select_invalid_entity_id
     select_invalid_timestamps
