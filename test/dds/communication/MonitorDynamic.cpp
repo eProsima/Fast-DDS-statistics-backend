@@ -43,6 +43,123 @@ using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::statistics;
 
+class MonitorListener : public DomainListener
+{
+public:
+
+    MonitorListener()
+        : num_entities_discovered_(0)
+    {
+    }
+
+    virtual ~MonitorListener() override
+    {
+    }
+
+    /*!
+     * This function is called when a new DomainParticipant is discovered by the library,
+     * or a previously discovered DomainParticipant changes its QOS or is removed.
+     *
+     * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
+     * @param participant_id Entity ID of the discovered DomainParticipant.
+     * @param status The status of the discovered DomainParticipants.
+     */
+    void on_participant_discovery(
+            EntityId domain_id,
+            EntityId participant_id,
+            const Status& status) override
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(participant_id);
+
+        if (status.current_count_change == 1)
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            ++num_entities_discovered_;
+            cv_.notify_all();
+        }
+        else if (status.current_count_change == -1)
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            --num_entities_discovered_;
+            cv_.notify_all();
+        }
+    }
+
+    /*!
+     * This function is called when a new Topic is discovered by the library.
+     *
+     * @param domain_id Entity ID of the domain in which the topic has been discovered.
+     * @param topic_id Entity ID of the discovered topic.
+     * @param status The status of the discovered topic.
+     */
+    virtual void on_topic_discovery(
+            EntityId domain_id,
+            EntityId topic_id,
+            const Status& status)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(topic_id);
+        if (status.current_count_change == 1)
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            ++num_entities_discovered_;
+            cv_.notify_all();
+        }
+    }
+
+    /*!
+     * This function is called when a new DataReader is discovered by the library,
+     * or a previously discovered DataReader changes its QOS or is removed.
+     *
+     * @param domain_id Entity ID of the domain in which the DataReader has been discovered.
+     * @param datareader_id Entity ID of the discovered DataReader.
+     * @param status The status of the discovered DataReaders.
+     */
+    virtual void on_datareader_discovery(
+            EntityId domain_id,
+            EntityId datareader_id,
+            const Status& status)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(datareader_id);
+        if (status.current_count_change == 1)
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            ++num_entities_discovered_;
+            cv_.notify_all();
+        }
+    }
+
+    /*!
+     * This function is called when a new DataWriter is discovered by the library,
+     * or a previously discovered DataWriter changes its QOS or is removed.
+     *
+     * @param domain_id Entity ID of the domain in which the DataWriter has been discovered.
+     * @param datawriter_id Entity ID of the discovered DataWriter.
+     * @param status The status of the discovered DataWriters.
+     */
+    virtual void on_datawriter_discovery(
+            EntityId domain_id,
+            EntityId datawriter_id,
+            const Status& status)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(datawriter_id);
+        if (status.current_count_change == 1)
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            ++num_entities_discovered_;
+            cv_.notify_all();
+        }
+    }
+
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    unsigned int num_entities_discovered_;
+};
+
+
 /* ARGUMENTS
  */
 
@@ -52,7 +169,12 @@ int main(
 {
     int arg_count = 1;
     uint32_t seed = 7800;
+    unsigned int num_participants = 2;
+    unsigned int num_endpoints = 2;
+    unsigned int num_topics = 1;
+    unsigned int num_entities = num_participants + num_topics + num_endpoints;
 
+    // Process arguments
     while (arg_count < argc)
     {
         if (strcmp(argv[arg_count], "--seed") == 0)
@@ -69,24 +191,171 @@ int main(
         ++arg_count;
     }
 
-    std::cout << details::StatisticsBackendData::get_instance()->database_->dump_database() << std::endl;
+    // Check the database is empty
+    try
+    {
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::LOCATOR).empty())
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
 
     // Init the monitor
     DomainId domain_id = seed % 230;
-    EntityId monitor_id = StatisticsBackend::init_monitor(domain_id);
+    MonitorListener listener;
+    EntityId monitor_id = StatisticsBackend::init_monitor(domain_id, &listener);
     if (!monitor_id.is_valid())
     {
         std::cout << "Error creating monitor" << std::endl;
         return 1;
     }
 
-    while (true)
+    // Check the database only contains the monitor domain
+    try
     {
-        std::cout << std::endl;
-        std::cout << details::StatisticsBackendData::get_instance()->database_->dump_database() << std::endl;
-        std::cout << std::endl;
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::LOCATOR).empty() ||
+                (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1) ||
+                (StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id))
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    // Start the subprocesses
+    std::cout << "Init Monitor" << std::endl;
+
+    // Wait until discover all entities
+    {
+        std::unique_lock<std::mutex> lock(listener.mutex_);
+        listener.cv_.wait(lock, [&]
+                {
+                    return listener.num_entities_discovered_ >= num_entities;
+                });
+    }
+
+    // Check that the database contains all entities related to subscriber and publisher entities
+    try
+    {
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
+                StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+        {
+            throw Error("Error: database contains unexpected DOMAIN");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::TOPIC).size() != num_topics ||
+                StatisticsBackend::get_entities(EntityKind::TOPIC, monitor_id).size() != num_topics)
+        {
+            throw Error("Error: database contains unexpected TOPIC");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::PARTICIPANT).size() != num_participants ||
+                StatisticsBackend::get_entities(EntityKind::PARTICIPANT, monitor_id).size() != num_participants)
+        {
+            throw Error("Error: database contains unexpected PARTICIPANT");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAWRITER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAREADER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
+                StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+        {
+            throw Error("Error: database contains unexpected LOCATOR");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+
+    // TODO: Wait until Undiscover participants
+    // {
+    //     std::unique_lock<std::mutex> lock(listener.mutex_);
+    //     listener.cv_.wait(lock, [&]
+    //                       { return listener.num_participants_discovered_ == 0; });
+    // }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    // Check that the database contains all entities related to subscriber and publisher entities
+    try
+    {
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
+                StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+        {
+            throw Error("Error: database contains unexpected DOMAIN");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::TOPIC).size() != num_topics ||
+                StatisticsBackend::get_entities(EntityKind::TOPIC, monitor_id).size() != num_topics)
+        {
+            throw Error("Error: database contains unexpected TOPIC");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::PARTICIPANT).size() != num_participants ||
+                StatisticsBackend::get_entities(EntityKind::PARTICIPANT, monitor_id).size() != num_participants)
+        {
+            throw Error("Error: database contains unexpected PARTICIPANT");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAWRITER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAREADER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
+                StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+        {
+            throw Error("Error: database contains unexpected LOCATOR");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
     }
 
     // Stop the monitor
@@ -97,10 +366,79 @@ int main(
     catch (const std::exception& e)
     {
         std::cerr << "Error stopping monitor" << e.what() << '\n';
+        return 1;
+    }
+
+    // Check that the database contains all entities related to subscriber and publisher entities
+    try
+    {
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
+                StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+        {
+            throw Error("Error: database contains unexpected DOMAIN");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::TOPIC).size() != num_topics ||
+                StatisticsBackend::get_entities(EntityKind::TOPIC, monitor_id).size() != num_topics)
+        {
+            throw Error("Error: database contains unexpected TOPIC");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::PARTICIPANT).size() != num_participants ||
+                StatisticsBackend::get_entities(EntityKind::PARTICIPANT, monitor_id).size() != num_participants)
+        {
+            throw Error("Error: database contains unexpected PARTICIPANT");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAWRITER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
+                StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+        {
+            throw Error("Error: database contains unexpected DATAREADER");
+        }
+        else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
+                StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+        {
+            throw Error("Error: database contains unexpected LOCATOR");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
     }
 
     // Reset the singleton instead of removing the monitor
     details::StatisticsBackendData::reset_instance();
+
+    // Check the database is empty
+    try
+    {
+        if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty() ||
+                !StatisticsBackend::get_entities(EntityKind::LOCATOR).empty())
+        {
+            throw Error("Error: database contains unexpected entities");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
 
     return 0;
 }
