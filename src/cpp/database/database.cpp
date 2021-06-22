@@ -1754,6 +1754,28 @@ std::vector<const StatisticsSample*> Database::select(
             }
             break;
         }
+        case DataKind::SAMPLE_DATAS:
+        {
+            assert(EntityKind::DATAWRITER == entity->kind);
+            auto writer = std::static_pointer_cast<const DataWriter>(entity);
+            /* This case is different from the above. Check all map keys and add sample if it is between the given
+               timestamps. The samples does not need to be ordered by source timestamp so they should be sorted */
+            for (auto& sample : writer->data.sample_datas)
+            {
+                // Vector only has one element
+                if (sample.second[0].src_ts >= t_from && sample.second[0].src_ts <= t_to)
+                {
+                    samples.push_back(&sample.second[0]);
+                }
+            }
+            std::sort(samples.begin(), samples.end(), [](
+                const StatisticsSample* first,
+                const StatisticsSample* second)
+            {
+                return first->src_ts < second->src_ts;
+            });
+            break;
+        }
         // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
         default:
         {
