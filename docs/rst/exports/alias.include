@@ -10,6 +10,8 @@
 .. |is_active-api| replace:: :cpp:func:`is_active()<eprosima::statistics_backend::StatisticsBackend::is_active>`
 .. |get_graph-api| replace:: :cpp:func:`get_graph()<eprosima::statistics_backend::StatisticsBackend::get_graph>`
 .. |dump_database-api| replace:: :cpp:func:`dump_database()<eprosima::statistics_backend::StatisticsBackend::dump_database>`
+.. |load_database-api| replace:: :cpp:func:`load_database()<eprosima::statistics_backend::StatisticsBackend::load_database>`
+.. |reset-api| replace:: :cpp:func:`reset()<eprosima::statistics_backend::StatisticsBackend::reset>`
 .. |set_domain_listener-api| replace:: :cpp:func:`set_domain_listener()<eprosima::statistics_backend::StatisticsBackend::set_domain_listener>`
 .. |get_type-api| replace:: :cpp:func:`get_type()<eprosima::statistics_backend::StatisticsBackend::get_type>`
 
