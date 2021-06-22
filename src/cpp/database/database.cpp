@@ -1769,11 +1769,11 @@ std::vector<const StatisticsSample*> Database::select(
                 }
             }
             std::sort(samples.begin(), samples.end(), [](
-                const StatisticsSample* first,
-                const StatisticsSample* second)
-            {
-                return first->src_ts < second->src_ts;
-            });
+                        const StatisticsSample* first,
+                        const StatisticsSample* second)
+                    {
+                        return first->src_ts < second->src_ts;
+                    });
             break;
         }
         // Any other data_type corresponds to a sample which needs two entities or a DataKind::INVALID
