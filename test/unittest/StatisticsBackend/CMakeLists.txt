@@ -168,6 +168,11 @@ foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_DeathTest.${test_name}:*/calling_user_listeners_DeathTest.${test_name}/*)
 
+    set_tests_properties(calling_user_listeners_DeathTest.${test_name}
+        PROPERTIES
+            DISABLED $<AND:$<STREQUAL:${test_name},wrong_entity_kind>,$<NOT:$<CONFIG:Debug>>>
+    )
+
     if(TEST_FRIENDLY_PATH)
         set_tests_properties(calling_user_listeners_DeathTest.${test_name}
             PROPERTIES
