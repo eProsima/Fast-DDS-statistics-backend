@@ -33,6 +33,7 @@ constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
 constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
 constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
 constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
+constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
 
 DatabaseDump load_file(
         std::string filename)
@@ -116,6 +117,38 @@ TEST(database_load_tests, load_and_dump_simple_database)
 TEST(database_load_tests, load_and_dump_complex_database)
 {
     load_and_dump(COMPLEX_DUMP_FILE);
+}
+
+// Test the load of an old dump with several samples_data for the same sequence number
+TEST(database_load_tests, load_and_dump_old_complex_database)
+{
+    // Read JSON
+    DatabaseDump dump_old = load_file(OLD_COMPLEX_DUMP_FILE);
+    DatabaseDump dump = load_file(COMPLEX_DUMP_FILE);
+
+    // Create database
+    Database db;
+
+    // Load dump in the database
+    db.load_database(dump_old);
+
+    // Dump loaded database
+    DatabaseDump loadedDump = db.dump_database();
+
+    // Compare two dumps
+    ASSERT_EQ(dump_old[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
+    ASSERT_EQ(dump_old[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
+    // Sample_datas are related to the DataWriter
+    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
+
+    // The old dump is not equal to the loadedDump because there are only one sample_data per sequence number
+    ASSERT_EQ(dump, loadedDump);
 }
 
 // Test the load of a dump database with one entity of each kind

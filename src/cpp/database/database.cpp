@@ -1759,7 +1759,7 @@ std::vector<const StatisticsSample*> Database::select(
             assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* This case is different from the above. Check all map keys and add sample if it is between the given
-               timestamps. The samples does not need to be ordered by source timestamp so they should be sorted */
+               timestamps. The samples do not need to be ordered by source timestamp so they should be sorted */
             for (auto& sample : writer->data.sample_datas)
             {
                 // Vector only has one element
