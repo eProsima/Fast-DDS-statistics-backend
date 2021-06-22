@@ -369,6 +369,9 @@ public:
     /**
      * @brief Load Fast DDS Statistics Backend's database from a file.
      *
+     * @pre The Backend's database has no data. This means that no monitors were initialized
+     *      since the Backend started, or that the Backend has been reset().
+     *
      * @param filename The name of the file from which where the database is loaded.
      * @throws eprosima::statistics_backend::BadParameter if the file does not exist.
      */
