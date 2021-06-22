@@ -621,11 +621,11 @@ protected:
 
     /**
      * @brief Check that an entity has the reference of its parent entity and viceversa.
-     * 
+     *
      * Check that in the \c dump, the references of the entity iterator \c it of type \c entity_tag
      * to entities of type \c reference_tag are consistent and mutual. For this, the referenced entities must
      * have reference to \c it of type \c entity_tag.
-     * 
+     *
      * Use this function when the reference is unique.
      * To check the consistency between sequences of mutual references,
      * please use check_entity_contains_all_references.
@@ -659,7 +659,7 @@ protected:
 
     /**
      * @brief Check that all references contained within an entity are also referenced by the corresponding entity.
-     * 
+     *
      * Check that in the \c dump, the references of the entity iterator \c it of type \c entity_tag
      * to entities of type \c reference_tag is consistent and mutual. For this, the referenced entities must
      * contain a reference to \c it of type \c entity_tag.
@@ -667,7 +667,7 @@ protected:
      * Use this function when a sequence of references has to be checked.
      * To check the consistency between unique references,
      * please use check_entity_all_references.
-     * 
+     *
      * Example: Check that each datawriter, contains a reference to locator[0]:
      *
      * \code
@@ -717,9 +717,9 @@ protected:
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.
-     * 
+     *
      * If the locator does not exist yet, create and insert it into the database.
-     * 
+     *
      * @param entity_id The EntityId to the locator to be found or inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *             * If the entity already exists in the database.
@@ -736,7 +736,7 @@ protected:
 
     /**
      * @brief Insert a new statistics sample into the database. This method is not thread safe.
-     * 
+     *
      * @param domain_id The EntityId to the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
