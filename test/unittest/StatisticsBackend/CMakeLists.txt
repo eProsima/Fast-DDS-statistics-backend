@@ -34,17 +34,24 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+if(MSVC)
+    target_compile_definitions(statistics_backend_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(statistics_backend_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(statistics_backend_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_TEST_LIST
     get_info
@@ -57,6 +64,11 @@ foreach(test_name ${BACKEND_TEST_LIST})
     add_test(NAME statistics_backend_tests.${test_name}
             COMMAND statistics_backend_tests
             --gtest_filter=statistics_backend_tests.${test_name}:*/statistics_backend_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(statistics_backend_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 # calling_user_listeners
@@ -87,7 +99,14 @@ target_include_directories(calling_user_listeners_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+if(MSVC)
+    target_compile_definitions(calling_user_listeners_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+get_win32_path_dependencies(calling_user_listeners_tests TEST_FRIENDLY_PATH)
 
 set(USER_LISTENERS_TEST_LIST
     host_discovered
@@ -125,9 +144,19 @@ set(USER_LISTENERS_TEST_LIST
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_LIST})
+
     add_test(NAME calling_user_listeners_tests.${test_name}
         COMMAND calling_user_listeners_tests
-        --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*)
+        --gtest_filter=calling_user_listeners_tests.${test_name}:*/calling_user_listeners_tests.${test_name}/*
+    )
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests.${test_name}
+            PROPERTIES
+                ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}"
+        )
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 
 set(USER_LISTENERS_DEATH_TEST_LIST
@@ -138,6 +167,18 @@ foreach(test_name ${USER_LISTENERS_DEATH_TEST_LIST})
     add_test(NAME calling_user_listeners_DeathTest.${test_name}
         COMMAND calling_user_listeners_tests
         --gtest_filter=calling_user_listeners_DeathTest.${test_name}:*/calling_user_listeners_DeathTest.${test_name}/*)
+
+    set_tests_properties(calling_user_listeners_DeathTest.${test_name}
+        PROPERTIES
+            DISABLED $<AND:$<STREQUAL:${test_name},wrong_entity_kind>,$<NOT:$<CONFIG:Debug>>>
+    )
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_DeathTest.${test_name}
+            PROPERTIES
+                ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}"
+        )
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(USER_DATA_LISTENERS_TEST_LIST
@@ -153,6 +194,10 @@ foreach(test_name ${USER_DATA_LISTENERS_TEST_LIST})
     add_test(NAME calling_user_listeners_tests.${test_name}
             COMMAND calling_user_listeners_tests
             --gtest_filter=calling_user_data_listeners_tests.${test_name}:*/calling_user_data_listeners_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 
@@ -179,6 +224,11 @@ add_executable(init_monitor_tests InitMonitorTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(init_monitor_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(init_monitor_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
@@ -189,7 +239,9 @@ target_include_directories(init_monitor_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_all_data
@@ -205,6 +257,10 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
     add_test(NAME init_monitor_tests.${test_name}
             COMMAND init_monitor_tests
             --gtest_filter=init_monitor_tests.${test_name}:*/init_monitor_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(init_monitor_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 # init_monitor_factory_fails_tests
@@ -226,6 +282,11 @@ add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(init_monitor_factory_fails_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
@@ -242,7 +303,9 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(init_monitor_factory_fails_tests TEST_FRIENDLY_PATH)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_participant_creation_fails
@@ -258,6 +321,10 @@ foreach(test_name ${INIT_MONITOR_TEST_LIST})
     add_test(NAME init_monitor_factory_fails_tests.${test_name}
             COMMAND init_monitor_factory_fails_tests
             --gtest_filter=init_monitor_factory_fails_tests.${test_name}:*/init_monitor_factory_fails_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(init_monitor_factory_fails_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 # get_data
@@ -279,6 +346,11 @@ add_executable(get_data_tests GetDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(get_data_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(get_data_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
@@ -288,7 +360,9 @@ target_include_directories(get_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(get_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(get_data_tests TEST_FRIENDLY_PATH)
 
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/database_dump.json
@@ -302,6 +376,10 @@ foreach(test_name ${GET_DATA_NO_DATA_TEST_LIST})
     add_test(NAME get_data_no_data_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_no_data_tests.${test_name}:*/get_data_no_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_no_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(GET_DATA_WITH_DATA_TEST_LIST
@@ -321,6 +399,10 @@ foreach(test_name ${GET_DATA_WITH_DATA_TEST_LIST})
     add_test(NAME get_data_with_data_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_with_data_tests.${test_name}:*/get_data_with_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_with_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 
 set(GET_DATAUNSUPPORTED_ENTITY_TEST_LIST
@@ -331,5 +413,9 @@ foreach(test_name ${GET_DATAUNSUPPORTED_ENTITY_TEST_LIST})
     add_test(NAME get_data_unsupported_entities_tests.${test_name}
         COMMAND get_data_tests
         --gtest_filter=get_data_unsupported_entities_tests.${test_name}:*/get_data_unsupported_entities_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_data_unsupported_entities_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()
 

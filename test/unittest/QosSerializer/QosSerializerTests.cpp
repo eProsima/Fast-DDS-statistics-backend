@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <fastdds/dds/core/policy/QosPolicies.hpp>
@@ -776,6 +777,8 @@ TEST(qos_serializer_tests, reader_info_serializer)
     EXPECT_EQ(expected, serialized);
 }
 
+// Windows dll do not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
 TEST(qos_serializer_tests, participant_info_serializer)
 {
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
@@ -808,6 +811,7 @@ TEST(qos_serializer_tests, participant_info_serializer)
 
     EXPECT_EQ(expected, serialized);
 }
+#endif //!defined(_WIN32)
 
 int main(
         int argc,

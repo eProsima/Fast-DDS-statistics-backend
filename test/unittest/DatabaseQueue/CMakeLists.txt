@@ -27,6 +27,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp)
 
+    if(MSVC)
+        target_compile_definitions(database_queue_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
     target_include_directories(database_queue_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/test/mock/database/database
@@ -38,7 +43,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(database_queue_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+    get_win32_path_dependencies(database_queue_tests TEST_FRIENDLY_PATH)
 
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush
@@ -112,5 +119,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         add_test(NAME database_queue_tests.${test_name}
                 COMMAND database_queue_tests
                 --gtest_filter=database_queue_tests.${test_name}:*/database_queue_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(database_queue_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+
     endforeach()
 endif()

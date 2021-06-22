@@ -14,13 +14,13 @@
 
 #include <list>
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
-
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
 
@@ -41,7 +41,7 @@ class statistics_backend_tests : public ::testing::TestWithParam<std::tuple<Enti
 {
 public:
 
-    typedef uint32_t TestId;
+    using TestId = PopulateDatabase::TestId;
 
     void SetUp()
     {

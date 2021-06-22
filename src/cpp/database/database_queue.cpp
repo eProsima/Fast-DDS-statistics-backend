@@ -42,7 +42,7 @@ void DatabaseDataQueue::process_sample_type(
         auto found_reader = database_->get_entity_by_guid(EntityKind::DATAREADER, reader_guid);
         sample.reader = found_reader.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Reader " + reader_guid + " not found");
     }
@@ -54,7 +54,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + writer_guid + " not found");
     }
@@ -104,7 +104,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + guid + " not found");
     }
@@ -134,7 +134,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + guid + " not found");
     }
@@ -165,7 +165,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + guid + " not found");
     }
@@ -188,7 +188,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + guid + " not found");
     }
@@ -202,14 +202,14 @@ void DatabaseDataQueue::process_sample_type(
         DiscoveryTimeSample& sample,
         const StatisticsDiscoveryTime& item) const
 {
-    sample.time = std::chrono::system_clock::time_point (std::chrono::nanoseconds(item.time()));
+    sample.time = nanoseconds_to_systemclock(item.time());
     std::string remote_entity_guid = deserialize_guid(item.remote_entity_guid());
     try
     {
         auto found_remote_entity = database_->get_entity_by_guid(entity_kind, remote_entity_guid);
         sample.remote_entity = found_remote_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Remote entity " + remote_entity_guid + " not found");
     }
@@ -221,7 +221,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + guid + " not found");
     }
@@ -245,7 +245,7 @@ void DatabaseDataQueue::process_sample_type(
         domain = found_entity.first;
         entity = found_entity.second;
     }
-    catch (BadParameter& e)
+    catch (BadParameter&)
     {
         throw Error("Entity " + sample_identity.first + " not found");
     }

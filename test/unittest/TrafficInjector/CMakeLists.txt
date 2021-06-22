@@ -12,13 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+check_gtest()
+
 add_executable(TrafficInjectorTests TrafficInjectorTests.cpp)
 target_include_directories(TrafficInjectorTests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/TrafficInjector
     ${GTEST_INCLUDE_DIRS})
 
-target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} gtest)
+if(MSVC)
+    target_compile_definitions(TrafficInjectorTests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRARIES})
+
+get_win32_path_dependencies(TrafficInjectorTests TEST_FRIENDLY_PATH)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/traffic_dump.json
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -30,4 +39,8 @@ foreach(test_name ${TRAFFIC_INJECTOR_TEST_LIST})
     add_test(NAME TrafficInjector.${test_name}
             COMMAND TrafficInjectorTests
             --gtest_filter=TrafficInjectorTests.${test_name}:*/TrafficInjectorTests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(TrafficInjector.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()

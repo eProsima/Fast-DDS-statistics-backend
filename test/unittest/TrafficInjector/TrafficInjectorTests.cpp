@@ -22,7 +22,8 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <iostream>
 

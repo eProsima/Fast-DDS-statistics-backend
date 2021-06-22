@@ -22,6 +22,7 @@
 
 #include <string>
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

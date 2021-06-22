@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-file(GLOB_RECURSE ALL_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/**/*.h
-    ${PROJECT_SOURCE_DIR}/include/**/*.hpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/**/*.h
-    ${PROJECT_SOURCE_DIR}/src/cpp/**/*.hpp
-    )
+if(MSVC)
+    file(GLOB_RECURSE ALL_HEADERS
+        ${PROJECT_SOURCE_DIR}/include/**/*.h
+        ${PROJECT_SOURCE_DIR}/include/**/*.hpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/**/*.h
+        ${PROJECT_SOURCE_DIR}/src/cpp/**/*.hpp
+        )
+endif(MSVC)
 
 set(${PROJECT_NAME}_SOURCES
     ${ALL_HEADERS}
@@ -38,25 +40,30 @@ set(${PROJECT_NAME}_SOURCES
     )
 
 # Configure config file
+
 configure_file(${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/config.h.in
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/config.h)
-
-# Definitions
-# If Windows, set define for export dll functions
-add_definitions(-DFASTDDS_STATISTICS_BACKEND_SOURCE)
-if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0501)
-endif()
 
 # Create library
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    FASTDDS_STATISTICS_BACKEND_SOURCE
-    EPROSIMA_USER_DLL_EXPORT
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC
+        FASTDDS_STATISTICS_BACKEND_SOURCE
     )
+
+if(MSVC)
+    target_compile_definitions(${PROJECT_NAME}
+        INTERFACE
+            _CRT_DECLARE_NONSTDC_NAMES=0
+        PRIVATE 
+            EPROSIMA_USER_DLL_EXPORT
+            WIN32_WINNT=0x0603 
+            _CRT_DECLARE_NONSTDC_NAMES=0
+        )
+endif(MSVC)
 
 # Define public headers
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -79,16 +86,31 @@ target_link_libraries(${PROJECT_NAME}
 
 if(MSVC OR MSVC_IDE)
     set_target_properties(${PROJECT_NAME} PROPERTIES RELEASE_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-    set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+    set_target_properties(${PROJECT_NAME} PROPERTIES MINSIZEREL_POSTFIX m-${PROJECT_VERSION})
+    set_target_properties(${PROJECT_NAME} PROPERTIES RELWITHDEBINFO_POSTFIX rd-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
     set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
     get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
     if(TARGET_TYPE STREQUAL "SHARED_LIBRARY")
+
         # Export symbols in DLL library
-        target_compile_definitions(${PROJECT_NAME} PUBLIC FASTDDS_STATISTICS_BACKEND_DYN_LINK)
+        string(REPLACE "-" "_" PREPROCESS_DYN_LINK "${PROJECT_NAME_UPPER}_DYN_LINK")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ${PREPROCESS_DYN_LINK})
+
+        # Define how to export symbol's info
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            PDB_NAME_DEBUG "${PROJECT_NAME}d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+            PDB_NAME_RELWITHDEBINFO "${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+            PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/symbols"
+            )
     else()
         # Rename the library to have a "lib" before.
         set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME lib${PROJECT_NAME})
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            COMPILE_PDB_NAME_DEBUG "lib${PROJECT_NAME}d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+            COMPILE_PDB_NAME_RELWITHDEBINFO "lib${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+            COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/symbols"
+        )
     endif()
 
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
@@ -126,29 +148,47 @@ install(TARGETS ${PROJECT_NAME}
     COMPONENT libraries
     )
 
-export(TARGETS ${PROJECT_NAME} FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake)
 install(EXPORT ${PROJECT_NAME}-targets
+    NAMESPACE eProsima::
     DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     COMPONENT cmake
     )
 
 if(MSVC OR MSVC_IDE)
-    if(TARGET_TYPE STREQUAL "SHARED_LIBRARY")
-        # Install pdb files
-        install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Debug/
-            DESTINATION ${LIB_INSTALL_DIR}
-            COMPONENT libraries
-            CONFIGURATIONS Debug
-            FILES_MATCHING
-            PATTERN "*.pdb"
-            )
-    else()
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.dir/Debug/${PROJECT_NAME}.pdb
-            DESTINATION ${LIB_INSTALL_DIR}
-            COMPONENT libraries
-            CONFIGURATIONS Debug
-            )
-    endif()
+
+        foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+
+            # first try dll symbols
+            set(PDB_PROPERTY PDB_NAME_${CONFIG})
+            string(TOUPPER ${PDB_PROPERTY} PDB_PROPERTY)
+            get_target_property(PDB_FILE ${PROJECT_NAME} ${PDB_PROPERTY})
+
+            if(PDB_FILE)
+                get_target_property(PDB_DIR ${PROJECT_NAME} PDB_OUTPUT_DIRECTORY)
+                set(PDB_FILE "${PDB_DIR}/${CONFIG}/${PDB_FILE}.pdb")
+            else()
+                # fallback to static lib symbols
+                set(PDB_PROPERTY COMPILE_PDB_NAME_${CONFIG})
+                string(TOUPPER ${PDB_PROPERTY} PDB_PROPERTY)
+                get_target_property(PDB_FILE ${PROJECT_NAME} COMPILE_PDB_NAME_${CONFIG})
+
+                if(PDB_FILE)
+                    get_target_property(PDB_DIR ${PROJECT_NAME} COMPILE_PDB_OUTPUT_DIRECTORY)
+                    set(PDB_FILE "${PDB_DIR}/${PDB_FILE}.pdb")
+                endif()
+            endif()
+
+            if(PDB_FILE)
+                # Install symbols
+                install(FILES ${PDB_FILE}
+                    DESTINATION ${LIB_INSTALL_DIR}
+                    COMPONENT symbols
+                    OPTIONAL
+                    )
+            endif()
+
+        endforeach()
+
 endif()
 
 ###############################################################################
@@ -158,7 +198,7 @@ include(CMakePackageConfigHelpers)
 
 configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
+    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_UNDERSCORE}
     PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
 write_basic_package_version_file(

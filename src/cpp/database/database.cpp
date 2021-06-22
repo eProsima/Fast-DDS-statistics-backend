@@ -1093,7 +1093,7 @@ void Database::link_participant_with_process_nts(
     EntityId domain_id;
     std::map<EntityId, std::shared_ptr<DomainParticipant>>::iterator participant_it;
     bool participant_exists = false;
-    for (auto domain_it : participants_)
+    for (auto& domain_it : participants_)
     {
         participant_it = domain_it.second.find(participant_id);
         if (participant_it != domain_it.second.end())
@@ -1866,7 +1866,6 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
 
     throw BadParameter("No entity of type " + std::to_string(
                       static_cast<int>(entity_kind)) + " and GUID " + guid + " exists");
-    return std::make_pair<EntityId, EntityId>(EntityId::invalid(), EntityId::invalid());
 }
 
 EntityKind Database::get_entity_kind(
@@ -3476,11 +3475,11 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t src_ts = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(src_ts));
+                sample.src_ts = nanoseconds_to_systemclock(src_ts);
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint(std::string((*it).at(DATA_VALUE_TIME_TAG)));
-                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.time = nanoseconds_to_systemclock(time);
 
                 // EntityId
                 sample.remote_entity = EntityId(string_to_int(remote_it.key()));
@@ -3507,7 +3506,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3528,7 +3527,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3552,7 +3551,7 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // uint64_t
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3580,13 +3579,14 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // uint64_t
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
+                sample.magnitude_order =
+                        static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3611,7 +3611,7 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // uint64_t
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3639,13 +3639,14 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // uint64_t
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
 
                 // int16_t
-                sample.magnitude_order = string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG)));
+                sample.magnitude_order =
+                        static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3668,13 +3669,14 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
+            sample.magnitude_order =
+                    static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
 
             // EntityId
             sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3696,13 +3698,14 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
 
             // int16_t
-            sample.magnitude_order = string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG)));
+            sample.magnitude_order =
+                    static_cast<int16_t>(string_to_int(to_string(sample_dump.at(DATA_VALUE_MAGNITUDE_TAG))));
 
             // EntityId
             sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -3724,7 +3727,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
@@ -3749,7 +3752,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(sample_dump.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string(sample_dump.at(DATA_VALUE_COUNT_TAG)));
@@ -3773,7 +3776,7 @@ void Database::load_data(
 
             //std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -3794,7 +3797,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -3820,7 +3823,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // double
             sample.data = (*it).at(DATA_VALUE_DATA_TAG);
@@ -3841,7 +3844,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3862,7 +3865,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3883,7 +3886,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3904,7 +3907,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3928,7 +3931,7 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // uint64_t
                 sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -3956,7 +3959,7 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);
@@ -3981,7 +3984,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4002,7 +4005,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4023,7 +4026,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4044,7 +4047,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4070,7 +4073,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // double
             sample.data = (*it).at(DATA_VALUE_DATA_TAG);
@@ -4091,7 +4094,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -4112,7 +4115,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t
             sample.count = string_to_uint(to_string((*it).at(DATA_VALUE_COUNT_TAG)));
@@ -4133,7 +4136,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4154,7 +4157,7 @@ void Database::load_data(
 
             // std::chrono::system_clock::time_point
             uint64_t time = string_to_uint(std::string(container.at(DATA_VALUE_SRC_TIME_TAG)));
-            sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+            sample.src_ts = nanoseconds_to_systemclock(time);
 
             // uint64_t count;
             sample.count = string_to_uint(to_string(container.at(DATA_VALUE_COUNT_TAG)));
@@ -4183,7 +4186,7 @@ void Database::load_data(
 
                 // std::chrono::system_clock::time_point
                 uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(time));
+                sample.src_ts = nanoseconds_to_systemclock(time);
 
                 // double
                 sample.data = (*it).at(DATA_VALUE_DATA_TAG);

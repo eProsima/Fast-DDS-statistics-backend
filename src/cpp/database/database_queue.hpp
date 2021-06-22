@@ -44,7 +44,6 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
-
 /**
  * Double buffered, threadsafe queue for MPSC (multi-producer, single-consumer) comms.
  */

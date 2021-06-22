@@ -17,7 +17,8 @@
 #include <memory>
 #include <string>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -71,7 +72,8 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define DATAWRITER_DEFAULT_ID(x) EntityId(x * 9 + 7)
 #define DATAREADER_DEFAULT_ID(x) EntityId(x * 9 + 8)
 
-#define TIME_DEFAULT(x) std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(x))
+// at least pass microseconds tenths to avoid windows system_clock resolution issue
+#define TIME_DEFAULT(x) nanoseconds_to_systemclock(100 * (x))
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|00.00.00.00"
 
 
@@ -464,18 +466,10 @@ TEST(database, id_to_string)
 TEST(database, time_to_string)
 {
     DataBaseTest db;
-    ASSERT_EQ(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-            "1");
-    ASSERT_NE(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-            "5");
-    ASSERT_EQ(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(-5))),
-            "-5");
-    ASSERT_NE(db.get_time_to_string(
-                std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1))),
-            "ABC");
+    ASSERT_EQ(db.get_time_to_string(nanoseconds_to_systemclock(100)), "100");
+    ASSERT_NE(db.get_time_to_string(nanoseconds_to_systemclock(100)), "500");
+    ASSERT_EQ(db.get_time_to_string(nanoseconds_to_systemclock(-500)), "-500");
+    ASSERT_NE(db.get_time_to_string(nanoseconds_to_systemclock(100)), "ABC");
 }
 
 int main(

@@ -21,6 +21,11 @@ if(GTEST_FOUND)
     add_executable(qos_serializer_tests QosSerializerTests.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp)
 
+    if(MSVC)
+        target_compile_definitions(qos_serializer_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
     target_include_directories(qos_serializer_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/include
@@ -30,7 +35,9 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(qos_serializer_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} fastrtps fastcdr)
+
+    get_win32_path_dependencies(qos_serializer_tests TEST_FRIENDLY_PATH)
 
     set(QOSSERIALIZER_TEST_LIST
         durability_qos_policy
@@ -66,5 +73,9 @@ if(GTEST_FOUND)
         add_test(NAME qos_serializer_tests.${test_name}
                 COMMAND qos_serializer_tests
                 --gtest_filter=qos_serializer_tests.${test_name}:*/qos_serializer_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(qos_serializer_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()

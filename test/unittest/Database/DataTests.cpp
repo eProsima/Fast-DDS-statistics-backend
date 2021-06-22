@@ -14,7 +14,8 @@
 
 #include <chrono>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 

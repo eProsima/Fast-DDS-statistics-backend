@@ -14,6 +14,7 @@
 
 #include <fstream>
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <exception/Exception.hpp>
@@ -1063,6 +1064,7 @@ TEST(database_load_tests, load_wrong_values)
             [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
     check_is_double(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
             [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
+
 }
 
 void check_reference(

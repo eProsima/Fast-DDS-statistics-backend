@@ -30,6 +30,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+    if(MSVC)
+        target_compile_definitions(statistics_participant_listener_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
     target_include_directories(statistics_participant_listener_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
@@ -42,7 +47,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(statistics_participant_listener_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+    get_win32_path_dependencies(statistics_participant_listener_tests TEST_FRIENDLY_PATH)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
@@ -69,5 +76,9 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         add_test(NAME statistics_participant_listener_tests.${test_name}
                 COMMAND statistics_participant_listener_tests
                 --gtest_filter=statistics_participant_listener_tests.${test_name}:*/statistics_participant_listener_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(statistics_participant_listener_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()

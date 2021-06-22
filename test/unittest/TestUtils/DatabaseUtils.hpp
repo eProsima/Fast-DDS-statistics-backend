@@ -123,7 +123,7 @@ class PopulateDatabase
 {
 public:
 
-    typedef uint32_t TestId;
+    typedef size_t TestId;
 
     static std::map<TestId, std::shared_ptr<const Entity>> populate_database(
             Database& db)
@@ -229,8 +229,8 @@ public:
             {
                 DiscoveryTimeSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(2));
-                sample.time = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(2);
+                sample.time = nanoseconds_to_systemclock(1);
                 sample.remote_entity = EntityId(entityId);
                 sample.discovered = true;
 
@@ -241,7 +241,7 @@ public:
             {
                 PdpCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(0));
+                sample.src_ts = nanoseconds_to_systemclock(0);
                 sample.count = 1;
 
                 db.insert(domainId, entityId, sample);
@@ -251,7 +251,7 @@ public:
             {
                 EdpCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -261,7 +261,7 @@ public:
             {
                 RtpsPacketsSentSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
 
@@ -272,7 +272,7 @@ public:
             {
                 RtpsBytesSentSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
                 sample.magnitude_order = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
@@ -284,7 +284,7 @@ public:
             {
                 RtpsPacketsLostSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
 
@@ -295,7 +295,7 @@ public:
             {
                 RtpsBytesLostSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
                 sample.magnitude_order = 0;
                 sample.remote_locator = EntityId(reader_locator2->id);
@@ -313,7 +313,7 @@ public:
             {
                 PublicationThroughputSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.data = 1.1;
 
                 db.insert(domainId, entityId, sample);
@@ -323,7 +323,7 @@ public:
             {
                 ResentDataSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -333,7 +333,7 @@ public:
             {
                 HeartbeatCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -343,7 +343,7 @@ public:
             {
                 GapCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -353,7 +353,7 @@ public:
             {
                 DataCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -363,7 +363,7 @@ public:
             {
                 SampleDatasCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
                 sample.sequence_number = process2->id.value();
 
@@ -374,7 +374,7 @@ public:
             {
                 HistoryLatencySample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.data = 1.1;
                 sample.reader = (EntityId(reader_locator2->id));
 
@@ -391,7 +391,7 @@ public:
             {
                 SubscriptionThroughputSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.data = 1.1;
 
                 db.insert(domainId, entityId, sample);
@@ -401,7 +401,7 @@ public:
             {
                 AcknackCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -411,7 +411,7 @@ public:
             {
                 NackfragCountSample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.count = 0;
 
                 db.insert(domainId, entityId, sample);
@@ -426,7 +426,7 @@ public:
 
                 NetworkLatencySample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.data = 1.1;
                 sample.remote_locator = EntityId(entityId);
 
@@ -439,7 +439,7 @@ public:
 
                 NetworkLatencySample sample;
 
-                sample.src_ts = std::chrono::system_clock::time_point(std::chrono::steady_clock::duration(1));
+                sample.src_ts = nanoseconds_to_systemclock(1);
                 sample.data = 1.1;
                 sample.remote_locator = EntityId(entityId);
 
@@ -513,6 +513,7 @@ public:
     }
 
     template<typename T>
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& get_dds_endpoints()
     {
         return dds_endpoints<T>();
@@ -555,13 +556,13 @@ public:
         return time_to_string(time);
     }
 
-    inline int get_string_to_int(
+    inline long long get_string_to_int(
             std::string const& str)
     {
         return string_to_int(str);
     }
 
-    inline uint get_string_to_uint(
+    inline unsigned long long get_string_to_uint(
             std::string const& str)
     {
         return string_to_uint(str);

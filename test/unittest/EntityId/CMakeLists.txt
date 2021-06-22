@@ -12,8 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_executable(entityid_tests EntityIdTests.cpp)
-target_link_libraries(entityid_tests PUBLIC ${PROJECT_NAME} gtest)
+add_executable(entityid_tests
+    EntityIdTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+)
+
+if(MSVC)
+    target_compile_definitions(entityid_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(entityid_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(entityid_tests PUBLIC ${GTEST_LIBRARIES})
+
+get_win32_path_dependencies(entityid_tests TEST_FRIENDLY_PATH)
 
 set(ENTITYID_TEST_LIST
     all
@@ -35,4 +53,8 @@ foreach(test_name ${ENTITYID_TEST_LIST})
     add_test(NAME entityid.${test_name}
             COMMAND entityid_tests
             --gtest_filter=entityid.${test_name}:*/entityid.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(entityid.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()

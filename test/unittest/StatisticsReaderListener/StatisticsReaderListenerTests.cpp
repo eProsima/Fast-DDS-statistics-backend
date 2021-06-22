@@ -21,7 +21,8 @@
 #include <subscriber/StatisticsReaderListener.hpp>
 #include <topic_types/types.h>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 using ::testing::_;
@@ -120,110 +121,155 @@ TEST_F(statistics_reader_listener_tests, not_valid_data)
     // Expectation: The insert method is never called
     EXPECT_CALL(database_, insert(_, _, _)).Times(0);
 
-    // Add to the history
-    std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
-    add_sample_to_reader_history(data, info);
-
     // Insert the data on the queue and wait until processed
-    datareader_.set_topic_name(HISTORY_LATENCY_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->writer_reader_data(WriterReaderData());
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(NETWORK_LATENCY_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(HISTORY_LATENCY_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(PUBLICATION_THROUGHPUT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->locator2locator_data(Locator2LocatorData());
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(SUBSCRIPTION_THROUGHPUT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(NETWORK_LATENCY_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(RTPS_SENT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->entity_data(EntityData());
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(RTPS_LOST_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(PUBLICATION_THROUGHPUT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(RESENT_DATAS_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(SUBSCRIPTION_THROUGHPUT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(HEARTBEAT_COUNT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->entity2locator_traffic(Entity2LocatorTraffic());
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(ACKNACK_COUNT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(RTPS_SENT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(NACKFRAG_COUNT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(RTPS_LOST_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(GAP_COUNT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->entity_count(EntityCount());
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(DATA_COUNT_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(RESENT_DATAS_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(PDP_PACKETS_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(HEARTBEAT_COUNT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(EDP_PACKETS_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(ACKNACK_COUNT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(DISCOVERY_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(NACKFRAG_COUNT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(SAMPLE_DATAS_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(GAP_COUNT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
 
-    // Insert the data on the queue and wait until processed
-    add_sample_to_reader_history(data, info);
-    datareader_.set_topic_name(PHYSICAL_DATA_TOPIC);
-    reader_listener_.on_data_available(&datareader_);
-    data_queue_.flush();
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(DATA_COUNT_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(PDP_PACKETS_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(EDP_PACKETS_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
+
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->discovery_time(DiscoveryTime());
+
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(DISCOVERY_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
+
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->sample_identity_count(SampleIdentityCount());
+
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(SAMPLE_DATAS_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
+
+    {
+        // Initialize data object with proper type
+        std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
+        data->physical_data(PhysicalData());
+
+        // Insert the data on the queue and wait until processed
+        add_sample_to_reader_history(data, info);
+        datareader_.set_topic_name(PHYSICAL_DATA_TOPIC);
+        reader_listener_.on_data_available(&datareader_);
+        data_queue_.flush();
+    }
 
     // Try again now with an empty queue
     reader_listener_.on_data_available(&datareader_);
@@ -1116,8 +1162,8 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
     uint64_t discovery_time = 1024;
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::chrono::system_clock::time_point discovery_timestamp = std::chrono::system_clock::time_point(std::chrono::nanoseconds(
-                        discovery_time));
+    std::chrono::system_clock::time_point discovery_timestamp
+        = eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
     // Build the participant GUID
     DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;

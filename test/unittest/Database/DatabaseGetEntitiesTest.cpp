@@ -20,7 +20,8 @@
 #include <tuple>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest_aux.hpp>
+#include <gtest/gtest.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -51,7 +52,7 @@ class database_get_entities_tests : public ::testing::TestWithParam<std::tuple<E
 {
 public:
 
-    typedef uint32_t TestId;
+    using TestId = PopulateDatabase::TestId;
 
     void SetUp()
     {

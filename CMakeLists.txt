@@ -15,31 +15,21 @@
 ###############################################################################
 # CMake build rules for Fast DDS Statistics Backend
 ###############################################################################
-cmake_minimum_required(VERSION 3.5)
-cmake_policy(VERSION 3.5...3.13)
-
-###############################################################################
-# Version
-###############################################################################
-set(PRODUCT_MAJOR_VERSION 0)
-set(PRODUCT_MINOR_VERSION 1)
-set(PRODUCT_PATCH_VERSION 0)
-set(PRODUCT_VERSION_STR ${PRODUCT_MAJOR_VERSION}.${PRODUCT_MINOR_VERSION}.${PRODUCT_PATCH_VERSION})
+cmake_minimum_required(VERSION 3.10)
+cmake_policy(VERSION 3.10...3.20)
 
 ###############################################################################
 # Project
 ###############################################################################
-project(fastdds_statistics_backend)
-set(PROJECT_VERSION_MAJOR "${PRODUCT_MAJOR_VERSION}")
-set(PROJECT_VERSION_MINOR "${PRODUCT_MINOR_VERSION}")
-set(PROJECT_VERSION_PATCH "${PRODUCT_PATCH_VERSION}")
-set(PROJECT_VERSION "${PRODUCT_VERSION_STR}")
+set(PROJECT_NAME "fastdds_statistics_backend")
+string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
 
 set(PROJECT_NAME_LARGE "Fast DDS Statistics Backend")
-string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
+
+project(${PROJECT_NAME} VERSION 0.1.0
+    DESCRIPTION "eProsima ${PROJECT_NAME_LARGE} library provides a simple and easy-to-use API for interacting with data from Fast DDS statistics module")
+
 set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "C++ library for bridging Fast DDS statistics module data")
-set(${PROJECT_NAME}_DESCRIPTION
-    "eProsima ${PROJECT_NAME_LARGE} library provides a simple and easy-to-use API for interacting with data from Fast DDS statistics module")
 
 message(STATUS "Configuring ${PROJECT_NAME_LARGE}")
 message(STATUS "Version: ${PROJECT_VERSION}")
