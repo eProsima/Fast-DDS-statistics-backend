@@ -1060,6 +1060,8 @@ void Database::insert_nts(
             if (writer)
             {
                 const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
+                // Only save the last received sample for each sequence number
+                writer->data.sample_datas[sample_datas.sequence_number].clear();
                 writer->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
                 break;
             }
