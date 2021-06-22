@@ -537,8 +537,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_topi
     EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
-    // Precondition: Another topic with the same name and type exists in another domain
-    // and has ID 101
+    // Precondition: Another domain with ID 100 exists
     std::string another_domain_name = "another_domain";
     std::shared_ptr<Domain> another_domain = std::make_shared<Domain>(another_domain_name);
     EXPECT_CALL(database,
@@ -548,11 +547,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_topi
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
             .WillRepeatedly(Return(another_domain));
 
+    // Precondition: Another topic with the same name and type exists in domain 100
+    // and has ID 101
     std::shared_ptr<Topic> topic_another_domain = std::make_shared<Topic>(topic_name_, type_name_, another_domain);
     EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
             .WillRepeatedly(Return(topic_another_domain));
 
-    // Precondition: Another topic with the same name but different type exists in the same domain
+    // Precondition: Another topic with the same name but different type exists in the initial domain 0
     // and has ID 102
     std::string another_type_name = "another_type";
     std::shared_ptr<Topic> topic_another_type = std::make_shared<Topic>(topic_name_, another_type_name, domain_);
