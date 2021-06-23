@@ -1354,6 +1354,66 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
     return entities;
 }
 
+void Database::erase(
+        EntityId& domain_id)
+{
+    // Check that the given domain_id corresponds to a known monitor.
+    // Upper layer ensures that the monitor has been stopped.
+    // Upper layer also ensures that the monitor_id is valid and corresponds to a known domain.
+    assert(EntityKind::DOMAIN == get_entity_kind(domain_id));
+
+    for (auto reader : datareaders_[domain_id])
+    {
+        // Unlink related locators
+        for (auto locator : reader.second.get()->locators)
+        {
+            locators_[locator.first].get()->data_readers.erase(reader.first);
+        }
+        // Clear entity
+        reader.second.get()->clear();
+    }
+    // Clear datareaders map
+    datareaders_[domain_id].clear();
+
+    // Remove datawriters and unlink related locators
+    for (auto writer : datawriters_[domain_id])
+    {
+        // Unlink related locators
+        for (auto locator : writer.second.get()->locators)
+        {
+            locators_[locator.first].get()->data_writers.erase(writer.first);
+        }
+        // Clear entity
+        writer.second.get()->clear();
+    }
+    // Clear datawriters map
+    datawriters_[domain_id].clear();
+
+    // Remove topics
+    for (auto topic : topics_[domain_id])
+    {
+        // Clear entity
+        topic.second.get()->clear();
+    }
+    // Clear topics map
+    topics_[domain_id].clear();
+
+    // Remove participants and unlink related process
+    for (auto participant : participants_[domain_id])
+    {
+        // Unlink related process
+        processes_[participant.second.get()->process.get()->id].get()->participants.erase(participant.first);
+        // Clear entity
+        participant.second.get()->clear();
+    }
+    // Clear participants map
+    participants_[domain_id].clear();
+
+    // Clear domain
+    domains_[domain_id].get()->clear();
+    domains_.erase(domain_id);
+}
+
 std::vector<const StatisticsSample*> Database::select(
         DataKind data_type,
         EntityId entity_id_source,
