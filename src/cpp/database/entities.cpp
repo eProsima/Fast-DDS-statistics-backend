@@ -72,6 +72,11 @@ void Locator::clear()
     data.clear();
 }
 
+void DDSEndpoint::clear()
+{
+    locators.clear();
+}
+
 template<>
 std::map<EntityId, std::shared_ptr<DataReader>>& DomainParticipant::ddsendpoints<DataReader>()
 {
