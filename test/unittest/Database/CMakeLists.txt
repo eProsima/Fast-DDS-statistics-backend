@@ -326,7 +326,6 @@ set(DATABASE_TEST_LIST
     # select
     select_single_entity_invalid_needs_two_entities
     select_double_entity_invalid_needs_one_entity
-    select_sample_datas_invalid_wrong_entity
     select_invalid_entities
     select_invalid_entity_id
     select_invalid_timestamps
@@ -504,6 +503,7 @@ file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/old_complex_dump.json
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 set(DATABASE_LOAD_TEST_LIST
@@ -511,6 +511,7 @@ set(DATABASE_LOAD_TEST_LIST
     load_and_dump_empty_entities_database
     load_and_dump_simple_database
     load_and_dump_complex_database
+    load_and_dump_old_complex_database
     load_twice
     load_erased_keys
     load_wrong_values
