@@ -81,25 +81,30 @@ public:
     /**
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
-     * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *             * If the entity already exists in the database
-     *             * If the parent entity does not exist in the database (expect for the case of
-     *               a Domainparticipant entity, for which an unregistered parent process is allowed)
-     *             * If the entity name is empty
-     *             * Depending on the type of entity, if some other identifier is empty
-     *             * For entities with GUID, if the GUID is not unique
-     *             * For entities with QoS, if the QoS is empty
-     *             * For entities with locators, if the locators' collection is empty
-     * @return The EntityId of the inserted entity
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the entity already exists in the database.
+     *             * If the parent entity does not exist in the database (except for the cases of
+     *               a DomainParticipant entity, for which an unregistered parent process is allowed;
+     *               and Locator entities, which can be registered without a parent endpoint).
+     *             * If the entity name is empty.
+     *             * Depending on the type of entity, if some other identifier is empty.
+     *             * For entities with GUID, if the GUID is not unique.
+     *             * For entities with QoS, if the QoS is empty.
+     *             * For entities with locators, if the locators' collection is empty.
+     * @return The EntityId of the inserted entity.
      */
     EntityId insert(
             const std::shared_ptr<Entity>& entity);
 
     /**
      * @brief Insert a new statistics sample into the database.
-     * @param domain_id The EntityId to the domain that contains the entity
+     * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the \c domain_id does not refer to a known domain.
+     *             * If the \c entity_id does not refer to a known entity.
+     *             * If the \c sample kind is DataKind::INVALID.
      */
     void insert(
             const EntityId& domain_id,
@@ -107,27 +112,27 @@ public:
             const StatisticsSample& sample);
 
     /**
-     * @brief Create the link between a participant and a process
+     * @brief Create the link between a participant and a process.
      *
      * This operation entails:
-     *     1. Adding reference to process to the participant
-     *     2. Adding the participant to the process' list of participants
-     *     3. Adding entry to domains_by_process_
-     *     4. Adding entry to processes_by_domain_
+     *     1. Adding reference to process to the participant.
+     *     2. Adding the participant to the process' list of participants.
+     *     3. Adding entry to domains_by_process_.
+     *     4. Adding entry to processes_by_domain_.
      *
-     * @param participant_id The EntityId of the participant
-     * @param process_id The EntityId of the process
+     * @param participant_id The EntityId of the participant.
+     * @param process_id The EntityId of the process.
      * @throw eprosima::statistics_backend::BadParameter in the following cases:
-     *            * The participant is already linked with a process
-     *            * The participant does not exist in the database
-     *            * The process does not exist in the database
+     *            * The participant is already linked with a process.
+     *            * The participant does not exist in the database.
+     *            * The process does not exist in the database.
      */
     void link_participant_with_process(
             const EntityId& participant_id,
             const EntityId& process_id);
 
     /**
-     * @brief Erase all the data related to a domain
+     * @brief Erase all the data related to a domain.
      *
      * After the operation, the domain_id becomes invalid.
      *
@@ -151,14 +156,15 @@ public:
      *
      * \sa Database
      *
-     * @param data_type The type of the measurement being requested
-     * @param entity_id_source Id of the source entity of the requested data
-     * @param entity_id_target Id of the target entity of the requested data
+     * @param data_type The type of the measurement being requested.
+     * @param entity_id_source Id of the source entity of the requested data.
+     * @param entity_id_target Id of the target entity of the requested data.
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
      * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
-     * 1. t_from must be less than t_to
-     * 2. data_type must be of a type that relates to two entities.
+     *            * \c t_from must be less than \c t_to.
+     *            * \c data_type must be of a type that relates to two entities.
+     *            * Both EntityIds must be known in the database.
      * @return A vector of pointers to StatisticSamples.
      */
     std::vector<const StatisticsSample*> select(
@@ -183,13 +189,14 @@ public:
      *
      * \sa Database
      *
-     * @param data_type The type of the measurement being requested
-     * @param entity_id Id of entity of the requested data
+     * @param data_type The type of the measurement being requested.
+     * @param entity_id Id of entity of the requested data.
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
      * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
-     * 1. t_from must be less than t_to
-     * 2. data_type must be of a type that relates to a single entity except SAMPLE_DATAS.
+     *            * \c t_from must be less than \c t_to.
+     *            * \c data_type must be of a type that relates to a single entity except SAMPLE_DATAS.
+     *            * Both EntityIds must be known in the database.
      * @return A vector of pointers to StatisticSamples.
      */
     std::vector<const StatisticsSample*> select(
@@ -201,9 +208,9 @@ public:
     /**
      * Get an entity given its EntityId
      *
-     * @param entity_id constant reference to the EntityId of the retrieved entity
-     * @throws eprosima::statistics_backend::BadParameter if there is not entity with the given ID.
-     * @return A constant shared pointer to the Entity
+     * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return A constant shared pointer to the Entity.
      */
     const std::shared_ptr<const Entity> get_entity(
             const EntityId& entity_id) const;
@@ -211,15 +218,15 @@ public:
     /**
      * Get all entities of a given EntityKind related to another entity.
      *
-     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned
+     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned.
      *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
-     *                  entities are related
-     * @param entity_kind The EntityKind of the fetched entities
+     *                  entities are related.
+     * @param entity_kind The EntityKind of the fetched entities.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *                  * if the \c entity_kind is \c INVALID
-     *                  * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
-     *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
+     *            * if the \c entity_kind is \c INVALID.
+     *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *            * if the EntityKind of the Entity with \c entity_id is \c INVALID.
      * @return A constant vector of shared pointers to the entities
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
@@ -229,34 +236,34 @@ public:
     /**
      * Get all EntityIds of a given EntityKind related to another entity.
      *
-     * In case the \c entity_id is EntityId::all(), all EntityIds of type \c entity_type are returned
+     * In case the \c entity_id is EntityId::all(), all EntityIds of type \c entity_type are returned.
      *
      * @param entity_id constant reference to the EntityId of the entity to which the returned
-     *                  entities are related
-     * @param entity_kind The EntityKind of the fetched entities
+     *                  entities are related.
+     * @param entity_kind The EntityKind of the fetched entities.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *                  * if the \c entity_kind is \c INVALID
-     *                  * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
-     *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
-     * @return A vector containing the EntityIds of the entities
+     *            * if the \c entity_kind is \c INVALID.
+     *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *            * if the EntityKind of the Entity with \c entity_id is \c INVALID.
+     * @return A vector containing the EntityIds of the entities.
      */
     std::vector<EntityId> get_entity_ids(
             EntityKind entity_type,
             const EntityId& entity_id) const;
 
     /**
-     *  @brief Generate an EntityId that is unique for the database
+     *  @brief Generate an EntityId that is unique for the database.
      *
-     * @return The unique EntityId
+     * @return The unique EntityId.
      */
     EntityId generate_entity_id() noexcept;
 
     /**
-     * Get all entities of a given EntityKind that match with the requested name
+     * @brief Get all entities of a given EntityKind that match with the requested name.
      *
-     * @param entity_kind The EntityKind of the fetched entities
-     * @param name The name of the entities for which to search
-     * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @param name The name of the entities for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c entity_kind is not valid.
      * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
      *         and the second is the EntityId of the matching entities. For physical entities (Host, User, Process,
      *         Locator) the returned Domain EntityId is EntityId::INVALID, as it has no meaning since these entities
@@ -267,13 +274,13 @@ public:
             const std::string& name) const;
 
     /**
-     * Get the entity of a given EntityKind that matches with the requested GUID
+     * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
-     * If the given EntityKind does not contain a GUID,
-     * BadParameter is thrown.
-     *
-     * @param entity_kind The EntityKind of the fetched entities
-     * @param guid The GUID of the entities to search for
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @param guid The GUID of the entities to search for.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * if the given EntityKind does not contain a GUID.
+     *             * if there is no entity with the given parameters.
      * @return A pair, where the first field is the EntityId of the Domain of the matching entities,
      *         and the second is the EntityId of the matching entity.
      */
@@ -282,25 +289,27 @@ public:
             const std::string& guid) const;
 
     /**
-     * Get EntityKind given an EntityId
+     * @brief Get EntityKind given an EntityId.
      *
-     * @param entity_id The EntityId of the entity
-     * @return The EntityKind of the given entity
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return The EntityKind of the given entity.
      */
     EntityKind get_entity_kind(
             EntityId entity_id) const;
 
     /**
-     * @brief Get a dump of the database
+     * @brief Get a dump of the database.
      *
-     * @return DatabaseDump object representing the backend database
+     * @return DatabaseDump object representing the backend database.
      */
     DatabaseDump dump_database();
 
     /**
-     * @brief Load Entities and their data from dump (json) object
+     * @brief Load Entities and their data from dump (json) object.
      *
-     * @param dump Object with the object with the dump to load
+     * @param dump Object with the object with the dump to load.
+     * @throws eprosima::statistics_backend::Error if there are already entities contained within the database.
      */
     void load_database(
             const DatabaseDump& dump);
@@ -346,35 +355,35 @@ protected:
      * a.k.a DataReader or DataWriter.
      *
      * @tparam T The DDSEndpoint-derived class name. Only DataReader and DataWriter are allowed.
-     * @return The corresponding internal collection, a.k.a datareaders_ or datawriters_
+     * @return The corresponding internal collection, a.k.a datareaders_ or datawriters_.
      */
     template<typename T>
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
 
     /**
-     * Get all entities of a given EntityKind related to another entity
+     * Get all entities of a given EntityKind related to another entity.
      *
-     * In case the \c entity is nullptr, all EntityIds of type \c entity_type are returned
+     * In case the \c entity is nullptr, all EntityIds of type \c entity_type are returned.
      *
      * @param entity constant reference to the entity to which the returned
-     *                  entities are related
-     * @param entity_kind The EntityKind of the fetched entities
+     *               entities are related.
+     * @param entity_kind The EntityKind of the fetched entities.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *                  * if the \c entity_kind is \c INVALID
-     *                  * if the kind of the \c entity is \c INVALID
-     * @return A constant vector of shared pointers to the entities
+     *             * if the \c entity_kind is \c INVALID.
+     *             * if the kind of the \c entity is \c INVALID.
+     * @return A constant vector of shared pointers to the entities.
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
             EntityKind entity_kind,
             const std::shared_ptr<const Entity>& entity) const;
 
     /**
-     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it
+     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it.
      *
      * @tparam T The DDSEndpoint to add to the Locator list. Only DDSEndpoint and its derived classes are allowed.
-     * @param endpoint The endpoint of type T to add to the list of the locator
-     * @param locator The locator that will be updated with endpoint
-     * @return The EntityId of the inserted DDSEndpoint
+     * @param endpoint The endpoint of type T to add to the list of the locator.
+     * @param locator The locator that will be updated with endpoint.
+     * @return The EntityId of the inserted DDSEndpoint.
      */
     template<typename T>
     void insert_ddsendpoint_to_locator(
@@ -382,11 +391,15 @@ protected:
             std::shared_ptr<Locator>& locator);
 
     /**
-     * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter
+     * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter.
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
-     * @param endpoint
+     * @param endpoint The endpoint of type T to add to the database.
      * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
+     * @throws eprosima::statistics_backend::BadParameter in the followng cases:
+     *             * if the endpoint information is incomplete (name, QoS, GUID, and locators).
+     *             * if the parent participant and/or topic does not exist.
+     *             * if an endpoint with the same name and/or GUID already exists.
      */
     template<typename T>
     void insert_ddsendpoint(
@@ -501,10 +514,10 @@ protected:
     }
 
     /**
-     * @brief Get a dump of an Entity stored in the database
+     * @brief Get a dump of an Entity stored in the database.
 
-     * @param entity Pointer to Entity to dump
-     * @return \c DatabaseDump object representing the entity
+     * @param entity Pointer to Entity to dump.
+     * @return \c DatabaseDump Object representing the entity.
      */
     DatabaseDump dump_entity_(
             const std::shared_ptr<Host>& entity);
@@ -526,10 +539,10 @@ protected:
             const std::shared_ptr<Locator>& entity);
 
     /**
-     * @brief Get a dump of data stored in the database
+     * @brief Get a dump of data stored in the database.
 
-     * @param data Reference to a data container
-     * @return \c DatabaseDump object representing the data
+     * @param data Reference to a data container.
+     * @return \c DatabaseDump Object representing the data.
      */
     DatabaseDump dump_data_(
             const std::map<EntityId, std::vector<ByteCountSample>>& data);
@@ -555,22 +568,28 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * @brief Check if 'entities_container' contains the given 'id', throwing an exception if not.
+     * @brief Check if \c entities_container contains the given \c id, throwing an exception if not.
      *
      * @param entities_container Reference to the dump of the entities to check.
-     * @param id id of the entity to check.
-     * @throws eprosima::statistics_backend::FileCorrupted if the 'id' does not exist in 'entities_container'.
+     * @param id ID of the entity to check.
+     * @throws eprosima::statistics_backend::CorruptedFile if the \c id does not exist in \c entities_container.
      */
     void check_entity_container_contains_id(
             DatabaseDump const& entities_container,
             std::string const& id);
 
     /**
-     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
-     * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
-     * have reference to 'it' of type 'entity_tag'.
+     * @brief Check that an entity has the reference of its parent entity and viceversa.
      *
-     * Example -> Check that each user, reference host[0]:
+     * Check that in the \c dump, the references of the entity iterator \c it of type \c entity_tag
+     * to entities of type \c reference_tag are consistent and mutual. For this, the referenced entities must
+     * have reference to \c it of type \c entity_tag.
+     *
+     * Use this function when the reference is unique.
+     * To check the consistency between sequences of mutual references,
+     * please use check_entity_contains_all_references.
+     *
+     * Example: Check that each user references host[0]:
      *
      * \code
      * {
@@ -585,11 +604,11 @@ protected:
      * }
      * \endcode
      *
-     * @param dump reference to the database dump.
-     * @param it iterator to the dump of the entity.
+     * @param dump Reference to the database dump.
+     * @param it Iterator to the dump of the entity.
      * @param entity_tag Type of the entity to check.
      * @param reference_tag Type of the referenced entity to check.
-     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+     * @throws eprosima::statistics_backend::CorruptedFile if the references are not consistent and mutual.
      */
     void check_entity_all_references(
             DatabaseDump const& dump,
@@ -598,11 +617,17 @@ protected:
             std::string const& reference_tag);
 
     /**
-     * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
-     * to entities of type 'reference_tag' is consistent and mutual. For this, the referenced entities must
-     * contain a reference to 'it' of type 'entity_tag'.
+     * @brief Check that all references contained within an entity are also referenced by the corresponding entity.
      *
-     * Example -> Check that each datawriter, contains a reference to locator[0]:
+     * Check that in the \c dump, the references of the entity iterator \c it of type \c entity_tag
+     * to entities of type \c reference_tag is consistent and mutual. For this, the referenced entities must
+     * contain a reference to \c it of type \c entity_tag.
+     *
+     * Use this function when a sequence of references has to be checked.
+     * To check the consistency between unique references,
+     * please use check_entity_all_references.
+     *
+     * Example: Check that each datawriter, contains a reference to locator[0]:
      *
      * \code
      * {
@@ -617,12 +642,12 @@ protected:
      * }
      * \endcode
      *
-     * @param dump reference to the database dump.
-     * @param it iterator to the dump of the entity.
+     * @param dump Reference to the database dump.
+     * @param it Iterator to the dump of the entity.
      * @param entity_tag Type of the entity to check.
      * @param reference_container_tag Type of the referenced entity container to check.
      * @param reference_tag Type of the referenced entity to check.
-     * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+     * @throws eprosima::statistics_backend::CorruptedFile if the references are not consistent and mutual.
      */
     void check_entity_contains_all_references(
             DatabaseDump const& dump,
@@ -636,33 +661,50 @@ protected:
      * @param entity The entity object to be inserted.
      * @param entity_id The ID of the entity, passing an entity with EntityId::invalid() will generate a new one.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *             * If the entity already exists in the database
+     *             * If the entity already exists in the database.
      *             * If the parent entity does not exist in the database (expect for the case of
-     *               a Domainparticipant entity, for which an unregistered parent process is allowed)
-     *             * If the entity name is empty
-     *             * Depending on the type of entity, if some other identifier is empty
-     *             * For entities with GUID, if the GUID is not unique
-     *             * For entities with QoS, if the QoS is empty
-     *             * For entities with locators, if the locators' collection is empty
+     *               a Domainparticipant entity, for which an unregistered parent process is allowed).
+     *             * If the entity name is empty.
+     *             * Depending on the type of entity, if some other identifier is empty.
+     *             * For entities with GUID, if the GUID is not unique.
+     *             * For entities with QoS, if the QoS is empty.
+     *             * For entities with locators, if the locators' collection is empty.
      */
     void insert_nts(
             const std::shared_ptr<Entity>& entity,
             EntityId& entity_id);
 
     /**
-     * @brief Get the locator with id 'entity_id', if it does not exist, create and insert it into the database.
-     * This method is not thread safe.
+     * @brief Get the locator with id \c entity_id. This method is not thread safe.
+     *
+     * If the locator does not exist yet, create and insert it into the database.
+     *
+     * @param entity_id The EntityId to the locator to be found or inserted.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *             * If the entity already exists in the database.
+     *             * If the parent entity does not exist in the database (expect for the case of
+     *               a Domainparticipant entity, for which an unregistered parent process is allowed).
+     *             * If the entity name is empty.
+     *             * Depending on the type of entity, if some other identifier is empty.
+     *             * For entities with GUID, if the GUID is not unique.
+     *             * For entities with QoS, if the QoS is empty.
+     *             * For entities with locators, if the locators' collection is empty.
      */
     std::shared_ptr<Locator>  get_locator_nts(
             EntityId const& entity_id);
 
     /**
      * @brief Insert a new statistics sample into the database. This method is not thread safe.
-     * @param domain_id The EntityId to the domain that contains the entity
+     *
+     * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      * @param loading Is a insert coming from loading a database dump.
      * @param last_reported Is a insert of a last_reported data.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the \c domain_id does not refer to a known domain.
+     *             * If the \c entity_id does not refer to a known entity.
+     *             * If the \c sample kind is DataKind::INVALID.
      */
     void insert_nts(
             const EntityId& domain_id,
@@ -675,17 +717,17 @@ protected:
      * @brief Create the link between a participant and a process. This method is not thread safe.
      *
      * This operation entails:
-     *     1. Adding reference to process to the participant
-     *     2. Adding the participant to the process' list of participants
-     *     3. Adding entry to domains_by_process_
-     *     4. Adding entry to processes_by_domain_
+     *     1. Referencing the process from the participant.
+     *     2. Adding the participant to the process' list of participants.
+     *     3. Adding entry to domains_by_process_.
+     *     4. Adding entry to processes_by_domain_.
      *
-     * @param participant_id The EntityId of the participant
-     * @param process_id The EntityId of the process
+     * @param participant_id The EntityId of the participant.
+     * @param process_id The EntityId of the process.
      * @throw eprosima::statistics_backend::BadParameter in the following cases:
-     *            * The participant is already linked with a process
-     *            * The participant does not exist in the database
-     *            * The process does not exist in the database
+     *            * The participant is already linked with a process.
+     *            * The participant does not exist in the database.
+     *            * The process does not exist in the database.
      */
     void link_participant_with_process_nts(
             const EntityId& participant_id,
@@ -696,6 +738,10 @@ protected:
 
      * @param dump Reference to the .json with the info of the data.
      * @param entity Reference to the entity where the info will be inserted.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the \c domain_id does not refer to a known domain.
+     *             * If the \c entity_id does not refer to a known entity.
+     *             * If the \c sample kind is DataKind::INVALID.
      */
     void load_data(
             const DatabaseDump& dump,

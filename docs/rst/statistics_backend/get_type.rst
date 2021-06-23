@@ -12,3 +12,5 @@ It is also possible to retrieve the |EntityKind-api| of an entity given its |Ent
     :start-after: //CONF-GET-TYPE-EXAMPLE
     :end-before: //!
     :dedent: 8
+
+|get_type-api| throws |BadParameter-api| if there is no entity with the given ID.

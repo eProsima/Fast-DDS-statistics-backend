@@ -27,3 +27,5 @@ monitor at any time.
    :start-after: //CONF-SET-LISTENERS-EXAMPLE
    :end-before: //!
    :dedent: 8
+
+|set_domain_listener-api| throws |BadParameter-api| if the given monitor ID is not yet registered.

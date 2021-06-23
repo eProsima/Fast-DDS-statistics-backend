@@ -38,7 +38,7 @@ class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
 public:
 
     /**
-     * @brief Deleted constructor, since the whole interface is static
+     * @brief Deleted constructor, since the whole interface is static.
      */
     StatisticsBackend() = delete;
 
@@ -49,9 +49,9 @@ public:
      * The provided pointer to the listener can be null, in which case,
      * any physical listener already configured will be removed.
      *
-     * @param listener the listener with the callback implementations.
+     * @param listener The listener with the callback implementations.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
-     * @param data_mask Mask of the data types that will be monitored
+     * @param data_mask Mask of the data types that will be monitored.
      */
     static void set_physical_listener(
             PhysicalListener* listener,
@@ -59,18 +59,18 @@ public:
             DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief Starts monitoring on a given domain
+     * @brief Starts monitoring on a given domain.
      *
      * This function creates a new statistics DomainParticipant that starts monitoring
      * the requested domain ID.
      *
-     * @param domain The domain ID of the DDS domain to monitor
-     * @param domain_listener Listener with the callback to use to inform of events
-     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
-     * @param data_mask Mask of the data types that will be monitored
+     * @param domain The domain ID of the DDS domain to monitor.
+     * @param domain_listener Listener with the callback to use to inform of events.
+     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored.
      * @return The ID of the created statistics Domain.
-     * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain
-     * @throws eprosima::statistics_backend::Error if the creation of the monitor fails
+     * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain.
+     * @throws eprosima::statistics_backend::Error if the creation of the monitor fails.
      */
     static EntityId init_monitor(
             DomainId domain,
@@ -79,15 +79,16 @@ public:
             DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief Starts monitoring the domain corresponding to a server
+     * @brief Starts monitoring the domain corresponding to a server.
      *
      * This function creates a new statistics DomainParticipant that starts monitoring
      * the domain of the server with the given locator.
      *
-     * @param discovery_server_locators The locator of the server whose domain is to be monitored, formatted as "IPV4address:port"
-     * @param domain_listener Listener with the callback to use to inform of events
-     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed
-     * @param data_mask Mask of the data types that will be monitored
+     * @param discovery_server_locators The locator of the server whose domain is to be monitored,
+     *                                  formatted as "IPV4address:port".
+     * @param domain_listener Listener with the callback to use to inform of events.
+     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored.
      * @return The ID of the created statistics Domain.
      */
     static EntityId init_monitor(
@@ -97,10 +98,10 @@ public:
             DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief Restarts a given monitor
+     * @brief Restarts a given monitor.
      *
-     * This function restarts a domain monitor. If the monitor is still active (meaning it has not
-     * being stopped), this function takes no effect.
+     * This function restarts a domain monitor.
+     * If the monitor is still active (meaning it has not being stopped), this function takes no effect.
      *
      * @param monitor_id The entity ID of the monitor to restart.
      */
@@ -108,22 +109,23 @@ public:
             EntityId monitor_id);
 
     /**
-     * @brief Stops a given monitor
+     * @brief Stops a given monitor.
      *
-     * This function stops a domain monitor. After stopping, the statistical data related to the
-     * domain is still accessible.
+     * This function stops a domain monitor.
+     * After stopping, the statistical data related to the domain is still accessible.
      *
      * @param monitor_id The entity ID of the monitor to stop.
+     * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered.
      */
     static void stop_monitor(
             EntityId monitor_id);
 
     /**
-     * @brief Clear the data of a domain given its monitor
+     * @brief Clear the data of a domain given its monitor.
      *
      * This function clears all the data related to a domain given its monitor ID.
-     * If the monitor is still active (meaning it has not being stopped), this functions takes no
-     * effect. After clearing, the statistical data related to the domain is deleted and therefore
+     * If the monitor is still active (meaning it has not being stopped), this functions takes no effect.
+     * After clearing, the statistical data related to the domain is deleted and therefore
      * no longer accessible.
      *
      * @param monitor_id The entity ID of the monitor to stop.
@@ -139,9 +141,10 @@ public:
      * any domain listener already configured will be removed.
      *
      * @param monitor_id The entity ID of the monitor.
-     * @param listener the listener with the callback implementations.
+     * @param listener The listener with the callback implementations.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
-     * @param data_mask Mask of the data types that will be monitored
+     * @param data_mask Mask of the data types that will be monitored.
+     * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered.
      */
     static void set_domain_listener(
             EntityId monitor_id,
@@ -150,25 +153,26 @@ public:
             DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief Get all the entities of a given type related to another entity
+     * @brief Get all the entities of a given type related to another entity.
      *
-     * Get all the entity ids for every entity of kind \c entity_type that is connected with entity \c entity_id
+     * Get all the entity ids for every entity of kind \c entity_type that is connected with entity \c entity_id.
      * Connection between entities means they are directly connected by a contained/connect relation
-     * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it
+     * (i.e. Host - User | Domain - Topic) or that connected entities are connected to it.
      *
-     * Use case: To get all host in the system, use arguments HOST and EntityId::all()
-     * Use case: To get all locators from a participant with id X, use arguments LOCATOR and X, this will
-     *  get all the locators that are connected with the endpoints this participant has.
+     * Use case: To get all host in the system, use arguments HOST and EntityId::all().
      *
-     * In case the \c entity_id is not specified, all entities of type \c entity_type are returned
+     * Use case: To get all locators from a participant with id X, use arguments LOCATOR and X,
+     * this will get all the locators that are connected with the endpoints this participant has.
      *
-     * @param entity_type The type of entities for which the search is performed
-     * @param entity_id The ID of the entity to which the resulting entities are related
-     * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *                  * if the \c entity_kind is \c INVALID
-     *                  * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
-     *                  * if the EntityKind of the Entity with \c entity_id is \c INVALID
-     * @return All entities of type \c entity_type that are related to \c entity_id
+     * In case the \c entity_id is not specified, all entities of type \c entity_type are returned.
+     *
+     * @param entity_type The type of entities for which the search is performed.
+     * @param entity_id The ID of the entity to which the resulting entities are related.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *     * if the \c entity_kind is \c INVALID.
+     *     * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *     * if the EntityKind of the Entity with \c entity_id is \c INVALID.
+     * @return All entities of type \c entity_type that are related to \c entity_id.
      */
     static std::vector<EntityId> get_entities(
             EntityKind entity_type,
@@ -178,10 +182,10 @@ public:
      * @brief Returns whether the entity is active.
      *
      * For monitors, active means that no call to stop_monitor() has been performed since the last
-     * time the monitor was activated. For the rest of entities, active means that there is
-     * statistical data being reported within the entity.
+     * time the monitor was activated.
+     * For the rest of entities, active means that there is statistical data being reported within the entity.
      *
-     * @param entity_id The ID of the entity whose activeness is requested
+     * @param entity_id The ID of the entity whose activeness is requested.
      * @return true if active, false otherwise.
      */
     static bool is_active(
@@ -190,17 +194,18 @@ public:
     /**
      * @brief Returns the entity kind of a given id.
      *
-     * @param entity_id The ID of the entity whose type is requested
+     * @param entity_id The ID of the entity whose type is requested.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      * @return EntityKind of \c entity_id.
      */
     static EntityKind get_type(
             EntityId entity_id);
 
     /**
-     * @brief Get the meta information of a given entity
+     * @brief Get the meta information of a given entity.
      *
-     * @param entity_id The entity for which the meta information is retrieved
-     * @return Info object describing the entity's meta information
+     * @param entity_id The entity for which the meta information is retrieved.
+     * @return Info object describing the entity's meta information.
      */
     static Info get_info(
             EntityId entity_id);
@@ -217,11 +222,12 @@ public:
      * \par Measurement time and intervals
      *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
-     * This time interval is further divided int \c bin segments of equal length,
+     * This time interval is further divided into \c bin segments of equal length,
      * and a measurement is returned for each segment.
+     * Consequently, \c t_to should be greater than \c t_from by at least \c bin nanoseconds.
      *
      * If \c bin is zero, no statistic is calculated and the raw data values in the requested
-     * time interval are returned
+     * time interval are returned.
      *
      * \par Statistics
      *
@@ -230,16 +236,17 @@ public:
      *
      * \sa StatisticsBackend
      *
-     * @param data_type The type of the measurement being requested
+     * @param data_type The type of the measurement being requested.
      * @param entity_ids_source Ids of the source entities of the requested data. These IDs must correspond to
      *                          entities of specific kinds depending on the data_type.
      * @param entity_ids_target Ids of the target entities of the requested data. These IDs must correspond to
      *                          entities of specific kinds depending on the data_type.
-     * @param bins Number of time intervals in which the measurement time is divided
+     * @param bins Number of time intervals in which the measurement time is divided.
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
-     * @param statistic Statistic to calculate for each of the bins
-     * @return a vector of \c bin elements with the values of the requested statistic
+     * @param statistic Statistic to calculate for each of the bins.
+     * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
+     * @return a vector of \c bin elements with the values of the requested statistic.
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
@@ -262,11 +269,12 @@ public:
      * \par Measurement time and intervals
      *
      * \c t_from and \c t_to define the time interval for which the measurements will be returned.
-     * This time interval is further divided int \c bin segments of equal length,
+     * This time interval is further divided into \c bin segments of equal length,
      * and a measurement is returned for each segment.
+     * Consequently, \c t_to should be greater than \c t_from by at least \c bin nanoseconds.
      *
      * If \c bin is zero, no statistic is calculated and the raw data values in the requested
-     * time interval are returned
+     * time interval are returned.
      *
      * \par Statistics
      *
@@ -275,14 +283,15 @@ public:
      *
      * \sa StatisticsBackend
      *
-     * @param data_type The type of the measurement being requested
+     * @param data_type The type of the measurement being requested.
      * @param entity_ids Ids of the entities of the requested data. These IDs must correspond to
      *                   entities of specific kinds depending on the data_type.
-     * @param bins Number of time intervals in which the measurement time is divided
+     * @param bins Number of time intervals in which the measurement time is divided.
      * @param t_from Starting time of the returned measures.
      * @param t_to Ending time of the returned measures.
-     * @param statistic Statistic to calculate for each of the bins
-     * @return a vector of \c bin elements with the values of the requested statistic
+     * @param statistic Statistic to calculate for each of the bins.
+     * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
+     * @return a vector of \c bin elements with the values of the requested statistic.
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
@@ -293,19 +302,20 @@ public:
             StatisticKind statistic = StatisticKind::NONE);
 
     /**
-     * @brief Overload of get_data method without time arguments
+     * @brief Overload of get_data method without time arguments.
      *
      * It calls the get_data method with the default time arguments.
      * It is used to set the \c statistic argument with default time values.
      *
-     * @param data_type The type of the measurement being requested
+     * @param data_type The type of the measurement being requested.
      * @param entity_ids_source Ids of the source entities of the requested data. These IDs must correspond to
      *                          entities of specific kinds depending on the data_type.
      * @param entity_ids_target Ids of the target entities of the requested data. These IDs must correspond to
      *                          entities of specific kinds depending on the data_type.
-     * @param bins Number of time intervals in which the measurement time is divided
-     * @param statistic Statistic to calculate for each of the bins
-     * @return a vector of \c bin elements with the values of the requested statistic
+     * @param bins Number of time intervals in which the measurement time is divided.
+     * @param statistic Statistic to calculate for each of the bins.
+     * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
+     * @return a vector of \c bin elements with the values of the requested statistic.
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
@@ -315,17 +325,18 @@ public:
             StatisticKind statistic);
 
     /**
-     * @brief Overload of get_data method without time arguments
+     * @brief Overload of get_data method without time arguments.
      *
      * It calls the get_data method with the default time arguments.
      * It is used to set the \c statistic argument with default time values.
      *
-     * @param data_type The type of the measurement being requested
+     * @param data_type The type of the measurement being requested.
      * @param entity_ids Ids of the entities of the requested data. These IDs must correspond to
      *                   entities of specific kinds depending on the data_type.
-     * @param bins Number of time intervals in which the measurement time is divided
-     * @param statistic Statistic to calculate for each of the bins
-     * @return a vector of \c bin elements with the values of the requested statistic
+     * @param bins Number of time intervals in which the measurement time is divided.
+     * @param statistic Statistic to calculate for each of the bins.
+     * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
+     * @return a vector of \c bin elements with the values of the requested statistic.
      */
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
@@ -334,37 +345,38 @@ public:
             StatisticKind statistic);
 
     /**
-     * @brief Get the topology graph
+     * @brief Get the topology graph.
      *
-     * @return Graph object describing the complete topology of the entities
+     * @return Graph object describing the complete topology of the entities.
      */
     static Graph get_graph();
 
     /**
-     * @brief Get a dump of the database
+     * @brief Get a dump of the database.
      *
-     * @return DatabaseDump object representing the backend database
+     * @return DatabaseDump object representing the backend database.
      */
     static DatabaseDump dump_database();
 
     /**
-     * @brief Dump Fast DDS Statistics Backend's database to a file
+     * @brief Dump Fast DDS Statistics Backend's database to a file.
      *
-     * @param filename The name of the file where the database is dumped
+     * @param filename The name of the file where the database is dumped.
      */
     static void dump_database(
             std::string filename);
 
     /**
-     * @brief Load Fast DDS Statistics Backend's database from a file
+     * @brief Load Fast DDS Statistics Backend's database from a file.
      *
-     * @param filename The name of the file from which where the database is loaded
+     * @param filename The name of the file from which where the database is loaded.
+     * @throws eprosima::statistics_backend::BadParameter if the file does not exist.
      */
     static void load_database(
             const std::string& filename);
 
     /**
-     * @brief Return the EntityKind of the entities to which a DataKind refers
+     * @brief Return the EntityKind of the entities to which a DataKind refers.
      *
      * Some DataKind relate to a single Entity of a given EntityKind.
      * This is the case of @c SUBSCRIPTION_THROUGHPUT, that always relates to a @c DATAREADER.
@@ -378,18 +390,19 @@ public:
      * this DataKind relates.
      *
      * - For a @c DataKind that only relates to one Entity, the first element of the pair is the EntityKind
-     * of such Entity, while the second element is @ref EntityKind::INVALID
+     * of such Entity, while the second element is @ref EntityKind::INVALID.
      * - For a DataKind that relates to two Entity, the first element of the pair is the EntityKind
-     * of the source Entity, while the second element is the EntityKind of the target Entity
+     * of the source Entity, while the second element is the EntityKind of the target Entity.
      *
      * The source and target pairs returned by this method are exactly the accepted source and target EntityKind
      * accepted by @ref get_data for the given DataKind.
      * This is convenient to prepare a call to @ref get_data from an EntityKind.
-     * First, call @ref get_data_supported_entity_kinds with the EntityKind to get the EntityKinds of the related entities.
+     * First, call @ref get_data_supported_entity_kinds with the EntityKind to get the EntityKinds
+     * of the related entities.
      * Then, call @ref get_entities to get the available entities for that kind.
      * Finally, call @ref get_data with the pairs that @ref get_entities returns.
      *
-     * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1
+     * i.e. Get the DISCOVERY_TIME of all entities on Host2 discovered by Host1:
      * @code
      * // Get all the EntityKind pairs related to DISCOVERY_TIME.
      * std::vector<std::pair<EntityKind, EntityKind>> types_list =
@@ -409,8 +422,8 @@ public:
      * }
      * @endcode
      *
-     * @param data_kind Data kind
-     * @return list of @c EntityKind pairs with the entity kinds to which a @c DataKind refers
+     * @param data_kind Data kind.
+     * @return list of @c EntityKind pairs with the entity kinds to which a @c DataKind refers.
      *
      * @sa DataKind
      * @sa get_data

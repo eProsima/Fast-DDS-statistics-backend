@@ -207,6 +207,7 @@ IteratorPair get_iterators(
  * @brief Get the iterators delimiting the traversal of a database select() result.
  * @param data_type The type of measurement requested to the database select() call.
  * @param data The collection returned by the database select() call.
+ * @throws eprosima::statistics_backend::BadParameter if \c data_type is DataKind::INVALID
  * @return A pair of unique pointers to GenericIterator, with the begin and end iterators.
  */
 detail::IteratorPair get_iterators(

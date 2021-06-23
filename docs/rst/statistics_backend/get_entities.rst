@@ -38,7 +38,7 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
     :end-before: //!
     :dedent: 8
 
-|get_entities-api| throws |BadParameter-api| in the following case:
+|get_entities-api| throws |BadParameter-api| in the following cases:
 
 * if the |EntityKind-api| is |EntityKind_INVALID-api|
 * if the |EntityId-api| does not reference a entity contained in the database or is not |EntityId:all-api|.
