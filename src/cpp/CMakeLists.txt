@@ -198,7 +198,7 @@ include(CMakePackageConfigHelpers)
 
 configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_UNDERSCORE}
+    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
 write_basic_package_version_file(
