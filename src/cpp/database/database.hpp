@@ -85,7 +85,7 @@ public:
      *             * If the entity already exists in the database.
      *             * If the parent entity does not exist in the database (except for the cases of
      *               a DomainParticipant entity, for which an unregistered parent process is allowed;
-     *               and Locator entities which can be registered without a parent endpoint).
+     *               and Locator entities, which can be registered without a parent endpoint).
      *             * If the entity name is empty.
      *             * Depending on the type of entity, if some other identifier is empty.
      *             * For entities with GUID, if the GUID is not unique.
@@ -98,7 +98,7 @@ public:
 
     /**
      * @brief Insert a new statistics sample into the database.
-     * @param domain_id The EntityId to the domain that contains the entity.
+     * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
@@ -275,8 +275,6 @@ public:
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
-     *
-     * If the given EntityKind does not contain a GUID, BadParameter is thrown.
      *
      * @param entity_kind The EntityKind of the fetched entities.
      * @param guid The GUID of the entities to search for.
@@ -698,7 +696,7 @@ protected:
     /**
      * @brief Insert a new statistics sample into the database. This method is not thread safe.
      *
-     * @param domain_id The EntityId to the domain that contains the entity.
+     * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
      * @param sample The sample to be inserted.
      * @param loading Is a insert coming from loading a database dump.
@@ -719,7 +717,7 @@ protected:
      * @brief Create the link between a participant and a process. This method is not thread safe.
      *
      * This operation entails:
-     *     1. Adding process reference to the participant.
+     *     1. Referencing the process from the participant.
      *     2. Adding the participant to the process' list of participants.
      *     3. Adding entry to domains_by_process_.
      *     4. Adding entry to processes_by_domain_.
