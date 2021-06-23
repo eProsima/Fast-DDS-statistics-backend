@@ -450,7 +450,7 @@ target_include_directories(is_active_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(is_active_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
 
 file(COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/../Database/resources/empty_dump.json

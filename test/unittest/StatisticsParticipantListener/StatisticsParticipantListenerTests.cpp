@@ -2002,9 +2002,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: The DataWriter status is set to active
-    EXPECT_CALL(database, change_entity_status(_, _)).Times(AnyNumber());
-
     // Execution: Call the listener.
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
     entity_queue.flush();

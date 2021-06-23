@@ -33,7 +33,7 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-constexpr const char* GUID_DEFAULT = "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00";
+constexpr const char* GUID_DEFAULT = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0";
 constexpr const char* PID_DEFAULT = "36000";
 constexpr const char* DATA_TYPE_DEFAULT = "data_type";
 #define QOS_DEFAULT Qos(R"({"qos":"empty"})"_json)

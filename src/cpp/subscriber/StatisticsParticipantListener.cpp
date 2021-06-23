@@ -58,21 +58,8 @@ inline bool is_statistics_builtin(
 
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
-        eprosima::fastdds::dds::DomainParticipant* statistics_participant,
         T&& info)
 {
-    // Filter out our own statistics readers
-    if (statistics_participant->guid().guidPrefix == info.info.guid().guidPrefix)
-    {
-        return;
-    }
-
-    // Filter out other statistics writers
-    if (is_statistics_builtin(info.info.guid().entityId))
-    {
-        return;
-    }
-
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database
@@ -324,6 +311,12 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
+    // Filter out our own statistics readers
+    if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+    {
+        return;
+    }
+
     switch (info.status)
     {
         case ReaderDiscoveryInfo::DISCOVERED_READER:
@@ -338,7 +331,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
             }
             catch (BadParameter& error)
             {
-                process_endpoint_discovery(participant, info);
+                process_endpoint_discovery(info);
             }
             break;
         }
@@ -350,12 +343,6 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         case ReaderDiscoveryInfo::REMOVED_READER:
         {
             // TODO [ILG] : Process these messages
-
-            // Filter out our own statistics readers
-            if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
-            {
-                return;
-            }
 
             // Save the status of the entity
             EntityId reader_id =
@@ -379,6 +366,14 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
+    static_cast<void>(participant);
+
+    // Filter out other statistics writers
+    if (is_statistics_builtin(info.info.guid().entityId))
+    {
+        return;
+    }
+
     switch (info.status)
     {
         case WriterDiscoveryInfo::DISCOVERED_WRITER:
@@ -393,7 +388,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
             }
             catch (BadParameter& error)
             {
-                process_endpoint_discovery(participant, info);
+                process_endpoint_discovery(info);
             }
             break;
         }

@@ -91,7 +91,6 @@ protected:
 
     template<typename T>
     void process_endpoint_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
             T&& info);
 
     template<typename T>

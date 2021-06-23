@@ -4197,7 +4197,7 @@ void Database::load_data(
 void Database::change_entity_status_of_kind(
         const EntityId& entity_id,
         bool active,
-        EntityKind entity_kind)
+        EntityKind entity_kind) noexcept
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
@@ -4231,24 +4231,26 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-
-            user->active = active;
-
-            // host
+            if (user->active != active)
             {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : user->host->users)
-                {
-                    if (entity_it.second->active != active)
-                    {
-                        change_status = false;
-                    }
-                }
+                user->active = active;
 
-                if (change_status)
+                // host
                 {
-                    change_entity_status_of_kind(user->host->id, active, user->host->kind);
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : user->host->users)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(user->host->id, active, user->host->kind);
+                    }
                 }
             }
             break;
@@ -4265,24 +4267,26 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-
-            process->active = active;
-
-            // user
+            if (process->active != active)
             {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : process->user->processes)
-                {
-                    if (entity_it.second->active != active)
-                    {
-                        change_status = false;
-                    }
-                }
+                process->active = active;
 
-                if (change_status)
+                // user
                 {
-                    change_entity_status_of_kind(process->user->id, active, process->user->kind);
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : process->user->processes)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(process->user->id, active, process->user->kind);
+                    }
                 }
             }
             break;
@@ -4338,41 +4342,27 @@ void Database::change_entity_status_of_kind(
                 }
             }
 
-            participant->active = active;
-
-            // process
+            if (participant->active != active)
             {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : participant->process->participants)
+                participant->active = active;
+
+                // process
+                if (participant->process != nullptr)
                 {
-                    if (entity_it.second->active != active)
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : participant->process->participants)
                     {
-                        change_status = false;
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
                     }
-                }
 
-                if (change_status)
-                {
-                    change_entity_status_of_kind(participant->process->id, active, participant->process->kind);
-                }
-            }
-
-            // domain
-            {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : participant->domain->participants)
-                {
-                    if (entity_it.second->active != active)
+                    if (change_status)
                     {
-                        change_status = false;
+                        change_entity_status_of_kind(participant->process->id, active, participant->process->kind);
                     }
-                }
-
-                if (change_status)
-                {
-                    change_entity_status_of_kind(participant->domain->id, active, participant->domain->kind);
                 }
             }
 
@@ -4394,22 +4384,15 @@ void Database::change_entity_status_of_kind(
                 }
             }
 
-            datawriter->active = active;
-
-            // topic
+            if (datawriter->active != active)
             {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : datawriter->topic->data_writers)
+                datawriter->active = active;
+
+                // topic
                 {
-                    if (entity_it.second->active != active)
-                    {
-                        change_status = false;
-                    }
-                }
-                if (change_status)
-                {
-                    for (auto entity_it : datawriter->topic->data_readers)
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : datawriter->topic->data_writers)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4418,7 +4401,17 @@ void Database::change_entity_status_of_kind(
                     }
                     if (change_status)
                     {
-                        change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind);
+                        for (auto entity_it : datawriter->topic->data_readers)
+                        {
+                            if (entity_it.second->active != active)
+                            {
+                                change_status = false;
+                            }
+                        }
+                        if (change_status)
+                        {
+                            change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind);
+                        }
                     }
                 }
             }
@@ -4440,23 +4433,15 @@ void Database::change_entity_status_of_kind(
                     }
                 }
             }
-
-            datareader->active = active;
-
-            // topic
+            if (datareader->active != active)
             {
-                // Check if all entitities have 'active' status
-                bool change_status = true;
-                for (auto entity_it : datareader->topic->data_readers)
+                datareader->active = active;
+
+                // topic
                 {
-                    if (entity_it.second->active != active)
-                    {
-                        change_status = false;
-                    }
-                }
-                if (change_status)
-                {
-                    for (auto entity_it : datareader->topic->data_writers)
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : datareader->topic->data_readers)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4465,20 +4450,26 @@ void Database::change_entity_status_of_kind(
                     }
                     if (change_status)
                     {
-                        change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind);
+                        for (auto entity_it : datareader->topic->data_writers)
+                        {
+                            if (entity_it.second->active != active)
+                            {
+                                change_status = false;
+                            }
+                        }
+                        if (change_status)
+                        {
+                            change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind);
+                        }
                     }
                 }
             }
 
             break;
         }
-        case EntityKind::LOCATOR:
-        {
-            break;
-        }
         default:
         {
-            throw BadParameter("Incorrect EntityKind");
+            break;
         }
     }
 }

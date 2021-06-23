@@ -595,6 +595,9 @@ public:
 
 };
 
+/**
+ * Wrapper class around StatisticsBackend to access protected methods and data to use in tests
+ */
 class StatisticsBackendTest : public StatisticsBackend
 {
 public:
@@ -607,6 +610,10 @@ public:
 
 };
 
+/**
+ * Load a .json file, returning a dump of it.
+ * Also remove meta information not necessary on dump.
+ */
 DatabaseDump load_file(
         std::string filename)
 {

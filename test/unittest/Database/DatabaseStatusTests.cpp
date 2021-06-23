@@ -93,6 +93,7 @@ TEST_F(database_status_tests, host)
 
     auto host1 = std::make_shared<Host>("host1");
     db.insert(host1);
+    ASSERT_TRUE(host1->active);
 
     db.change_entity_status_test(host->id, false);
 
@@ -150,6 +151,7 @@ TEST_F(database_status_tests, user)
 
     auto user1 = std::make_shared<User>("user1", host);
     db.insert(user1);
+    ASSERT_TRUE(user1->active);
 
     db.change_entity_status_test(user->id, false);
 
@@ -207,6 +209,7 @@ TEST_F(database_status_tests, process)
 
     auto process1 = std::make_shared<Process>("process1", "123", user);
     db.insert(process1);
+    ASSERT_TRUE(process1->active);
 
     db.change_entity_status_test(process->id, false);
 
@@ -263,6 +266,7 @@ TEST_F(database_status_tests, domain)
 
     auto domain1 = std::make_shared<Domain>("domain1");
     db.insert(domain1);
+    ASSERT_TRUE(domain1->active);
 
     db.change_entity_status(domain->id, false);
 
@@ -320,6 +324,7 @@ TEST_F(database_status_tests, topic)
 
     auto topic1 = std::make_shared<Topic>("topic1", "type", domain);
     db.insert(topic1);
+    ASSERT_TRUE(topic1->active);
 
     db.change_entity_status_test(topic->id, false);
 
@@ -355,7 +360,7 @@ TEST_F(database_status_tests, participant)
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
     ASSERT_FALSE(process->active);
-    ASSERT_FALSE(domain->active);
+    ASSERT_TRUE(domain->active);
     ASSERT_TRUE(topic->active);
     ASSERT_FALSE(participant->active);
     ASSERT_TRUE(datawriter->active);
@@ -378,6 +383,34 @@ TEST_F(database_status_tests, participant)
                     "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
+    ASSERT_TRUE(participant1->active);
+
+    db.change_entity_status(participant1->id, false);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(participant1->active);
+
+    db.change_entity_status(participant1->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(participant1->active);
+
     db.link_participant_with_process(participant1->id, process->id);
 
     db.change_entity_status(participant->id, false);
@@ -438,6 +471,8 @@ TEST_F(database_status_tests, datawriter)
     writer_locator1->id = db.generate_entity_id();
     datawriter1->locators[writer_locator1->id] = writer_locator1;
     db.insert(datawriter1);
+    ASSERT_TRUE(datawriter1->active);
+    ASSERT_TRUE(writer_locator1->active);
 
     db.change_entity_status(datawriter->id, false);
 
@@ -499,6 +534,8 @@ TEST_F(database_status_tests, datareader)
     reader_locator1->id = db.generate_entity_id();
     datareader1->locators[reader_locator1->id] = reader_locator1;
     db.insert(datareader1);
+    ASSERT_TRUE(datareader1->active);
+    ASSERT_TRUE(reader_locator1->active);
 
     db.change_entity_status(datareader->id, false);
 
@@ -562,12 +599,16 @@ TEST_F(database_status_tests, endpoints)
     writer_locator1->id = db.generate_entity_id();
     datawriter1->locators[writer_locator1->id] = writer_locator1;
     db.insert(datawriter1);
+    ASSERT_TRUE(datawriter1->active);
+    ASSERT_TRUE(writer_locator1->active);
 
     auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant, topic);
     auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
     reader_locator1->id = db.generate_entity_id();
     datareader1->locators[reader_locator1->id] = reader_locator1;
     db.insert(datareader1);
+    ASSERT_TRUE(datareader1->active);
+    ASSERT_TRUE(reader_locator1->active);
 
     db.change_entity_status(datawriter->id, false);
     db.change_entity_status(datareader->id, false);
@@ -613,7 +654,7 @@ TEST_F(database_status_tests, dds_entities)
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
     ASSERT_FALSE(process->active);
-    ASSERT_FALSE(domain->active);
+    ASSERT_TRUE(domain->active);
     ASSERT_FALSE(topic->active);
     ASSERT_FALSE(participant->active);
     ASSERT_FALSE(datawriter->active);
@@ -639,18 +680,23 @@ TEST_F(database_status_tests, dds_entities)
                     domain);
     db.insert(participant1);
     db.link_participant_with_process(participant1->id, process->id);
+    ASSERT_TRUE(participant1->active);
 
     auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant, topic);
     auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
     writer_locator1->id = db.generate_entity_id();
     datawriter1->locators[writer_locator1->id] = writer_locator1;
     db.insert(datawriter1);
+    ASSERT_TRUE(datawriter1->active);
+    ASSERT_TRUE(writer_locator1->active);
 
     auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant, topic);
     auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
     reader_locator1->id = db.generate_entity_id();
     datareader1->locators[reader_locator1->id] = reader_locator1;
     db.insert(datareader1);
+    ASSERT_TRUE(datareader1->active);
+    ASSERT_TRUE(reader_locator1->active);
 
     db.change_entity_status(participant->id, false);
     db.change_entity_status(datareader->id, false);
@@ -671,7 +717,7 @@ TEST_F(database_status_tests, dds_entities)
     ASSERT_TRUE(datawriter1->active);
     ASSERT_TRUE(writer_locator1->active);
 
-    db.change_entity_status(participant->id, false);
+    db.change_entity_status(participant->id, true);
     db.change_entity_status(datareader->id, true);
     db.change_entity_status(datawriter->id, true);
 
