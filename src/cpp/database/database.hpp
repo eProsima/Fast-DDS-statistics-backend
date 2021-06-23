@@ -195,7 +195,7 @@ public:
      * @param t_to Ending time of the returned measures.
      * @throws eprosima::statistics_backend::BadParameter when the parameters are not consistent:
      *            * \c t_from must be less than \c t_to.
-     *            * \c data_type must be of a type that relates to a single entity except SAMPLE_DATAS.
+     *            * \c data_type must be of a type that relates to a single entity.
      *            * Both EntityIds must be known in the database.
      * @return A vector of pointers to StatisticSamples.
      */

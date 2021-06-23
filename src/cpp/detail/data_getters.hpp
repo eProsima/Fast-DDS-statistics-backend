@@ -232,6 +232,7 @@ detail::IteratorPair get_iterators(
         case DataKind::DATA_COUNT:
         case DataKind::PDP_PACKETS:
         case DataKind::EDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
             return detail::get_iterators<database::EntityCountSample>(data);
 
         case DataKind::RTPS_BYTES_SENT:
@@ -240,10 +241,6 @@ detail::IteratorPair get_iterators(
 
         case DataKind::DISCOVERY_TIME:
             return detail::get_iterators<database::TimepointSample>(data);
-
-        case DataKind::SAMPLE_DATAS:
-            // TODO(Miguel C): Should be treated different?
-            return detail::get_iterators<database::EntityDataSample>(data);
 
         default:
             throw BadParameter("Unsupported data kind");

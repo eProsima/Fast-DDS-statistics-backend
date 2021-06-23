@@ -129,12 +129,6 @@ TEST_P(get_data_no_data_tests, no_data)
     EntityId entity2 = std::get<2>(GetParam());
     StatisticKind statistic = StatisticKind::MEAN;
 
-    // TODO(Miguel C): SAMPLE_DATAS needs get_data overload
-    if (DataKind::SAMPLE_DATAS == data_type)
-    {
-        return;
-    }
-
     std::vector<StatisticsData> result;
 
     if (entity2.is_valid())
@@ -574,6 +568,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -903,6 +898,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1231,6 +1227,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1559,6 +1556,7 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -1887,6 +1885,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2216,6 +2215,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2542,6 +2542,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -2868,6 +2869,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::RESENT_DATA:
         case DataKind::EDP_PACKETS:
         case DataKind::PDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
         {
             /************* Time span smaller than available data ******************/
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
@@ -3307,42 +3309,6 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
             BadParameter);
     }
 }
-/*
- #ifdef INSTANTIATE_TEST_SUITE_P
- #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
- #else
- #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_CASE_P(x, y, z)
- #endif // ifdef INSTANTIATE_TEST_SUITE_P
-
-   GTEST_INSTANTIATE_TEST_MACRO(
-    get_data_bad_parameter_tests,
-    get_data_bad_parameter_tests,
-    ::testing::Combine(::testing::Values(DataKind::FASTDDS_LATENCY,
-                    DataKind::NETWORK_LATENCY,
-                    DataKind::PUBLICATION_THROUGHPUT,
-                    DataKind::SUBSCRIPTION_THROUGHPUT,
-                    DataKind::RTPS_PACKETS_SENT,
-                    DataKind::RTPS_BYTES_SENT,
-                    DataKind::RTPS_PACKETS_LOST,
-                    DataKind::RTPS_BYTES_LOST,
-                    DataKind::RESENT_DATA,
-                    DataKind::HEARTBEAT_COUNT,
-                    DataKind::ACKNACK_COUNT,
-                    DataKind::NACKFRAG_COUNT,
-                    DataKind::GAP_COUNT,
-                    DataKind::DATA_COUNT,
-                    DataKind::PDP_PACKETS,
-                    DataKind::EDP_PACKETS,
-                    DataKind::DISCOVERY_TIME,
-                    DataKind::SAMPLE_DATAS),
-            ::testing::Values(StatisticKind::COUNT,
-                    StatisticKind::MAX,
-                    StatisticKind::MIN,
-                    StatisticKind::MEDIAN,
-                    StatisticKind::STANDARD_DEVIATION,
-                    StatisticKind::SUM,
-                    StatisticKind::NONE)));
- */
 
 int main(
         int argc,
