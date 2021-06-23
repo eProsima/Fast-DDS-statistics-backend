@@ -149,7 +149,6 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 install(EXPORT ${PROJECT_NAME}-targets
-    NAMESPACE eProsima::
     DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}
     COMPONENT cmake
     )
