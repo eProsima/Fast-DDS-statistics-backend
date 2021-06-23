@@ -3131,7 +3131,9 @@ void check_entity_contains_all_references(
         // 1) Check that the 'referenced_id' entity exists.
         if (!reference_container.contains(referenced_id))
         {
-            throw CorruptedFile("Entity container: " + reference_container.dump() + " do not have a Entity with ID: " + referenced_id);
+            throw CorruptedFile(
+                      "Entity container: " + reference_container.dump() + " do not have a Entity with ID: " +
+                      referenced_id);
         }
 
         // 2) Check that referenced entity contains a reference to an 'entity_id' of type 'entity_tag'.
