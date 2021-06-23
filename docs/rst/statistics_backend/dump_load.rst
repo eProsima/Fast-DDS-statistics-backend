@@ -6,7 +6,7 @@ Saving and restoring the statistics data
 ========================================
 
 *Fast DDS Statistics Backend* allows to dump the contents of the database to the file system.
-This may be used as a backup procedure, or as a means of analysing the data offline later.
+This may be used as a backup procedure, or as a means of analyzing the data offline later.
 It is also possible to load a dump previously saved, which allows for this analysis to be
 done with any front-end that communicates with the *Fast DDS Statistics Backend*.
 
@@ -21,7 +21,7 @@ For information about the format of the dumped data, please, refer to :ref:`data
     or that the Backend has been reset using |reset-api|.
     If |load_database-api| is used on a non-empty Backend,
     an exception will be issued.
-    
+
 The following snippet shows how to dump the current database contents to a file,
 and then load another data set that was saved previously,
 resetting the Backend in between.
