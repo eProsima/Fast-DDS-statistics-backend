@@ -66,7 +66,7 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 
 // at least pass microseconds tenths to avoid windows system_clock resolution issue
 #define TIME_DEFAULT(x) nanoseconds_to_systemclock(100 * (x))
-#define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.00" + std::to_string(x) + "|0.0.0.0"
+#define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|0.0.0.0"
 
 void initialize_empty_entities(
         Database& db,
