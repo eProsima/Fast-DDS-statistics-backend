@@ -772,6 +772,7 @@ protected:
      * Also check if the references of the entity must also be changed and change the status in that case.
      * @param entity_id The EntityId of the entity
      * @param active The entity status value to set
+     * @param entity_kind The EntityKind of the entity
      */
     void change_entity_status_of_kind(
             const EntityId& entity_id,

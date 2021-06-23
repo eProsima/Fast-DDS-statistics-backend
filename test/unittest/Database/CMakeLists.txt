@@ -597,7 +597,6 @@ set(DATABASE_STATUS_TEST_LIST
     datawriter
     datareader
     endpoints
-    dds_entities
     locator
 )
 

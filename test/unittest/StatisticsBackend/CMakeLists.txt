@@ -464,7 +464,6 @@ set(IS_ACTIVE_TEST_LIST
     datawriter
     datareader
     endpoints
-    dds_entities
 )
 
 foreach(test_name ${IS_ACTIVE_TEST_LIST})

@@ -4215,8 +4215,10 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-
-            host->active = active;
+            if (host != nullptr && host->active != active)
+            {
+                host->active = active;
+            }
             break;
         }
         case EntityKind::USER:
@@ -4231,7 +4233,7 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-            if (user->active != active)
+            if (user != nullptr && user->active != active)
             {
                 user->active = active;
 
@@ -4267,7 +4269,7 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-            if (process->active != active)
+            if (process != nullptr && process->active != active)
             {
                 process->active = active;
 
@@ -4303,8 +4305,10 @@ void Database::change_entity_status_of_kind(
                     break;
                 }
             }
-
-            domain->active = active;
+            if (domain != nullptr && domain->active != active)
+            {
+                domain->active = active;
+            }
             break;
         }
         case EntityKind::TOPIC:
@@ -4322,8 +4326,10 @@ void Database::change_entity_status_of_kind(
                     }
                 }
             }
-
-            topic->active = active;
+            if (topic != nullptr && topic->active != active)
+            {
+                topic->active = active;
+            }
             break;
         }
         case EntityKind::PARTICIPANT:
@@ -4342,7 +4348,7 @@ void Database::change_entity_status_of_kind(
                 }
             }
 
-            if (participant->active != active)
+            if (participant != nullptr && participant->active != active)
             {
                 participant->active = active;
 
@@ -4384,7 +4390,7 @@ void Database::change_entity_status_of_kind(
                 }
             }
 
-            if (datawriter->active != active)
+            if (datawriter != nullptr && datawriter->active != active)
             {
                 datawriter->active = active;
 
@@ -4433,7 +4439,7 @@ void Database::change_entity_status_of_kind(
                     }
                 }
             }
-            if (datareader->active != active)
+            if (datareader != nullptr && datareader->active != active)
             {
                 datareader->active = active;
 
