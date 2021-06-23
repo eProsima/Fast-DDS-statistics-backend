@@ -19,7 +19,6 @@
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 
-
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 

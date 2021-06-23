@@ -3086,17 +3086,33 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::check_entity_container_contains_id(
-        DatabaseDump const& entities_container,
-        std::string const& id)
-{
-    if (!entities_container.contains(id))
-    {
-        throw CorruptedFile("Entity container: " + entities_container.dump() + " do not have a Entity with ID: " + id);
-    }
-}
-
-void Database::check_entity_contains_all_references(
+/**
+ * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+ * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
+ * have reference to 'it' of type 'entity_tag'.
+ *
+ * Example -> Check that each user, reference host[0]:
+ *
+ * \code
+ * {
+ *      host["0"]
+ *      {
+ *          users: ["1","5","9"]
+ *      }
+ *      user["1"]
+ *      {
+ *          host: "0"
+ *      }
+ * }
+ * \endcode
+ *
+ * @param dump reference to the database dump.
+ * @param it iterator to the dump of the entity.
+ * @param entity_tag Type of the entity to check.
+ * @param reference_tag Type of the referenced entity to check.
+ * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+ */
+void check_entity_contains_all_references(
         DatabaseDump const& dump,
         nlohmann::json::iterator const& it,
         std::string const& entity_tag,
@@ -3113,7 +3129,10 @@ void Database::check_entity_contains_all_references(
         std::string referenced_id = *refIt;
 
         // 1) Check that the 'referenced_id' entity exists.
-        check_entity_container_contains_id(reference_container, referenced_id);
+        if (!reference_container.contains(referenced_id))
+        {
+            throw CorruptedFile("Entity container: " + reference_container.dump() + " do not have a Entity with ID: " + referenced_id);
+        }
 
         // 2) Check that referenced entity contains a reference to an 'entity_id' of type 'entity_tag'.
         std::vector<std::string> referenced_entities;
