@@ -575,9 +575,11 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 4.0;
+            expected[0].second = 4.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -592,9 +594,9 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -610,9 +612,9 @@ TEST_P(get_data_with_data_tests, get_sum_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -644,7 +646,7 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 10.0;
+            expected[0].second = 10.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -658,9 +660,9 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 4.0;
-            expected[1].second = 4.0;
-            expected[2].second = 2.0;
+            expected[0].second = 4.0 * multiplier;
+            expected[1].second = 4.0 * multiplier;
+            expected[2].second = 2.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -674,11 +676,11 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
-            expected[1].second = 2.0;
-            expected[2].second = 2.0;
-            expected[3].second = 2.0;
-            expected[4].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 2.0 * multiplier;
+            expected[2].second = 2.0 * multiplier;
+            expected[3].second = 2.0 * multiplier;
+            expected[4].second = 2.0 * multiplier;
             expected[5].second = 0.0;
 
             check_get_data(
@@ -693,15 +695,15 @@ TEST_P(get_data_with_data_tests, get_sum_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -906,6 +908,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
             expected[0].second = 0.0;
@@ -923,9 +927,9 @@ TEST_P(get_data_with_data_tests, get_min_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -941,9 +945,9 @@ TEST_P(get_data_with_data_tests, get_min_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -1004,7 +1008,7 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
             expected[1].second = 0.0;
             expected[2].second = 0.0;
             expected[3].second = 0.0;
@@ -1023,15 +1027,15 @@ TEST_P(get_data_with_data_tests, get_min_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -1236,9 +1240,11 @@ TEST_P(get_data_with_data_tests, get_max_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -1253,9 +1259,9 @@ TEST_P(get_data_with_data_tests, get_max_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -1271,9 +1277,9 @@ TEST_P(get_data_with_data_tests, get_max_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -1304,7 +1310,7 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -1318,9 +1324,9 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 2.0;
-            expected[1].second = 2.0;
-            expected[2].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 2.0 * multiplier;
+            expected[2].second = 2.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -1334,11 +1340,11 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
-            expected[1].second = 2.0;
-            expected[2].second = 2.0;
-            expected[3].second = 2.0;
-            expected[4].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 2.0 * multiplier;
+            expected[2].second = 2.0 * multiplier;
+            expected[3].second = 2.0 * multiplier;
+            expected[4].second = 2.0 * multiplier;
             expected[5].second = 0.0;
 
             check_get_data(
@@ -1353,15 +1359,15 @@ TEST_P(get_data_with_data_tests, get_max_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -1896,9 +1902,11 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 0.8;
+            expected[0].second = 0.8 * multiplier;
 
             check_get_data(
                 data_type,
@@ -1913,9 +1921,9 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -1931,9 +1939,9 @@ TEST_P(get_data_with_data_tests, get_mean_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -1964,7 +1972,7 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 1.0;
+            expected[0].second = 1.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -1978,9 +1986,9 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 4.0 / 3.0;
-            expected[1].second = 1.0;
-            expected[2].second = 2.0 / 3.0;
+            expected[0].second = 4.0 * multiplier / 3.0;
+            expected[1].second = 1.0 * multiplier;
+            expected[2].second = 2.0 * multiplier / 3.0;
 
             check_get_data(
                 data_type,
@@ -1994,11 +2002,11 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
-            expected[1].second = 1.0;
-            expected[2].second = 1.0;
-            expected[3].second = 1.0;
-            expected[4].second = 1.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 1.0 * multiplier;
+            expected[2].second = 1.0 * multiplier;
+            expected[3].second = 1.0 * multiplier;
+            expected[4].second = 1.0 * multiplier;
             expected[5].second = 0.0;
 
             check_get_data(
@@ -2013,15 +2021,15 @@ TEST_P(get_data_with_data_tests, get_mean_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -2227,6 +2235,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
             expected[0].second = 0.0;
@@ -2244,9 +2254,9 @@ TEST_P(get_data_with_data_tests, get_none_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -2262,9 +2272,9 @@ TEST_P(get_data_with_data_tests, get_none_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -2295,7 +2305,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -2309,7 +2319,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
             expected[1].second = 0.0;
             expected[2].second = 0.0;
 
@@ -2325,7 +2335,7 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
+            expected[0].second = 2.0 * multiplier;
             expected[1].second = 0.0;
             expected[2].second = 0.0;
             expected[3].second = 0.0;
@@ -2344,15 +2354,15 @@ TEST_P(get_data_with_data_tests, get_none_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -2555,6 +2565,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
             expected[0].second = 0.0;
@@ -2572,9 +2584,9 @@ TEST_P(get_data_with_data_tests, get_median_data)
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
             expected[0].second = 0.0;
-            expected[1].second = 2.0;
+            expected[1].second = 2.0 * multiplier;
             expected[2].second = 0.0;
-            expected[3].second = 2.0;
+            expected[3].second = 2.0 * multiplier;
             expected[4].second = 0.0;
 
             check_get_data(
@@ -2590,9 +2602,9 @@ TEST_P(get_data_with_data_tests, get_median_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[2].second = 2.0;
+            expected[2].second = 2.0 * multiplier;
             expected[4].second = 0.0;
-            expected[6].second = 2.0;
+            expected[6].second = 2.0 * multiplier;
             expected[8].second = 0.0;
 
             check_get_data(
@@ -2623,7 +2635,7 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 1.0;
+            expected[0].second = 1.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -2637,8 +2649,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = 2.0;
-            expected[1].second = 1.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 1.0 * multiplier;
             expected[2].second = 0.0;
 
             check_get_data(
@@ -2653,11 +2665,11 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
-            expected[0].second = 2.0;
-            expected[1].second = 1.0;
-            expected[2].second = 1.0;
-            expected[3].second = 1.0;
-            expected[4].second = 1.0;
+            expected[0].second = 2.0 * multiplier;
+            expected[1].second = 1.0 * multiplier;
+            expected[2].second = 1.0 * multiplier;
+            expected[3].second = 1.0 * multiplier;
+            expected[4].second = 1.0 * multiplier;
             expected[5].second = 0.0;
 
             check_get_data(
@@ -2672,15 +2684,15 @@ TEST_P(get_data_with_data_tests, get_median_data)
 
             // Testing with 100 bins
             fill_expected_result(expected, start, finish, 100);
-            expected[5].second = 2.0;
+            expected[5].second = 2.0 * multiplier;
             expected[10].second = 0.0;
-            expected[15].second = 2.0;
+            expected[15].second = 2.0 * multiplier;
             expected[20].second = 0.0;
-            expected[25].second = 2.0;
+            expected[25].second = 2.0 * multiplier;
             expected[30].second = 0.0;
-            expected[35].second = 2.0;
+            expected[35].second = 2.0 * multiplier;
             expected[40].second = 0.0;
-            expected[45].second = 2.0;
+            expected[45].second = 2.0 * multiplier;
             expected[50].second = 0.0;
 
             check_get_data(
@@ -2883,9 +2895,11 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
             finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
 
+            double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
+
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = std::sqrt((8.0 - 16.0 / 5) / 5);
+            expected[0].second = std::sqrt((8.0 - 16.0 / 5) / 5) * multiplier;
 
             check_get_data(
                 data_type,
@@ -2951,7 +2965,7 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
-            expected[0].second = 1.0;
+            expected[0].second = 1.0 * multiplier;
 
             check_get_data(
                 data_type,
@@ -2965,9 +2979,9 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
 
             // Testing with 5 bins
             fill_expected_result(expected, start, finish, 5);
-            expected[0].second = std::sqrt((8.0 - 16.0 / 3) / 3);
-            expected[1].second = 1.0;
-            expected[2].second = std::sqrt((4.0 - 4.0 / 3) / 3);
+            expected[0].second = std::sqrt((8.0 - 16.0 / 3) / 3) * multiplier;
+            expected[1].second = 1.0 * multiplier;
+            expected[2].second = std::sqrt((4.0 - 4.0 / 3) / 3) * multiplier;
 
             check_get_data(
                 data_type,
@@ -2982,10 +2996,10 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
             // Testing with 10 bins
             fill_expected_result(expected, start, finish, 10);
             expected[0].second = 0.0;
-            expected[1].second = 1.0;
-            expected[2].second = 1.0;
-            expected[3].second = 1.0;
-            expected[4].second = 1.0;
+            expected[1].second = 1.0 * multiplier;
+            expected[2].second = 1.0 * multiplier;
+            expected[3].second = 1.0 * multiplier;
+            expected[4].second = 1.0 * multiplier;
             expected[5].second = 0.0;
 
             check_get_data(
