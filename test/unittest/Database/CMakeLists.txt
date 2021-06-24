@@ -578,6 +578,11 @@ endforeach()
 
 add_executable(database_status_tests DatabaseStatusTests.cpp)
 
+if(MSVC)
+    target_compile_definitions(database_status_tests PRIVATE 
+        _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(database_status_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
@@ -585,6 +590,8 @@ target_include_directories(database_status_tests PRIVATE
 target_link_libraries(database_status_tests PUBLIC
     ${PROJECT_NAME}
     gtest)
+
+get_win32_path_dependencies(database_status_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_STATUS_TEST_LIST
     initial_status
@@ -604,4 +611,7 @@ foreach(test_name ${DATABASE_STATUS_TEST_LIST})
     add_test(NAME database_status_tests.${test_name}
             COMMAND database_status_tests
             --gtest_filter=database_status_tests.${test_name}:*/database_status_tests.${test_name}/*)
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_status_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
 endforeach()

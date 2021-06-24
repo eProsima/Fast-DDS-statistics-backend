@@ -256,7 +256,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                                 to_string(info.info.m_guid)).second;
                 database_->change_entity_status(participant_id, true);
             }
-            catch (BadParameter& error)
+            catch (BadParameter&)
             {
                 // Get the domain from the database
                 // This may throw if the domain does not exist
