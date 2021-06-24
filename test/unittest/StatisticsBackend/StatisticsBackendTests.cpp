@@ -140,18 +140,18 @@ TEST_F(statistics_backend_tests, get_info)
                 }
                 // Remove duplicates
                 auto last = std::unique(locators.begin(), locators.end(), [](
-                        const std::string& first,
-                        const std::string& second)
-                    {
-                        return first.compare(second) == 0;
-                    });
+                                    const std::string& first,
+                                    const std::string& second)
+                                {
+                                    return first.compare(second) == 0;
+                                });
                 locators.erase(last, locators.end());
 
                 // Check that every locator is included in the Info object
                 for (auto locator_name : locators)
                 {
                     auto locator_it = std::find(info[LOCATOR_CONTAINER_TAG].begin(),
-                        info[LOCATOR_CONTAINER_TAG].end(), locator_name);
+                                    info[LOCATOR_CONTAINER_TAG].end(), locator_name);
                     ASSERT_NE(locator_it, info[LOCATOR_CONTAINER_TAG].end());
                     info[LOCATOR_CONTAINER_TAG].erase(locator_it);
                 }

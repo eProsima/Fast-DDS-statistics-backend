@@ -422,11 +422,11 @@ Info StatisticsBackend::get_info(
 
             // Remove duplicates
             auto last = std::unique(locators.begin(), locators.end(), [](
-                    const std::string& first,
-                    const std::string& second)
-                {
-                    return first.compare(second) == 0;
-                });
+                                const std::string& first,
+                                const std::string& second)
+                            {
+                                return first.compare(second) == 0;
+                            });
             locators.erase(last, locators.end());
             info[LOCATOR_CONTAINER_TAG] = locators;
             break;
