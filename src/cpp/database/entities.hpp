@@ -53,6 +53,7 @@ struct Entity
             std::string entity_name = "INVALID") noexcept
         : kind(entity_kind)
         , name(entity_name)
+        , alias(entity_name)
     {
     }
 
@@ -71,8 +72,11 @@ struct Entity
     //! The kind of entity
     EntityKind kind;
 
-    //! A user defined human-readable name for the entity
+    //! A human-readable name for the entity
     std::string name;
+
+    //! A user defined name for the entity
+    std::string alias;
 };
 
 /*
