@@ -632,6 +632,7 @@ get_win32_path_dependencies(database_erase_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_ERASE_TEST_LIST
     erase_domain
+    erase_wrong_kind
 )
 
 foreach(test_name ${DATABASE_ERASE_TEST_LIST})
