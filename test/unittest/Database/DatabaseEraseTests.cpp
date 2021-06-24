@@ -60,7 +60,7 @@ DatabaseDump load_file(
  * This test checks the erase feature.
  * It loads the complex_dump.json and erases the domain_1.
  * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
- */ 
+ */
 TEST(database_erase_tests, erase_domain)
 {
     // Read JSON files
@@ -126,15 +126,15 @@ TEST(database_erase_tests, erase_wrong_kind)
     ASSERT_DEATH(db.erase(topics.begin()->second), "");
     // Call erase monitor with EntityKind::PARTICIPANT
     std::vector<std::pair<EntityId, EntityId>> participants = db.get_entities_by_name(EntityKind::PARTICIPANT,
-        "participant_0");
+                    "participant_0");
     ASSERT_DEATH(db.erase(participants.begin()->second), "");
     // Call erase monitor with EntityKind::DATAWRITER
     std::vector<std::pair<EntityId, EntityId>> writers = db.get_entities_by_name(EntityKind::DATAWRITER,
-        "datawriter_0");
+                    "datawriter_0");
     ASSERT_DEATH(db.erase(writers.begin()->second), "");
     // Call erase monitor with EntityKind::DATAREADER
     std::vector<std::pair<EntityId, EntityId>> readers = db.get_entities_by_name(EntityKind::DATAREADER,
-        "datareader_0");
+                    "datareader_0");
     ASSERT_DEATH(db.erase(readers.begin()->second), "");
     // Call erase monitor with EntityKind::LOCATOR
     std::vector<std::pair<EntityId, EntityId>> locators = db.get_entities_by_name(EntityKind::LOCATOR, "locator_0");

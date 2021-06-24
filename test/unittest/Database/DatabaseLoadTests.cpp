@@ -140,7 +140,7 @@ TEST(database_load_tests, load_and_dump_complex_erased_database)
     EXPECT_EQ(db.next_id(), 27);
     // Check that EntityId 13 (domain_1) does not exist in the database
     EXPECT_THROW(db.get_entity(13), BadParameter);
-    
+
     // Compare the dumps to ensure that the entities have been created with the same ids.
     ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
     ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
