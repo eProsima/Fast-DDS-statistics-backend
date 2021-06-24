@@ -1357,12 +1357,13 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
 void Database::erase(
         EntityId& domain_id)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
     // Check that the given domain_id corresponds to a known monitor.
     // Upper layer ensures that the monitor has been stopped.
     // Upper layer also ensures that the monitor_id is valid and corresponds to a known domain.
     assert(EntityKind::DOMAIN == get_entity_kind(domain_id));
+
+    // The mutex should be taken only once. get_entity_kind already locks.
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     for (auto reader : datareaders_[domain_id])
     {
@@ -1372,6 +1373,7 @@ void Database::erase(
             locators_[locator.first].get()->data_readers.erase(reader.first);
         }
         // Clear entity
+        reader.second.get()->DDSEndpoint::clear();
         reader.second.get()->clear();
     }
     // Clear datareaders map
@@ -1386,6 +1388,7 @@ void Database::erase(
             locators_[locator.first].get()->data_writers.erase(writer.first);
         }
         // Clear entity
+        writer.second.get()->DDSEndpoint::clear();
         writer.second.get()->clear();
     }
     // Clear datawriters map
