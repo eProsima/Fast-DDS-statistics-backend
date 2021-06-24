@@ -330,6 +330,7 @@ struct EntityDiscoveryInfo
 {
     std::shared_ptr<Entity> entity;
     EntityId domain_id;
+    details::StatisticsBackendData::DiscoveryStatus discovery_status;
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
@@ -355,20 +356,34 @@ protected:
     {
         try
         {
-            auto id = database_->insert(front().second.entity);
-            if (EntityKind::HOST  == front().second.entity->kind ||
-                    EntityKind::USER == front().second.entity->kind ||
-                    EntityKind::PROCESS == front().second.entity->kind ||
-                    EntityKind::LOCATOR == front().second.entity->kind)
+            EntityDiscoveryInfo info = front().second;
+            EntityId id;
+
+            // Insert the entity only if is discovered
+            if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
             {
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    front().second.domain_id, id,
-                    front().second.entity->kind);
+                id = database_->insert(info.entity);
+            }
+            else
+            {
+                id = info.entity->id;
+            }
+
+            // Update the entity status
+            database_->change_entity_status(id,
+                                            info.discovery_status !=
+                                                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+            if (EntityKind::HOST  == info.entity->kind ||
+                    EntityKind::USER == info.entity->kind ||
+                    EntityKind::PROCESS == info.entity->kind ||
+                    EntityKind::LOCATOR == info.entity->kind)
+            {
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id, id,info.entity->kind);
             }
             else if (EntityKind::DOMAIN != front().second.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(front().second.domain_id, id,
-                        front().second.entity->kind, details::StatisticsBackendData::DISCOVERY);
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id, id,info.entity->kind, info.discovery_status);
             }
         }
         catch (const eprosima::statistics_backend::Exception& e)

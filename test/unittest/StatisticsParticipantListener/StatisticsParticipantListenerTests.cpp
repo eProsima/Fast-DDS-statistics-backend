@@ -207,6 +207,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Precondition: The Participant change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
@@ -256,6 +259,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
+    participant_->id = EntityId(1);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -380,6 +384,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Precondition: The reader change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
 }
@@ -496,9 +503,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_no_topic)
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
 
+    // Precondition: The topic change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+    // Precondition: The reader change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
-
 }
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_topics)
@@ -622,6 +633,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_topi
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Precondition: The reader change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Execution: Call the listener
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -789,6 +803,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
 
+    // Precondition: The reader change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
     entity_queue.flush();
@@ -948,6 +965,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_several_loca
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+
+    // Precondition: The reader change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
     // Execution: Call the listener
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -1263,6 +1283,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+    // Precondition: The writer change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
 }
@@ -1379,9 +1402,13 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_no_topic)
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
 
+    // Precondition: The topic change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+    // Precondition: The writer change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
-
 }
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_locators
@@ -1546,6 +1573,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
 
+    // Precondition: The writer change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
     // Execution: Call the listener
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
     entity_queue.flush();
@@ -1705,6 +1735,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_several_loca
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+
+    // Precondition: The writer change it status
+    EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
     // Execution: Call the listener
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));

@@ -216,9 +216,9 @@ TEST_F(database_queue_tests, start_stop_flush)
     // Add something to the stopped queue
     EXPECT_CALL(database, insert(_)).Times(0);
     EXPECT_TRUE(entity_queue.stop_consumer());
-    entity_queue.push(timestamp, {host, 0});
-    entity_queue.push(timestamp, {user, 0});
-    entity_queue.push(timestamp, {process, 0});
+    entity_queue.push(timestamp, {host, 0,details::StatisticsBackendData::DISCOVERY});
+    entity_queue.push(timestamp, {user, 0,details::StatisticsBackendData::DISCOVERY});
+    entity_queue.push(timestamp, {process, 0,details::StatisticsBackendData::DISCOVERY});
 
     EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
     EXPECT_EQ(3, entity_queue.get_background_queue().size());
@@ -296,7 +296,7 @@ TEST_F(database_queue_tests, push_host)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {host, 0});
+    entity_queue.push(timestamp, {host, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -327,7 +327,7 @@ TEST_F(database_queue_tests, push_host_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {host, DomainId(0)});
+    entity_queue.push(timestamp, {host, DomainId(0),details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -364,7 +364,7 @@ TEST_F(database_queue_tests, push_user)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {user, 0});
+    entity_queue.push(timestamp, {user, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -398,7 +398,7 @@ TEST_F(database_queue_tests, push_user_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {user, 0});
+    entity_queue.push(timestamp, {user, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -439,7 +439,7 @@ TEST_F(database_queue_tests, push_process)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {process, 0});
+    entity_queue.push(timestamp, {process, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -477,7 +477,7 @@ TEST_F(database_queue_tests, push_process_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {process, 0});
+    entity_queue.push(timestamp, {process, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -512,7 +512,7 @@ TEST_F(database_queue_tests, push_domain)
                 0), EntityKind::DOMAIN, details::StatisticsBackendData::DISCOVERY)).Times(0);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {domain, 0});
+    entity_queue.push(timestamp, {domain, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -543,7 +543,7 @@ TEST_F(database_queue_tests, push_domain_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {domain, 0});
+    entity_queue.push(timestamp, {domain, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -591,7 +591,7 @@ TEST_F(database_queue_tests, push_participant_process_exists)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {participant, 0});
+    entity_queue.push(timestamp, {participant, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -632,7 +632,7 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {participant, 0});
+    entity_queue.push(timestamp, {participant, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -669,7 +669,7 @@ TEST_F(database_queue_tests, push_topic)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {topic, 0});
+    entity_queue.push(timestamp, {topic, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -705,7 +705,7 @@ TEST_F(database_queue_tests, push_topic_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {topic, 0});
+    entity_queue.push(timestamp, {topic, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -748,7 +748,7 @@ TEST_F(database_queue_tests, push_datawriter)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {datawriter, 0});
+    entity_queue.push(timestamp, {datawriter, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -788,7 +788,7 @@ TEST_F(database_queue_tests, push_datawriter_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {datawriter, 0});
+    entity_queue.push(timestamp, {datawriter, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -831,7 +831,7 @@ TEST_F(database_queue_tests, push_datareader)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {datareader, 0});
+    entity_queue.push(timestamp, {datareader, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -871,7 +871,7 @@ TEST_F(database_queue_tests, push_datareader_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {datareader, 0});
+    entity_queue.push(timestamp, {datareader, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());
@@ -905,7 +905,7 @@ TEST_F(database_queue_tests, push_locator)
             details::StatisticsBackendData::DISCOVERY)).Times(1);
 
     // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {locator, 0});
+    entity_queue.push(timestamp, {locator, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.flush();
 }
 
@@ -937,7 +937,7 @@ TEST_F(database_queue_tests, push_locator_throws)
 
     // Add to the queue and wait to be processed
     entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {locator, 0});
+    entity_queue.push(timestamp, {locator, 0,details::StatisticsBackendData::DISCOVERY});
     entity_queue.do_swap();
 
     EXPECT_NO_THROW(entity_queue.consume_sample());

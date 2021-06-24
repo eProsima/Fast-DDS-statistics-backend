@@ -126,6 +126,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = topic;
+        entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
         entity_queue_->push(timestamp, entity_discovery_info);
     }
 
@@ -183,6 +184,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     database::EntityDiscoveryInfo entity_discovery_info;
     entity_discovery_info.domain_id = domain_id_;
     entity_discovery_info.entity = endpoint;
+    entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
     entity_queue_->push(timestamp, entity_discovery_info);
 }
 
@@ -244,60 +246,69 @@ void StatisticsParticipantListener::on_participant_discovery(
     data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    switch (info.status)
+
+    // Get the domain from the database
+    // This may throw if the domain does not exist
+    // The database MUST contain the domain, or something went wrong upstream
+    std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+
+    // Build discovery info
+    database::EntityDiscoveryInfo entity_discovery_info;
+    entity_discovery_info.domain_id = domain_id_;
+
+    // The participant is already in the database
+    try
     {
-        case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
+        EntityId participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(info.info.m_guid))
+                        .second;
+
+        entity_discovery_info.entity = std::const_pointer_cast<database::DomainParticipant>(
+            std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_id)));
+
+        switch (info.status)
         {
-            // If the participant is already in the database, change the status
-            try
+            case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
             {
-                EntityId participant_id =
-                        database_->get_entity_by_guid(EntityKind::PARTICIPANT,
-                                to_string(info.info.m_guid)).second;
-                database_->change_entity_status(participant_id, true);
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                break;
             }
-            catch (BadParameter&)
+            case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
+                // TODO [ILG] : Process these messages and save the updated QoS
+                break;
+
+            case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
+            case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
             {
-                // Get the domain from the database
-                // This may throw if the domain does not exist
-                // The database MUST contain the domain, or something went wrong upstream
-                std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                    std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
-
-                // Create the participant and push it to the queue
-                GUID_t participant_guid = info.info.m_guid;
-                auto participant = std::make_shared<database::DomainParticipant>(
-                    info.info.m_participantName.to_string(),
-                    participant_info_to_backend_qos(info),
-                    to_string(participant_guid),
-                    std::shared_ptr<database::Process>(),
-                    domain);
-
-                database::EntityDiscoveryInfo entity_discovery_info;
-                entity_discovery_info.domain_id = domain_id_;
-                entity_discovery_info.entity = participant;
-                entity_queue_->push(timestamp, entity_discovery_info);
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+                break;
             }
-            break;
-        }
-
-        case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
-            // TODO [ILG] : Process these messages and save the updated QoS
-            break;
-
-        case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
-        case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
-        {
-            // TODO [ILG] : Process these messages
-
-            // Save the status of the entity
-            EntityId participant_id =  database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(
-                                info.info.m_guid)).second;
-            database_->change_entity_status(participant_id, false);
-
-            break;
         }
     }
+    // The participant is not in the database
+    catch (BadParameter&)
+    {
+        if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+        {
+            // Create the participant and push it to the queue
+            GUID_t participant_guid = info.info.m_guid;
+            auto participant = std::make_shared<database::DomainParticipant>(
+                info.info.m_participantName.to_string(),
+                participant_info_to_backend_qos(info),
+                to_string(participant_guid),
+                std::shared_ptr<database::Process>(),
+                domain);
+
+            entity_discovery_info.entity = participant;
+            entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a participant which is not in the database");
+        }
+    }
+
+    entity_queue_->push(timestamp, entity_discovery_info);
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();

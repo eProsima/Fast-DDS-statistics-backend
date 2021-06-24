@@ -25,6 +25,17 @@
 
 using namespace eprosima::statistics_backend::subscriber;
 
+class DomainParticipantTest : public eprosima::fastdds::dds::DomainParticipant
+{
+public:
+
+    DomainParticipantTest()
+        : DomainParticipant()
+    {
+    }
+
+};
+
 /**
  * @brief Fixture for the is_active_tests
  * - Create a database loading it from a file.
@@ -82,7 +93,7 @@ public:
     // Data queue, attached to the database
     DatabaseDataQueue* data_queue;
     // Statistics participant_, that is supposed to receive the callbacks
-    eprosima::fastdds::dds::DomainParticipant statistics_participant;
+    DomainParticipantTest statistics_participant;
     // Listener under tests. Will receive a pointer to statistics_participant
     StatisticsParticipantListener* participant_listener;
 };
@@ -93,6 +104,10 @@ public:
 // Check the is_active StatisticsBackend method when a participant is undiscovered
 TEST_F(is_active_tests, participant)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));
