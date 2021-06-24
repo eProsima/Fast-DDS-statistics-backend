@@ -2516,6 +2516,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
 
     // Populate subentity array
     {
@@ -2535,6 +2536,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
 
     entity_info[HOST_ENTITY_TAG] = id_to_string(entity->host->id);
 
@@ -2556,6 +2558,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[PID_INFO_TAG] = entity->pid;
 
     entity_info[USER_ENTITY_TAG] = id_to_string(entity->user->id);
@@ -2578,6 +2581,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
 
     // Populate subentity array for Topics
     {
@@ -2607,6 +2611,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[DATA_TYPE_INFO_TAG] = entity->data_type;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
@@ -2639,6 +2644,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
 
@@ -2729,6 +2735,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
 
@@ -2793,6 +2800,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
 
@@ -2839,6 +2847,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
+    entity_info[ALIAS_INFO_TAG] = entity->alias;
 
     // Populate subentity array for DataWriters
     {
@@ -3172,6 +3181,7 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3194,6 +3204,7 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3215,6 +3226,7 @@ void Database::load_database(
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
                             hosts_[string_to_int((*it).at(HOST_ENTITY_TAG))]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3237,6 +3249,7 @@ void Database::load_database(
             std::shared_ptr<Process> entity =
                     std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
                             users_[EntityId(string_to_int((*it).at(USER_ENTITY_TAG)))]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3257,6 +3270,7 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3281,6 +3295,7 @@ void Database::load_database(
             std::shared_ptr<Topic> entity =
                     std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
                             domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3305,6 +3320,7 @@ void Database::load_database(
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
                 (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
                 domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -3360,6 +3376,7 @@ void Database::load_database(
                 (*it).at(GUID_INFO_TAG),
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
@@ -3412,6 +3429,7 @@ void Database::load_database(
                 (*it).at(GUID_INFO_TAG),
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
+            entity->alias = (*it).at(ALIAS_INFO_TAG);
 
             /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
