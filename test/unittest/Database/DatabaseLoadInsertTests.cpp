@@ -35,33 +35,149 @@ public:
         entities = PopulateDatabase::populate_database(db);
     }
 
+    void check_entity(
+            std::shared_ptr<Entity> inserted,
+            std::shared_ptr<Entity> loaded)
+    {
+        ASSERT_TRUE(inserted->id == loaded->id && inserted->kind == loaded->kind &&
+                inserted->name == loaded->name);
+    }
+
+    void check_host(
+            std::shared_ptr<Host> inserted,
+            std::shared_ptr<Host> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(key_compare(inserted->users, loaded->users));
+    }
+
+    void check_user(
+            std::shared_ptr<User> inserted,
+            std::shared_ptr<User> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->host->id == loaded->host->id);
+        ASSERT_TRUE(key_compare(inserted->processes, loaded->processes));
+    }
+
+    void check_process(
+            std::shared_ptr<Process> inserted,
+            std::shared_ptr<Process> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->pid == loaded->pid);
+        ASSERT_TRUE(inserted->user->id == loaded->user->id);
+        ASSERT_TRUE(key_compare(inserted->participants, loaded->participants));
+    }
+
+    void check_locator(
+            std::shared_ptr<Locator> inserted,
+            std::shared_ptr<Locator> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(key_compare(inserted->data_readers, loaded->data_readers));
+        ASSERT_TRUE(key_compare(inserted->data_writers, loaded->data_writers));
+    }
+
+    void check_domain(
+            std::shared_ptr<Domain> inserted,
+            std::shared_ptr<Domain> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(key_compare(inserted->topics, loaded->topics));
+        ASSERT_TRUE(key_compare(inserted->participants, loaded->participants));
+    }
+
+    void check_topic(
+            std::shared_ptr<Topic> inserted,
+            std::shared_ptr<Topic> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->data_type == loaded->data_type);
+        ASSERT_TRUE(inserted->domain->id == loaded->domain->id);
+
+        ASSERT_TRUE(key_compare(inserted->data_readers, loaded->data_readers));
+        ASSERT_TRUE(key_compare(inserted->data_writers, loaded->data_writers));
+    }
+
+    void check_participant(
+            std::shared_ptr<DomainParticipant> inserted,
+            std::shared_ptr<DomainParticipant> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->qos == loaded->qos && inserted->guid == loaded->guid);
+
+        ASSERT_TRUE(inserted->process->id == loaded->process->id);
+        ASSERT_TRUE(inserted->domain->id == loaded->domain->id);
+
+        ASSERT_TRUE(key_compare(inserted->data_readers, loaded->data_readers));
+        ASSERT_TRUE(key_compare(inserted->data_writers, loaded->data_writers));
+    }
+
+    void check_datareader(
+            std::shared_ptr<DataReader> inserted,
+            std::shared_ptr<DataReader> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->qos == loaded->qos && inserted->guid == loaded->guid);
+
+        ASSERT_TRUE(inserted->participant->id == loaded->participant->id);
+        ASSERT_TRUE(inserted->topic->id == loaded->topic->id);
+
+        ASSERT_TRUE(key_compare(inserted->locators, loaded->locators));
+    }
+
+    void check_datawriter(
+            std::shared_ptr<DataWriter> inserted,
+            std::shared_ptr<DataWriter> loaded)
+    {
+        check_entity(inserted, loaded);
+
+        ASSERT_TRUE(inserted->qos == loaded->qos && inserted->guid == loaded->guid);
+
+        ASSERT_TRUE(inserted->participant->id == loaded->participant->id);
+        ASSERT_TRUE(inserted->topic->id == loaded->topic->id);
+
+        ASSERT_TRUE(key_compare(inserted->locators, loaded->locators));
+    }
+
+    template <typename Map>
+    bool key_compare (
+            Map const& lhs,
+            Map const& rhs)
+    {
+        return lhs.size() == rhs.size()
+            && std::equal(lhs.begin(), lhs.end(), rhs.begin(),
+                    [](auto a, auto b)
+                    {
+                        return a.first == b.first;
+                    });
+    }
+
+    template <typename Map>
+    bool map_compare (
+            Map const& lhs,
+            Map const& rhs)
+    {
+        // No predicate needed because there is operator== for pairs already.
+        return lhs.size() == rhs.size()
+            && std::equal(lhs.begin(), lhs.end(),
+                    rhs.begin());
+    }
+
     DataBaseTest db;
     std::map<TestId, std::shared_ptr<const Entity>> entities;
 };
 
-template <typename Map>
-bool key_compare (
-        Map const& lhs,
-        Map const& rhs)
-{
-    return lhs.size() == rhs.size()
-           && std::equal(lhs.begin(), lhs.end(), rhs.begin(),
-                   [](auto a, auto b)
-                   {
-                       return a.first == b.first;
-                   });
-}
 
-template <typename Map>
-bool map_compare (
-        Map const& lhs,
-        Map const& rhs)
-{
-    // No predicate needed because there is operator== for pairs already.
-    return lhs.size() == rhs.size()
-           && std::equal(lhs.begin(), lhs.end(),
-                   rhs.begin());
-}
 
 /**
  * Test to check that load_database() fills the exactly same database that using database.insert()
@@ -250,9 +366,7 @@ TEST_F(database_load_insert_tests, load_insert)
         std::shared_ptr<Host> insertedEntity = insertedIt->second;
         std::shared_ptr<Host> loadedEntity = loadedIt->second;
 
-        ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                insertedEntity->name == loadedEntity->name);
-        ASSERT_TRUE(key_compare(insertedEntity->users, loadedEntity->users));
+        check_host(insertedEntity, loadedEntity);
     }
 
     // Users
@@ -262,10 +376,7 @@ TEST_F(database_load_insert_tests, load_insert)
         std::shared_ptr<User> insertedEntity = insertedIt->second;
         std::shared_ptr<User> loadedEntity = loadedIt->second;
 
-        ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                insertedEntity->name == loadedEntity->name);
-        ASSERT_TRUE(insertedEntity->host->id == loadedEntity->host->id);
-        ASSERT_TRUE(key_compare(insertedEntity->processes, loadedEntity->processes));
+        check_user(insertedEntity, loadedEntity);
     }
 
     // Processes
@@ -275,12 +386,7 @@ TEST_F(database_load_insert_tests, load_insert)
         std::shared_ptr<Process> insertedEntity = insertedIt->second;
         std::shared_ptr<Process> loadedEntity = loadedIt->second;
 
-        ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                insertedEntity->name == loadedEntity->name);
-
-        ASSERT_TRUE(insertedEntity->pid == loadedEntity->pid);
-        ASSERT_TRUE(insertedEntity->user->id == loadedEntity->user->id);
-        ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
+        check_process(insertedEntity, loadedEntity);
     }
 
     // Locators
@@ -290,11 +396,7 @@ TEST_F(database_load_insert_tests, load_insert)
         std::shared_ptr<Locator> insertedEntity = insertedIt->second;
         std::shared_ptr<Locator> loadedEntity = loadedIt->second;
 
-        ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                insertedEntity->name == loadedEntity->name);
-
-        ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
-        ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
+        check_locator(insertedEntity, loadedEntity);
     }
 
     // Domains
@@ -304,11 +406,7 @@ TEST_F(database_load_insert_tests, load_insert)
         std::shared_ptr<Domain> insertedEntity = insertedIt->second;
         std::shared_ptr<Domain> loadedEntity = loadedIt->second;
 
-        ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                insertedEntity->name == loadedEntity->name);
-
-        ASSERT_TRUE(key_compare(insertedEntity->topics, loadedEntity->topics));
-        ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
+        check_domain(insertedEntity, loadedEntity);
     }
 
     // Participants
@@ -323,16 +421,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DomainParticipant> insertedEntity = insertedIt->second;
             std::shared_ptr<DomainParticipant> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
-
-            ASSERT_TRUE(insertedEntity->process->id == loadedEntity->process->id);
-            ASSERT_TRUE(insertedEntity->domain->id == loadedEntity->domain->id);
-
-            ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
-            ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
+            check_participant(insertedEntity, loadedEntity);
         }
     }
 
@@ -350,15 +439,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DataWriter> insertedEntity = insertedIt->second;
             std::shared_ptr<DataWriter> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
-
-            ASSERT_TRUE(insertedEntity->participant->id == loadedEntity->participant->id);
-            ASSERT_TRUE(insertedEntity->topic->id == loadedEntity->topic->id);
-
-            ASSERT_TRUE(key_compare(insertedEntity->locators, loadedEntity->locators));
+            check_datawriter(insertedEntity, loadedEntity);
         }
     }
 
@@ -376,15 +457,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DataReader> insertedEntity = insertedIt->second;
             std::shared_ptr<DataReader> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
-
-            ASSERT_TRUE(insertedEntity->participant->id == loadedEntity->participant->id);
-            ASSERT_TRUE(insertedEntity->topic->id == loadedEntity->topic->id);
-
-            ASSERT_TRUE(key_compare(insertedEntity->locators, loadedEntity->locators));
+            check_datareader(insertedEntity, loadedEntity);
         }
     }
 
@@ -400,14 +473,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<Topic> insertedEntity = insertedIt->second;
             std::shared_ptr<Topic> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->data_type == loadedEntity->data_type);
-            ASSERT_TRUE(insertedEntity->domain->id == loadedEntity->domain->id);
-
-            ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
-            ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
+            check_topic(insertedEntity, loadedEntity);
         }
     }
 
@@ -423,11 +489,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<Domain> insertedEntity = insertedIt->second;
             std::shared_ptr<Domain> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(key_compare(insertedEntity->topics, loadedEntity->topics));
-            ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
+            check_domain(insertedEntity, loadedEntity);
         }
     }
 
@@ -443,12 +505,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<Process> insertedEntity = insertedIt->second;
             std::shared_ptr<Process> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->pid == loadedEntity->pid);
-            ASSERT_TRUE(insertedEntity->user->id == loadedEntity->user->id);
-            ASSERT_TRUE(key_compare(insertedEntity->participants, loadedEntity->participants));
+            check_process(insertedEntity, loadedEntity);
         }
     }
 
@@ -465,16 +522,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DomainParticipant> insertedEntity = insertedIt->second;
             std::shared_ptr<DomainParticipant> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(insertedEntity->qos == loadedEntity->qos && insertedEntity->guid == loadedEntity->guid);
-
-            ASSERT_TRUE(insertedEntity->process->id == loadedEntity->process->id);
-            ASSERT_TRUE(insertedEntity->domain->id == loadedEntity->domain->id);
-
-            ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
-            ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
+            check_participant(insertedEntity, loadedEntity);
         }
     }
 
@@ -491,11 +539,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<Locator> insertedEntity = insertedIt->second;
             std::shared_ptr<Locator> loadedEntity = loadedIt->second;
 
-            ASSERT_TRUE(insertedEntity->id == loadedEntity->id && insertedEntity->kind == loadedEntity->kind &&
-                    insertedEntity->name == loadedEntity->name);
-
-            ASSERT_TRUE(key_compare(insertedEntity->data_readers, loadedEntity->data_readers));
-            ASSERT_TRUE(key_compare(insertedEntity->data_writers, loadedEntity->data_writers));
+            check_locator(insertedEntity, loadedEntity);
         }
     }
 
