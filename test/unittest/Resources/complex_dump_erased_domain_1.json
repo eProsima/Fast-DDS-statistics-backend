@@ -240,14 +240,6 @@
                     "3":
                     [
                         {
-                            "src_time": "0",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"100",
-                            "count": 2
-                        },
-                        {
                             "src_time":"200",
                             "count": 2
                         }
@@ -372,14 +364,6 @@
                 "samples_datas":{
                     "3":
                     [
-                        {
-                            "src_time": "0",
-                            "count": 2
-                        },
-                        {
-                            "src_time":"100",
-                            "count": 2
-                        },
                         {
                             "src_time":"200",
                             "count": 2
