@@ -3213,10 +3213,11 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
+    // The processing should not progress the exception.
     data_queue.stop_consumer();
     data_queue.push(timestamp, data);
     data_queue.do_swap();
-    ASSERT_THROW(data_queue.consume_sample(), BadParameter);
+    EXPECT_NO_THROW(data_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_physical_data_no_process_exists)
