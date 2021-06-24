@@ -176,8 +176,9 @@ struct StatisticsIterator<database::TimepointSample> final
 
     double get_value() const noexcept override
     {
-        // TODO(Miguel C): How should we treat DISCOVERY_TIME?
-        return 0;
+        auto t_epoch = sample().time.time_since_epoch();
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t_epoch);
+        return static_cast<double>(ns.count());
     }
 
 };
