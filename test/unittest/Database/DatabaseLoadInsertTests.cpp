@@ -40,7 +40,7 @@ public:
             std::shared_ptr<Entity> loaded)
     {
         ASSERT_TRUE(inserted->id == loaded->id && inserted->kind == loaded->kind &&
-                inserted->name == loaded->name);
+                inserted->name == loaded->name && inserted->alias == loaded->alias);
     }
 
     void check_host(

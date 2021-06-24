@@ -196,6 +196,8 @@ void insert_ddsendpoint_two_valid()
     ASSERT_NE(endpoints[domain_id].find(endpoint_id_2), endpoints[domain_id].end());
     ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
     ASSERT_EQ(endpoint_name_2, endpoints[domain_id][endpoint_id_2]->name);
+    ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->alias);
+    ASSERT_EQ(endpoint_name_2, endpoints[domain_id][endpoint_id_2]->alias);
     ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
     ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id_2]->qos);
     ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
@@ -567,6 +569,7 @@ TEST_F(database_tests, insert_host)
     ASSERT_EQ(hosts.size(), 1);
     ASSERT_NE(hosts.find(host_id), hosts.end());
     ASSERT_EQ(host_name, hosts[host_id]->name);
+    ASSERT_EQ(host_name, hosts[host_id]->alias);
 }
 
 TEST_F(database_tests, insert_host_two)
@@ -587,6 +590,8 @@ TEST_F(database_tests, insert_host_two)
     ASSERT_NE(hosts.find(host_id_2), hosts.end());
     ASSERT_EQ(host_name, hosts[host_id]->name);
     ASSERT_EQ(host_name_2, hosts[host_id_2]->name);
+    ASSERT_EQ(host_name, hosts[host_id]->alias);
+    ASSERT_EQ(host_name_2, hosts[host_id_2]->alias);
 }
 
 TEST_F(database_tests, insert_host_two_same_name)
@@ -638,6 +643,7 @@ TEST_F(database_tests, insert_user_valid)
     ASSERT_EQ(users.size(), 1);
     ASSERT_NE(users.find(user_id), users.end());
     ASSERT_EQ(user_name, users[user_id]->name);
+    ASSERT_EQ(user_name, users[user_id]->alias);
 }
 
 TEST_F(database_tests, insert_user_two_valid)
@@ -667,6 +673,8 @@ TEST_F(database_tests, insert_user_two_valid)
     ASSERT_NE(users.find(user_id_2), users.end());
     ASSERT_EQ(user_name, users[user_id]->name);
     ASSERT_EQ(user_name_2, users[user_id_2]->name);
+    ASSERT_EQ(user_name, users[user_id]->alias);
+    ASSERT_EQ(user_name_2, users[user_id_2]->alias);
 }
 
 TEST_F(database_tests, insert_user_duplicated)
@@ -751,6 +759,7 @@ TEST_F(database_tests, insert_process_valid)
     ASSERT_EQ(processes.size(), 1);
     ASSERT_NE(processes.find(process_id), processes.end());
     ASSERT_EQ(process_name, processes[process_id]->name);
+    ASSERT_EQ(process_name, processes[process_id]->alias);
     ASSERT_EQ(process_pid, processes[process_id]->pid);
 }
 
@@ -787,6 +796,8 @@ TEST_F(database_tests, insert_process_two_valid)
     ASSERT_NE(processes.find(process_id_2), processes.end());
     ASSERT_EQ(process_name, processes[process_id]->name);
     ASSERT_EQ(process_name_2, processes[process_id_2]->name);
+    ASSERT_EQ(process_name, processes[process_id]->alias);
+    ASSERT_EQ(process_name_2, processes[process_id_2]->alias);
 }
 
 TEST_F(database_tests, insert_process_duplicated)
@@ -982,6 +993,7 @@ TEST_F(database_tests, insert_domain_valid)
     ASSERT_EQ(domains.size(), 1);
     ASSERT_NE(domains.find(domain_id), domains.end());
     ASSERT_EQ(domain_name, domains[domain_id]->name);
+    ASSERT_EQ(domain_name, domains[domain_id]->alias);
 }
 
 TEST_F(database_tests, insert_domain_two_valid)
@@ -1002,6 +1014,8 @@ TEST_F(database_tests, insert_domain_two_valid)
     ASSERT_NE(domains.find(domain_id_2), domains.end());
     ASSERT_EQ(domain_name, domains[domain_id]->name);
     ASSERT_EQ(domain_name_2, domains[domain_id_2]->name);
+    ASSERT_EQ(domain_name, domains[domain_id]->alias);
+    ASSERT_EQ(domain_name_2, domains[domain_id_2]->alias);
 }
 
 TEST_F(database_tests, insert_domain_duplicated)
@@ -1054,6 +1068,7 @@ TEST_F(database_tests, insert_topic_valid)
     ASSERT_EQ(topics[domain_id].size(), 1);
     ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
+    ASSERT_EQ(topic_name, topics[domain_id][topic_id]->alias);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
 }
 
@@ -1088,6 +1103,8 @@ TEST_F(database_tests, insert_topic_two_valid)
     ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
     ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->name);
+    ASSERT_EQ(topic_name, topics[domain_id][topic_id]->alias);
+    ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->alias);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
     ASSERT_EQ(topic_type_2, topics[domain_id][topic_id_2]->data_type);
 }
@@ -1186,6 +1203,8 @@ TEST_F(database_tests, insert_topic_two_same_domain_diff_name_same_type)
     ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
     ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->name);
+    ASSERT_EQ(topic_name, topics[domain_id][topic_id]->alias);
+    ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->alias);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
     ASSERT_EQ(topic_type, topics[domain_id][topic_id_2]->data_type);
 }
@@ -1222,6 +1241,7 @@ TEST_F(database_tests, insert_participant_valid)
     ASSERT_EQ(participants[domain_id].size(), 1);
     ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
+    ASSERT_EQ(part_name, participants[domain_id][participant_id]->alias);
     ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
 }
@@ -1267,6 +1287,8 @@ TEST_F(database_tests, insert_participant_two_valid)
     ASSERT_NE(participants[domain_id].find(participant_id_2), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(part_name_2, participants[domain_id][participant_id_2]->name);
+    ASSERT_EQ(part_name, participants[domain_id][participant_id]->alias);
+    ASSERT_EQ(part_name_2, participants[domain_id][participant_id_2]->alias);
     ASSERT_EQ(db.test_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(part_guid, participants[domain_id][participant_id]->guid);
     ASSERT_EQ(part_guid_2, participants[domain_id][participant_id_2]->guid);
@@ -1498,6 +1520,7 @@ TEST_F(database_tests, insert_locator)
     ASSERT_EQ(locators.size(), 1);
     ASSERT_NE(locators.find(host_id), locators.end());
     ASSERT_EQ(locator_name, locators[locator_id]->name);
+    ASSERT_EQ(locator_name, locators[locator_id]->alias);
 }
 
 TEST_F(database_tests, insert_locator_two)
@@ -1518,6 +1541,8 @@ TEST_F(database_tests, insert_locator_two)
     ASSERT_NE(locators.find(locator_id_2), locators.end());
     ASSERT_EQ(locator_name, locators[locator_id]->name);
     ASSERT_EQ(locator_name_2, locators[locator_id_2]->name);
+    ASSERT_EQ(locator_name, locators[locator_id]->alias);
+    ASSERT_EQ(locator_name_2, locators[locator_id_2]->alias);
 }
 
 TEST_F(database_tests, insert_locator_two_same_name)
