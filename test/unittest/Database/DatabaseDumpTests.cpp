@@ -442,6 +442,7 @@ TEST(database, dump_unlinked_database)
 
     dump[LOCATOR_CONTAINER_TAG][locator2_id] = dump[LOCATOR_CONTAINER_TAG].begin().value();
     dump[LOCATOR_CONTAINER_TAG][locator2_id][NAME_INFO_TAG] = std::string(LOCATOR_DEFAULT_NAME(1));
+    dump[LOCATOR_CONTAINER_TAG][locator2_id][ALIAS_INFO_TAG] = std::string(LOCATOR_DEFAULT_NAME(1));
 
     // Locator unlinked
     dump[LOCATOR_CONTAINER_TAG][locator2_id][DATAWRITER_CONTAINER_TAG] = DatabaseDump::array();
