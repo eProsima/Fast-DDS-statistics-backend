@@ -8,6 +8,7 @@
         "1":
         {
             "name": "host_0",
+            "alias": "host_0",
             "users": ["2"]
         }
     },
@@ -17,6 +18,7 @@
         "2":
         {
             "name": "user_0",
+            "alias": "user_0",
             "host": "1",
             "processes": ["3"]
         }
@@ -27,6 +29,7 @@
         "3":
         {
             "name": "process_0",
+            "alias": "process_0",
             "pid": "36000",
             "user": "2",
             "participants": ["6"]
@@ -38,6 +41,7 @@
         "4":
         {
             "name": "domain_0",
+            "alias": "domain_0",
             "participants": ["6"],
             "topics": ["5"]
         }
@@ -48,6 +52,7 @@
         "5":
         {
             "name": "topic_0",
+            "alias": "topic_0",
             "data_type": "data_type",
             "domain": "4",
             "datawriters": ["7"],
@@ -60,6 +65,7 @@
         "6":
         {
             "name": "participant_0",
+            "alias": "participant_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
 
@@ -183,6 +189,7 @@
         "7":
         {
             "name": "datawriter_0",
+            "alias": "datawriter_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
 
@@ -273,6 +280,7 @@
         "8":
         {
             "name": "datareader_0",
+            "alias": "datareader_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
 
@@ -321,6 +329,7 @@
         "0":
         {
             "name": "locator_0",
+            "alias": "locator_0",
             "datawriters": ["7"],
             "datareaders": ["8"],
 
