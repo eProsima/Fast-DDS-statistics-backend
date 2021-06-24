@@ -329,7 +329,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
                                 to_string(info.info.guid())).second;
                 database_->change_entity_status(datareader_id, true);
             }
-            catch (BadParameter& error)
+            catch (BadParameter&)
             {
                 process_endpoint_discovery(info);
             }
@@ -386,7 +386,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
                                 to_string(info.info.guid())).second;
                 database_->change_entity_status(datawriter_id, true);
             }
-            catch (BadParameter& error)
+            catch (BadParameter&)
             {
                 process_endpoint_discovery(info);
             }
