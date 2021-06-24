@@ -373,6 +373,7 @@ Info StatisticsBackend::get_info(
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
     info[NAME_INFO_TAG] = entity->name;
+    info[ALIAS_INFO_TAG] = entity->alias;
 
     switch (entity->kind)
     {
