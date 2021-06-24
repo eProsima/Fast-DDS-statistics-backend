@@ -121,6 +121,40 @@ TEST(database_load_tests, load_and_dump_old_complex_database)
     ASSERT_EQ(dump, loadedDump);
 }
 
+// Test that checks the loading of an incomplete database because some domain has been erased
+TEST(database_load_tests, load_and_dump_complex_erased_database)
+{
+    // Read JSON
+    DatabaseDump dump = load_file(COMPLEX_ERASED_DUMP_FILE);
+
+    // Create database
+    DataBaseTest db;
+
+    // Load dump in the database
+    db.load_database(dump);
+
+    // Dump loaded database
+    DatabaseDump loadedDump = db.dump_database();
+
+    // Check that the next_id_ is the expected
+    EXPECT_EQ(db.next_id(), 27);
+    // Check that EntityId 13 (domain_1) does not exist in the database
+    EXPECT_THROW(db.get_entity(13), BadParameter);
+    
+    // Compare the dumps to ensure that the entities have been created with the same ids.
+    ASSERT_EQ(dump[HOST_CONTAINER_TAG], loadedDump[HOST_CONTAINER_TAG]);
+    ASSERT_EQ(dump[USER_CONTAINER_TAG], loadedDump[USER_CONTAINER_TAG]);
+    ASSERT_EQ(dump[PROCESS_CONTAINER_TAG], loadedDump[PROCESS_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DOMAIN_CONTAINER_TAG], loadedDump[DOMAIN_CONTAINER_TAG]);
+    ASSERT_EQ(dump[TOPIC_CONTAINER_TAG], loadedDump[TOPIC_CONTAINER_TAG]);
+    ASSERT_EQ(dump[PARTICIPANT_CONTAINER_TAG], loadedDump[PARTICIPANT_CONTAINER_TAG]);
+    ASSERT_EQ(dump[LOCATOR_CONTAINER_TAG], loadedDump[LOCATOR_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DATAWRITER_CONTAINER_TAG], loadedDump[DATAWRITER_CONTAINER_TAG]);
+    ASSERT_EQ(dump[DATAREADER_CONTAINER_TAG], loadedDump[DATAREADER_CONTAINER_TAG]);
+
+    ASSERT_EQ(dump, loadedDump);
+}
+
 // Test the load of a dump database with one entity of each kind
 TEST(database_load_tests, load_twice)
 {
