@@ -371,19 +371,22 @@ protected:
 
             // Update the entity status
             database_->change_entity_status(id,
-                                            info.discovery_status !=
-                                                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+                    info.discovery_status !=
+                    details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
             if (EntityKind::HOST  == info.entity->kind ||
                     EntityKind::USER == info.entity->kind ||
                     EntityKind::PROCESS == info.entity->kind ||
                     EntityKind::LOCATOR == info.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id, id,info.entity->kind);
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id, id,
+                        info.entity->kind);
             }
             else if (EntityKind::DOMAIN != front().second.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id, id,info.entity->kind, info.discovery_status);
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id, id,
+                        info.entity->kind,
+                        info.discovery_status);
             }
         }
         catch (const eprosima::statistics_backend::Exception& e)
