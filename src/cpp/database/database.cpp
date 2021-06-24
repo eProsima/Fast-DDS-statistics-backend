@@ -1357,6 +1357,8 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
 void Database::erase(
         EntityId& domain_id)
 {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
     // Check that the given domain_id corresponds to a known monitor.
     // Upper layer ensures that the monitor has been stopped.
     // Upper layer also ensures that the monitor_id is valid and corresponds to a known domain.
