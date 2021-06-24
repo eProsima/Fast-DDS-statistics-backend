@@ -39,6 +39,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/complex_dump.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/complex_dump_erased_domain_1.json
+    ${CMAKE_CURRENT_BINARY_DIR}/complex_dump_erased_domain_1.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/old_complex_dump.json
     COPYONLY)

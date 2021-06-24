@@ -555,7 +555,6 @@ foreach(test_name ${DATABASE_LOAD_INSERT_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
-
 ###############################################################################
 # Database: status tests
 ###############################################################################
@@ -577,8 +576,7 @@ target_include_directories(database_status_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_status_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
-    )
+    ${GTEST_LIBRARIES} fastrtps fastcdr)
 
 get_win32_path_dependencies(database_status_tests TEST_FRIENDLY_PATH)
 
@@ -603,5 +601,45 @@ foreach(test_name ${DATABASE_STATUS_TEST_LIST})
 
     if(TEST_FRIENDLY_PATH)
         set_tests_properties(database_status_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+endforeach()
+
+###############################################################################
+# Database: erase tests
+###############################################################################
+
+add_executable(database_erase_tests DatabaseEraseTests.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_erase_tests PRIVATE 
+        _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(database_erase_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+
+target_link_libraries(database_erase_tests PUBLIC
+        ${GTEST_LIBRARIES} fastrtps fastcdr
+    )
+
+get_win32_path_dependencies(database_erase_tests TEST_FRIENDLY_PATH)
+
+set(DATABASE_ERASE_TEST_LIST
+    erase_domain
+)
+
+foreach(test_name ${DATABASE_ERASE_TEST_LIST})
+    add_test(NAME database_erase_tests.${test_name}
+            COMMAND database_erase_tests
+            --gtest_filter=database_erase_tests.${test_name}:*/database_erase_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_erase_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 endforeach()
