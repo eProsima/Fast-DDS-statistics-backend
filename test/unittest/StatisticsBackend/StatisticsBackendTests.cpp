@@ -67,13 +67,15 @@ public:
 
 void check_dds_entity(
         std::shared_ptr<const DDSEntity> const& entity,
-        Info const& info)
+        Info& info)
 {
     ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
+    info.erase(GUID_INFO_TAG);
     ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
+    info.erase(QOS_INFO_TAG);
 }
 
-// Check the get_type StatisticsBackend method
+// Check the get_info StatisticsBackend method
 TEST_F(statistics_backend_tests, get_info)
 {
     StatisticsBackendTest::set_database(db);
@@ -89,9 +91,14 @@ TEST_F(statistics_backend_tests, get_info)
         Info info = StatisticsBackendTest::get_info(entity->id);
 
         // Check generic info
+        // Once the info is checked, it is erased so the final check is confirm that the info is empty (there is no
+        // more information than the expected)
         ASSERT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
+        info.erase(ID_INFO_TAG);
         ASSERT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
+        info.erase(KIND_INFO_TAG);
         ASSERT_EQ(entity->name, info[NAME_INFO_TAG]);
+        info.erase(NAME_INFO_TAG);
 
         // Check specific info
         switch (entity->kind)
@@ -101,6 +108,7 @@ TEST_F(statistics_backend_tests, get_info)
                 std::shared_ptr<const Process> process =
                         std::dynamic_pointer_cast<const Process>(entity);
                 ASSERT_EQ(process->pid, info[PID_INFO_TAG]);
+                info.erase(PID_INFO_TAG);
                 break;
             }
             case EntityKind::TOPIC:
@@ -108,6 +116,7 @@ TEST_F(statistics_backend_tests, get_info)
                 std::shared_ptr<const Topic> topic =
                         std::dynamic_pointer_cast<const Topic>(entity);
                 ASSERT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
+                info.erase(DATA_TYPE_INFO_TAG);
                 break;
             }
             case EntityKind::PARTICIPANT:
@@ -124,6 +133,7 @@ TEST_F(statistics_backend_tests, get_info)
                 break;
             }
         }
+        EXPECT_TRUE(info.empty());
     }
 }
 
