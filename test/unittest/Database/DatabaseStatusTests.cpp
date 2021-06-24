@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <database/database.hpp>
