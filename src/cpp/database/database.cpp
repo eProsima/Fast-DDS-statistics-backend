@@ -1360,7 +1360,10 @@ void Database::erase(
     // Check that the given domain_id corresponds to a known monitor.
     // Upper layer ensures that the monitor has been stopped.
     // Upper layer also ensures that the monitor_id is valid and corresponds to a known domain.
-    assert(EntityKind::DOMAIN == get_entity_kind(domain_id));
+    if (EntityKind::DOMAIN != get_entity_kind(domain_id))
+    {
+        throw BadParameter("Incorrect EntityKind");
+    }
 
     // The mutex should be taken only once. get_entity_kind already locks.
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);

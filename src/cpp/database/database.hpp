@@ -135,8 +135,14 @@ public:
      * @brief Erase all the data related to a domain.
      *
      * After the operation, the domain_id becomes invalid.
+     * Preconditions for this method are that:
+     *            * the domain must exist.
+     *            * the monitor attached to the domain must be stopped.
      *
      * @param domain_id The EntityId of the domain to be erased.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *            * if the \c EntityId is not of \c DataKind::DOMAIN.
+     *            * if the \c domain_id does not refer to a known domain.
      */
     void erase(
             EntityId& domain_id);
