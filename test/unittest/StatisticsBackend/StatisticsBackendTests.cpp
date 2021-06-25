@@ -400,6 +400,8 @@ TEST_F(statistics_backend_tests, set_alias)
 
 TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 {
+#ifndef NDEBUG
+
     StatisticsBackendTest::set_database(db);
 
     // Will be using entities that are on the database,
@@ -593,6 +595,8 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
                 EntityId(17),
                 EntityKind::DATAWRITER),
             ".*");
+
+#endif // ifndef NDEBUG
 }
 
 TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
