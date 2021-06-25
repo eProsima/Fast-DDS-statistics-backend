@@ -121,23 +121,10 @@ public:
         ASSERT_TRUE(key_compare(inserted->data_writers, loaded->data_writers));
     }
 
-    void check_datareader(
-            std::shared_ptr<DataReader> inserted,
-            std::shared_ptr<DataReader> loaded)
-    {
-        check_entity(inserted, loaded);
-
-        ASSERT_TRUE(inserted->qos == loaded->qos && inserted->guid == loaded->guid);
-
-        ASSERT_TRUE(inserted->participant->id == loaded->participant->id);
-        ASSERT_TRUE(inserted->topic->id == loaded->topic->id);
-
-        ASSERT_TRUE(key_compare(inserted->locators, loaded->locators));
-    }
-
-    void check_datawriter(
-            std::shared_ptr<DataWriter> inserted,
-            std::shared_ptr<DataWriter> loaded)
+    template<typename T>
+    void check_endpoint(
+            std::shared_ptr<T> inserted,
+            std::shared_ptr<T> loaded)
     {
         check_entity(inserted, loaded);
 
@@ -439,7 +426,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DataWriter> insertedEntity = insertedIt->second;
             std::shared_ptr<DataWriter> loadedEntity = loadedIt->second;
 
-            check_datawriter(insertedEntity, loadedEntity);
+            check_endpoint(insertedEntity, loadedEntity);
         }
     }
 
@@ -457,7 +444,7 @@ TEST_F(database_load_insert_tests, load_insert)
             std::shared_ptr<DataReader> insertedEntity = insertedIt->second;
             std::shared_ptr<DataReader> loadedEntity = loadedIt->second;
 
-            check_datareader(insertedEntity, loadedEntity);
+            check_endpoint(insertedEntity, loadedEntity);
         }
     }
 
