@@ -497,6 +497,11 @@ add_executable(backend_dump_tests BackendDumpTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
+if(MSVC)
+    target_compile_definitions(backend_dump_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
 target_include_directories(backend_dump_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
@@ -506,7 +511,9 @@ target_include_directories(backend_dump_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(backend_dump_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(backend_dump_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_DUMP_TEST_LIST
     database_dump_load
@@ -517,5 +524,10 @@ foreach(test_name ${BACKEND_DUMP_TEST_LIST})
     add_test(NAME backend_dump_tests.${test_name}
         COMMAND backend_dump_tests
         --gtest_filter=backend_dump_tests.${test_name}:*/backend_dump_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(backend_dump_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
 endforeach()
 

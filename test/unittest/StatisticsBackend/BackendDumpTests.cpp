@@ -14,6 +14,7 @@
 
 #include <fstream>
 
+#include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
 #include <StatisticsBackend.hpp>
