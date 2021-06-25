@@ -78,7 +78,7 @@ struct Entity
 
     //! A user defined name for the entity
     std::string alias;
-    
+
     //! Active means that there is statistical data being reported within the entity.
     bool active;
 };
