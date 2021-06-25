@@ -314,6 +314,17 @@ public:
     void load_database(
             const DatabaseDump& dump);
 
+    /**
+     * Change the status (active/inactive) of an entity given an EntityId.
+     * Also check if the references of the entity must also be changed and change the status in that case.
+     * @param entity_id The EntityId of the entity
+     * @param active The entity status value to set
+     * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid.
+     */
+    void change_entity_status(
+            const EntityId& entity_id,
+            bool active);
+
 protected:
 
     inline std::string id_to_string(
@@ -755,6 +766,18 @@ protected:
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<Locator>& entity);
+
+    /**
+     * Change the status (active/inactive) of an entity given an EntityId.
+     * Also check if the references of the entity must also be changed and change the status in that case.
+     * @param entity_id The EntityId of the entity
+     * @param active The entity status value to set
+     * @param entity_kind The EntityKind of the entity
+     */
+    void change_entity_status_of_kind(
+            const EntityId& entity_id,
+            bool active,
+            EntityKind entity_kind) noexcept;
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;

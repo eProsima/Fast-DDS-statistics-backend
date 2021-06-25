@@ -56,18 +56,13 @@ public:
     std::map<TestId, std::shared_ptr<const Entity>> entities;
 };
 
-class StatisticsBackendTest : public StatisticsBackend
+void check_dds_entity(
+        std::shared_ptr<const DDSEntity> const& entity,
+        Info const& info)
 {
-public:
-
-    static void set_database(
-            Database* db)
-    {
-        details::StatisticsBackendData::get_instance()->database_.reset(db);
-    }
-
-};
-
+    ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
+    ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
+}
 
 // Check the get_info StatisticsBackend method
 TEST_F(statistics_backend_tests, get_info)

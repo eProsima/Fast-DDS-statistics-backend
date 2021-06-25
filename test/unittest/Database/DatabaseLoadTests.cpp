@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <fstream>
-
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
@@ -26,37 +24,6 @@
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-
-constexpr const char* DESCRIPTION_TAG = "description";
-
-constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
-constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
-
-DatabaseDump load_file(
-        std::string filename)
-{
-    // Check if the file exists
-    std::ifstream file(filename);
-    if (!file.good())
-    {
-        throw BadParameter("File " + filename + " does not exist");
-    }
-
-    // Get the json file
-    DatabaseDump dump;
-    file >> dump;
-
-    // Erase the description tag if existing
-    if (dump.contains(DESCRIPTION_TAG))
-    {
-        dump.erase(DESCRIPTION_TAG);
-    }
-
-    return dump;
-}
 
 /**
  * Auxiliar function for the load_and_dump tests.

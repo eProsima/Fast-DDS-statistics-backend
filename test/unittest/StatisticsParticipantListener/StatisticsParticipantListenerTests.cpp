@@ -272,21 +272,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
-    // Expectation: The Participant is added to the database (even though it will not really insert).
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, participant_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_info_to_backend_qos(info));
+    // Expectation: The Participant is not inserted in the database.
+    EXPECT_CALL(database, insert(_)).Times(0);
 
-                return EntityId(10);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    // Expectation: The Participant status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
@@ -1166,35 +1156,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
-    // Expectation: No entity is added to the database
+    // Expectation: The DataReader is not inserted in the database.
     EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectation: The DataReader is added to the database (even though it will not really insert).
-    InsertEntityArgs insert_reader_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_info_to_backend_qos(info));
-
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
-
-                return EntityId(11);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+    // Expectation: The DataReader status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -1947,32 +1913,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
-    // Expectation: The DataWriter is added to the database (even though it will not really insert).
-    InsertEntityArgs insert_writer_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_info_to_backend_qos(info));
+    // Expectation: The DataWriter is not inserted in the database.
+    EXPECT_CALL(database, insert(_)).Times(0);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
-
-                return EntityId(11);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+    // Expectation: The DataWriter status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Execution: Call the listener.
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -2036,6 +1981,10 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_statistics_w
     std::string writer_guid_str = participant_prefix_str_ + "|" + writer_entity_id_str;
     eprosima::fastrtps::rtps::GUID_t writer_guid;
     std::stringstream(writer_guid_str) >> writer_guid;
+
+    // Precondition: The Statistics Writer does not exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The discovered writer is in the participant
     data.guid(writer_guid);

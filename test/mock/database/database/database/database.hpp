@@ -99,6 +99,10 @@ public:
                 EntityKind entity_kind,
                 const std::string& name));
 
+    MOCK_METHOD2(change_entity_status, void(
+                const EntityId& entity_id,
+                bool active));
+
     // Rely this method to the mock of get_entity
     EntityKind get_entity_kind(
             EntityId entity_id) const

@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fstream>
+
+#include <StatisticsBackend.hpp>
+#include <StatisticsBackendData.hpp>
+
+constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
+constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
+constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
+constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
+constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
+constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
+
+constexpr const char* DESCRIPTION_TAG = "description";
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -166,12 +179,16 @@ public:
         db.insert(domain2);
         entities[8] = domain2;
 
-        auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos", "1.2.3.4", nullptr, domain2);
+        auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
+                        "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                        domain2);
         db.insert(participant1);
         db.link_participant_with_process(participant1->id, process2->id);
         entities[9] = participant1;
 
-        auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos", "5.6.7.8", nullptr, domain2);
+        auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos",
+                        "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2", nullptr,
+                        domain2);
         db.insert(participant2);
         db.link_participant_with_process(participant2->id, process2->id);
         entities[10] = participant2;
@@ -568,4 +585,54 @@ public:
         return string_to_uint(str);
     }
 
+    void change_entity_status_test(
+            const EntityId& entity_id,
+            bool active)
+    {
+        EntityKind entity_kind = get_entity_kind(entity_id);
+        change_entity_status_of_kind(entity_id, active, entity_kind);
+    }
+
 };
+
+/**
+ * Wrapper class around StatisticsBackend to access protected methods and data to use in tests
+ */
+class StatisticsBackendTest : public StatisticsBackend
+{
+public:
+
+    static void set_database(
+            Database* db)
+    {
+        details::StatisticsBackendData::get_instance()->database_.reset(db);
+    }
+
+};
+
+/**
+ * Load a .json file, returning a dump of it.
+ * Also remove meta information not necessary on dump.
+ */
+DatabaseDump load_file(
+        std::string filename)
+{
+    // Check if the file exists
+    std::ifstream file(filename);
+    if (!file.good())
+    {
+        throw BadParameter("File " + filename + " does not exist");
+    }
+
+    // Get the json file
+    DatabaseDump dump;
+    file >> dump;
+
+    // Erase the description tag if existing
+    if (dump.contains(DESCRIPTION_TAG))
+    {
+        dump.erase(DESCRIPTION_TAG);
+    }
+
+    return dump;
+}

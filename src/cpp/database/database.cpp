@@ -4194,6 +4194,305 @@ void Database::load_data(
     }
 }
 
+void Database::change_entity_status_of_kind(
+        const EntityId& entity_id,
+        bool active,
+        EntityKind entity_kind) noexcept
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    switch (entity_kind)
+    {
+        case EntityKind::HOST:
+        {
+            std::shared_ptr<Host> host;
+
+            for (auto host_it : hosts_)
+            {
+                if (host_it.second->id == entity_id)
+                {
+                    host = host_it.second;
+                    break;
+                }
+            }
+            if (host != nullptr && host->active != active)
+            {
+                host->active = active;
+            }
+            break;
+        }
+        case EntityKind::USER:
+        {
+            std::shared_ptr<User> user;
+
+            for (auto user_it : users_)
+            {
+                if (user_it.second->id == entity_id)
+                {
+                    user = user_it.second;
+                    break;
+                }
+            }
+            if (user != nullptr && user->active != active)
+            {
+                user->active = active;
+
+                // host
+                {
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : user->host->users)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(user->host->id, active, user->host->kind);
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::PROCESS:
+        {
+            std::shared_ptr<Process> process;
+
+            for (auto process_it : processes_)
+            {
+                if (process_it.second->id == entity_id)
+                {
+                    process = process_it.second;
+                    break;
+                }
+            }
+            if (process != nullptr && process->active != active)
+            {
+                process->active = active;
+
+                // user
+                {
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : process->user->processes)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(process->user->id, active, process->user->kind);
+                    }
+                }
+            }
+            break;
+        }
+        case EntityKind::DOMAIN:
+        {
+            std::shared_ptr<Domain> domain;
+
+            for (auto domain_it : domains_)
+            {
+                if (domain_it.second->id == entity_id)
+                {
+                    domain = domain_it.second;
+                    break;
+                }
+            }
+            if (domain != nullptr && domain->active != active)
+            {
+                domain->active = active;
+            }
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            std::shared_ptr<Topic> topic;
+
+            for (auto domain_it : topics_)
+            {
+                for (auto topic_it : domain_it.second)
+                {
+                    if (topic_it.second->id == entity_id)
+                    {
+                        topic = topic_it.second;
+                        break;
+                    }
+                }
+            }
+            if (topic != nullptr && topic->active != active)
+            {
+                topic->active = active;
+            }
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<DomainParticipant> participant;
+
+            for (auto domain_it : participants_)
+            {
+                for (auto participant_it : domain_it.second)
+                {
+                    if (participant_it.second->id == entity_id)
+                    {
+                        participant = participant_it.second;
+                        break;
+                    }
+                }
+            }
+
+            if (participant != nullptr && participant->active != active)
+            {
+                participant->active = active;
+
+                // process
+                if (participant->process != nullptr)
+                {
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : participant->process->participants)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(participant->process->id, active, participant->process->kind);
+                    }
+                }
+            }
+
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<DataWriter> datawriter;
+
+            for (auto domain_it : datawriters_)
+            {
+                for (auto datawriter_it : domain_it.second)
+                {
+                    if (datawriter_it.second->id == entity_id)
+                    {
+                        datawriter = datawriter_it.second;
+                        break;
+                    }
+                }
+            }
+
+            if (datawriter != nullptr && datawriter->active != active)
+            {
+                datawriter->active = active;
+
+                // topic
+                {
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : datawriter->topic->data_writers)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+                    if (change_status)
+                    {
+                        for (auto entity_it : datawriter->topic->data_readers)
+                        {
+                            if (entity_it.second->active != active)
+                            {
+                                change_status = false;
+                            }
+                        }
+                        if (change_status)
+                        {
+                            change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind);
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<DataReader> datareader;
+
+            for (auto domain_it : datareaders_)
+            {
+                for (auto datareader_it : domain_it.second)
+                {
+                    if (datareader_it.second->id == entity_id)
+                    {
+                        datareader = datareader_it.second;
+                        break;
+                    }
+                }
+            }
+            if (datareader != nullptr && datareader->active != active)
+            {
+                datareader->active = active;
+
+                // topic
+                {
+                    // Check if all entitities have 'active' status
+                    bool change_status = true;
+                    for (auto entity_it : datareader->topic->data_readers)
+                    {
+                        if (entity_it.second->active != active)
+                        {
+                            change_status = false;
+                        }
+                    }
+                    if (change_status)
+                    {
+                        for (auto entity_it : datareader->topic->data_writers)
+                        {
+                            if (entity_it.second->active != active)
+                            {
+                                change_status = false;
+                            }
+                        }
+                        if (change_status)
+                        {
+                            change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind);
+                        }
+                    }
+                }
+            }
+
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void Database::change_entity_status(
+        const EntityId& entity_id,
+        bool active)
+{
+    EntityKind entity_kind = get_entity_kind(entity_id);
+
+    // Check that the entity is a discovered/undiscovered dds_entity or a started/stopped monitor
+    assert(
+        entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
+        entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
+    change_entity_status_of_kind(entity_id, active, entity_kind);
+}
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima

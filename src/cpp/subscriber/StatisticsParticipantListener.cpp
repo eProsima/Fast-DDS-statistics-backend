@@ -58,21 +58,8 @@ inline bool is_statistics_builtin(
 
 template<typename T>
 void StatisticsParticipantListener::process_endpoint_discovery(
-        eprosima::fastdds::dds::DomainParticipant* statistics_participant,
         T&& info)
 {
-    // Filter out our own statistics readers
-    if (statistics_participant->guid().guidPrefix == info.info.guid().guidPrefix)
-    {
-        return;
-    }
-
-    // Filter out other statistics writers
-    if (is_statistics_builtin(info.info.guid().entityId))
-    {
-        return;
-    }
-
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Get the domain from the database
@@ -261,27 +248,38 @@ void StatisticsParticipantListener::on_participant_discovery(
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
         {
-            // Get the domain from the database
-            // This may throw if the domain does not exist
-            // The database MUST contain the domain, or something went wrong upstream
-            std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+            // If the participant is already in the database, change the status
+            try
+            {
+                EntityId participant_id =
+                        database_->get_entity_by_guid(EntityKind::PARTICIPANT,
+                                to_string(info.info.m_guid)).second;
+                database_->change_entity_status(participant_id, true);
+            }
+            catch (BadParameter&)
+            {
+                // Get the domain from the database
+                // This may throw if the domain does not exist
+                // The database MUST contain the domain, or something went wrong upstream
+                std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+                    std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
 
-            // Create the participant and push it to the queue
-            GUID_t participant_guid = info.info.m_guid;
-            auto participant = std::make_shared<database::DomainParticipant>(
-                info.info.m_participantName.to_string(),
-                participant_info_to_backend_qos(info),
-                to_string(participant_guid),
-                std::shared_ptr<database::Process>(),
-                domain);
+                // Create the participant and push it to the queue
+                GUID_t participant_guid = info.info.m_guid;
+                auto participant = std::make_shared<database::DomainParticipant>(
+                    info.info.m_participantName.to_string(),
+                    participant_info_to_backend_qos(info),
+                    to_string(participant_guid),
+                    std::shared_ptr<database::Process>(),
+                    domain);
 
-            database::EntityDiscoveryInfo entity_discovery_info;
-            entity_discovery_info.domain_id = domain_id_;
-            entity_discovery_info.entity = participant;
-            entity_queue_->push(timestamp, entity_discovery_info);
+                database::EntityDiscoveryInfo entity_discovery_info;
+                entity_discovery_info.domain_id = domain_id_;
+                entity_discovery_info.entity = participant;
+                entity_queue_->push(timestamp, entity_discovery_info);
+            }
+            break;
         }
-        break;
 
         case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
             // TODO [ILG] : Process these messages and save the updated QoS
@@ -289,8 +287,16 @@ void StatisticsParticipantListener::on_participant_discovery(
 
         case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
-            // TODO [ILG] : Process these messages and save the status of the entity
+        {
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId participant_id =  database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(
+                                info.info.m_guid)).second;
+            database_->change_entity_status(participant_id, false);
+
             break;
+        }
     }
 
     // Wait until the entity queue is processed and restart the data queue
@@ -305,11 +311,28 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
+    // Filter out our own statistics readers
+    if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+    {
+        return;
+    }
+
     switch (info.status)
     {
         case ReaderDiscoveryInfo::DISCOVERED_READER:
         {
-            process_endpoint_discovery(participant, info);
+            // If the datareader is already in the database, change the status
+            try
+            {
+                EntityId datareader_id =
+                        database_->get_entity_by_guid(EntityKind::DATAREADER,
+                                to_string(info.info.guid())).second;
+                database_->change_entity_status(datareader_id, true);
+            }
+            catch (BadParameter&)
+            {
+                process_endpoint_discovery(info);
+            }
             break;
         }
         case ReaderDiscoveryInfo::CHANGED_QOS_READER:
@@ -319,7 +342,14 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         }
         case ReaderDiscoveryInfo::REMOVED_READER:
         {
-            // TODO [ILG] : Process these messages and save the status of the entity
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId reader_id =
+                    database_->get_entity_by_guid(EntityKind::DATAREADER,
+                            to_string(info.info.guid())).second;
+            database_->change_entity_status(reader_id, false);
+
             break;
         }
     }
@@ -336,11 +366,30 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
+    static_cast<void>(participant);
+
+    // Filter out other statistics writers
+    if (is_statistics_builtin(info.info.guid().entityId))
+    {
+        return;
+    }
+
     switch (info.status)
     {
         case WriterDiscoveryInfo::DISCOVERED_WRITER:
         {
-            process_endpoint_discovery(participant, info);
+            // If the datawriter is already in the database, change the status
+            try
+            {
+                EntityId datawriter_id =
+                        database_->get_entity_by_guid(EntityKind::DATAWRITER,
+                                to_string(info.info.guid())).second;
+                database_->change_entity_status(datawriter_id, true);
+            }
+            catch (BadParameter&)
+            {
+                process_endpoint_discovery(info);
+            }
             break;
         }
         case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
@@ -350,7 +399,14 @@ void StatisticsParticipantListener::on_publisher_discovery(
         }
         case WriterDiscoveryInfo::REMOVED_WRITER:
         {
-            // TODO [ILG] : Process these messages and save the status of the entity
+            // TODO [ILG] : Process these messages
+
+            // Save the status of the entity
+            EntityId writer_id =
+                    database_->get_entity_by_guid(EntityKind::DATAWRITER,
+                            to_string(info.info.guid())).second;
+            database_->change_entity_status(writer_id, false);
+
             break;
         }
     }
