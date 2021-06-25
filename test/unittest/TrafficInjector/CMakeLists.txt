@@ -44,3 +44,7 @@ foreach(test_name ${TRAFFIC_INJECTOR_TEST_LIST})
         set_tests_properties(TrafficInjector.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 endforeach()
+
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -80,6 +80,10 @@ public:
 
     void SetUp ()
     {
+        // Set the profile to ignore discovery data from other processes
+        DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        DomainParticipantFactory::get_instance()->load_profiles();
+
         participant_ = DomainParticipantFactory::get_instance()->create_participant(
             0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
         subscriber_ = participant_->create_subscriber(eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT);

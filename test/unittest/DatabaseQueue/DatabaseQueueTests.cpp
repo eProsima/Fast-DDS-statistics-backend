@@ -282,6 +282,7 @@ TEST_F(database_queue_tests, push_host)
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
+                EXPECT_EQ(entity->alias, hostname);
 
                 return EntityId(1);
             });
@@ -313,6 +314,7 @@ TEST_F(database_queue_tests, push_host_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
+                EXPECT_EQ(entity->alias, hostname);
 
                 throw BadParameter("Error");
             });
@@ -347,6 +349,7 @@ TEST_F(database_queue_tests, push_user)
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(entity->alias, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 return EntityId(2);
@@ -381,6 +384,7 @@ TEST_F(database_queue_tests, push_user_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(entity->alias, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw BadParameter("Error");
@@ -419,6 +423,7 @@ TEST_F(database_queue_tests, push_process)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, command);
+                EXPECT_EQ(entity->alias, command);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
@@ -457,6 +462,7 @@ TEST_F(database_queue_tests, push_process_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, command);
+                EXPECT_EQ(entity->alias, command);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
@@ -491,6 +497,7 @@ TEST_F(database_queue_tests, push_domain)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
                 EXPECT_EQ(entity->name, domain_name);
+                EXPECT_EQ(entity->alias, domain_name);
 
                 return EntityId(0);
             });
@@ -522,6 +529,7 @@ TEST_F(database_queue_tests, push_domain_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
                 EXPECT_EQ(entity->name, domain_name);
+                EXPECT_EQ(entity->alias, domain_name);
 
                 throw BadParameter("Error");
             });
@@ -565,6 +573,7 @@ TEST_F(database_queue_tests, push_participant_process_exists)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                 EXPECT_EQ(entity->name, participant_name);
+                EXPECT_EQ(entity->alias, participant_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
@@ -605,6 +614,7 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                 EXPECT_EQ(entity->name, participant_name);
+                EXPECT_EQ(entity->alias, participant_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
@@ -642,6 +652,7 @@ TEST_F(database_queue_tests, push_topic)
             {
                 EXPECT_EQ(entity->kind, EntityKind::TOPIC);
                 EXPECT_EQ(entity->name, topic_name);
+                EXPECT_EQ(entity->alias, topic_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
@@ -678,6 +689,7 @@ TEST_F(database_queue_tests, push_topic_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::TOPIC);
                 EXPECT_EQ(entity->name, topic_name);
+                EXPECT_EQ(entity->alias, topic_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
 
@@ -719,6 +731,7 @@ TEST_F(database_queue_tests, push_datawriter)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
                 EXPECT_EQ(entity->name, datawriter_name);
+                EXPECT_EQ(entity->alias, datawriter_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
@@ -759,6 +772,7 @@ TEST_F(database_queue_tests, push_datawriter_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
                 EXPECT_EQ(entity->name, datawriter_name);
+                EXPECT_EQ(entity->alias, datawriter_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
@@ -800,6 +814,7 @@ TEST_F(database_queue_tests, push_datareader)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
                 EXPECT_EQ(entity->name, datareader_name);
+                EXPECT_EQ(entity->alias, datareader_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
@@ -840,6 +855,7 @@ TEST_F(database_queue_tests, push_datareader_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
                 EXPECT_EQ(entity->name, datareader_name);
+                EXPECT_EQ(entity->alias, datareader_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
@@ -875,6 +891,7 @@ TEST_F(database_queue_tests, push_locator)
             {
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, locator_name);
+                EXPECT_EQ(entity->alias, locator_name);
                 return EntityId(1);
             });
 
@@ -906,6 +923,7 @@ TEST_F(database_queue_tests, push_locator_throws)
             {
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, locator_name);
+                EXPECT_EQ(entity->alias, locator_name);
 
                 throw BadParameter("Error");
             });
@@ -3288,6 +3306,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(entity->alias, processname);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
@@ -3379,6 +3398,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(entity->alias, processname);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 
@@ -3466,6 +3486,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(entity->alias, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 return EntityId(3);
@@ -3481,6 +3502,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(entity->alias, processname);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
 
@@ -3567,6 +3589,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(entity->alias, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
 
                 throw BadParameter("Error");
@@ -3647,6 +3670,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
+                EXPECT_EQ(entity->alias, hostname);
 
                 return EntityId(3);
             });
@@ -3661,6 +3685,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
             {
                 EXPECT_EQ(entity->kind, EntityKind::USER);
                 EXPECT_EQ(entity->name, username);
+                EXPECT_EQ(entity->alias, username);
                 EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
 
                 return EntityId(4);
@@ -3676,6 +3701,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname);
+                EXPECT_EQ(entity->alias, processname);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
 
@@ -3757,6 +3783,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
             {
                 EXPECT_EQ(entity->kind, EntityKind::HOST);
                 EXPECT_EQ(entity->name, hostname);
+                EXPECT_EQ(entity->alias, hostname);
 
                 throw BadParameter("Error");
             });
@@ -3846,6 +3873,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
             {
                 EXPECT_EQ(entity->kind, EntityKind::PROCESS);
                 EXPECT_EQ(entity->name, processname_pid);
+                EXPECT_EQ(entity->alias, processname_pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, processname_pid);
                 EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
 

@@ -431,6 +431,16 @@ public:
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);
 
+    /**
+     * @brief Set a new alias for the entity.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @param alias New alias that will replace the old one.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     */
+    static void set_alias(
+            EntityId entity_id,
+            const std::string& alias);
 };
 
 } // namespace statistics_backend

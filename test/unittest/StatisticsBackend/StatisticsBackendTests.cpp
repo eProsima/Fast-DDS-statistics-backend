@@ -93,6 +93,8 @@ TEST_F(statistics_backend_tests, get_info)
         info.erase(KIND_INFO_TAG);
         EXPECT_EQ(entity->name, info[NAME_INFO_TAG]);
         info.erase(NAME_INFO_TAG);
+        EXPECT_EQ(entity->alias, info[ALIAS_INFO_TAG]);
+        info.erase(ALIAS_INFO_TAG);
 
         // Check specific info
         switch (entity->kind)
@@ -373,6 +375,26 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
                 discovery_time_types.end(),
                 types_allowed),
                 discovery_time_types.end());
+        }
+    }
+}
+
+// Check the get_data_supported_entity_kinds StatisticsBackend method
+TEST_F(statistics_backend_tests, set_alias)
+{
+    StatisticsBackendTest::set_database(db);
+
+    for (auto entity : entities)
+    {
+        if (entity.second->kind == EntityKind::INVALID)
+        {
+            EXPECT_THROW(StatisticsBackend::set_alias(entity.second->id, "my_alias"), BadParameter);
+        }
+        else
+        {
+            ASSERT_NE("my_alias", entity.second->alias);
+            StatisticsBackend::set_alias(entity.second->id, "my_alias");
+            ASSERT_EQ("my_alias", entity.second->alias);
         }
     }
 }

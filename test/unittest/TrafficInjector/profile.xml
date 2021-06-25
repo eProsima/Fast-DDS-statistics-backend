@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"  ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>          
+        <participant profile_name="backend_participant" is_default_profile="true">
+            <rtps>
+                <builtin>
+                    <discovery_config>
+                        <ignoreParticipantFlags>FILTER_DIFFERENT_PROCESS | FILTER_DIFFERENT_HOST</ignoreParticipantFlags>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

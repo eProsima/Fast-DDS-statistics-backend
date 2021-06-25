@@ -58,6 +58,7 @@ set(BACKEND_TEST_LIST
     get_entities
     get_type
     get_data_supported_entity_kinds
+    set_alias
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})
