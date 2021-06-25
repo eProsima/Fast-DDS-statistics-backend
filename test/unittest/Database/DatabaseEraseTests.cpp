@@ -84,18 +84,7 @@ TEST(database_erase_tests, erase_domain)
     DatabaseDump erased_dump = db.dump_database();
 
     // Compare erased and final dumps
-    EXPECT_EQ(final_dump[HOST_CONTAINER_TAG], erased_dump[HOST_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[USER_CONTAINER_TAG], erased_dump[USER_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[PROCESS_CONTAINER_TAG], erased_dump[PROCESS_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[DOMAIN_CONTAINER_TAG], erased_dump[DOMAIN_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[TOPIC_CONTAINER_TAG], erased_dump[TOPIC_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[PARTICIPANT_CONTAINER_TAG], erased_dump[PARTICIPANT_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[LOCATOR_CONTAINER_TAG], erased_dump[LOCATOR_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[DATAWRITER_CONTAINER_TAG], erased_dump[DATAWRITER_CONTAINER_TAG]);
-    EXPECT_EQ(final_dump[DATAREADER_CONTAINER_TAG], erased_dump[DATAREADER_CONTAINER_TAG]);
-
     EXPECT_EQ(final_dump, erased_dump);
-
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
