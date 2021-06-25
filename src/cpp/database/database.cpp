@@ -1371,13 +1371,13 @@ void Database::erase(
     for (auto reader : datareaders_[domain_id])
     {
         // Unlink related locators
-        for (auto locator : reader.second.get()->locators)
+        for (auto locator : reader.second->locators)
         {
-            locators_[locator.first].get()->data_readers.erase(reader.first);
+            locators_[locator.first]->data_readers.erase(reader.first);
         }
         // Clear entity
-        reader.second.get()->DDSEndpoint::clear();
-        reader.second.get()->clear();
+        reader.second->DDSEndpoint::clear();
+        reader.second->clear();
     }
     // Clear datareaders map
     datareaders_[domain_id].clear();
@@ -1386,13 +1386,13 @@ void Database::erase(
     for (auto writer : datawriters_[domain_id])
     {
         // Unlink related locators
-        for (auto locator : writer.second.get()->locators)
+        for (auto locator : writer.second->locators)
         {
-            locators_[locator.first].get()->data_writers.erase(writer.first);
+            locators_[locator.first]->data_writers.erase(writer.first);
         }
         // Clear entity
-        writer.second.get()->DDSEndpoint::clear();
-        writer.second.get()->clear();
+        writer.second->DDSEndpoint::clear();
+        writer.second->clear();
     }
     // Clear datawriters map
     datawriters_[domain_id].clear();
@@ -1401,7 +1401,7 @@ void Database::erase(
     for (auto topic : topics_[domain_id])
     {
         // Clear entity
-        topic.second.get()->clear();
+        topic.second->clear();
     }
     // Clear topics map
     topics_[domain_id].clear();
@@ -1410,15 +1410,15 @@ void Database::erase(
     for (auto participant : participants_[domain_id])
     {
         // Unlink related process
-        processes_[participant.second.get()->process.get()->id].get()->participants.erase(participant.first);
+        processes_[participant.second->process->id]->participants.erase(participant.first);
         // Clear entity
-        participant.second.get()->clear();
+        participant.second->clear();
     }
     // Clear participants map
     participants_[domain_id].clear();
 
     // Clear domain
-    domains_[domain_id].get()->clear();
+    domains_[domain_id]->clear();
     domains_.erase(domain_id);
 }
 
@@ -1916,7 +1916,7 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
-    return get_entity(entity_id).get()->kind;
+    return get_entity(entity_id)->kind;
 }
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
