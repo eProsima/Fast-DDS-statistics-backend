@@ -379,6 +379,26 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
     }
 }
 
+// Check the get_data_supported_entity_kinds StatisticsBackend method
+TEST_F(statistics_backend_tests, set_alias)
+{
+    StatisticsBackendTest::set_database(db);
+
+    for (auto entity : entities)
+    {
+        if (entity.second->kind == EntityKind::INVALID)
+        {
+            EXPECT_THROW(StatisticsBackend::set_alias(entity.second->id, "my_alias"), BadParameter);
+        }
+        else
+        {
+            ASSERT_NE("my_alias", entity.second->alias);
+            StatisticsBackend::set_alias(entity.second->id, "my_alias");
+            ASSERT_EQ("my_alias", entity.second->alias);
+        }
+    }
+}
+
 #ifdef INSTANTIATE_TEST_SUITE_P
 #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
 #else
