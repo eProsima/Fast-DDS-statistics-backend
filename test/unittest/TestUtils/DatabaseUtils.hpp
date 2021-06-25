@@ -607,6 +607,21 @@ public:
             Database* db)
     {
         details::StatisticsBackendData::get_instance()->database_.reset(db);
+
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_.clear();
+
+        // Need to reconstruct the monitors
+        auto domains = details::StatisticsBackendData::get_instance()->database_->get_entities(
+            EntityKind::DOMAIN, EntityId::all());
+        for (auto domain : domains)
+        {
+            std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+            std::stringstream domain_name;
+            domain_name << domain->name;
+            monitor->id = domain->id;
+            monitor->domain_listener = nullptr;
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+        }
     }
 
 };
