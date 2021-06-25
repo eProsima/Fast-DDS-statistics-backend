@@ -53,8 +53,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
-        new_participant_discovered_no_domain
         new_participant_discovered_participant_already_exists
+        new_participant_no_domain
+        new_participant_undiscovered
+        new_participant_undiscovered_participant_already_exists
         new_reader_discovered
         new_reader_discovered_no_topic
         new_reader_discovered_several_topics
