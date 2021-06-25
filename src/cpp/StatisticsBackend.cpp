@@ -16,6 +16,7 @@
  * @file StatisticsBackend.cpp
  */
 
+#include <algorithm>
 #include <fstream>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
@@ -390,6 +391,46 @@ Info StatisticsBackend::get_info(
             break;
         }
         case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const database::DomainParticipant> participant =
+                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+            info[GUID_INFO_TAG] = participant->guid;
+            info[QOS_INFO_TAG] = participant->qos;
+
+            // Locators associated to endpoints
+            DatabaseDump locators = DatabaseDump::array();
+
+            // Writers registered in the participant
+            for (auto writer : participant->data_writers)
+            {
+                // Locators associated to each writer
+                for (auto locator : writer.second.get()->locators)
+                {
+                    locators.push_back(locator.second.get()->name);
+                }
+            }
+
+            // Readers registered in the participant
+            for (auto reader : participant->data_readers)
+            {
+                // Locators associated to each reader
+                for (auto locator : reader.second.get()->locators)
+                {
+                    locators.push_back(locator.second.get()->name);
+                }
+            }
+
+            // Remove duplicates
+            auto last = std::unique(locators.begin(), locators.end(), [](
+                                const std::string& first,
+                                const std::string& second)
+                            {
+                                return first.compare(second) == 0;
+                            });
+            locators.erase(last, locators.end());
+            info[LOCATOR_CONTAINER_TAG] = locators;
+            break;
+        }
         case EntityKind::DATAWRITER:
         case EntityKind::DATAREADER:
         {

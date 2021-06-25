@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <list>
+#include <string>
+#include <vector>
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
@@ -65,15 +68,8 @@ public:
 
 };
 
-void check_dds_entity(
-        std::shared_ptr<const DDSEntity> const& entity,
-        Info const& info)
-{
-    ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
-    ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
-}
 
-// Check the get_type StatisticsBackend method
+// Check the get_info StatisticsBackend method
 TEST_F(statistics_backend_tests, get_info)
 {
     StatisticsBackendTest::set_database(db);
@@ -89,9 +85,14 @@ TEST_F(statistics_backend_tests, get_info)
         Info info = StatisticsBackendTest::get_info(entity->id);
 
         // Check generic info
-        ASSERT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
-        ASSERT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
-        ASSERT_EQ(entity->name, info[NAME_INFO_TAG]);
+        // Once the info is checked, it is erased so the final check is confirm that the info is empty (there is no
+        // more information than the expected)
+        EXPECT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
+        info.erase(ID_INFO_TAG);
+        EXPECT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
+        info.erase(KIND_INFO_TAG);
+        EXPECT_EQ(entity->name, info[NAME_INFO_TAG]);
+        info.erase(NAME_INFO_TAG);
 
         // Check specific info
         switch (entity->kind)
@@ -100,23 +101,73 @@ TEST_F(statistics_backend_tests, get_info)
             {
                 std::shared_ptr<const Process> process =
                         std::dynamic_pointer_cast<const Process>(entity);
-                ASSERT_EQ(process->pid, info[PID_INFO_TAG]);
+                EXPECT_EQ(process->pid, info[PID_INFO_TAG]);
+                info.erase(PID_INFO_TAG);
                 break;
             }
             case EntityKind::TOPIC:
             {
                 std::shared_ptr<const Topic> topic =
                         std::dynamic_pointer_cast<const Topic>(entity);
-                ASSERT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
+                EXPECT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
+                info.erase(DATA_TYPE_INFO_TAG);
                 break;
             }
             case EntityKind::PARTICIPANT:
+            {
+                std::shared_ptr<const DomainParticipant> participant =
+                        std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                EXPECT_EQ(participant->guid, info[GUID_INFO_TAG]);
+                info.erase(GUID_INFO_TAG);
+                EXPECT_EQ(participant->qos, info[QOS_INFO_TAG]);
+                info.erase(QOS_INFO_TAG);
+
+                // Obtain the locators list associated to the participant's endpoints
+                std::vector<std::string> locators;
+                for (auto reader : participant->data_readers)
+                {
+                    for (auto locator : reader.second.get()->locators)
+                    {
+                        locators.push_back(locator.second.get()->name);
+                    }
+                }
+                for (auto writer : participant->data_writers)
+                {
+                    for (auto locator : writer.second.get()->locators)
+                    {
+                        locators.push_back(locator.second.get()->name);
+                    }
+                }
+                // Remove duplicates
+                auto last = std::unique(locators.begin(), locators.end(), [](
+                                    const std::string& first,
+                                    const std::string& second)
+                                {
+                                    return first.compare(second) == 0;
+                                });
+                locators.erase(last, locators.end());
+
+                // Check that every locator is included in the Info object
+                for (auto locator_name : locators)
+                {
+                    auto locator_it = std::find(info[LOCATOR_CONTAINER_TAG].begin(),
+                                    info[LOCATOR_CONTAINER_TAG].end(), locator_name);
+                    ASSERT_NE(locator_it, info[LOCATOR_CONTAINER_TAG].end());
+                    info[LOCATOR_CONTAINER_TAG].erase(locator_it);
+                }
+                EXPECT_TRUE(info[LOCATOR_CONTAINER_TAG].empty());
+                info.erase(LOCATOR_CONTAINER_TAG);
+                break;
+            }
             case EntityKind::DATAWRITER:
             case EntityKind::DATAREADER:
             {
                 std::shared_ptr<const DDSEntity> dds_entity =
                         std::dynamic_pointer_cast<const DDSEntity>(entity);
-                check_dds_entity(dds_entity, info);
+                EXPECT_EQ(dds_entity->guid, info[GUID_INFO_TAG]);
+                info.erase(GUID_INFO_TAG);
+                EXPECT_EQ(dds_entity->qos, info[QOS_INFO_TAG]);
+                info.erase(QOS_INFO_TAG);
                 break;
             }
             default:
@@ -124,6 +175,7 @@ TEST_F(statistics_backend_tests, get_info)
                 break;
             }
         }
+        EXPECT_TRUE(info.empty());
     }
 }
 
