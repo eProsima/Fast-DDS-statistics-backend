@@ -14,6 +14,7 @@
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "fastdds/dds/domain/DomainParticipant.hpp"
 
@@ -84,6 +85,9 @@ public:
     StatisticsParticipantListener* participant_listener;
 };
 
+// Windows dll do not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
+
 // Check the is_active StatisticsBackend method when a participant is undiscovered
 TEST_F(is_active_tests, participant)
 {
@@ -141,6 +145,7 @@ TEST_F(is_active_tests, participant)
     ASSERT_TRUE(StatisticsBackendTest::is_active(datareader->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 }
+#endif // !defined(_WIN32)
 
 // Check the is_active StatisticsBackend method when a datawriter is undiscovered
 TEST_F(is_active_tests, datawriter)

@@ -67,7 +67,10 @@ TEST_F(database_status_tests, initial_status)
 
 TEST_F(database_status_tests, host)
 {
+#ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(host->id, false), "");
+#endif // ifndef NDEBUG
+
     db.change_entity_status_test(host->id, false);
 
     ASSERT_FALSE(host->active);
@@ -125,7 +128,10 @@ TEST_F(database_status_tests, host)
 
 TEST_F(database_status_tests, user)
 {
+#ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(user->id, false), "");
+#endif // ifndef NDEBUG
+
     db.change_entity_status_test(user->id, false);
 
     ASSERT_FALSE(host->active);
@@ -183,7 +189,10 @@ TEST_F(database_status_tests, user)
 
 TEST_F(database_status_tests, process)
 {
+#ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(process->id, false), "");
+#endif // ifndef NDEBUG
+
     db.change_entity_status_test(process->id, false);
 
     ASSERT_FALSE(host->active);
@@ -298,7 +307,10 @@ TEST_F(database_status_tests, domain)
 
 TEST_F(database_status_tests, topic)
 {
+#ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
+#endif // ifndef NDEBUG
+
     db.change_entity_status_test(topic->id, false);
 
     ASSERT_TRUE(host->active);
@@ -648,7 +660,10 @@ TEST_F(database_status_tests, endpoints)
 
 TEST_F(database_status_tests, locator)
 {
+#ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(locator->id, false), "");
+#endif // ifndef NDEBUG
+
     db.change_entity_status_test(locator->id, false);
 
     ASSERT_TRUE(host->active);
