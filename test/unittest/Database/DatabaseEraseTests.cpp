@@ -29,6 +29,7 @@ constexpr const char* FINAL_DUMP_FILE = "resources/complex_dump_erased_domain_1.
 #include <types/types.hpp>
 
 #include <database/database.hpp>
+#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
@@ -68,14 +69,58 @@ TEST(database_erase_tests, erase_domain)
     DatabaseDump final_dump = load_file(FINAL_DUMP_FILE);
 
     // Create database
-    Database db;
+    DataBaseTest db;
 
     // Load initial dump in the database
     db.load_database(initial_dump);
 
     // Call erase monitor removing domain_1
     std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, "domain_1");
-    db.erase(domains.begin()->first);
+    EntityId domain_id = domains.begin()->first;
+    // Save entities associated to the erased domain to check that the cross maps are correctly erased.
+    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
+    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
+    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
+    db.erase(domain_id);
+
+    // Check that the map elements have been correctly erased
+    EXPECT_EQ(db.domains().find(domain_id), db.domains().end());
+    EXPECT_EQ(db.topics().find(domain_id), db.topics().end());
+    EXPECT_EQ(db.participants().find(domain_id), db.participants().end());
+    EXPECT_EQ(db.datawriters().find(domain_id), db.datawriters().end());
+    EXPECT_EQ(db.datareaders().find(domain_id), db.datareaders().end());
+    // Any reference to the erased endpoints has been deleted from the locators map
+    for (auto locator : db.locators())
+    {
+        for (auto reader : readers)
+        {
+            EXPECT_EQ(locator.second->data_readers.find(reader->id), locator.second->data_readers.end());
+        }
+        for (auto writer : writers)
+        {
+            EXPECT_EQ(locator.second->data_writers.find(writer->id), locator.second->data_writers.end());
+        }
+    }
+    // Any reference to the erased domain has been deleted
+    for (auto process : db.domains_by_process())
+    {
+        EXPECT_EQ(process.second.find(domain_id), process.second.end());
+    }
+    EXPECT_EQ(db.processes_by_domain().find(domain_id), db.processes_by_domain().end());
+    // Any reference to the erased participant has been deleted
+    for (auto participant : participants)
+    {
+        EntityId participant_id = participant->id;
+        for (auto process : db.processes())
+        {
+            EXPECT_EQ(process.second->participants.find(participant_id), process.second->participants.end());
+        }
+        for (auto locator : db.participants_by_locator())
+        {
+            EXPECT_EQ(locator.second.find(participant_id), locator.second.end());
+        }
+        EXPECT_EQ(db.locators_by_participant().find(participant_id), db.locators_by_participant().end());
+    }
 
     // Calling again to erase an already erased domain throws an exception
     ASSERT_THROW(db.erase(domains.begin()->first), BadParameter);
