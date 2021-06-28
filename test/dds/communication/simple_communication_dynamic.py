@@ -106,7 +106,7 @@ try:
 
                 print("___publisher1 kill___")
                 sys.stdout.flush()
-                publisher_proc1.kill()
+                publisher_proc1.communicate()
 
                 print("___Stop Monitor___")
                 sys.stdout.flush()

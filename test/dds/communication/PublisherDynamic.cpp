@@ -310,7 +310,7 @@ int main(
     inner->set_byte_value(10, 0);
     data->return_loaned_value(inner);
 
-    while (run)
+    for (int i = 0; i < 5; i++)
     {
         writer->write(data.get());
 
@@ -333,6 +333,15 @@ int main(
         data->return_loaned_value(inner);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
+
+    if (wait > 0)
+    {
+        std::unique_lock<std::mutex> lock(listener.mutex_);
+        listener.cv_.wait(lock, [&]
+                {
+                    return listener.matched_ < wait;
+                });
     }
 
     if (writer != nullptr)
