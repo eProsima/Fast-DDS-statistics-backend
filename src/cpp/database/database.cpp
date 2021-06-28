@@ -1397,8 +1397,11 @@ void Database::erase(
     // Remove participants and unlink related process
     for (auto& participant : participants_[domain_id])
     {
-        // Unlink related process
-        processes_[participant.second->process->id]->participants.erase(participant.first);
+        // Unlink related process if it exists
+        if (participant.second->process)
+        {
+            processes_[participant.second->process->id]->participants.erase(participant.first);
+        }
         // Erase locators_by_participant map element
         locators_by_participant_.erase(participant.second->id);
         // Erase participants_by_locator_ participant reference
