@@ -156,6 +156,10 @@ TEST_F(is_active_tests, participant)
 // Check the is_active StatisticsBackend method when a datawriter is undiscovered
 TEST_F(is_active_tests, datawriter)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));
@@ -222,6 +226,10 @@ TEST_F(is_active_tests, datawriter)
 // Check the is_active StatisticsBackend method when a datareader is undiscovered
 TEST_F(is_active_tests, datareader)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));
@@ -288,6 +296,10 @@ TEST_F(is_active_tests, datareader)
 // Check the is_active StatisticsBackend method when the endpoints are undiscovered
 TEST_F(is_active_tests, endpoints)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));

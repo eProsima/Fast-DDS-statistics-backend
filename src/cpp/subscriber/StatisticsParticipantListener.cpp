@@ -247,22 +247,15 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    // Get the domain from the database
-    // This may throw if the domain does not exist
-    // The database MUST contain the domain, or something went wrong upstream
-    std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
-
-    // Build discovery info
-    database::EntityDiscoveryInfo entity_discovery_info;
-    entity_discovery_info.domain_id = domain_id_;
-
     // The participant is already in the database
     try
     {
         EntityId participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(info.info.m_guid))
                         .second;
 
+        // Build discovery info
+        database::EntityDiscoveryInfo entity_discovery_info;
+        entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = std::const_pointer_cast<database::DomainParticipant>(
             std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_id)));
 
@@ -275,6 +268,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             }
             case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
                 // TODO [ILG] : Process these messages and save the updated QoS
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
                 break;
 
             case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
@@ -284,12 +278,20 @@ void StatisticsParticipantListener::on_participant_discovery(
                 break;
             }
         }
+
+        entity_queue_->push(timestamp, entity_discovery_info);
     }
     // The participant is not in the database
     catch (BadParameter&)
     {
         if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
         {
+            // Get the domain from the database
+            // This may throw if the domain does not exist
+            // The database MUST contain the domain, or something went wrong upstream
+            std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+
             // Create the participant and push it to the queue
             GUID_t participant_guid = info.info.m_guid;
             auto participant = std::make_shared<database::DomainParticipant>(
@@ -299,16 +301,19 @@ void StatisticsParticipantListener::on_participant_discovery(
                 std::shared_ptr<database::Process>(),
                 domain);
 
+            // Build discovery info
+            database::EntityDiscoveryInfo entity_discovery_info;
+            entity_discovery_info.domain_id = domain_id_;
             entity_discovery_info.entity = participant;
             entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+
+            entity_queue_->push(timestamp, entity_discovery_info);
         }
         else
         {
             throw BadParameter("Update or undiscover a participant which is not in the database");
         }
     }
-
-    entity_queue_->push(timestamp, entity_discovery_info);
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
@@ -328,40 +333,51 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         return;
     }
 
-    switch (info.status)
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // The subscriber is already in the database
+    try
     {
-        case ReaderDiscoveryInfo::DISCOVERED_READER:
-        {
-            // If the datareader is already in the database, change the status
-            try
-            {
-                EntityId datareader_id =
-                        database_->get_entity_by_guid(EntityKind::DATAREADER,
-                                to_string(info.info.guid())).second;
-                database_->change_entity_status(datareader_id, true);
-            }
-            catch (BadParameter&)
-            {
-                process_endpoint_discovery(info);
-            }
-            break;
-        }
-        case ReaderDiscoveryInfo::CHANGED_QOS_READER:
-        {
-            // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
-            break;
-        }
-        case ReaderDiscoveryInfo::REMOVED_READER:
-        {
-            // TODO [ILG] : Process these messages
+        EntityId datareader_id =
+                database_->get_entity_by_guid(EntityKind::DATAREADER, to_string(info.info.guid())).second;
 
-            // Save the status of the entity
-            EntityId reader_id =
-                    database_->get_entity_by_guid(EntityKind::DATAREADER,
-                            to_string(info.info.guid())).second;
-            database_->change_entity_status(reader_id, false);
+        // Build discovery info
+        database::EntityDiscoveryInfo entity_discovery_info;
+        entity_discovery_info.domain_id = domain_id_;
+        entity_discovery_info.entity = std::const_pointer_cast<database::DataReader>(
+            std::static_pointer_cast<const database::DataReader>(database_->get_entity(datareader_id)));
 
-            break;
+        switch (info.status)
+        {
+            case ReaderDiscoveryInfo::DISCOVERED_READER:
+            {
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                break;
+            }
+            case ReaderDiscoveryInfo::CHANGED_QOS_READER:
+                // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                break;
+
+            case ReaderDiscoveryInfo::REMOVED_READER:
+            {
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+                break;
+            }
+        }
+
+        entity_queue_->push(timestamp, entity_discovery_info);
+    }
+    // The subscriber is not in the database
+    catch (BadParameter&)
+    {
+        if (info.status == ReaderDiscoveryInfo::DISCOVERED_READER)
+        {
+            process_endpoint_discovery(info);
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a subscriber which is not in the database");
         }
     }
 
@@ -374,10 +390,10 @@ void StatisticsParticipantListener::on_publisher_discovery(
         DomainParticipant* participant,
         WriterDiscoveryInfo&& info)
 {
+    static_cast<void>(participant);
+
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
-
-    static_cast<void>(participant);
 
     // Filter out other statistics writers
     if (is_statistics_builtin(info.info.guid().entityId))
@@ -385,40 +401,51 @@ void StatisticsParticipantListener::on_publisher_discovery(
         return;
     }
 
-    switch (info.status)
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // The publisher is already in the database
+    try
     {
-        case WriterDiscoveryInfo::DISCOVERED_WRITER:
-        {
-            // If the datawriter is already in the database, change the status
-            try
-            {
-                EntityId datawriter_id =
-                        database_->get_entity_by_guid(EntityKind::DATAWRITER,
-                                to_string(info.info.guid())).second;
-                database_->change_entity_status(datawriter_id, true);
-            }
-            catch (BadParameter&)
-            {
-                process_endpoint_discovery(info);
-            }
-            break;
-        }
-        case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
-        {
-            // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
-            break;
-        }
-        case WriterDiscoveryInfo::REMOVED_WRITER:
-        {
-            // TODO [ILG] : Process these messages
+        EntityId datawriter_id =
+                database_->get_entity_by_guid(EntityKind::DATAWRITER, to_string(info.info.guid())).second;
 
-            // Save the status of the entity
-            EntityId writer_id =
-                    database_->get_entity_by_guid(EntityKind::DATAWRITER,
-                            to_string(info.info.guid())).second;
-            database_->change_entity_status(writer_id, false);
+        // Build discovery info
+        database::EntityDiscoveryInfo entity_discovery_info;
+        entity_discovery_info.domain_id = domain_id_;
+        entity_discovery_info.entity = std::const_pointer_cast<database::DataWriter>(
+            std::static_pointer_cast<const database::DataWriter>(database_->get_entity(datawriter_id)));
 
-            break;
+        switch (info.status)
+        {
+            case WriterDiscoveryInfo::DISCOVERED_WRITER:
+            {
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                break;
+            }
+            case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
+                // TODO [ILG] : Process these messages and save the updated QoS and/or Locators
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                break;
+
+            case WriterDiscoveryInfo::REMOVED_WRITER:
+            {
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+                break;
+            }
+        }
+
+        entity_queue_->push(timestamp, entity_discovery_info);
+    }
+    // The publisher is not in the database
+    catch (BadParameter&)
+    {
+        if (info.status == WriterDiscoveryInfo::DISCOVERED_WRITER)
+        {
+            process_endpoint_discovery(info);
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a publichser which is not in the database");
         }
     }
 

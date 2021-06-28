@@ -59,6 +59,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_domain_throws
         push_participant_process_exists
         push_participant_no_process_exists
+        push_participant_throws
         push_topic
         push_topic_throws
         push_datawriter

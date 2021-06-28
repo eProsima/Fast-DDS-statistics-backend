@@ -758,6 +758,46 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
     }
 }
 
+TEST_F(database_queue_tests, push_participant_throws)
+{
+    // Create the domain hierarchy
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::string participant_name = "participant name";
+    Qos participant_qos;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+
+    std::shared_ptr<Domain> domain;
+    std::shared_ptr<Process> process;
+    std::shared_ptr<DomainParticipant> participant =
+            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
+                    process, domain);
+
+    // Expectation: The participant creation throws
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity) -> EntityId
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
+                EXPECT_EQ(entity->name, participant_name);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
+                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
+
+                throw BadParameter("Error");
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectations: No notification to user
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    entity_queue.stop_consumer();
+    entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::DISCOVERY});
+    entity_queue.do_swap();
+
+    EXPECT_NO_THROW(entity_queue.consume_sample());
+}
+
 TEST_F(database_queue_tests, push_topic)
 {
     // Create the domain hierarchy
@@ -848,30 +888,92 @@ TEST_F(database_queue_tests, push_datawriter)
             std::make_shared<DataWriter>(datawriter_name, datawriter_qos, datawriter_guid_str,
                     participant, topic);
 
-    // Expectation: The datawriter is created and given ID 1
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, datawriter_name);
-                EXPECT_EQ(entity->alias, datawriter_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+    // Datawriter undiscovery: FAILURE
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
 
-                return EntityId(1);
-            });
+        // Expectations: The status will throw an exception because the datawriter is not in the database
+        EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
+                .WillRepeatedly(Throw(BadParameter("Error")));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UNDISCOVERY});
+        entity_queue.flush();
+    }
+    // Datawriter update: FAILURE
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAWRITER,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
+        // Expectations: The status will throw an exception because the datawriter is not in the database
+        EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
+                .WillRepeatedly(Throw(BadParameter("Error")));
 
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UPDATE});
+        entity_queue.flush();
+    }
+    // Datawriter discovery: SUCCESS
+    {
+        // Expectation: The datawriter is created and given ID 1
+        InsertEntityArgs insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(entity->name, datawriter_name);
+                    EXPECT_EQ(entity->alias, datawriter_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                    return EntityId(1);
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::DISCOVERY});
+        entity_queue.flush();
+    }
+    // Datawriter update: SUCCESS
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAWRITER,
+                details::StatisticsBackendData::UPDATE)).Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UPDATE});
+        entity_queue.flush();
+    }
+    // Datawriter undiscovery: SUCCESS
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAWRITER,
+                details::StatisticsBackendData::UNDISCOVERY)).Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UNDISCOVERY});
+        entity_queue.flush();
+    }
 }
 
 TEST_F(database_queue_tests, push_datawriter_throws)
@@ -931,30 +1033,94 @@ TEST_F(database_queue_tests, push_datareader)
             std::make_shared<DataReader>(datareader_name, datareader_qos, datareader_guid_str,
                     participant, topic);
 
-    // Expectation: The datareader is created and given ID 1
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, datareader_name);
-                EXPECT_EQ(entity->alias, datareader_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+    // Datareader undiscovery: FAILURE
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
 
-                return EntityId(1);
-            });
+        // Expectations: The status will throw an exception because the datareader is not in the database
+        EXPECT_CALL(database,
+                change_entity_status(_, false)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UNDISCOVERY});
+        entity_queue.flush();
+    }
+    // Datareader update: FAILURE
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
 
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAREADER,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
+        // Expectations: The status will throw an exception because the datareader is not in the database
+        EXPECT_CALL(database,
+                change_entity_status(_, true)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
 
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UPDATE});
+        entity_queue.flush();
+    }
+    // Datareader discovery: SUCCESS
+    {
+        // Expectation: The datareader is created and given ID 1
+        InsertEntityArgs insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(entity->name, datareader_name);
+                    EXPECT_EQ(entity->alias, datareader_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+
+                    return EntityId(1);
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::DISCOVERY});
+        entity_queue.flush();
+    }
+    // Datareader update: SUCCESS
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAREADER,
+                details::StatisticsBackendData::UPDATE))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UPDATE});
+        entity_queue.flush();
+    }
+    // Datareader undiscovery: SUCCESS
+    {
+        EXPECT_CALL(database, insert(_)).Times(0);
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAREADER,
+                details::StatisticsBackendData::UNDISCOVERY))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UNDISCOVERY});
+        entity_queue.flush();
+    }
 }
 
 TEST_F(database_queue_tests, push_datareader_throws)
