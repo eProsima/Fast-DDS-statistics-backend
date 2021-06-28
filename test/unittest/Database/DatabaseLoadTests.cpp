@@ -37,7 +37,8 @@ void load_and_dump(
         std::string filename)
 {
     // Read JSON
-    DatabaseDump dump = load_file(filename);
+    DatabaseDump dump;
+    load_file(filename, dump);
 
     // Create database
     Database db;
@@ -90,8 +91,10 @@ TEST(database_load_tests, load_and_dump_complex_database)
 TEST(database_load_tests, load_and_dump_old_complex_database)
 {
     // Read JSON
-    DatabaseDump dump_old = load_file(OLD_COMPLEX_DUMP_FILE);
-    DatabaseDump dump = load_file(COMPLEX_DUMP_FILE);
+    DatabaseDump dump_old;
+    load_file(OLD_COMPLEX_DUMP_FILE, dump_old);
+    DatabaseDump dump;
+    load_file(COMPLEX_DUMP_FILE, dump);
 
     // Create database
     Database db;
@@ -122,7 +125,8 @@ TEST(database_load_tests, load_and_dump_old_complex_database)
 TEST(database_load_tests, load_twice)
 {
     // Read JSON
-    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(SIMPLE_DUMP_FILE, dump);
 
     // Create database
     Database db;
@@ -257,7 +261,8 @@ void check_data_value_last_no_key(
 TEST(database_load_tests, load_erased_keys)
 {
     // Read JSON
-    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(SIMPLE_DUMP_FILE, dump);
 
     constexpr const char* char_message = "test";
     std::string string_message = "test";
@@ -659,7 +664,8 @@ void check_is_double(
 TEST(database_load_tests, load_wrong_values)
 {
     // Read JSON
-    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(SIMPLE_DUMP_FILE, dump);
 
     // object, string, float, int, array, bool
 
@@ -1177,7 +1183,8 @@ void check_multiple_reference(
 TEST(database_load_tests, load_wrong_references)
 {
     // Read JSON
-    DatabaseDump dump = load_file(SIMPLE_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(SIMPLE_DUMP_FILE, dump);
 
     // HOST <---> USER
     check_reference(dump, HOST_CONTAINER_TAG, USER_CONTAINER_TAG, HOST_ENTITY_TAG);

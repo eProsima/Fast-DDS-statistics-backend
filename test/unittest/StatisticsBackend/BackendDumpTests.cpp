@@ -19,39 +19,15 @@
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
+#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-void load_file(
-        std::string filename,
-        DatabaseDump& dump)
-{
-    constexpr const char* DESCRIPTION_TAG = "description";
-
-    // Check if the file exists
-    std::ifstream file(filename);
-    if (!file.good())
-    {
-        FAIL() << "File " + filename + " does not exist";
-    }
-
-    // Get the json
-    file >> dump;
-
-    // Erase the description tag if existing
-    if (dump.contains(DESCRIPTION_TAG))
-    {
-        dump.erase(DESCRIPTION_TAG);
-    }
-}
-
 TEST(backend_dump_tests, reset)
 {
-    constexpr const char* DUMP_FILE = "../Resources/simple_dump.json";
-
     // Load the dump to the database
-    StatisticsBackend::load_database(DUMP_FILE);
+    StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
     ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
 
     // Resetting at this point should work and clear the database
@@ -59,7 +35,7 @@ TEST(backend_dump_tests, reset)
     ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
 
     // Load the dump to the database again
-    StatisticsBackend::load_database(DUMP_FILE);
+    StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
     ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
 
     // Start a monitor and try resetting
@@ -75,28 +51,27 @@ TEST(backend_dump_tests, reset)
 
 TEST(backend_dump_tests, database_dump_load)
 {
-    constexpr const char* DUMP_FILE = "../Resources/simple_dump.json";
     constexpr const char* TEST_DUMP_FILE = "test_dump.json";
     constexpr const char* NON_EXISTENT_FILE = "/this_directory_does_not_exist/test_dump.json";
 
     // The dump as loaded by the JSON library
     DatabaseDump expected;
-    load_file(DUMP_FILE, expected);
+    load_file(SIMPLE_DUMP_FILE, expected);
 
     // Load the dump to the database and check
     // The correct behavior of Database::dump_database() is already checked on its unit tests
     // and we can consider it works properly
-    StatisticsBackend::load_database(DUMP_FILE);
+    StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
     DatabaseDump dump = details::StatisticsBackendData::get_instance()->database_->dump_database();
     EXPECT_EQ(expected, dump);
 
     // Trying to load the dump again must fail
-    EXPECT_THROW(StatisticsBackend::load_database(DUMP_FILE),
+    EXPECT_THROW(StatisticsBackend::load_database(SIMPLE_DUMP_FILE),
             PreconditionNotMet);
 
     // Reset the backend and load the dump again
     StatisticsBackend::reset();
-    StatisticsBackend::load_database(DUMP_FILE);
+    StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
     dump = details::StatisticsBackendData::get_instance()->database_->dump_database();
     EXPECT_EQ(expected, dump);
 
