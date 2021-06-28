@@ -93,6 +93,8 @@ constexpr const char* KIND_INFO_TAG                 = "kind";
 constexpr const char* NAME_INFO_TAG                 = "name";
 //! Key tag for alias of an entity
 constexpr const char* ALIAS_INFO_TAG                 = "alias";
+//! Key tag for alive status of an entity
+constexpr const char* ALIVE_INFO_TAG                  = "alive";
 //! Key tag for process id of a process entity
 constexpr const char* PID_INFO_TAG                  = "pid";
 //! Key tag for type name of a topic entity
