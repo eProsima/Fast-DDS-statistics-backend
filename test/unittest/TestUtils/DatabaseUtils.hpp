@@ -488,67 +488,67 @@ class DataBaseTest : public Database
 {
 public:
 
-    const std::map<EntityId, std::shared_ptr<Host>>& hosts()
+    const std::map<EntityId, std::shared_ptr<Host>>& hosts() const
     {
         return hosts_;
     }
 
-    const std::map<EntityId, std::shared_ptr<User>>& users()
+    const std::map<EntityId, std::shared_ptr<User>>& users() const
     {
         return users_;
     }
 
-    const std::map<EntityId, std::shared_ptr<Process>>& processes()
+    const std::map<EntityId, std::shared_ptr<Process>>& processes() const
     {
         return processes_;
     }
 
-    const std::map<EntityId, std::shared_ptr<Domain>>& domains()
+    const std::map<EntityId, std::shared_ptr<Domain>>& domains() const
     {
         return domains_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>>& topics()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>>& topics() const
     {
         return topics_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants() const
     {
         return participants_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& datawriters()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& datawriters() const
     {
         return datawriters_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& datareaders()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& datareaders() const
     {
         return datareaders_;
     }
 
-    const std::map<EntityId, std::shared_ptr<Locator>>& locators()
+    const std::map<EntityId, std::shared_ptr<Locator>>& locators() const
     {
         return locators_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant() const
     {
         return locators_by_participant_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants_by_locator()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants_by_locator() const
     {
         return participants_by_locator_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>>& domains_by_process()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>>& domains_by_process() const
     {
         return domains_by_process_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>>& processes_by_domain()
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>>& processes_by_domain() const
     {
         return processes_by_domain_;
     }

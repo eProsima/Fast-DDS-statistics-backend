@@ -59,32 +59,13 @@ DatabaseDump load_file(
     return dump;
 }
 
-/**
- * This test checks the erase feature.
- * It loads the complex_dump.json and erases the domain_1.
- * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
- */
-TEST(database_erase_tests, erase_domain)
+void check_erased_database(
+        const DataBaseTest& db,
+        const EntityId& domain_id,
+        const std::vector<std::shared_ptr<const Entity>>& participants,
+        const std::vector<std::shared_ptr<const Entity>>& readers,
+        const std::vector<std::shared_ptr<const Entity>>& writers)
 {
-    // Read JSON files
-    DatabaseDump initial_dump = load_file(INITIAL_DUMP_FILE);
-    DatabaseDump final_dump = load_file(FINAL_DUMP_FILE);
-
-    // Create database
-    DataBaseTest db;
-
-    // Load initial dump in the database
-    db.load_database(initial_dump);
-
-    // Call erase monitor removing domain_1
-    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, "domain_1");
-    EntityId domain_id = domains.begin()->first;
-    // Save entities associated to the erased domain to check that the cross maps are correctly erased.
-    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
-    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
-    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
-    db.erase(domain_id);
-
     // Check that the map elements have been correctly erased
     EXPECT_EQ(db.domains().find(domain_id), db.domains().end());
     EXPECT_EQ(db.topics().find(domain_id), db.topics().end());
@@ -123,6 +104,35 @@ TEST(database_erase_tests, erase_domain)
         }
         EXPECT_EQ(db.locators_by_participant().find(participant_id), db.locators_by_participant().end());
     }
+}
+
+/**
+ * This test checks the erase feature.
+ * It loads the complex_dump.json and erases the domain_1.
+ * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
+ */
+TEST(database_erase_tests, erase_domain)
+{
+    // Read JSON files
+    DatabaseDump initial_dump = load_file(INITIAL_DUMP_FILE);
+    DatabaseDump final_dump = load_file(FINAL_DUMP_FILE);
+
+    // Create database
+    DataBaseTest db;
+
+    // Load initial dump in the database
+    db.load_database(initial_dump);
+
+    // Call erase monitor removing domain_1
+    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, "domain_1");
+    EntityId domain_id = domains.begin()->first;
+    // Save entities associated to the erased domain to check that the cross maps are correctly erased.
+    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
+    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
+    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
+    db.erase(domain_id);
+
+    check_erased_database(db, domain_id, participants, readers, writers);
 
     // Calling again to erase an already erased domain throws an exception
     ASSERT_THROW(db.erase(domains.begin()->first), BadParameter);
@@ -156,44 +166,7 @@ TEST(database_erase_tests, erase_domain_unlinked_participant_process)
     std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
     db.erase(domain_id);
 
-    // Check that the map elements have been correctly erased
-    EXPECT_EQ(db.domains().find(domain_id), db.domains().end());
-    EXPECT_EQ(db.topics().find(domain_id), db.topics().end());
-    EXPECT_EQ(db.participants().find(domain_id), db.participants().end());
-    EXPECT_EQ(db.datawriters().find(domain_id), db.datawriters().end());
-    EXPECT_EQ(db.datareaders().find(domain_id), db.datareaders().end());
-    // Any reference to the erased endpoints has been deleted from the locators map
-    for (auto locator : db.locators())
-    {
-        for (auto reader : readers)
-        {
-            EXPECT_EQ(locator.second->data_readers.find(reader->id), locator.second->data_readers.end());
-        }
-        for (auto writer : writers)
-        {
-            EXPECT_EQ(locator.second->data_writers.find(writer->id), locator.second->data_writers.end());
-        }
-    }
-    // Any reference to the erased domain has been deleted
-    for (auto process : db.domains_by_process())
-    {
-        EXPECT_EQ(process.second.find(domain_id), process.second.end());
-    }
-    EXPECT_EQ(db.processes_by_domain().find(domain_id), db.processes_by_domain().end());
-    // Any reference to the erased participant has been deleted
-    for (auto participant : participants)
-    {
-        EntityId participant_id = participant->id;
-        for (auto process : db.processes())
-        {
-            EXPECT_EQ(process.second->participants.find(participant_id), process.second->participants.end());
-        }
-        for (auto locator : db.participants_by_locator())
-        {
-            EXPECT_EQ(locator.second.find(participant_id), locator.second.end());
-        }
-        EXPECT_EQ(db.locators_by_participant().find(participant_id), db.locators_by_participant().end());
-    }
+    check_erased_database(db, domain_id, participants, readers, writers);
 
     // Dump erased database
     DatabaseDump erased_dump = db.dump_database();
