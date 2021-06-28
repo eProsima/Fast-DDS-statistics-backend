@@ -35,6 +35,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_dump_no_process_participant_li
     ${CMAKE_CURRENT_BINARY_DIR}/simple_dump_no_process_participant_link.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_dump_no_process_participant_link_erased_domain.json
+    ${CMAKE_CURRENT_BINARY_DIR}/simple_dump_no_process_participant_link_erased_domain.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/complex_dump.json
     COPYONLY)

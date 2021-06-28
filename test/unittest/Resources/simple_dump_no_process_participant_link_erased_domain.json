@@ -1,0 +1,79 @@
+{
+    "description": "DB dump with 1 entity of each EntityKind and 1 data of each DataKind. No link between participant and process yet.",
+
+    "version": "0.0",
+
+    "hosts":
+    {
+        "1":
+        {
+            "name": "host_0",
+            "users": ["2"]
+        }
+    },
+
+    "users":
+    {
+        "2":
+        {
+            "name": "user_0",
+            "host": "1",
+            "processes": ["3"]
+        }
+    },
+
+    "processes":
+    {
+        "3":
+        {
+            "name": "process_0",
+            "pid": "36000",
+            "user": "2",
+            "participants": []
+        }
+    },
+
+    "domains":
+    {
+    },
+
+    "topics":
+    {
+    },
+
+    "participants":
+    {
+    },
+
+    "datawriters":
+    {
+    },
+
+    "datareaders":
+    {
+    },
+
+    "locators":
+    {
+        "0":
+        {
+            "name": "locator_0",
+            "datawriters": [],
+            "datareaders": [],
+
+            "data":
+            {
+                "network_latency_per_locator":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "data": 1.1
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
