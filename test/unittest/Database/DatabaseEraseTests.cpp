@@ -113,7 +113,7 @@ TEST(database_erase_tests, erase_domain)
     DatabaseDump erased_dump = db.dump_database();
 
     // Compare erased and final dumps
-    EXPECT_EQ(final_dump, erased_dump);    
+    EXPECT_EQ(final_dump, erased_dump);
 }
 
 // This test checks that erasing a database where the participant is not yet linked to the process works as expected
@@ -146,7 +146,7 @@ TEST(database_erase_tests, erase_domain_unlinked_participant_process)
     DatabaseDump erased_dump = db.dump_database();
 
     // Compare erased and final dumps
-    EXPECT_EQ(final_dump, erased_dump);    
+    EXPECT_EQ(final_dump, erased_dump);
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
