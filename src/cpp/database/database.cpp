@@ -1368,57 +1368,57 @@ void Database::erase(
     // The mutex should be taken only once. get_entity_kind already locks.
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
-    for (auto reader : datareaders_[domain_id])
+    for (auto& reader : datareaders_[domain_id])
     {
         // Unlink related locators
         for (auto locator : reader.second->locators)
         {
             locators_[locator.first]->data_readers.erase(reader.first);
         }
-        // Clear entity
-        reader.second->DDSEndpoint::clear();
-        reader.second->clear();
     }
-    // Clear datareaders map
-    datareaders_[domain_id].clear();
+    // Erase datareaders map element
+    datareaders_.erase(domain_id);
 
     // Remove datawriters and unlink related locators
-    for (auto writer : datawriters_[domain_id])
+    for (auto& writer : datawriters_[domain_id])
     {
         // Unlink related locators
         for (auto locator : writer.second->locators)
         {
             locators_[locator.first]->data_writers.erase(writer.first);
         }
-        // Clear entity
-        writer.second->DDSEndpoint::clear();
-        writer.second->clear();
     }
-    // Clear datawriters map
-    datawriters_[domain_id].clear();
+    // Erase datawriters map element
+    datawriters_.erase(domain_id);
 
-    // Remove topics
-    for (auto topic : topics_[domain_id])
-    {
-        // Clear entity
-        topic.second->clear();
-    }
-    // Clear topics map
-    topics_[domain_id].clear();
+    // Erase topics map element
+    topics_.erase(domain_id);
 
     // Remove participants and unlink related process
-    for (auto participant : participants_[domain_id])
+    for (auto& participant : participants_[domain_id])
     {
         // Unlink related process
         processes_[participant.second->process->id]->participants.erase(participant.first);
-        // Clear entity
-        participant.second->clear();
+        // Erase locators_by_participant map element
+        locators_by_participant_.erase(participant.second->id);
+        // Erase participants_by_locator_ participant reference
+        for (auto& locator : participants_by_locator_)
+        {
+            locator.second.erase(participant.second->id);
+        }
     }
-    // Clear participants map
-    participants_[domain_id].clear();
+    // Erase participants map element
+    participants_.erase(domain_id);
 
-    // Clear domain
-    domains_[domain_id]->clear();
+    // Erase processes_by_domain_ map element
+    processes_by_domain_.erase(domain_id);
+    // Erase domains_by_process_ domain reference
+    for (auto& process : domains_by_process_)
+    {
+        process.second.erase(domain_id);
+    }
+
+    // Erase domain map element
     domains_.erase(domain_id);
 }
 
