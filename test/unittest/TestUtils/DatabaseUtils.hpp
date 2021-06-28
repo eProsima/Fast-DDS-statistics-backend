@@ -12,9 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <atomic>
+#include <chrono>
 #include <fstream>
+#include <map>
+#include <memory>
+#include <string>
 
-#include <StatisticsBackend.hpp>
+#include <fastdds_statistics_backend/StatisticsBackend.hpp>
+#include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+
+#include <database/data.hpp>
+#include <database/database.hpp>
+#include <database/entities.hpp>
+#include <database/samples.hpp>
 #include <StatisticsBackendData.hpp>
 
 constexpr const char* EMPTY_DUMP_FILE = "../Resources/empty_dump.json";
@@ -504,6 +516,16 @@ public:
     const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants()
     {
         return participants_;
+    }
+
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& datawriters()
+    {
+        return datawriters_;
+    }
+
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& datareaders()
+    {
+        return datareaders_;
     }
 
     const std::map<EntityId, std::shared_ptr<Locator>>& locators()
