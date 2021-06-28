@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -661,6 +662,25 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
+DatabaseDump StatisticsBackend::dump_database()
+{
+    return details::StatisticsBackendData::get_instance()->database_->dump_database();
+}
+
+void StatisticsBackend::dump_database(
+        const std::string& filename)
+{
+    // Open the file
+    std::ofstream file(filename);
+    if (!file.good())
+    {
+        throw BadParameter("Error opening file " + filename + " to dump the database");
+    }
+
+    // Dump the data
+    file << StatisticsBackend::dump_database();
+}
+
 void StatisticsBackend::load_database(
         const std::string& filename)
 {
@@ -676,6 +696,22 @@ void StatisticsBackend::load_database(
     file >> dump;
 
     details::StatisticsBackendData::get_instance()->database_->load_database(dump);
+}
+
+void StatisticsBackend::reset()
+{
+    if (!details::StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
+    {
+        std::stringstream message;
+        message << "The following monitors are still active: [ ";
+        for (auto monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+        {
+            message << monitor.first << " ";
+        }
+        message << "]";
+        throw PreconditionNotMet(message.str());
+    }
+    details::StatisticsBackendData::get_instance()->reset_instance();
 }
 
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(

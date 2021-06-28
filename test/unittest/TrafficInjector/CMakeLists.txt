@@ -29,9 +29,6 @@ target_link_libraries(TrafficInjectorTests PUBLIC ${PROJECT_NAME} ${GTEST_LIBRAR
 
 get_win32_path_dependencies(TrafficInjectorTests TEST_FRIENDLY_PATH)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/traffic_dump.json
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 set(TRAFFIC_INJECTOR_TEST_LIST
     Basic)
 
@@ -45,6 +42,11 @@ foreach(test_name ${TRAFFIC_INJECTOR_TEST_LIST})
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/traffic_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/traffic_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/profile.xml
+    COPYONLY)
+

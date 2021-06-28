@@ -400,14 +400,6 @@ target_link_libraries(database_dump_tests PUBLIC
 
 get_win32_path_dependencies(database_dump_tests TEST_FRIENDLY_PATH)
 
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump_no_process_participant_link.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
-
 set(DATABASE_DUMP_TEST_LIST
     dump_empty_database
     dump_empty_entities_database
@@ -497,14 +489,6 @@ target_link_libraries(database_load_tests PUBLIC
     )
 
 get_win32_path_dependencies(database_load_tests TEST_FRIENDLY_PATH)
-
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/empty_entities_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/simple_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/complex_dump.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/old_complex_dump.json
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 set(DATABASE_LOAD_TEST_LIST
     load_and_dump_empty_database

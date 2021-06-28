@@ -3086,47 +3086,33 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::check_entity_container_contains_id(
-        DatabaseDump const& entities_container,
-        std::string const& id)
-{
-    if (!entities_container.contains(id))
-    {
-        throw CorruptedFile("Entity container: " + entities_container.dump() + " do not have a Entity with ID: " + id);
-    }
-}
-
-void Database::check_entity_all_references(
-        DatabaseDump const& dump,
-        nlohmann::json::iterator const& it,
-        std::string const& entity_tag,
-        std::string const& reference_tag)
-{
-    std::string entity_id = it.key();
-    DatabaseDump references_id = (*it).at(reference_tag);
-    DatabaseDump reference_container = dump.at(reference_tag);
-
-    // Check all 'references_id' in the 'reference_container'
-    for (auto refIt = references_id.begin(); refIt != references_id.end(); ++refIt)
-    {
-        std::string referenced_id = *refIt;
-
-        // 1) Check that the 'referenced_id' entity exists.
-        check_entity_container_contains_id(reference_container, referenced_id);
-
-        // 2) Check that referenced entity have reference to an 'entity_id' of type 'entity_tag'.
-        std::string id = reference_container.at(referenced_id).at(entity_tag);
-        if (id != entity_id)
-        {
-            throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
-                              referenced_id).dump() +
-                          " has reference to " + entity_tag + ": " + id +
-                          " instead of " + entity_tag + ": " + entity_id);
-        }
-    }
-}
-
-void Database::check_entity_contains_all_references(
+/**
+ * @brief Check that in the 'dump', the references of the entity iterator 'it' of type 'entity_tag'
+ * to entities of type 'reference_tag' are consistent and mutual. For this, the referenced entities must
+ * have reference to 'it' of type 'entity_tag'.
+ *
+ * Example -> Check that each user, reference host[0]:
+ *
+ * \code
+ * {
+ *      host["0"]
+ *      {
+ *          users: ["1","5","9"]
+ *      }
+ *      user["1"]
+ *      {
+ *          host: "0"
+ *      }
+ * }
+ * \endcode
+ *
+ * @param dump reference to the database dump.
+ * @param it iterator to the dump of the entity.
+ * @param entity_tag Type of the entity to check.
+ * @param reference_tag Type of the referenced entity to check.
+ * @throws eprosima::statistics_backend::FileCorrupted if the references are not consistent and mutual.
+ */
+void check_entity_contains_all_references(
         DatabaseDump const& dump,
         nlohmann::json::iterator const& it,
         std::string const& entity_tag,
@@ -3143,10 +3129,27 @@ void Database::check_entity_contains_all_references(
         std::string referenced_id = *refIt;
 
         // 1) Check that the 'referenced_id' entity exists.
-        check_entity_container_contains_id(reference_container, referenced_id);
+        if (!reference_container.contains(referenced_id))
+        {
+            throw CorruptedFile(
+                      "Entity container: " + reference_container.dump() + " do not have a Entity with ID: " +
+                      referenced_id);
+        }
 
         // 2) Check that referenced entity contains a reference to an 'entity_id' of type 'entity_tag'.
-        std::vector<std::string> referenced_entities = reference_container.at(referenced_id).at(entity_tag);
+        std::vector<std::string> referenced_entities;
+        auto referenced_entities_json = reference_container.at(referenced_id).at(entity_tag);
+        if (referenced_entities_json.is_array())
+        {
+            referenced_entities.insert(referenced_entities.end(),
+                    referenced_entities_json.begin(),
+                    referenced_entities_json.end());
+        }
+        else
+        {
+            referenced_entities.push_back(referenced_entities_json.get<std::string>());
+        }
+
         if (std::find(referenced_entities.begin(), referenced_entities.end(), entity_id) == referenced_entities.end())
         {
             throw CorruptedFile("Entity with ID (" + referenced_id + ") :" + reference_container.at(
@@ -3165,7 +3168,7 @@ void Database::load_database(
 
     if (next_id_ != 0)
     {
-        throw Error("Error: Database must be empty before call load_database()");
+        throw PreconditionNotMet("Error: Database not empty");
     }
 
     // Locators
@@ -3200,7 +3203,7 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_all_references(dump, it, HOST_ENTITY_TAG, USER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, USER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
@@ -3221,7 +3224,8 @@ void Database::load_database(
         {
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, USER_CONTAINER_TAG, HOST_CONTAINER_TAG, HOST_ENTITY_TAG);
-            check_entity_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, USER_ENTITY_TAG, PROCESS_CONTAINER_TAG,
+                    PROCESS_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
@@ -3243,7 +3247,8 @@ void Database::load_database(
         {
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, PROCESS_CONTAINER_TAG, USER_CONTAINER_TAG, USER_ENTITY_TAG);
-            check_entity_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PROCESS_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Process> entity =
@@ -3265,8 +3270,9 @@ void Database::load_database(
         for (auto it = container.begin(); it != container.end(); ++it)
         {
             // Check that entity has correct references to other entities
-            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG);
-            check_entity_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, PARTICIPANT_CONTAINER_TAG,
+                    PARTICIPANT_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
@@ -3288,8 +3294,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, TOPIC_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
                     DOMAIN_ENTITY_TAG);
-            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
-            check_entity_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, TOPIC_ENTITY_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<Topic> entity =
@@ -3313,8 +3321,10 @@ void Database::load_database(
             // Check that entity has correct references to other entities
             check_entity_contains_all_references(dump, it, PARTICIPANT_CONTAINER_TAG, DOMAIN_CONTAINER_TAG,
                     DOMAIN_ENTITY_TAG);
-            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG);
-            check_entity_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAWRITER_CONTAINER_TAG,
+                    DATAWRITER_CONTAINER_TAG);
+            check_entity_contains_all_references(dump, it, PARTICIPANT_ENTITY_TAG, DATAREADER_CONTAINER_TAG,
+                    DATAREADER_CONTAINER_TAG);
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(

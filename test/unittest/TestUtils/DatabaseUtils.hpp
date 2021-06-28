@@ -17,12 +17,13 @@
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 
-constexpr const char* EMPTY_DUMP_FILE = "resources/empty_dump.json";
-constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "resources/empty_entities_dump.json";
-constexpr const char* SIMPLE_DUMP_FILE = "resources/simple_dump.json";
-constexpr const char* COMPLEX_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
-constexpr const char* OLD_COMPLEX_DUMP_FILE = "resources/old_complex_dump.json";
+constexpr const char* EMPTY_DUMP_FILE = "../Resources/empty_dump.json";
+constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "../Resources/empty_entities_dump.json";
+constexpr const char* SIMPLE_DUMP_FILE = "../Resources/simple_dump.json";
+constexpr const char* COMPLEX_DUMP_FILE = "../Resources/complex_dump.json";
+constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE =
+        "../Resources/simple_dump_no_process_participant_link.json";
+constexpr const char* OLD_COMPLEX_DUMP_FILE = "../Resources/old_complex_dump.json";
 
 constexpr const char* DESCRIPTION_TAG = "description";
 
@@ -614,18 +615,19 @@ public:
  * Load a .json file, returning a dump of it.
  * Also remove meta information not necessary on dump.
  */
-DatabaseDump load_file(
-        std::string filename)
+
+void load_file(
+        std::string filename,
+        DatabaseDump& dump)
 {
     // Check if the file exists
     std::ifstream file(filename);
     if (!file.good())
     {
-        throw BadParameter("File " + filename + " does not exist");
+        FAIL() << "File " + filename + " does not exist";
     }
 
-    // Get the json file
-    DatabaseDump dump;
+    // Get the json
     file >> dump;
 
     // Erase the description tag if existing
@@ -633,6 +635,4 @@ DatabaseDump load_file(
     {
         dump.erase(DESCRIPTION_TAG);
     }
-
-    return dump;
 }

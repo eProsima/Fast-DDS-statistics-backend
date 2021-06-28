@@ -37,7 +37,9 @@ public:
     void SetUp()
     {
         db = new DataBaseTest;
-        db->load_database(load_file(EMPTY_ENTITIES_DUMP_FILE));
+        DatabaseDump dump;
+        load_file(EMPTY_ENTITIES_DUMP_FILE, dump);
+        db->load_database(dump);
         host = db->hosts().begin()->second;
         user = db->users().begin()->second;
         process = db->processes().begin()->second;

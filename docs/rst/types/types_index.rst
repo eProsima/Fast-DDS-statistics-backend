@@ -12,3 +12,4 @@ Types
     /rst/types/entity_kind
     /rst/types/entity_id
     /rst/types/json_tags
+    /rst/types/database_dumps

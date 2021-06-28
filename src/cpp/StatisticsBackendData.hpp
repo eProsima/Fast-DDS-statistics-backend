@@ -61,7 +61,7 @@ public:
     //! Reference to the Database data queue
     database::DatabaseDataQueue* data_queue_;
 
-    //! Collection of monitors
+    //! Collection of active monitors
     std::map<EntityId, std::shared_ptr<Monitor>> monitors_by_entity_;
 
     //! Physical  listener

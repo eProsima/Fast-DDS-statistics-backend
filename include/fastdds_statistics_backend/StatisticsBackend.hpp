@@ -364,16 +364,34 @@ public:
      * @param filename The name of the file where the database is dumped.
      */
     static void dump_database(
-            std::string filename);
+            const std::string& filename);
 
     /**
      * @brief Load Fast DDS Statistics Backend's database from a file.
+     *
+     * @pre The Backend's database has no data. This means that no monitors were initialized
+     *      since the Backend started, or that the Backend has been reset().
      *
      * @param filename The name of the file from which where the database is loaded.
      * @throws eprosima::statistics_backend::BadParameter if the file does not exist.
      */
     static void load_database(
             const std::string& filename);
+
+    /**
+     * @brief Resets the Fast DDS Statistics Backend.
+     *
+     * After calling this method, the Fast DDS Statistics Backend
+     * reverts to its default state, as it was freshly started:
+     * - All the data in the database is erased.
+     * - All monitors are removed and cannot be restarted afterwards.
+     * - The physical listener is removed.
+     * - The physical listener callback mask is set to CallbackMask::none().
+     * - The physical listener data mask is set to DataMask::none().
+     *
+     * @pre There are no active monitors. There can be inactive monitors.
+     */
+    static void reset();
 
     /**
      * @brief Return the EntityKind of the entities to which a DataKind refers.

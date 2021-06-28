@@ -323,7 +323,9 @@ public:
 TEST(database, dump_empty_database)
 {
     Database db;
-    ASSERT_EQ(db.dump_database(), load_file(EMPTY_DUMP_FILE));
+    DatabaseDump dump;
+    load_file(EMPTY_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
 }
 
 // Test the dump of a database with one entity of each kind
@@ -331,7 +333,9 @@ TEST(database, dump_empty_entities_database)
 {
     Database db;
     initialize_database(db, 1, 0);
-    ASSERT_EQ(db.dump_database(), load_file(EMPTY_ENTITIES_DUMP_FILE));
+    DatabaseDump dump;
+    load_file(EMPTY_ENTITIES_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
 }
 
 // Test the dump of a database with one entity of each kind and one data of each kind
@@ -339,7 +343,9 @@ TEST(database, dump_simple_database)
 {
     Database db;
     initialize_database(db, 1, 1);
-    ASSERT_EQ(db.dump_database(), load_file(SIMPLE_DUMP_FILE));
+    DatabaseDump dump;
+    load_file(SIMPLE_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
 }
 
 // Test the dump of a database with no links between process and participant
@@ -347,7 +353,9 @@ TEST(database, dump_no_process_participant_link)
 {
     Database db;
     initialize_database(db, 1, 1, false);
-    ASSERT_EQ(db.dump_database(), load_file(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE));
+    DatabaseDump dump;
+    load_file(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
 }
 
 // Test the dump of a database with three entities of each kind and three datas of each kind
@@ -355,7 +363,9 @@ TEST(database, dump_complex_database)
 {
     Database db;
     initialize_database(db, 3, 3);
-    ASSERT_EQ(db.dump_database(), load_file(COMPLEX_DUMP_FILE));
+    DatabaseDump dump;
+    load_file(COMPLEX_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
 }
 
 void initialize_empty_entities_unlinked(
@@ -402,7 +412,8 @@ TEST(database, dump_unlinked_database)
     DataBaseTest db;
     initialize_empty_entities_unlinked(db, 0);
 
-    DatabaseDump dump = load_file(EMPTY_ENTITIES_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(EMPTY_ENTITIES_DUMP_FILE, dump);
     dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";
     dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();
 

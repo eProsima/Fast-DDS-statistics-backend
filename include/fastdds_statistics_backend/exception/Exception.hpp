@@ -209,45 +209,45 @@ public:
 };
 
 /**
- * @brief Exception to signal that an operation found no data to return
+ * @brief Exception to signal that an operation cannot be performed because the preconditions are not met
  */
-class NoData : public Exception
+class PreconditionNotMet : public Exception
 {
 
 public:
 
     /**
-     * @brief Construct a new statistics_backend::NoData exception
+     * @brief Construct a new statistics_backend::PreconditionNotMet exception
      *
      * @param message The message to be returned by what()
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
+    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet(
             const char* message) noexcept;
 
     /**
-     * @brief Construct a new statistics_backend::NoData exception
+     * @brief Construct a new statistics_backend::PreconditionNotMet exception
      *
      * @param message The message to be returned by what()
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
+    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet(
             const std::string& message);
 
     /**
-     * @brief Copies the statistics_backend::NoData exception into a new one
+     * @brief Copies the statistics_backend::PreconditionNotMet exception into a new one
      *
      * @param other The original exception object to copy
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI NoData(
-            const NoData& other) = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet(
+            const PreconditionNotMet& other) = default;
 
     /**
-     * @brief Copies the statistics_backend::NoData exception into the current one
+     * @brief Copies the statistics_backend::PreconditionNotMet exception into the current one
      *
-     * @param other The original statistics_backend::NoData exception to copy
-     * @return the current statistics_backend::NoData exception after the copy
+     * @param other The original statistics_backend::PreconditionNotMet exception to copy
+     * @return the current statistics_backend::PreconditionNotMet exception after the copy
      */
-    FASTDDS_STATISTICS_BACKEND_DllAPI NoData& operator =(
-            const NoData& other) = default;
+    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet& operator =(
+            const PreconditionNotMet& other) = default;
 };
 
 /**
