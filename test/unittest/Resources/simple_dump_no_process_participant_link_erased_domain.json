@@ -8,6 +8,7 @@
         "1":
         {
             "name": "host_0",
+            "alias": "host_0",
             "users": ["2"]
         }
     },
@@ -17,6 +18,7 @@
         "2":
         {
             "name": "user_0",
+            "alias": "user_0",
             "host": "1",
             "processes": ["3"]
         }
@@ -27,6 +29,7 @@
         "3":
         {
             "name": "process_0",
+            "alias": "process_0",
             "pid": "36000",
             "user": "2",
             "participants": []
@@ -58,6 +61,7 @@
         "0":
         {
             "name": "locator_0",
+            "alias": "locator_0",
             "datawriters": [],
             "datareaders": [],
 

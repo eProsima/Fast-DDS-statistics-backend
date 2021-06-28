@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-constexpr const char* DESCRIPTION_TAG = "description";
-
-constexpr const char* INITIAL_DUMP_FILE = "resources/complex_dump.json";
-constexpr const char* INITIAL_UNLINKED_DUMP_FILE = "resources/simple_dump_no_process_participant_link.json";
-constexpr const char* FINAL_DUMP_FILE = "resources/complex_dump_erased_domain_1.json";
-constexpr const char* FINAL_UNLINKED_DUMP_FILE = "resources/simple_dump_no_process_participant_link_erased_domain.json";
-
 #include <fstream>
 #include <string>
 #include <vector>
@@ -35,29 +28,6 @@ constexpr const char* FINAL_UNLINKED_DUMP_FILE = "resources/simple_dump_no_proce
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-
-DatabaseDump load_file(
-        std::string filename)
-{
-    // Check if the file exists
-    std::ifstream file(filename);
-    if (!file.good())
-    {
-        throw BadParameter("File " + filename + " does not exist");
-    }
-
-    // Get the json file
-    DatabaseDump dump;
-    file >> dump;
-
-    // Erase the description tag if existing
-    if (dump.contains(DESCRIPTION_TAG))
-    {
-        dump.erase(DESCRIPTION_TAG);
-    }
-
-    return dump;
-}
 
 void check_erased_database(
         const DataBaseTest& db,
@@ -114,8 +84,10 @@ void check_erased_database(
 TEST(database_erase_tests, erase_domain)
 {
     // Read JSON files
-    DatabaseDump initial_dump = load_file(INITIAL_DUMP_FILE);
-    DatabaseDump final_dump = load_file(FINAL_DUMP_FILE);
+    DatabaseDump initial_dump;
+    DatabaseDump final_dump;
+    load_file(COMPLEX_DUMP_FILE, initial_dump);
+    load_file(COMPLEX_ERASED_DUMP_FILE, final_dump);
 
     // Create database
     DataBaseTest db;
@@ -148,8 +120,10 @@ TEST(database_erase_tests, erase_domain)
 TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 {
     // Read JSON files
-    DatabaseDump initial_dump = load_file(INITIAL_UNLINKED_DUMP_FILE);
-    DatabaseDump final_dump = load_file(FINAL_UNLINKED_DUMP_FILE);
+    DatabaseDump initial_dump;
+    DatabaseDump final_dump;
+    load_file(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, initial_dump);
+    load_file(NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE, final_dump);
 
     // Create database
     DataBaseTest db;
@@ -180,7 +154,8 @@ TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 TEST(database_erase_tests, erase_wrong_kind)
 {
     // Read JSON files
-    DatabaseDump initial_dump = load_file(INITIAL_DUMP_FILE);
+    DatabaseDump initial_dump;
+    load_file(COMPLEX_DUMP_FILE, initial_dump);
 
     // Create database
     Database db;

@@ -115,7 +115,8 @@ TEST(database_load_tests, load_and_dump_old_complex_database)
 TEST(database_load_tests, load_and_dump_complex_erased_database)
 {
     // Read JSON
-    DatabaseDump dump = load_file(COMPLEX_ERASED_DUMP_FILE);
+    DatabaseDump dump;
+    load_file(COMPLEX_ERASED_DUMP_FILE, dump);
 
     // Create database
     DataBaseTest db;

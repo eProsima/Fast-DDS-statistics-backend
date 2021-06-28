@@ -55,11 +55,12 @@
                     }
                 ]
             },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
             "locators":[
                 "18"
             ],
             "name":"datareader_2",
+            "alias":"datareader_2",
             "participant":"24",
             "qos":{
                 "qos":"empty"
@@ -119,11 +120,12 @@
                     }
                 ]
             },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "locators":[
                 "0"
             ],
             "name":"datareader_0",
+            "alias":"datareader_0",
             "participant":"6",
             "qos":{
                 "qos":"empty"
@@ -246,11 +248,12 @@
                     ]
                 }
             },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
             "locators":[
                 "18"
             ],
             "name":"datawriter_2",
+            "alias":"datawriter_2",
             "participant":"24",
             "qos":{
                 "qos":"empty"
@@ -371,11 +374,12 @@
                     ]
                 }
             },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "locators":[
                 "0"
             ],
             "name":"datawriter_0",
+            "alias":"datawriter_0",
             "participant":"6",
             "qos":{
                 "qos":"empty"
@@ -386,6 +390,7 @@
     "domains":{
         "22":{
             "name":"domain_2",
+            "alias":"domain_2",
             "participants":[
                 "24"
             ],
@@ -395,6 +400,7 @@
         },
         "4":{
             "name":"domain_0",
+            "alias":"domain_0",
             "participants":[
                 "6"
             ],
@@ -406,18 +412,21 @@
     "hosts":{
         "1":{
             "name":"host_0",
+            "alias":"host_0",
             "users":[
                 "2"
             ]
         },
         "10":{
             "name":"host_1",
+            "alias":"host_1",
             "users":[
                 "11"
             ]
         },
         "19":{
             "name":"host_2",
+            "alias":"host_2",
             "users":[
                 "20"
             ]
@@ -449,7 +458,8 @@
             "datawriters":[
                 "7"
             ],
-            "name":"locator_0"
+            "name":"locator_0",
+            "alias":"locator_0"
         },
         "18":{
             "data":{
@@ -476,7 +486,8 @@
             "datawriters":[
                 "25"
             ],
-            "name":"locator_2"
+            "name":"locator_2",
+            "alias":"locator_2"
         },
         "9":{
             "data":{
@@ -501,7 +512,8 @@
             ],
             "datawriters":[
             ],
-            "name":"locator_1"
+            "name":"locator_1",
+            "alias":"locator_1"
         }
     },
     "participants":{
@@ -669,8 +681,9 @@
                 "25"
             ],
             "domain":"22",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
             "name":"participant_2",
+            "alias":"participant_2",
             "process":"21",
             "qos":{
                 "qos":"empty"
@@ -840,8 +853,9 @@
                 "7"
             ],
             "domain":"4",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "name":"participant_0",
+            "alias":"participant_0",
             "process":"3",
             "qos":{
                 "qos":"empty"
@@ -851,6 +865,7 @@
     "processes":{
         "12":{
             "name":"process_1",
+            "alias":"process_1",
             "participants":[
             ],
             "pid":"36000",
@@ -858,6 +873,7 @@
         },
         "21":{
             "name":"process_2",
+            "alias":"process_2",
             "participants":[
                 "24"
             ],
@@ -866,6 +882,7 @@
         },
         "3":{
             "name":"process_0",
+            "alias":"process_0",
             "participants":[
                 "6"
             ],
@@ -883,7 +900,8 @@
                 "25"
             ],
             "domain":"22",
-            "name":"topic_2"
+            "name":"topic_2",
+            "alias":"topic_2"
         },
         "5":{
             "data_type":"data_type",
@@ -894,13 +912,15 @@
                 "7"
             ],
             "domain":"4",
-            "name":"topic_0"
+            "name":"topic_0",
+            "alias":"topic_0"
         }
     },
     "users":{
         "11":{
             "host":"10",
             "name":"user_1",
+            "alias":"user_1",
             "processes":[
                 "12"
             ]
@@ -908,6 +928,7 @@
         "2":{
             "host":"1",
             "name":"user_0",
+            "alias":"user_0",
             "processes":[
                 "3"
             ]
@@ -915,6 +936,7 @@
         "20":{
             "host":"19",
             "name":"user_2",
+            "alias":"user_2",
             "processes":[
                 "21"
             ]
