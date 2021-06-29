@@ -20,8 +20,12 @@
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
+#include <Monitor.hpp>
 #include <types/JSONTags.h>
 #include <types/types.hpp>
 #include <database/database.hpp>
@@ -394,6 +398,233 @@ TEST_F(statistics_backend_tests, set_alias)
     }
 }
 
+TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
+{
+#ifndef NDEBUG
+
+    StatisticsBackendTest::set_database(db);
+
+    // Will be using entities that are on the database,
+    // to make sure the error is due to the intended reason
+    // (make sure the exceptions are not because of non existent entities)
+
+    // Check that there is a monitor with EntityId(7)
+    // This will be used in all calls to on_domain_entity_discovery
+    auto result = StatisticsBackendTest::get_entities(EntityKind::DOMAIN, EntityId(7));
+    ASSERT_EQ(1, result.size());
+    EntityId monitor_id = EntityId(7);
+
+    // Check that there is a host with EntityId(1)
+    result = StatisticsBackendTest::get_entities(EntityKind::HOST, EntityId(1));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(1),
+                EntityKind::HOST,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    // Check that there is a user with EntityId(3)
+    result = StatisticsBackendTest::get_entities(EntityKind::USER, EntityId(3));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(3),
+                EntityKind::USER,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    // Check that there is a process with EntityId(5)
+    result = StatisticsBackendTest::get_entities(EntityKind::PROCESS, EntityId(5));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(5),
+                EntityKind::PROCESS,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    // Check that there is a locator with EntityId(17)
+    result = StatisticsBackendTest::get_entities(EntityKind::LOCATOR, EntityId(17));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_domain_entity_discovery with a physical entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                monitor_id,
+                EntityId(17),
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
+            ".*");
+
+    // Check that there is a Participant with EntityId(9)
+    // This will be used in all calls to on_physical_entity_discovery
+    result = StatisticsBackendTest::get_entities(EntityKind::PARTICIPANT, EntityId(9));
+    ASSERT_EQ(1, result.size());
+    EntityId participant_id = EntityId(9);
+
+    // Avoid a participant discovering itself
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(9),
+                EntityKind::PARTICIPANT),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(10),
+                EntityKind::PARTICIPANT),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(10),
+                EntityKind::PARTICIPANT),
+            ".*");
+
+    // Check that there is a topic with EntityId(11)
+    result = StatisticsBackendTest::get_entities(EntityKind::TOPIC, EntityId(11));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(11),
+                EntityKind::TOPIC),
+            ".*");
+
+    // Check that there is a datareader with EntityId(13)
+    result = StatisticsBackendTest::get_entities(EntityKind::DATAREADER, EntityId(13));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(13),
+                EntityKind::DATAREADER),
+            ".*");
+
+    // Check that there is a datawriter with EntityId(17)
+    result = StatisticsBackendTest::get_entities(EntityKind::DATAWRITER, EntityId(17));
+    ASSERT_EQ(1, result.size());
+
+    // Calling on_physical_entity_discovery with a domain entity should fail
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(17),
+                EntityKind::DATAWRITER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(17),
+                EntityKind::DATAWRITER),
+            ".*");
+    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                participant_id,
+                EntityId(17),
+                EntityKind::DATAWRITER),
+            ".*");
+
+#endif // ifndef NDEBUG
+}
+
+TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
+{
+    // Set the profile to ignore discovery data from other processes
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+    // Try to set the listener for some monitor when there is none
+    EXPECT_THROW(StatisticsBackend::set_domain_listener(
+                EntityId(1000),
+                nullptr,
+                CallbackMask::all(),
+                DataKindMask::all()),
+            BadParameter);
+
+    // Start a monitor
+    EntityId monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+
+    // Try to set the listener for another monitor
+    EXPECT_THROW(StatisticsBackend::set_domain_listener(
+                EntityId(monitor_id_.value() + 100),
+                nullptr,
+                CallbackMask::all(),
+                DataKindMask::all()),
+            BadParameter);
+}
+
 #ifdef INSTANTIATE_TEST_SUITE_P
 #define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
 #else
@@ -417,11 +648,11 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // ALL - TOPIC
         std::make_tuple(EntityKind::TOPIC, 0, std::vector<size_t>{11, 12}),
         // ALL - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 0, std::vector<size_t>{13, 14}),
+        std::make_tuple(EntityKind::DATAREADER, 0, std::vector<size_t>{13, 15}),
         // ALL - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 0, std::vector<size_t>{15, 16}),
+        std::make_tuple(EntityKind::DATAWRITER, 0, std::vector<size_t>{17, 19}),
         // ALL - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 0, std::vector<size_t>{17, 18, 19, 20}),
+        std::make_tuple(EntityKind::LOCATOR, 0, std::vector<size_t>{14, 16, 18, 20}),
         // HOST - HOST
         std::make_tuple(EntityKind::HOST, 2, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 1, std::vector<size_t> { 1 }),
@@ -446,15 +677,15 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // HOST - TOPIC: none
         std::make_tuple(EntityKind::TOPIC, 1, std::vector<size_t> { }),
         // HOST - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 2, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 2, std::vector<size_t> { 17, 19 }),
         // HOST - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 1, std::vector<size_t> { }),
         // HOST - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 2, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 2, std::vector<size_t> { 13, 15 }),
         // HOST - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 1, std::vector<size_t> { }),
         // HOST - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 2, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 2, std::vector<size_t> { 14, 16, 18, 20 }),
         // HOST - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 1, std::vector<size_t> { }),
 
@@ -481,15 +712,15 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // USER - TOPIC: none
         std::make_tuple(EntityKind::TOPIC, 3, std::vector<size_t> { }),
         // USER - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 4, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 4, std::vector<size_t> { 17, 19 }),
         // USER - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 3, std::vector<size_t> { }),
         // USER - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 4, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 4, std::vector<size_t> { 13, 15 }),
         // USER - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 3, std::vector<size_t> { }),
         // USER - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 4, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 4, std::vector<size_t> { 14, 16, 18, 20 }),
         // USER - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 3, std::vector<size_t> { }),
 
@@ -515,15 +746,15 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // PROCESS - TOPIC: none
         std::make_tuple(EntityKind::TOPIC, 5, std::vector<size_t> { }),
         // PROCESS - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 6, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 6, std::vector<size_t> { 17, 19 }),
         // PROCESS - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 5, std::vector<size_t> { }),
         // PROCESS - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 6, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 6, std::vector<size_t> { 13, 15 }),
         // PROCESS - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 5, std::vector<size_t> { }),
         // PROCESS - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 6, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 6, std::vector<size_t> { 14, 16, 18, 20 }),
         // PROCESS - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 5, std::vector<size_t> { }),
 
@@ -551,15 +782,15 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // DOMAIN - TOPIC: none
         std::make_tuple(EntityKind::TOPIC, 7, std::vector<size_t> { }),
         // DOMAIN - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 8, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 8, std::vector<size_t> { 17, 19 }),
         // DOMAIN - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 7, std::vector<size_t> { }),
         // DOMAIN - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 8, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 8, std::vector<size_t> { 13, 15 }),
         // DOMAIN - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 7, std::vector<size_t> { }),
         // DOMAIN - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 8, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 8, std::vector<size_t> { 14, 16, 18, 20 }),
         // DOMAIN - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 7, std::vector<size_t> { }),
 
@@ -583,15 +814,15 @@ GTEST_INSTANTIATE_TEST_MACRO(
         // PARTICIPANT - TOPIC: none
         std::make_tuple(EntityKind::TOPIC, 9, std::vector<size_t> { }),
         // PARTICIPANT - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 10, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 10, std::vector<size_t> { 17, 19 }),
         // PARTICIPANT - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 9, std::vector<size_t> { }),
         // PARTICIPANT - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 10, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 10, std::vector<size_t> { 13, 15 }),
         // PARTICIPANT - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 9, std::vector<size_t> { }),
         // PARTICIPANT - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 10, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 10, std::vector<size_t> { 14, 16, 18, 20 }),
         // PARTICIPANT - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 9, std::vector<size_t> { }),
 
@@ -618,120 +849,120 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(EntityKind::TOPIC, 12, std::vector<size_t> { 12 }),
         std::make_tuple(EntityKind::TOPIC, 11, std::vector<size_t> { 11 }),
         // TOPIC - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 12, std::vector<size_t> { 15, 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 12, std::vector<size_t> { 17, 19 }),
         // TOPIC - DATAWRITER: none
         std::make_tuple(EntityKind::DATAWRITER, 11, std::vector<size_t> { }),
         // TOPIC - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 12, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 12, std::vector<size_t> { 13, 15 }),
         // TOPIC - DATAREADER: none
         std::make_tuple(EntityKind::DATAREADER, 11, std::vector<size_t> { }),
         // TOPIC - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 12, std::vector<size_t> { 17, 18, 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 12, std::vector<size_t> { 14, 16, 18, 20 }),
         // TOPIC - LOCATOR: none
         std::make_tuple(EntityKind::LOCATOR, 11, std::vector<size_t> { }),
 
         // DATAREADER - HOST
-        std::make_tuple(EntityKind::HOST, 14, std::vector<size_t> { 2 }),
+        std::make_tuple(EntityKind::HOST, 15, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 13, std::vector<size_t> { 2 }),
         // DATAREADER - USER
-        std::make_tuple(EntityKind::USER, 14, std::vector<size_t> { 4 }),
+        std::make_tuple(EntityKind::USER, 15, std::vector<size_t> { 4 }),
         std::make_tuple(EntityKind::USER, 13, std::vector<size_t> { 4 }),
         // DATAREADER - PROCESS
-        std::make_tuple(EntityKind::PROCESS, 14, std::vector<size_t> { 6 }),
+        std::make_tuple(EntityKind::PROCESS, 15, std::vector<size_t> { 6 }),
         std::make_tuple(EntityKind::PROCESS, 13, std::vector<size_t> { 6 }),
         // DATAREADER - DOMAIN
-        std::make_tuple(EntityKind::DOMAIN, 14, std::vector<size_t> { 8 }),
+        std::make_tuple(EntityKind::DOMAIN, 15, std::vector<size_t> { 8 }),
         std::make_tuple(EntityKind::DOMAIN, 13, std::vector<size_t> { 8 }),
         // DATAREADER - PARTICIPANT
-        std::make_tuple(EntityKind::PARTICIPANT, 14, std::vector<size_t> { 10 }),
+        std::make_tuple(EntityKind::PARTICIPANT, 15, std::vector<size_t> { 10 }),
         std::make_tuple(EntityKind::PARTICIPANT, 13, std::vector<size_t> { 10 }),
         // DATAREADER - TOPIC
-        std::make_tuple(EntityKind::TOPIC, 14, std::vector<size_t> { 12 }),
+        std::make_tuple(EntityKind::TOPIC, 15, std::vector<size_t> { 12 }),
         std::make_tuple(EntityKind::TOPIC, 13, std::vector<size_t> { 12 }),
         // DATAREADER - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 14, std::vector<size_t> { 15, 16 }),
-        std::make_tuple(EntityKind::DATAWRITER, 13, std::vector<size_t> { 15, 16}),
+        std::make_tuple(EntityKind::DATAWRITER, 15, std::vector<size_t> { 17, 19 }),
+        std::make_tuple(EntityKind::DATAWRITER, 13, std::vector<size_t> { 17, 19}),
         // DATAREADER - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 14, std::vector<size_t> { 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 15, std::vector<size_t> { 15 }),
         std::make_tuple(EntityKind::DATAREADER, 13, std::vector<size_t> { 13 }),
         // DATAREADER - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 14, std::vector<size_t> { 17, 18 }),
+        std::make_tuple(EntityKind::LOCATOR, 15, std::vector<size_t> { 14, 16 }),
         // DATAREADER - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 13, std::vector<size_t> { 17 }),
+        std::make_tuple(EntityKind::LOCATOR, 13, std::vector<size_t> { 14 }),
 
         // DATAWRITER - HOST
-        std::make_tuple(EntityKind::HOST, 16, std::vector<size_t> { 2 }),
-        std::make_tuple(EntityKind::HOST, 15, std::vector<size_t> { 2 }),
+        std::make_tuple(EntityKind::HOST, 19, std::vector<size_t> { 2 }),
+        std::make_tuple(EntityKind::HOST, 17, std::vector<size_t> { 2 }),
         // DATAWRITER - USER
-        std::make_tuple(EntityKind::USER, 16, std::vector<size_t> { 4 }),
-        std::make_tuple(EntityKind::USER, 15, std::vector<size_t> { 4 }),
+        std::make_tuple(EntityKind::USER, 19, std::vector<size_t> { 4 }),
+        std::make_tuple(EntityKind::USER, 17, std::vector<size_t> { 4 }),
         // DATAWRITER - PROCESS
-        std::make_tuple(EntityKind::PROCESS, 16, std::vector<size_t> { 6 }),
-        std::make_tuple(EntityKind::PROCESS, 15, std::vector<size_t> { 6 }),
+        std::make_tuple(EntityKind::PROCESS, 19, std::vector<size_t> { 6 }),
+        std::make_tuple(EntityKind::PROCESS, 17, std::vector<size_t> { 6 }),
         // DATAWRITER - DOMAIN
-        std::make_tuple(EntityKind::DOMAIN, 16, std::vector<size_t> { 8 }),
-        std::make_tuple(EntityKind::DOMAIN, 15, std::vector<size_t> { 8 }),
+        std::make_tuple(EntityKind::DOMAIN, 19, std::vector<size_t> { 8 }),
+        std::make_tuple(EntityKind::DOMAIN, 17, std::vector<size_t> { 8 }),
         // DATAWRITER - PARTICIPANT
-        std::make_tuple(EntityKind::PARTICIPANT, 16, std::vector<size_t> { 10 }),
-        std::make_tuple(EntityKind::PARTICIPANT, 15, std::vector<size_t> { 10 }),
+        std::make_tuple(EntityKind::PARTICIPANT, 19, std::vector<size_t> { 10 }),
+        std::make_tuple(EntityKind::PARTICIPANT, 17, std::vector<size_t> { 10 }),
         // DATAWRITER - TOPIC
-        std::make_tuple(EntityKind::TOPIC, 16, std::vector<size_t> { 12 }),
-        std::make_tuple(EntityKind::TOPIC, 15, std::vector<size_t> { 12 }),
+        std::make_tuple(EntityKind::TOPIC, 19, std::vector<size_t> { 12 }),
+        std::make_tuple(EntityKind::TOPIC, 17, std::vector<size_t> { 12 }),
         // DATAWRITER - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 16, std::vector<size_t> { 16 }),
-        std::make_tuple(EntityKind::DATAWRITER, 15, std::vector<size_t> { 15}),
+        std::make_tuple(EntityKind::DATAWRITER, 19, std::vector<size_t> { 19 }),
+        std::make_tuple(EntityKind::DATAWRITER, 17, std::vector<size_t> { 17}),
         // DATAWRITER - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 16, std::vector<size_t> { 13, 14 }),
-        std::make_tuple(EntityKind::DATAREADER, 15, std::vector<size_t> { 13, 14 }),
+        std::make_tuple(EntityKind::DATAREADER, 19, std::vector<size_t> { 13, 15 }),
+        std::make_tuple(EntityKind::DATAREADER, 17, std::vector<size_t> { 13, 15 }),
         // DATAWRITER - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 16, std::vector<size_t> { 19, 20 }),
+        std::make_tuple(EntityKind::LOCATOR, 19, std::vector<size_t> { 18, 20 }),
         // DATAWRITER - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 15, std::vector<size_t> { 19 }),
+        std::make_tuple(EntityKind::LOCATOR, 17, std::vector<size_t> { 18 }),
 
         // LOCATOR - HOST
-        std::make_tuple(EntityKind::HOST, 17, std::vector<size_t> { 2 }),
+        std::make_tuple(EntityKind::HOST, 14, std::vector<size_t> { 2 }),
+        std::make_tuple(EntityKind::HOST, 16, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 18, std::vector<size_t> { 2 }),
-        std::make_tuple(EntityKind::HOST, 19, std::vector<size_t> { 2 }),
         std::make_tuple(EntityKind::HOST, 20, std::vector<size_t> { 2 }),
         // LOCATOR - USER
-        std::make_tuple(EntityKind::USER, 17, std::vector<size_t> { 4 }),
+        std::make_tuple(EntityKind::USER, 14, std::vector<size_t> { 4 }),
+        std::make_tuple(EntityKind::USER, 16, std::vector<size_t> { 4 }),
         std::make_tuple(EntityKind::USER, 18, std::vector<size_t> { 4 }),
-        std::make_tuple(EntityKind::USER, 19, std::vector<size_t> { 4 }),
         std::make_tuple(EntityKind::USER, 20, std::vector<size_t> { 4 }),
         // LOCATOR - PROCESS
-        std::make_tuple(EntityKind::PROCESS, 17, std::vector<size_t> { 6 }),
+        std::make_tuple(EntityKind::PROCESS, 14, std::vector<size_t> { 6 }),
+        std::make_tuple(EntityKind::PROCESS, 16, std::vector<size_t> { 6 }),
         std::make_tuple(EntityKind::PROCESS, 18, std::vector<size_t> { 6 }),
-        std::make_tuple(EntityKind::PROCESS, 19, std::vector<size_t> { 6 }),
         std::make_tuple(EntityKind::PROCESS, 20, std::vector<size_t> { 6 }),
         // LOCATOR - DOMAIN
-        std::make_tuple(EntityKind::DOMAIN, 17, std::vector<size_t> { 8 }),
+        std::make_tuple(EntityKind::DOMAIN, 14, std::vector<size_t> { 8 }),
+        std::make_tuple(EntityKind::DOMAIN, 16, std::vector<size_t> { 8 }),
         std::make_tuple(EntityKind::DOMAIN, 18, std::vector<size_t> { 8 }),
-        std::make_tuple(EntityKind::DOMAIN, 19, std::vector<size_t> { 8 }),
         std::make_tuple(EntityKind::DOMAIN, 20, std::vector<size_t> { 8 }),
         // LOCATOR - PARTICIPANT
-        std::make_tuple(EntityKind::PARTICIPANT, 17, std::vector<size_t> { 10 }),
+        std::make_tuple(EntityKind::PARTICIPANT, 14, std::vector<size_t> { 10 }),
+        std::make_tuple(EntityKind::PARTICIPANT, 16, std::vector<size_t> { 10 }),
         std::make_tuple(EntityKind::PARTICIPANT, 18, std::vector<size_t> { 10 }),
-        std::make_tuple(EntityKind::PARTICIPANT, 19, std::vector<size_t> { 10 }),
         std::make_tuple(EntityKind::PARTICIPANT, 20, std::vector<size_t> { 10 }),
         // LOCATOR - TOPIC
-        std::make_tuple(EntityKind::TOPIC, 17, std::vector<size_t> { 12 }),
+        std::make_tuple(EntityKind::TOPIC, 14, std::vector<size_t> { 12 }),
+        std::make_tuple(EntityKind::TOPIC, 16, std::vector<size_t> { 12 }),
         std::make_tuple(EntityKind::TOPIC, 18, std::vector<size_t> { 12 }),
-        std::make_tuple(EntityKind::TOPIC, 19, std::vector<size_t> { 12 }),
         std::make_tuple(EntityKind::TOPIC, 20, std::vector<size_t> { 12 }),
         // LOCATOR - DATAWRITER
-        std::make_tuple(EntityKind::DATAWRITER, 17, std::vector<size_t> { }),
-        std::make_tuple(EntityKind::DATAWRITER, 18, std::vector<size_t> { }),
-        std::make_tuple(EntityKind::DATAWRITER, 19, std::vector<size_t> { 15, 16 }),
-        std::make_tuple(EntityKind::DATAWRITER, 20, std::vector<size_t> { 16 }),
+        std::make_tuple(EntityKind::DATAWRITER, 14, std::vector<size_t> { }),
+        std::make_tuple(EntityKind::DATAWRITER, 16, std::vector<size_t> { }),
+        std::make_tuple(EntityKind::DATAWRITER, 18, std::vector<size_t> { 17, 19 }),
+        std::make_tuple(EntityKind::DATAWRITER, 20, std::vector<size_t> { 19 }),
         // LOCATOR - DATAREADER
-        std::make_tuple(EntityKind::DATAREADER, 17, std::vector<size_t> { 13, 14 }),
-        std::make_tuple(EntityKind::DATAREADER, 18, std::vector<size_t> { 14 }),
-        std::make_tuple(EntityKind::DATAREADER, 19, std::vector<size_t> { }),
+        std::make_tuple(EntityKind::DATAREADER, 14, std::vector<size_t> { 13, 15 }),
+        std::make_tuple(EntityKind::DATAREADER, 16, std::vector<size_t> { 15 }),
+        std::make_tuple(EntityKind::DATAREADER, 18, std::vector<size_t> { }),
         std::make_tuple(EntityKind::DATAREADER, 20, std::vector<size_t> { }),
         // LOCATOR - LOCATOR
-        std::make_tuple(EntityKind::LOCATOR, 17, std::vector<size_t> { 17 }),
+        std::make_tuple(EntityKind::LOCATOR, 14, std::vector<size_t> { 14 }),
+        std::make_tuple(EntityKind::LOCATOR, 16, std::vector<size_t> { 16 }),
         std::make_tuple(EntityKind::LOCATOR, 18, std::vector<size_t> { 18 }),
-        std::make_tuple(EntityKind::LOCATOR, 19, std::vector<size_t> { 19 }),
         std::make_tuple(EntityKind::LOCATOR, 20, std::vector<size_t> { 20 })
         ));
 
