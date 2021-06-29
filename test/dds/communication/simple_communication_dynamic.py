@@ -57,80 +57,94 @@ else:
     if xml_file_sub:
         real_xml_file_sub = os.path.join(script_dir, xml_file_sub)
 
-
 # Thread that read the monitor_proc stdout and push it into a queue
 def output_reader(proc, outq):
     for line in iter(proc.stdout.readline, b''):
         outq.put(line.decode('utf-8'))
 
+def communication(monitor_proc, pid):
+    """A"""
+    outq = queue.Queue()
+    t = threading.Thread(target=output_reader, args=(monitor_proc,outq))
+    t.start()
 
-monitor_proc = subprocess.Popen([monitor_command, "--seed", str(os.getpid())],
+    run = True
+    try:
+        time.sleep(0.2)
+        
+        while run:
+            try:
+                line = outq.get(block=False).rstrip()
+
+                sys.stdout.flush()
+
+                # Monitor initialized
+                if (line == ("Init Monitor_" + pid)):
+                    print("___" + pid + "___Init Monitor___")
+                    sys.stdout.flush()
+
+                    print("___" + pid + "___Creating subscriber1___")
+                    sys.stdout.flush()
+                    subscriber1_proc = subprocess.Popen([subscriber_command, "--seed", pid]
+                        + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
+                    
+                    print("___" + pid + "___Creating publisher1___")
+                    sys.stdout.flush()
+                    publisher_proc1 = subprocess.Popen([publisher_command, "--seed", pid]
+                        + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
+                        + extra_pub_args)
+
+                    print("___" + pid + "___subscriber1 communicate...___")
+                    sys.stdout.flush()
+                    subscriber1_proc.communicate()
+
+                    print("___" + pid + "___publisher1 kill___")
+                    sys.stdout.flush()
+                    publisher_proc1.communicate()
+
+                    print("___" + pid + "___Stop Monitor___")
+                    sys.stdout.flush()
+                    run = False
+
+            except queue.Empty:
+                print("___" + pid + 'could not get line from queue')
+                sys.stdout.flush()
+
+            time.sleep(0.1)
+    finally:
+        monitor_proc.terminate()
+        try:
+            monitor_proc.wait(timeout=0.2)
+            print("___" + pid + '== subprocess exited with rc =', monitor_proc.returncode)
+        except subprocess.TimeoutExpired:
+            print("___" + pid + 'subprocess did not terminate in time')
+
+    while outq.empty() != True:
+        line = outq.get(block=False).rstrip()
+        print("___" + pid + line)
+        sys.stdout.flush()
+
+    t.join()
+
+monitor_proc_0 = subprocess.Popen([monitor_command, "--seed", str(os.getpid())],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
 
-outq = queue.Queue()
-t = threading.Thread(target=output_reader, args=(monitor_proc,outq))
-t.start()
+monitor_proc_1 = subprocess.Popen([monitor_command, "--seed", str(os.getpid() + 1)],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
 
-run = True
+t_0 = threading.Thread(target=communication, args=(monitor_proc_0,str(os.getpid())))
+t_1 = threading.Thread(target=communication, args=(monitor_proc_1,str(os.getpid() + 1)))
 
-try:
-    time.sleep(0.2)
-    
-    while run:
-        try:
-            line = outq.get(block=False).rstrip()
+t_0.start()
+t_1.start()
 
-            print(line)
-            sys.stdout.flush()
+t_0.join()
+t_1.join()
 
-            # Monitor initialized
-            if (line == "Init Monitor"):
-                print("___Init Monitor___")
-                sys.stdout.flush()
+retvalue = monitor_proc_0.returncode
+if retvalue == 0:
+    retvalue = monitor_proc_1.returncode
 
-                print("___Creating subscriber1___")
-                sys.stdout.flush()
-                subscriber1_proc = subprocess.Popen([subscriber_command, "--seed", str(os.getpid())]
-                    + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
-                
-                print("___Creating publisher1___")
-                sys.stdout.flush()
-                publisher_proc1 = subprocess.Popen([publisher_command, "--seed", str(os.getpid())]
-                    + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
-                    + extra_pub_args)
-
-                print("___subscriber1 communicate...___")
-                sys.stdout.flush()
-                subscriber1_proc.communicate()
-
-                print("___publisher1 kill___")
-                sys.stdout.flush()
-                publisher_proc1.communicate()
-
-                print("___Stop Monitor___")
-                sys.stdout.flush()
-                run = False
-
-        except queue.Empty:
-            print('could not get line from queue')
-            sys.stdout.flush()
-
-        time.sleep(0.1)
-finally:
-    monitor_proc.terminate()
-    try:
-        monitor_proc.wait(timeout=0.2)
-        print('== subprocess exited with rc =', monitor_proc.returncode)
-    except subprocess.TimeoutExpired:
-        print('subprocess did not terminate in time')
-
-while outq.empty() != True:
-    line = outq.get(block=False).rstrip()
-    print(line)
-    sys.stdout.flush()
-
-
-t.join()
-
-sys.exit(monitor_proc.returncode)
+sys.exit(retvalue)

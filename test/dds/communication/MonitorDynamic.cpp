@@ -251,7 +251,7 @@ int main(
     // Test: After discover participants and endpoints, all the entities are active
     {
         // Start the subprocesses
-        std::cout << "Init Monitor" << std::endl;
+        std::cout << "Init Monitor_" << seed << std::endl;
 
         // Wait until discover all entities
         {
