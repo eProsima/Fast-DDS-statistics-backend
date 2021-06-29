@@ -588,10 +588,11 @@ public:
 
     void change_entity_status_test(
             const EntityId& entity_id,
-            bool active)
+            bool active,
+            const EntityId domain_id)
     {
         EntityKind entity_kind = get_entity_kind(entity_id);
-        change_entity_status_of_kind(entity_id, active, entity_kind);
+        change_entity_status_of_kind(entity_id, active, entity_kind,domain_id);
     }
 
 };

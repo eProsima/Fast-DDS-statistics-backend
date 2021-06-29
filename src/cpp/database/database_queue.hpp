@@ -357,35 +357,45 @@ protected:
         try
         {
             EntityDiscoveryInfo info = front().second;
-            EntityId id;
 
-            // Insert the entity only if is discovered and is not yet inserted in the database
-            if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
-                    !info.entity->id.is_valid_and_unique())
-            {
-                id = database_->insert(info.entity);
-            }
-            else
-            {
-                id = info.entity->id;
-            }
-
-            // Update the entity status and check if its references must also change it status
-            database_->change_entity_status(id,
-                    info.discovery_status !=
-                    details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
-
+            // Physical entities
             if (EntityKind::HOST  == info.entity->kind ||
                     EntityKind::USER == info.entity->kind ||
                     EntityKind::PROCESS == info.entity->kind ||
                     EntityKind::LOCATOR == info.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id, id,
-                        info.entity->kind);
+                info.entity->id = database_->insert(info.entity);
+
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id,
+                        info.entity->id,
+                        info.entity->kind, info.discovery_status);
             }
-            else if (EntityKind::DOMAIN != front().second.entity->kind)
+            // Domain entities
+            else if (EntityKind::DOMAIN != info.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id, id,
+                // The topic is never updated/undiscovered, is only discovered. So the status is not changed.
+                // It status will only be updated if its endpoints are discovered/undiscovered.
+                if (info.entity->kind == EntityKind::TOPIC)
+                {
+                    info.entity->id = database_->insert(info.entity);
+                }
+                else
+                {
+                    // Insert the entity only if is discovered and is not yet inserted in the database
+                    if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
+                            !info.entity->id.is_valid_and_unique())
+                    {
+                        info.entity->id = database_->insert(info.entity);
+                    }
+
+                    // Update the entity status and check if its references must also change it status
+                    database_->change_entity_status(info.entity->id,
+                            info.discovery_status !=
+                            details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+                }
+
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id,
+                        info.entity->id,
                         info.entity->kind,
                         info.discovery_status);
             }

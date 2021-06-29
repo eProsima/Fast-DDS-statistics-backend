@@ -673,8 +673,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
 
-    // Precondition: The topic change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -1741,8 +1739,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
 
-    // Precondition: The topic change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 

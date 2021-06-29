@@ -988,42 +988,48 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DOMAIN),
+                EntityKind::DOMAIN,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::PARTICIPANT),
+                EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::TOPIC),
+                EntityKind::TOPIC,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DATAREADER),
+                EntityKind::DATAREADER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DATAWRITER),
+                EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::INVALID),
+                EntityKind::INVALID,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts

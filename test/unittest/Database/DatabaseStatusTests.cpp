@@ -73,7 +73,7 @@ TEST_F(database_status_tests, host)
     ASSERT_DEATH(db.change_entity_status(host->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(host->id, false);
+    db.change_entity_status_test(host->id, false,domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -85,7 +85,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(host->id, true);
+    db.change_entity_status_test(host->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -101,7 +101,7 @@ TEST_F(database_status_tests, host)
     db.insert(host1);
     ASSERT_TRUE(host1->active);
 
-    db.change_entity_status_test(host->id, false);
+    db.change_entity_status_test(host->id, false,domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -114,7 +114,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(host1->active);
 
-    db.change_entity_status_test(host->id, true);
+    db.change_entity_status_test(host->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -134,7 +134,7 @@ TEST_F(database_status_tests, user)
     ASSERT_DEATH(db.change_entity_status(user->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(user->id, false);
+    db.change_entity_status_test(user->id, false,domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -146,7 +146,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(user->id, true);
+    db.change_entity_status_test(user->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -162,7 +162,7 @@ TEST_F(database_status_tests, user)
     db.insert(user1);
     ASSERT_TRUE(user1->active);
 
-    db.change_entity_status_test(user->id, false);
+    db.change_entity_status_test(user->id, false,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_FALSE(user->active);
@@ -175,7 +175,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(user1->active);
 
-    db.change_entity_status_test(user->id, true);
+    db.change_entity_status_test(user->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -195,7 +195,7 @@ TEST_F(database_status_tests, process)
     ASSERT_DEATH(db.change_entity_status(process->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(process->id, false);
+    db.change_entity_status_test(process->id, false,domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -207,7 +207,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(process->id, true);
+    db.change_entity_status_test(process->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -223,7 +223,7 @@ TEST_F(database_status_tests, process)
     db.insert(process1);
     ASSERT_TRUE(process1->active);
 
-    db.change_entity_status_test(process->id, false);
+    db.change_entity_status_test(process->id, false,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -236,7 +236,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(process1->active);
 
-    db.change_entity_status_test(process->id, true);
+    db.change_entity_status_test(process->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -309,11 +309,15 @@ TEST_F(database_status_tests, domain)
 
 TEST_F(database_status_tests, topic)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
 #ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(topic->id, false);
+    db.change_entity_status_test(topic->id, false,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -325,7 +329,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(topic->id, true);
+    db.change_entity_status_test(topic->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -341,7 +345,7 @@ TEST_F(database_status_tests, topic)
     db.insert(topic1);
     ASSERT_TRUE(topic1->active);
 
-    db.change_entity_status_test(topic->id, false);
+    db.change_entity_status_test(topic->id, false,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -354,7 +358,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(topic1->active);
 
-    db.change_entity_status_test(topic->id, true);
+    db.change_entity_status_test(topic->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -583,6 +587,10 @@ TEST_F(database_status_tests, datareader)
 
 TEST_F(database_status_tests, endpoints)
 {
+    // Simulate that the backend is monitorizing the domain
+    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+    
     db.change_entity_status(datawriter->id, false);
     db.change_entity_status(datareader->id, false);
 
@@ -666,7 +674,7 @@ TEST_F(database_status_tests, locator)
     ASSERT_DEATH(db.change_entity_status(locator->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(locator->id, false);
+    db.change_entity_status_test(locator->id, false,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -678,7 +686,7 @@ TEST_F(database_status_tests, locator)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(locator->id, true);
+    db.change_entity_status_test(locator->id, true,domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
