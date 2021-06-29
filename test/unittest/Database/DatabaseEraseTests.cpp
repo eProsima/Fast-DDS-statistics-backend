@@ -128,7 +128,7 @@ TEST(database_erase_tests, erase_domain)
 TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 {
     erase_and_check(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE,
-        "domain_0");
+            "domain_0");
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
