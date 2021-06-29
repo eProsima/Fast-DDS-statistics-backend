@@ -443,7 +443,7 @@ protected:
 
         /* Check that participant exits */
         bool participant_exists = false;
-        for (auto participant_it : participants_[endpoint->participant->domain->id])
+        for (const auto& participant_it : participants_[endpoint->participant->domain->id])
         {
             if (endpoint->participant.get() == participant_it.second.get())
             {
@@ -459,7 +459,7 @@ protected:
 
         /* Check that topic exists */
         bool topic_exists = false;
-        for (auto topic_it : topics_[endpoint->topic->domain->id])
+        for (const auto& topic_it : topics_[endpoint->topic->domain->id])
         {
             if (endpoint->topic.get() == topic_it.second.get())
             {
@@ -474,9 +474,9 @@ protected:
         }
 
         /* Check that this is indeed a new endpoint and that its GUID is unique */
-        for (auto endpoints_it: dds_endpoints<T>())
+        for (const auto& endpoints_it: dds_endpoints<T>())
         {
-            for (auto endpoint_it : endpoints_it.second)
+            for (const auto& endpoint_it : endpoints_it.second)
             {
                 if (endpoint.get() == endpoint_it.second.get())
                 {
@@ -505,7 +505,7 @@ protected:
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
         /* Add to x_by_y_ collections and to locators_ */
-        for (auto locator_it : endpoint->locators)
+        for (auto& locator_it : endpoint->locators)
         {
             // Add locator to locators_
             locators_[locator_it.first] = locator_it.second;

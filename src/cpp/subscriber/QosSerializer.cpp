@@ -177,7 +177,7 @@ void serialize<fastdds::dds::GenericDataQosPolicy> (
 {
     std::stringstream data;
     data << std::hex;
-    for (auto v : qos.getValue())
+    for (const auto& v : qos.getValue())
     {
         data << static_cast<int>(v);
     }
@@ -270,7 +270,7 @@ void serialize<fastdds::dds::PartitionQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos partition = database::Qos::array();
-    for (auto p : qos)
+    for (const auto& p : qos)
     {
         partition.push_back(p.name());
     }
@@ -319,7 +319,7 @@ void serialize<fastdds::dds::DataRepresentationQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos representation = database::Qos::array();
-    for (auto p : qos.m_value)
+    for (const auto& p : qos.m_value)
     {
         switch (p)
         {
@@ -395,7 +395,7 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
     datasharing[max_domains_tag] = qos.max_domains();
     datasharing[shm_directory_tag] = qos.shm_directory();
     datasharing[domain_ids_tag] = database::Qos::array();
-    for (auto id : qos.domain_ids())
+    for (const auto& id : qos.domain_ids())
     {
         datasharing[domain_ids_tag].push_back(id);
     }
@@ -439,7 +439,7 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
         database::Qos& serialized)
 {
     database::Qos properties = database::Qos::array();
-    for (auto p : qos)
+    for (const auto& p : qos)
     {
         database::Qos property;
         property[name_tag] = p.first();
