@@ -65,7 +65,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new host, and that its name is unique */
-            for (auto host_it: hosts_)
+            for (const auto& host_it: hosts_)
             {
                 if (host.get() == host_it.second.get())
                 {
@@ -103,7 +103,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new user */
-            for (auto user_it: users_)
+            for (const auto& user_it: users_)
             {
                 if (user.get() == user_it.second.get())
                 {
@@ -113,7 +113,7 @@ void Database::insert_nts(
 
             /* Check that host exits */
             bool host_exists = false;
-            for (auto host_it : hosts_)
+            for (const auto& host_it : hosts_)
             {
                 if (user->host.get() == host_it.second.get())
                 {
@@ -128,7 +128,7 @@ void Database::insert_nts(
             }
 
             /* Check that a user with the same name does not exist in the host collection */
-            for (auto user_it : user->host->users)
+            for (const auto& user_it : user->host->users)
             {
                 if (user->name == user_it.second->name)
                 {
@@ -173,7 +173,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new process */
-            for (auto process_it: processes_)
+            for (const auto& process_it: processes_)
             {
                 if (process.get() == process_it.second.get())
                 {
@@ -183,7 +183,7 @@ void Database::insert_nts(
 
             /* Check that user exits */
             bool user_exists = false;
-            for (auto user_it : users_)
+            for (const auto& user_it : users_)
             {
                 if (process->user.get() == user_it.second.get())
                 {
@@ -198,9 +198,9 @@ void Database::insert_nts(
             }
 
             /* Check that a process with the same pid does not exist in the same host */
-            for (auto user_it : hosts_[process->user->host->id]->users)
+            for (const auto& user_it : hosts_[process->user->host->id]->users)
             {
-                for (auto process_it : user_it.second->processes)
+                for (const auto& process_it : user_it.second->processes)
                 {
                     if (process->pid == process_it.second->pid)
                     {
@@ -240,7 +240,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new domain and that its name is unique */
-            for (auto domain_it: domains_)
+            for (const auto& domain_it: domains_)
             {
                 if (domain.get() == domain_it.second.get())
                 {
@@ -286,7 +286,7 @@ void Database::insert_nts(
 
             /* Check that domain exits */
             bool domain_exists = false;
-            for (auto domain_it : domains_)
+            for (const auto& domain_it : domains_)
             {
                 if (topic->domain.get() == domain_it.second.get())
                 {
@@ -301,7 +301,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new topic and that its name is unique in the domain */
-            for (auto topic_it: topics_[topic->domain->id])
+            for (const auto& topic_it: topics_[topic->domain->id])
             {
                 if (topic.get() == topic_it.second.get())
                 {
@@ -357,7 +357,7 @@ void Database::insert_nts(
 
             /* Check that domain exits */
             bool domain_exists = false;
-            for (auto domain_it : domains_)
+            for (const auto& domain_it : domains_)
             {
                 if (participant->domain.get() == domain_it.second.get())
                 {
@@ -372,9 +372,9 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new participant and that its GUID is unique */
-            for (auto domain_it : participants_)
+            for (const auto& domain_it : participants_)
             {
-                for (auto participant_it : domain_it.second)
+                for (const auto& participant_it : domain_it.second)
                 {
                     // Check that participant is new
                     if (participant.get() == participant_it.second.get())
@@ -432,7 +432,7 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new locator, and that its name is unique */
-            for (auto locator_it: locators_)
+            for (const auto& locator_it: locators_)
             {
                 if (locator.get() == locator_it.second.get())
                 {
@@ -1147,37 +1147,37 @@ const std::shared_ptr<const Entity> Database::get_entity(
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     /* Iterate over all the collections looking for the entity */
-    for (auto host_it : hosts_)
+    for (const auto& host_it : hosts_)
     {
         if (host_it.second->id == entity_id)
         {
             return host_it.second;
         }
     }
-    for (auto process_it : processes_)
+    for (const auto& process_it : processes_)
     {
         if (process_it.second->id == entity_id)
         {
             return process_it.second;
         }
     }
-    for (auto user_it : users_)
+    for (const auto& user_it : users_)
     {
         if (user_it.second->id == entity_id)
         {
             return user_it.second;
         }
     }
-    for (auto domain_it : domains_)
+    for (const auto& domain_it : domains_)
     {
         if (domain_it.second->id == entity_id)
         {
             return domain_it.second;
         }
     }
-    for (auto domain_it : topics_)
+    for (const auto& domain_it : topics_)
     {
-        for (auto topic_it : domain_it.second)
+        for (const auto& topic_it : domain_it.second)
         {
             if (topic_it.second->id == entity_id)
             {
@@ -1185,9 +1185,9 @@ const std::shared_ptr<const Entity> Database::get_entity(
             }
         }
     }
-    for (auto domain_it : participants_)
+    for (const auto& domain_it : participants_)
     {
-        for (auto participant_it : domain_it.second)
+        for (const auto& participant_it : domain_it.second)
         {
             if (participant_it.second->id == entity_id)
             {
@@ -1195,9 +1195,9 @@ const std::shared_ptr<const Entity> Database::get_entity(
             }
         }
     }
-    for (auto domain_it : datareaders_)
+    for (const auto& domain_it : datareaders_)
     {
-        for (auto datareader_it : domain_it.second)
+        for (const auto& datareader_it : domain_it.second)
         {
             if (datareader_it.second->id == entity_id)
             {
@@ -1205,9 +1205,9 @@ const std::shared_ptr<const Entity> Database::get_entity(
             }
         }
     }
-    for (auto domain_it : datawriters_)
+    for (const auto& domain_it : datawriters_)
     {
-        for (auto datawriter_it : domain_it.second)
+        for (const auto& datawriter_it : domain_it.second)
         {
             if (datawriter_it.second->id == entity_id)
             {
@@ -1215,7 +1215,7 @@ const std::shared_ptr<const Entity> Database::get_entity(
             }
         }
     }
-    for (auto locator_it : locators_)
+    for (const auto& locator_it : locators_)
     {
         if (locator_it.second->id == entity_id)
         {
@@ -1235,7 +1235,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
     {
         case EntityKind::HOST:
         {
-            for (auto host_it : hosts_)
+            for (const auto& host_it : hosts_)
             {
                 if (host_it.second->name == name)
                 {
@@ -1246,7 +1246,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::USER:
         {
-            for (auto user_it : users_)
+            for (const auto& user_it : users_)
             {
                 if (user_it.second->name == name)
                 {
@@ -1257,7 +1257,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::PROCESS:
         {
-            for (auto process_it : processes_)
+            for (const auto& process_it : processes_)
             {
                 if (process_it.second->name == name)
                 {
@@ -1268,7 +1268,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::DOMAIN:
         {
-            for (auto domain_it : domains_)
+            for (const auto& domain_it : domains_)
             {
                 if (domain_it.second->name == name)
                 {
@@ -1279,9 +1279,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::PARTICIPANT:
         {
-            for (auto domain_it : participants_)
+            for (const auto& domain_it : participants_)
             {
-                for (auto participant_it : domain_it.second)
+                for (const auto& participant_it : domain_it.second)
                 {
                     if (participant_it.second->name == name)
                     {
@@ -1293,9 +1293,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::TOPIC:
         {
-            for (auto domain_it : topics_)
+            for (const auto& domain_it : topics_)
             {
-                for (auto topic_it : domain_it.second)
+                for (const auto& topic_it : domain_it.second)
                 {
                     if (topic_it.second->name == name)
                     {
@@ -1307,9 +1307,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::DATAREADER:
         {
-            for (auto domain_it : datareaders_)
+            for (const auto& domain_it : datareaders_)
             {
-                for (auto datareader_it : domain_it.second)
+                for (const auto& datareader_it : domain_it.second)
                 {
                     if (datareader_it.second->name == name)
                     {
@@ -1321,9 +1321,9 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::DATAWRITER:
         {
-            for (auto domain_it : datawriters_)
+            for (const auto& domain_it : datawriters_)
             {
-                for (auto datawriter_it : domain_it.second)
+                for (const auto& datawriter_it : domain_it.second)
                 {
                     if (datawriter_it.second->name == name)
                     {
@@ -1335,7 +1335,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         }
         case EntityKind::LOCATOR:
         {
-            for (auto locator_it : locators_)
+            for (const auto& locator_it : locators_)
             {
                 if (locator_it.second->name == name)
                 {
@@ -1793,9 +1793,9 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
     {
         case EntityKind::PARTICIPANT:
         {
-            for (auto domain_it : participants_)
+            for (const auto& domain_it : participants_)
             {
-                for (auto participant_it : domain_it.second)
+                for (const auto& participant_it : domain_it.second)
                 {
                     if (participant_it.second->guid == guid)
                     {
@@ -1807,9 +1807,9 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
         }
         case EntityKind::DATAREADER:
         {
-            for (auto domain_it : datareaders_)
+            for (const auto& domain_it : datareaders_)
             {
-                for (auto datareader_it : domain_it.second)
+                for (const auto& datareader_it : domain_it.second)
                 {
                     if (datareader_it.second->guid == guid)
                     {
@@ -1821,9 +1821,9 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
         }
         case EntityKind::DATAWRITER:
         {
-            for (auto domain_it : datawriters_)
+            for (const auto& domain_it : datawriters_)
             {
-                for (auto datawriter_it : domain_it.second)
+                for (const auto& datawriter_it : domain_it.second)
                 {
                     if (datawriter_it.second->guid == guid)
                     {
@@ -1889,7 +1889,7 @@ std::vector<EntityId> Database::get_entity_ids(
         const EntityId& entity_id) const
 {
     std::vector<EntityId> entitiesIds;
-    for (auto entity : get_entities(entity_kind, entity_id))
+    for (const auto& entity : get_entities(entity_kind, entity_id))
     {
         entitiesIds.push_back(entity->id);
     }
@@ -1915,7 +1915,7 @@ void map_of_maps_to_vector(
         const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
 {
-    for (auto elem : map)
+    for (const auto& elem : map)
     {
         map_to_vector(elem.second, vec);
     }
@@ -1976,7 +1976,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(host);
                         break;
                     case EntityKind::USER:
-                        for (auto user : host->users)
+                        for (const auto& user : host->users)
                         {
                             entities.push_back(user.second);
                         }
@@ -1988,7 +1988,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAREADER:
                     case EntityKind::DATAWRITER:
                     case EntityKind::LOCATOR:
-                        for (auto user : host->users)
+                        for (const auto& user : host->users)
                         {
                             auto sub_entities = get_entities(entity_kind, user.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2011,7 +2011,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(user);
                         break;
                     case EntityKind::PROCESS:
-                        for (auto process : user->processes)
+                        for (const auto& process : user->processes)
                         {
                             entities.push_back(process.second);
                         }
@@ -2022,7 +2022,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAREADER:
                     case EntityKind::DATAWRITER:
                     case EntityKind::LOCATOR:
-                        for (auto process : user->processes)
+                        for (const auto& process : user->processes)
                         {
                             auto sub_entities = get_entities(entity_kind, process.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2051,7 +2051,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(process);
                         break;
                     case EntityKind::PARTICIPANT:
-                        for (auto participant : process->participants)
+                        for (const auto& participant : process->participants)
                         {
                             entities.push_back(participant.second);
                         }
@@ -2061,7 +2061,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAREADER:
                     case EntityKind::DATAWRITER:
                     case EntityKind::LOCATOR:
-                        for (auto participant : process->participants)
+                        for (const auto& participant : process->participants)
                         {
                             auto sub_entities = get_entities(entity_kind, participant.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2081,13 +2081,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(domain);
                         break;
                     case EntityKind::PARTICIPANT:
-                        for (auto participant : domain->participants)
+                        for (const auto& participant : domain->participants)
                         {
                             entities.push_back(participant.second);
                         }
                         break;
                     case EntityKind::TOPIC:
-                        for (auto topic : domain->topics)
+                        for (const auto& topic : domain->topics)
                         {
                             entities.push_back(topic.second);
                         }
@@ -2098,7 +2098,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAREADER:
                     case EntityKind::DATAWRITER:
                     case EntityKind::LOCATOR:
-                        for (auto participant : domain->participants)
+                        for (const auto& participant : domain->participants)
                         {
                             auto sub_entities = get_entities(entity_kind, participant.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2140,25 +2140,25 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(participant);
                         break;
                     case EntityKind::DATAWRITER:
-                        for (auto writer : participant->data_writers)
+                        for (const auto& writer : participant->data_writers)
                         {
                             entities.push_back(writer.second);
                         }
                         break;
                     case EntityKind::DATAREADER:
-                        for (auto reader : participant->data_readers)
+                        for (const auto& reader : participant->data_readers)
                         {
                             entities.push_back(reader.second);
                         }
                         break;
                     case EntityKind::TOPIC:
                     case EntityKind::LOCATOR:
-                        for (auto writer : participant->data_writers)
+                        for (const auto& writer : participant->data_writers)
                         {
                             auto sub_entities = get_entities(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
-                        for (auto reader : participant->data_readers)
+                        for (const auto& reader : participant->data_readers)
                         {
                             auto sub_entities = get_entities(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2181,13 +2181,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(topic);
                         break;
                     case EntityKind::DATAWRITER:
-                        for (auto writer : topic->data_writers)
+                        for (const auto& writer : topic->data_writers)
                         {
                             entities.push_back(writer.second);
                         }
                         break;
                     case EntityKind::DATAREADER:
-                        for (auto reader : topic->data_readers)
+                        for (const auto& reader : topic->data_readers)
                         {
                             entities.push_back(reader.second);
                         }
@@ -2197,12 +2197,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                     case EntityKind::PARTICIPANT:
                     case EntityKind::LOCATOR:
-                        for (auto writer : topic->data_writers)
+                        for (const auto& writer : topic->data_writers)
                         {
                             auto sub_entities = get_entities(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
-                        for (auto reader : topic->data_readers)
+                        for (const auto& reader : topic->data_readers)
                         {
                             auto sub_entities = get_entities(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2228,7 +2228,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(writer);
                         break;
                     case EntityKind::LOCATOR:
-                        for (auto locator : writer->locators)
+                        for (const auto& locator : writer->locators)
                         {
                             entities.push_back(locator.second);
                         }
@@ -2268,7 +2268,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         entities.push_back(reader);
                         break;
                     case EntityKind::LOCATOR:
-                        for (auto locator : reader->locators)
+                        for (const auto& locator : reader->locators)
                         {
                             entities.push_back(locator.second);
                         }
@@ -2299,13 +2299,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 switch (entity_kind)
                 {
                     case EntityKind::DATAREADER:
-                        for (auto reader : locator->data_readers)
+                        for (const auto& reader : locator->data_readers)
                         {
                             entities.push_back(reader.second);
                         }
                         break;
                     case EntityKind::DATAWRITER:
-                        for (auto writer : locator->data_writers)
+                        for (const auto& writer : locator->data_writers)
                         {
                             entities.push_back(writer.second);
                         }
@@ -2319,12 +2319,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PARTICIPANT:
                     case EntityKind::TOPIC:
                     case EntityKind::DOMAIN:
-                        for (auto writer : locator->data_writers)
+                        for (const auto& writer : locator->data_writers)
                         {
                             auto sub_entities = get_entities(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
-                        for (auto reader : locator->data_readers)
+                        for (const auto& reader : locator->data_readers)
                         {
                             auto sub_entities = get_entities(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
@@ -2388,7 +2388,7 @@ DatabaseDump Database::dump_database()
         DatabaseDump container = DatabaseDump::object();
 
         // For each entity of this kind in the database
-        for (auto it : hosts_)
+        for (const auto& it : hosts_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
@@ -2401,7 +2401,7 @@ DatabaseDump Database::dump_database()
         DatabaseDump container = DatabaseDump::object();
 
         // For each entity of this kind in the database
-        for (auto it : users_)
+        for (const auto& it : users_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
@@ -2414,7 +2414,7 @@ DatabaseDump Database::dump_database()
         DatabaseDump container = DatabaseDump::object();
 
         // For each entity of this kind in the database
-        for (auto it : processes_)
+        for (const auto& it : processes_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
@@ -2427,7 +2427,7 @@ DatabaseDump Database::dump_database()
         DatabaseDump container = DatabaseDump::object();
 
         // For each entity of this kind in the database
-        for (auto it : domains_)
+        for (const auto& it : domains_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
@@ -2439,10 +2439,10 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
         // For each domain
-        for (auto super_it : topics_)
+        for (const auto& super_it : topics_)
         {
             // For each entity of this kind in the domain
-            for (auto it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
@@ -2454,10 +2454,10 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
         // For each domain
-        for (auto super_it : participants_)
+        for (const auto& super_it : participants_)
         {
             // For each entity of this kind in the domain
-            for (auto it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
@@ -2469,10 +2469,10 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
         // For each domain
-        for (auto super_it : datawriters_)
+        for (const auto& super_it : datawriters_)
         {
             // For each entity of this kind in the domain
-            for (auto it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
@@ -2484,10 +2484,10 @@ DatabaseDump Database::dump_database()
     {
         DatabaseDump container = DatabaseDump::object();
         // For each domain
-        for (auto super_it : datareaders_)
+        for (const auto& super_it : datareaders_)
         {
             // For each entity of this kind in the domain
-            for (auto it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 container[id_to_string(it.first.value())] = dump_entity_(it.second);
             }
@@ -2500,7 +2500,7 @@ DatabaseDump Database::dump_database()
         DatabaseDump container = DatabaseDump::object();
 
         // For each entity of this kind in the database
-        for (auto it : locators_)
+        for (const auto& it : locators_)
         {
             container[id_to_string(it.first.value())] = dump_entity_(it.second);
         }
@@ -2521,7 +2521,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->users)
+        for (const auto& sub_it : entity->users)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2543,7 +2543,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->processes)
+        for (const auto& sub_it : entity->processes)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2566,7 +2566,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->participants)
+        for (const auto& sub_it : entity->participants)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2586,7 +2586,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for Topics
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->topics)
+        for (const auto& sub_it : entity->topics)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2596,7 +2596,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for Participants
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->participants)
+        for (const auto& sub_it : entity->participants)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2619,7 +2619,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataWriters
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_writers)
+        for (const auto& sub_it : entity->data_writers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2629,7 +2629,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataReaders
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_readers)
+        for (const auto& sub_it : entity->data_readers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2661,7 +2661,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataWriters
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_writers)
+        for (const auto& sub_it : entity->data_writers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2670,7 +2670,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataReaders
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_readers)
+        for (const auto& sub_it : entity->data_readers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2745,7 +2745,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for Locators
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->locators)
+        for (const auto& sub_it : entity->locators)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2810,7 +2810,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for Locators
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->locators)
+        for (const auto& sub_it : entity->locators)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2852,7 +2852,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataWriters
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_writers)
+        for (const auto& sub_it : entity->data_writers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2862,7 +2862,7 @@ DatabaseDump Database::dump_entity_(
     // Populate subentity array for DataReaders
     {
         DatabaseDump subentities = DatabaseDump::array();
-        for (auto sub_it : entity->data_readers)
+        for (const auto& sub_it : entity->data_readers)
         {
             subentities.push_back(id_to_string(sub_it.first));
         }
@@ -2887,11 +2887,11 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump samples = DatabaseDump::array();
 
-        for (auto sample : it.second)
+        for (const auto& sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
@@ -2912,11 +2912,11 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump samples = DatabaseDump::array();
 
-        for (auto sample : it.second)
+        for (const auto& sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
@@ -2936,11 +2936,11 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump samples = DatabaseDump::array();
 
-        for (auto sample : it.second)
+        for (const auto& sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
@@ -2960,11 +2960,11 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump samples = DatabaseDump::array();
 
-        for (auto sample : it.second)
+        for (const auto& sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
@@ -2986,11 +2986,11 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump samples = DatabaseDump::array();
 
-        for (auto sample : it.second)
+        for (const auto& sample : it.second)
         {
             DatabaseDump value = DatabaseDump::object();
             value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(sample.src_ts);
@@ -3010,7 +3010,7 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump value = DatabaseDump::object();
         value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(it.src_ts);
@@ -3027,7 +3027,7 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         DatabaseDump value = DatabaseDump::object();
         value[DATA_VALUE_SRC_TIME_TAG] = time_to_string(it.src_ts);
@@ -3065,7 +3065,7 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         data_dump[id_to_string(it.first.value())] = dump_data_(it.second);
     }
@@ -3078,7 +3078,7 @@ DatabaseDump Database::dump_data_(
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
-    for (auto it : data)
+    for (const auto& it : data)
     {
         data_dump[id_to_string(it.first.value())] = dump_data_(it.second);
     }
@@ -4217,7 +4217,7 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<Host> host;
 
-            for (auto host_it : hosts_)
+            for (const auto& host_it : hosts_)
             {
                 if (host_it.second->id == entity_id)
                 {
@@ -4235,7 +4235,7 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<User> user;
 
-            for (auto user_it : users_)
+            for (const auto& user_it : users_)
             {
                 if (user_it.second->id == entity_id)
                 {
@@ -4251,7 +4251,7 @@ void Database::change_entity_status_of_kind(
                 {
                     // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (auto entity_it : user->host->users)
+                    for (const auto& entity_it : user->host->users)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4271,7 +4271,7 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<Process> process;
 
-            for (auto process_it : processes_)
+            for (const auto& process_it : processes_)
             {
                 if (process_it.second->id == entity_id)
                 {
@@ -4287,7 +4287,7 @@ void Database::change_entity_status_of_kind(
                 {
                     // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (auto entity_it : process->user->processes)
+                    for (const auto& entity_it : process->user->processes)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4307,7 +4307,7 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<Domain> domain;
 
-            for (auto domain_it : domains_)
+            for (const auto& domain_it : domains_)
             {
                 if (domain_it.second->id == entity_id)
                 {
@@ -4325,9 +4325,9 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<Topic> topic;
 
-            for (auto domain_it : topics_)
+            for (const auto& domain_it : topics_)
             {
-                for (auto topic_it : domain_it.second)
+                for (const auto& topic_it : domain_it.second)
                 {
                     if (topic_it.second->id == entity_id)
                     {
@@ -4346,9 +4346,9 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<DomainParticipant> participant;
 
-            for (auto domain_it : participants_)
+            for (const auto& domain_it : participants_)
             {
-                for (auto participant_it : domain_it.second)
+                for (const auto& participant_it : domain_it.second)
                 {
                     if (participant_it.second->id == entity_id)
                     {
@@ -4367,7 +4367,7 @@ void Database::change_entity_status_of_kind(
                 {
                     // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (auto entity_it : participant->process->participants)
+                    for (const auto& entity_it : participant->process->participants)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4388,9 +4388,9 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<DataWriter> datawriter;
 
-            for (auto domain_it : datawriters_)
+            for (const auto& domain_it : datawriters_)
             {
-                for (auto datawriter_it : domain_it.second)
+                for (const auto& datawriter_it : domain_it.second)
                 {
                     if (datawriter_it.second->id == entity_id)
                     {
@@ -4408,7 +4408,7 @@ void Database::change_entity_status_of_kind(
                 {
                     // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (auto entity_it : datawriter->topic->data_writers)
+                    for (const auto& entity_it : datawriter->topic->data_writers)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4417,7 +4417,7 @@ void Database::change_entity_status_of_kind(
                     }
                     if (change_status)
                     {
-                        for (auto entity_it : datawriter->topic->data_readers)
+                        for (const auto& entity_it : datawriter->topic->data_readers)
                         {
                             if (entity_it.second->active != active)
                             {
@@ -4438,9 +4438,9 @@ void Database::change_entity_status_of_kind(
         {
             std::shared_ptr<DataReader> datareader;
 
-            for (auto domain_it : datareaders_)
+            for (const auto& domain_it : datareaders_)
             {
-                for (auto datareader_it : domain_it.second)
+                for (const auto& datareader_it : domain_it.second)
                 {
                     if (datareader_it.second->id == entity_id)
                     {
@@ -4457,7 +4457,7 @@ void Database::change_entity_status_of_kind(
                 {
                     // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (auto entity_it : datareader->topic->data_readers)
+                    for (const auto& entity_it : datareader->topic->data_readers)
                     {
                         if (entity_it.second->active != active)
                         {
@@ -4466,7 +4466,7 @@ void Database::change_entity_status_of_kind(
                     }
                     if (change_status)
                     {
-                        for (auto entity_it : datareader->topic->data_writers)
+                        for (const auto& entity_it : datareader->topic->data_writers)
                         {
                             if (entity_it.second->active != active)
                             {

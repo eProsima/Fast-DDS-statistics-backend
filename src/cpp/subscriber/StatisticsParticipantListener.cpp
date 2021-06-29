@@ -95,7 +95,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.info.topicName().to_string());
 
     // Check if any of these topics is in the current domain AND shares the data type
-    for (auto topic_id : topic_ids)
+    for (const auto& topic_id : topic_ids)
     {
         if (topic_id.first == domain_id_)
         {
@@ -170,11 +170,11 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 }
             };
 
-    for (auto dds_locator : info.info.remote_locators().unicast)
+    for (const auto& dds_locator : info.info.remote_locators().unicast)
     {
         process_locators(dds_locator);
     }
-    for (auto dds_locator : info.info.remote_locators().multicast)
+    for (const auto& dds_locator : info.info.remote_locators().multicast)
     {
         process_locators(dds_locator);
     }

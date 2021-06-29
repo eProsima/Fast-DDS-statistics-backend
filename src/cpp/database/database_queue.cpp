@@ -709,7 +709,7 @@ void DatabaseDataQueue::process_sample()
                 // Check the existence of the user in that host
                 std::shared_ptr<User> user;
                 auto users = database_->get_entities_by_name(EntityKind::USER, item.user());
-                for (auto it : users)
+                for (const auto& it : users)
                 {
                     std::shared_ptr<const User> const_user =
                             std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
@@ -734,7 +734,7 @@ void DatabaseDataQueue::process_sample()
                 EntityId process_id;
                 std::shared_ptr<Process> process;
                 auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
-                for (auto it : processes)
+                for (const auto& it : processes)
                 {
                     std::shared_ptr<const Process> const_process =
                             std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));

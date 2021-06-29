@@ -258,7 +258,7 @@ EntityId StatisticsBackend::init_monitor(
         throw Error("Error initializing monitor. Could not create subscriber");
     }
 
-    for (auto topic : topics)
+    for (const auto& topic : topics)
     {
         /* Register the type and topic*/
         register_statistics_type_and_topic(monitor, topic);
@@ -303,13 +303,13 @@ void StatisticsBackend::stop_monitor(
     details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(it);
 
     // Delete everything created during monitor initialization
-    for (auto reader : monitor->readers)
+    for (const auto& reader : monitor->readers)
     {
         monitor->subscriber->delete_datareader(reader.second);
     }
     monitor->readers.clear();
 
-    for (auto topic : monitor->topics)
+    for (const auto& topic : monitor->topics)
     {
         monitor->participant->delete_topic(topic.second);
     }
@@ -410,20 +410,20 @@ Info StatisticsBackend::get_info(
             DatabaseDump locators = DatabaseDump::array();
 
             // Writers registered in the participant
-            for (auto writer : participant->data_writers)
+            for (const auto& writer : participant->data_writers)
             {
                 // Locators associated to each writer
-                for (auto locator : writer.second.get()->locators)
+                for (const auto& locator : writer.second.get()->locators)
                 {
                     locators.push_back(locator.second.get()->name);
                 }
             }
 
             // Readers registered in the participant
-            for (auto reader : participant->data_readers)
+            for (const auto& reader : participant->data_readers)
             {
                 // Locators associated to each reader
-                for (auto locator : reader.second.get()->locators)
+                for (const auto& locator : reader.second.get()->locators)
                 {
                     locators.push_back(locator.second.get()->name);
                 }
@@ -709,7 +709,7 @@ void StatisticsBackend::reset()
     {
         std::stringstream message;
         message << "The following monitors are still active: [ ";
-        for (auto monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+        for (const auto& monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
         {
             message << monitor.first << " ";
         }
