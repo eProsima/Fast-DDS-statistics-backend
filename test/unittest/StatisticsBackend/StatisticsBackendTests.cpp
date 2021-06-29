@@ -94,6 +94,8 @@ TEST_F(statistics_backend_tests, get_info)
         info.erase(NAME_INFO_TAG);
         EXPECT_EQ(entity->alias, info[ALIAS_INFO_TAG]);
         info.erase(ALIAS_INFO_TAG);
+        EXPECT_EQ(entity->active, info[ALIVE_INFO_TAG]);
+        info.erase(ALIVE_INFO_TAG);
 
         // Check specific info
         switch (entity->kind)
