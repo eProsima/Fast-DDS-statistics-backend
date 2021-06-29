@@ -80,3 +80,4 @@
 
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`
+.. |PreconditionNotMet-api| replace:: :cpp:type:`PreconditionNotMet<eprosima::statistics_backend::PreconditionNotMet>`

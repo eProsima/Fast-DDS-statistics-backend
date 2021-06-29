@@ -100,6 +100,20 @@ void clear_examples()
     }
 }
 
+void reset_examples()
+{
+    {
+        //CONF-RESET-EXAMPLE
+        // Init a monitor in DDS domain 0 with no listener associated
+        EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
+        // Stop the monitor
+        StatisticsBackend::stop_monitor(domain_monitor_id);
+        // Reset Fast DDS Statistics Backend
+        StatisticsBackend::reset();
+        //!
+    }
+}
+
 void set_listeners_examples()
 {
     {
