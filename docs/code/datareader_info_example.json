@@ -2,8 +2,9 @@
     "id": 6,
     "kind": "datareader",
     "name": "datareader_name",
+    "alias": "datareader_alias",
+    "alive": false,
     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04",
-    "topic": "746fd666-c0f3-4ba4-b8d6-18cdd7ce4af9",
     "qos":
     {
         "data_sharing":

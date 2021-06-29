@@ -2,8 +2,9 @@
     "id": 7,
     "kind": "datawriter",
     "name": "datawriter_name",
+    "alias": "datawriter_alias",
+    "alive": true,
     "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03",
-    "topic": "746fd666-c0f3-4ba4-b8d6-18cdd7ce4af9",
     "qos":
     {
         "data_sharing":

@@ -1,5 +1,7 @@
 {
     "id": 0,
     "kind": "domain",
-    "name": "0"
+    "name": "0",
+    "alias": "domain_alias",
+    "alive": true
 }
