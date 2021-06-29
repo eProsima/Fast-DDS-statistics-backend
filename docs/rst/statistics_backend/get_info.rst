@@ -7,8 +7,10 @@ Get entity meta information
 
 *Fast DDS Statistics Backend* includes the possibility of retrieving the meta information of any given entity present
 in the network.
-Depending on the |EntityKind-api|, the returned tree contains merely the ``kind``, ``id`` and ``name``,
-or extra information such as ``pid``, ``qos``, or ``data_type``.
+The returned tree always includes the basic information about the entity: ``kind``, ``id``, ``name``, ``alias`` and
+if the entity is ``alive``.
+Depending on the |EntityKind-api|, the returned object can contain extra information such as ``pid``, ``guid``, ``qos``,
+``locators`` or ``data_type``.
 |get_info-api| returns a |Info-api| object.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp

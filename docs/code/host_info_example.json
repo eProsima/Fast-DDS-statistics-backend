@@ -1,5 +1,7 @@
 {
     "id": 1,
     "kind": "host",
-    "name": "host_name"
+    "name": "host_name",
+    "alias": "host_alias",
+    "alive": true
 }

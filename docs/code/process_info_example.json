@@ -2,5 +2,7 @@
     "id": 3,
     "kind": "process",
     "name": "process_name",
+    "alias": "process_alias",
+    "alive": true,
     "pid": "9564"
 }

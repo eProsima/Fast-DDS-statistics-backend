@@ -1,5 +1,7 @@
 {
     "id": 2,
     "kind": "user",
-    "name": "user_name"
+    "name": "user_name",
+    "alias": "user_alias",
+    "alive": true
 }

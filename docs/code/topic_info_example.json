@@ -2,5 +2,7 @@
     "id": 8,
     "kind": "topic",
     "name": "topic_name",
+    "alias": "topic_alias",
+    "alive": true,
     "data_type": "example_data_type"
 }
