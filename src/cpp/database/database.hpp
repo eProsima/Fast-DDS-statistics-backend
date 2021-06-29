@@ -135,7 +135,7 @@ public:
      * @brief Erase all the data related to a domain.
      *
      * After the operation, the domain_id becomes invalid.
-     * Preconditions for this method are that:
+     * @pre
      *            * the domain must exist.
      *            * the monitor attached to the domain must be stopped.
      *

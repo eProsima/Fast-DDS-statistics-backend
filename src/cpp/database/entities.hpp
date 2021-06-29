@@ -359,8 +359,7 @@ struct DataReader : DDSEndpoint
 
     /**
      * Clear the maps and data
-     * This method does not clear the locators map. Call DDSEndpoint::clear before to ensure that all the information
-     * is correctly disposed.
+     * This method does not clear the locators map.
      */
     void clear() final;
 
@@ -386,8 +385,7 @@ struct DataWriter : DDSEndpoint
 
     /**
      * Clear the maps and data
-     * This method does not clear the locators map. Call DDSEndpoint::clear before to ensure that all the information
-     * is correctly disposed.
+     * This method does not clear the locators map.
      */
     void clear() final;
 

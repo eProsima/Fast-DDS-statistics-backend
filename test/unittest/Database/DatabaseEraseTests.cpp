@@ -76,18 +76,16 @@ void check_erased_database(
     }
 }
 
-/**
- * This test checks the erase feature.
- * It loads the complex_dump.json and erases the domain_1.
- * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
- */
-TEST(database_erase_tests, erase_domain)
+void erase_and_check(
+        const std::string& initial_filename,
+        const std::string& final_filename,
+        const std::string& domain)
 {
     // Read JSON files
     DatabaseDump initial_dump;
     DatabaseDump final_dump;
-    load_file(COMPLEX_DUMP_FILE, initial_dump);
-    load_file(COMPLEX_ERASED_DUMP_FILE, final_dump);
+    load_file(initial_filename, initial_dump);
+    load_file(final_filename, final_dump);
 
     // Create database
     DataBaseTest db;
@@ -96,7 +94,7 @@ TEST(database_erase_tests, erase_domain)
     db.load_database(initial_dump);
 
     // Call erase monitor removing domain_1
-    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, "domain_1");
+    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, domain);
     EntityId domain_id = domains.begin()->first;
     // Save entities associated to the erased domain to check that the cross maps are correctly erased.
     std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
@@ -116,37 +114,21 @@ TEST(database_erase_tests, erase_domain)
     EXPECT_EQ(final_dump, erased_dump);
 }
 
+/**
+ * This test checks the erase feature.
+ * It loads the complex_dump.json and erases the domain_1.
+ * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
+ */
+TEST(database_erase_tests, erase_domain)
+{
+    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DUMP_FILE, "domain_1");
+}
+
 // This test checks that erasing a database where the participant is not yet linked to the process works as expected
 TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 {
-    // Read JSON files
-    DatabaseDump initial_dump;
-    DatabaseDump final_dump;
-    load_file(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, initial_dump);
-    load_file(NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE, final_dump);
-
-    // Create database
-    DataBaseTest db;
-
-    // Load initial dump in the database
-    db.load_database(initial_dump);
-
-    // Call erase monitor removing domain_1
-    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, "domain_0");
-    EntityId domain_id = domains.begin()->first;
-    // Save entities associated to the erased domain to check that the cross maps are correctly erased.
-    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
-    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
-    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
-    db.erase(domain_id);
-
-    check_erased_database(db, domain_id, participants, readers, writers);
-
-    // Dump erased database
-    DatabaseDump erased_dump = db.dump_database();
-
-    // Compare erased and final dumps
-    EXPECT_EQ(final_dump, erased_dump);
+    erase_and_check(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE,
+        "domain_0");
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
