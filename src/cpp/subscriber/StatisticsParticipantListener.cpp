@@ -263,7 +263,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         {
             case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
             {
-                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                 break;
             }
             case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
@@ -351,7 +351,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         {
             case ReaderDiscoveryInfo::DISCOVERED_READER:
             {
-                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                 break;
             }
             case ReaderDiscoveryInfo::CHANGED_QOS_READER:
@@ -419,7 +419,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
         {
             case WriterDiscoveryInfo::DISCOVERED_WRITER:
             {
-                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                 break;
             }
             case WriterDiscoveryInfo::CHANGED_QOS_WRITER:

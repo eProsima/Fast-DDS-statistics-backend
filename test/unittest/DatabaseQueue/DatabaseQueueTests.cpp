@@ -576,6 +576,9 @@ TEST_F(database_queue_tests, push_participant_process_exists)
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
 
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
         entity_queue.flush();
@@ -587,6 +590,9 @@ TEST_F(database_queue_tests, push_participant_process_exists)
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
@@ -678,6 +684,9 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
 
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
         entity_queue.flush();
@@ -689,6 +698,9 @@ TEST_F(database_queue_tests, push_participant_no_process_exists)
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
@@ -896,6 +908,9 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
 
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UNDISCOVERY});
         entity_queue.flush();
@@ -907,6 +922,9 @@ TEST_F(database_queue_tests, push_datawriter)
         // Expectations: The status will throw an exception because the datawriter is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
                 .WillRepeatedly(Throw(BadParameter("Error")));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UPDATE});
@@ -1041,6 +1059,9 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database,
                 change_entity_status(_, false)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
 
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UNDISCOVERY});
         entity_queue.flush();
@@ -1052,6 +1073,9 @@ TEST_F(database_queue_tests, push_datareader)
         // Expectations: The status will throw an exception because the datareader is not in the database
         EXPECT_CALL(database,
                 change_entity_status(_, true)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
         entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UPDATE});

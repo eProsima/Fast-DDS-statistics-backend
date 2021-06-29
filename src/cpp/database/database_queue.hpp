@@ -359,8 +359,9 @@ protected:
             EntityDiscoveryInfo info = front().second;
             EntityId id;
 
-            // Insert the entity only if is discovered
-            if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
+            // Insert the entity only if is discovered and is not yet inserted in the database
+            if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
+                    !info.entity->id.is_valid_and_unique())
             {
                 id = database_->insert(info.entity);
             }
@@ -369,7 +370,7 @@ protected:
                 id = info.entity->id;
             }
 
-            // Update the entity status
+            // Update the entity status and check if its references must also change it status
             database_->change_entity_status(id,
                     info.discovery_status !=
                     details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);

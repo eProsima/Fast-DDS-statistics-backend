@@ -35,7 +35,6 @@ namespace database {
 class Database;
 class DatabaseDataQueue;
 class DatabaseEntityQueue;
-class EntityDiscoveryInfo;
 
 } // namespace database
 
