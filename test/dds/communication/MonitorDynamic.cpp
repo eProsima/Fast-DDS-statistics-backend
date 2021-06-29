@@ -357,7 +357,7 @@ int main(
             std::unique_lock<std::mutex> lock(listener.mutex_);
             listener.cv_.wait(lock, [&]
                     {
-                        return listener.num_entities_discovered_ == num_topics;
+                        return listener.num_entities_discovered_ == 0;
                     });
         }
 
