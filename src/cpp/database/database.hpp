@@ -317,7 +317,7 @@ public:
     /**
      * Change the status (active/inactive) of an entity given an EntityId.
      * Also check if the references of the entity must also be changed and change the status in that case.
-     * A call to the user listener will be performed if the status of the entity change.
+     * A call to the user listener will be performed if the status of the entity changes.
      * @param entity_id The EntityId of the entity
      * @param active The entity status value to set
      * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid.
@@ -682,7 +682,7 @@ protected:
     /**
      * Change the status (active/inactive) of an entity given an EntityId.
      * Also check if the references of the entity must also be changed and change the status in that case.
-     * A call to the user listeners will be performed if the status of the entity change.
+     * A call to the user listeners will be performed if the status of the entity changes.
      * @param entity_id The EntityId of the entity
      * @param active The entity status value to set
      * @param entity_kind The EntityKind of the entity

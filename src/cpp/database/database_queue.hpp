@@ -356,7 +356,7 @@ protected:
     {
         try
         {
-            EntityDiscoveryInfo info = front().second;
+            const EntityDiscoveryInfo& info = front().second;
 
             // Physical entities
             if (EntityKind::HOST  == info.entity->kind ||
@@ -364,6 +364,7 @@ protected:
                     EntityKind::PROCESS == info.entity->kind ||
                     EntityKind::LOCATOR == info.entity->kind)
             {
+                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
                 info.entity->id = database_->insert(info.entity);
 
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id,
@@ -373,6 +374,7 @@ protected:
             // Domains are not discovered, they are created on monitor initialization
             else if (EntityKind::DOMAIN == info.entity->kind)
             {
+                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
                 info.entity->id = database_->insert(info.entity);
             }
             // Domain entities
@@ -382,6 +384,9 @@ protected:
                 // It status will only be updated if its endpoints are discovered/undiscovered.
                 if (info.entity->kind == EntityKind::TOPIC)
                 {
+                    assert(
+                        info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
+                        !info.entity->id.is_valid_and_unique());
                     info.entity->id = database_->insert(info.entity);
                 }
                 else
