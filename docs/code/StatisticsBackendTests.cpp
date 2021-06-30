@@ -315,25 +315,33 @@ int get_graph_examples(
                                             // Check if the participant is the one that is being looked for
                                             if (participant["entity_id"] == participant_id && participant["alive"])
                                             {
-                                                std::cout << "\t\t\tParticipant name: " << participant["name"] << std::endl;
-                                                std::cout << "\t\t\tParticipant alias: " << participant["alias"] << std::endl;
-                                                std::cout << "\t\t\tParticipant GUID: " << participant["guid"] << std::endl;
+                                                std::cout << "\t\t\tParticipant name: " << participant["name"] <<
+                                                    std::endl;
+                                                std::cout << "\t\t\tParticipant alias: " << participant["alias"] <<
+                                                    std::endl;
+                                                std::cout << "\t\t\tParticipant GUID: " << participant["guid"] <<
+                                                    std::endl;
                                                 // Iterate over data writers
                                                 for (const auto& datawriter : participant["datawriters"])
                                                 {
                                                     if (datawriter["alive"])
                                                     {
-                                                        std::cout << "\t\t\t\tDatawriter name: " << datawriter["name"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatawriter alias: " << datawriter["alias"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatawriter GUID: " << datawriter["guid"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatawriter name: " <<
+                                                            datawriter["name"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatawriter alias: " <<
+                                                            datawriter["alias"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatawriter GUID: " <<
+                                                            datawriter["guid"] << std::endl;
                                                         // Iterate over topics
                                                         for (const auto& topic : domain["topics"])
                                                         {
                                                             // Check if the topic is the one that is being looked for
                                                             if (topic["entity_id"] == datawriter["topic"])
                                                             {
-                                                                std::cout << "\t\t\t\tDatawriter topic name: " << topic["name"] << std::endl;
-                                                                std::cout << "\t\t\t\tDatareader topic alias: " << topic["alias"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatawriter topic name: " <<
+                                                                    topic["name"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
+                                                                    topic["alias"] << std::endl;
                                                                 break;
                                                             }
                                                         }
@@ -345,8 +353,10 @@ int get_graph_examples(
                                                                 // Check if the locator is the one that is being looked for
                                                                 if (locator["entity_id"] == locator_id)
                                                                 {
-                                                                    std::cout << "\t\t\t\tDatawriter locator name: " << locator["name"] << std::endl;
-                                                                    std::cout << "\t\t\t\tDatawriter locator alias: " << locator["alias"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatawriter locator name: " <<
+                                                                        locator["name"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatawriter locator alias: " <<
+                                                                        locator["alias"] << std::endl;
                                                                 }
                                                             }
                                                         }
@@ -357,17 +367,22 @@ int get_graph_examples(
                                                 {
                                                     if (datareader["alive"])
                                                     {
-                                                        std::cout << "\t\t\t\tDatareader name: " << datareader["name"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatareader alias: " << datareader["alias"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatareader GUID: " << datareader["guid"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatareader name: " <<
+                                                            datareader["name"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatareader alias: " <<
+                                                            datareader["alias"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatareader GUID: " <<
+                                                            datareader["guid"] << std::endl;
                                                         // Iterate over topics
                                                         for (const auto& topic : domain["topics"])
                                                         {
                                                             // Check if the topic is the one that is being looked for
                                                             if (topic["entity_id"] == datareader["topic"])
                                                             {
-                                                                std::cout << "\t\t\t\tDatareader topic name: " << topic["name"] << std::endl;
-                                                                std::cout << "\t\t\t\tDatareader topic alias: " << topic["alias"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatareader topic name: " <<
+                                                                    topic["name"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
+                                                                    topic["alias"] << std::endl;
                                                                 break;
                                                             }
                                                         }
@@ -379,8 +394,10 @@ int get_graph_examples(
                                                                 // Check if the locator is the one that is being looked for
                                                                 if (locator["entity_id"] == locator_id)
                                                                 {
-                                                                    std::cout << "\t\t\t\tDatareader locator name: " << locator["name"] << std::endl;
-                                                                    std::cout << "\t\t\t\tDatareader locator alias: " << locator["alias"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatareader locator name: " <<
+                                                                        locator["name"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatareader locator alias: " <<
+                                                                        locator["alias"] << std::endl;
                                                                 }
                                                             }
                                                         }
