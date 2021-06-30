@@ -370,8 +370,13 @@ protected:
                         info.entity->id,
                         info.entity->kind, info.discovery_status);
             }
+            // Domains are not discovered, they are created on monitor initialization
+            else if (EntityKind::DOMAIN == info.entity->kind)
+            {
+                info.entity->id = database_->insert(info.entity);
+            }
             // Domain entities
-            else if (EntityKind::DOMAIN != info.entity->kind)
+            else
             {
                 // The topic is never updated/undiscovered, is only discovered. So the status is not changed.
                 // It status will only be updated if its endpoints are discovered/undiscovered.

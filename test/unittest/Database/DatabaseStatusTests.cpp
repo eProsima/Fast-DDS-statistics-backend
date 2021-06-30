@@ -39,6 +39,37 @@ public:
         datawriter = db.get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
         datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
         locator = db.locators().begin()->second;
+
+        // Simulate that the backend is monitorizing the domain
+        std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
+        // Simulate the discover of the entities
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                host->id,
+                host->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                user->id,
+                user->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                process->id,
+                process->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                topic->id,
+                topic->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                participant->id,
+                participant->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datawriter->id,
+                datawriter->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datareader->id,
+                datareader->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
     std::shared_ptr<Host> host;
@@ -309,10 +340,6 @@ TEST_F(database_status_tests, domain)
 
 TEST_F(database_status_tests, topic)
 {
-    // Simulate that the backend is monitorizing the domain
-    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
-
 #ifndef NDEBUG
     ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
 #endif // ifndef NDEBUG
@@ -587,10 +614,6 @@ TEST_F(database_status_tests, datareader)
 
 TEST_F(database_status_tests, endpoints)
 {
-    // Simulate that the backend is monitorizing the domain
-    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
-
     db.change_entity_status(datawriter->id, false);
     db.change_entity_status(datareader->id, false);
 
