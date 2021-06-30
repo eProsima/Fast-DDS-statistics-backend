@@ -416,6 +416,16 @@ void get_type_example()
     }
 }
 
+void set_alias_example()
+{
+    {
+        EntityId entity_id;
+        //CONF-SET-ALIAS-EXAMPLE
+        StatisticsBackend::set_alias(entity_id, "my_alias");
+        //!--
+    }
+}
+
 void is_active_example()
 {
     {
