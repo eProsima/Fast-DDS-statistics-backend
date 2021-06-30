@@ -197,9 +197,10 @@ public:
                 EntityId,
                 EntityId,
                 const DomainListener::Status&)
-            {
-            },
-            details::StatisticsBackendData::DiscoveryStatus const& discovery_status = details::StatisticsBackendData::DISCOVERY)
+    {
+    },
+            details::StatisticsBackendData::DiscoveryStatus const& discovery_status
+            = details::StatisticsBackendData::DISCOVERY)
     {
         // Set the callback of the expectations
         discovery_args_.callback_ = checker;
@@ -529,8 +530,8 @@ public:
                 EntityId,
                 EntityId,
                 const DomainListener::Status&)
-            {
-            })
+    {
+    })
     {
         // Set the callback of the expectations
         discovery_args_.callback_ = checker;
