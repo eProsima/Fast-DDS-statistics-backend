@@ -239,20 +239,24 @@ StatisticsParticipantListener::StatisticsParticipantListener(
 }
 
 // Return true if the address is localhost: 127.0.0.1
-bool is_local_host(octet* address)
+bool is_local_host(
+        octet* address)
 {
     return (address[12] == 127 && address[13] == 0 && address[14] == 0 && address[15] == 1);
 }
 
 // Convert an address to an IP format: "37.11.18.30"
-std::string address_to_string(octet* address)
+std::string address_to_string(
+        octet* address)
 {
     return std::to_string((int)address[12]) + "." + std::to_string((int)address[13]) + "." +
            std::to_string((int)address[14]) + "." + std::to_string((int)address[15]);
 }
 
 // Search for an address different from localhost in the locator list
-bool search_address_in_locators(const eprosima::fastrtps::ResourceLimitedVector<Locator_t> & locators, std::string & address)
+bool search_address_in_locators(
+        const eprosima::fastrtps::ResourceLimitedVector<Locator_t>& locators,
+        std::string& address)
 {
     for (auto locator : locators)
     {
@@ -266,7 +270,8 @@ bool search_address_in_locators(const eprosima::fastrtps::ResourceLimitedVector<
 }
 
 // Return a IP obtained from participant locators
-std::string get_address(const ParticipantProxyData& info)
+std::string get_address(
+        const ParticipantProxyData& info)
 {
     // The IP is obtained from the announced locators
     // Search for a locator with an IP different from localhost
@@ -298,6 +303,24 @@ std::string get_address(const ParticipantProxyData& info)
 
     // The only option is for localhost to be the only valid IP
     return "127.0.0.1";
+}
+
+// Return the participant_id
+std::string get_participant_id(
+        const GUID_t& guid)
+{
+    // The participant_id can be obtained from the last 4 octets in the GUID prefix
+    std::stringstream buffer;
+    for (int i = 0; i < 3; i++)
+    {
+        buffer << std::hex << std::setfill('0');
+        buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[i + 8]);
+        buffer << ".";
+    }
+    buffer << std::hex << std::setfill('0');
+    buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[3 + 8]);
+
+    return buffer.str();
 }
 
 void StatisticsParticipantListener::on_participant_discovery(
@@ -332,7 +355,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                 // TODO [ILG] : Process these messages and save the updated QoS
                 entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
                 break;
-
+                
             case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
             case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
             {
@@ -360,7 +383,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             if (name.empty())
             {
                 // The name will be constructed as IP:participant_id
-                name = get_address(info.info);
+                name = get_address(info.info) + ":" + get_participant_id(info.info.m_guid);
             }
 
             // Create the participant and push it to the queue
