@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -31,9 +32,13 @@
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/rtps/attributes/RTPSParticipantAttributes.h>
+#include <fastdds/rtps/attributes/ServerAttributes.h>
+#include <fastdds/rtps/common/Locator.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
+#include <fastrtps/utils/IPLocator.h>
 
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
@@ -49,6 +54,7 @@
 #include "detail/data_aggregation.hpp"
 
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
 
 namespace eprosima {
@@ -163,48 +169,19 @@ void register_statistics_type_and_topic(
     }
 }
 
-void StatisticsBackend::set_physical_listener(
-        PhysicalListener* listener,
-        CallbackMask callback_mask,
-        DataKindMask data_mask)
-{
-    details::StatisticsBackendData::get_instance()->lock();
-    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
-    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
-    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
-    details::StatisticsBackendData::get_instance()->unlock();
-}
-
-void StatisticsBackend::set_domain_listener(
-        EntityId monitor_id,
-        DomainListener* listener,
-        CallbackMask callback_mask,
-        DataKindMask data_mask)
-{
-    auto monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-    if (monitor == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
-    {
-        throw BadParameter("There is no monitor with the given ID");
-    }
-
-    monitor->second->domain_listener = listener;
-    monitor->second->domain_callback_mask = callback_mask;
-    monitor->second->data_mask = data_mask;
-}
-
-EntityId StatisticsBackend::init_monitor(
-        DomainId domain_id,
+EntityId create_and_register_monitor(
+        const std::string& domain_name,
         DomainListener* domain_listener,
-        CallbackMask callback_mask,
-        DataKindMask data_mask)
+        const CallbackMask& callback_mask,
+        const DataKindMask& data_mask,
+        const DomainParticipantQos& participant_qos,
+        const DomainId domain_id = 0)
 {
     details::StatisticsBackendData::get_instance()->lock();
 
     /* Create monitor instance and register it in the database */
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
-    std::stringstream domain_name;
-    domain_name << domain_id;
-    std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name.str());
+    std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
     try
     {
         domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
@@ -230,16 +207,6 @@ EntityId StatisticsBackend::init_monitor(
         details::StatisticsBackendData::get_instance()->data_queue_);
 
     /* Create DomainParticipant */
-    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
-    /* Previous string conversion is needed for string_255 */
-    std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
-    participant_qos.name(participant_name);
-    /* Avoid using SHM transport by default */
-    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
-            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-    participant_qos.transport().user_transports.push_back(udp_transport);
-    participant_qos.transport().use_builtin_transports = false;
-
     StatusMask participant_mask = StatusMask::all();
     participant_mask ^= StatusMask::data_on_readers();
     monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
@@ -295,6 +262,60 @@ EntityId StatisticsBackend::init_monitor(
     return domain->id;
 }
 
+void StatisticsBackend::set_physical_listener(
+        PhysicalListener* listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    details::StatisticsBackendData::get_instance()->lock();
+    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
+    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
+    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
+    details::StatisticsBackendData::get_instance()->unlock();
+}
+
+void StatisticsBackend::set_domain_listener(
+        EntityId monitor_id,
+        DomainListener* listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    auto monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
+    if (monitor == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    {
+        throw BadParameter("There is no monitor with the given ID");
+    }
+
+    monitor->second->domain_listener = listener;
+    monitor->second->domain_callback_mask = callback_mask;
+    monitor->second->data_mask = data_mask;
+}
+
+EntityId StatisticsBackend::init_monitor(
+        DomainId domain_id,
+        DomainListener* domain_listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    /* Set domain_name */
+    std::stringstream domain_name;
+    domain_name << domain_id;
+
+    /* Set DomainParticipantQoS */
+    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+    /* Previous string conversion is needed for string_255 */
+    std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
+    participant_qos.name(participant_name);
+    /* Avoid using SHM transport by default */
+    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
+            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+    participant_qos.transport().user_transports.push_back(udp_transport);
+    participant_qos.transport().use_builtin_transports = false;
+
+    return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
+            domain_id);
+}
+
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
@@ -340,11 +361,78 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    static_cast<void>(discovery_server_locators);
-    static_cast<void>(domain_listener);
-    static_cast<void>(callback_mask);
-    static_cast<void>(data_mask);
-    return EntityId();
+    return init_monitor(DEFAULT_ROS2_SERVER_GUIDPREFIX, discovery_server_locators, domain_listener, callback_mask,
+            data_mask);
+}
+
+EntityId StatisticsBackend::init_monitor(
+        std::string discovery_server_guid_prefix,
+        std::string discovery_server_locators,
+        DomainListener* domain_listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    /* Set DomainParticipantQoS */
+    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+    participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
+
+    /* Avoid using SHM transport by default */
+    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
+            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+    participant_qos.transport().user_transports.push_back(udp_transport);
+    participant_qos.transport().use_builtin_transports = false;
+
+    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
+        eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;
+    RemoteServerAttributes server;
+    // Set the server guidPrefix
+    server.ReadguidPrefix(discovery_server_guid_prefix.c_str());
+    // Add locators
+    std::stringstream locators(discovery_server_locators);
+    std::string locator_str;
+    while (std::getline(locators, locator_str, ';'))
+    {
+        eprosima::fastrtps::rtps::Locator_t locator;
+        // Get IP address and port
+        std::stringstream locator_sstream(locator_str);
+        std::string ip;
+        std::string port_str;
+        std::getline(locator_sstream, ip, ':');
+        std::getline(locator_sstream, port_str);
+        // Set IP address
+        if (!eprosima::fastrtps::rtps::IPLocator::setIPv4(locator, ip))
+        {
+            locator.kind = LOCATOR_KIND_UDPv6;
+            if (!eprosima::fastrtps::rtps::IPLocator::setIPv6(locator,ip))
+            {
+                throw BadParameter(ip + " does not have a valid IP address format");
+            }
+        }
+        // Set port
+        if (port_str.find_first_not_of("1234567890") != std::string::npos)
+        {
+            throw BadParameter(port_str + " does not have a valid format");
+        }
+        unsigned long port = std::stoul(port_str);
+        if (port > std::numeric_limits<uint32_t>::max())
+        {
+            throw BadParameter(port_str + " is out of range");
+        }
+        locator.port = port;
+        // Check unicast/multicast address
+        if (eprosima::fastrtps::rtps::IPLocator::isMulticast(locator))
+        {
+            server.metatrafficMulticastLocatorList.push_back(locator);
+        }
+        else
+        {
+            server.metatrafficUnicastLocatorList.push_back(locator);
+        }
+    }
+    participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(server);
+
+    return create_and_register_monitor(discovery_server_guid_prefix, domain_listener, callback_mask, data_mask,
+            participant_qos);
 }
 
 void StatisticsBackend::restart_monitor(
