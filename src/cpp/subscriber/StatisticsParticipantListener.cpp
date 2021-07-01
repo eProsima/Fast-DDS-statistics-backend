@@ -62,6 +62,10 @@ void StatisticsParticipantListener::process_endpoint_discovery(
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
+    // Flush the entity queue, as there may still be participants or domains pending to process
+    // and we need them in the database
+    entity_queue_->flush();
+    
     // Get the domain from the database
     // This may throw if the domain does not exist
     // The database MUST contain the domain, or something went wrong upstream
