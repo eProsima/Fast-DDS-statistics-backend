@@ -400,6 +400,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                     database::EntityDiscoveryInfo topic_discovery_info;
                     topic_discovery_info.domain_id = domain_id_;
                     topic_discovery_info.entity = metatraffic_topic;
+                    topic_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                     entity_queue_->push(timestamp, topic_discovery_info);
                 }
                 else
@@ -468,6 +469,8 @@ void StatisticsParticipantListener::on_participant_discovery(
                     database::EntityDiscoveryInfo datawriter_discovery_info;
                     datawriter_discovery_info.domain_id = domain_id_;
                     datawriter_discovery_info.entity = datawriter;
+                    datawriter_discovery_info.discovery_status =
+                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                     entity_queue_->push(timestamp, datawriter_discovery_info);
                 }
             }
