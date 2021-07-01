@@ -121,14 +121,14 @@ void erase_and_check(
  */
 TEST(database_erase_tests, erase_domain)
 {
-    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DUMP_FILE, "domain_1");
+    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DUMP_FILE, "121");
 }
 
 // This test checks that erasing a database where the participant is not yet linked to the process works as expected
 TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 {
     erase_and_check(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE,
-            "domain_0");
+            "120");
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
