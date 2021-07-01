@@ -213,13 +213,6 @@ struct DDSEntity : Entity
     {
     }
 
-    /**
-     * Clear the maps and data
-     */
-    virtual void clear()
-    {
-    }
-
     //! Quality of Service configuration of the entities in a tree structure.
     Qos qos;
 
@@ -366,6 +359,7 @@ struct DataReader : DDSEndpoint
 
     /**
      * Clear the maps and data
+     * This method does not clear the locators map.
      */
     void clear() final;
 
@@ -391,6 +385,7 @@ struct DataWriter : DDSEndpoint
 
     /**
      * Clear the maps and data
+     * This method does not clear the locators map.
      */
     void clear() final;
 

@@ -1354,6 +1354,77 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
     return entities;
 }
 
+void Database::erase(
+        EntityId& domain_id)
+{
+    // Check that the given domain_id corresponds to a known monitor.
+    // Upper layer ensures that the monitor has been stopped.
+    // Upper layer also ensures that the monitor_id is valid and corresponds to a known domain.
+    if (EntityKind::DOMAIN != get_entity_kind(domain_id))
+    {
+        throw BadParameter("Incorrect EntityKind");
+    }
+
+    // The mutex should be taken only once. get_entity_kind already locks.
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
+    for (auto& reader : datareaders_[domain_id])
+    {
+        // Unlink related locators
+        for (auto locator : reader.second->locators)
+        {
+            locators_[locator.first]->data_readers.erase(reader.first);
+        }
+    }
+    // Erase datareaders map element
+    datareaders_.erase(domain_id);
+
+    // Remove datawriters and unlink related locators
+    for (auto& writer : datawriters_[domain_id])
+    {
+        // Unlink related locators
+        for (auto locator : writer.second->locators)
+        {
+            locators_[locator.first]->data_writers.erase(writer.first);
+        }
+    }
+    // Erase datawriters map element
+    datawriters_.erase(domain_id);
+
+    // Erase topics map element
+    topics_.erase(domain_id);
+
+    // Remove participants and unlink related process
+    for (auto& participant : participants_[domain_id])
+    {
+        // Unlink related process if it exists
+        if (participant.second->process)
+        {
+            processes_[participant.second->process->id]->participants.erase(participant.first);
+        }
+        // Erase locators_by_participant map element
+        locators_by_participant_.erase(participant.second->id);
+        // Erase participants_by_locator_ participant reference
+        for (auto& locator : participants_by_locator_)
+        {
+            locator.second.erase(participant.second->id);
+        }
+    }
+    // Erase participants map element
+    participants_.erase(domain_id);
+
+    // Erase processes_by_domain_ map element
+    processes_by_domain_.erase(domain_id);
+    // Erase domains_by_process_ domain reference
+    for (auto& process : domains_by_process_)
+    {
+        process.second.erase(domain_id);
+    }
+
+    // Erase domain map element
+    domains_.erase(domain_id);
+}
+
 std::vector<const StatisticsSample*> Database::select(
         DataKind data_type,
         EntityId entity_id_source,
@@ -1848,7 +1919,7 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
-    return get_entity(entity_id).get()->kind;
+    return get_entity(entity_id)->kind;
 }
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(

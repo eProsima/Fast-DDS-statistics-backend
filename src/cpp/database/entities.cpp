@@ -55,13 +55,11 @@ void Topic::clear()
 
 void DataReader::clear()
 {
-    DDSEndpoint::clear();
     data.clear();
 }
 
 void DataWriter::clear()
 {
-    DDSEndpoint::clear();
     data.clear();
 }
 
