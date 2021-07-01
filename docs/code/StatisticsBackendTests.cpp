@@ -100,6 +100,20 @@ void clear_examples()
     }
 }
 
+void reset_examples()
+{
+    {
+        //CONF-RESET-EXAMPLE
+        // Init a monitor in DDS domain 0 with no listener associated
+        EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
+        // Stop the monitor
+        StatisticsBackend::stop_monitor(domain_monitor_id);
+        // Reset Fast DDS Statistics Backend
+        StatisticsBackend::reset();
+        //!
+    }
+}
+
 void set_listeners_examples()
 {
     {
@@ -269,42 +283,128 @@ int get_graph_examples(
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
         // Iterate over hosts
-        for (auto host : graph["hosts"])
+        for (const auto& host : graph["hosts"])
         {
-            std::cout << "Host name: " << host["name"] << std::endl;
-            // Iterate over users
-            for (auto user : host["users"])
+            if (host["alive"])
             {
-                std::cout << "\tUser name: " << user["name"] << std::endl;
-                // Iterate over processes
-                for (auto process : user["processes"])
+                std::cout << "Host name: " << host["name"] << std::endl;
+                std::cout << "Host alias: " << host["alias"] << std::endl;
+                // Iterate over users
+                for (const auto& user : host["users"])
                 {
-                    std::cout << "\t\tProcess name: " << process["name"] << std::endl;
-                    std::cout << "\t\tProcess PID:  " << process["pid"] << std::endl;
-                    // Iterate over the list of participant IDs
-                    for (auto participant_id : process["participants"])
+                    if (user["alive"])
                     {
-                        // Look for the actual participant in the domains
-                        for (auto domain : graph["domains"])
+                        std::cout << "\tUser name: " << user["name"] << std::endl;
+                        std::cout << "\tUser alias: " << user["alias"] << std::endl;
+                        // Iterate over processes
+                        for (const auto& process : user["processes"])
                         {
-                            for (auto participant : domain["participants"])
+                            if (process["alive"])
                             {
-                                // Check if the participant is the one that is being looked for
-                                if (participant["entity_id"] == participant_id)
+                                std::cout << "\t\tProcess name: " << process["name"] << std::endl;
+                                std::cout << "\t\tProcess alias: " << process["alias"] << std::endl;
+                                std::cout << "\t\tProcess PID:  " << process["pid"] << std::endl;
+                                // Iterate over the list of participant IDs
+                                for (const auto& participant_id : process["participants"])
                                 {
-                                    std::cout << "\t\t\tParticipant name: " << participant["name"] << std::endl;
-                                    std::cout << "\t\t\tParticipant GUID: " << participant["guid"] << std::endl;
-                                    // Iterate over data writers
-                                    for (auto datawriter : participant["datawriters"])
+                                    // Look for the actual participant in the domains
+                                    for (const auto& domain : graph["domains"])
                                     {
-                                        std::cout << "\t\t\t\tDatawriter name: " << datawriter["name"] << std::endl;
-                                        std::cout << "\t\t\t\tDatawriter GUID: " << datawriter["guid"] << std::endl;
-                                    }
-                                    // Iterate over data readers
-                                    for (auto datareader : participant["datareaders"])
-                                    {
-                                        std::cout << "\t\t\t\tDatareader name: " << datareader["name"] << std::endl;
-                                        std::cout << "\t\t\t\tDatareader GUID: " << datareader["guid"] << std::endl;
+                                        for (const auto& participant : domain["participants"])
+                                        {
+                                            // Check if the participant is the one that is being looked for
+                                            if (participant["entity_id"] == participant_id && participant["alive"])
+                                            {
+                                                std::cout << "\t\t\tParticipant name: " << participant["name"] <<
+                                                    std::endl;
+                                                std::cout << "\t\t\tParticipant alias: " << participant["alias"] <<
+                                                    std::endl;
+                                                std::cout << "\t\t\tParticipant GUID: " << participant["guid"] <<
+                                                    std::endl;
+                                                // Iterate over data writers
+                                                for (const auto& datawriter : participant["datawriters"])
+                                                {
+                                                    if (datawriter["alive"])
+                                                    {
+                                                        std::cout << "\t\t\t\tDatawriter name: " <<
+                                                            datawriter["name"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatawriter alias: " <<
+                                                            datawriter["alias"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatawriter GUID: " <<
+                                                            datawriter["guid"] << std::endl;
+                                                        // Iterate over topics
+                                                        for (const auto& topic : domain["topics"])
+                                                        {
+                                                            // Check if the topic is the one that is being looked for
+                                                            if (topic["entity_id"] == datawriter["topic"])
+                                                            {
+                                                                std::cout << "\t\t\t\tDatawriter topic name: " <<
+                                                                    topic["name"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
+                                                                    topic["alias"] << std::endl;
+                                                                break;
+                                                            }
+                                                        }
+                                                        // Iterate over the list of locator IDs
+                                                        for (const auto& locator_id : datawriter["locators"])
+                                                        {
+                                                            for (const auto& locator : graph["locators"])
+                                                            {
+                                                                // Check if the locator is the one that is being looked for
+                                                                if (locator["entity_id"] == locator_id)
+                                                                {
+                                                                    std::cout << "\t\t\t\tDatawriter locator name: " <<
+                                                                        locator["name"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatawriter locator alias: " <<
+                                                                        locator["alias"] << std::endl;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                // Iterate over data readers
+                                                for (const auto& datareader : participant["datareaders"])
+                                                {
+                                                    if (datareader["alive"])
+                                                    {
+                                                        std::cout << "\t\t\t\tDatareader name: " <<
+                                                            datareader["name"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatareader alias: " <<
+                                                            datareader["alias"] << std::endl;
+                                                        std::cout << "\t\t\t\tDatareader GUID: " <<
+                                                            datareader["guid"] << std::endl;
+                                                        // Iterate over topics
+                                                        for (const auto& topic : domain["topics"])
+                                                        {
+                                                            // Check if the topic is the one that is being looked for
+                                                            if (topic["entity_id"] == datareader["topic"])
+                                                            {
+                                                                std::cout << "\t\t\t\tDatareader topic name: " <<
+                                                                    topic["name"] << std::endl;
+                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
+                                                                    topic["alias"] << std::endl;
+                                                                break;
+                                                            }
+                                                        }
+                                                        // Iterate over the list of locator IDs
+                                                        for (const auto& locator_id : datareader["locators"])
+                                                        {
+                                                            for (const auto& locator : graph["locators"])
+                                                            {
+                                                                // Check if the locator is the one that is being looked for
+                                                                if (locator["entity_id"] == locator_id)
+                                                                {
+                                                                    std::cout << "\t\t\t\tDatareader locator name: " <<
+                                                                        locator["name"] << std::endl;
+                                                                    std::cout << "\t\t\t\tDatareader locator alias: " <<
+                                                                        locator["alias"] << std::endl;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -399,6 +499,16 @@ void get_type_example()
         EntityKind kind = StatisticsBackend::get_type(entity_id);
         //!--
         static_cast<void>(kind);
+    }
+}
+
+void set_alias_example()
+{
+    {
+        EntityId entity_id;
+        //CONF-SET-ALIAS-EXAMPLE
+        StatisticsBackend::set_alias(entity_id, "my_alias");
+        //!--
     }
 }
 

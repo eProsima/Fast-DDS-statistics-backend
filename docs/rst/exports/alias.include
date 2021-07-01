@@ -14,6 +14,7 @@
 .. |reset-api| replace:: :cpp:func:`reset()<eprosima::statistics_backend::StatisticsBackend::reset>`
 .. |set_domain_listener-api| replace:: :cpp:func:`set_domain_listener()<eprosima::statistics_backend::StatisticsBackend::set_domain_listener>`
 .. |get_type-api| replace:: :cpp:func:`get_type()<eprosima::statistics_backend::StatisticsBackend::get_type>`
+.. |set_alias-api| replace:: :cpp:func:`set_alias()<eprosima::statistics_backend::StatisticsBackend::set_alias>`
 
 .. |DomainListener-api| replace:: :cpp:class:`DomainListener<eprosima::statistics_backend::DomainListener>`
 .. |DomainListener::on_data_available-api| replace:: :cpp:func:`on_data_available()<eprosima::statistics_backend::DomainListener::on_data_available>`
@@ -80,3 +81,4 @@
 
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`
+.. |PreconditionNotMet-api| replace:: :cpp:type:`PreconditionNotMet<eprosima::statistics_backend::PreconditionNotMet>`

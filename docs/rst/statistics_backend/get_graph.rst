@@ -40,7 +40,7 @@ In this example, the previous call would return a |Graph-api| object similar to 
 .. literalinclude:: /code/graph_example.json
     :language: JSON
 
-Then, the application can extract information from the graph as shown below:
+Then, the application can extract information about the active entities from the graph as shown below:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -53,18 +53,24 @@ Running the previous snippet on the given example should output:
 .. code-block:: text
 
     Host name: "example_host"
+    Host alias: "example_host_alias"
         User name: "example_user"
+        User name: "example_user_alias"
             Process name: "example_process_1"
+            Process alias: "example_process_1_alias"
             Process PID:  "9564"
                 Participant name: "participant_1"
+                Participant alias: "participant_1_alias"
                 Participant GUID: "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1"
                     Datawriter name: "datawriter_1"
+                    Datawriter alias: "datawriter_1_alias"
                     Datawriter GUID: "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03"
+                    Datawriter topic name: "example_topic"
+                    Datawriter topic alias: "example_topic_alias"
+                    Datawriter locator name: "127.0.0.1:7412"
+                    Datawriter locator alias: "localhost_1"
             Process name: "example_process_2"
+            Process alias: "example_process_2_alias"
             Process PID:  "9565"
-                Participant name: "participant_2"
-                Participant GUID: "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1"
-                    Datareader name: "datareader_1"
-                    Datareader GUID: "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04"
 
 For more information about the operations available with ``Graph`` objects, please refer to |Graph-api|.
