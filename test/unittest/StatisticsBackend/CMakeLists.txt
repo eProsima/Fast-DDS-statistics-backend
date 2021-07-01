@@ -490,6 +490,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     target_include_directories(is_active_tests PRIVATE
         ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
         ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}

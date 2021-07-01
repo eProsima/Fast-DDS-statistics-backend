@@ -53,24 +53,30 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
-        new_participant_discovered_no_domain
         new_participant_discovered_participant_already_exists
+        new_participant_no_domain
+        new_participant_undiscovered
+        new_participant_undiscovered_participant_already_exists
         new_reader_discovered
-        new_reader_discovered_no_topic
-        new_reader_discovered_several_topics
-        new_reader_discovered_several_locators
-        new_reader_discovered_several_locators_no_host
-        new_reader_discovered_no_participant
-        new_reader_discovered_no_domain
         new_reader_discovered_reader_already_exists
+        new_reader_no_domain
+        new_reader_no_participant
+        new_reader_no_topic
+        new_reader_several_locators
+        new_reader_several_locators_no_host
+        new_reader_several_topics
+        new_reader_undiscovered
+        new_reader_undiscovered_reader_already_exists
         new_writer_discovered
-        new_writer_discovered_no_topic
-        new_writer_discovered_several_locators
-        new_writer_discovered_several_locators_no_host
-        new_writer_discovered_no_participant
-        new_writer_discovered_no_domain
         new_writer_discovered_writer_already_exists
-        new_writer_discovered_statistics_writer
+        new_writer_no_domain
+        new_writer_no_participant
+        new_writer_no_topic
+        new_writer_several_locators
+        new_writer_several_locators_no_host
+        new_writer_statistics_writer
+        new_writer_undiscovered
+        new_writer_undiscovered_writer_already_exists
         )
 
     foreach(test_name ${STATISTICSPARTICIPANTLISTENER_TEST_LIST})

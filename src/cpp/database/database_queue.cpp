@@ -696,7 +696,7 @@ void DatabaseDataQueue::process_sample()
                     host->id = database_->insert(std::static_pointer_cast<Entity>(host));
                     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id,
                             host->id,
-                            EntityKind::HOST);
+                            EntityKind::HOST, details::StatisticsBackendData::DISCOVERY);
                 }
                 else
                 {
@@ -727,7 +727,7 @@ void DatabaseDataQueue::process_sample()
                     user->id = database_->insert(std::static_pointer_cast<Entity>(user));
                     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id,
                             user->id,
-                            EntityKind::USER);
+                            EntityKind::USER, details::StatisticsBackendData::DISCOVERY);
                 }
 
                 // Check the existence of the process in that user
@@ -753,7 +753,7 @@ void DatabaseDataQueue::process_sample()
                     process_id = database_->insert(std::static_pointer_cast<Entity>(process));
                     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(participant_id,
                             process_id,
-                            EntityKind::PROCESS);
+                            EntityKind::PROCESS, details::StatisticsBackendData::DISCOVERY);
                 }
 
                 database_->link_participant_with_process(participant_id, process_id);

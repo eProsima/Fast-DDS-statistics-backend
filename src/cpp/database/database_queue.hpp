@@ -330,6 +330,7 @@ struct EntityDiscoveryInfo
 {
     std::shared_ptr<Entity> entity;
     EntityId domain_id;
+    details::StatisticsBackendData::DiscoveryStatus discovery_status;
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
@@ -355,20 +356,58 @@ protected:
     {
         try
         {
-            auto id = database_->insert(front().second.entity);
-            if (EntityKind::HOST  == front().second.entity->kind ||
-                    EntityKind::USER == front().second.entity->kind ||
-                    EntityKind::PROCESS == front().second.entity->kind ||
-                    EntityKind::LOCATOR == front().second.entity->kind)
+            const EntityDiscoveryInfo& info = front().second;
+
+            // Physical entities
+            if (EntityKind::HOST  == info.entity->kind ||
+                    EntityKind::USER == info.entity->kind ||
+                    EntityKind::PROCESS == info.entity->kind ||
+                    EntityKind::LOCATOR == info.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    front().second.domain_id, id,
-                    front().second.entity->kind);
+                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+                info.entity->id = database_->insert(info.entity);
+
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id,
+                        info.entity->id,
+                        info.entity->kind, info.discovery_status);
             }
-            else if (EntityKind::DOMAIN != front().second.entity->kind)
+            // Domains are not discovered, they are created on monitor initialization
+            else if (EntityKind::DOMAIN == info.entity->kind)
             {
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(front().second.domain_id, id,
-                        front().second.entity->kind, details::StatisticsBackendData::DISCOVERY);
+                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+                info.entity->id = database_->insert(info.entity);
+            }
+            // Domain entities
+            else
+            {
+                // The topic is never updated/undiscovered, is only discovered. So the status is not changed.
+                // It status will only be updated if its endpoints are discovered/undiscovered.
+                if (info.entity->kind == EntityKind::TOPIC)
+                {
+                    assert(
+                        info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
+                        !info.entity->id.is_valid_and_unique());
+                    info.entity->id = database_->insert(info.entity);
+                }
+                else
+                {
+                    // Insert the entity only if is discovered and is not yet inserted in the database
+                    if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
+                            !info.entity->id.is_valid_and_unique())
+                    {
+                        info.entity->id = database_->insert(info.entity);
+                    }
+
+                    // Update the entity status and check if its references must also change it status
+                    database_->change_entity_status(info.entity->id,
+                            info.discovery_status !=
+                            details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+                }
+
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id,
+                        info.entity->id,
+                        info.entity->kind,
+                        info.discovery_status);
             }
         }
         catch (const eprosima::statistics_backend::Exception& e)

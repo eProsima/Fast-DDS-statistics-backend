@@ -198,7 +198,9 @@ public:
                 EntityId,
                 const DomainListener::Status&)
     {
-    })
+    },
+            details::StatisticsBackendData::DiscoveryStatus const& discovery_status
+            = details::StatisticsBackendData::DISCOVERY)
     {
         // Set the callback of the expectations
         discovery_args_.callback_ = checker;
@@ -222,7 +224,8 @@ public:
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                     EntityId(0),
                     EntityId(1),
-                    EntityKind::HOST);
+                    EntityKind::HOST,
+                    discovery_status);
 
                 break;
             }
@@ -242,7 +245,8 @@ public:
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                     EntityId(0),
                     EntityId(1),
-                    EntityKind::USER);
+                    EntityKind::USER,
+                    discovery_status);
 
                 break;
             }
@@ -262,7 +266,8 @@ public:
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                     EntityId(0),
                     EntityId(1),
-                    EntityKind::PROCESS);
+                    EntityKind::PROCESS,
+                    discovery_status);
 
                 break;
             }
@@ -282,7 +287,8 @@ public:
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                     EntityId(0),
                     EntityId(1),
-                    EntityKind::LOCATOR);
+                    EntityKind::LOCATOR,
+                    discovery_status);
 
                 break;
             }
@@ -382,6 +388,34 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
                 EXPECT_EQ(2, status.current_count);
                 EXPECT_EQ(1, status.current_count_change);
             });
+
+#ifndef NDEBUG
+    // Expectation: The user listener will fail assert with update
+    ASSERT_DEATH(test_entity_discovery(PHYSICAL,
+            [&](
+                EntityId,
+                EntityId,
+                const DomainListener::Status&)
+            {
+            },
+            details::StatisticsBackendData::DiscoveryStatus::UPDATE), "");
+#endif // ifndef NDEBUG
+
+    // Expectation: The user listener is called with removel
+    test_entity_discovery(PHYSICAL,
+            [&](
+                EntityId participant_id,
+                EntityId entity_id,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(0, participant_id);
+                EXPECT_EQ(1, entity_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            },
+            details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 }
 
 TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered_not_in_mask)
@@ -988,42 +1022,48 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DOMAIN),
+                EntityKind::DOMAIN,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::PARTICIPANT),
+                EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::TOPIC),
+                EntityKind::TOPIC,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DATAREADER),
+                EntityKind::DATAREADER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::DATAWRITER),
+                EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(0),
                 EntityId(1),
-                EntityKind::INVALID),
+                EntityKind::INVALID,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 
     // Expectation: The call asserts

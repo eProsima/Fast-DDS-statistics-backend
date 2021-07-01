@@ -522,17 +522,20 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(9),
-                EntityKind::PARTICIPANT),
+                EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(10),
-                EntityKind::PARTICIPANT),
+                EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(10),
-                EntityKind::PARTICIPANT),
+                EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
 
     // Check that there is a topic with EntityId(11)
@@ -543,17 +546,20 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(11),
-                EntityKind::TOPIC),
+                EntityKind::TOPIC,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(11),
-                EntityKind::TOPIC),
+                EntityKind::TOPIC,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(11),
-                EntityKind::TOPIC),
+                EntityKind::TOPIC,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
 
     // Check that there is a datareader with EntityId(13)
@@ -564,17 +570,20 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(13),
-                EntityKind::DATAREADER),
+                EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(13),
-                EntityKind::DATAREADER),
+                EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(13),
-                EntityKind::DATAREADER),
+                EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
 
     // Check that there is a datawriter with EntityId(17)
@@ -585,17 +594,20 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(17),
-                EntityKind::DATAWRITER),
+                EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(17),
-                EntityKind::DATAWRITER),
+                EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 participant_id,
                 EntityId(17),
-                EntityKind::DATAWRITER),
+                EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY),
             ".*");
 
 #endif // ifndef NDEBUG

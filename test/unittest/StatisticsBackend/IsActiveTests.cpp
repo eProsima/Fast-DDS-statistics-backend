@@ -56,6 +56,47 @@ public:
         entity_queue = new DatabaseEntityQueue(db);
         data_queue = new DatabaseDataQueue(db);
         participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue);
+
+        // Simulate that the backend is monitorizing the domain
+        std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
+        // Simulate the discover of the entitiy
+        host->active = false;
+        db->change_entity_status_test(host->id, true, domain->id);
+        user->active = false;
+        db->change_entity_status_test(user->id, true, domain->id);
+        process->active = false;
+        db->change_entity_status_test(process->id, true, domain->id);
+        topic->active = false;
+        db->change_entity_status_test(topic->id, true, domain->id);
+
+        // Simulate the discover of the entities
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                host->id,
+                host->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                user->id,
+                user->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                process->id,
+                process->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                topic->id,
+                topic->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                participant->id,
+                participant->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datawriter->id,
+                datawriter->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datareader->id,
+                datareader->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
     void TearDown()

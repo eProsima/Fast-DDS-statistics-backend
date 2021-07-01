@@ -39,6 +39,37 @@ public:
         datawriter = db.get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
         datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
         locator = db.locators().begin()->second;
+
+        // Simulate that the backend is monitorizing the domain
+        std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
+        // Simulate the discover of the entities
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                host->id,
+                host->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                user->id,
+                user->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
+                process->id,
+                process->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                topic->id,
+                topic->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                participant->id,
+                participant->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datawriter->id,
+                datawriter->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
+                datareader->id,
+                datareader->kind,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
     std::shared_ptr<Host> host;
@@ -73,7 +104,7 @@ TEST_F(database_status_tests, host)
     ASSERT_DEATH(db.change_entity_status(host->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(host->id, false);
+    db.change_entity_status_test(host->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -85,7 +116,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(host->id, true);
+    db.change_entity_status_test(host->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -101,7 +132,7 @@ TEST_F(database_status_tests, host)
     db.insert(host1);
     ASSERT_TRUE(host1->active);
 
-    db.change_entity_status_test(host->id, false);
+    db.change_entity_status_test(host->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_TRUE(user->active);
@@ -114,7 +145,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(host1->active);
 
-    db.change_entity_status_test(host->id, true);
+    db.change_entity_status_test(host->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -134,7 +165,7 @@ TEST_F(database_status_tests, user)
     ASSERT_DEATH(db.change_entity_status(user->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(user->id, false);
+    db.change_entity_status_test(user->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -146,7 +177,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(user->id, true);
+    db.change_entity_status_test(user->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -162,7 +193,7 @@ TEST_F(database_status_tests, user)
     db.insert(user1);
     ASSERT_TRUE(user1->active);
 
-    db.change_entity_status_test(user->id, false);
+    db.change_entity_status_test(user->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_FALSE(user->active);
@@ -175,7 +206,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(user1->active);
 
-    db.change_entity_status_test(user->id, true);
+    db.change_entity_status_test(user->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -195,7 +226,7 @@ TEST_F(database_status_tests, process)
     ASSERT_DEATH(db.change_entity_status(process->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(process->id, false);
+    db.change_entity_status_test(process->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
     ASSERT_FALSE(user->active);
@@ -207,7 +238,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(process->id, true);
+    db.change_entity_status_test(process->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -223,7 +254,7 @@ TEST_F(database_status_tests, process)
     db.insert(process1);
     ASSERT_TRUE(process1->active);
 
-    db.change_entity_status_test(process->id, false);
+    db.change_entity_status_test(process->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -236,7 +267,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(process1->active);
 
-    db.change_entity_status_test(process->id, true);
+    db.change_entity_status_test(process->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -313,7 +344,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(topic->id, false);
+    db.change_entity_status_test(topic->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -325,7 +356,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(topic->id, true);
+    db.change_entity_status_test(topic->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -341,7 +372,7 @@ TEST_F(database_status_tests, topic)
     db.insert(topic1);
     ASSERT_TRUE(topic1->active);
 
-    db.change_entity_status_test(topic->id, false);
+    db.change_entity_status_test(topic->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -354,7 +385,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(topic1->active);
 
-    db.change_entity_status_test(topic->id, true);
+    db.change_entity_status_test(topic->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -666,7 +697,7 @@ TEST_F(database_status_tests, locator)
     ASSERT_DEATH(db.change_entity_status(locator->id, false), "");
 #endif // ifndef NDEBUG
 
-    db.change_entity_status_test(locator->id, false);
+    db.change_entity_status_test(locator->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -678,7 +709,7 @@ TEST_F(database_status_tests, locator)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    db.change_entity_status_test(locator->id, true);
+    db.change_entity_status_test(locator->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);

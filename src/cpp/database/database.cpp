@@ -26,7 +26,9 @@
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
+#include <StatisticsBackendData.hpp>
 
+#include "database_queue.hpp"
 #include "samples.hpp"
 
 namespace eprosima {
@@ -4204,10 +4206,25 @@ void Database::load_data(
     }
 }
 
+// Conversion from bool to DiscoveryStatus
+details::StatisticsBackendData::DiscoveryStatus get_status(
+        bool active)
+{
+    if (active)
+    {
+        return details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    }
+    else
+    {
+        return details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+    }
+}
+
 void Database::change_entity_status_of_kind(
         const EntityId& entity_id,
         bool active,
-        EntityKind entity_kind) noexcept
+        const EntityKind& entity_kind,
+        const EntityId& domain_id) noexcept
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
@@ -4228,6 +4245,8 @@ void Database::change_entity_status_of_kind(
             if (host != nullptr && host->active != active)
             {
                 host->active = active;
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
             }
             break;
         }
@@ -4246,6 +4265,8 @@ void Database::change_entity_status_of_kind(
             if (user != nullptr && user->active != active)
             {
                 user->active = active;
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
 
                 // host
                 {
@@ -4261,7 +4282,7 @@ void Database::change_entity_status_of_kind(
 
                     if (change_status)
                     {
-                        change_entity_status_of_kind(user->host->id, active, user->host->kind);
+                        change_entity_status_of_kind(user->host->id, active, user->host->kind, domain_id);
                     }
                 }
             }
@@ -4282,6 +4303,8 @@ void Database::change_entity_status_of_kind(
             if (process != nullptr && process->active != active)
             {
                 process->active = active;
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
 
                 // user
                 {
@@ -4297,7 +4320,7 @@ void Database::change_entity_status_of_kind(
 
                     if (change_status)
                     {
-                        change_entity_status_of_kind(process->user->id, active, process->user->kind);
+                        change_entity_status_of_kind(process->user->id, active, process->user->kind, domain_id);
                     }
                 }
             }
@@ -4339,6 +4362,9 @@ void Database::change_entity_status_of_kind(
             if (topic != nullptr && topic->active != active)
             {
                 topic->active = active;
+
+                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
             }
             break;
         }
@@ -4377,7 +4403,8 @@ void Database::change_entity_status_of_kind(
 
                     if (change_status)
                     {
-                        change_entity_status_of_kind(participant->process->id, active, participant->process->kind);
+                        change_entity_status_of_kind(participant->process->id, active, participant->process->kind,
+                                participant->domain->id);
                     }
                 }
             }
@@ -4426,7 +4453,8 @@ void Database::change_entity_status_of_kind(
                         }
                         if (change_status)
                         {
-                            change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind);
+                            change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind,
+                                    datawriter->participant->domain->id);
                         }
                     }
                 }
@@ -4475,7 +4503,8 @@ void Database::change_entity_status_of_kind(
                         }
                         if (change_status)
                         {
-                            change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind);
+                            change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind,
+                                    datareader->participant->domain->id);
                         }
                     }
                 }

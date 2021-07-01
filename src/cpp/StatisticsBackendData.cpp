@@ -277,14 +277,17 @@ void StatisticsBackendData::on_domain_entity_discovery(
 void StatisticsBackendData::on_physical_entity_discovery(
         EntityId participant_id,
         EntityId entity_id,
-        EntityKind entity_kind)
+        EntityKind entity_kind,
+        DiscoveryStatus discovery_status)
 {
+    assert(discovery_status != DiscoveryStatus::UPDATE);
+
     switch (entity_kind)
     {
         case EntityKind::HOST:
         {
             // The status must be recorded regardless of the callback
-            prepare_entity_discovery_status(DISCOVERY, host_status_);
+            prepare_entity_discovery_status(discovery_status, host_status_);
 
             if (should_call_physical_listener(CallbackKind::ON_HOST_DISCOVERY))
             {
@@ -296,7 +299,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
         case EntityKind::USER:
         {
             // The status must be recorded regardless of the callback
-            prepare_entity_discovery_status(DISCOVERY, user_status_);
+            prepare_entity_discovery_status(discovery_status, user_status_);
 
             if (should_call_physical_listener(CallbackKind::ON_USER_DISCOVERY))
             {
@@ -308,7 +311,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
         case EntityKind::PROCESS:
         {
             // The status must be recorded regardless of the callback
-            prepare_entity_discovery_status(DISCOVERY, process_status_);
+            prepare_entity_discovery_status(discovery_status, process_status_);
 
             if (should_call_physical_listener(CallbackKind::ON_PROCESS_DISCOVERY))
             {
@@ -320,7 +323,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
         case EntityKind::LOCATOR:
         {
             // The status must be recorded regardless of the callback
-            prepare_entity_discovery_status(DISCOVERY, locator_status_);
+            prepare_entity_discovery_status(discovery_status, locator_status_);
 
             if (should_call_physical_listener(CallbackKind::ON_LOCATOR_DISCOVERY))
             {

@@ -48,7 +48,8 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define HOST_DEFAULT_NAME(x) "host_" + std::to_string(x)
 #define USER_DEFAULT_NAME(x) "user_" + std::to_string(x)
 #define PROCESS_DEFAULT_NAME(x) "process_" + std::to_string(x)
-#define DOMAIN_DEFAULT_NAME(x) "domain_" + std::to_string(x)
+#define DOMAIN_DEFAULT_NAME(x) "12" + std::to_string(x)
+#define ALIAS_DEFAULT_NAME(x) "domain_" + std::to_string(x)
 #define TOPIC_DEFAULT_NAME(x) "topic_" + std::to_string(x)
 #define PARTICIPANT_DEFAULT_NAME(x) "participant_" + std::to_string(x)
 #define DATAWRITER_DEFAULT_NAME(x) "datawriter_" + std::to_string(x)
@@ -78,6 +79,7 @@ void initialize_empty_entities(
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
                         index)), PID_DEFAULT, user);
     std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)));
+    domain->alias = ALIAS_DEFAULT_NAME(index);
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
@@ -377,6 +379,7 @@ void initialize_empty_entities_unlinked(
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
                         index)), PID_DEFAULT, user);
     std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)));
+    domain->alias = ALIAS_DEFAULT_NAME(index);
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
