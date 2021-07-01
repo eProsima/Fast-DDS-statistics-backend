@@ -12,13 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
     find_package(PythonInterp 3)
-
-    add_definitions(
-        -DBOOST_ASIO_STANDALONE
-        -DASIO_STANDALONE
-        )
+    find_package(Asio CONFIG QUIET)
 
     include_directories(${Asio_INCLUDE_DIR})
 
@@ -228,5 +223,4 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER) AND fastcdr_FOUND)
                     "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
             endif()
         endforeach()
-    endif()
 endif()

@@ -19,9 +19,6 @@
 #include <list>
 #include <string>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
