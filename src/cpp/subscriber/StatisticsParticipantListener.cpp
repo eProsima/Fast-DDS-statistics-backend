@@ -355,7 +355,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                 // TODO [ILG] : Process these messages and save the updated QoS
                 entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
                 break;
-                
+
             case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
             case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
             {
