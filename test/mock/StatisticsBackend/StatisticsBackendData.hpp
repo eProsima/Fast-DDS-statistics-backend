@@ -48,8 +48,7 @@ public:
                 EntityKind entity_kind,
                 DiscoveryStatus discovery_status));
 
-    MOCK_METHOD4(on_physical_entity_discovery, void(
-                EntityId participant_id,
+    MOCK_METHOD3(on_physical_entity_discovery, void(
                 EntityId entity_id,
                 EntityKind entity_kind,
                 DiscoveryStatus discovery_status));

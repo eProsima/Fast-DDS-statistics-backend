@@ -36,20 +36,52 @@ using ::testing::Mock;
 using namespace eprosima::statistics_backend;
 
 using DiscoveryStatus = details::StatisticsBackendData::DiscoveryStatus;
-using ArgumentChecker = std::function<void (
+using PhysicalArgumentChecker = std::function<void (
+                    EntityId,
+                    const DomainListener::Status& status)>;
+using DomainArgumentChecker = std::function<void (
                     EntityId,
                     EntityId,
                     const DomainListener::Status& status)>;
 
-struct EntityDiscoveryArgs
+struct PhysicalEntityDiscoveryArgs
 {
-    EntityDiscoveryArgs (
-            ArgumentChecker func)
+    PhysicalEntityDiscoveryArgs (
+            PhysicalArgumentChecker func)
         : callback_(func)
     {
     }
 
-    EntityDiscoveryArgs ()
+    PhysicalEntityDiscoveryArgs ()
+    {
+    }
+
+    void on_discovery(
+            EntityId discovered_entity_id,
+            const DomainListener::Status& status)
+    {
+        // Save the arguments for future reference
+        discovered_entity_id_ = discovered_entity_id;
+        status_ = status;
+
+        // Call the callback with the checks
+        callback_(discovered_entity_id, status);
+    }
+
+    PhysicalArgumentChecker callback_;
+    EntityId discovered_entity_id_;
+    DomainListener::Status status_;
+};
+
+struct DomainEntityDiscoveryArgs
+{
+    DomainEntityDiscoveryArgs (
+            DomainArgumentChecker func)
+        : callback_(func)
+    {
+    }
+
+    DomainEntityDiscoveryArgs ()
     {
     }
 
@@ -67,7 +99,7 @@ struct EntityDiscoveryArgs
         callback_(base_entity_id, discovered_entity_id, status);
     }
 
-    ArgumentChecker callback_;
+    DomainArgumentChecker callback_;
     EntityId base_entity_id_;
     EntityId discovered_entity_id_;
     DomainListener::Status status_;
@@ -78,23 +110,19 @@ class MockedPhysicalListener : public PhysicalListener
 {
 public:
 
-    MOCK_METHOD3(on_host_discovery, void(
-                EntityId participant_id,
+    MOCK_METHOD2(on_host_discovery, void(
                 EntityId host_id,
                 const Status& status));
 
-    MOCK_METHOD3(on_user_discovery, void(
-                EntityId participant_id,
+    MOCK_METHOD2(on_user_discovery, void(
                 EntityId user_id,
                 const Status& status));
 
-    MOCK_METHOD3(on_process_discovery, void(
-                EntityId participant_id,
+    MOCK_METHOD2(on_process_discovery, void(
                 EntityId process_id,
                 const Status& status));
 
-    MOCK_METHOD3(on_locator_discovery, void(
-                EntityId participant_id,
+    MOCK_METHOD2(on_locator_discovery, void(
                 EntityId locator_id,
                 const Status& status));
 
@@ -181,7 +209,7 @@ public:
     }
 
     MockedPhysicalListener physical_listener_;
-    EntityDiscoveryArgs discovery_args_;
+    PhysicalEntityDiscoveryArgs discovery_args_;
     EntityKind entity_kind_;
     CallbackKind callback_kind_;
 
@@ -193,8 +221,7 @@ public:
 
     void test_entity_discovery(
             ListenerKind listener_kind,
-            ArgumentChecker checker = [] (
-                EntityId,
+            PhysicalArgumentChecker checker = [] (
                 EntityId,
                 const DomainListener::Status&)
     {
@@ -212,17 +239,16 @@ public:
                 // Set the expectations
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener_, on_host_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_host_discovery(EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &PhysicalEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener_, on_host_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_host_discovery(_, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    EntityId(0),
                     EntityId(1),
                     EntityKind::HOST,
                     discovery_status);
@@ -233,17 +259,16 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener_, on_user_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_user_discovery(EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &PhysicalEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener_, on_user_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_user_discovery( _, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    EntityId(0),
                     EntityId(1),
                     EntityKind::USER,
                     discovery_status);
@@ -254,17 +279,16 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener_, on_process_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_process_discovery(EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &PhysicalEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener_, on_process_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_process_discovery(_, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    EntityId(0),
                     EntityId(1),
                     EntityKind::PROCESS,
                     discovery_status);
@@ -275,17 +299,16 @@ public:
             {
                 if (listener_kind == PHYSICAL)
                 {
-                    EXPECT_CALL(physical_listener_, on_locator_discovery(EntityId(0), EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                    EXPECT_CALL(physical_listener_, on_locator_discovery(EntityId(1), _)).Times(1)
+                            .WillOnce(Invoke(&discovery_args_, &PhysicalEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
-                    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _, _)).Times(0);
+                    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(0);
                 }
 
                 // Execution
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    EntityId(0),
                     EntityId(1),
                     EntityKind::LOCATOR,
                     discovery_status);
@@ -320,11 +343,9 @@ public:
         // Expectation: Only the physical listener is called
         test_entity_discovery(PHYSICAL,
                 [&](
-                    EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(0, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(2, status.total_count);
                     EXPECT_EQ(2, status.total_count_change);
@@ -335,11 +356,9 @@ public:
         // Expectation: Only the physical listener is called again
         test_entity_discovery(PHYSICAL,
                 [&](
-                    EntityId domain_id,
                     EntityId entity_id,
                     const DomainListener::Status& status)
                 {
-                    EXPECT_EQ(0, domain_id);
                     EXPECT_EQ(1, entity_id);
                     EXPECT_EQ(3, status.total_count);
                     EXPECT_EQ(1, status.total_count_change);
@@ -362,11 +381,9 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
     // Expectation: The physical listener is called
     test_entity_discovery(PHYSICAL,
             [&](
-                EntityId participant_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(1, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
@@ -377,11 +394,9 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
     // Expectation: The physical listener is called again
     test_entity_discovery(PHYSICAL,
             [&](
-                EntityId participant_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
@@ -394,7 +409,6 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
     ASSERT_DEATH(test_entity_discovery(PHYSICAL,
             [&](
                 EntityId,
-                EntityId,
                 const DomainListener::Status&)
             {
             },
@@ -404,11 +418,9 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
     // Expectation: The user listener is called with removel
     test_entity_discovery(PHYSICAL,
             [&](
-                EntityId participant_id,
                 EntityId entity_id,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(0, participant_id);
                 EXPECT_EQ(1, entity_id);
                 EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(0, status.total_count_change);
@@ -513,7 +525,7 @@ public:
     CallbackKind callback_kind_;
     MockedPhysicalListener physical_listener_;
     MockedDomainListener domain_listener_;
-    EntityDiscoveryArgs discovery_args_;
+    DomainEntityDiscoveryArgs discovery_args_;
     EntityId monitor_id_;
 
     enum ListenerKind
@@ -526,7 +538,7 @@ public:
     void test_entity_discovery(
             ListenerKind listener_kind,
             DiscoveryStatus discovery_status = DiscoveryStatus::DISCOVERY,
-            ArgumentChecker checker = [] (
+            DomainArgumentChecker checker = [] (
                 EntityId,
                 EntityId,
                 const DomainListener::Status&)
@@ -543,14 +555,14 @@ public:
                 if (listener_kind == PHYSICAL)
                 {
                     EXPECT_CALL(physical_listener_, on_participant_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                     EXPECT_CALL(domain_listener_, on_participant_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
                     EXPECT_CALL(physical_listener_, on_participant_discovery(_, _, _)).Times(0);
                     EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
@@ -572,14 +584,14 @@ public:
                 if (listener_kind == PHYSICAL)
                 {
                     EXPECT_CALL(physical_listener_, on_topic_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                     EXPECT_CALL(domain_listener_, on_topic_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
                     EXPECT_CALL(physical_listener_, on_topic_discovery(_, _, _)).Times(0);
                     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
@@ -601,14 +613,14 @@ public:
                 if (listener_kind == PHYSICAL)
                 {
                     EXPECT_CALL(physical_listener_, on_datareader_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                     EXPECT_CALL(domain_listener_, on_datareader_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
                     EXPECT_CALL(physical_listener_, on_datareader_discovery(_, _, _)).Times(0);
                     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
@@ -630,14 +642,14 @@ public:
                 if (listener_kind == PHYSICAL)
                 {
                     EXPECT_CALL(physical_listener_, on_datawriter_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                     EXPECT_CALL(domain_listener_, on_datawriter_discovery(_, _, _)).Times(0);
                 }
                 else if (listener_kind == DOMAIN)
                 {
                     EXPECT_CALL(physical_listener_, on_datawriter_discovery(_, _, _)).Times(0);
                     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, EntityId(1), _)).Times(1)
-                            .WillOnce(Invoke(&discovery_args_, &EntityDiscoveryArgs::on_discovery));
+                            .WillOnce(Invoke(&discovery_args_, &DomainEntityDiscoveryArgs::on_discovery));
                 }
                 else
                 {
@@ -1020,7 +1032,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::DOMAIN,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
@@ -1028,7 +1039,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::PARTICIPANT,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
@@ -1036,7 +1046,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::TOPIC,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
@@ -1044,7 +1053,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::DATAREADER,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
@@ -1052,7 +1060,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::DATAWRITER,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
@@ -1060,7 +1067,6 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
 
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(0),
                 EntityId(1),
                 EntityKind::INVALID,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),

@@ -513,29 +513,24 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
             ".*");
 
     // Check that there is a Participant with EntityId(9)
-    // This will be used in all calls to on_physical_entity_discovery
     result = StatisticsBackendTest::get_entities(EntityKind::PARTICIPANT, EntityId(9));
     ASSERT_EQ(1, result.size());
-    EntityId participant_id = EntityId(9);
 
-    // Avoid a participant discovering itself
+    // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(9),
                 EntityKind::PARTICIPANT,
                 details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
-                EntityId(10),
+                EntityId(9),
                 EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UNDISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
-                EntityId(10),
+                EntityId(9),
                 EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UPDATE),
             ".*");
 
     // Check that there is a topic with EntityId(11)
@@ -544,22 +539,19 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(11),
                 EntityKind::TOPIC,
                 details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(11),
                 EntityKind::TOPIC,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UNDISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(11),
                 EntityKind::TOPIC,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UPDATE),
             ".*");
 
     // Check that there is a datareader with EntityId(13)
@@ -568,22 +560,19 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(13),
                 EntityKind::DATAREADER,
                 details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(13),
                 EntityKind::DATAREADER,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UNDISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(13),
                 EntityKind::DATAREADER,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UPDATE),
             ".*");
 
     // Check that there is a datawriter with EntityId(17)
@@ -592,22 +581,19 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(17),
                 EntityKind::DATAWRITER,
                 details::StatisticsBackendData::DISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(17),
                 EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UNDISCOVERY),
             ".*");
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                participant_id,
                 EntityId(17),
                 EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DISCOVERY),
+                details::StatisticsBackendData::UPDATE),
             ".*");
 
 #endif // ifndef NDEBUG

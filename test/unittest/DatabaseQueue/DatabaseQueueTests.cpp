@@ -3466,7 +3466,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -3541,7 +3541,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
             .WillOnce(Return(process));
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     // The processing should not progress the exception.
@@ -3631,7 +3631,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     // Expectation: The user is notified of the new process
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS,
+            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
@@ -3723,7 +3723,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
             .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
 
     // Expectation: The link method is not called
@@ -3808,7 +3808,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
     // Expectation: The user is notified of the new process
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::USER,
+            on_physical_entity_discovery(EntityId(3), EntityKind::USER,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Expectation: The process is created and given ID 4
@@ -3826,7 +3826,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
     // Expectation: The user is notified of the new process
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS,
+            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(2)
@@ -3915,7 +3915,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
             .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert));
 
     // Expectation: The user is not notified of the new user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
@@ -3993,7 +3993,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     // Expectation: The user is notified of the new host
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(3), EntityKind::HOST,
+            on_physical_entity_discovery(EntityId(3), EntityKind::HOST,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Expectation: The user is created and given ID 4
@@ -4010,7 +4010,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     // Expectation: The user is notified of the new user
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::USER,
+            on_physical_entity_discovery(EntityId(4), EntityKind::USER,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Expectation: The process is created and given ID 5
@@ -4028,7 +4028,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     // Expectation: The user is notified of the new process
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(5), EntityKind::PROCESS,
+            on_physical_entity_discovery(EntityId(5), EntityKind::PROCESS,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     EXPECT_CALL(database, insert(_)).Times(3)
@@ -4111,7 +4111,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
             .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert));
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Expectation: The link method is not called
     EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(0);
@@ -4204,7 +4204,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     // Expectation: The user is notified of the new process
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(1), EntityId(4), EntityKind::PROCESS,
+            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Expectation: The link method is called with appropriate arguments
