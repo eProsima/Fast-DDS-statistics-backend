@@ -495,12 +495,21 @@ std::shared_ptr<Locator> Database::get_locator_nts(
         locator = std::make_shared<Locator>("locator_" + std::to_string(entity_id.value()));
         EntityId locator_id = entity_id;
         insert_nts(locator, locator_id);
+        notify_locator_discovery(locator_id);
     }
     else
     {
         locator = locator_it->second;
     }
     return locator;
+}
+
+void Database::notify_locator_discovery (
+        EntityId locator_id)
+{
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+        locator_id, EntityKind::LOCATOR,
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
 void Database::insert_nts(
