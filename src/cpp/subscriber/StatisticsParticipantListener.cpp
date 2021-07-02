@@ -238,6 +238,77 @@ StatisticsParticipantListener::StatisticsParticipantListener(
 {
 }
 
+// Search for an address different from localhost in the locator list
+bool search_address_in_locators(
+        const eprosima::fastrtps::ResourceLimitedVector<Locator_t>& locators,
+        std::string& address)
+{
+    for (auto locator : locators)
+    {
+        // if the address is not localhost
+        if (!IPLocator::isLocal(locator))
+        {
+            // Convert the locator to an address with IP format
+            address =  IPLocator::ip_to_string(locator);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Return a IP obtained from participant locators
+std::string get_address(
+        const ParticipantProxyData& info)
+{
+    // The IP is obtained from the announced locators
+    // Search for a locator with an IP different from localhost
+    std::string address;
+
+    // 1. default_locators.unicast
+    if (search_address_in_locators(info.default_locators.unicast, address))
+    {
+        return address;
+    }
+
+    // 2. metatraffic_locators.unicast
+    if (search_address_in_locators(info.metatraffic_locators.unicast, address))
+    {
+        return address;
+    }
+
+    // 3. default_locators.multicast
+    if (search_address_in_locators(info.default_locators.multicast, address))
+    {
+        return address;
+    }
+
+    // 4. metatraffic_locators.multicast
+    if (search_address_in_locators(info.metatraffic_locators.multicast, address))
+    {
+        return address;
+    }
+
+    // The only option is for localhost to be the only valid IP
+    return "localhost";
+}
+
+// Return the participant_id
+std::string get_participant_id(
+        const GUID_t& guid)
+{
+    // The participant_id can be obtained from the last 4 octets in the GUID prefix
+    std::stringstream buffer;
+    buffer << std::hex << std::setfill('0');
+    for (int i = 0; i < 3; i++)
+    {
+        buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[i + 8]);
+        buffer << ".";
+    }
+    buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[3 + 8]);
+
+    return buffer.str();
+}
+
 void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryInfo&& info)
@@ -292,10 +363,19 @@ void StatisticsParticipantListener::on_participant_discovery(
             std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
                 std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
 
+            std::string name = info.info.m_participantName.to_string();
+
+            // If the user does not provide a specific name for the participant, give it a descriptive name
+            if (name.empty())
+            {
+                // The name will be constructed as IP:participant_id
+                name = get_address(info.info) + ":" + get_participant_id(info.info.m_guid);
+            }
+
             // Create the participant and push it to the queue
             GUID_t participant_guid = info.info.m_guid;
             auto participant = std::make_shared<database::DomainParticipant>(
-                info.info.m_participantName.to_string(),
+                name,
                 participant_info_to_backend_qos(info),
                 to_string(participant_guid),
                 std::shared_ptr<database::Process>(),

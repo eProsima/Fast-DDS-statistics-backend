@@ -53,6 +53,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     set(STATISTICSPARTICIPANTLISTENER_TEST_LIST
         new_participant_discovered
+        new_participant_discovered_empty_name_no_locators
+        new_participant_discovered_empty_name_default_unicast_locator
+        new_participant_discovered_empty_name_metatraffic_unicast_locator
+        new_participant_discovered_empty_name_default_multicast_locator
+        new_participant_discovered_empty_name_metatraffic_multicast_locator
+        new_participant_discovered_empty_name_localhost_locators
         new_participant_discovered_participant_already_exists
         new_participant_no_domain
         new_participant_undiscovered
