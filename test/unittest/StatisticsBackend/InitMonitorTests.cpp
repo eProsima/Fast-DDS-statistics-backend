@@ -23,6 +23,9 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
+#include <fastdds/rtps/attributes/ServerAttributes.h>
+#include <fastdds/rtps/common/GuidPrefix_t.hpp>
+#include <fastdds/rtps/common/Locator.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -41,7 +44,9 @@
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
+using namespace eprosima::fastrtps::rtps;
 
 
 class init_monitor_tests : public ::testing::Test
@@ -139,7 +144,85 @@ public:
         details::StatisticsBackendData::reset_instance();
     }
 
+    std::map<EntityId, std::shared_ptr<eprosima::statistics_backend::details::Monitor>> init_monitors(
+            DomainId domain_id,
+            DomainListener* domain_listener,
+            const std::string& server_guid_prefix,
+            const std::string& server_locators,
+            const CallbackMask& callback_mask,
+            const DataKindMask& datakind_mask)
+    {
+        EntityId monitor_id = StatisticsBackend::init_monitor(
+            domain_id,
+            domain_listener,
+            callback_mask,
+            datakind_mask);
+        EntityId monitor_id_1 = StatisticsBackend::init_monitor(
+            server_locators,
+            domain_listener,
+            callback_mask,
+            datakind_mask);
+        EntityId monitor_id_2 = StatisticsBackend::init_monitor(
+            server_guid_prefix,
+            server_locators,
+            domain_listener,
+            callback_mask,
+            datakind_mask);
+
+        EXPECT_TRUE(monitor_id.is_valid());
+        EXPECT_TRUE(monitor_id_1.is_valid());
+        EXPECT_TRUE(monitor_id_2.is_valid());
+
+        auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+
+        /* Check that three monitors are created */
+        EXPECT_EQ(domain_monitors.size(), 3);
+
+        return domain_monitors;
+    }
+
+    void check_participant_qos(
+            const DomainParticipantQos& participant_qos,
+            const std::string& server_guid_prefix)
+    {
+        EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
+            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+        RemoteServerAttributes server_qos =
+            participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
+        GuidPrefix_t guid_prefix;
+        std::istringstream(server_guid_prefix) >> guid_prefix;
+        EXPECT_EQ(server_qos.guidPrefix, guid_prefix);
+        Locator_t locator;
+        IPLocator::setIPv4(locator, "127.0.0.1");
+        locator.port = 11811;
+        EXPECT_NE(std::find(server_qos.metatrafficUnicastLocatorList.begin(),
+            server_qos.metatrafficUnicastLocatorList.end(), locator), server_qos.metatrafficUnicastLocatorList.end());
+    }
+
+    void check_dds_entities(
+            const std::shared_ptr<eprosima::statistics_backend::details::Monitor> monitor,
+            const std::string& server_guid_prefix = "")
+    {
+        EXPECT_NE(nullptr, monitor->participant);
+
+        if (!server_guid_prefix.empty())
+        {
+            DomainParticipantQos participant_qos;
+            monitor->participant->get_qos(participant_qos);
+            check_participant_qos(participant_qos, server_guid_prefix);
+        }
+
+        EXPECT_NE(nullptr, monitor->subscriber);
+
+        for (auto topic : topic_types_)
+        {
+            EXPECT_NE(nullptr, monitor->topics[topic.first]);
+            EXPECT_NE(nullptr, monitor->readers[topic.first]);
+        }
+    }
+
 };
+
 
 constexpr const CallbackKind init_monitor_tests::all_callback_kinds_[];
 constexpr const DataKind init_monitor_tests::all_data_kinds_[];
@@ -148,183 +231,171 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
-    EntityId monitor_id = StatisticsBackend::init_monitor(
-        domain_id,
-        &domain_listener,
-        all_callback_mask_,
-        all_datakind_mask_);
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+        all_callback_mask_, all_datakind_mask_);
 
-    EXPECT_TRUE(monitor_id.is_valid());
-
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
-
-    /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
-
-    /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
-
-    /* Check that the CallbackMask is set correctly */
-    for (auto callback : init_monitor_tests::all_callback_kinds_)
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
     {
-        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
-    }
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
 
-    /* Check that the DataKindMask is set correctly */
-    for (auto datakind : init_monitor_tests::all_data_kinds_)
-    {
-        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
+        /* Check that the CallbackMask is set correctly */
+        for (const auto& callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (const auto& datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
-    StatisticsBackend::stop_monitor(monitor_id);
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
-    EntityId monitor_id = StatisticsBackend::init_monitor(
-        domain_id,
-        &domain_listener,
-        CallbackMask::none(),
-        all_datakind_mask_);
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+        CallbackMask::none(), all_datakind_mask_);
 
-    EXPECT_TRUE(monitor_id.is_valid());
-
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
-
-    /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
-
-    /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
-
-    /* Check that the CallbackMask is set correctly */
-    for (auto callback : init_monitor_tests::all_callback_kinds_)
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
     {
-        EXPECT_FALSE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
-    }
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
 
-    /* Check that the DataKindMask is set correctly */
-    for (auto datakind : init_monitor_tests::all_data_kinds_)
-    {
-        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
+        /* Check that the CallbackMask is set correctly */
+        for (auto callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_FALSE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (auto datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
-    StatisticsBackend::stop_monitor(monitor_id);
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
-    EntityId monitor_id = StatisticsBackend::init_monitor(
-        domain_id,
-        &domain_listener,
-        all_callback_mask_,
-        DataKindMask::none());
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+        all_callback_mask_, DataKindMask::none());
 
-    EXPECT_TRUE(monitor_id.is_valid());
-
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
-
-    /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
-
-    /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
-
-    /* Check that the CallbackMask is set correctly */
-    for (auto callback : init_monitor_tests::all_callback_kinds_)
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
     {
-        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
-    }
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
 
-    /* Check that the DataKindMask is set correctly */
-    for (auto datakind : init_monitor_tests::all_data_kinds_)
-    {
-        EXPECT_FALSE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
+        /* Check that the CallbackMask is set correctly */
+        for (auto callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (auto datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_FALSE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
-    StatisticsBackend::stop_monitor(monitor_id);
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 {
     DomainId domain_id = 0;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
-    EntityId monitor_id = StatisticsBackend::init_monitor(
-        domain_id,
-        nullptr,
-        all_callback_mask_,
-        all_datakind_mask_);
+    auto domain_monitors = init_monitors(domain_id, nullptr, server_guid_prefix, server_locators,
+        all_callback_mask_, all_datakind_mask_);
 
-    EXPECT_TRUE(monitor_id.is_valid());
-
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
-
-    /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
-
-    /* Check that the domain listener is set correctly */
-    EXPECT_EQ(nullptr, domain_monitors[monitor_id]->domain_listener);
-
-    /* Check that the CallbackMask is set correctly */
-    for (auto callback : init_monitor_tests::all_callback_kinds_)
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
     {
-        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
-    }
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(nullptr, domain_monitors[monitor.first]->domain_listener);
 
-    /* Check that the DataKindMask is set correctly */
-    for (auto datakind : init_monitor_tests::all_data_kinds_)
-    {
-        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
+        /* Check that the CallbackMask is set correctly */
+        for (auto callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (auto datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
-    StatisticsBackend::stop_monitor(monitor_id);
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
 }
 
 TEST_F(init_monitor_tests, init_monitor_several_monitors)
@@ -372,20 +443,8 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id1]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id2]->participant);
-
-    EXPECT_NE(nullptr, domain_monitors[monitor_id1]->subscriber);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id2]->subscriber);
-
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id1]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id2]->topics[topic.first]);
-
-        EXPECT_NE(nullptr, domain_monitors[monitor_id1]->readers[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id2]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_id1]);
+    check_dds_entities(domain_monitors[monitor_id2]);
 
     // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id1);
@@ -396,52 +455,65 @@ TEST_F(init_monitor_tests, init_monitor_twice)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    EntityId monitor_id = StatisticsBackend::init_monitor(
-        domain_id,
-        &domain_listener,
-        all_callback_mask_,
-        all_datakind_mask_);
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
-    EXPECT_TRUE(monitor_id.is_valid());
+    init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+        all_callback_mask_, all_datakind_mask_);
 
     EXPECT_THROW(StatisticsBackend::init_monitor(
                 domain_id,
                 nullptr,
                 CallbackMask::none(),
                 DataKindMask::none()), BadParameter);
+    EXPECT_THROW(StatisticsBackend::init_monitor(
+                server_locators,
+                nullptr,
+                CallbackMask::none(),
+                DataKindMask::none()), BadParameter);
+    EXPECT_THROW(StatisticsBackend::init_monitor(
+                server_guid_prefix,
+                server_locators,
+                nullptr,
+                CallbackMask::none(),
+                DataKindMask::none()), BadParameter);
 
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
-    /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
+        /* Check that three monitors are created */
+    EXPECT_EQ(domain_monitors.size(), 3);
 
-    /* Check that the domain listener is set correctly */
-    EXPECT_EQ(&domain_listener, domain_monitors[monitor_id]->domain_listener);
-
-    /* Check that the CallbackMask is set correctly */
-    for (auto callback : init_monitor_tests::all_callback_kinds_)
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
     {
-        EXPECT_TRUE(domain_monitors[monitor_id]->domain_callback_mask.is_set(callback));
-    }
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
 
-    /* Check that the DataKindMask is set correctly */
-    for (auto datakind : init_monitor_tests::all_data_kinds_)
-    {
-        EXPECT_TRUE(domain_monitors[monitor_id]->data_mask.is_set(datakind));
+        /* Check that the CallbackMask is set correctly */
+        for (auto callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (auto datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
     }
 
     /* Check the created DDS entities */
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->participant);
-    EXPECT_NE(nullptr, domain_monitors[monitor_id]->subscriber);
-
-    for (auto topic : topic_types_)
-    {
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->topics[topic.first]);
-        EXPECT_NE(nullptr, domain_monitors[monitor_id]->readers[topic.first]);
-    }
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
-    StatisticsBackend::stop_monitor(monitor_id);
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
 }
 
 TEST_F(init_monitor_tests, stop_monitor)
