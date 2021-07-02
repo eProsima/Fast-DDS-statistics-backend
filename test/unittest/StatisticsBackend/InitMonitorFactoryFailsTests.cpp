@@ -205,6 +205,31 @@ public:
         EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(AnyNumber());
     }
 
+    void check_init_monitor_failure()
+    {
+        DomainId domain_id = 0;
+        DomainListener domain_listener;
+        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+        std::string server_locators = "127.0.0.1:11811";
+
+        EXPECT_THROW(StatisticsBackend::init_monitor(
+                        domain_id,
+                        &domain_listener,
+                        all_callback_mask_,
+                        all_datakind_mask_), Error);
+        EXPECT_THROW(StatisticsBackend::init_monitor(
+                        server_locators,
+                        &domain_listener,
+                        all_callback_mask_,
+                        all_datakind_mask_), Error);
+        EXPECT_THROW(StatisticsBackend::init_monitor(
+                        server_guid_prefix,
+                        server_locators,
+                        &domain_listener,
+                        all_callback_mask_,
+                        all_datakind_mask_), Error);
+    }
+
     ~init_monitor_factory_fails_tests()
     {
         // Clear memory
@@ -222,54 +247,33 @@ constexpr const DataKind init_monitor_factory_fails_tests::all_data_kinds_[];
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     // Expect failure on the participant creation
-    EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(1)
-            .WillOnce(Return(nullptr));
-    ASSERT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+    EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(3)
+            .WillRepeatedly(Return(nullptr));
+
+    check_init_monitor_failure();
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     // Expect failure on the subscriber creation
-    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(1)
-            .WillOnce(Return(nullptr));
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(3)
+            .WillRepeatedly(Return(nullptr));
+
+    check_init_monitor_failure();
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     // Expect failure on the datareader creation
-    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(1)
-            .WillOnce(Return(nullptr));
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(3)
+            .WillRepeatedly(Return(nullptr));
+
+    check_init_monitor_failure();
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     // Expect failure on the topic creation
     // We need to cover all parameter cases to be implementation agnostic
     ON_CALL(domain_participant_, create_topic(_, _, _, _, _))
@@ -278,32 +282,25 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_creation_fails)
             .WillByDefault(Return(nullptr));
     ON_CALL(domain_participant_, create_topic(_, _, _))
             .WillByDefault(Return(nullptr));
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+
+    check_init_monitor_failure();
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
             .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+
+    check_init_monitor_failure();
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "127.0.0.1:11811";
 
     for (auto topic_type : topic_types_)
     {
@@ -322,21 +319,26 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
                 &domain_listener,
                 all_callback_mask_,
                 all_datakind_mask_));
+    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
+                server_locators,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_));
+    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
+                server_guid_prefix,
+                server_locators,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_));
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)
 {
-    DomainId domain_id = 0;
-    DomainListener domain_listener;
-
     Topic topic("custom_topic", "custom_type");
     ON_CALL(domain_participant_, lookup_topicdescription(_))
             .WillByDefault(Return(&topic));
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                domain_id,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), Error);
+
+    check_init_monitor_failure();
 }
 
 int main(
