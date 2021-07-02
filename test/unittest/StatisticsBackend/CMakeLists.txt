@@ -379,6 +379,10 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_register_type_fails
     init_monitor_topic_exists
     init_monitor_topic_exists_with_another_type
+    init_monitor_invalid_ipv4
+    init_monitor_invalid_ipv6
+    init_monitor_invalid_port
+    init_monitor_port_out_of_range
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

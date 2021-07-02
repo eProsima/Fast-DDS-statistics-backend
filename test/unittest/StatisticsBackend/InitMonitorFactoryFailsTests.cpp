@@ -230,6 +230,25 @@ public:
                         all_datakind_mask_), Error);
     }
 
+    void check_init_monitor_discovery_server_failure(
+            const std::string& server_locators)
+    {
+        DomainListener domain_listener;
+        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+
+        EXPECT_THROW(StatisticsBackend::init_monitor(
+                server_locators,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), BadParameter);
+        EXPECT_THROW(StatisticsBackend::init_monitor(
+                server_guid_prefix,
+                server_locators,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), BadParameter);
+    }
+
     ~init_monitor_factory_fails_tests()
     {
         // Clear memory
@@ -339,6 +358,34 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_
             .WillByDefault(Return(&topic));
 
     check_init_monitor_failure();
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_ipv4)
+{
+    std::string server_locators = "192.356.0.1:11811";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_ipv6)
+{
+    std::string server_locators = "::0:G5a:11811";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_port)
+{
+    std::string server_locators = "192.356.0.1:-11811";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_port_out_of_range)
+{
+    std::string server_locators = "192.356.0.1:4294967296";
+
+    check_init_monitor_discovery_server_failure(server_locators);
 }
 
 int main(
