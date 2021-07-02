@@ -288,8 +288,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
                 info)), eprosima::statistics_backend::BadParameter);
 }
 
-// Test that discover a participant without locators associated and an empty name,
-// will give it the name localhost:participant_id
+// Test that discovers a participant without locators associated and an empty name.
+// Participant name will be localhost:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_no_locators)
 {
     participant_name_ = "";
@@ -334,8 +334,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
-// Test that discover a participant with a locator associated and an empty name,
-// will give it the name locator_IP:participant_id
+// Test that discovers a participant with a locator associated and an empty name.
+// Participant name will be locator_IP:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_default_unicast_locator)
 {
     participant_name_ = "";
@@ -459,8 +459,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
-// Test that discover a participant with a locator associated and an empty name,
-// will give it the name locator_IP:participant_id
+// Test that discovers a participant with a locator associated and an empty name.
+// Participant name will be locator_IP:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_metatraffic_unicast_locator)
 {
     participant_name_ = "";
@@ -566,8 +566,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
-// Test that discover a participant with a locator associated and an empty name,
-// will give it the name locator_IP:participant_id
+// Test that discovers a participant with a locator associated and an empty name.
+// Participant name will be locator_IP:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_default_multicast_locator)
 {
     participant_name_ = "";
@@ -653,8 +653,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
-// Test that discover a participant with a locator associated and an empty name,
-// will give it the name locator_IP:participant_id
+// Test that discovers a participant with a locator associated and an empty name.
+// Participant name will be locator_IP:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_metatraffic_multicast_locator)
 {
     participant_name_ = "";
@@ -718,8 +718,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
-// Test that discover a participant with localhost locators associated and an empty name,
-// will give it the name localhost:participant_id
+// Test that discoverS a participant with localhost locators associated and an empty name.
+// Participant name will be localhost:participant_id
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_name_localhost_locators)
 {
     participant_name_ = "";

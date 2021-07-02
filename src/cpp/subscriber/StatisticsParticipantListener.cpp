@@ -245,10 +245,10 @@ bool search_address_in_locators(
 {
     for (auto locator : locators)
     {
-        // if the address is not localhost: 127.0.0.1
+        // if the address is not localhost
         if (!IPLocator::isLocal(locator))
         {
-            // Convert the locator to an address with IP format: "37.11.18.30"
+            // Convert the locator to an address with IP format
             address =  IPLocator::ip_to_string(locator);
             return true;
         }
