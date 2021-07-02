@@ -238,21 +238,6 @@ StatisticsParticipantListener::StatisticsParticipantListener(
 {
 }
 
-// Return true if the address is localhost: 127.0.0.1
-bool is_local_host(
-        octet* address)
-{
-    return (address[12] == 127 && address[13] == 0 && address[14] == 0 && address[15] == 1);
-}
-
-// Convert an address to an IP format: "37.11.18.30"
-std::string address_to_string(
-        octet* address)
-{
-    return std::to_string((int)address[12]) + "." + std::to_string((int)address[13]) + "." +
-           std::to_string((int)address[14]) + "." + std::to_string((int)address[15]);
-}
-
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
         const eprosima::fastrtps::ResourceLimitedVector<Locator_t>& locators,
@@ -260,9 +245,11 @@ bool search_address_in_locators(
 {
     for (auto locator : locators)
     {
-        if (!is_local_host(locator.get_address()))
+        // if the address is not localhost: 127.0.0.1
+        if (!IPLocator::isLocal(locator))
         {
-            address = address_to_string(locator.get_address());
+            // Convert the locator to an address with IP format: "37.11.18.30"
+            address =  IPLocator::ip_to_string(locator);
             return true;
         }
     }
@@ -302,7 +289,7 @@ std::string get_address(
     }
 
     // The only option is for localhost to be the only valid IP
-    return "127.0.0.1";
+    return "localhost";
 }
 
 // Return the participant_id
@@ -311,13 +298,12 @@ std::string get_participant_id(
 {
     // The participant_id can be obtained from the last 4 octets in the GUID prefix
     std::stringstream buffer;
+    buffer << std::hex << std::setfill('0');
     for (int i = 0; i < 3; i++)
     {
-        buffer << std::hex << std::setfill('0');
         buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[i + 8]);
         buffer << ".";
     }
-    buffer << std::hex << std::setfill('0');
     buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[3 + 8]);
 
     return buffer.str();

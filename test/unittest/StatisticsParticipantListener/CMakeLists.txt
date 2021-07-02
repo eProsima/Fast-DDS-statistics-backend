@@ -59,7 +59,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_participant_discovered_empty_name_default_multicast_locator
         new_participant_discovered_empty_name_metatraffic_multicast_locator
         new_participant_discovered_empty_name_localhost_locators
-        new_participant_discovered_no_domain
         new_participant_discovered_participant_already_exists
         new_participant_no_domain
         new_participant_undiscovered
