@@ -68,7 +68,8 @@
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-        ${PROJECT_SOURCE_DIR}/src/cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${PROJECT_SOURCE_DIR}/test/thirdparty/asio)
 
     target_compile_definitions(DDSSimpleCommunicationDynamicMonitor PRIVATE
         $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
@@ -92,7 +93,9 @@
         $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
         $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
         )
-    target_include_directories(DDSCommunicationPublisher PRIVATE ${PROJECT_SOURCE_DIR}/test/blackbox)
+    target_include_directories(DDSCommunicationPublisher PRIVATE 
+        ${PROJECT_SOURCE_DIR}/test/blackbox
+        ${PROJECT_SOURCE_DIR}/test/thirdparty/asio)
     target_link_libraries(DDSCommunicationPublisher fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
     set(DDS_SUBSCRIBER_SOURCE ${COMMON_SOURCE}
@@ -104,7 +107,9 @@
         $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
         $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
         )
-    target_include_directories(DDSCommunicationSubscriber PRIVATE ${PROJECT_SOURCE_DIR}/test/blackbox)
+    target_include_directories(DDSCommunicationSubscriber PRIVATE 
+        ${PROJECT_SOURCE_DIR}/test/blackbox
+        ${PROJECT_SOURCE_DIR}/test/thirdparty/asio)
     target_link_libraries(DDSCommunicationSubscriber fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
     set(DDS_PUBSUB_SOURCE ${COMMON_SOURCE}
@@ -117,7 +122,9 @@
         $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
         $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
         )
-    target_include_directories(DDSCommunicationPubSub PRIVATE ${PROJECT_SOURCE_DIR}/test/blackbox)
+    target_include_directories(DDSCommunicationPubSub PRIVATE 
+        ${PROJECT_SOURCE_DIR}/test/blackbox
+        ${PROJECT_SOURCE_DIR}/test/thirdparty/asio)
     target_link_libraries(DDSCommunicationPubSub fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
     ###############################################################################
