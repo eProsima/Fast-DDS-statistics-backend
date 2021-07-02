@@ -367,7 +367,7 @@ protected:
                 assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
                 info.entity->id = database_->insert(info.entity);
 
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(info.domain_id,
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                         info.entity->id,
                         info.entity->kind, info.discovery_status);
             }

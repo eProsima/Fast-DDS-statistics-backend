@@ -145,13 +145,11 @@ public:
      *
      * Physical entities can be discovered or undiscovered, never updated
      *
-     * @param participant_id Entity ID of the participant that discovered the entity.
      * @param entity_id The entity_id of the discovered entity
      * @param entity_kind EntityKind of the discovery event
      * @param discovery_status The reason why the method is being called
      */
     void on_physical_entity_discovery(
-            EntityId participant_id,
             EntityId entity_id,
             EntityKind entity_kind,
             DiscoveryStatus discovery_status);
