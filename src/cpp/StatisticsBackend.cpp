@@ -93,6 +93,7 @@ void find_or_create_topic_and_type(
     {
         if (topic_desc->get_type_name() != type->getName())
         {
+            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is not using expected type " + type->getName() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
@@ -104,6 +105,7 @@ void find_or_create_topic_and_type(
         catch (const std::bad_cast& e)
         {
             // TODO[ILG]: Could we support other TopicDescription types in this context?
+            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
         }
 
@@ -113,6 +115,7 @@ void find_or_create_topic_and_type(
         if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
         {
             // Name already in use
+            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
         monitor->topics[topic_name] =
