@@ -38,23 +38,54 @@ void init_monitor_examples()
 {
     {
         //CONF-INIT-MONITOR-EXAMPLE
-        // Init a monitor in DDS domain 0 with no listener associated
-        EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
+        // Init a monitor in DDS domain 0 with no listener associated.
+        EntityId domain_monitor_id =
+                StatisticsBackend::init_monitor(0);
 
         // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811. The monitor has no listener associated
-        EntityId disc_server_monitor_id = StatisticsBackend::init_monitor("127.0.0.1:11811");
+        // address 127.0.0.1 and port 11811, and that uses the default GUID prefix
+        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // The monitor has no listener associated.
+        EntityId disc_server_monitor_id =
+                StatisticsBackend::init_monitor("127.0.0.1:11811");
+
+        // Init a monitor for a Fast DDS Discovery Server network which serveris located in IPv4
+        // address 127.0.0.1 and port 11811, and that uses the GUID prefix
+        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
+        // The monitor has no listener associated.
+        EntityId disc_server_prefix_monitor_id =
+                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "127.0.0.1:11811");
         //!--
         static_cast<void>(domain_monitor_id);
         static_cast<void>(disc_server_monitor_id);
+        static_cast<void>(disc_server_prefix_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-LISTENER-EXAMPLE
-        // Init a monitor in DDS domain 0 with a custom listener
         CustomDomainListener domain_listener;
-        EntityId domain_monitor_id = StatisticsBackend::init_monitor(0, &domain_listener);
+
+        // Init a monitor in DDS domain 0 with a custom listener.
+        EntityId domain_monitor_id =
+                StatisticsBackend::init_monitor(0, &domain_listener);
+
+        // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
+        // address 127.0.0.1 and port 11811, and that uses the default GUID prefix
+        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // The monitor uses a custom listener.
+        EntityId disc_server_monitor_id =
+                StatisticsBackend::init_monitor("127.0.0.1:11811", &domain_listener);
+
+        // Init a monitor for a Fast DDS Discovery Server network which serveris located in IPv4
+        // address 127.0.0.1 and port 11811, and that uses the GUID prefix
+        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
+        // The monitor uses a custom listener.
+        EntityId disc_server_prefix_monitor_id =
+                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "127.0.0.1:11811",
+                    &domain_listener);
         //!--
         static_cast<void>(domain_monitor_id);
+        static_cast<void>(disc_server_monitor_id);
+        static_cast<void>(disc_server_prefix_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-MASKS-EXAMPLE
@@ -64,11 +95,30 @@ void init_monitor_examples()
         // Only get notificiations about network latency or subscription throughput
         DataKindMask datakind_mask = DataKind::NETWORK_LATENCY | DataKind::SUBSCRIPTION_THROUGHPUT;
 
-        // Init a monitor in DDS domain 0 with a custom listener, a CallbackMask, and a DataKindMask
         CustomDomainListener domain_listener;
-        EntityId domain_monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, datakind_mask);
+
+        // Init a monitor in DDS domain 0 with a custom listener, a CallbackMask, and a DataKindMask
+        EntityId domain_monitor_id =
+                StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, datakind_mask);
+
+        // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
+        // address 127.0.0.1 and port 11811, and that uses the default GUID prefix
+        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // The monitor uses a custom listener, a CallbackMask, and a DataKindMask.
+        EntityId disc_server_monitor_id =
+                StatisticsBackend::init_monitor("127.0.0.1:11811", &domain_listener, callback_mask, datakind_mask);
+
+        // Init a monitor for a Fast DDS Discovery Server network which serveris located in IPv4
+        // address 127.0.0.1 and port 11811, and that uses the GUID prefix
+        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
+        // The monitor uses a custom listener, a CallbackMask, and a DataKindMask.
+        EntityId disc_server_prefix_monitor_id =
+                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "127.0.0.1:11811",
+                    &domain_listener, callback_mask, datakind_mask);
         //!--
         static_cast<void>(domain_monitor_id);
+        static_cast<void>(disc_server_monitor_id);
+        static_cast<void>(disc_server_prefix_monitor_id);
     }
 }
 
