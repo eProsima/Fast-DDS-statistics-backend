@@ -316,7 +316,7 @@ EntityId StatisticsBackend::init_monitor(
     participant_qos.transport().use_builtin_transports = false;
 
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
-            domain_id);
+                   domain_id);
 }
 
 void StatisticsBackend::stop_monitor(
@@ -365,7 +365,7 @@ EntityId StatisticsBackend::init_monitor(
         DataKindMask data_mask)
 {
     return init_monitor(DEFAULT_ROS2_SERVER_GUIDPREFIX, discovery_server_locators, domain_listener, callback_mask,
-            data_mask);
+                   data_mask);
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -386,7 +386,7 @@ EntityId StatisticsBackend::init_monitor(
     participant_qos.transport().use_builtin_transports = false;
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
-        eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;
+            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;
     RemoteServerAttributes server;
     // Set the server guidPrefix
     server.ReadguidPrefix(discovery_server_guid_prefix.c_str());
@@ -420,7 +420,7 @@ EntityId StatisticsBackend::init_monitor(
     participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(server);
 
     return create_and_register_monitor(discovery_server_guid_prefix, domain_listener, callback_mask, data_mask,
-            participant_qos);
+                   participant_qos);
 }
 
 void StatisticsBackend::restart_monitor(

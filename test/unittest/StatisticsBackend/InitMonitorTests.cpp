@@ -207,12 +207,14 @@ public:
         if (is_unicast)
         {
             EXPECT_NE(std::find(server_qos.metatrafficUnicastLocatorList.begin(),
-                server_qos.metatrafficUnicastLocatorList.end(), locator), server_qos.metatrafficUnicastLocatorList.end());
+                    server_qos.metatrafficUnicastLocatorList.end(), locator),
+                    server_qos.metatrafficUnicastLocatorList.end());
         }
         else
         {
             EXPECT_NE(std::find(server_qos.metatrafficMulticastLocatorList.begin(),
-                server_qos.metatrafficMulticastLocatorList.end(), locator), server_qos.metatrafficMulticastLocatorList.end());
+                    server_qos.metatrafficMulticastLocatorList.end(), locator),
+                    server_qos.metatrafficMulticastLocatorList.end());
         }
     }
 
@@ -221,10 +223,10 @@ public:
             const std::string& server_guid_prefix)
     {
         EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+                eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
 
         RemoteServerAttributes server_qos =
-            participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
+                participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
         GuidPrefix_t guid_prefix;
         std::istringstream(server_guid_prefix) >> guid_prefix;
         EXPECT_EQ(server_qos.guidPrefix, guid_prefix);
@@ -268,7 +270,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
-        all_callback_mask_, all_datakind_mask_);
+                    all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -311,7 +313,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
-        CallbackMask::none(), all_datakind_mask_);
+                    CallbackMask::none(), all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -354,7 +356,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
-        all_callback_mask_, DataKindMask::none());
+                    all_callback_mask_, DataKindMask::none());
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -396,7 +398,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, nullptr, server_guid_prefix, server_locators,
-        all_callback_mask_, all_datakind_mask_);
+                    all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -492,7 +494,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
-        all_callback_mask_, all_datakind_mask_);
+            all_callback_mask_, all_datakind_mask_);
 
     EXPECT_THROW(StatisticsBackend::init_monitor(
                 domain_id,
@@ -513,7 +515,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
 
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
-        /* Check that three monitors are created */
+    /* Check that three monitors are created */
     EXPECT_EQ(domain_monitors.size(), 3);
 
     std::vector<EntityId> monitor_ids;
@@ -569,10 +571,10 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
     domain_monitors[monitor_id]->participant->get_qos(participant_qos);
 
     EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-        eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
 
     const RemoteServerAttributes& server_qos =
-        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
+            participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
 
     check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
     check_locator(server_qos, LOCATOR_KIND_TCPv4, "127.0.0.1", 11812);

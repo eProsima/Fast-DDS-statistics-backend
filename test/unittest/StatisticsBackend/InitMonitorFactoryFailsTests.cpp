@@ -213,21 +213,21 @@ public:
         std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                        domain_id,
-                        &domain_listener,
-                        all_callback_mask_,
-                        all_datakind_mask_), Error);
+                    domain_id,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), Error);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                        server_locators,
-                        &domain_listener,
-                        all_callback_mask_,
-                        all_datakind_mask_), Error);
+                    server_locators,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), Error);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                        server_guid_prefix,
-                        server_locators,
-                        &domain_listener,
-                        all_callback_mask_,
-                        all_datakind_mask_), Error);
+                    server_guid_prefix,
+                    server_locators,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), Error);
     }
 
     void check_init_monitor_discovery_server_failure(
@@ -237,16 +237,16 @@ public:
         std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                server_locators,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), BadParameter);
+                    server_locators,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), BadParameter);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                server_guid_prefix,
-                server_locators,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_), BadParameter);
+                    server_guid_prefix,
+                    server_locators,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), BadParameter);
     }
 
     ~init_monitor_factory_fails_tests()
