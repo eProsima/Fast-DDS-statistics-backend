@@ -669,7 +669,7 @@ Graph StatisticsBackend::get_graph()
 }
 
 DatabaseDump StatisticsBackend::dump_database(
-    const bool clear)
+        const bool clear)
 {
     return details::StatisticsBackendData::get_instance()->database_->dump_database(clear);
 }

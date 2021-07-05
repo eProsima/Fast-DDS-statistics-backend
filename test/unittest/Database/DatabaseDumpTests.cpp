@@ -441,11 +441,11 @@ TEST(database, dump_and_clear_database)
 
     // Check database contains statistics data
     {
-       // Participants
-        for (const auto &super_it : db.participants())
+        // Participants
+        for (const auto& super_it : db.participants())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_FALSE(it.second->data.discovered_entity.empty());
                 ASSERT_FALSE(it.second->data.pdp_packets.empty());
@@ -457,10 +457,10 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Datawriters
-        for (const auto &super_it : db.datawriters())
+        for (const auto& super_it : db.datawriters())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_FALSE(it.second->data.publication_throughput.empty());
                 ASSERT_FALSE(it.second->data.resent_datas.empty());
@@ -472,10 +472,10 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Datareaders
-        for (const auto &super_it : db.datareaders())
+        for (const auto& super_it : db.datareaders())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_FALSE(it.second->data.subscription_throughput.empty());
                 ASSERT_FALSE(it.second->data.acknack_count.empty());
@@ -483,7 +483,7 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Locators
-        for (const auto &it : db.locators())
+        for (const auto& it : db.locators())
         {
             ASSERT_FALSE(it.second->data.network_latency_per_locator.empty());
         }
@@ -493,11 +493,11 @@ TEST(database, dump_and_clear_database)
 
     // Check database does not contain statistics data
     {
-         // Participants
-        for (const auto &super_it : db.participants())
+        // Participants
+        for (const auto& super_it : db.participants())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_TRUE(it.second->data.discovered_entity.empty());
                 ASSERT_TRUE(it.second->data.pdp_packets.empty());
@@ -509,10 +509,10 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Datawriters
-        for (const auto &super_it : db.datawriters())
+        for (const auto& super_it : db.datawriters())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_TRUE(it.second->data.publication_throughput.empty());
                 ASSERT_TRUE(it.second->data.resent_datas.empty());
@@ -524,10 +524,10 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Datareaders
-        for (const auto &super_it : db.datareaders())
+        for (const auto& super_it : db.datareaders())
         {
             // For each entity of this kind in the domain
-            for (const auto &it : super_it.second)
+            for (const auto& it : super_it.second)
             {
                 ASSERT_TRUE(it.second->data.subscription_throughput.empty());
                 ASSERT_TRUE(it.second->data.acknack_count.empty());
@@ -535,7 +535,7 @@ TEST(database, dump_and_clear_database)
             }
         }
         // Locators
-        for (const auto &it : db.locators())
+        for (const auto& it : db.locators())
         {
             ASSERT_TRUE(it.second->data.network_latency_per_locator.empty());
         }

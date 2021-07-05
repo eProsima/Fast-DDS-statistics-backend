@@ -84,7 +84,7 @@ TEST(backend_dump_tests, database_dump_load)
     }
 
     // Dump the load
-    StatisticsBackend::dump_database(TEST_DUMP_FILE,false);
+    StatisticsBackend::dump_database(TEST_DUMP_FILE, false);
 
     // Load it by the JSON library and check equality
     load_file(TEST_DUMP_FILE, dump);
@@ -94,7 +94,7 @@ TEST(backend_dump_tests, database_dump_load)
     std::remove(TEST_DUMP_FILE);
 
     // Try dumping on a non-existent directory
-    ASSERT_THROW(StatisticsBackend::dump_database(NON_EXISTENT_FILE,false),
+    ASSERT_THROW(StatisticsBackend::dump_database(NON_EXISTENT_FILE, false),
             BadParameter);
 
     // Reset the backend and try loading a non existent file
@@ -108,15 +108,19 @@ TEST(backend_dump_tests, database_dump_and_clear)
 {
     StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
 
-    auto participants = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::PARTICIPANT,EntityId::all());
-    auto datawriters = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::DATAWRITER,EntityId::all());
-    auto datareaders = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::DATAREADER,EntityId::all());
-    auto locators = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::LOCATOR,EntityId::all());
+    auto participants = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::PARTICIPANT,
+                    EntityId::all());
+    auto datawriters = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::DATAWRITER,
+                    EntityId::all());
+    auto datareaders = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::DATAREADER,
+                    EntityId::all());
+    auto locators = details::StatisticsBackendData::get_instance()->database_->get_entities(EntityKind::LOCATOR,
+                    EntityId::all());
 
     // Check database contains statistics data
     {
         // Participants
-        for (const auto &it : participants)
+        for (const auto& it : participants)
         {
             auto participant = std::dynamic_pointer_cast<const DomainParticipant>(it);
             ASSERT_FALSE(participant->data.discovered_entity.empty());
@@ -128,7 +132,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(participant->data.rtps_bytes_lost.empty());
         }
         // Datawriters
-        for (const auto &it : datawriters)
+        for (const auto& it : datawriters)
         {
             auto datawriter = std::dynamic_pointer_cast<const DataWriter>(it);
             ASSERT_FALSE(datawriter->data.publication_throughput.empty());
@@ -139,7 +143,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(datawriter->data.sample_datas.empty());
         }
         // Datareaders
-        for (const auto &it : datareaders)
+        for (const auto& it : datareaders)
         {
             auto datareader = std::dynamic_pointer_cast<const DataReader>(it);
             ASSERT_FALSE(datareader->data.subscription_throughput.empty());
@@ -147,7 +151,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(datareader->data.nackfrag_count.empty());
         }
         // Locators
-        for (const auto &it : locators)
+        for (const auto& it : locators)
         {
             auto locator = std::dynamic_pointer_cast<const Locator>(it);
             ASSERT_FALSE(locator->data.network_latency_per_locator.empty());
@@ -164,12 +168,12 @@ TEST(backend_dump_tests, database_dump_and_clear)
     }
 
     // Dump the load
-    StatisticsBackend::dump_database(TEST_DUMP_AND_CLEAR_FILE,true);
+    StatisticsBackend::dump_database(TEST_DUMP_AND_CLEAR_FILE, true);
 
     // Check database does not contain statistics data
     {
         // Participants
-        for (const auto &it : participants)
+        for (const auto& it : participants)
         {
             auto participant = std::dynamic_pointer_cast<const DomainParticipant>(it);
             ASSERT_TRUE(participant->data.discovered_entity.empty());
@@ -181,7 +185,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(participant->data.rtps_bytes_lost.empty());
         }
         // Datawriters
-        for (const auto &it : datawriters)
+        for (const auto& it : datawriters)
         {
             auto datawriter = std::dynamic_pointer_cast<const DataWriter>(it);
             ASSERT_TRUE(datawriter->data.publication_throughput.empty());
@@ -192,7 +196,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(datawriter->data.sample_datas.empty());
         }
         // Datareaders
-        for (const auto &it : datareaders)
+        for (const auto& it : datareaders)
         {
             auto datareader = std::dynamic_pointer_cast<const DataReader>(it);
             ASSERT_TRUE(datareader->data.subscription_throughput.empty());
@@ -200,7 +204,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(datareader->data.nackfrag_count.empty());
         }
         // Locators
-        for (const auto &it : locators)
+        for (const auto& it : locators)
         {
             auto locator = std::dynamic_pointer_cast<const Locator>(it);
             ASSERT_TRUE(locator->data.network_latency_per_locator.empty());
