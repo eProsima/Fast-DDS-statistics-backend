@@ -544,7 +544,7 @@ protected:
 
     /**
      * @brief Notifies the user about a new discovered locator.
-     * 
+     *
      * @param locator_id The ID of the discovered locator.
      */
     void notify_locator_discovery (

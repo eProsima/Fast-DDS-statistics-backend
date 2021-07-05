@@ -368,8 +368,8 @@ protected:
                 info.entity->id = database_->insert(info.entity);
 
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                        info.entity->id,
-                        info.entity->kind, info.discovery_status);
+                    info.entity->id,
+                    info.entity->kind, info.discovery_status);
             }
             // Domains are not discovered, they are created on monitor initialization
             else if (EntityKind::DOMAIN == info.entity->kind)
