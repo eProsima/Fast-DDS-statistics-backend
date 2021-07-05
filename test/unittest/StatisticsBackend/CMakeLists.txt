@@ -312,6 +312,7 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_null_listener_all_data
     init_monitor_several_monitors
     init_monitor_twice
+    init_server_monitor_several_locators
     stop_monitor
     init_monitor_check_participant_name
     init_monitor_check_participant_transport
@@ -383,6 +384,8 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_invalid_ipv6
     init_monitor_invalid_port
     init_monitor_port_out_of_range
+    init_monitor_unsupported_shm
+    init_monitor_extra_characters
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

@@ -181,22 +181,55 @@ public:
         return domain_monitors;
     }
 
+    void check_locator(
+            const RemoteServerAttributes& server_qos,
+            int32_t kind,
+            const std::string& address,
+            uint32_t port,
+            bool is_unicast = true)
+    {
+        // Build the locator
+        Locator_t locator(kind, port);
+        if (kind == LOCATOR_KIND_UDPv4 || kind == LOCATOR_KIND_TCPv4)
+        {
+            IPLocator::setIPv4(locator, address);
+        }
+        else if (kind == LOCATOR_KIND_UDPv6 || kind == LOCATOR_KIND_TCPv6)
+        {
+            IPLocator::setIPv6(locator, address);
+        }
+        else
+        {
+            FAIL() << "Invalid locator kind";
+        }
+
+        // Look for it
+        if (is_unicast)
+        {
+            EXPECT_NE(std::find(server_qos.metatrafficUnicastLocatorList.begin(),
+                server_qos.metatrafficUnicastLocatorList.end(), locator), server_qos.metatrafficUnicastLocatorList.end());
+        }
+        else
+        {
+            EXPECT_NE(std::find(server_qos.metatrafficMulticastLocatorList.begin(),
+                server_qos.metatrafficMulticastLocatorList.end(), locator), server_qos.metatrafficMulticastLocatorList.end());
+        }
+    }
+
     void check_participant_qos(
             const DomainParticipantQos& participant_qos,
             const std::string& server_guid_prefix)
     {
         EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
             eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+
         RemoteServerAttributes server_qos =
             participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
         GuidPrefix_t guid_prefix;
         std::istringstream(server_guid_prefix) >> guid_prefix;
         EXPECT_EQ(server_qos.guidPrefix, guid_prefix);
-        Locator_t locator;
-        IPLocator::setIPv4(locator, "127.0.0.1");
-        locator.port = 11811;
-        EXPECT_NE(std::find(server_qos.metatrafficUnicastLocatorList.begin(),
-            server_qos.metatrafficUnicastLocatorList.end(), locator), server_qos.metatrafficUnicastLocatorList.end());
+
+        check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
     }
 
     void check_dds_entities(
@@ -514,6 +547,43 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     {
         StatisticsBackend::stop_monitor(monitor.first);
     }
+}
+
+TEST_F(init_monitor_tests, init_server_monitor_several_locators)
+{
+    std::string server_locators =
+            // unicast addresses
+            "UDPv4:[127.0.0.1]:11811;TCPv4:[127.0.0.1]:11812;UDPv6:[::1]:11813;TCPv6:[::1]:11814;"
+            // multicast addresses
+            "UDPv4:[239.255.0.1]:11821;UDPv6:[ff1e::ffff:efff:1]:11823";
+    EntityId monitor_id =  StatisticsBackend::init_monitor(server_locators);
+
+    EXPECT_TRUE(monitor_id.is_valid());
+
+    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+
+    /* Check that a monitor is created */
+    EXPECT_EQ(domain_monitors.size(), 1);
+
+    DomainParticipantQos participant_qos;
+    domain_monitors[monitor_id]->participant->get_qos(participant_qos);
+
+    EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
+        eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+
+    const RemoteServerAttributes& server_qos =
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
+
+    check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
+    check_locator(server_qos, LOCATOR_KIND_TCPv4, "127.0.0.1", 11812);
+    check_locator(server_qos, LOCATOR_KIND_UDPv6, "::1", 11813);
+    check_locator(server_qos, LOCATOR_KIND_TCPv6, "::1", 11814);
+
+    check_locator(server_qos, LOCATOR_KIND_UDPv4, "239.255.0.1", 11821, false);
+    check_locator(server_qos, LOCATOR_KIND_UDPv6, "ff1e::ffff:efff:1", 11823, false);
+
+    // Stop the monitor to avoid interfering on the next test
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 TEST_F(init_monitor_tests, stop_monitor)

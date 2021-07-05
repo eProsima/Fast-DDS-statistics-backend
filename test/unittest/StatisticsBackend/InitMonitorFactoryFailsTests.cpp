@@ -388,6 +388,20 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_port_out_of_range)
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
+TEST_F(init_monitor_factory_fails_tests, init_monitor_unsupported_shm)
+{
+    std::string server_locators = "SHM:[_]:11815";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_extra_characters)
+{
+    std::string server_locators = "UDPv4:[192.356.0.1]:1181:ABC";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
 int main(
         int argc,
         char** argv)
