@@ -210,7 +210,7 @@ public:
         DomainId domain_id = 0;
         DomainListener domain_listener;
         std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-        std::string server_locators = "127.0.0.1:11811";
+        std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
                         domain_id,
@@ -319,7 +319,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     for (auto topic_type : topic_types_)
     {
@@ -362,28 +362,28 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_ipv4)
 {
-    std::string server_locators = "192.356.0.1:11811";
+    std::string server_locators = "UDPv4:[192.356.0.1]:11811";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_ipv6)
 {
-    std::string server_locators = "::0:G5a:11811";
+    std::string server_locators = "UDPv6:[::0:G5a]:11811";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_port)
 {
-    std::string server_locators = "192.356.0.1:-11811";
+    std::string server_locators = "UDPv4:[192.356.0.1]:-11811";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_port_out_of_range)
 {
-    std::string server_locators = "192.356.0.1:4294967296";
+    std::string server_locators = "UDPv4:[192.356.0.1]:4294967296";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }

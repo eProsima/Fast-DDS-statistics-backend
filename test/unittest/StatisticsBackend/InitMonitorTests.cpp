@@ -232,7 +232,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
         all_callback_mask_, all_datakind_mask_);
@@ -275,7 +275,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
         CallbackMask::none(), all_datakind_mask_);
@@ -318,7 +318,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
         all_callback_mask_, DataKindMask::none());
@@ -360,7 +360,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 {
     DomainId domain_id = 0;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     auto domain_monitors = init_monitors(domain_id, nullptr, server_guid_prefix, server_locators,
         all_callback_mask_, all_datakind_mask_);
@@ -456,7 +456,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "127.0.0.1:11811";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
         all_callback_mask_, all_datakind_mask_);

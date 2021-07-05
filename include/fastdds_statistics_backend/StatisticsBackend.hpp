@@ -87,7 +87,7 @@ public:
      * If any other server is to be used, call the overload method that receives the \c GuidPrefix_t as parameter.
      *
      * @param discovery_server_locators The locator list of the server whose network is to be monitored,
-     *                                  formatted as a semicolon separated list of locators "IPaddress:port".
+     *                                  formatted as a semicolon separated list of locators "kind:[IPaddress]:port".
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
@@ -107,7 +107,7 @@ public:
      *
      * @param discovery_server_guid_prefix Server \c GuidPrefix_t to be monitored.
      * @param discovery_server_locators The locator list of the server whose network is to be monitored,
-     *                                  formatted as a semicolon separated list of locators "IPaddress:port".
+     *                                  formatted as a semicolon separated list of locators "kind:[IPaddress]:port".
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.

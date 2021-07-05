@@ -395,33 +395,18 @@ EntityId StatisticsBackend::init_monitor(
     std::string locator_str;
     while (std::getline(locators, locator_str, ';'))
     {
+        std::stringstream ss(locator_str);
         eprosima::fastrtps::rtps::Locator_t locator;
-        // Get IP address and port
-        std::stringstream locator_sstream(locator_str);
-        std::string ip;
-        std::string port_str;
-        std::getline(locator_sstream, ip, ':');
-        std::getline(locator_sstream, port_str);
-        // Set IP address
-        if (!eprosima::fastrtps::rtps::IPLocator::setIPv4(locator, ip))
+        ss >> locator;
+        if (!IsLocatorValid(locator) || !IsAddressDefined(locator) || ss.rdbuf()->in_avail() != 0)
         {
-            locator.kind = LOCATOR_KIND_UDPv6;
-            if (!eprosima::fastrtps::rtps::IPLocator::setIPv6(locator,ip))
-            {
-                throw BadParameter(ip + " does not have a valid IP address format");
-            }
+            throw BadParameter("Invalid locator format: " + locator_str);
         }
-        // Set port
-        if (port_str.find_first_not_of("1234567890") != std::string::npos)
+        if (locator.port > std::numeric_limits<uint32_t>::max())
         {
-            throw BadParameter(port_str + " does not have a valid format");
+            throw BadParameter(locator.port + " is out of range");
         }
-        unsigned long port = std::stoul(port_str);
-        if (port > std::numeric_limits<uint32_t>::max())
-        {
-            throw BadParameter(port_str + " is out of range");
-        }
-        locator.port = port;
+
         // Check unicast/multicast address
         if (eprosima::fastrtps::rtps::IPLocator::isMulticast(locator))
         {
