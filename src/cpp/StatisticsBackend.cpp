@@ -668,13 +668,15 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
-DatabaseDump StatisticsBackend::dump_database()
+DatabaseDump StatisticsBackend::dump_database(
+    const bool clear)
 {
-    return details::StatisticsBackendData::get_instance()->database_->dump_database();
+    return details::StatisticsBackendData::get_instance()->database_->dump_database(clear);
 }
 
 void StatisticsBackend::dump_database(
-        const std::string& filename)
+        const std::string& filename,
+        const bool clear)
 {
     // Open the file
     std::ofstream file(filename);
@@ -684,7 +686,7 @@ void StatisticsBackend::dump_database(
     }
 
     // Dump the data
-    file << StatisticsBackend::dump_database();
+    file << StatisticsBackend::dump_database(clear);
 }
 
 void StatisticsBackend::load_database(

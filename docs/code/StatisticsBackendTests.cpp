@@ -424,13 +424,19 @@ void dump_load_examples()
     {
         //CONF-DUMP-LOAD-EXAMPLE
         // Save the database to a file
-        StatisticsBackend::dump_database("new_backend_dump.json");
+        StatisticsBackend::dump_database("new_backend_dump.json", false);
 
         // Reset the Backend to empty the current database contents
         StatisticsBackend::reset();
 
         // Load an old backup to the emptied Backend
         StatisticsBackend::load_database("old_backend_dump.json");
+        //!--
+    }
+    {
+        //CONF-DUMP-AND_CLEAR-EXAMPLE
+        // Save the database to a file, cleaning the statistics data
+        StatisticsBackend::dump_database("new_backend_dump.json", true);
         //!--
     }
 }

@@ -306,10 +306,13 @@ public:
 
     /**
      * @brief Get a dump of the database.
+     * 
+     * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
      *
      * @return DatabaseDump object representing the backend database.
      */
-    DatabaseDump dump_database();
+    DatabaseDump dump_database(
+            const bool clear = false);
 
     /**
      * @brief Load Entities and their data from dump (json) object.
@@ -584,6 +587,11 @@ protected:
             const std::map<EntityId, EntityCountSample>& data);
     DatabaseDump dump_data_(
             const std::map<EntityId, ByteCountSample>& data);
+
+	/**
+     * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     */
+	void clear_database();
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.

@@ -433,6 +433,115 @@ TEST(database, dump_unlinked_database)
     ASSERT_EQ(db.dump_database(), dump);
 }
 
+// Test the dump of a database with a clear of the statistics data
+TEST(database, dump_and_clear_database)
+{
+    DataBaseTest db;
+    initialize_database(db, 1, 1);
+
+    // Check database contains statistics data
+    {
+       // Participants
+        for (const auto &super_it : db.participants())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_FALSE(it.second->data.discovered_entity.empty());
+                ASSERT_FALSE(it.second->data.pdp_packets.empty());
+                ASSERT_FALSE(it.second->data.edp_packets.empty());
+                ASSERT_FALSE(it.second->data.rtps_packets_sent.empty());
+                ASSERT_FALSE(it.second->data.rtps_bytes_sent.empty());
+                ASSERT_FALSE(it.second->data.rtps_packets_lost.empty());
+                ASSERT_FALSE(it.second->data.rtps_bytes_lost.empty());
+            }
+        }
+        // Datawriters
+        for (const auto &super_it : db.datawriters())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_FALSE(it.second->data.publication_throughput.empty());
+                ASSERT_FALSE(it.second->data.resent_datas.empty());
+                ASSERT_FALSE(it.second->data.heartbeat_count.empty());
+                ASSERT_FALSE(it.second->data.gap_count.empty());
+                ASSERT_FALSE(it.second->data.data_count.empty());
+                ASSERT_FALSE(it.second->data.sample_datas.empty());
+                ASSERT_FALSE(it.second->data.history2history_latency.empty());
+            }
+        }
+        // Datareaders
+        for (const auto &super_it : db.datareaders())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_FALSE(it.second->data.subscription_throughput.empty());
+                ASSERT_FALSE(it.second->data.acknack_count.empty());
+                ASSERT_FALSE(it.second->data.nackfrag_count.empty());
+            }
+        }
+        // Locators
+        for (const auto &it : db.locators())
+        {
+            ASSERT_FALSE(it.second->data.network_latency_per_locator.empty());
+        }
+    }
+
+    DatabaseDump dump = db.dump_database(true);
+
+    // Check database does not contain statistics data
+    {
+         // Participants
+        for (const auto &super_it : db.participants())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_TRUE(it.second->data.discovered_entity.empty());
+                ASSERT_TRUE(it.second->data.pdp_packets.empty());
+                ASSERT_TRUE(it.second->data.edp_packets.empty());
+                ASSERT_TRUE(it.second->data.rtps_packets_sent.empty());
+                ASSERT_TRUE(it.second->data.rtps_bytes_sent.empty());
+                ASSERT_TRUE(it.second->data.rtps_packets_lost.empty());
+                ASSERT_TRUE(it.second->data.rtps_bytes_lost.empty());
+            }
+        }
+        // Datawriters
+        for (const auto &super_it : db.datawriters())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_TRUE(it.second->data.publication_throughput.empty());
+                ASSERT_TRUE(it.second->data.resent_datas.empty());
+                ASSERT_TRUE(it.second->data.heartbeat_count.empty());
+                ASSERT_TRUE(it.second->data.gap_count.empty());
+                ASSERT_TRUE(it.second->data.data_count.empty());
+                ASSERT_TRUE(it.second->data.sample_datas.empty());
+                ASSERT_TRUE(it.second->data.history2history_latency.empty());
+            }
+        }
+        // Datareaders
+        for (const auto &super_it : db.datareaders())
+        {
+            // For each entity of this kind in the domain
+            for (const auto &it : super_it.second)
+            {
+                ASSERT_TRUE(it.second->data.subscription_throughput.empty());
+                ASSERT_TRUE(it.second->data.acknack_count.empty());
+                ASSERT_TRUE(it.second->data.nackfrag_count.empty());
+            }
+        }
+        // Locators
+        for (const auto &it : db.locators())
+        {
+            ASSERT_TRUE(it.second->data.network_latency_per_locator.empty());
+        }
+    }
+}
+
 // Test the database method id_to_string()
 TEST(database, id_to_string)
 {

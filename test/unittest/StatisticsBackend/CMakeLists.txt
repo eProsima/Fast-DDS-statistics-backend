@@ -560,6 +560,7 @@ get_win32_path_dependencies(backend_dump_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_DUMP_TEST_LIST
     database_dump_load
+    database_dump_and_clear
     reset
     )
 

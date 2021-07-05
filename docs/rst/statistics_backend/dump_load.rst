@@ -32,3 +32,10 @@ resetting the Backend in between.
     :end-before: //!
     :dedent: 8
 
+The bool parameter of |dump_database-api| indicates if the statistics data of all entities must being cleared.
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //CONF-DUMP-AND_CLEAR-EXAMPLE
+    :end-before: //!
+    :dedent: 8
