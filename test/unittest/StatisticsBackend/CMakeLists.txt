@@ -508,6 +508,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         datawriter
         datareader
         endpoints
+        discover_datawriter_on_inactive_domain
+        discover_datareader_on_inactive_domain
     )
 
     foreach(test_name ${IS_ACTIVE_TEST_LIST})

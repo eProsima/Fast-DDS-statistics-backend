@@ -4542,7 +4542,7 @@ void Database::change_entity_status_of_kind(
                 }
             }
 
-            if (datawriter != nullptr && datawriter->active != active)
+            if (datawriter != nullptr && (datawriter->active != active || datawriter->topic->active != active))
             {
                 datawriter->active = active;
 
@@ -4601,7 +4601,7 @@ void Database::change_entity_status_of_kind(
                     }
                 }
             }
-            if (datareader != nullptr && datareader->active != active)
+            if (datareader != nullptr && (datareader->active != active || datareader->topic->active != active))
             {
                 datareader->active = active;
 

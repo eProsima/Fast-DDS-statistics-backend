@@ -418,6 +418,357 @@ TEST_F(is_active_tests, endpoints)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 }
 
+// Windows dll do not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
+
+// Check the is_active StatisticsBackend method discover a datawriter on an inactive domain
+TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
+{
+    // Participant undiscovered
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+        eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+        // Precondition: The discovered participant has the given GUID and name
+        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        std::stringstream(participant->guid) >> participant_guid_;
+        data.m_guid = participant_guid_;
+        data.m_participantName = participant->name;
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+
+        // Execution: Call the listener
+        participant_listener->on_participant_discovery(&statistics_participant, std::move(info));
+    }
+    // Datawriter undiscovered
+    {
+        // Start building the discovered writer info
+        eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
+
+        // The discovered writer is in the participant
+        eprosima::fastrtps::rtps::GUID_t writer_guid_;
+        std::stringstream(datawriter->guid) >> writer_guid_;
+        data.guid(writer_guid_);
+
+        // The discovered writer is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered writer contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered writer info
+        eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+
+        // Execution: Call the listener
+        participant_listener->on_publisher_discovery(&statistics_participant, std::move(info));
+    }
+    // Datareader undiscovered
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
+
+        // The discovered reader is in the participant
+        eprosima::fastrtps::rtps::GUID_t reader_guid_;
+        std::stringstream(datareader->guid) >> reader_guid_;
+        data.guid(reader_guid_);
+
+        // The discovered reader is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered reader contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+
+        // Execution: Call the listener
+        participant_listener->on_subscriber_discovery(&statistics_participant, std::move(info));
+    }
+
+    ASSERT_FALSE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+
+    // Create new process
+    auto process1 = std::make_shared<Process>("process1", "123", user);
+    db->insert(process1);
+
+    // Discover new participant
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+        eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+        // Precondition: The discovered participant has the given GUID and name
+        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
+        data.m_guid = participant_guid_;
+        data.m_participantName = participant->name + "_1";
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+
+        // Execution: Call the listener
+        participant_listener->on_participant_discovery(&statistics_participant, std::move(info));
+    }
+
+    // Link participant - process
+    auto participant_id =
+            db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
+    db->link_participant_with_process(participant_id, process1->id);
+
+    ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(participant_id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(process1->id));
+
+    // Discover new datawriter
+    {
+        // Start building the discovered writer info
+        eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
+
+        // The discovered writer is in the participant
+        eprosima::fastrtps::rtps::GUID_t writer_guid_;
+        std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0") >> writer_guid_;
+        data.guid(writer_guid_);
+
+        // The discovered writer is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered writer contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered writer info
+        eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+
+        // Execution: Call the listener
+        participant_listener->on_publisher_discovery(&statistics_participant, std::move(info));
+    }
+
+    auto datawriter_id =
+            db->get_entity_by_guid(EntityKind::DATAWRITER, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0").second;
+
+    ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(participant_id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(process1->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(datawriter_id));
+}
+
+// Check the is_active StatisticsBackend method discover a datareader on an inactive domain
+TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
+{
+    // Participant undiscovered
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+        eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+        // Precondition: The discovered participant has the given GUID and name
+        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        std::stringstream(participant->guid) >> participant_guid_;
+        data.m_guid = participant_guid_;
+        data.m_participantName = participant->name;
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+
+        // Execution: Call the listener
+        participant_listener->on_participant_discovery(&statistics_participant, std::move(info));
+    }
+    // Datareader undiscovered
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
+
+        // The discovered reader is in the participant
+        eprosima::fastrtps::rtps::GUID_t reader_guid_;
+        std::stringstream(datareader->guid) >> reader_guid_;
+        data.guid(reader_guid_);
+
+        // The discovered reader is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered reader contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+
+        // Execution: Call the listener
+        participant_listener->on_subscriber_discovery(&statistics_participant, std::move(info));
+    }
+    // Datawriter undiscovered
+    {
+        // Start building the discovered writer info
+        eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
+
+        // The discovered writer is in the participant
+        eprosima::fastrtps::rtps::GUID_t writer_guid_;
+        std::stringstream(datawriter->guid) >> writer_guid_;
+        data.guid(writer_guid_);
+
+        // The discovered writer is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered writer contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered writer info
+        eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+
+        // Execution: Call the listener
+        participant_listener->on_publisher_discovery(&statistics_participant, std::move(info));
+    }
+
+    ASSERT_FALSE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+
+    // Create new process
+    auto process1 = std::make_shared<Process>("process1", "123", user);
+    db->insert(process1);
+
+    // Discover new participant
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
+        eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+        // Precondition: The discovered participant has the given GUID and name
+        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
+        data.m_guid = participant_guid_;
+        data.m_participantName = participant->name + "_1";
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+
+        // Execution: Call the listener
+        participant_listener->on_participant_discovery(&statistics_participant, std::move(info));
+    }
+
+    // Link participant - process
+    auto participant_id =
+            db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
+    db->link_participant_with_process(participant_id, process1->id);
+
+    ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(participant_id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(process1->id));
+
+    // Discover new datareader
+    {
+        // Start building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
+
+        // The discovered reader is in the participant
+        eprosima::fastrtps::rtps::GUID_t reader_guid_;
+        std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0") >> reader_guid_;
+        data.guid(reader_guid_);
+
+        // The discovered reader is in the topic
+        data.topicName(topic->name);
+        data.typeName(topic->data_type);
+
+        // The discovered reader contains the locator
+        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        dds_existing_unicast_locator.address[12] = 127;
+        dds_existing_unicast_locator.address[15] = 1;
+        data.add_unicast_locator(dds_existing_unicast_locator);
+
+        // Finish building the discovered reader info
+        eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
+        info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+
+        // Execution: Call the listener
+        participant_listener->on_subscriber_discovery(&statistics_participant, std::move(info));
+    }
+
+    auto datareader_id =
+            db->get_entity_by_guid(EntityKind::DATAREADER, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0").second;
+
+    ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(process->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(participant_id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(process1->id));
+    ASSERT_TRUE(StatisticsBackendTest::is_active(datareader_id));
+}
+
+#endif // !defined(_WIN32)
+
 int main(
 
         int argc,
