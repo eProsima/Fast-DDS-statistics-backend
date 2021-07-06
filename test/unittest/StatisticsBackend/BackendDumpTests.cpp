@@ -130,6 +130,19 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(participant->data.rtps_bytes_sent.empty());
             ASSERT_FALSE(participant->data.rtps_packets_lost.empty());
             ASSERT_FALSE(participant->data.rtps_bytes_lost.empty());
+
+            ASSERT_FALSE(participant->data.last_reported_rtps_packets_sent_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_bytes_sent_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_packets_lost_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_bytes_lost_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_pdp_packets.kind == DataKind::INVALID &&
+                    participant->data.last_reported_pdp_packets.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    participant->data.last_reported_edp_packets.count == 0);
+            ASSERT_FALSE(participant->data.last_reported_edp_packets.kind == DataKind::INVALID &&
+                    participant->data.last_reported_edp_packets.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    participant->data.last_reported_edp_packets.count == 0);
         }
         // Datawriters
         for (const auto& it : datawriters)
@@ -141,6 +154,23 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(datawriter->data.gap_count.empty());
             ASSERT_FALSE(datawriter->data.data_count.empty());
             ASSERT_FALSE(datawriter->data.sample_datas.empty());
+
+            ASSERT_FALSE(datawriter->data.last_reported_resent_datas.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_resent_datas.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_resent_datas.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_heartbeat_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_heartbeat_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_heartbeat_count.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_gap_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_gap_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_gap_count.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_data_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_data_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_data_count.count == 0);
         }
         // Datareaders
         for (const auto& it : datareaders)
@@ -149,6 +179,15 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(datareader->data.subscription_throughput.empty());
             ASSERT_FALSE(datareader->data.acknack_count.empty());
             ASSERT_FALSE(datareader->data.nackfrag_count.empty());
+
+            ASSERT_FALSE(datareader->data.last_reported_acknack_count.kind == DataKind::INVALID &&
+                    datareader->data.last_reported_acknack_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datareader->data.last_reported_acknack_count.count == 0);
+            ASSERT_FALSE(datareader->data.last_reported_nackfrag_count.kind == DataKind::INVALID &&
+                    datareader->data.last_reported_nackfrag_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datareader->data.last_reported_nackfrag_count.count == 0);
         }
         // Locators
         for (const auto& it : locators)
@@ -183,6 +222,19 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(participant->data.rtps_bytes_sent.empty());
             ASSERT_TRUE(participant->data.rtps_packets_lost.empty());
             ASSERT_TRUE(participant->data.rtps_bytes_lost.empty());
+
+            ASSERT_FALSE(participant->data.last_reported_rtps_packets_sent_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_bytes_sent_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_packets_lost_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_rtps_bytes_lost_count.empty());
+            ASSERT_FALSE(participant->data.last_reported_pdp_packets.kind == DataKind::INVALID &&
+                    participant->data.last_reported_pdp_packets.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    participant->data.last_reported_edp_packets.count == 0);
+            ASSERT_FALSE(participant->data.last_reported_edp_packets.kind == DataKind::INVALID &&
+                    participant->data.last_reported_edp_packets.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    participant->data.last_reported_edp_packets.count == 0);
         }
         // Datawriters
         for (const auto& it : datawriters)
@@ -194,6 +246,23 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(datawriter->data.gap_count.empty());
             ASSERT_TRUE(datawriter->data.data_count.empty());
             ASSERT_TRUE(datawriter->data.sample_datas.empty());
+
+            ASSERT_FALSE(datawriter->data.last_reported_resent_datas.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_resent_datas.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_resent_datas.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_heartbeat_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_heartbeat_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_heartbeat_count.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_gap_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_gap_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_gap_count.count == 0);
+            ASSERT_FALSE(datawriter->data.last_reported_data_count.kind == DataKind::INVALID &&
+                    datawriter->data.last_reported_data_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datawriter->data.last_reported_data_count.count == 0);
         }
         // Datareaders
         for (const auto& it : datareaders)
@@ -202,6 +271,15 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(datareader->data.subscription_throughput.empty());
             ASSERT_TRUE(datareader->data.acknack_count.empty());
             ASSERT_TRUE(datareader->data.nackfrag_count.empty());
+
+            ASSERT_FALSE(datareader->data.last_reported_acknack_count.kind == DataKind::INVALID &&
+                    datareader->data.last_reported_acknack_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datareader->data.last_reported_acknack_count.count == 0);
+            ASSERT_FALSE(datareader->data.last_reported_nackfrag_count.kind == DataKind::INVALID &&
+                    datareader->data.last_reported_nackfrag_count.src_ts ==
+                    std::chrono::system_clock::time_point() &&
+                    datareader->data.last_reported_nackfrag_count.count == 0);
         }
         // Locators
         for (const auto& it : locators)

@@ -591,7 +591,7 @@ protected:
     /**
      * @brief Remove the statistics data of the database. This not include the info or discovery data.
      */
-    void clear_database();
+    void clear_statistics_data();
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.

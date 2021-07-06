@@ -2586,7 +2586,7 @@ DatabaseDump Database::dump_database(
 
     if (clear)
     {
-        clear_database();
+        clear_statistics_data();
     }
 
     return dump;
@@ -3167,7 +3167,7 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::clear_database()
+void Database::clear_statistics_data()
 {
     // Participants
     for (const auto& super_it : participants_)
@@ -3175,7 +3175,7 @@ void Database::clear_database()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear();
+            it.second->data.clear(false);
         }
     }
     // Datawriters
@@ -3184,7 +3184,7 @@ void Database::clear_database()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear();
+            it.second->data.clear(false);
         }
     }
     // Datareaders
@@ -3193,7 +3193,7 @@ void Database::clear_database()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear();
+            it.second->data.clear(false);
         }
     }
     // Locators
