@@ -4341,13 +4341,24 @@ void Database::change_entity_status_of_kind(
 
                 // host
                 {
-                    // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (const auto& entity_it : user->host->users)
+
+                    // If the entity now is active, the subentity must being active.
+                    // But if the subentity is already active, is not necessary to change it status.
+                    if (active && user->host->active)
                     {
-                        if (entity_it.second->active != active)
+                        change_status = false;
+                    }
+                    // If the entity now is inactive, check if one reference of the subentity is active.
+                    // If one is still active, the status of the subentity is not changed
+                    else if (!active)
+                    {
+                        for (const auto& entity_it : user->host->users)
                         {
-                            change_status = false;
+                            if (entity_it.second->active)
+                            {
+                                change_status = false;
+                            }
                         }
                     }
 
@@ -4379,13 +4390,24 @@ void Database::change_entity_status_of_kind(
 
                 // user
                 {
-                    // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (const auto& entity_it : process->user->processes)
+
+                    // If the entity now is active, the subentity must being active.
+                    // But if the subentity is already active, is not necessary to change it status.
+                    if (active && process->user->active)
                     {
-                        if (entity_it.second->active != active)
+                        change_status = false;
+                    }
+                    // If the entity now is inactive, check if one reference of the subentity is active.
+                    // If one is still active, the status of the subentity is not changed
+                    else if (!active)
+                    {
+                        for (const auto& entity_it : process->user->processes)
                         {
-                            change_status = false;
+                            if (entity_it.second->active)
+                            {
+                                change_status = false;
+                            }
                         }
                     }
 
@@ -4462,13 +4484,24 @@ void Database::change_entity_status_of_kind(
                 // process
                 if (participant->process != nullptr)
                 {
-                    // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (const auto& entity_it : participant->process->participants)
+
+                    // If the entity now is active, the subentity must being active.
+                    // But if the subentity is already active, is not necessary to change it status.
+                    if (active && participant->process->active)
                     {
-                        if (entity_it.second->active != active)
+                        change_status = false;
+                    }
+                    // If the entity now is inactive, check if one reference of the subentity is active.
+                    // If one is still active, the status of the subentity is not changed
+                    else if (!active)
+                    {
+                        for (const auto& entity_it : participant->process->participants)
                         {
-                            change_status = false;
+                            if (entity_it.second->active)
+                            {
+                                change_status = false;
+                            }
                         }
                     }
 
@@ -4504,29 +4537,38 @@ void Database::change_entity_status_of_kind(
 
                 // topic
                 {
-                    // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (const auto& entity_it : datawriter->topic->data_writers)
+
+                    // If the entity now is active, the subentity must being active.
+                    // But if the subentity is already active, is not necessary to change it status.
+                    if (active && datawriter->topic->active)
                     {
-                        if (entity_it.second->active != active)
-                        {
-                            change_status = false;
-                        }
+                        change_status = false;
                     }
-                    if (change_status)
+                    // If the entity now is inactive, check if one reference of the subentity is active.
+                    // If one is still active, the status of the subentity is not changed
+                    else if (!active)
                     {
-                        for (const auto& entity_it : datawriter->topic->data_readers)
+                        for (const auto& entity_it : datawriter->topic->data_writers)
                         {
-                            if (entity_it.second->active != active)
+                            if (entity_it.second->active)
                             {
                                 change_status = false;
                             }
                         }
-                        if (change_status)
+                        for (const auto& entity_it : datawriter->topic->data_readers)
                         {
-                            change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind,
-                                    datawriter->participant->domain->id);
+                            if (entity_it.second->active)
+                            {
+                                change_status = false;
+                            }
                         }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(datawriter->topic->id, active, datawriter->topic->kind,
+                                datawriter->participant->domain->id);
                     }
                 }
             }
@@ -4554,29 +4596,38 @@ void Database::change_entity_status_of_kind(
 
                 // topic
                 {
-                    // Check if all entitities have 'active' status
                     bool change_status = true;
-                    for (const auto& entity_it : datareader->topic->data_readers)
+
+                    // If the entity now is active, the subentity must being active.
+                    // But if the subentity is already active, is not necessary to change it status.
+                    if (active && datareader->topic->active)
                     {
-                        if (entity_it.second->active != active)
-                        {
-                            change_status = false;
-                        }
+                        change_status = false;
                     }
-                    if (change_status)
+                    // If the entity now is inactive, check if one reference of the subentity is active.
+                    // If one is still active, the status of the subentity is not changed
+                    else if (!active)
                     {
-                        for (const auto& entity_it : datareader->topic->data_writers)
+                        for (const auto& entity_it : datareader->topic->data_readers)
                         {
-                            if (entity_it.second->active != active)
+                            if (entity_it.second->active)
                             {
                                 change_status = false;
                             }
                         }
-                        if (change_status)
+                        for (const auto& entity_it : datareader->topic->data_writers)
                         {
-                            change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind,
-                                    datareader->participant->domain->id);
+                            if (entity_it.second->active)
+                            {
+                                change_status = false;
+                            }
                         }
+                    }
+
+                    if (change_status)
+                    {
+                        change_entity_status_of_kind(datareader->topic->id, active, datareader->topic->kind,
+                                datareader->participant->domain->id);
                     }
                 }
             }

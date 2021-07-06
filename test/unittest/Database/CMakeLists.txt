@@ -589,8 +589,6 @@ set(DATABASE_STATUS_TEST_LIST
     domain
     topic
     participant
-    datawriter
-    datareader
     endpoints
     locator
 )

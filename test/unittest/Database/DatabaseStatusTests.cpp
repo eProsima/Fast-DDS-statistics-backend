@@ -44,6 +44,16 @@ public:
         std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
         details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
+        // Simulate the discover of the entitiy
+        host->active = false;
+        db.change_entity_status_test(host->id, true, domain->id);
+        user->active = false;
+        db.change_entity_status_test(user->id, true, domain->id);
+        process->active = false;
+        db.change_entity_status_test(process->id, true, domain->id);
+        topic->active = false;
+        db.change_entity_status_test(topic->id, true, domain->id);
+
         // Simulate the discover of the entities
         details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
                 host->id,
@@ -104,6 +114,7 @@ TEST_F(database_status_tests, host)
     ASSERT_DEATH(db.change_entity_status(host->id, false), "");
 #endif // ifndef NDEBUG
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(host->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
@@ -116,6 +127,7 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(host->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -128,10 +140,12 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto host1 = std::make_shared<Host>("host1");
     db.insert(host1);
     ASSERT_TRUE(host1->active);
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(host->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
@@ -145,7 +159,51 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(host1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(host->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(host1->active);
+
+    // Deactivate both entity will only deactivate itselfs
+    db.change_entity_status_test(host->id, false, domain->id);
+    db.change_entity_status_test(host1->id, false, domain->id);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(host1->active);
+
+    // Activate one entity will only activate itself
+    db.change_entity_status_test(host->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(host1->active);
+
+    // Activate other entity will only activate itself
+    db.change_entity_status_test(host1->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -165,6 +223,7 @@ TEST_F(database_status_tests, user)
     ASSERT_DEATH(db.change_entity_status(user->id, false), "");
 #endif // ifndef NDEBUG
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(user->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
@@ -177,6 +236,7 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(user->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -189,10 +249,12 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto user1 = std::make_shared<User>("user1", host);
     db.insert(user1);
     ASSERT_TRUE(user1->active);
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(user->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -206,7 +268,51 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(user1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(user->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(user1->active);
+
+    // Deactivate both entities will deactivate subentities
+    db.change_entity_status_test(user->id, false, domain->id);
+    db.change_entity_status_test(user1->id, false, domain->id);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(user1->active);
+
+    // Activate one entity will activate subentities
+    db.change_entity_status_test(user->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(user1->active);
+
+    // Activate other entity will only activate itself
+    db.change_entity_status_test(user1->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -226,6 +332,7 @@ TEST_F(database_status_tests, process)
     ASSERT_DEATH(db.change_entity_status(process->id, false), "");
 #endif // ifndef NDEBUG
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(process->id, false, domain->id);
 
     ASSERT_FALSE(host->active);
@@ -238,6 +345,7 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(process->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -250,10 +358,12 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto process1 = std::make_shared<Process>("process1", "123", user);
     db.insert(process1);
     ASSERT_TRUE(process1->active);
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(process->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -267,7 +377,51 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(process1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(process->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(process1->active);
+
+    // Deactivate both entities will deactivate subentities
+    db.change_entity_status_test(process->id, false, domain->id);
+    db.change_entity_status_test(process1->id, false, domain->id);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(process1->active);
+
+    // Activate one entity will activate subentities
+    db.change_entity_status_test(process->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(process1->active);
+
+    // Activate other entity will only activate itself
+    db.change_entity_status_test(process1->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -283,6 +437,7 @@ TEST_F(database_status_tests, process)
 
 TEST_F(database_status_tests, domain)
 {
+    // Deactivate entity will only deactivate itself
     db.change_entity_status(domain->id, false);
 
     ASSERT_TRUE(host->active);
@@ -295,6 +450,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status(domain->id, true);
 
     ASSERT_TRUE(host->active);
@@ -307,10 +463,12 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto domain1 = std::make_shared<Domain>("domain1");
     db.insert(domain1);
     ASSERT_TRUE(domain1->active);
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status(domain->id, false);
 
     ASSERT_TRUE(host->active);
@@ -324,7 +482,51 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(domain1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status(domain->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(domain1->active);
+
+    // Deactivate both entity will only deactivate itselfs
+    db.change_entity_status_test(domain->id, false, domain->id);
+    db.change_entity_status_test(domain1->id, false, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_FALSE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(domain1->active);
+
+    // Activate one entity will only activate itself
+    db.change_entity_status_test(domain->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(domain1->active);
+
+    // Activate other entity will only activate itself
+    db.change_entity_status_test(domain1->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -344,6 +546,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_DEATH(db.change_entity_status(topic->id, false), "");
 #endif // ifndef NDEBUG
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(topic->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -356,6 +559,7 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(topic->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -368,10 +572,12 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto topic1 = std::make_shared<Topic>("topic1", "type", domain);
     db.insert(topic1);
     ASSERT_TRUE(topic1->active);
 
+    // Deactivate entity will only deactivate itself
     db.change_entity_status_test(topic->id, false, domain->id);
 
     ASSERT_TRUE(host->active);
@@ -385,7 +591,51 @@ TEST_F(database_status_tests, topic)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(topic1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status_test(topic->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(topic1->active);
+
+    // Deactivate both entity will only deactivate itselfs
+    db.change_entity_status_test(topic->id, false, domain->id);
+    db.change_entity_status_test(topic1->id, false, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_FALSE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(topic1->active);
+
+    // Activate one entity will only activate itself
+    db.change_entity_status_test(topic->id, true, domain->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(topic1->active);
+
+    // Activate other entity will only activate itself
+    db.change_entity_status_test(topic1->id, true, domain->id);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -401,6 +651,7 @@ TEST_F(database_status_tests, topic)
 
 TEST_F(database_status_tests, participant)
 {
+    // Deactivate entity will deactivate subentities
     db.change_entity_status(participant->id, false);
 
     ASSERT_FALSE(host->active);
@@ -413,6 +664,7 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // Activate entity will activate subentities
     db.change_entity_status(participant->id, true);
 
     ASSERT_TRUE(host->active);
@@ -425,12 +677,14 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
+    // The new entity will be active
     auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
                     "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
     ASSERT_TRUE(participant1->active);
 
+    // Deactivate new entity will only deactivate itself
     db.change_entity_status(participant1->id, false);
 
     ASSERT_TRUE(host->active);
@@ -444,7 +698,37 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(locator->active);
     ASSERT_FALSE(participant1->active);
 
+    // Activate new entity will activate itself
     db.change_entity_status(participant1->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(participant1->active);
+
+    // Deactivate entity will deactivate subentities
+    // This is because the new entity is not already linked with subentities
+    db.change_entity_status(participant->id, false);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(participant1->active);
+
+    // Activate entity will activate subentities
+    db.change_entity_status(participant->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -459,6 +743,8 @@ TEST_F(database_status_tests, participant)
 
     db.link_participant_with_process(participant1->id, process->id);
 
+    // Link of the new entity done
+    // Deactivate entity will not deactivate subentities
     db.change_entity_status(participant->id, false);
 
     ASSERT_TRUE(host->active);
@@ -472,7 +758,51 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(participant1->active);
 
+    // Activate entity will only activate itself
     db.change_entity_status(participant->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(participant1->active);
+
+    // Deactivate both entities, will deactivate subentities
+    db.change_entity_status(participant->id, false);
+    db.change_entity_status(participant1->id, false);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(participant1->active);
+
+    // Activate one entity, will activate subentities
+    db.change_entity_status(participant->id, true);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_TRUE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_FALSE(participant1->active);
+
+    // Activate other entity, will only activate itself
+    db.change_entity_status(participant1->id, true);
 
     ASSERT_TRUE(host->active);
     ASSERT_TRUE(user->active);
@@ -486,160 +816,127 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(participant1->active);
 }
 
-TEST_F(database_status_tests, datawriter)
-{
-    db.change_entity_status(datawriter->id, false);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_FALSE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    db.change_entity_status(datawriter->id, true);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant, topic);
-    auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
-    writer_locator1->id = db.generate_entity_id();
-    datawriter1->locators[writer_locator1->id] = writer_locator1;
-    db.insert(datawriter1);
-    ASSERT_TRUE(datawriter1->active);
-    ASSERT_TRUE(writer_locator1->active);
-
-    db.change_entity_status(datawriter->id, false);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_FALSE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datawriter1->active);
-    ASSERT_TRUE(writer_locator1->active);
-
-    db.change_entity_status(datawriter->id, true);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datawriter1->active);
-    ASSERT_TRUE(writer_locator1->active);
-}
-
-TEST_F(database_status_tests, datareader)
-{
-    db.change_entity_status(datareader->id, false);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_FALSE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    db.change_entity_status(datareader->id, true);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant, topic);
-    auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
-    reader_locator1->id = db.generate_entity_id();
-    datareader1->locators[reader_locator1->id] = reader_locator1;
-    db.insert(datareader1);
-    ASSERT_TRUE(datareader1->active);
-    ASSERT_TRUE(reader_locator1->active);
-
-    db.change_entity_status(datareader->id, false);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_FALSE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datareader1->active);
-    ASSERT_TRUE(reader_locator1->active);
-
-    db.change_entity_status(datareader->id, true);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datareader1->active);
-    ASSERT_TRUE(reader_locator1->active);
-}
-
 TEST_F(database_status_tests, endpoints)
 {
-    db.change_entity_status(datawriter->id, false);
-    db.change_entity_status(datareader->id, false);
+    // 1. datawriter->active = false
+    // 2. datareader->active = false
+    // 3. datawriter->active = true
+    // 4. datareader->active = true
+    {
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datawriter->id, false);
 
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_FALSE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_FALSE(datawriter->active);
-    ASSERT_FALSE(datareader->active);
-    ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
 
-    db.change_entity_status(datawriter->id, true);
-    db.change_entity_status(datareader->id, true);
+        // Deactivate both endpoints will deactivate topic
+        db.change_entity_status(datareader->id, false);
 
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_FALSE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
 
+        // Activate one endpoint will activate topic
+        db.change_entity_status(datawriter->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+
+        // Activate other endpoint will onlny activate itself
+        db.change_entity_status(datareader->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+    }
+
+    // Same that above but on inversal order
+
+    // 1. datareader->active = false
+    // 2. datawriter->active = false
+    // 3. datareader->active = true
+    // 4. datawriter->active = true
+    {
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datareader->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+
+        // Deactivate both endpoints will deactivate topic
+        db.change_entity_status(datawriter->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_FALSE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+
+        // Activate one endpoint will activate topic
+        db.change_entity_status(datareader->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+
+        // Activate other endpoint will onlny activate itself
+        db.change_entity_status(datawriter->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+    }
+
+    // The new entities will be active
     auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant, topic);
     auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
     writer_locator1->id = db.generate_entity_id();
@@ -656,39 +953,299 @@ TEST_F(database_status_tests, endpoints)
     ASSERT_TRUE(datareader1->active);
     ASSERT_TRUE(reader_locator1->active);
 
-    db.change_entity_status(datawriter->id, false);
-    db.change_entity_status(datareader->id, false);
+    // 1. datawriter->active = false
+    // 2. datawriter1->active = false
+    // 3. datareader->active = false
+    // 4. datareader1->active = false
+    // 5. datawriter->active = true
+    // 6. datawriter1->active = true
+    // 7. datareader->active = true
+    // 8. datareader1->active = true
+    {
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datawriter->id, false);
 
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_FALSE(datawriter->active);
-    ASSERT_FALSE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datareader1->active);
-    ASSERT_TRUE(reader_locator1->active);
-    ASSERT_TRUE(datawriter1->active);
-    ASSERT_TRUE(writer_locator1->active);
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
 
-    db.change_entity_status(datawriter->id, true);
-    db.change_entity_status(datareader->id, true);
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datawriter1->id, false);
 
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_TRUE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(datareader1->active);
-    ASSERT_TRUE(reader_locator1->active);
-    ASSERT_TRUE(datawriter1->active);
-    ASSERT_TRUE(writer_locator1->active);
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datareader->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Deactivate all endpoints will deactivate topic
+        db.change_entity_status(datareader1->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_FALSE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will activate topic
+        db.change_entity_status(datawriter->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datawriter1->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datareader->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datareader1->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+    }
+
+    // Same that above but on inversal order
+
+    // 1. datareader->active = false
+    // 2. datareader1->active = false
+    // 3. datawriter->active = false
+    // 4. datawriter1->active = false
+    // 5. datareader->active = true
+    // 6. datareader1->active = true
+    // 7. datawriter->active = true
+    // 8. datawriter1->active = true
+    {
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datareader->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datareader1->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Deactivate one endpoint will only deactivate itself
+        db.change_entity_status(datawriter->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Deactivate all endpoints will deactivate topic
+        db.change_entity_status(datawriter1->id, false);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_FALSE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_FALSE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will activate topic
+        db.change_entity_status(datareader->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_FALSE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datareader1->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_FALSE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datawriter->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_FALSE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+
+        // Activate one endpoint will only activate itself
+        db.change_entity_status(datawriter1->id, true);
+
+        ASSERT_TRUE(host->active);
+        ASSERT_TRUE(user->active);
+        ASSERT_TRUE(process->active);
+        ASSERT_TRUE(domain->active);
+        ASSERT_TRUE(topic->active);
+        ASSERT_TRUE(participant->active);
+        ASSERT_TRUE(datawriter->active);
+        ASSERT_TRUE(datareader->active);
+        ASSERT_TRUE(locator->active);
+        ASSERT_TRUE(datareader1->active);
+        ASSERT_TRUE(reader_locator1->active);
+        ASSERT_TRUE(datawriter1->active);
+        ASSERT_TRUE(writer_locator1->active);
+    }
 }
 
 TEST_F(database_status_tests, locator)
