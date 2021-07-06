@@ -1150,6 +1150,10 @@ void Database::link_participant_with_process_nts(
         {
             change_entity_status_of_kind(participant->process->id, true, EntityKind::PROCESS, domain_id);
         }
+        else if (!participant->process->user->active)
+        {
+            change_entity_status_of_kind(participant->process->user->id, true, EntityKind::USER, domain_id);
+        }
     }
 }
 

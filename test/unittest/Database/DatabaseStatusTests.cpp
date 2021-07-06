@@ -946,6 +946,59 @@ TEST_F(database_status_tests, link_inactive_participant_with_inactive_process)
     ASSERT_FALSE(participant1->active);
 }
 
+TEST_F(database_status_tests, link_participant_with_process_inactive_user)
+{
+    // Deactivate entity will deactivate subentities
+    db.change_entity_status(participant->id, false);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+
+    // The new entity will be active
+    auto process1 = std::make_shared<Process>("process1", "123", user);
+    db.insert(process1);
+    ASSERT_TRUE(process1->active);
+
+    // The new entity will be active
+    auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
+                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                    domain);
+    db.insert(participant1);
+    ASSERT_TRUE(participant1->active);
+
+    ASSERT_FALSE(host->active);
+    ASSERT_FALSE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+
+    // Link participant will modify subentities status
+    db.link_participant_with_process(participant1->id, process1->id);
+
+    ASSERT_TRUE(host->active);
+    ASSERT_TRUE(user->active);
+    ASSERT_FALSE(process->active);
+    ASSERT_TRUE(domain->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_TRUE(datawriter->active);
+    ASSERT_TRUE(datareader->active);
+    ASSERT_TRUE(locator->active);
+    ASSERT_TRUE(process1->active);
+    ASSERT_TRUE(participant1->active);
+}
+
 TEST_F(database_status_tests, endpoints)
 {
     // 1. datawriter->active = false
