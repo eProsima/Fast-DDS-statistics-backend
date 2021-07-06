@@ -1142,6 +1142,15 @@ void Database::link_participant_with_process_nts(
 
     /* Add entry to processes_by_domain_ */
     processes_by_domain_[domain_id][process_it->first] = process_it->second;
+
+    // If the participant is active, the process must be active
+    if (participant->active)
+    {
+        if (!participant->process->active)
+        {
+            change_entity_status_of_kind(participant->process->id, true, EntityKind::PROCESS, domain_id);
+        }
+    }
 }
 
 const std::shared_ptr<const Entity> Database::get_entity(
@@ -4297,8 +4306,6 @@ void Database::change_entity_status_of_kind(
         const EntityKind& entity_kind,
         const EntityId& domain_id) noexcept
 {
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-
     switch (entity_kind)
     {
         case EntityKind::HOST:
@@ -4651,6 +4658,8 @@ void Database::change_entity_status(
     assert(
         entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
         entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 

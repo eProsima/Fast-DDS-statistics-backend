@@ -589,6 +589,9 @@ set(DATABASE_STATUS_TEST_LIST
     domain
     topic
     participant
+    link_active_participant_with_inactive_process
+    link_inactive_participant_with_active_process
+    link_inactive_participant_with_inactive_process
     endpoints
     locator
 )
