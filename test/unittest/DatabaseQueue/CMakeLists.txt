@@ -74,6 +74,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_network_latency
         push_network_latency_no_source_locator
         push_network_latency_no_destination_locator
+        push_network_latency_no_locators
         push_publication_throughput
         push_publication_throughput_no_writer
         push_subscription_throughput

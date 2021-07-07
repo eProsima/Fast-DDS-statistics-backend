@@ -1548,11 +1548,29 @@ TEST_F(database_queue_tests, push_network_latency_no_source_locator)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
-    // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    // Expectation: The insert entity method is called, the source locator is inserted
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Return(EntityId(1)));
 
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, -1);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
+                EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+            .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(-1), EntityId(1), DataKind::NETWORK_LATENCY)).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
@@ -1600,11 +1618,100 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
-    // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    // Expectation: The insert entity method is called, the destination locator is inserted
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Return(EntityId(2)));
 
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
+                EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+            .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::NETWORK_LATENCY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_network_latency_no_locators)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    uint32_t src_locator_port = 1024;
+    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the source locator
+    DatabaseDataQueue::StatisticsLocator src_locator;
+    src_locator.kind(LOCATOR_KIND_TCPv4);
+    src_locator.port(src_locator_port);
+    src_locator.address(src_locator_address);
+
+    // Build the destination locator
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    inner_data.data(1.0);
+    inner_data.src_locator(src_locator);
+    inner_data.dst_locator(dst_locator);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->locator2locator_data(inner_data);
+    data->_d(EventKind::NETWORK_LATENCY);
+
+    // Precondition: The source locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The destination locator does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Expectation: The insert entity method is called, the locators are inserted
+    EXPECT_CALL(database, insert(_)).Times(2)
+            .WillOnce(Return(EntityId(1)))
+            .WillOnce(Return(EntityId(2)));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 2);
+                EXPECT_EQ(domain_id, -1);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
+                EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 1);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+            .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(-1), EntityId(2), DataKind::NETWORK_LATENCY)).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);

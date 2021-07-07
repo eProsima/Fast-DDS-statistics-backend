@@ -535,18 +535,31 @@ void Database::insert_nts(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+            /* Check that the entity is a known locator */
+            auto locator_it = locators_.find(entity_id);
+            if (locator_it != locators_.end())
+            {
+                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                /* Check that the remote entity is a known locator */
+                if (locators_.find(network_latency.remote_locator) != locators_.end())
+                {
+                    locator_it->second->data.network_latency_per_locator[network_latency.remote_locator].push_back(
+                        network_latency);
+                }
+                else
+                {
+                    throw BadParameter(std::to_string(
+                                      network_latency.remote_locator.value()) +
+                                  " does not refer to a known locator");
+                }
 
-            // Create locator if it does not exist
-            std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
-
-            // Create remote_locator if it does not exist
-            get_locator_nts(network_latency.remote_locator);
-
-            // Add the info to the locator
-            locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
-
-            break;
+                break;
+            }
+            else
+            {
+                throw BadParameter(std::to_string(
+                                  entity_id.value()) + " does not refer to a known locator");
+            }
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {

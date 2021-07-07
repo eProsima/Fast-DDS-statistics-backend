@@ -297,6 +297,7 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_several_monitors
     init_monitor_twice
     stop_monitor
+    monitor_data
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

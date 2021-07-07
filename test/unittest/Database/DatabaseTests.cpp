@@ -1773,13 +1773,8 @@ TEST_F(database_tests, insert_sample_network_latency_unknown_locator)
 
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
-    ASSERT_NO_THROW(db.insert(domain_id, locator_id, sample));
-    ASSERT_NO_THROW(db.get_entity(locator_id));
-    auto locator = db.locators().at(locator_id);
-
-    ASSERT_EQ(locator->data.network_latency_per_locator[reader_locator->id].size(), 1);
-    ASSERT_EQ(locator->data.network_latency_per_locator[reader_locator->id][0],
-            static_cast<EntityDataSample>(sample));
+    ASSERT_THROW(db.insert(domain_id, locator_id, sample), BadParameter);
+    ASSERT_THROW(db.get_entity(locator_id), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_remote_locator)
@@ -1790,12 +1785,8 @@ TEST_F(database_tests, insert_sample_network_latency_unknown_remote_locator)
     sample.data = 12;
 
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
-    ASSERT_NO_THROW(db.insert(domain_id, writer_locator->id, sample));
-    ASSERT_NO_THROW(db.get_entity(remote_id));
-
-    ASSERT_EQ(writer_locator->data.network_latency_per_locator[remote_id].size(), 1);
-    ASSERT_EQ(writer_locator->data.network_latency_per_locator[remote_id][0],
-            static_cast<EntityDataSample>(sample));
+    ASSERT_THROW(db.insert(domain_id, writer_locator->id, sample), BadParameter);
+    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
@@ -1808,14 +1799,9 @@ TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
-    ASSERT_NO_THROW(db.insert(domain_id, locator_id, sample));
-    ASSERT_NO_THROW(db.get_entity(locator_id));
-    ASSERT_NO_THROW(db.get_entity(remote_id));
-    auto locator = db.locators().at(locator_id);
-
-    ASSERT_EQ(locator->data.network_latency_per_locator[remote_id].size(), 1);
-    ASSERT_EQ(locator->data.network_latency_per_locator[remote_id][0],
-            static_cast<EntityDataSample>(sample));
+    ASSERT_THROW(db.insert(domain_id, locator_id, sample), BadParameter);
+    ASSERT_THROW(db.get_entity(locator_id), BadParameter);
+    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput)
@@ -2325,7 +2311,7 @@ TEST_F(database_tests, insert_sample_valid_wrong_domain)
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, history_lantency_sample), BadParameter);
 
     NetworkLatencySample network_lantency_sample;
-    ASSERT_NO_THROW(db.insert(db.generate_entity_id(), writer_locator->id, network_lantency_sample));
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_locator->id, network_lantency_sample), BadParameter);
 
     PublicationThroughputSample pub_throughput_sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, pub_throughput_sample), BadParameter);

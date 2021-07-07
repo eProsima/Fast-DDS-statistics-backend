@@ -71,20 +71,35 @@ void DatabaseDataQueue::process_sample_type(
     sample.data = item.data();
     std::string remote_locator = deserialize_locator(item.dst_locator());
     auto found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator);
+
+    // If the remote locator has not been discovered, create it
     if (found_remote_locators.empty())
     {
-        throw Error("Locator " + remote_locator + " not found");
+        // Give him a unique name
+        std::shared_ptr<Locator> locator = std::make_shared<Locator>(remote_locator);
+        sample.remote_locator =  database_->insert(locator);
     }
-    sample.remote_locator = found_remote_locators.front().second;
+    else
+    {
+        sample.remote_locator = found_remote_locators.front().second;
+    }
 
     std::string source_locator = deserialize_locator(item.src_locator());
     auto found_entities = database_->get_entities_by_name(entity_kind, source_locator);
+
+    // If the source locator has not been discovered, create it
     if (found_entities.empty())
     {
-        throw Error("Entity " + source_locator + " not found");
+        // Give him a unique name
+        std::shared_ptr<Locator> locator = std::make_shared<Locator>(source_locator);
+        domain = EntityId::invalid();
+        entity = database_->insert(locator);
     }
-    domain = found_entities.front().first;
-    entity = found_entities.front().second;
+    else
+    {
+        domain = found_entities.front().first;
+        entity = found_entities.front().second;
+    }
 }
 
 template<>
