@@ -505,7 +505,7 @@ std::shared_ptr<Locator> Database::get_locator_nts(
 }
 
 void Database::notify_locator_discovery (
-        EntityId locator_id)
+        const EntityId& locator_id)
 {
     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
         locator_id, EntityKind::LOCATOR,

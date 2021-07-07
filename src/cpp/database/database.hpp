@@ -548,7 +548,7 @@ protected:
      * @param locator_id The ID of the discovered locator.
      */
     void notify_locator_discovery (
-            EntityId locator_id);
+            const EntityId& locator_id);
 
     /**
      * @brief Get a dump of an Entity stored in the database.
