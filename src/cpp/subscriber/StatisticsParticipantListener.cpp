@@ -391,6 +391,8 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
         else
         {
+            // Start the data consumer again before reporting error
+            data_queue_->start_consumer();
             throw BadParameter("Update or undiscover a participant which is not in the database");
         }
     }
@@ -404,14 +406,14 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         DomainParticipant* participant,
         ReaderDiscoveryInfo&& info)
 {
-    // First stop the data queue until the new entity is created
-    data_queue_->stop_consumer();
-
     // Filter out our own statistics readers
     if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
     {
         return;
     }
+
+    // First stop the data queue until the new entity is created
+    data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
@@ -457,6 +459,8 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         }
         else
         {
+            // Start the data consumer again before reporting error
+            data_queue_->start_consumer();
             throw BadParameter("Update or undiscover a subscriber which is not in the database");
         }
     }
@@ -472,14 +476,14 @@ void StatisticsParticipantListener::on_publisher_discovery(
 {
     static_cast<void>(participant);
 
-    // First stop the data queue until the new entity is created
-    data_queue_->stop_consumer();
-
     // Filter out other statistics writers
     if (is_statistics_builtin(info.info.guid().entityId))
     {
         return;
     }
+
+    // First stop the data queue until the new entity is created
+    data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
@@ -525,6 +529,8 @@ void StatisticsParticipantListener::on_publisher_discovery(
         }
         else
         {
+            // Start the data consumer again before reporting error
+            data_queue_->start_consumer();
             throw BadParameter("Update or undiscover a publichser which is not in the database");
         }
     }
