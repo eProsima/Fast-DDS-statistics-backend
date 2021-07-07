@@ -219,7 +219,8 @@ public:
      * @return A constant shared pointer to the Entity.
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const;
+            const EntityId& entity_id,
+            const EntityKind entity_kind = EntityKind::INVALID) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity.
