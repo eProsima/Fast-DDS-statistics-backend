@@ -101,16 +101,28 @@ void StatisticsBackendData::on_data_available(
         EntityId entity_id,
         DataKind data_kind)
 {
-    auto monitor = monitors_by_entity_.find(domain_id);
-    assert(monitor != monitors_by_entity_.end());
-
-    if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
+    // If data_kind is of type NETWORK_LATENCY, the domain_id is not knew,
+    // because this data came from a locator, and locators are not associated with any domain.
+    if (data_kind == DataKind::NETWORK_LATENCY )
     {
-        monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
+        if (should_call_physical_listener(CallbackKind::ON_DATA_AVAILABLE, data_kind))
+        {
+            physical_listener_->on_data_available(EntityId::invalid(), entity_id, data_kind);
+        }
     }
-    else if (should_call_physical_listener(CallbackKind::ON_DATA_AVAILABLE, data_kind))
+    else
     {
-        physical_listener_->on_data_available(domain_id, entity_id, data_kind);
+        auto monitor = monitors_by_entity_.find(domain_id);
+        assert(monitor != monitors_by_entity_.end());
+
+        if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
+        {
+            monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
+        }
+        else if (should_call_physical_listener(CallbackKind::ON_DATA_AVAILABLE, data_kind))
+        {
+            physical_listener_->on_data_available(domain_id, entity_id, data_kind);
+        }
     }
 }
 

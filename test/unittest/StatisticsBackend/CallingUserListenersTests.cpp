@@ -197,10 +197,10 @@ public:
                 EntityId,
                 EntityId,
                 const DomainListener::Status&)
-    {
-    },
+            {
+            },
             details::StatisticsBackendData::DiscoveryStatus const& discovery_status
-            = details::StatisticsBackendData::DISCOVERY)
+                = details::StatisticsBackendData::DISCOVERY)
     {
         // Set the callback of the expectations
         discovery_args_.callback_ = checker;
@@ -530,8 +530,8 @@ public:
                 EntityId,
                 EntityId,
                 const DomainListener::Status&)
-    {
-    })
+            {
+            })
     {
         // Set the callback of the expectations
         discovery_args_.callback_ = checker;
@@ -1214,14 +1214,30 @@ public:
 
         if (listener_kind == PHYSICAL)
         {
-            EXPECT_CALL(physical_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
+            if (data_kind_ != DataKind::NETWORK_LATENCY)
+            {
+                EXPECT_CALL(physical_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
+            }
+            else
+            {
+                EXPECT_CALL(physical_listener_,
+                        on_data_available(EntityId::invalid(), EntityId(1), data_kind_)).Times(1);
+            }
             EXPECT_CALL(domain_listener_, on_data_available(_, _, _)).Times(0);
-
         }
         else if (listener_kind == DOMAIN)
         {
-            EXPECT_CALL(physical_listener_, on_data_available(_, _, _)).Times(0);
-            EXPECT_CALL(domain_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
+            if (data_kind_ != DataKind::NETWORK_LATENCY)
+            {
+                EXPECT_CALL(physical_listener_, on_data_available(_, _, _)).Times(0);
+                EXPECT_CALL(domain_listener_, on_data_available(monitor_id_, EntityId(1), data_kind_)).Times(1);
+            }
+            else
+            {
+                EXPECT_CALL(physical_listener_,
+                        on_data_available(EntityId::invalid(), EntityId(1), data_kind_)).Times(1);
+                EXPECT_CALL(domain_listener_, on_data_available(_, _, _)).Times(0);
+            }
         }
         else
         {

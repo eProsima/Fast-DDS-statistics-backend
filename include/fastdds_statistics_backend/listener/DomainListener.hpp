@@ -168,7 +168,9 @@ public:
     /*!
      * This function is called when a new data sample is available.
      *
-     * @param domain_id Entity ID of the domain to which the data belongs.
+     * @param domain_id Entity ID of the domain to which the data belongs. If data_kind is NETWORK_LATENCY,
+     * this id is EntityId::invalid(), because this data_kind came from a locator,
+     * and locators are not associated with any domain.
      * @param entity_id Entity ID of the entity to which the data refers.
      * @param data_kind Data kind of the received data.
      */
