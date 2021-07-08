@@ -1495,22 +1495,28 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    if (DataKind::INVALID == data_type)
-    {
-        throw BadParameter("Incorrect DataKind");
-    }
-
     std::shared_ptr<const eprosima::statistics_backend::database::Entity> source_entity;
     std::shared_ptr<const eprosima::statistics_backend::database::Entity> target_entity;
+
+    EntityKind last_iteration_kind_source = EntityKind::INVALID;
+    EntityKind last_iteration_kind_target = EntityKind::INVALID;
 
     for (auto kinds : StatisticsBackend::get_data_supported_entity_kinds(data_type))
     {
         try
         {
-            source_entity = get_entity(entity_id_source, kinds.first);
-            target_entity = get_entity(entity_id_source, kinds.second);
+            // In case the kind is the same as the last iteration and the entity was already found
+            // do not look for it again
+            if (!source_entity || last_iteration_kind_source != kinds.first)
+            {
+                source_entity = get_entity(entity_id_source, kinds.first);
+            }
+            if (!target_entity || last_iteration_kind_target != kinds.second)
+            {
+                target_entity = get_entity(entity_id_target, kinds.second);
+            }
         }
-        catch(const std::exception& e)
+        catch (const std::exception& e)
         {
             // It has not found the entity, check next kinds possibility
             continue;
@@ -1520,28 +1526,9 @@ std::vector<const StatisticsSample*> Database::select(
         break;
     }
 
-    std::cout << "select0: " << source_entity << std::endl;
-    std::cout << "select0: " << target_entity << std::endl;
-    if (source_entity)
+    if (!source_entity || !target_entity)
     {
-        std::cout << "-- select000: " << std::endl;
-    }
-    if (!source_entity)
-    {
-        std::cout << "-- select1111: " << std::endl;
-    }
-
-    assert(source_entity);
-    assert(target_entity);
-    assert(!source_entity);
-
-    if (source_entity)
-    {
-        std::cout << "-- select000: " << std::endl;
-    }
-    if (!source_entity)
-    {
-        std::cout << "-- select1111: " << std::endl;
+        throw BadParameter("Entity not found in required EntityKind for this DataKind");
     }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
@@ -1725,11 +1712,6 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    if (DataKind::INVALID == data_type)
-    {
-        throw BadParameter("Incorrect DataKind");
-    }
-
     std::shared_ptr<const eprosima::statistics_backend::database::Entity> entity;
 
     for (auto kinds : StatisticsBackend::get_data_supported_entity_kinds(data_type))
@@ -1738,7 +1720,7 @@ std::vector<const StatisticsSample*> Database::select(
         {
             entity = get_entity(entity_id, kinds.first);
         }
-        catch(const std::exception& e)
+        catch (const std::exception& e)
         {
             // It has not found the entity, check next kinds possibility
             continue;
@@ -1748,9 +1730,10 @@ std::vector<const StatisticsSample*> Database::select(
         break;
     }
 
-    std::cout << "select1: " << entity << std::endl;
-
-    assert(entity);
+    if (!entity)
+    {
+        throw BadParameter("Entity not found in required EntityKind for this DataKind");
+    }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
@@ -2026,7 +2009,8 @@ EntityKind Database::get_entity_kind(
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
-        const EntityId& entity_id) const
+        const EntityId& entity_id,
+        EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::shared_ptr<const Entity> origin;
 
@@ -2035,8 +2019,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     {
         // This call will throw BadParameter if there is no such entity.
         // We let this exception through, as it meets expectations
-        origin = get_entity(entity_id);
-        assert(origin->kind != EntityKind::INVALID);
+        origin = get_entity(entity_id, source_entity_kind);
     }
 
     auto entities = get_entities(entity_kind, origin);
@@ -2061,10 +2044,11 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
 
 std::vector<EntityId> Database::get_entity_ids(
         EntityKind entity_kind,
-        const EntityId& entity_id) const
+        const EntityId& entity_id,
+        EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::vector<EntityId> entitiesIds;
-    for (const auto& entity : get_entities(entity_kind, entity_id))
+    for (const auto& entity : get_entities(entity_kind, entity_id, source_entity_kind))
     {
         entitiesIds.push_back(entity->id);
     }
