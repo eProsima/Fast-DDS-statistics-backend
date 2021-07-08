@@ -17,6 +17,8 @@
 #include <gmock/gmock.h>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
@@ -24,6 +26,7 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
+#include <database/entities.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
 
@@ -1454,6 +1457,671 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::SAMPLE_DATAS)
         ));
 
+using ::testing::StrictMock;
+
+class calling_user_listeners_tests_end_to_end : public ::testing::Test
+{
+public:
+
+    calling_user_listeners_tests_end_to_end()
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+        monitor_id_ = StatisticsBackend::init_monitor(0, &domain_listener_, CallbackMask::all(), DataKindMask::all());
+        StatisticsBackend::set_physical_listener(
+            &physical_listener_,
+            CallbackMask::all(),
+            DataKindMask::all());
+
+        // Get the participant listener of the created monitor
+        monitor_ = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_];
+        participant_listener_ = monitor_->participant_listener;
+        reader_listener_ = monitor_->reader_listener;
+        participant_ = monitor_->participant;
+
+        // Initialize other attributes
+        std::stringstream(participant_guid_str_) >> participant_guid_;
+        std::stringstream(datareader_guid_str_) >> datareader_guid_;
+        std::stringstream(datawriter_guid_str_) >> datawriter_guid_;
+
+    }
+
+    ~calling_user_listeners_tests_end_to_end()
+    {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
+        details::StatisticsBackendData::reset_instance();
+    }
+
+    MockedPhysicalListener physical_listener_;
+    MockedDomainListener domain_listener_;
+    EntityId monitor_id_;
+    std::shared_ptr<details::Monitor> monitor_;
+
+    eprosima::fastdds::dds::DomainParticipantListener* participant_listener_;
+    eprosima::fastdds::dds::DataReaderListener* reader_listener_;
+
+    eprosima::fastdds::dds::DomainParticipant* participant_;
+    eprosima::fastrtps::rtps::GUID_t participant_guid_;
+    std::string participant_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.c1";
+    std::string participant_name_ = "Participant";
+
+    eprosima::fastrtps::rtps::GUID_t datareader_guid_;
+    std::string datareader_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.1";
+    eprosima::fastrtps::rtps::GUID_t datawriter_guid_;
+    std::string datawriter_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.2";
+
+    std::string topic_name_ = "Topic";
+    std::string topic_type_ = "DataType";
+
+};
+
+TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
+{
+    /* PARTICIPANT */
+    DomainEntityDiscoveryArgs participant_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&participant_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    // Simulate the discovery of a participant
+    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
+    eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
+    participant_data.m_guid = participant_guid_;
+    participant_data.m_participantName = participant_name_;
+
+    // Finish building the discovered participant info
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
+    participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+
+    // Execution: Call the listener
+    participant_listener_->on_participant_discovery(participant_, std::move(participant_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    // Check that the participant was created OK
+    const std::shared_ptr<const database::DomainParticipant> participant =
+            std::dynamic_pointer_cast<const database::DomainParticipant>(
+        details::StatisticsBackendData::get_instance()->database_->get_entity(participant_discovery_args.
+                discovered_entity_id_));
+    ASSERT_TRUE(participant);
+    ASSERT_TRUE(participant->active);
+    ASSERT_EQ(monitor_id_, participant->domain->id);
+    ASSERT_EQ(participant_guid_str_, participant->guid);
+    ASSERT_EQ(participant_name_, participant->name);
+    ASSERT_EQ(nullptr, participant->process);
+    ASSERT_TRUE(participant->data_readers.empty());
+    ASSERT_TRUE(participant->data_writers.empty());
+
+    /* TOPIC */
+    // the topic will be discovered with the datawriter
+    DomainEntityDiscoveryArgs topic_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&topic_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    /* DATAWRITER */
+    DomainEntityDiscoveryArgs datawriter_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datawriter_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    PhysicalEntityDiscoveryArgs writer_locator_discovery_args([&](
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(1)
+            .WillOnce(Invoke(&writer_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
+
+    // Start building the discovered writer info
+    eprosima::fastrtps::rtps::WriterProxyData writer_data(1, 1);
+
+    // The discovered writer is in the participant
+    writer_data.guid(datawriter_guid_);
+
+    // The discovered writer is in the topic
+    writer_data.topicName(topic_name_);
+    writer_data.typeName(topic_type_);
+
+    // The discovered writer contains the locator
+    eprosima::fastrtps::rtps::Locator_t writer_locator(LOCATOR_KIND_UDPv4, 1024);
+    writer_locator.address[12] = 127;
+    writer_locator.address[15] = 1;
+    writer_data.add_unicast_locator(writer_locator);
+
+    // Finish building the discovered writer info
+    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_info(writer_data);
+    writer_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+
+    // Execution: Call the listener
+    participant_listener_->on_publisher_discovery(participant_, std::move(writer_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    // Check that the writer was created OK
+    const std::shared_ptr<const database::DataWriter> writer =
+            std::dynamic_pointer_cast<const database::DataWriter>(
+        details::StatisticsBackendData::get_instance()->database_->get_entity(datawriter_discovery_args.
+                discovered_entity_id_));
+    ASSERT_TRUE(writer);
+    ASSERT_TRUE(writer->active);
+    ASSERT_EQ(participant->id, writer->participant->id);
+
+    // Check that the topic was created OK
+    ASSERT_TRUE(writer->topic);
+    const std::shared_ptr<const database::Topic> topic = writer->topic;
+    ASSERT_TRUE(topic->active);
+    ASSERT_EQ(monitor_id_, topic->domain->id);
+    ASSERT_EQ(topic_name_, topic->name);
+    ASSERT_EQ(topic_type_, topic->data_type);
+    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    ASSERT_TRUE(topic->data_readers.empty());
+
+    // Check that the locator was created OK
+    ASSERT_EQ(1, writer->locators.size());
+    const std::shared_ptr<const database::Locator> wlocator =
+            writer->locators.begin()->second;
+    ASSERT_TRUE(wlocator->active);
+    std::stringstream s;
+    s << writer_locator;
+    ASSERT_EQ(s.str(), wlocator->name);
+    ASSERT_EQ(1, wlocator->data_writers.size());
+    ASSERT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
+
+    /* DATAREADER */
+    DomainEntityDiscoveryArgs datareader_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datareader_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    PhysicalEntityDiscoveryArgs reader_locator_discovery_args([&](
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(1)
+            .WillOnce(Invoke(&reader_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderProxyData reader_data(1, 1);
+
+    // The discovered reader is in the participant
+    reader_data.guid(datareader_guid_);
+
+    // The discovered reader is in the topic
+    reader_data.topicName(topic_name_);
+    reader_data.typeName(topic_type_);
+
+    // The discovered reader contains the locator
+    eprosima::fastrtps::rtps::Locator_t reader_locator(LOCATOR_KIND_UDPv4, 2048);
+    reader_locator.address[12] = 127;
+    reader_locator.address[15] = 1;
+    reader_data.add_unicast_locator(reader_locator);
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_info(reader_data);
+    reader_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+
+    // Execution: Call the listener
+    participant_listener_->on_subscriber_discovery(participant_, std::move(reader_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    // Check that the reader was created OK
+    const std::shared_ptr<const database::DataReader> reader =
+            std::dynamic_pointer_cast<const database::DataReader>(
+        details::StatisticsBackendData::get_instance()->database_->get_entity(datareader_discovery_args.
+                discovered_entity_id_));
+    ASSERT_TRUE(reader);
+    ASSERT_TRUE(reader->active);
+    ASSERT_EQ(participant->id, reader->participant->id);
+
+    // Check that the topic was created OK
+    ASSERT_TRUE(reader->topic);
+    ASSERT_EQ(writer->topic.get(), reader->topic.get());
+    ASSERT_TRUE(topic->active);
+    ASSERT_EQ(monitor_id_, topic->domain->id);
+    ASSERT_EQ(topic_name_, topic->name);
+    ASSERT_EQ(topic_type_, topic->data_type);
+    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+
+    // Check that the locator was created OK
+    ASSERT_EQ(1, reader->locators.size());
+    const std::shared_ptr<const database::Locator> rlocator =
+            reader->locators.begin()->second;
+    ASSERT_TRUE(rlocator->active);
+    s.str(std::string());
+    s << reader_locator;
+    ASSERT_EQ(s.str(), rlocator->name);
+    ASSERT_EQ(1, rlocator->data_readers.size());
+    ASSERT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
+
+
+    /* A DATAREADER on another topic, on the writer's locator */
+    DomainEntityDiscoveryArgs topic2_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&topic2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs datareader2_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datareader2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    // Start building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderProxyData reader2_data(1, 1);
+
+    // The discovered reader is in the participant
+    eprosima::fastrtps::rtps::GUID_t datareader2_guid_;
+    std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.3") >> datareader2_guid_;
+    reader2_data.guid(datareader2_guid_);
+
+    // The discovered reader is in the topic
+    std::string topic2_name = "Topic2";
+    reader2_data.topicName(topic2_name);
+    reader2_data.typeName(topic_type_);
+
+    // The discovered reader contains the locator
+    reader2_data.add_unicast_locator(writer_locator);
+
+    // Finish building the discovered reader info
+    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_info(reader2_data);
+    reader2_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+
+    // Execution: Call the listener
+    participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    // Check that the reader was created OK
+    const std::shared_ptr<const database::DataReader> reader2 =
+            std::dynamic_pointer_cast<const database::DataReader>(
+        details::StatisticsBackendData::get_instance()->database_->get_entity(datareader2_discovery_args.
+                discovered_entity_id_));
+    ASSERT_TRUE(reader2);
+    ASSERT_TRUE(reader2->active);
+    ASSERT_EQ(participant->id, reader2->participant->id);
+
+    // Check that the topic was created OK
+    ASSERT_TRUE(reader2->topic);
+    const std::shared_ptr<const database::Topic> topic2 = reader2->topic;
+    ASSERT_TRUE(topic2->active);
+    ASSERT_EQ(monitor_id_, topic2->domain->id);
+    ASSERT_EQ(topic2_name, topic2->name);
+    ASSERT_EQ(topic_type_, topic2->data_type);
+    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    ASSERT_TRUE(topic2->data_writers.empty());
+
+    // Check that the locator is OK
+    ASSERT_EQ(1, reader2->locators.size());
+    ASSERT_EQ(wlocator.get(), reader2->locators.begin()->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_EQ(1, wlocator->data_readers.size());
+    ASSERT_EQ(reader2.get(), wlocator->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(1, wlocator->data_writers.size());
+    ASSERT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
+
+    /* A DATAWRITER on the second topic, on the reader's locator */
+    DomainEntityDiscoveryArgs datawriter2_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datawriter2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    // Start building the discovered writer info
+    eprosima::fastrtps::rtps::WriterProxyData writer2_data(1, 1);
+
+    // The discovered writer is in the participant
+    eprosima::fastrtps::rtps::GUID_t datawriter2_guid_;
+    std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.4") >> datawriter2_guid_;
+    writer2_data.guid(datawriter2_guid_);
+
+    // The discovered writer contains the locator
+    writer2_data.add_unicast_locator(reader_locator);
+
+    // The discovered writer is in the topic
+    writer2_data.topicName(topic2_name);
+    writer2_data.typeName(topic_type_);
+
+    // Finish building the discovered writer info
+    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_info(writer2_data);
+    writer2_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+
+    // Execution: Call the listener
+    participant_listener_->on_publisher_discovery(participant_, std::move(writer2_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    // Check that the writer was created OK
+    const std::shared_ptr<const database::DataWriter> writer2 =
+            std::dynamic_pointer_cast<const database::DataWriter>(
+        details::StatisticsBackendData::get_instance()->database_->get_entity(datawriter2_discovery_args.
+                discovered_entity_id_));
+    ASSERT_TRUE(writer2);
+    ASSERT_TRUE(writer2->active);
+    ASSERT_EQ(participant->id, writer2->participant->id);
+
+    // Check that the topic is OK
+    ASSERT_TRUE(writer2->topic);
+    ASSERT_EQ(topic2.get(), writer2->topic.get());
+    ASSERT_TRUE(topic2->active);
+    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+
+    // Check that the locator is OK
+    ASSERT_EQ(1, writer2->locators.size());
+    ASSERT_EQ(rlocator.get(), writer2->locators.begin()->second.get());
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_EQ(1, rlocator->data_readers.size());
+    ASSERT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(1, rlocator->data_writers.size());
+    ASSERT_EQ(writer2.get(), rlocator->data_writers.find(writer2->id)->second.get());
+
+    /* Remove the DATAWRITER and DATAREADER on the first TOPIC */
+    DomainEntityDiscoveryArgs datawriter_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datawriter_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_undiscovery_info (writer_data);
+    writer_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+
+    // Execution: Call the listener
+    participant_listener_->on_publisher_discovery(participant_, std::move(writer_undiscovery_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    ASSERT_FALSE(writer->active);
+    ASSERT_TRUE(reader->active);
+    ASSERT_TRUE(topic->active);
+    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
+
+    DomainEntityDiscoveryArgs datareader_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datareader_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs topic_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&topic_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_undiscovery_info(reader_data);
+    reader_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+
+    // Execution: Call the listener
+    participant_listener_->on_subscriber_discovery(participant_, std::move(reader_undiscovery_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    ASSERT_FALSE(writer->active);
+    ASSERT_FALSE(reader->active);
+    ASSERT_FALSE(topic->active);
+    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
+    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
+
+    /* Remove the DATAWRITER and DATAREADER on the second TOPIC */
+    DomainEntityDiscoveryArgs datawriter2_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datawriter2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_undiscovery_info (writer2_data);
+    writer2_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+
+    // Execution: Call the listener
+    participant_listener_->on_publisher_discovery(participant_, std::move(writer2_undiscovery_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    ASSERT_FALSE(writer2->active);
+    ASSERT_TRUE(reader2->active);
+    ASSERT_TRUE(topic2->active);
+    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+
+    DomainEntityDiscoveryArgs datareader2_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&datareader2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs topic2_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&topic2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_undiscovery_info(reader2_data);
+    reader2_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+
+    // Execution: Call the listener
+    participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_undiscovery_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    ASSERT_FALSE(writer2->active);
+    ASSERT_FALSE(reader2->active);
+    ASSERT_FALSE(topic2->active);
+    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_TRUE(participant->active);
+    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+
+    /* Remove the PARTICIPANT */
+    DomainEntityDiscoveryArgs participant_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&participant_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
+    participant_undiscovery_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
+
+    // Execution: Call the listener
+    participant_listener_->on_participant_discovery(participant_, std::move(participant_undiscovery_info));
+    details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+    ASSERT_FALSE(writer2->active);
+    ASSERT_FALSE(reader2->active);
+    ASSERT_FALSE(topic2->active);
+    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    ASSERT_TRUE(wlocator->active);
+    ASSERT_TRUE(rlocator->active);
+    ASSERT_FALSE(participant->active);
+    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+}
 
 int main(
         int argc,
