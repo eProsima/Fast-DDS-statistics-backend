@@ -45,11 +45,8 @@ public:
         details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
         // Simulate the discover of the entitiy
-        host->active = false;
         db.change_entity_status_test(host->id, true, domain->id);
-        user->active = false;
         db.change_entity_status_test(user->id, true, domain->id);
-        process->active = false;
         db.change_entity_status_test(process->id, true, domain->id);
         topic->active = false;
         db.change_entity_status_test(topic->id, true, domain->id);
@@ -140,9 +137,13 @@ TEST_F(database_status_tests, host)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    // The new entity will be active
+    // The new entity will be inactive
     auto host1 = std::make_shared<Host>("host1");
     db.insert(host1);
+    ASSERT_FALSE(host1->active);
+
+    // Simulate the discover of the entity
+    db.change_entity_status_test(host1->id, true, domain->id);
     ASSERT_TRUE(host1->active);
 
     // Deactivate entity will only deactivate itself
@@ -249,9 +250,13 @@ TEST_F(database_status_tests, user)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    // The new entity will be active
+    // The new entity will be inactive
     auto user1 = std::make_shared<User>("user1", host);
     db.insert(user1);
+    ASSERT_FALSE(user1->active);
+
+    // Simulate the discover of the entity
+    db.change_entity_status_test(user1->id, true, domain->id);
     ASSERT_TRUE(user1->active);
 
     // Deactivate entity will only deactivate itself
@@ -358,9 +363,13 @@ TEST_F(database_status_tests, process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
 
-    // The new entity will be active
+    // The new entity will be inactive
     auto process1 = std::make_shared<Process>("process1", "123", user);
     db.insert(process1);
+    ASSERT_FALSE(process1->active);
+
+    // Simulate the discover of the entity
+    db.change_entity_status_test(process1->id, true, domain->id);
     ASSERT_TRUE(process1->active);
 
     // Deactivate entity will only deactivate itself
@@ -944,59 +953,6 @@ TEST_F(database_status_tests, link_inactive_participant_with_inactive_process)
     ASSERT_TRUE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_FALSE(participant1->active);
-}
-
-TEST_F(database_status_tests, link_participant_with_process_inactive_user)
-{
-    // Deactivate entity will deactivate subentities
-    db.change_entity_status(participant->id, false);
-
-    ASSERT_FALSE(host->active);
-    ASSERT_FALSE(user->active);
-    ASSERT_FALSE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_FALSE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    // The new entity will be active
-    auto process1 = std::make_shared<Process>("process1", "123", user);
-    db.insert(process1);
-    ASSERT_TRUE(process1->active);
-
-    // The new entity will be active
-    auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
-                    domain);
-    db.insert(participant1);
-    ASSERT_TRUE(participant1->active);
-
-    ASSERT_FALSE(host->active);
-    ASSERT_FALSE(user->active);
-    ASSERT_FALSE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_FALSE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-
-    // Link participant will modify subentities status
-    db.link_participant_with_process(participant1->id, process1->id);
-
-    ASSERT_TRUE(host->active);
-    ASSERT_TRUE(user->active);
-    ASSERT_FALSE(process->active);
-    ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
-    ASSERT_FALSE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
-    ASSERT_TRUE(locator->active);
-    ASSERT_TRUE(process1->active);
-    ASSERT_TRUE(participant1->active);
 }
 
 TEST_F(database_status_tests, endpoints)

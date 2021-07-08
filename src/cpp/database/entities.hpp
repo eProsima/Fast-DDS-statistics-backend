@@ -50,11 +50,12 @@ struct Entity
 {
     Entity(
             EntityKind entity_kind = EntityKind::INVALID,
-            std::string entity_name = "INVALID") noexcept
+            std::string entity_name = "INVALID",
+            bool entity_active = true) noexcept
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
-        , active(true)
+        , active(entity_active)
     {
     }
 
@@ -90,7 +91,7 @@ struct Host : Entity
 {
     Host(
             std::string host_name) noexcept
-        : Entity(EntityKind::HOST, host_name)
+        : Entity(EntityKind::HOST, host_name, false)
     {
     }
 
@@ -114,7 +115,7 @@ struct User : Entity
     User(
             std::string user_name,
             std::shared_ptr<Host> user_host) noexcept
-        : Entity(EntityKind::USER, user_name)
+        : Entity(EntityKind::USER, user_name, false)
         , host(user_host)
     {
     }
@@ -143,7 +144,7 @@ struct Process : Entity
             std::string process_name,
             std::string process_id,
             std::shared_ptr<User> process_user) noexcept
-        : Entity(EntityKind::PROCESS, process_name)
+        : Entity(EntityKind::PROCESS, process_name, false)
         , pid(process_id)
         , user(process_user)
     {

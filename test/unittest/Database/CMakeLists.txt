@@ -592,7 +592,6 @@ set(DATABASE_STATUS_TEST_LIST
     link_active_participant_with_inactive_process
     link_inactive_participant_with_active_process
     link_inactive_participant_with_inactive_process
-    link_participant_with_process_inactive_user
     endpoints
     locator
 )
