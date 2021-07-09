@@ -354,17 +354,22 @@ public:
     /**
      * @brief Get a dump of the database.
      *
+     * @param clear If true, clear all the statistics data of all entities.
+     *
      * @return DatabaseDump object representing the backend database.
      */
-    static DatabaseDump dump_database();
+    static DatabaseDump dump_database(
+            bool clear);
 
     /**
      * @brief Dump Fast DDS Statistics Backend's database to a file.
      *
      * @param filename The name of the file where the database is dumped.
+     * @param clear If true, clear all the statistics data of all entities.
      */
     static void dump_database(
-            const std::string& filename);
+            const std::string& filename,
+            bool clear);
 
     /**
      * @brief Load Fast DDS Statistics Backend's database from a file.

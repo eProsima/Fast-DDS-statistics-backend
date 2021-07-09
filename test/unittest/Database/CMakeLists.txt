@@ -409,6 +409,7 @@ set(DATABASE_DUMP_TEST_LIST
     id_to_string
     time_to_string
     dump_no_process_participant_link
+    dump_and_clear_database
     )
 
 foreach(test_name ${DATABASE_DUMP_TEST_LIST})

@@ -19,50 +19,66 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
-void DomainParticipantData::clear()
+void DomainParticipantData::clear(
+        bool clear_last_reported)
 {
-    RTPSData::clear();
+    RTPSData::clear(clear_last_reported);
     discovered_entity.clear();
     pdp_packets.clear();
-    last_reported_pdp_packets.clear();
     edp_packets.clear();
-    last_reported_edp_packets.clear();
+    if (clear_last_reported)
+    {
+        last_reported_pdp_packets.clear();
+        last_reported_edp_packets.clear();
+    }
 }
 
-void DataReaderData::clear()
+void DataReaderData::clear(
+        bool clear_last_reported)
 {
     subscription_throughput.clear();
     acknack_count.clear();
-    last_reported_acknack_count.clear();
     nackfrag_count.clear();
-    last_reported_nackfrag_count.clear();
+    if (clear_last_reported)
+    {
+        last_reported_acknack_count.clear();
+        last_reported_nackfrag_count.clear();
+    }
 }
 
-void RTPSData::clear()
+void RTPSData::clear(
+        bool clear_last_reported)
 {
     rtps_packets_sent.clear();
-    last_reported_rtps_packets_sent_count.clear();
     rtps_bytes_sent.clear();
-    last_reported_rtps_bytes_sent_count.clear();
     rtps_packets_lost.clear();
-    last_reported_rtps_packets_lost_count.clear();
     rtps_bytes_lost.clear();
-    last_reported_rtps_bytes_lost_count.clear();
+    if (clear_last_reported)
+    {
+        last_reported_rtps_packets_sent_count.clear();
+        last_reported_rtps_bytes_sent_count.clear();
+        last_reported_rtps_packets_lost_count.clear();
+        last_reported_rtps_bytes_lost_count.clear();
+    }
 }
 
-void DataWriterData::clear()
+void DataWriterData::clear(
+        bool clear_last_reported)
 {
     history2history_latency.clear();
     publication_throughput.clear();
     resent_datas.clear();
-    last_reported_resent_datas.clear();
     heartbeat_count.clear();
-    last_reported_heartbeat_count.clear();
     gap_count.clear();
-    last_reported_gap_count.clear();
     data_count.clear();
-    last_reported_data_count.clear();
     sample_datas.clear();
+    if (clear_last_reported)
+    {
+        last_reported_resent_datas.clear();
+        last_reported_heartbeat_count.clear();
+        last_reported_gap_count.clear();
+        last_reported_data_count.clear();
+    }
 }
 
 void LocatorData::clear()

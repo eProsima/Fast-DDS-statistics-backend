@@ -2458,8 +2458,11 @@ void Database::insert_ddsendpoint_to_locator(
     locator->data_readers[endpoint->id] = endpoint;
 }
 
-DatabaseDump Database::dump_database()
+DatabaseDump Database::dump_database(
+        bool clear)
 {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+
     DatabaseDump dump = DatabaseDump::object();
 
     // Add version
@@ -2588,6 +2591,11 @@ DatabaseDump Database::dump_database()
         }
 
         dump[LOCATOR_CONTAINER_TAG] = container;
+    }
+
+    if (clear)
+    {
+        clear_statistics_data();
     }
 
     return dump;
@@ -3166,6 +3174,42 @@ DatabaseDump Database::dump_data_(
     }
 
     return data_dump;
+}
+
+void Database::clear_statistics_data()
+{
+    // Participants
+    for (const auto& super_it : participants_)
+    {
+        // For each entity of this kind in the domain
+        for (const auto& it : super_it.second)
+        {
+            it.second->data.clear(false);
+        }
+    }
+    // Datawriters
+    for (const auto& super_it : datawriters_)
+    {
+        // For each entity of this kind in the domain
+        for (const auto& it : super_it.second)
+        {
+            it.second->data.clear(false);
+        }
+    }
+    // Datareaders
+    for (const auto& super_it : datareaders_)
+    {
+        // For each entity of this kind in the domain
+        for (const auto& it : super_it.second)
+        {
+            it.second->data.clear(false);
+        }
+    }
+    // Locators
+    for (const auto& it : locators_)
+    {
+        it.second->data.clear();
+    }
 }
 
 /**
