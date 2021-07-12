@@ -17,8 +17,6 @@
  *
  */
 
-#include <asio.hpp>
-
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
@@ -37,6 +35,8 @@
 #include <condition_variable>
 #include <fstream>
 #include <string>
+
+#include <Host.hpp>
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps;
@@ -366,7 +366,7 @@ int main(
 
     // Generate topic name
     std::ostringstream topic;
-    topic << "HelloWorldTopic_" << ((magic.empty()) ? asio::ip::host_name() : magic) << "_" << seed;
+    topic << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << seed;
 
     SubListener listener;
     StatusMask mask = StatusMask::subscription_matched()
