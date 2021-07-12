@@ -24,7 +24,7 @@ if not publisher_command:
     while publisher_command and (not os.path.isfile(publisher_command) or not os.access(publisher_command,
         os.X_OK)):
         publisher_command = next(pf, None)
-assert publisher_command
+
 subscriber_command = os.environ.get("DDS_SIMPLE_COMMUNICATION_SUBSCRIBER_BIN")
 if not subscriber_command:
     subscriber_files = glob.glob(os.path.join(script_dir, "**/DDSSimpleCommunicationSubscriber*"), recursive=True)
@@ -33,7 +33,6 @@ if not subscriber_command:
     while subscriber_command and (not os.path.isfile(subscriber_command) or not os.access(subscriber_command,
         os.X_OK)):
         subscriber_command = next(pf, None)
-assert subscriber_command
 
 monitor_command = os.environ.get("DDS_SIMPLE_COMMUNICATION_MONITOR_BIN")
 
@@ -127,12 +126,10 @@ def communication(monitor_proc, pid):
     t.join()
 
 monitor_proc_0 = subprocess.Popen([monitor_command, "--seed", str(os.getpid())],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
+                                stdout=subprocess.PIPE)
 
 monitor_proc_1 = subprocess.Popen([monitor_command, "--seed", str(os.getpid() + 1)],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
+                                stdout=subprocess.PIPE)
 
 t_0 = threading.Thread(target=communication, args=(monitor_proc_0,str(os.getpid())))
 t_1 = threading.Thread(target=communication, args=(monitor_proc_1,str(os.getpid() + 1)))
