@@ -4387,8 +4387,6 @@ void Database::change_entity_status_of_kind(
             if (user != nullptr && user->active != active)
             {
                 user->active = active;
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
-                        entity_kind, get_status(active));
 
                 // host
                 {
@@ -4419,6 +4417,10 @@ void Database::change_entity_status_of_kind(
                         change_entity_status_of_kind(user->host->id, active, user->host->kind, domain_id);
                     }
                 }
+
+                // Discovering user after discovering host
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
             }
             break;
         }
@@ -4437,8 +4439,6 @@ void Database::change_entity_status_of_kind(
             if (process != nullptr && process->active != active)
             {
                 process->active = active;
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
-                        entity_kind, get_status(active));
 
                 // user
                 {
@@ -4469,6 +4469,10 @@ void Database::change_entity_status_of_kind(
                         change_entity_status_of_kind(process->user->id, active, process->user->kind, domain_id);
                     }
                 }
+
+                // Discovering process after discovering user
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                        entity_kind, get_status(active));
             }
             break;
         }
