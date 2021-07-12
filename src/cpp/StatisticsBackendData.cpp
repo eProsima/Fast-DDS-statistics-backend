@@ -101,7 +101,7 @@ void StatisticsBackendData::on_data_available(
         EntityId entity_id,
         DataKind data_kind)
 {
-    // If data_kind is of type NETWORK_LATENCY, the domain_id is not knew,
+    // If data_kind is of type NETWORK_LATENCY, the domain_id is not known,
     // because this data came from a locator, and locators are not associated with any domain.
     if (data_kind == DataKind::NETWORK_LATENCY )
     {

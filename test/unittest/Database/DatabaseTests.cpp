@@ -1767,30 +1767,40 @@ TEST_F(database_tests, insert_sample_network_latency)
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_locator)
 {
+#ifndef NDEBUG
+
     NetworkLatencySample sample;
     sample.remote_locator = reader_locator->id;
     sample.data = 12;
 
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
-    ASSERT_THROW(db.insert(domain_id, locator_id, sample), BadParameter);
+    ASSERT_DEATH(db.insert(domain_id, locator_id, sample), "");
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
+
+#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_remote_locator)
 {
+#ifndef NDEBUG
+
     NetworkLatencySample sample;
     EntityId remote_id = db.generate_entity_id();
     sample.remote_locator = remote_id;
     sample.data = 12;
 
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
-    ASSERT_THROW(db.insert(domain_id, writer_locator->id, sample), BadParameter);
+    ASSERT_DEATH(db.insert(domain_id, writer_locator->id, sample), "");
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
+
+#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
 {
+#ifndef NDEBUG
+
     NetworkLatencySample sample;
     EntityId remote_id = db.generate_entity_id();
     sample.remote_locator = remote_id;
@@ -1799,9 +1809,11 @@ TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
-    ASSERT_THROW(db.insert(domain_id, locator_id, sample), BadParameter);
+    ASSERT_DEATH(db.insert(domain_id, locator_id, sample), "");
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
+
+#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput)
@@ -2310,8 +2322,10 @@ TEST_F(database_tests, insert_sample_valid_wrong_domain)
     HistoryLatencySample history_lantency_sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, history_lantency_sample), BadParameter);
 
+#ifndef NDEBUG
     NetworkLatencySample network_lantency_sample;
-    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_locator->id, network_lantency_sample), BadParameter);
+    ASSERT_DEATH(db.insert(db.generate_entity_id(), writer_locator->id, network_lantency_sample), "");
+#endif // ifndef NDEBUG
 
     PublicationThroughputSample pub_throughput_sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, pub_throughput_sample), BadParameter);
