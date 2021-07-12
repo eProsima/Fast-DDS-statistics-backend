@@ -3479,7 +3479,6 @@ TEST_F(database_tests, select_rtps_packets_lost)
 TEST_F(database_tests, select_rtps_bytes_lost)
 {
     data_output.clear();
-    db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts, end_ts);
     ASSERT_NO_THROW(data_output = db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_locator->id, src_ts,
             end_ts));
     EXPECT_EQ(data_output.size(), 0u);

@@ -1498,37 +1498,53 @@ std::vector<const StatisticsSample*> Database::select(
     std::shared_ptr<const eprosima::statistics_backend::database::Entity> source_entity;
     std::shared_ptr<const eprosima::statistics_backend::database::Entity> target_entity;
 
-    EntityKind last_iteration_kind_source = EntityKind::INVALID;
-    EntityKind last_iteration_kind_target = EntityKind::INVALID;
-
     for (auto kinds : StatisticsBackend::get_data_supported_entity_kinds(data_type))
     {
         try
         {
-            // In case the kind is the same as the last iteration and the entity was already found
-            // do not look for it again
-            if (!source_entity || last_iteration_kind_source != kinds.first)
+            // In case the entity already exists, it does not need to seach for it but to compare its kind.
+            // If the kind is the same as the one is needed, continue looking for the target.
+            // If it is not, this pair of kinds is not correct and continue to the other.
+            if (!source_entity)
             {
                 source_entity = get_entity(entity_id_source, kinds.first);
             }
-            if (!target_entity || last_iteration_kind_target != kinds.second)
+            else
+            {
+                if (source_entity->kind != kinds.first)
+                {
+                    continue;
+                }
+            }
+
+            if (!target_entity)
             {
                 target_entity = get_entity(entity_id_target, kinds.second);
+            }
+            else
+            {
+                if (target_entity->kind != kinds.second)
+                {
+                    continue;
+                }
             }
         }
         catch (const std::exception& e)
         {
-            // It has not found the entity, check next kinds possibility
+            // It has not found the entity, check next possible kinds
             continue;
         }
 
-        // In case it has found it, follow with that entity
+        // In case both entities have been found, follow with them
         break;
     }
 
+    // There is no way to set both to not null unless it is a pair with both types.
+    // Every time source entity is found in correct kind look for target, if found correct, if not target is null.
+    // Target does not look for an entity unless source has been found AND in the correct entity.
     if (!source_entity || !target_entity)
     {
-        throw BadParameter("Entity not found in required EntityKind for this DataKind");
+        throw BadParameter("Entity not found in required EntityKind for the given DataKind");
     }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
@@ -1722,17 +1738,17 @@ std::vector<const StatisticsSample*> Database::select(
         }
         catch (const std::exception& e)
         {
-            // It has not found the entity, check next kinds possibility
+            // It has not found the entity, check next possible kind
             continue;
         }
 
-        // In case it has found it, follow with that entity
+        // In case it has found the entity, follow with it
         break;
     }
 
     if (!entity)
     {
-        throw BadParameter("Entity not found in required EntityKind for this DataKind");
+        throw BadParameter("Entity not found in required EntityKind for the given DataKind");
     }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
