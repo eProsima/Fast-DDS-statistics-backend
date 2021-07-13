@@ -209,6 +209,7 @@ set(DATABASE_TEST_LIST
     insert_topic_empty_name
     insert_topic_empty_datatype
     insert_topic_two_same_domain_same_name
+    insert_topic_two_same_domain_same_name_same_type
     insert_topic_two_same_domain_diff_name_same_type
     # Insert DomainParticipant tests
     insert_participant_valid
