@@ -1498,6 +1498,19 @@ public:
         details::StatisticsBackendData::reset_instance();
     }
 
+    void check_entity_discovery_args(
+            const DomainListener::Status& status,
+            int32_t total_count,
+            int32_t total_count_change,
+            int32_t current_count,
+            int32_t current_count_change)
+    {
+        EXPECT_EQ(total_count, status.total_count);
+        EXPECT_EQ(total_count_change, status.total_count_change);
+        EXPECT_EQ(current_count, status.current_count);
+        EXPECT_EQ(current_count_change, status.current_count_change);
+    }
+
     MockedPhysicalListener physical_listener_;
     MockedDomainListener domain_listener_;
     EntityId monitor_id_;
@@ -1521,7 +1534,19 @@ public:
 
 };
 
-TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
+/*
+ * This test is a pseudo-blackbox thet checks that user listeners are called
+ * when new entities are discovered and undicovered.
+ * While other tests in the 'unittest' folder rely on mocks,
+ * this tests does not: Its entry point is the internal DDS discovery
+ * listener, where a discovery notification is simulated, and it uses
+ * a real backend and database from there on. Hence the 'pseudo-blackbox'
+ * 
+ * This was necessary because some end user notifications have complex trigger
+ * configurations, and are not easily tested with pure unit testing,
+ * which leads to some cases being easily overlooked and not correctly tested.
+ */
+TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
 {
     /* PARTICIPANT */
     DomainEntityDiscoveryArgs participant_discovery_args([&](
@@ -1530,10 +1555,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 1, 1, 1, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
@@ -1559,13 +1581,13 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
         details::StatisticsBackendData::get_instance()->database_->get_entity(participant_discovery_args.
                 discovered_entity_id_));
     ASSERT_TRUE(participant);
-    ASSERT_TRUE(participant->active);
-    ASSERT_EQ(monitor_id_, participant->domain->id);
-    ASSERT_EQ(participant_guid_str_, participant->guid);
-    ASSERT_EQ(participant_name_, participant->name);
-    ASSERT_EQ(nullptr, participant->process);
-    ASSERT_TRUE(participant->data_readers.empty());
-    ASSERT_TRUE(participant->data_writers.empty());
+    EXPECT_TRUE(participant->active);
+    EXPECT_EQ(monitor_id_, participant->domain->id);
+    EXPECT_EQ(participant_guid_str_, participant->guid);
+    EXPECT_EQ(participant_name_, participant->name);
+    EXPECT_EQ(nullptr, participant->process);
+    EXPECT_TRUE(participant->data_readers.empty());
+    EXPECT_TRUE(participant->data_writers.empty());
 
     /* TOPIC */
     // the topic will be discovered with the datawriter
@@ -1575,10 +1597,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 1, 1, 1, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1604,10 +1623,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 EntityId /*entity_id*/,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 1, 1, 1, 1);
             });
 
     EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(1)
@@ -1643,30 +1659,30 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
         details::StatisticsBackendData::get_instance()->database_->get_entity(datawriter_discovery_args.
                 discovered_entity_id_));
     ASSERT_TRUE(writer);
-    ASSERT_TRUE(writer->active);
-    ASSERT_EQ(participant->id, writer->participant->id);
+    EXPECT_TRUE(writer->active);
+    EXPECT_EQ(participant->id, writer->participant->id);
 
     // Check that the topic was created OK
     ASSERT_TRUE(writer->topic);
     const std::shared_ptr<const database::Topic> topic = writer->topic;
-    ASSERT_TRUE(topic->active);
-    ASSERT_EQ(monitor_id_, topic->domain->id);
-    ASSERT_EQ(topic_name_, topic->name);
-    ASSERT_EQ(topic_type_, topic->data_type);
+    EXPECT_TRUE(topic->active);
+    EXPECT_EQ(monitor_id_, topic->domain->id);
+    EXPECT_EQ(topic_name_, topic->name);
+    EXPECT_EQ(topic_type_, topic->data_type);
     ASSERT_EQ(1, topic->data_writers.size());
-    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
-    ASSERT_TRUE(topic->data_readers.empty());
+    EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    EXPECT_TRUE(topic->data_readers.empty());
 
     // Check that the locator was created OK
     ASSERT_EQ(1, writer->locators.size());
     const std::shared_ptr<const database::Locator> wlocator =
             writer->locators.begin()->second;
-    ASSERT_TRUE(wlocator->active);
+    EXPECT_TRUE(wlocator->active);
     std::stringstream s;
     s << writer_locator;
-    ASSERT_EQ(s.str(), wlocator->name);
+    EXPECT_EQ(s.str(), wlocator->name);
     ASSERT_EQ(1, wlocator->data_writers.size());
-    ASSERT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
+    EXPECT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
 
     /* DATAREADER */
     DomainEntityDiscoveryArgs datareader_discovery_args([&](
@@ -1675,10 +1691,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 1, 1, 1, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1727,31 +1740,31 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
         details::StatisticsBackendData::get_instance()->database_->get_entity(datareader_discovery_args.
                 discovered_entity_id_));
     ASSERT_TRUE(reader);
-    ASSERT_TRUE(reader->active);
-    ASSERT_EQ(participant->id, reader->participant->id);
+    EXPECT_TRUE(reader->active);
+    EXPECT_EQ(participant->id, reader->participant->id);
 
     // Check that the topic was created OK
     ASSERT_TRUE(reader->topic);
-    ASSERT_EQ(writer->topic.get(), reader->topic.get());
-    ASSERT_TRUE(topic->active);
-    ASSERT_EQ(monitor_id_, topic->domain->id);
-    ASSERT_EQ(topic_name_, topic->name);
-    ASSERT_EQ(topic_type_, topic->data_type);
+    EXPECT_EQ(writer->topic.get(), reader->topic.get());
+    EXPECT_TRUE(topic->active);
+    EXPECT_EQ(monitor_id_, topic->domain->id);
+    EXPECT_EQ(topic_name_, topic->name);
+    EXPECT_EQ(topic_type_, topic->data_type);
     ASSERT_EQ(1, topic->data_readers.size());
-    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(1, topic->data_writers.size());
-    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
 
     // Check that the locator was created OK
     ASSERT_EQ(1, reader->locators.size());
     const std::shared_ptr<const database::Locator> rlocator =
             reader->locators.begin()->second;
-    ASSERT_TRUE(rlocator->active);
+    EXPECT_TRUE(rlocator->active);
     s.str(std::string());
     s << reader_locator;
-    ASSERT_EQ(s.str(), rlocator->name);
+    EXPECT_EQ(s.str(), rlocator->name);
     ASSERT_EQ(1, rlocator->data_readers.size());
-    ASSERT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
 
 
     /* A DATAREADER on another topic, on the writer's locator */
@@ -1761,10 +1774,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 1, 2, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1776,10 +1786,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 1, 2, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1815,28 +1822,28 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
         details::StatisticsBackendData::get_instance()->database_->get_entity(datareader2_discovery_args.
                 discovered_entity_id_));
     ASSERT_TRUE(reader2);
-    ASSERT_TRUE(reader2->active);
-    ASSERT_EQ(participant->id, reader2->participant->id);
+    EXPECT_TRUE(reader2->active);
+    EXPECT_EQ(participant->id, reader2->participant->id);
 
     // Check that the topic was created OK
     ASSERT_TRUE(reader2->topic);
     const std::shared_ptr<const database::Topic> topic2 = reader2->topic;
-    ASSERT_TRUE(topic2->active);
-    ASSERT_EQ(monitor_id_, topic2->domain->id);
-    ASSERT_EQ(topic2_name, topic2->name);
-    ASSERT_EQ(topic_type_, topic2->data_type);
+    EXPECT_TRUE(topic2->active);
+    EXPECT_EQ(monitor_id_, topic2->domain->id);
+    EXPECT_EQ(topic2_name, topic2->name);
+    EXPECT_EQ(topic_type_, topic2->data_type);
     ASSERT_EQ(1, topic2->data_readers.size());
-    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
-    ASSERT_TRUE(topic2->data_writers.empty());
+    EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    EXPECT_TRUE(topic2->data_writers.empty());
 
     // Check that the locator is OK
     ASSERT_EQ(1, reader2->locators.size());
-    ASSERT_EQ(wlocator.get(), reader2->locators.begin()->second.get());
-    ASSERT_TRUE(wlocator->active);
+    EXPECT_EQ(wlocator.get(), reader2->locators.begin()->second.get());
+    EXPECT_TRUE(wlocator->active);
     ASSERT_EQ(1, wlocator->data_readers.size());
-    ASSERT_EQ(reader2.get(), wlocator->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), wlocator->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(1, wlocator->data_writers.size());
-    ASSERT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
+    EXPECT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
 
     /* A DATAWRITER on the second topic, on the reader's locator */
     DomainEntityDiscoveryArgs datawriter2_discovery_args([&](
@@ -1845,10 +1852,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
-                EXPECT_EQ(1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 1, 2, 1);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -1883,26 +1887,26 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
         details::StatisticsBackendData::get_instance()->database_->get_entity(datawriter2_discovery_args.
                 discovered_entity_id_));
     ASSERT_TRUE(writer2);
-    ASSERT_TRUE(writer2->active);
-    ASSERT_EQ(participant->id, writer2->participant->id);
+    EXPECT_TRUE(writer2->active);
+    EXPECT_EQ(participant->id, writer2->participant->id);
 
     // Check that the topic is OK
     ASSERT_TRUE(writer2->topic);
-    ASSERT_EQ(topic2.get(), writer2->topic.get());
-    ASSERT_TRUE(topic2->active);
+    EXPECT_EQ(topic2.get(), writer2->topic.get());
+    EXPECT_TRUE(topic2->active);
     ASSERT_EQ(1, topic2->data_readers.size());
-    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(1, topic2->data_writers.size());
-    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
 
     // Check that the locator is OK
     ASSERT_EQ(1, writer2->locators.size());
-    ASSERT_EQ(rlocator.get(), writer2->locators.begin()->second.get());
-    ASSERT_TRUE(rlocator->active);
+    EXPECT_EQ(rlocator.get(), writer2->locators.begin()->second.get());
+    EXPECT_TRUE(rlocator->active);
     ASSERT_EQ(1, rlocator->data_readers.size());
-    ASSERT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(1, rlocator->data_writers.size());
-    ASSERT_EQ(writer2.get(), rlocator->data_writers.find(writer2->id)->second.get());
+    EXPECT_EQ(writer2.get(), rlocator->data_writers.find(writer2->id)->second.get());
 
     /* Remove the DATAWRITER and DATAREADER on the first TOPIC */
     DomainEntityDiscoveryArgs datawriter_undiscovery_args([&](
@@ -1911,10 +1915,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 0, 1, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -1927,20 +1928,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
     participant_listener_->on_publisher_discovery(participant_, std::move(writer_undiscovery_info));
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
-    ASSERT_FALSE(writer->active);
-    ASSERT_TRUE(reader->active);
-    ASSERT_TRUE(topic->active);
+    EXPECT_FALSE(writer->active);
+    EXPECT_TRUE(reader->active);
+    EXPECT_TRUE(topic->active);
     ASSERT_EQ(1, topic->data_readers.size());
-    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(1, topic->data_writers.size());
-    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
-    ASSERT_TRUE(wlocator->active);
-    ASSERT_TRUE(rlocator->active);
-    ASSERT_TRUE(participant->active);
+    EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    EXPECT_TRUE(wlocator->active);
+    EXPECT_TRUE(rlocator->active);
+    EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
-    ASSERT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(2, participant->data_writers.size());
-    ASSERT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
+    EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader_undiscovery_args([&](
                 EntityId domain_id,
@@ -1948,10 +1949,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 0, 1, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1963,10 +1961,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 0, 1, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1979,20 +1974,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader_undiscovery_info));
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
-    ASSERT_FALSE(writer->active);
-    ASSERT_FALSE(reader->active);
-    ASSERT_FALSE(topic->active);
+    EXPECT_FALSE(writer->active);
+    EXPECT_FALSE(reader->active);
+    EXPECT_FALSE(topic->active);
     ASSERT_EQ(1, topic->data_readers.size());
-    ASSERT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(1, topic->data_writers.size());
-    ASSERT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
-    ASSERT_TRUE(wlocator->active);
-    ASSERT_TRUE(rlocator->active);
-    ASSERT_TRUE(participant->active);
+    EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
+    EXPECT_TRUE(wlocator->active);
+    EXPECT_TRUE(rlocator->active);
+    EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
-    ASSERT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
+    EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
     ASSERT_EQ(2, participant->data_writers.size());
-    ASSERT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
+    EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     /* Remove the DATAWRITER and DATAREADER on the second TOPIC */
     DomainEntityDiscoveryArgs datawriter2_undiscovery_args([&](
@@ -2001,10 +1996,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(0, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 0, 0, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -2017,20 +2009,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
     participant_listener_->on_publisher_discovery(participant_, std::move(writer2_undiscovery_info));
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
-    ASSERT_FALSE(writer2->active);
-    ASSERT_TRUE(reader2->active);
-    ASSERT_TRUE(topic2->active);
+    EXPECT_FALSE(writer2->active);
+    EXPECT_TRUE(reader2->active);
+    EXPECT_TRUE(topic2->active);
     ASSERT_EQ(1, topic2->data_readers.size());
-    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(1, topic2->data_writers.size());
-    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
-    ASSERT_TRUE(wlocator->active);
-    ASSERT_TRUE(rlocator->active);
-    ASSERT_TRUE(participant->active);
+    EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    EXPECT_TRUE(wlocator->active);
+    EXPECT_TRUE(rlocator->active);
+    EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
-    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(2, participant->data_writers.size());
-    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+    EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader2_undiscovery_args([&](
                 EntityId domain_id,
@@ -2038,10 +2030,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(0, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 2, 0, 0, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -2069,20 +2058,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_undiscovery_info));
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
-    ASSERT_FALSE(writer2->active);
-    ASSERT_FALSE(reader2->active);
-    ASSERT_FALSE(topic2->active);
+    EXPECT_FALSE(writer2->active);
+    EXPECT_FALSE(reader2->active);
+    EXPECT_FALSE(topic2->active);
     ASSERT_EQ(1, topic2->data_readers.size());
-    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(1, topic2->data_writers.size());
-    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
-    ASSERT_TRUE(wlocator->active);
-    ASSERT_TRUE(rlocator->active);
-    ASSERT_TRUE(participant->active);
+    EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    EXPECT_TRUE(wlocator->active);
+    EXPECT_TRUE(rlocator->active);
+    EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
-    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(2, participant->data_writers.size());
-    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+    EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     /* Remove the PARTICIPANT */
     DomainEntityDiscoveryArgs participant_undiscovery_args([&](
@@ -2091,10 +2080,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(1, status.total_count);
-                EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(0, status.current_count);
-                EXPECT_EQ(-1, status.current_count_change);
+                check_entity_discovery_args(status, 1, 0, 0, -1);
             });
 
     EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
@@ -2107,20 +2093,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_added)
     participant_listener_->on_participant_discovery(participant_, std::move(participant_undiscovery_info));
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
-    ASSERT_FALSE(writer2->active);
-    ASSERT_FALSE(reader2->active);
-    ASSERT_FALSE(topic2->active);
+    EXPECT_FALSE(writer2->active);
+    EXPECT_FALSE(reader2->active);
+    EXPECT_FALSE(topic2->active);
     ASSERT_EQ(1, topic2->data_readers.size());
-    ASSERT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(1, topic2->data_writers.size());
-    ASSERT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
-    ASSERT_TRUE(wlocator->active);
-    ASSERT_TRUE(rlocator->active);
-    ASSERT_FALSE(participant->active);
+    EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
+    EXPECT_TRUE(wlocator->active);
+    EXPECT_TRUE(rlocator->active);
+    EXPECT_FALSE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
-    ASSERT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
+    EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(2, participant->data_writers.size());
-    ASSERT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+    EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 }
 
 int main(

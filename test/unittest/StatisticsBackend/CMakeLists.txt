@@ -251,7 +251,7 @@ foreach(test_name ${USER_LISTENERS_TEST_LIST_DATAS})
 endforeach()
 
 set(USER_LISTENERS_TEST_END_TO_END
-    participant_added
+    entity_discovery_end_to_end
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_END_TO_END})
