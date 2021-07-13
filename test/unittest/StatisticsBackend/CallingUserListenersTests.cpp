@@ -1534,6 +1534,8 @@ public:
 
 };
 
+// Windows dll does not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
 /*
  * This test is a pseudo-blackbox thet checks that user listeners are called
  * when new entities are discovered and undicovered.
@@ -2108,6 +2110,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     ASSERT_EQ(2, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 }
+#endif //!defined(_WIN32)
 
 int main(
         int argc,
