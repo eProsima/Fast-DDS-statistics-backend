@@ -1767,40 +1767,35 @@ TEST_F(database_tests, insert_sample_network_latency)
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_locator)
 {
-#ifndef NDEBUG
-
     NetworkLatencySample sample;
     sample.remote_locator = reader_locator->id;
     sample.data = 12;
 
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
+#ifndef NDEBUG
     ASSERT_DEATH(db.insert(domain_id, locator_id, sample), "");
+#endif // ifndef NDEBUG
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
 
-#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_remote_locator)
 {
-#ifndef NDEBUG
-
     NetworkLatencySample sample;
     EntityId remote_id = db.generate_entity_id();
     sample.remote_locator = remote_id;
     sample.data = 12;
 
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
+#ifndef NDEBUG
     ASSERT_DEATH(db.insert(domain_id, writer_locator->id, sample), "");
-    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
-
 #endif // ifndef NDEBUG
+    ASSERT_THROW(db.get_entity(remote_id), BadParameter);
 }
 
 TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
 {
-#ifndef NDEBUG
-
     NetworkLatencySample sample;
     EntityId remote_id = db.generate_entity_id();
     sample.remote_locator = remote_id;
@@ -1809,11 +1804,11 @@ TEST_F(database_tests, insert_sample_network_latency_unknown_both_locators)
     EntityId locator_id = db.generate_entity_id();
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
+#ifndef NDEBUG
     ASSERT_DEATH(db.insert(domain_id, locator_id, sample), "");
+#endif // ifndef NDEBUG
     ASSERT_THROW(db.get_entity(locator_id), BadParameter);
     ASSERT_THROW(db.get_entity(remote_id), BadParameter);
-
-#endif // ifndef NDEBUG
 }
 
 TEST_F(database_tests, insert_sample_publication_throughput)
