@@ -1164,12 +1164,52 @@ TEST_F(database_tests, insert_topic_two_same_domain_same_name)
     /* Insert a domain */
     DataBaseTest db;
     auto domain = std::make_shared<Domain>("test_domain");
+    EntityId domain_id = db.insert(domain);
+
+    /* Insert two topics with different types */
+    std::string topic_name = "test_topic_name";
+    std::string topic_type = "test_topic_type";
+    auto topic = std::make_shared<Topic>(topic_name, topic_type, domain);
+    EntityId topic_id = db.insert(topic);
+
+    std::string topic_name_2 = "test_topic_name_2";
+    std::string topic_type_2 = "test_topic_type_2";
+    auto topic_2 = std::make_shared<Topic>(topic_name_2, topic_type_2, domain);
+    EntityId topic_id_2 = db.insert(topic_2);
+
+    /* Check that the topics are correctly inserted in domain */
+    ASSERT_EQ(domain->topics.size(), 2);
+    ASSERT_EQ(domain->topics[topic_id].get(), topic.get());
+    ASSERT_EQ(domain->topics[topic_id_2].get(), topic_2.get());
+
+    /* Check that the topics are correctly inserted in topic_ */
+    auto topics = db.topics();
+    ASSERT_EQ(topics.size(), 1);
+    ASSERT_EQ(topics[domain_id].size(), 2);
+    ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
+    ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
+    ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
+    ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->name);
+    ASSERT_EQ(topic_name, topics[domain_id][topic_id]->alias);
+    ASSERT_EQ(topic_name_2, topics[domain_id][topic_id_2]->alias);
+    ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
+    ASSERT_EQ(topic_type_2, topics[domain_id][topic_id_2]->data_type);
+}
+
+TEST_F(database_tests, insert_topic_two_same_domain_same_name_same_type)
+{
+    /* Insert a domain */
+    DataBaseTest db;
+    auto domain = std::make_shared<Domain>("test_domain");
     db.insert(domain);
 
-    /* Insert a topic with a non-inserted domain */
-    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
-    auto topic_2 = std::make_shared<Topic>("test_topic_name", "test_topic_type_2", domain);
+    /* Insert two topics with same name and type */
+    std::string topic_name = "test_topic_name";
+    std::string topic_type = "test_topic_type";
+    auto topic = std::make_shared<Topic>(topic_name, topic_type, domain);
     db.insert(topic);
+
+    auto topic_2 = std::make_shared<Topic>(topic_name, topic_type, domain);
     ASSERT_THROW(db.insert(topic_2), BadParameter);
 }
 
