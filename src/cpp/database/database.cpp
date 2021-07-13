@@ -1502,9 +1502,9 @@ std::vector<const StatisticsSample*> Database::select(
     {
         try
         {
-            // In case the entity already exists, it does not need to seach for it but to compare its kind.
-            // If the kind is the same as the one is needed, continue looking for the target.
-            // If it is not, this pair of kinds is not correct and continue to the other.
+            // If the entity has already been found, the kind must be checked.
+            // If the kind is the same as the one needed, continue looking for the target.
+            // If it is not, this pair of kinds is not correct so the search continues to the next pair.
             if (!source_entity)
             {
                 source_entity = get_entity(entity_id_source, kinds.first);
