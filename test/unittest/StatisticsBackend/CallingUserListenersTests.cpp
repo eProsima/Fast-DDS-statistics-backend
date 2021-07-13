@@ -1543,7 +1543,7 @@ public:
  * this tests does not: Its entry point is the internal DDS discovery
  * listener, where a discovery notification is simulated, and it uses
  * a real backend and database from there on. Hence the 'pseudo-blackbox'
- * 
+ *
  * This was necessary because some end user notifications have complex trigger
  * configurations, and are not easily tested with pure unit testing,
  * which leads to some cases being easily overlooked and not correctly tested.
