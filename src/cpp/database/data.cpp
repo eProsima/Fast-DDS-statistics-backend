@@ -26,6 +26,7 @@ void DomainParticipantData::clear(
     discovered_entity.clear();
     pdp_packets.clear();
     edp_packets.clear();
+    network_latency_per_locator.clear();
     if (clear_last_reported)
     {
         last_reported_pdp_packets.clear();
@@ -79,11 +80,6 @@ void DataWriterData::clear(
         last_reported_gap_count.clear();
         last_reported_data_count.clear();
     }
-}
-
-void LocatorData::clear()
-{
-    network_latency_per_locator.clear();
 }
 
 } //namespace database
