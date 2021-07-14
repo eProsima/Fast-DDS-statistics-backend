@@ -2803,6 +2803,9 @@ DatabaseDump Database::dump_entity_(
         // rtps_bytes_lost
         data[DATA_KIND_RTPS_BYTES_LOST_TAG] = dump_data_(entity->data.rtps_bytes_lost);
 
+        // network_latency_per_locator
+        data[DATA_KIND_NETWORK_LATENCY_TAG] = dump_data_(entity->data.network_latency_per_locator);
+
         // pdp_packets last reported
         data[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_pdp_packets);
 
@@ -2970,16 +2973,6 @@ DatabaseDump Database::dump_entity_(
             subentities.push_back(id_to_string(sub_it.first));
         }
         entity_info[DATAREADER_CONTAINER_TAG] = subentities;
-    }
-
-    // Store data from the entity
-    {
-        DatabaseDump data = DatabaseDump::object();
-
-        // network_latency_per_locator
-        data[DATA_KIND_NETWORK_LATENCY_TAG] = dump_data_(entity->data.network_latency_per_locator);
-
-        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
