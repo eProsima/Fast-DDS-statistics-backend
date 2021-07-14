@@ -130,7 +130,6 @@ set(DATA_TEST_LIST
     domainparticipant_data_clear
     datareader_data_clear
     datawriter_data_clear
-    locator_data_clear
 )
 
 foreach(test_name ${DATA_TEST_LIST})
