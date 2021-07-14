@@ -35,6 +35,13 @@ if not subscriber_command:
         subscriber_command = next(pf, None)
 
 monitor_command = os.environ.get("DDS_SIMPLE_COMMUNICATION_MONITOR_BIN")
+if not monitor_command:
+    monitor_files = glob.glob(os.path.join(script_dir, "**/DDSSimpleCommunicationMonitor*"), recursive=True)
+    pf = iter(monitor_files)
+    monitor_command = next(pf, None)
+    while monitor_command and (not os.path.isfile(monitor_command) or not os.access(monitor_command,
+        os.X_OK)):
+        monitor_command = next(pf, None)
 
 extra_pub_arg = os.environ.get("EXTRA_PUB_ARG")
 if extra_pub_arg:

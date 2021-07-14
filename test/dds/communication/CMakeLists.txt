@@ -18,53 +18,53 @@ find_package(PythonInterp 3)
 # Binaries
 ###############################################################################
 
-# Dynamic types test
-set(DDS_PUBLISHER_DYNAMIC_SOURCE
-    PublisherDynamic.cpp
+# types test
+set(DDS_PUBLISHER_SOURCE
+    Publisher.cpp
     )
-add_executable(DDSSimpleCommunicationDynamicPublisher ${DDS_PUBLISHER_DYNAMIC_SOURCE})
+add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE})
 
 if(MSVC)
-    target_compile_definitions(DDSSimpleCommunicationDynamicPublisher PRIVATE 
+    target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC) 
 
-target_include_directories(DDSSimpleCommunicationDynamicPublisher PRIVATE
+target_include_directories(DDSSimpleCommunicationPublisher PRIVATE
     ${PROJECT_SOURCE_DIR}/test/dds/communication)
 
-target_compile_definitions(DDSSimpleCommunicationDynamicPublisher PRIVATE
+target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationDynamicPublisher fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationPublisher fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
-get_win32_path_dependencies(DDSSimpleCommunicationDynamicPublisher TEST_FRIENDLY_PATH)
+get_win32_path_dependencies(DDSSimpleCommunicationPublisher TEST_FRIENDLY_PATH)
 
-set(DDS_SUBSCRIBER_DYNAMIC_SOURCE
-    SubscriberDynamic.cpp
+set(DDS_SUBSCRIBER_SOURCE
+    Subscriber.cpp
     )
-add_executable(DDSSimpleCommunicationDynamicSubscriber ${DDS_SUBSCRIBER_DYNAMIC_SOURCE})
+add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE})
 
 if(MSVC)
-    target_compile_definitions(DDSSimpleCommunicationDynamicSubscriber PRIVATE 
+    target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC) 
 
-target_include_directories(DDSSimpleCommunicationDynamicSubscriber PRIVATE
+target_include_directories(DDSSimpleCommunicationSubscriber PRIVATE
     ${PROJECT_SOURCE_DIR}/test/dds/communication)
 
-target_compile_definitions(DDSSimpleCommunicationDynamicSubscriber PRIVATE
+target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationDynamicSubscriber fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationSubscriber fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
-get_win32_path_dependencies(DDSSimpleCommunicationDynamicSubscriber TEST_FRIENDLY_PATH)
+get_win32_path_dependencies(DDSSimpleCommunicationSubscriber TEST_FRIENDLY_PATH)
 
-set(DDS_MONITOR_DYNAMIC_SOURCE
-    MonitorDynamic.cpp
+set(DDS_MONITOR_SOURCE
+    Monitor.cpp
     )
-add_executable(DDSSimpleCommunicationDynamicMonitor ${DDS_MONITOR_DYNAMIC_SOURCE}
+add_executable(DDSSimpleCommunicationMonitor ${DDS_MONITOR_SOURCE}
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
@@ -81,11 +81,11 @@ add_executable(DDSSimpleCommunicationDynamicMonitor ${DDS_MONITOR_DYNAMIC_SOURCE
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
-    target_compile_definitions(DDSSimpleCommunicationDynamicMonitor PRIVATE 
+    target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC) 
 
-target_include_directories(DDSSimpleCommunicationDynamicMonitor PRIVATE
+target_include_directories(DDSSimpleCommunicationMonitor PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/include
@@ -94,20 +94,20 @@ target_include_directories(DDSSimpleCommunicationDynamicMonitor PRIVATE
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
-target_compile_definitions(DDSSimpleCommunicationDynamicMonitor PRIVATE
+target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationDynamicMonitor fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationMonitor fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
-get_win32_path_dependencies(DDSSimpleCommunicationDynamicMonitor TEST_FRIENDLY_PATH)
+get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 
 ###############################################################################
 # Necessary files
 ###############################################################################
-# Dynamic types test
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_communication_dynamic.py
-    ${CMAKE_CURRENT_BINARY_DIR}/simple_communication_dynamic.py COPYONLY)
+#  types test
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_communication.py
+    ${CMAKE_CURRENT_BINARY_DIR}/simple_communication.py COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_type.xml
     ${CMAKE_CURRENT_BINARY_DIR}/example_type.xml COPYONLY)
 
@@ -115,27 +115,27 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_type.xml
 # Tests specification
 ###############################################################################
 if(PYTHONINTERP_FOUND)
-    # Dynamic types test
-    add_test(NAME DDSSimpleCommunicationTypeDiscovery
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/simple_communication_dynamic.py)
+    # types test
+    add_test(NAME DDSSimpleCommunication
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/simple_communication.py)
 
     # Set test with label NoMemoryCheck
-    set_property(TEST DDSSimpleCommunicationTypeDiscovery PROPERTY LABELS "NoMemoryCheck")
+    set_property(TEST DDSSimpleCommunication PROPERTY LABELS "NoMemoryCheck")
 
-    set_property(TEST DDSSimpleCommunicationTypeDiscovery PROPERTY ENVIRONMENT
-        "DDS_SIMPLE_COMMUNICATION_PUBLISHER_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicPublisher>")
-    set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
-        "DDS_SIMPLE_COMMUNICATION_SUBSCRIBER_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicSubscriber>")
-    set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
-        "DDS_SIMPLE_COMMUNICATION_MONITOR_BIN=$<TARGET_FILE:DDSSimpleCommunicationDynamicMonitor>")
+    set_property(TEST DDSSimpleCommunication PROPERTY ENVIRONMENT
+        "DDS_SIMPLE_COMMUNICATION_PUBLISHER_BIN=$<TARGET_FILE:DDSSimpleCommunicationPublisher>")
+    set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
+        "DDS_SIMPLE_COMMUNICATION_SUBSCRIBER_BIN=$<TARGET_FILE:DDSSimpleCommunicationSubscriber>")
+    set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
+        "DDS_SIMPLE_COMMUNICATION_MONITOR_BIN=$<TARGET_FILE:DDSSimpleCommunicationMonitor>")
     if(WIN32)
         string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-        set_property(TEST DDSSimpleCommunicationTypeDiscovery APPEND PROPERTY ENVIRONMENT
+        set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
             "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
     endif()
 
     if(TEST_FRIENDLY_PATH)
-        set_tests_properties(DDSSimpleCommunicationTypeDiscovery PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        set_tests_properties(DDSSimpleCommunication PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 
 endif()
