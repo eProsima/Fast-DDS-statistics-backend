@@ -544,18 +544,18 @@ void Database::insert_nts(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
-
-            // Create locator if it does not exist
-            std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
-
-            // Create remote_locator if it does not exist
-            get_locator_nts(network_latency.remote_locator);
-
-            // Add the info to the locator
-            locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
-
-            break;
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                participant->data.network_latency_per_locator[network_latency.remote_locator].push_back(
+                        network_latency);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
