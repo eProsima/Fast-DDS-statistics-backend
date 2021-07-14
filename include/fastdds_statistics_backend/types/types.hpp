@@ -146,7 +146,7 @@ enum class EntityKind
  *     | Signature               | Entities source   | Entity target | No. entities |
  *     |-------------------------|-------------------|---------------|--------------|
  *     | FASTDDS_LATENCY         | DataWriter        | DataReader    | 2            |
- *     | NETWORK_LATENCY         | Locator           | Locator       | 2            |
+ *     | NETWORK_LATENCY         | DomainParticipant | Locator       | 2            |
  *     | PUBLICATION_THROUGHPUT  | DataWriter        |               | 1            |
  *     | SUBSCRIPTION_THROUGHPUT | DataReader        |               | 1            |
  *     | RTPS_PACKETS_SENT       | DomainParticipant | Locator       | 2            |
