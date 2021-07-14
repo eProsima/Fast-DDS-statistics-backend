@@ -180,6 +180,15 @@ void initialize_participant_data(
         sample.magnitude_order = MAGNITUDE_DEFAULT;
         db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
     }
+
+    // network_latency_per_locator
+    {
+        NetworkLatencySample sample;
+        sample.src_ts = TIME_DEFAULT(time);
+        sample.data = DATA_DEFAULT;
+        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
+        db.insert(DOMAIN_DEFAULT_ID(index), PARTICIPANT_DEFAULT_ID(index), sample);
+    }
 }
 
 void initialize_datawriter_data(
@@ -277,21 +286,6 @@ void initialize_datareader_data(
     }
 }
 
-void initialize_locator_data(
-        Database& db,
-        int index,
-        int time)
-{
-    // network_latency_per_locator
-    {
-        NetworkLatencySample sample;
-        sample.src_ts = TIME_DEFAULT(time);
-        sample.data = DATA_DEFAULT;
-        sample.remote_locator = LOCATOR_DEFAULT_ID(index);
-        db.insert(DOMAIN_DEFAULT_ID(index), LOCATOR_DEFAULT_ID(index), sample);
-    }
-}
-
 void initialize_database(
         Database& db,
         int n_entity,
@@ -306,7 +300,6 @@ void initialize_database(
             initialize_participant_data(db, i, j);
             initialize_datawriter_data(db, i, j);
             initialize_datareader_data(db, i, j);
-            initialize_locator_data(db, i, j);
         }
     }
 }
@@ -454,6 +447,7 @@ TEST(database, dump_and_clear_database)
                 ASSERT_FALSE(it.second->data.rtps_bytes_sent.empty());
                 ASSERT_FALSE(it.second->data.rtps_packets_lost.empty());
                 ASSERT_FALSE(it.second->data.rtps_bytes_lost.empty());
+                ASSERT_FALSE(it.second->data.network_latency_per_locator.empty());
 
                 ASSERT_FALSE(it.second->data.last_reported_rtps_packets_sent_count.empty());
                 ASSERT_FALSE(it.second->data.last_reported_rtps_bytes_sent_count.empty());
@@ -521,11 +515,6 @@ TEST(database, dump_and_clear_database)
                         it.second->data.last_reported_nackfrag_count.count == 0);
             }
         }
-        // Locators
-        for (const auto& it : db.locators())
-        {
-            ASSERT_FALSE(it.second->data.network_latency_per_locator.empty());
-        }
     }
 
     DatabaseDump dump = db.dump_database(true);
@@ -545,6 +534,7 @@ TEST(database, dump_and_clear_database)
                 ASSERT_TRUE(it.second->data.rtps_bytes_sent.empty());
                 ASSERT_TRUE(it.second->data.rtps_packets_lost.empty());
                 ASSERT_TRUE(it.second->data.rtps_bytes_lost.empty());
+                ASSERT_TRUE(it.second->data.network_latency_per_locator.empty());
 
                 ASSERT_FALSE(it.second->data.last_reported_rtps_packets_sent_count.empty());
                 ASSERT_FALSE(it.second->data.last_reported_rtps_bytes_sent_count.empty());
@@ -611,11 +601,6 @@ TEST(database, dump_and_clear_database)
                         std::chrono::system_clock::time_point() &&
                         it.second->data.last_reported_nackfrag_count.count == 0);
             }
-        }
-        // Locators
-        for (const auto& it : db.locators())
-        {
-            ASSERT_TRUE(it.second->data.network_latency_per_locator.empty());
         }
     }
 }

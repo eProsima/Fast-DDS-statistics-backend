@@ -641,24 +641,6 @@
     },
     "locators":{
         "0":{
-            "data":{
-                "network_latency_per_locator":{
-                    "0":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
-            },
             "datareaders":[
                 "8"
             ],
@@ -669,24 +651,6 @@
             "alias":"locator_0"
         },
         "18":{
-            "data":{
-                "network_latency_per_locator":{
-                    "18":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
-            },
             "datareaders":[
                 "26"
             ],
@@ -697,24 +661,6 @@
             "alias":"locator_2"
         },
         "9":{
-            "data":{
-                "network_latency_per_locator":{
-                    "9":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
-            },
             "datareaders":[
                 "17"
             ],
@@ -878,6 +824,22 @@
                         },
                         {
                             "count":0,
+                            "src_time":"200"
+                        }
+                    ]
+                },
+                "network_latency_per_locator":{
+                    "9":[
+                        {
+                            "data":1.1,
+                            "src_time":"0"
+                        },
+                        {
+                            "data":1.1,
+                            "src_time":"100"
+                        },
+                        {
+                            "data":1.1,
                             "src_time":"200"
                         }
                     ]
@@ -1053,6 +1015,22 @@
                             "src_time":"200"
                         }
                     ]
+                },
+                "network_latency_per_locator":{
+                    "18":[
+                        {
+                            "data":1.1,
+                            "src_time":"0"
+                        },
+                        {
+                            "data":1.1,
+                            "src_time":"100"
+                        },
+                        {
+                            "data":1.1,
+                            "src_time":"200"
+                        }
+                    ]
                 }
             },
             "datareaders":[
@@ -1222,6 +1200,22 @@
                         },
                         {
                             "count":0,
+                            "src_time":"200"
+                        }
+                    ]
+                },
+                "network_latency_per_locator":{
+                    "0":[
+                        {
+                            "data":1.1,
+                            "src_time":"0"
+                        },
+                        {
+                            "data":1.1,
+                            "src_time":"100"
+                        },
+                        {
+                            "data":1.1,
                             "src_time":"200"
                         }
                     ]
