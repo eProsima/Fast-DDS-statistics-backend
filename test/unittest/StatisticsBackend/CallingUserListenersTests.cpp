@@ -1537,8 +1537,8 @@ public:
 // Windows dll does not export ParticipantProxyData class members (private APIs)
 #if !defined(_WIN32)
 /*
- * This test is a pseudo-blackbox thet checks that user listeners are called
- * when new entities are discovered and undicovered.
+ * This test is a pseudo-blackbox that checks that user listeners are called
+ * when new entities are discovered and undiscovered.
  * While other tests in the 'unittest' folder rely on mocks,
  * this tests does not: Its entry point is the internal DDS discovery
  * listener, where a discovery notification is simulated, and it uses
