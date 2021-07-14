@@ -1494,12 +1494,12 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            assert(EntityKind::LOCATOR == source_entity->kind);
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
             assert(EntityKind::LOCATOR == target_entity->kind);
-            auto locator = std::static_pointer_cast<const Locator>(source_entity);
-            /* Look if the locator has information about the required locator */
-            auto remote_locator = locator->data.network_latency_per_locator.find(entity_id_target);
-            if (remote_locator != locator->data.network_latency_per_locator.end())
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto remote_locator = participant->data.network_latency_per_locator.find(entity_id_target);
+            if (remote_locator != participant->data.network_latency_per_locator.end())
             {
                 /* Look for the samples between the given timestamps */
                 for (auto& sample : remote_locator->second)
