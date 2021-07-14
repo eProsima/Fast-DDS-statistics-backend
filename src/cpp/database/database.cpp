@@ -3218,11 +3218,6 @@ void Database::clear_statistics_data()
             it.second->data.clear(false);
         }
     }
-    // Locators
-    for (const auto& it : locators_)
-    {
-        it.second->data.clear();
-    }
 }
 
 /**
