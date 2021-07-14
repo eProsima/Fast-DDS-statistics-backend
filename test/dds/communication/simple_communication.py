@@ -89,12 +89,12 @@ def communication(monitor_proc, pid):
                     print("___" + pid + "___Init Monitor___")
                     sys.stdout.flush()
 
-                    print("___" + pid + "___Creating subscriber1___")
+                    print("___" + pid + "___Creating subscriber___")
                     sys.stdout.flush()
                     subscriber1_proc = subprocess.Popen([subscriber_command, "--seed", pid]
                         + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
                     
-                    print("___" + pid + "___Creating publisher1___")
+                    print("___" + pid + "___Creating publisher___")
                     sys.stdout.flush()
                     publisher_proc1 = subprocess.Popen([publisher_command, "--seed", pid]
                         + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
@@ -102,11 +102,11 @@ def communication(monitor_proc, pid):
 
                     print("___" + pid + "___subscriber1 communicate...___")
                     sys.stdout.flush()
-                    subscriber1_proc.communicate()
-
-                    print("___" + pid + "___publisher1 kill___")
-                    sys.stdout.flush()
                     publisher_proc1.communicate()
+
+                    print("___" + pid + "___publisher1 communicate...___")
+                    sys.stdout.flush()
+                    subscriber1_proc.communicate()
 
                     print("___" + pid + "___Stop Monitor___")
                     sys.stdout.flush()

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file MonitorDynamic.cpp
+ * @file Monitor.cpp
  */
 
 #include <list>
@@ -547,33 +547,39 @@ int main(
         }
     }
 
-    // Test: Resetting the singleton empties the database
-    {
-        // Reset the singleton instead of removing the monitor
-        details::StatisticsBackendData::reset_instance();
+    /* This can be activated once the clear_monitor is in place */
+    // Test: Clearing the monitor empties the database except physical data
+    // {
+    //     try
+    //     {
+    //         StatisticsBackend::clear_monitor(monitor_id);
 
-        // Check the database is empty
-        try
-        {
-            if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::LOCATOR).empty())
-            {
-                throw Error("Error: database contains unexpected entities");
-            }
-        }
-        catch (const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            return 1;
-        }
-    }
+    //         // Check the database is empty
+    //         if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty())
+    //         {
+    //             throw Error("Error: database contains unexpected entities");
+    //         }
+
+    //         if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
+    //                 StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+    //         {
+    //             throw Error("Error: database contains unexpected LOCATOR");
+    //         }
+
+    //     }
+    //     catch (const std::exception& e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //         return 1;
+    //     }
+    // }
 
     return 0;
 }

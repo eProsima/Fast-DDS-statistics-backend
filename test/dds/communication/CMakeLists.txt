@@ -64,21 +64,7 @@ get_win32_path_dependencies(DDSSimpleCommunicationSubscriber TEST_FRIENDLY_PATH)
 set(DDS_MONITOR_SOURCE
     Monitor.cpp
     )
-add_executable(DDSSimpleCommunicationMonitor ${DDS_MONITOR_SOURCE}
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+add_executable(DDSSimpleCommunicationMonitor ${DDS_MONITOR_SOURCE})
 
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
@@ -87,18 +73,13 @@ endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationMonitor PRIVATE
     ${GTEST_INCLUDE_DIRS}
-    ${GMOCK_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${GMOCK_INCLUDE_DIRS})
 
 target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationMonitor fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationMonitor ${PROJECT_NAME} fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
 get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 
@@ -116,26 +97,26 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_type.xml
 ###############################################################################
 if(PYTHONINTERP_FOUND)
     # types test
-    add_test(NAME DDSSimpleCommunication
+    add_test(NAME BasicSystemTest
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/simple_communication.py)
 
     # Set test with label NoMemoryCheck
-    set_property(TEST DDSSimpleCommunication PROPERTY LABELS "NoMemoryCheck")
+    set_property(TEST BasicSystemTest PROPERTY LABELS "NoMemoryCheck")
 
-    set_property(TEST DDSSimpleCommunication PROPERTY ENVIRONMENT
+    set_property(TEST BasicSystemTest PROPERTY ENVIRONMENT
         "DDS_SIMPLE_COMMUNICATION_PUBLISHER_BIN=$<TARGET_FILE:DDSSimpleCommunicationPublisher>")
-    set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
+    set_property(TEST BasicSystemTest APPEND PROPERTY ENVIRONMENT
         "DDS_SIMPLE_COMMUNICATION_SUBSCRIBER_BIN=$<TARGET_FILE:DDSSimpleCommunicationSubscriber>")
-    set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
+    set_property(TEST BasicSystemTest APPEND PROPERTY ENVIRONMENT
         "DDS_SIMPLE_COMMUNICATION_MONITOR_BIN=$<TARGET_FILE:DDSSimpleCommunicationMonitor>")
     if(WIN32)
         string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-        set_property(TEST DDSSimpleCommunication APPEND PROPERTY ENVIRONMENT
+        set_property(TEST BasicSystemTest APPEND PROPERTY ENVIRONMENT
             "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
     endif()
 
     if(TEST_FRIENDLY_PATH)
-        set_tests_properties(DDSSimpleCommunication PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        set_property(TEST BasicSystemTest APPEND PROPERTY ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 
 endif()

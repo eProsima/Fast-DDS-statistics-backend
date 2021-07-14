@@ -248,7 +248,7 @@ int main(
 
     if (participant == nullptr)
     {
-        std::cout << "Error creating publisher participant" << std::endl;
+        std::cerr << "Error creating publisher participant" << std::endl;
         return 1;
     }
 
@@ -261,7 +261,6 @@ int main(
 
     // Generate topic name
     std::ostringstream topic_name;
-    // topic_name << "HelloWorldTopic_" << "_" << seed;
     topic_name << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << seed;
 
     //CREATE THE PUBLISHER
@@ -341,7 +340,7 @@ int main(
         std::unique_lock<std::mutex> lock(listener.mutex_);
         listener.cv_.wait(lock, [&]
                 {
-                    return listener.matched_ < wait;
+                    return listener.matched_ == 0;
                 });
     }
 
