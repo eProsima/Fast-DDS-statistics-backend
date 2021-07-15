@@ -135,40 +135,31 @@ void StatisticsParticipantListener::process_endpoint_discovery(
 
     /* Start processing the locator info */
 
-    // Take all the locators already defined for this participant.
-    // This will be used only if there is no physical info.
-    // Even if the host info is not available, the participant can only have one locator
-    // with a given address/port combination, so we don't want to add duplicates
-    auto participant_locators = database_->get_entities(EntityKind::LOCATOR, participant_id.second);
-
     // Routine to process one locator from the locator list of the endpoint
     auto process_locators = [&](const Locator_t& dds_locator)
             {
-                std::shared_ptr<database::Locator> locator =
-                        std::make_shared<database::Locator>(to_string(dds_locator));
+                std::shared_ptr<database::Locator> locator;
 
-                // we need to create only one copy of the locator for this participant
-                using namespace std::placeholders;
-                auto found = std::find_if(participant_locators.begin(), participant_locators.end(),
-                                std::bind([](std::shared_ptr<database::Entity> new_locator,
-                                std::shared_ptr<const database::Entity> existing)
-                                {
-                                    return new_locator->name == existing->name;
-                                }, locator, _1));
-                if (found != participant_locators.end())
+                // Look for an existing locator
+                // There can only be one
+                auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
+                assert(locator_ids.empty() || locator_ids.size() == 1);
+
+                if (!locator_ids.empty())
                 {
-                    // The locator exists. Add the existing one.
-                    auto existing = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(*found));
-                    endpoint->locators[existing->id] = existing;
+                    // The locator exists.
+                    locator = std::const_pointer_cast<database::Locator>(
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
+                                second)));
                 }
                 else
                 {
                     // The locator is not in the database. Add the new one.
+                    locator = std::make_shared<database::Locator>(to_string(dds_locator));
                     locator->id = database_->generate_entity_id();
-                    endpoint->locators[locator->id] = locator;
-                    participant_locators.push_back(locator);
                 }
+
+                endpoint->locators[locator->id] = locator;
             };
 
     for (const auto& dds_locator : info.info.remote_locators().unicast)

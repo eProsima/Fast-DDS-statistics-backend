@@ -250,6 +250,22 @@ foreach(test_name ${USER_LISTENERS_TEST_LIST_DATAS})
 
 endforeach()
 
+set(USER_LISTENERS_TEST_END_TO_END
+    entity_discovery_end_to_end
+    )
+
+foreach(test_name ${USER_LISTENERS_TEST_END_TO_END})
+
+    add_test(NAME calling_user_listeners_tests_end_to_end.${test_name}
+            COMMAND calling_user_listeners_tests
+            --gtest_filter=calling_user_listeners_tests_end_to_end.${test_name}:*/calling_user_listeners_tests_end_to_end.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests_end_to_end.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
 
 # init_monitor_tests
 ##################################################################

@@ -495,12 +495,21 @@ std::shared_ptr<Locator> Database::get_locator_nts(
         locator = std::make_shared<Locator>("locator_" + std::to_string(entity_id.value()));
         EntityId locator_id = entity_id;
         insert_nts(locator, locator_id);
+        notify_locator_discovery(locator_id);
     }
     else
     {
         locator = locator_it->second;
     }
     return locator;
+}
+
+void Database::notify_locator_discovery (
+        const EntityId& locator_id)
+{
+    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+        locator_id, EntityKind::LOCATOR,
+        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
 void Database::insert_nts(
@@ -4369,7 +4378,7 @@ void Database::change_entity_status_of_kind(
             if (host != nullptr && host->active != active)
             {
                 host->active = active;
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
             }
             break;
@@ -4421,7 +4430,7 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering user after discovering host
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
             }
             break;
@@ -4473,7 +4482,7 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering process after discovering user
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain_id, entity_id,
+                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
             }
             break;

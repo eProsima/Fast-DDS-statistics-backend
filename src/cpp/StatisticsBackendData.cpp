@@ -275,7 +275,6 @@ void StatisticsBackendData::on_domain_entity_discovery(
 }
 
 void StatisticsBackendData::on_physical_entity_discovery(
-        EntityId participant_id,
         EntityId entity_id,
         EntityKind entity_kind,
         DiscoveryStatus discovery_status)
@@ -291,7 +290,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 
             if (should_call_physical_listener(CallbackKind::ON_HOST_DISCOVERY))
             {
-                physical_listener_->on_host_discovery(participant_id, entity_id, host_status_);
+                physical_listener_->on_host_discovery(entity_id, host_status_);
                 host_status_.on_status_read();
             }
             break;
@@ -303,7 +302,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 
             if (should_call_physical_listener(CallbackKind::ON_USER_DISCOVERY))
             {
-                physical_listener_->on_user_discovery(participant_id, entity_id, user_status_);
+                physical_listener_->on_user_discovery(entity_id, user_status_);
                 user_status_.on_status_read();
             }
             break;
@@ -315,7 +314,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 
             if (should_call_physical_listener(CallbackKind::ON_PROCESS_DISCOVERY))
             {
-                physical_listener_->on_process_discovery(participant_id, entity_id, process_status_);
+                physical_listener_->on_process_discovery(entity_id, process_status_);
                 process_status_.on_status_read();
             }
             break;
@@ -327,7 +326,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 
             if (should_call_physical_listener(CallbackKind::ON_LOCATOR_DISCOVERY))
             {
-                physical_listener_->on_locator_discovery(participant_id, entity_id, locator_status_);
+                physical_listener_->on_locator_discovery(entity_id, locator_status_);
                 locator_status_.on_status_read();
             }
             break;

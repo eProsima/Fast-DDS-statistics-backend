@@ -517,8 +517,16 @@ protected:
         /* Add to x_by_y_ collections and to locators_ */
         for (auto& locator_it : endpoint->locators)
         {
-            // Add locator to locators_
-            locators_[locator_it.first] = locator_it.second;
+            // See if we already know the locator
+            if (locators_.find(locator_it.first) == locators_.end())
+            {
+                // Is a new one, must add and inform the user
+                // The connection to the endpoint is still not done, but that's expected at this moment
+                locators_[locator_it.first] = locator_it.second;
+                notify_locator_discovery(locator_it.first);
+            }
+
+            // Even if it is not new, it may be new to the participant
             // Add reader's locators to locators_by_participant_
             locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
             // Add reader's participant to participants_by_locator_
@@ -533,6 +541,14 @@ protected:
         /* Insert endpoint in the database */
         dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
     }
+
+    /**
+     * @brief Notifies the user about a new discovered locator.
+     *
+     * @param locator_id The ID of the discovered locator.
+     */
+    void notify_locator_discovery (
+            const EntityId& locator_id);
 
     /**
      * @brief Get a dump of an Entity stored in the database.

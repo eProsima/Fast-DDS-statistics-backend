@@ -72,15 +72,15 @@ public:
         db->change_entity_status_test(topic->id, true, domain->id);
 
         // Simulate the discover of the entities
-        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
-                host->id,
-                host->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
-        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
-                user->id,
-                user->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
-        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(domain->id,
-                process->id,
-                process->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+            host->id,
+            host->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+            user->id,
+            user->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+            process->id,
+            process->kind, details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
         details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain->id,
                 topic->id,
                 topic->kind,
