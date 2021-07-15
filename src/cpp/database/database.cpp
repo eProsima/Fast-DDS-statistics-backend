@@ -3316,9 +3316,6 @@ void Database::load_database(
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
-
-            // Load data and insert into database
-            load_data((*it).at(DATA_CONTAINER_TAG), entity);
         }
     }
 
@@ -3779,6 +3776,34 @@ void Database::load_data(
                 // int16_t
                 sample.magnitude_order =
                         static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // network_latency
+    {
+        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                NetworkLatencySample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = nanoseconds_to_systemclock(time);
+
+                // double
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -4296,39 +4321,6 @@ void Database::load_data(
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
-        }
-    }
-}
-
-void Database::load_data(
-        const DatabaseDump& dump,
-        const std::shared_ptr<Locator>& entity)
-{
-    // NetworkLatency
-    {
-        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
-
-        // RemoteEntities iterator
-        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
-        {
-            // Data iterator
-            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
-            {
-                NetworkLatencySample sample;
-
-                // std::chrono::system_clock::time_point
-                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = nanoseconds_to_systemclock(time);
-
-                // double
-                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
-
-                // EntityId
-                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
-
-                // Insert data into database
-                insert_nts(EntityId::invalid(), entity->id, sample, true);
-            }
         }
     }
 }
