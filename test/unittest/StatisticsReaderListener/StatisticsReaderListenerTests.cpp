@@ -352,8 +352,8 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 {
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 1024;
-    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    uint32_t src_locator_port = 0;
+    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
@@ -382,10 +382,9 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 
     add_sample_to_reader_history(data, get_default_info());
 
-    // Precondition: The source locator exists and has ID 1
-    EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(std::make_pair(EntityId(0), EntityId(1)))));
 
     // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database_, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
