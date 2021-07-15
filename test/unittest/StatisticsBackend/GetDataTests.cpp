@@ -101,7 +101,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
     get_data_no_data_tests,
     ::testing::Values(
         std::make_tuple(DataKind::FASTDDS_LATENCY, EntityId(25), EntityId(26)),
-        std::make_tuple(DataKind::NETWORK_LATENCY, EntityId(18), EntityId(18)),
+        std::make_tuple(DataKind::NETWORK_LATENCY, EntityId(24), EntityId(18)),
         std::make_tuple(DataKind::PUBLICATION_THROUGHPUT, EntityId(25), EntityId::invalid()),
         std::make_tuple(DataKind::SUBSCRIPTION_THROUGHPUT, EntityId(26), EntityId::invalid()),
         std::make_tuple(DataKind::RTPS_PACKETS_SENT, EntityId(24), EntityId(18)),
@@ -200,7 +200,7 @@ GTEST_INSTANTIATE_TEST_MACRO(
     ::testing::Values(
         std::make_tuple(DataKind::INVALID, EntityId::invalid(), EntityId::invalid()),
         std::make_tuple(DataKind::FASTDDS_LATENCY, EntityId(16), EntityId(17)),
-        std::make_tuple(DataKind::NETWORK_LATENCY, EntityId(9), EntityId(9)),
+        std::make_tuple(DataKind::NETWORK_LATENCY, EntityId(15), EntityId(9)),
         std::make_tuple(DataKind::PUBLICATION_THROUGHPUT, EntityId(16), EntityId::invalid()),
         std::make_tuple(DataKind::SUBSCRIPTION_THROUGHPUT, EntityId(17), EntityId::invalid()),
         std::make_tuple(DataKind::RTPS_PACKETS_SENT, EntityId(15), EntityId(9)),

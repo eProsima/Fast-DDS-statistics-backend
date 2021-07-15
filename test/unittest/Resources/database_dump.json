@@ -581,52 +581,6 @@
     },
     "locators":{
         "9":{
-            "data":{
-                "network_latency_per_locator":{
-                    "9":[
-                        {
-                            "data":1.0,
-                            "src_time":"1000"
-                        },
-                        {
-                            "data":5.5,
-                            "src_time":"2000"
-                        },
-                        {
-                            "data":1.0,
-                            "src_time":"3000"
-                        },
-                        {
-                            "data":5.5,
-                            "src_time":"4000"
-                        },
-                        {
-                            "data":1.0,
-                            "src_time":"5000"
-                        },
-                        {
-                            "data":5.5,
-                            "src_time":"6000"
-                        },
-                        {
-                            "data":1.0,
-                            "src_time":"7000"
-                        },
-                        {
-                            "data":5.5,
-                            "src_time":"8000"
-                        },
-                        {
-                            "data":1.0,
-                            "src_time":"9000"
-                        },
-                        {
-                            "data":5.5,
-                            "src_time":"10000"
-                        }
-                    ]
-                }
-            },
             "datareaders":[
                 "17"
             ],
@@ -637,10 +591,6 @@
             "alias":"locator_1"
         },
         "18":{
-            "data":{
-                "network_latency_per_locator":{
-                }
-            },
             "datareaders":[
                 "26"
             ],
@@ -1155,6 +1105,50 @@
                             "src_time":"10000"
                         }
                     ]
+                },
+                "network_latency_per_locator":{
+                    "9":[
+                        {
+                            "data":1.0,
+                            "src_time":"1000"
+                        },
+                        {
+                            "data":5.5,
+                            "src_time":"2000"
+                        },
+                        {
+                            "data":1.0,
+                            "src_time":"3000"
+                        },
+                        {
+                            "data":5.5,
+                            "src_time":"4000"
+                        },
+                        {
+                            "data":1.0,
+                            "src_time":"5000"
+                        },
+                        {
+                            "data":5.5,
+                            "src_time":"6000"
+                        },
+                        {
+                            "data":1.0,
+                            "src_time":"7000"
+                        },
+                        {
+                            "data":5.5,
+                            "src_time":"8000"
+                        },
+                        {
+                            "data":1.0,
+                            "src_time":"9000"
+                        },
+                        {
+                            "data":5.5,
+                            "src_time":"10000"
+                        }
+                    ]
                 }
             },
             "datareaders":[
@@ -1221,6 +1215,8 @@
                 "rtps_packets_lost":{
                 },
                 "rtps_packets_sent":{
+                },
+                "network_latency_per_locator":{
                 }
             },
             "datareaders":[
