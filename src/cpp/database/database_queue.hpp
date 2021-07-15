@@ -489,7 +489,7 @@ protected:
         eprosima::fastrtps::rtps::GUID_t guid;
         memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastrtps::rtps::GuidPrefix_t::size);
         memcpy(guid.entityId.value, data.address().data() + eprosima::fastrtps::rtps::GuidPrefix_t::size,
-            eprosima::fastrtps::rtps::EntityId_t::size);
+                eprosima::fastrtps::rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();

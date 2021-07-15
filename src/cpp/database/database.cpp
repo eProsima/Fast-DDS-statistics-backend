@@ -550,7 +550,7 @@ void Database::insert_nts(
             {
                 const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
                 participant->data.network_latency_per_locator[network_latency.remote_locator].push_back(
-                        network_latency);
+                    network_latency);
                 break;
             }
             throw BadParameter(std::to_string(

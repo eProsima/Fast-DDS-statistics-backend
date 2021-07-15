@@ -1656,29 +1656,29 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     // Expectation: The insert method is called with appropriate arguments
     InsertDataArgs args([&](
-            const EntityId& domain_id,
-            const EntityId& entity_id,
-            const StatisticsSample& sample)
-        {
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
                 EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
-        });
+            });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: the remote locator is created and given ID 2
     InsertEntityArgs insert_args([&](
-            std::shared_ptr<Entity> entity)
-        {
-            EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-            EXPECT_EQ(entity->name, dst_locator_str);
-            EXPECT_EQ(entity->alias, dst_locator_str);
-            return EntityId(1);
-        });
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, dst_locator_str);
+                EXPECT_EQ(entity->alias, dst_locator_str);
+                return EntityId(1);
+            });
 
     EXPECT_CALL(database, insert(_)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
