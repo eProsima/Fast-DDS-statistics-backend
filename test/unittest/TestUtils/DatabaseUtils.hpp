@@ -335,6 +335,17 @@ public:
 
                 db.insert(domainId, entityId, sample);
             }
+
+            // network_latency
+            {
+                NetworkLatencySample sample;
+
+                sample.src_ts = nanoseconds_to_systemclock(1);
+                sample.data = 1.1;
+                sample.remote_locator = EntityId(writer_locator2->id);
+
+                db.insert(domainId, entityId, sample);
+            }
         }
 
         // datawriters
@@ -449,36 +460,6 @@ public:
 
                 db.insert(domainId, entityId, sample);
             }
-        }
-
-        // locators
-        {
-            // writer_locator
-            {
-                EntityId entityId = writer_locator2->id;
-
-                NetworkLatencySample sample;
-
-                sample.src_ts = nanoseconds_to_systemclock(1);
-                sample.data = 1.1;
-                sample.remote_locator = EntityId(entityId);
-
-                db.insert(EntityId::invalid(), entityId, sample);
-            }
-
-            // reader_locator
-            {
-                EntityId entityId = reader_locator2->id;
-
-                NetworkLatencySample sample;
-
-                sample.src_ts = nanoseconds_to_systemclock(1);
-                sample.data = 1.1;
-                sample.remote_locator = EntityId(entityId);
-
-                db.insert(EntityId::invalid(), entityId, sample);
-            }
-
         }
 
         return entities;
