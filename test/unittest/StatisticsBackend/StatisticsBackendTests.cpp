@@ -300,7 +300,7 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
              EntityKind::DATAWRITER, EntityKind::DATAREADER)},
 
         {DataKind::NETWORK_LATENCY, std::pair<EntityKind, EntityKind>(
-             EntityKind::LOCATOR, EntityKind::LOCATOR)},
+             EntityKind::PARTICIPANT, EntityKind::LOCATOR)},
 
         {DataKind::PUBLICATION_THROUGHPUT, std::pair<EntityKind, EntityKind>(
              EntityKind::DATAWRITER, EntityKind::INVALID)},
