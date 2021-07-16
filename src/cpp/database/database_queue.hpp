@@ -30,6 +30,7 @@
 #include <fastdds/rtps/common/Guid.h>
 #include <fastdds/rtps/common/Locator.h>
 #include <fastdds/rtps/common/SequenceNumber.h>
+#include <fastdds/rtps/common/RemoteLocators.hpp>
 #include <fastdds/dds/log/Log.hpp>
 
 #include <database/database.hpp>
@@ -328,9 +329,35 @@ protected:
 
 struct EntityDiscoveryInfo
 {
-    std::shared_ptr<Entity> entity;
-    EntityId domain_id;
     details::StatisticsBackendData::DiscoveryStatus discovery_status;
+    EntityId domain_id;
+
+    fastrtps::rtps::GUID_t guid;
+    database::Qos qos;
+
+    // Participant data
+    std::string address;
+    std::string participant_name;
+
+    // Enpoint data
+    std::string topic_name;
+    std::string type_name;
+    fastrtps::rtps::RemoteLocatorList locators;
+
+    EntityDiscoveryInfo(
+            EntityKind kind)
+        : entity_kind(kind)
+    {
+    }
+
+    EntityKind kind() const
+    {
+        return entity_kind;
+    }
+
+protected:
+    EntityKind entity_kind;
+
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
