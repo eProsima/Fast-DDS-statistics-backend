@@ -599,90 +599,89 @@ TEST(qos_serializer_tests, parameter_property_list_qos_policy)
 
 TEST(qos_serializer_tests, writer_info_serializer)
 {
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo info(
-        eprosima::fastrtps::rtps::WriterProxyData(10, 10));
+    eprosima::fastrtps::rtps::WriterProxyData info(10, 10);
     Qos serialized;
     Qos expected;
 
     // We will use default values here, specific values for each QoS
     // have been tested in other test
-    serialized = eprosima::statistics_backend::subscriber::writer_info_to_backend_qos(info);
+    serialized = eprosima::statistics_backend::subscriber::writer_proxy_data_to_backend_qos(info);
 
     Qos serialized_durability;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_durability, durability_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_durability, durability_tag,
             serialized_durability);
     expected[durability_tag] = serialized_durability[durability_tag];
     Qos serialized_durabilityService;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_durabilityService, durability_service_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_durabilityService, durability_service_tag,
             serialized_durabilityService);
     expected[durability_service_tag] = serialized_durabilityService[durability_service_tag];
     Qos serialized_deadline;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_deadline, deadline_tag, serialized_deadline);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_deadline, deadline_tag, serialized_deadline);
     expected[deadline_tag] = serialized_deadline[deadline_tag];
     Qos serialized_latencyBudget;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_latencyBudget, latency_budget_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_latencyBudget, latency_budget_tag,
             serialized_latencyBudget);
     expected[latency_budget_tag] = serialized_latencyBudget[latency_budget_tag];
     Qos serialized_liveliness;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_liveliness, liveliness_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_liveliness, liveliness_tag,
             serialized_liveliness);
     expected[liveliness_tag] = serialized_liveliness[liveliness_tag];
     Qos serialized_reliability;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_reliability, reliability_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_reliability, reliability_tag,
             serialized_reliability);
     expected[reliability_tag] = serialized_reliability[reliability_tag];
     Qos serialized_lifespan;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_lifespan, lifespan_tag, serialized_lifespan);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_lifespan, lifespan_tag, serialized_lifespan);
     expected[lifespan_tag] = serialized_lifespan[lifespan_tag];
     Qos serialized_userData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_userData, user_data_tag, serialized_userData);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_userData, user_data_tag, serialized_userData);
     expected[user_data_tag] = serialized_userData[user_data_tag];
     Qos serialized_timeBasedFilter;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_timeBasedFilter, time_based_filter_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_timeBasedFilter, time_based_filter_tag,
             serialized_timeBasedFilter);
     expected[time_based_filter_tag] = serialized_timeBasedFilter[time_based_filter_tag];
     Qos serialized_ownership;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_ownership, ownership_tag,
             serialized_ownership);
     expected[ownership_tag] = serialized_ownership[ownership_tag];
     Qos serialized_ownershipStrength;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownershipStrength, ownership_strength_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_ownershipStrength, ownership_strength_tag,
             serialized_ownershipStrength);
     expected[ownership_strength_tag] = serialized_ownershipStrength[ownership_strength_tag];
     Qos serialized_destinationOrder;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_destinationOrder, destination_order_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_destinationOrder, destination_order_tag,
             serialized_destinationOrder);
     expected[destination_order_tag] = serialized_destinationOrder[destination_order_tag];
     Qos serialized_presentation;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_presentation, presentation_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_presentation, presentation_tag,
             serialized_presentation);
     expected[presentation_tag] = serialized_presentation[presentation_tag];
     Qos serialized_partition;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_partition, partition_tag,
             serialized_partition);
     expected[partition_tag] = serialized_partition[partition_tag];
     Qos serialized_topicData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_topicData, topic_data_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_topicData, topic_data_tag,
             serialized_topicData);
     expected[topic_data_tag] = serialized_topicData[topic_data_tag];
     Qos serialized_groupData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_groupData, group_data_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_groupData, group_data_tag,
             serialized_groupData);
     expected[group_data_tag] = serialized_groupData[group_data_tag];
     Qos serialized_publishMode;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_publishMode, publish_mode_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_publishMode, publish_mode_tag,
             serialized_publishMode);
     expected[publish_mode_tag] = serialized_publishMode[publish_mode_tag];
     Qos serialized_representation;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.representation, representation_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.representation, representation_tag,
             serialized_representation);
     expected[representation_tag] = serialized_representation[representation_tag];
     Qos serialized_m_disablePositiveACKs;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_disablePositiveACKs,
             disable_positive_acks_tag, serialized_m_disablePositiveACKs);
     expected[disable_positive_acks_tag] = serialized_m_disablePositiveACKs[disable_positive_acks_tag];
     Qos serialized_data_sharing;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.data_sharing, data_sharing_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.data_sharing, data_sharing_tag,
             serialized_data_sharing);
     expected[data_sharing_tag] = serialized_data_sharing[data_sharing_tag];
 
@@ -691,86 +690,85 @@ TEST(qos_serializer_tests, writer_info_serializer)
 
 TEST(qos_serializer_tests, reader_info_serializer)
 {
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(
-        eprosima::fastrtps::rtps::ReaderProxyData(10, 10));
+    eprosima::fastrtps::rtps::ReaderProxyData info(10, 10);
     Qos serialized;
     Qos expected;
 
     // We will use default values here, specific values for each QoS
     // have been tested in other test
-    serialized = eprosima::statistics_backend::subscriber::reader_info_to_backend_qos(info);
+    serialized = eprosima::statistics_backend::subscriber::reader_proxy_data_to_backend_qos(info);
 
     Qos serialized_durability;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_durability, durability_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_durability, durability_tag,
             serialized_durability);
     expected[durability_tag] = serialized_durability[durability_tag];
     Qos serialized_durabilityService;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_durabilityService, durability_service_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_durabilityService, durability_service_tag,
             serialized_durabilityService);
     expected[durability_service_tag] = serialized_durabilityService[durability_service_tag];
     Qos serialized_deadline;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_deadline, deadline_tag, serialized_deadline);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_deadline, deadline_tag, serialized_deadline);
     expected[deadline_tag] = serialized_deadline[deadline_tag];
     Qos serialized_latencyBudget;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_latencyBudget, latency_budget_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_latencyBudget, latency_budget_tag,
             serialized_latencyBudget);
     expected[latency_budget_tag] = serialized_latencyBudget[latency_budget_tag];
     Qos serialized_liveliness;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_liveliness, liveliness_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_liveliness, liveliness_tag,
             serialized_liveliness);
     expected[liveliness_tag] = serialized_liveliness[liveliness_tag];
     Qos serialized_reliability;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_reliability, reliability_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_reliability, reliability_tag,
             serialized_reliability);
     expected[reliability_tag] = serialized_reliability[reliability_tag];
     Qos serialized_lifespan;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_lifespan, lifespan_tag, serialized_lifespan);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_lifespan, lifespan_tag, serialized_lifespan);
     expected[lifespan_tag] = serialized_lifespan[lifespan_tag];
     Qos serialized_userData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_userData, user_data_tag, serialized_userData);
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_userData, user_data_tag, serialized_userData);
     expected[user_data_tag] = serialized_userData[user_data_tag];
     Qos serialized_timeBasedFilter;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_timeBasedFilter, time_based_filter_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_timeBasedFilter, time_based_filter_tag,
             serialized_timeBasedFilter);
     expected[time_based_filter_tag] = serialized_timeBasedFilter[time_based_filter_tag];
     Qos serialized_ownership;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_ownership, ownership_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_ownership, ownership_tag,
             serialized_ownership);
     expected[ownership_tag] = serialized_ownership[ownership_tag];
     Qos serialized_destinationOrder;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_destinationOrder, destination_order_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_destinationOrder, destination_order_tag,
             serialized_destinationOrder);
     expected[destination_order_tag] = serialized_destinationOrder[destination_order_tag];
     Qos serialized_presentation;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_presentation, presentation_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_presentation, presentation_tag,
             serialized_presentation);
     expected[presentation_tag] = serialized_presentation[presentation_tag];
     Qos serialized_partition;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_partition, partition_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_partition, partition_tag,
             serialized_partition);
     expected[partition_tag] = serialized_partition[partition_tag];
     Qos serialized_topicData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_topicData, topic_data_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_topicData, topic_data_tag,
             serialized_topicData);
     expected[topic_data_tag] = serialized_topicData[topic_data_tag];
     Qos serialized_groupData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_groupData, group_data_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_groupData, group_data_tag,
             serialized_groupData);
     expected[group_data_tag] = serialized_groupData[group_data_tag];
     Qos serialized_representation;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.representation, representation_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.representation, representation_tag,
             serialized_representation);
     expected[representation_tag] = serialized_representation[representation_tag];
     Qos serialized_m_disablePositiveACKs;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.m_disablePositiveACKs,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.m_disablePositiveACKs,
             disable_positive_acks_tag, serialized_m_disablePositiveACKs);
     expected[disable_positive_acks_tag] = serialized_m_disablePositiveACKs[disable_positive_acks_tag];
     Qos serialized_data_sharing;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.data_sharing, data_sharing_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.data_sharing, data_sharing_tag,
             serialized_data_sharing);
     expected[data_sharing_tag] = serialized_data_sharing[data_sharing_tag];
     Qos serialized_type_consistency;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_qos.type_consistency, type_consistency_tag,
+    eprosima::statistics_backend::subscriber::serialize(info.m_qos.type_consistency, type_consistency_tag,
             serialized_type_consistency);
     expected[type_consistency_tag] = serialized_type_consistency[type_consistency_tag];
 
@@ -785,23 +783,22 @@ TEST(qos_serializer_tests, participant_info_serializer)
     eprosima::fastrtps::rtps::ParticipantProxyData data(attributes);
     data.m_VendorId = eprosima::fastrtps::rtps::c_VendorId_eProsima;
     data.m_availableBuiltinEndpoints = 101;
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
     Qos serialized;
     Qos expected;
 
     // We will use default values here, specific values for each QoS
     // have been tested in other test
-    serialized = eprosima::statistics_backend::subscriber::participant_info_to_backend_qos(info);
+    serialized = eprosima::statistics_backend::subscriber::participant_proxy_data_to_backend_qos(data);
 
     Qos serialized_leaseDuration;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_leaseDuration, lease_duration_tag,
+    eprosima::statistics_backend::subscriber::serialize(data.m_leaseDuration, lease_duration_tag,
             serialized_leaseDuration);
     expected[lease_duration_tag] = serialized_leaseDuration[lease_duration_tag];
     Qos serialized_properties;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_properties, properties_tag, serialized_properties);
+    eprosima::statistics_backend::subscriber::serialize(data.m_properties, properties_tag, serialized_properties);
     expected[properties_tag] = serialized_properties[properties_tag];
     Qos serialized_userData;
-    eprosima::statistics_backend::subscriber::serialize(info.info.m_userData, user_data_tag, serialized_userData);
+    eprosima::statistics_backend::subscriber::serialize(data.m_userData, user_data_tag, serialized_userData);
     expected[user_data_tag] = serialized_userData[user_data_tag];
 
     expected[available_builtin_endpoints_tag] = 101;
