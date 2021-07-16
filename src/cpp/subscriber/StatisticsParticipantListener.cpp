@@ -150,8 +150,9 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 {
                     // The locator exists.
                     locator = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
-                                second)));
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(
+                            locator_ids.front().second,
+                            EntityKind::LOCATOR)));
                 }
                 else
                 {
