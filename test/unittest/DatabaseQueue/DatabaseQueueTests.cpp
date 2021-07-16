@@ -242,7 +242,7 @@ TEST_F(database_queue_tests, start_stop_flush)
     IntegerQueue int_queue;
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-      // Add something to the stopped queue
+    // Add something to the stopped queue
     EXPECT_CALL(int_queue, process_sample()).Times(0);
     EXPECT_TRUE(int_queue.stop_consumer());
     int_queue.push(timestamp, 1);
@@ -316,7 +316,7 @@ TEST_F(database_queue_tests, push_participant)
     // Precondition: The domain exists and has ID 0
     std::shared_ptr<Domain> domain;
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-                .WillRepeatedly(Return(domain));
+            .WillRepeatedly(Return(domain));
 
     // Participant undiscovery: FAILURE
     {
@@ -506,7 +506,7 @@ TEST_F(database_queue_tests, push_datawriter)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -515,20 +515,23 @@ TEST_F(database_queue_tests, push_datawriter)
     // Precondition: The topic exists and has ID 2
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic));
 
     // Precondition: The locators exist and have ID 100 and 101
     std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(100)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
             .WillRepeatedly(Return(ulocator));
 
     std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(101)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
     EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
             .WillRepeatedly(Return(mlocator));
 
@@ -653,16 +656,16 @@ TEST_F(database_queue_tests, push_datawriter)
 
         // Expectation: The writer creation throws
         InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, datawriter_name);
-                EXPECT_EQ(entity->alias, datawriter_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+                    std::shared_ptr<Entity> entity) -> EntityId
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(entity->name, datawriter_name);
+                    EXPECT_EQ(entity->alias, datawriter_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
-                throw BadParameter("Error");
-            });
+                    throw BadParameter("Error");
+                });
 
         EXPECT_CALL(database, insert(_)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
@@ -716,7 +719,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -729,13 +732,15 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     // Precondition: The locators exist and have ID 100 and 101
     std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(100)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
             .WillRepeatedly(Return(ulocator));
 
     std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(101)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
     EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
             .WillRepeatedly(Return(mlocator));
 
@@ -830,7 +835,7 @@ TEST_F(database_queue_tests, push_datawriter_locator_does_not_exist)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -839,7 +844,8 @@ TEST_F(database_queue_tests, push_datawriter_locator_does_not_exist)
     // Precondition: The topic exists and has ID 2
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic));
 
@@ -956,7 +962,7 @@ TEST_F(database_queue_tests, push_datareader)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -965,20 +971,23 @@ TEST_F(database_queue_tests, push_datareader)
     // Precondition: The topic exists and has ID 2
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic));
 
     // Precondition: The locators exist and have ID 100 and 101
     std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(100)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
             .WillRepeatedly(Return(ulocator));
 
     std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(101)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
     EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
             .WillRepeatedly(Return(mlocator));
 
@@ -1104,16 +1113,16 @@ TEST_F(database_queue_tests, push_datareader)
 
         // Expectation: The reader creation throws
         InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, datareader_name);
-                EXPECT_EQ(entity->alias, datareader_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+                    std::shared_ptr<Entity> entity) -> EntityId
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(entity->name, datareader_name);
+                    EXPECT_EQ(entity->alias, datareader_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
-                throw BadParameter("Error");
-            });
+                    throw BadParameter("Error");
+                });
 
         EXPECT_CALL(database, insert(_)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
@@ -1167,7 +1176,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -1180,13 +1189,15 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     // Precondition: The locators exist and have ID 100 and 101
     std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(100)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
             .WillRepeatedly(Return(ulocator));
 
     std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(101)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
     EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
             .WillRepeatedly(Return(mlocator));
 
@@ -1281,7 +1292,7 @@ TEST_F(database_queue_tests, push_datareader_locator_does_not_exist)
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-            participant_name, Qos(), participant_guid_str, nullptr, domain);
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
@@ -1290,7 +1301,8 @@ TEST_F(database_queue_tests, push_datareader_locator_does_not_exist)
     // Precondition: The topic exists and has ID 2
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(topic));
 

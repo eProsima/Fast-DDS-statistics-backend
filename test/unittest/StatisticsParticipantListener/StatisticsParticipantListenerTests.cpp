@@ -1014,7 +1014,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
+                reader_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -1212,7 +1213,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
+                reader_proxy_data_to_backend_qos(info.info));
 
                 // We cannot check the Topic pointer as the queue will create a new one.
                 // We check the topic_ data instead
@@ -1359,7 +1361,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
+                reader_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -1539,7 +1542,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
+                reader_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -1744,7 +1748,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
+                reader_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -2196,7 +2201,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
+                writer_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -2394,7 +2400,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
 
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
+                writer_proxy_data_to_backend_qos(info.info));
 
                 // We cannot check the Topic pointer as the queue will create a new one.
                 // We check the topic_ data instead
@@ -2587,7 +2594,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
+                writer_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);
@@ -2788,7 +2796,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
+                writer_proxy_data_to_backend_qos(info.info));
 
                 std::vector<std::string> expected_locator_names;
                 expected_locator_names.push_back(existing_unicast_locator_name);

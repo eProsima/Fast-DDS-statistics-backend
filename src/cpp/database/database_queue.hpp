@@ -356,6 +356,7 @@ struct EntityDiscoveryInfo
     }
 
 protected:
+
     EntityKind entity_kind;
 
 };
@@ -415,10 +416,10 @@ protected:
             }
 
             details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                    info.domain_id,
-                    entity_id,
-                    info.kind(),
-                    info.discovery_status);
+                info.domain_id,
+                entity_id,
+                info.kind(),
+                info.discovery_status);
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {
@@ -428,7 +429,7 @@ protected:
 
     template<typename T>
     EntityId process_endpoint_discovery(
-        const T& info);
+            const T& info);
 
     std::shared_ptr<database::DDSEndpoint> create_datareader(
             const eprosima::fastrtps::rtps::GUID_t& guid,

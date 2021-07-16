@@ -64,7 +64,7 @@ EntityId DatabaseEntityQueue::process_participant(
         // See if the participant is already in the database
         // This will throw if the participant is unknown
         participant_id = database_->get_entity_by_guid(
-                EntityKind::PARTICIPANT, to_string(info.guid))
+            EntityKind::PARTICIPANT, to_string(info.guid))
                         .second;
 
         // Update the entity status and check if its references must also change it status
@@ -123,7 +123,7 @@ EntityId DatabaseEntityQueue::process_datareader(
         // This will throw if the reader is unknown
         datareader_id =
                 database_->get_entity_by_guid(
-                    EntityKind::DATAREADER, to_string(info.guid)).second;
+            EntityKind::DATAREADER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
         database_->change_entity_status(datareader_id,
@@ -148,7 +148,6 @@ EntityId DatabaseEntityQueue::process_datareader(
     return datareader_id;
 }
 
-
 EntityId DatabaseEntityQueue::process_datawriter(
         const EntityDiscoveryInfo& info)
 {
@@ -160,7 +159,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
         // This will throw if the writer is unknown
         datawriter_id =
                 database_->get_entity_by_guid(
-                    EntityKind::DATAWRITER, to_string(info.guid)).second;
+            EntityKind::DATAWRITER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
         database_->change_entity_status(datawriter_id,
@@ -207,8 +206,8 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     catch (const Exception&)
     {
         throw BadParameter("endpoint " + to_string(endpoint_guid)
-                +  " discovered on Participant " + to_string(participant_guid)
-                + " but there is no such Participant in the database");
+                      +  " discovered on Participant " + to_string(participant_guid)
+                      + " but there is no such Participant in the database");
     }
     std::shared_ptr<database::DomainParticipant> participant =
             std::const_pointer_cast<database::DomainParticipant>(
@@ -250,10 +249,10 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
         EntityId topic_id = database_->insert(topic);
         details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                info.domain_id,
-                topic_id,
-                EntityKind::TOPIC,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+            info.domain_id,
+            topic_id,
+            EntityKind::TOPIC,
+            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
     // Create the endpoint
@@ -283,7 +282,8 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
                 {
                     // The locator exists. Add the existing one.
                     locator = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().second)));
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
+                                second)));
                 }
                 else
                 {
@@ -291,9 +291,9 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
                     locator = std::make_shared<database::Locator>(to_string(dds_locator));
                     locator->id = database_->insert(locator);
                     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                            locator->id,
-                            EntityKind::LOCATOR,
-                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+                        locator->id,
+                        EntityKind::LOCATOR,
+                        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
                 }
 
                 endpoint->locators[locator->id] = locator;
