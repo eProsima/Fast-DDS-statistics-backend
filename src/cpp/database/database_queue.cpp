@@ -26,6 +26,338 @@ namespace statistics_backend {
 namespace database {
 
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastrtps::rtps;
+
+template<typename T>
+std::string to_string(
+        T data)
+{
+    std::stringstream ss;
+    ss << data;
+    return ss.str();
+}
+
+// Return the participant_id
+std::string get_participant_id(
+        const GUID_t& guid)
+{
+    // The participant_id can be obtained from the last 4 octets in the GUID prefix
+    std::stringstream buffer;
+    buffer << std::hex << std::setfill('0');
+    for (int i = 0; i < 3; i++)
+    {
+        buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[i + 8]);
+        buffer << ".";
+    }
+    buffer << std::setw(2) << static_cast<unsigned>(guid.guidPrefix.value[3 + 8]);
+
+    return buffer.str();
+}
+
+EntityId DatabaseEntityQueue::process_participant(
+        const EntityDiscoveryInfo& info)
+{
+    EntityId participant_id;
+
+    try
+    {
+        // See if the participant is already in the database
+        // This will throw if the participant is unknown
+        participant_id = database_->get_entity_by_guid(
+            EntityKind::PARTICIPANT, to_string(info.guid))
+                        .second;
+
+        // Update the entity status and check if its references must also change it status
+        database_->change_entity_status(participant_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+    }
+    catch (BadParameter&)
+    {
+        // The participant is not in the database
+        if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
+        {
+            // Get the domain from the database
+            // This may throw if the domain does not exist
+            // The database MUST contain the domain, or something went wrong upstream
+            std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(info.domain_id)));
+
+            std::string name = info.participant_name;
+
+            // If the user does not provide a specific name for the participant, give it a descriptive name
+            if (name.empty())
+            {
+                // The name will be constructed as IP:participant_id
+                name = info.address + ":" + get_participant_id(info.guid);
+            }
+
+            // Create the participant and add it to the database
+            GUID_t participant_guid = info.guid;
+            auto participant = std::make_shared<database::DomainParticipant>(
+                name,
+                info.qos,
+                to_string(participant_guid),
+                std::shared_ptr<database::Process>(),
+                domain);
+
+            participant_id = database_->insert(participant);
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a participant which is not in the database");
+        }
+    }
+
+    return participant_id;
+}
+
+EntityId DatabaseEntityQueue::process_datareader(
+        const EntityDiscoveryInfo& info)
+{
+    EntityId datareader_id;
+
+    try
+    {
+        // See if the reader is already in the database
+        // This will throw if the reader is unknown
+        datareader_id =
+                database_->get_entity_by_guid(
+            EntityKind::DATAREADER, to_string(info.guid)).second;
+
+        // Update the entity status and check if its references must also change it status
+        database_->change_entity_status(datareader_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+    }
+    catch (BadParameter&)
+    {
+        // The reader is not in the database
+        if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
+        {
+            datareader_id = process_endpoint_discovery(info);
+
+            // Force the refresh of the parent entities' status
+            database_->change_entity_status(datareader_id, true);
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a subscriber which is not in the database");
+        }
+    }
+    return datareader_id;
+}
+
+EntityId DatabaseEntityQueue::process_datawriter(
+        const EntityDiscoveryInfo& info)
+{
+    EntityId datawriter_id;
+
+    try
+    {
+        // See if the writer is already in the database
+        // This will throw if the writer is unknown
+        datawriter_id =
+                database_->get_entity_by_guid(
+            EntityKind::DATAWRITER, to_string(info.guid)).second;
+
+        // Update the entity status and check if its references must also change it status
+        database_->change_entity_status(datawriter_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+    }
+    catch (BadParameter&)
+    {
+        // The writer is not in the database
+        if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
+        {
+            datawriter_id = process_endpoint_discovery(info);
+
+            // Force the refresh of the parent entities' status
+            database_->change_entity_status(datawriter_id, true);
+        }
+        else
+        {
+            throw BadParameter("Update or undiscover a publisher which is not in the database");
+        }
+    }
+    return datawriter_id;
+}
+
+template<typename T>
+EntityId DatabaseEntityQueue::process_endpoint_discovery(
+        const T& info)
+{
+    // Get the domain from the database
+    // This may throw if the domain does not exist
+    // The database MUST contain the domain, or something went wrong upstream
+    std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
+        std::static_pointer_cast<const database::Domain>(database_->get_entity(info.domain_id)));
+
+    // Get the participant from the database
+    GUID_t endpoint_guid = info.guid;
+    GUID_t participant_guid(endpoint_guid.guidPrefix, c_EntityId_RTPSParticipant);
+    std::pair<EntityId, EntityId> participant_id;
+    try
+    {
+        participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+        assert(participant_id.first == info.domain_id);
+    }
+    catch (const Exception&)
+    {
+        throw BadParameter("endpoint " + to_string(endpoint_guid)
+                      +  " discovered on Participant " + to_string(participant_guid)
+                      + " but there is no such Participant in the database");
+    }
+    std::shared_ptr<database::DomainParticipant> participant =
+            std::const_pointer_cast<database::DomainParticipant>(
+        std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
+            participant_id.second)));
+
+    // Check whether the topic is already in the database
+    std::shared_ptr<database::Topic> topic;
+    auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
+
+    // Check if any of these topics is in the current domain AND shares the data type
+    for (const auto& topic_id : topic_ids)
+    {
+        if (topic_id.first == info.domain_id)
+        {
+            topic = std::const_pointer_cast<database::Topic>(
+                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+
+            if (topic->data_type == info.type_name)
+            {
+                //Found the correct topic
+                break;
+            }
+            else
+            {
+                // The data type is not the same, so it must be another topic
+                topic.reset();
+            }
+        }
+    }
+
+    // If no such topic exists, create a new one
+    if (!topic)
+    {
+        topic = std::make_shared<database::Topic>(
+            info.topic_name,
+            info.type_name,
+            domain);
+
+        if (!info.alias.empty())
+        {
+            topic->alias = info.alias;
+        }
+
+        EntityId topic_id = database_->insert(topic);
+        details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+            info.domain_id,
+            topic_id,
+            EntityKind::TOPIC,
+            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+    }
+
+    // Create the endpoint
+    std::shared_ptr<database::DDSEndpoint> endpoint;
+    if (info.kind() == EntityKind::DATAREADER)
+    {
+        endpoint = create_datareader(endpoint_guid, info, participant, topic);
+    }
+    else
+    {
+        endpoint = create_datawriter(endpoint_guid, info, participant, topic);
+    }
+
+
+    // Mark it as the meta traffic one
+    endpoint->is_virtual_metatraffic = info.is_virtual_metatraffic;
+    if (!info.alias.empty())
+    {
+        endpoint->alias = info.alias;
+    }
+
+    /* Start processing the locator info */
+
+    // Routine to process one locator from the locator list of the endpoint
+    auto process_locators = [&](const Locator_t& dds_locator)
+            {
+                std::shared_ptr<database::Locator> locator;
+
+                // Look for an existing locator
+                // There can only be one
+                auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
+                assert(locator_ids.empty() || locator_ids.size() == 1);
+
+                if (!locator_ids.empty())
+                {
+                    // The locator exists. Add the existing one.
+                    locator = std::const_pointer_cast<database::Locator>(
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
+                                second)));
+                }
+                else
+                {
+                    // The locator is not in the database. Add the new one.
+                    locator = std::make_shared<database::Locator>(to_string(dds_locator));
+                    locator->id = database_->insert(locator);
+                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                        locator->id,
+                        EntityKind::LOCATOR,
+                        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+                }
+
+                endpoint->locators[locator->id] = locator;
+            };
+
+    for (const auto& dds_locator : info.locators.unicast)
+    {
+        process_locators(dds_locator);
+    }
+    for (const auto& dds_locator : info.locators.multicast)
+    {
+        process_locators(dds_locator);
+    }
+
+    // insert the endpoint
+    return database_->insert(endpoint);
+}
+
+std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datawriter(
+        const GUID_t& guid,
+        const EntityDiscoveryInfo& info,
+        std::shared_ptr<database::DomainParticipant> participant,
+        std::shared_ptr<database::Topic> topic)
+{
+    std::stringstream name;
+    name << "DataWriter_" << info.topic_name << "_" << info.guid.entityId;
+
+    return std::make_shared<database::DataWriter>(
+        name.str(),
+        info.qos,
+        to_string(guid),
+        participant,
+        topic);
+}
+
+std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datareader(
+        const GUID_t& guid,
+        const EntityDiscoveryInfo& info,
+        std::shared_ptr<database::DomainParticipant> participant,
+        std::shared_ptr<database::Topic> topic)
+{
+    std::stringstream name;
+    name << "DataReader_" << info.topic_name << "_" << info.guid.entityId;
+
+    return std::make_shared<database::DataReader>(
+        name.str(),
+        info.qos,
+        to_string(guid),
+        participant,
+        topic);
+}
 
 EntityId DatabaseDataQueue::get_or_create_locator(
         const std::string& locator_name) const

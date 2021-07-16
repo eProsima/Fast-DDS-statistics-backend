@@ -21,9 +21,9 @@
 
 #include <string>
 
-#include <fastdds/rtps/reader/ReaderDiscoveryInfo.h>
-#include <fastdds/rtps/writer/WriterDiscoveryInfo.h>
-#include <fastdds/rtps/participant/ParticipantDiscoveryInfo.h>
+#include <fastdds/rtps/builtin/data/ReaderProxyData.h>
+#include <fastdds/rtps/builtin/data/WriterProxyData.h>
+#include <fastdds/rtps/builtin/data/ParticipantProxyData.h>
 
 #include <database/entities.hpp>
 
@@ -163,14 +163,14 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
         const std::string& fieldname,
         database::Qos& serialized);
 
-database::Qos reader_info_to_backend_qos(
-        const fastrtps::rtps::ReaderDiscoveryInfo& reader_info);
+database::Qos reader_proxy_data_to_backend_qos(
+        const fastrtps::rtps::ReaderProxyData& reader_data);
 
-database::Qos writer_info_to_backend_qos(
-        const fastrtps::rtps::WriterDiscoveryInfo& writer_info);
+database::Qos writer_proxy_data_to_backend_qos(
+        const fastrtps::rtps::WriterProxyData& writer_data);
 
-database::Qos participant_info_to_backend_qos(
-        const fastrtps::rtps::ParticipantDiscoveryInfo& writer_info);
+database::Qos participant_proxy_data_to_backend_qos(
+        const fastrtps::rtps::ParticipantProxyData& participant_data);
 
 
 } // namespace subscriber
