@@ -578,14 +578,10 @@ protected:
         /* Add to x_by_y_ collections and to locators_ */
         for (auto& locator_it : endpoint->locators)
         {
-            // See if we already know the locator
+            /* Check that locator exists */
             if (locators_.find(locator_it.first) == locators_.end())
             {
-                // Is a new one, must add and inform the user
-                // The connection to the endpoint is still not done, but that's expected at this moment
-                // In this case, we know for sure that the locator is not in the database
-                locators_[locator_it.first] = locator_it.second;
-                notify_locator_discovery(locator_it.first);
+                throw BadParameter("Locator does not exist in the database");
             }
 
             // Even if it is not new, it may be new to the participant
