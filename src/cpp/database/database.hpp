@@ -241,7 +241,7 @@ public:
     const std::vector<std::shared_ptr<const Entity>> get_entities(
             EntityKind entity_kind,
             const EntityId& entity_id,
-            EntityKind source_entity_kind = EntityKind::INVALID) const;
+            const EntityKind source_entity_kind = EntityKind::INVALID) const;
 
     /**
      * Get all EntityIds of a given EntityKind related to another entity.
@@ -261,7 +261,7 @@ public:
     std::vector<EntityId> get_entity_ids(
             EntityKind entity_type,
             const EntityId& entity_id,
-            EntityKind source_entity_kind = EntityKind::INVALID) const;
+            const EntityKind source_entity_kind = EntityKind::INVALID) const;
 
     /**
      *  @brief Generate an EntityId that is unique for the database.

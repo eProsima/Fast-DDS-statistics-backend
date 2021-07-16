@@ -2432,9 +2432,114 @@ TEST_F(database_tests, get_entity_locator)
     ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
 }
 
+TEST_F(database_tests, get_entity_host_efficient_search)
+{
+    auto local_host = db.get_entity(host_id, EntityKind::HOST);
+    ASSERT_EQ(local_host.get(), host.get());
+}
+
+TEST_F(database_tests, get_entity_process_efficient_search)
+{
+    auto local_process = db.get_entity(process_id, EntityKind::PROCESS);
+    ASSERT_EQ(local_process.get(), process.get());
+}
+
+TEST_F(database_tests, get_entity_user_efficient_search)
+{
+    auto local_user = db.get_entity(user_id, EntityKind::USER);
+    ASSERT_EQ(local_user.get(), user.get());
+}
+
+TEST_F(database_tests, get_entity_domain_efficient_search)
+{
+    auto local_domain = db.get_entity(domain_id, EntityKind::DOMAIN);
+    ASSERT_EQ(local_domain.get(), domain.get());
+}
+
+TEST_F(database_tests, get_entity_topic_efficient_search)
+{
+    auto local_topic = db.get_entity(topic_id, EntityKind::TOPIC);
+    ASSERT_EQ(local_topic.get(), topic.get());
+}
+
+TEST_F(database_tests, get_entity_participant_efficient_search)
+{
+    auto local_participant = db.get_entity(participant_id, EntityKind::PARTICIPANT);
+    ASSERT_EQ(local_participant.get(), participant.get());
+}
+
+TEST_F(database_tests, get_entity_datareader_efficient_search)
+{
+    auto local_reader = db.get_entity(reader_id, EntityKind::DATAREADER);
+    ASSERT_EQ(local_reader.get(), reader.get());
+}
+
+TEST_F(database_tests, get_entity_datawriter_efficient_search)
+{
+    auto local_writer = db.get_entity(writer_id, EntityKind::DATAWRITER);
+    ASSERT_EQ(local_writer.get(), writer.get());
+}
+
+TEST_F(database_tests, get_entity_locator_efficient_search)
+{
+    auto local_reader_locator = db.get_entity(reader_locator->id, EntityKind::LOCATOR);
+    ASSERT_EQ(local_reader_locator.get(), reader_locator.get());
+    auto local_writer_locator = db.get_entity(writer_locator->id, EntityKind::LOCATOR);
+    ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
+}
+
 TEST_F(database_tests, get_entity_no_existing)
 {
     ASSERT_THROW(db.get_entity(EntityId()), BadParameter);
+    // With specific kind
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::HOST), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::USER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::PROCESS), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DOMAIN), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::TOPIC), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::PARTICIPANT), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DATAREADER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DATAWRITER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::LOCATOR), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_no_correct_kind)
+{
+    std::map<EntityId, EntityKind> correct_kinds = {
+        {host_id, EntityKind::HOST},
+        {process_id, EntityKind::PROCESS},
+        {user_id, EntityKind::USER},
+        {domain_id, EntityKind::DOMAIN},
+        {topic_id, EntityKind::TOPIC},
+        {participant_id, EntityKind::PARTICIPANT},
+        {reader_id, EntityKind::DATAREADER},
+        {writer_id, EntityKind::DATAWRITER},
+        {reader_locator->id, EntityKind::LOCATOR},
+        {writer_locator->id, EntityKind::LOCATOR}
+    };
+
+    std::vector<EntityKind> all_kinds = {
+        EntityKind::HOST,
+        EntityKind::PROCESS,
+        EntityKind::USER,
+        EntityKind::DOMAIN,
+        EntityKind::TOPIC,
+        EntityKind::PARTICIPANT,
+        EntityKind::DATAREADER,
+        EntityKind::DATAWRITER,
+        EntityKind::LOCATOR
+    };
+
+    for (auto correct_kind : correct_kinds)
+    {
+        for (auto kind : all_kinds)
+        {
+            if (kind != correct_kind.second)
+            {
+                ASSERT_THROW(db.get_entity(correct_kind.first, kind), BadParameter);
+            }
+        }
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_host)

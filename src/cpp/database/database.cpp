@@ -1511,10 +1511,13 @@ std::vector<const StatisticsSample*> Database::select(
             }
             else
             {
-                if (source_entity->kind != kinds.first)
-                {
-                    continue;
-                }
+                // There are no possibility with the current kinds to arrive to this branch
+                assert(source_entity->kind == kinds.first);
+                // If in the future new kinds are added that could use this branch, use this code
+                // if (source_entity->kind != kinds.first)
+                // {
+                //     continue;
+                // }
             }
 
             if (!target_entity)
@@ -1523,10 +1526,13 @@ std::vector<const StatisticsSample*> Database::select(
             }
             else
             {
-                if (target_entity->kind != kinds.second)
-                {
-                    continue;
-                }
+                // There are no possibility with the current kinds to arrive to this branch
+                assert(target_entity->kind == kinds.second);
+                // If in the future new kinds are added that could use this branch, use this code
+                // if (target_entity->kind != kinds.second)
+                // {
+                //     continue;
+                // }
             }
         }
         catch (const std::exception& e)
@@ -2026,7 +2032,7 @@ EntityKind Database::get_entity_kind(
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
         const EntityId& entity_id,
-        EntityKind source_entity_kind /* = EntityKind::INVALID */) const
+        const EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::shared_ptr<const Entity> origin;
 
@@ -2061,7 +2067,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
 std::vector<EntityId> Database::get_entity_ids(
         EntityKind entity_kind,
         const EntityId& entity_id,
-        EntityKind source_entity_kind /* = EntityKind::INVALID */) const
+        const EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::vector<EntityId> entitiesIds;
     for (const auto& entity : get_entities(entity_kind, entity_id, source_entity_kind))

@@ -171,7 +171,8 @@ public:
             AnyNumber())
                 .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
                 std::make_pair(EntityId(0), EntityId(0)))));
-        EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
+        EXPECT_CALL(database,
+                get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
         // Precondition: The Participant does not exist
         EXPECT_CALL(database,
@@ -205,7 +206,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
@@ -254,7 +255,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
@@ -361,7 +362,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber()).WillRepeatedly(Return(
                 std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(
                     EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(existing_unicast_locator));
+    EXPECT_CALL(database,
+            get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber()).WillRepeatedly(Return(
+                existing_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
@@ -380,7 +383,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
+            get_entity(EntityId(4),
+            EntityKind::LOCATOR)).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -398,7 +402,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(5), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -418,7 +422,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(6), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -486,7 +490,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
+            get_entity(EntityId(4),
+            EntityKind::LOCATOR)).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -504,7 +509,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(5), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -524,7 +529,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(6), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -592,7 +597,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(5), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -612,7 +617,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(6), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -680,14 +685,14 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(6), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
     // Precondition: There are 1 locator
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({existing_metatraffic_multicast_locator})));
 
     // Expectation: The Participant is added to the database. We do not care about the given ID
@@ -743,7 +748,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber()).WillRepeatedly(Return(
                 std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(
                     EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(existing_unicast_locator));
+    EXPECT_CALL(database,
+            get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber()).WillRepeatedly(Return(
+                existing_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
@@ -760,7 +767,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
+            get_entity(EntityId(4),
+            EntityKind::LOCATOR)).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -776,7 +784,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(5), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -794,7 +802,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(6), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
@@ -842,7 +850,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
@@ -876,14 +884,14 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     participant_->id = EntityId(1);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Start building the discovered reader info
@@ -916,14 +924,14 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     participant_->id = EntityId(1);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Start building the discovered reader info
@@ -963,29 +971,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -999,9 +1007,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1066,29 +1074,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -1102,9 +1110,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1148,22 +1156,22 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic does not exist
@@ -1181,9 +1189,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1267,22 +1275,22 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: Another domain with ID 100 exists
@@ -1292,24 +1300,24 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             get_entities_by_name(EntityKind::DOMAIN, another_domain_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(100), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(100), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(another_domain));
 
     // Precondition: Another topic with the same name and type exists in domain 100
     // and has ID 101
     std::shared_ptr<Topic> topic_another_domain = std::make_shared<Topic>(topic_name_, type_name_, another_domain);
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(101), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_another_domain));
 
     // Precondition: Another topic with the same name but different type exists in the initial domain 0
     // and has ID 102
     std::string another_type_name = "another_type";
     std::shared_ptr<Topic> topic_another_type = std::make_shared<Topic>(topic_name_, another_type_name, domain_);
-    EXPECT_CALL(database, get_entity(EntityId(102))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(102), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_another_type));
 
     // Precondition: The Topic exists and has ID 2
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -1329,9 +1337,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1399,29 +1407,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -1435,7 +1443,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
@@ -1450,7 +1458,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
@@ -1475,7 +1483,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
@@ -1568,23 +1576,23 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -1598,7 +1606,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
@@ -1613,7 +1621,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
@@ -1638,7 +1646,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
@@ -1728,7 +1736,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
@@ -1739,7 +1747,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -1753,9 +1761,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1792,7 +1800,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
@@ -1814,9 +1822,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1855,29 +1863,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -1891,9 +1899,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -1919,7 +1927,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     reader->id = 10;
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(10), EntityKind::DATAREADER)).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
     // Expectation: The DataReader is not inserted in the database.
@@ -1941,29 +1949,29 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -1977,9 +1985,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
@@ -2005,7 +2013,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     reader->id = 10;
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(10), EntityKind::DATAREADER)).Times(AnyNumber())
             .WillRepeatedly(Return(reader));
 
     // Expectation: The DataReader is not inserted in the database.
@@ -2029,29 +2037,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -2065,9 +2073,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2132,29 +2140,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -2168,9 +2176,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2214,22 +2222,22 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic does not exist
@@ -2247,9 +2255,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2337,29 +2345,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -2373,7 +2381,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
@@ -2388,7 +2396,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
@@ -2413,7 +2421,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
@@ -2506,23 +2514,23 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -2536,7 +2544,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
@@ -2551,7 +2559,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
@@ -2576,7 +2584,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
@@ -2666,7 +2674,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
@@ -2677,7 +2685,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -2691,9 +2699,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2731,7 +2739,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
             get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
@@ -2753,9 +2761,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2794,29 +2802,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -2830,9 +2838,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2858,7 +2866,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     writer->id = EntityId(10);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(10), EntityKind::DATAWRITER)).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
     // Expectation: The DataWriter is not inserted in the database.
@@ -2880,29 +2888,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -2916,9 +2924,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
@@ -2944,7 +2952,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
     writer->id = EntityId(10);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(10), EntityKind::DATAWRITER)).Times(AnyNumber())
             .WillRepeatedly(Return(writer));
 
     // Expectation: The DataWriter is not inserted in the database.
@@ -2967,29 +2975,29 @@ TEST_F(statistics_participant_listener_tests, new_writer_statistics_writer)
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(0), EntityKind::DOMAIN)).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
     // Precondition: The Participant is linked to a host with ID 50
     std::string host_name = "hostname";
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
 
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(50), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::TOPIC)).Times(AnyNumber())
             .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
@@ -3003,9 +3011,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_statistics_writer)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::LOCATOR)).Times(AnyNumber())
             .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1), EntityKind::PARTICIPANT)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info

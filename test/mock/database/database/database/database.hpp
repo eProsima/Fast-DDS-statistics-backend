@@ -83,13 +83,27 @@ public:
     MOCK_CONST_METHOD1(get_entity, const std::shared_ptr<const Entity>(
                 const EntityId& entity_id));
 
+    MOCK_CONST_METHOD2(get_entity, const std::shared_ptr<const Entity>(
+                const EntityId& entity_id,
+                const EntityKind entity_kind));
+
     MOCK_CONST_METHOD2(get_entities, const std::vector<std::shared_ptr<const Entity>>(
                 EntityKind entity_kind,
                 const EntityId& entity_id));
 
+    MOCK_CONST_METHOD3(get_entities, const std::vector<std::shared_ptr<const Entity>>(
+                EntityKind entity_kind,
+                const EntityId& entity_id,
+                const EntityKind source_entity_kind));
+
     MOCK_CONST_METHOD2(get_entity_ids, std::vector<EntityId>(
                 EntityKind entity_kind,
                 const EntityId& entity_id));
+
+    MOCK_CONST_METHOD3(get_entity_ids, std::vector<EntityId>(
+                EntityKind entity_kind,
+                const EntityId& entity_id,
+                const EntityKind source_entity_kind));
 
     MOCK_CONST_METHOD2(get_entity_by_guid, std::pair<EntityId, EntityId>(
                 EntityKind entity_kind,
