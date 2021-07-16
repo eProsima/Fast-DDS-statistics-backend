@@ -26,6 +26,7 @@
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
+using namespace eprosima::fastrtps::rtps;
 
 using StatisticsData = eprosima::fastdds::statistics::Data;
 
@@ -34,6 +35,7 @@ using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::Throw;
 using ::testing::AnyNumber;
+using ::testing::StrictMock;
 
 // Wrapper class to expose the internal attributes of the queue
 class DatabaseEntityQueueWrapper : public DatabaseEntityQueue
@@ -193,7 +195,7 @@ class database_queue_tests : public ::testing::Test
 
 public:
 
-    Database database;
+    StrictMock<Database> database;
     DatabaseEntityQueueWrapper entity_queue;
     DatabaseDataQueueWrapper data_queue;
 
@@ -205,371 +207,123 @@ public:
 
 };
 
+/* The start/stop/flush operations are common to all queues, and can be tested on a generic one */
+class IntegerQueue : public DatabaseQueue<int>
+{
+
+public:
+
+    IntegerQueue()
+        : DatabaseQueue<int>()
+    {
+    }
+
+    virtual ~IntegerQueue()
+    {
+        stop_consumer();
+    }
+
+    MOCK_METHOD0(process_sample, void());
+
+    const std::queue<queue_item_type> get_foreground_queue()
+    {
+        return *foreground_queue_;
+    }
+
+    const std::queue<queue_item_type> get_background_queue()
+    {
+        return *background_queue_;
+    }
+
+};
+
 TEST_F(database_queue_tests, start_stop_flush)
 {
-    // Generate some data
+    IntegerQueue int_queue;
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::shared_ptr<Host> host = std::make_shared<Host>("hostname");
-    std::shared_ptr<User> user = std::make_shared<User>("username", host);
-    std::shared_ptr<Process> process = std::make_shared<Process>("processname", "1", user);
 
     // Add something to the stopped queue
-    EXPECT_CALL(database, insert(_)).Times(0);
-    EXPECT_TRUE(entity_queue.stop_consumer());
-    entity_queue.push(timestamp, {host, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.push(timestamp, {user, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.push(timestamp, {process, 0, details::StatisticsBackendData::DISCOVERY});
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    EXPECT_TRUE(int_queue.stop_consumer());
+    int_queue.push(timestamp, 1);
+    int_queue.push(timestamp, 2);
 
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_EQ(3, entity_queue.get_background_queue().size());
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_EQ(2, int_queue.get_background_queue().size());
 
     // Flushing a stopped queue does nothing
-    EXPECT_CALL(database, insert(_)).Times(0);
-    entity_queue.flush();
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_EQ(3, entity_queue.get_background_queue().size());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    int_queue.flush();
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_EQ(2, int_queue.get_background_queue().size());
 
     // Start the queue and flush
-    EXPECT_CALL(database, insert(_)).Times(3);
-    EXPECT_TRUE(entity_queue.start_consumer());
-    entity_queue.flush();
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_CALL(int_queue, process_sample()).Times(2);
+    EXPECT_TRUE(int_queue.start_consumer());
+    int_queue.flush();
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 
     // Start the consumer when it is already started
-    EXPECT_CALL(database, insert(_)).Times(0);
-    EXPECT_FALSE(entity_queue.start_consumer());
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    EXPECT_FALSE(int_queue.start_consumer());
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 
     // Flush on an empty queue with running consumer
-    EXPECT_CALL(database, insert(_)).Times(0);
-    entity_queue.flush();
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    int_queue.flush();
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 
     // Flush on an empty queue with a stopped consumer
-    EXPECT_TRUE(entity_queue.stop_consumer());
-    EXPECT_CALL(database, insert(_)).Times(0);
-    entity_queue.flush();
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_TRUE(int_queue.stop_consumer());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    int_queue.flush();
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 
     // Stop the consumer when it is already stopped
-    EXPECT_CALL(database, insert(_)).Times(0);
-    EXPECT_FALSE(entity_queue.stop_consumer());
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    EXPECT_FALSE(int_queue.stop_consumer());
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 
     // Start the consumer with an empty queue
-    EXPECT_CALL(database, insert(_)).Times(0);
-    EXPECT_TRUE(entity_queue.start_consumer());
-    EXPECT_TRUE(entity_queue.get_foreground_queue().empty());
-    EXPECT_TRUE(entity_queue.get_background_queue().empty());
+    EXPECT_CALL(int_queue, process_sample()).Times(0);
+    EXPECT_TRUE(int_queue.start_consumer());
+    EXPECT_TRUE(int_queue.get_foreground_queue().empty());
+    EXPECT_TRUE(int_queue.get_background_queue().empty());
 }
 
-TEST_F(database_queue_tests, push_host)
+TEST_F(database_queue_tests, push_participant)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
 
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-
-    // Expectation: The host is created and given ID 1
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, hostname);
-                EXPECT_EQ(entity->alias, hostname);
-
-                return EntityId(1);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::HOST,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
-
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {host, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_host_throws)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
-
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-
-    // Expectation: The host creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, hostname);
-                EXPECT_EQ(entity->alias, hostname);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {host, DomainId(0), details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_user)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
-    std::string username = "username";
-
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-    std::shared_ptr<User> user = std::make_shared<User>(username, host);
-
-    // Expectation: The user is created and given ID 2
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, username);
-                EXPECT_EQ(entity->alias, username);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
-
-                return EntityId(2);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::USER,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
-
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {user, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_user_throws)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
-    std::string username = "username";
-
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-    std::shared_ptr<User> user = std::make_shared<User>(username, host);
-
-    // Expectation: The user creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, username);
-                EXPECT_EQ(entity->alias, username);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {user, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_process)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
-    std::string username = "username";
-    std::string command = "command";
-    std::string pid = "1234";
-
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-    std::shared_ptr<User> user = std::make_shared<User>(username, host);
-    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, user);
-
-    // Expectation: The process is created and given ID 2
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, command);
-                EXPECT_EQ(entity->alias, command);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
-
-                return EntityId(2);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::PROCESS,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
-
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {process, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_process_throws)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string hostname = "hostname";
-    std::string username = "username";
-    std::string command = "command";
-    std::string pid = "1234";
-
-    // Create the entity hierarchy
-    std::shared_ptr<Host> host = std::make_shared<Host>(hostname);
-    std::shared_ptr<User> user = std::make_shared<User>(username, host);
-    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, user);
-
-    // Expectation: The process creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, command);
-                EXPECT_EQ(entity->alias, command);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {process, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_domain)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string domain_name = "domain name";
-
-    // Create the domain hierarchy
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(domain_name);
-
-    // Expectation: The domain is created and given ID 0
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
-                EXPECT_EQ(entity->name, domain_name);
-                EXPECT_EQ(entity->alias, domain_name);
-
-                return EntityId(0);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: Domains are not discovered, they are created on monitor initialization
-    // Never try to inform the user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(
-                0), EntityKind::DOMAIN, details::StatisticsBackendData::DISCOVERY)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {domain, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_domain_throws)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string domain_name = "domain name";
-
-    // Create the domain hierarchy
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(domain_name);
-
-    // Expectation: The domain creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DOMAIN);
-                EXPECT_EQ(entity->name, domain_name);
-                EXPECT_EQ(entity->alias, domain_name);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {domain, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_participant_process_exists)
-{
-    // Create the process
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string command = "command";
-    std::string pid = "1234";
-
-    std::shared_ptr<Process> process = std::make_shared<Process>(command, pid, std::shared_ptr<User>());
-
-    // Create the domain hierarchy
+    // Create the participant info
     std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string address = "127.0.0.1";
 
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+
+    // Precondition: The domain exists and has ID 0
     std::shared_ptr<Domain> domain;
-    std::shared_ptr<DomainParticipant> participant =
-            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
-                    process, domain);
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
 
     // Participant undiscovery: FAILURE
     {
+        // Precondition: The participant does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
@@ -580,11 +334,16 @@ TEST_F(database_queue_tests, push_participant_process_exists)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Participant update: FAILURE
     {
+        // Precondition: The participant does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
@@ -595,20 +354,26 @@ TEST_F(database_queue_tests, push_participant_process_exists)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Participant discovery: SUCCESS
     {
+        // Precondition: The participant does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         // Expectation: The participant is created and given ID 1
         InsertEntityArgs insert_args([&](
                     std::shared_ptr<Entity> entity)
                 {
                     EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                     EXPECT_EQ(entity->name, participant_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
 
                     return EntityId(1);
                 });
@@ -616,323 +381,203 @@ TEST_F(database_queue_tests, push_participant_process_exists)
         EXPECT_CALL(database, insert(_)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
-
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
                 details::StatisticsBackendData::DISCOVERY)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::DISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Participant update: SUCCESS
     {
+        // Precondition: The participant exists and has ID 1
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::PARTICIPANT,
+                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
                 details::StatisticsBackendData::UPDATE)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Participant undiscovery: SUCCESS
     {
+        // Precondition: The participant exists and has ID 1
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::PARTICIPANT,
+                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
                 details::StatisticsBackendData::UNDISCOVERY)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
-}
 
-TEST_F(database_queue_tests, push_participant_no_process_exists)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string participant_name = "participant name";
-    Qos participant_qos;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    std::shared_ptr<Domain> domain;
-    std::shared_ptr<Process> process;
-    std::shared_ptr<DomainParticipant> participant =
-            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
-                    process, domain);
-
-    // Participant undiscovery: FAILURE
+    // Participant discovery: THROWS
     {
-        EXPECT_CALL(database, insert(_)).Times(0);
+        // Precondition: The participant does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
 
-        // Expectations: The status will throw an exception because the participant is not in the database
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
-                .WillRepeatedly(Throw(BadParameter("Error")));
-
-        // Expectations: No notification to user
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-        // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
-        entity_queue.flush();
-    }
-    // Participant update: FAILURE
-    {
-        EXPECT_CALL(database, insert(_)).Times(0);
-
-        // Expectations: The status will throw an exception because the participant is not in the database
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
-                .WillRepeatedly(Throw(BadParameter("Error")));
-
-        // Expectations: No notification to user
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-        // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
-        entity_queue.flush();
-    }
-    // Participant discovery: SUCCESS
-    {
-        // Expectation: The participant is created and given ID 1
+        // Expectation: The participant creation throws
         InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity)
+                    std::shared_ptr<Entity> entity) -> EntityId
                 {
                     EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                     EXPECT_EQ(entity->name, participant_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
 
-                    return EntityId(1);
+                    throw BadParameter("Error");
                 });
 
         EXPECT_CALL(database, insert(_)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
-
-        // Expectations: Request the backend to notify user (if needed)
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::DISCOVERY)).Times(1);
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::DISCOVERY});
-        entity_queue.flush();
+        entity_queue.stop_consumer();
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.do_swap();
+
+        EXPECT_NO_THROW(entity_queue.consume_sample());
+        entity_queue.start_consumer();
     }
-    // Participant update: SUCCESS
-    {
-        EXPECT_CALL(database, insert(_)).Times(0);
-
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
-
-        // Expectations: Request the backend to notify user (if needed)
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::UPDATE)).Times(1);
-
-        // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UPDATE});
-        entity_queue.flush();
-    }
-    // Participant undiscovery: SUCCESS
-    {
-        EXPECT_CALL(database, insert(_)).Times(0);
-
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
-
-        // Expectations: Request the backend to notify user (if needed)
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::UNDISCOVERY)).Times(1);
-
-        // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::UNDISCOVERY});
-        entity_queue.flush();
-    }
-}
-
-TEST_F(database_queue_tests, push_participant_throws)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string participant_name = "participant name";
-    Qos participant_qos;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    std::shared_ptr<Domain> domain;
-    std::shared_ptr<Process> process;
-    std::shared_ptr<DomainParticipant> participant =
-            std::make_shared<DomainParticipant>(participant_name, participant_qos, participant_guid_str,
-                    process, domain);
-
-    // Expectation: The participant creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, participant_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, process);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {participant, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_topic)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string topic_name = "topic";
-    std::string type_name = "type";
-
-    std::shared_ptr<Domain> domain;
-    std::shared_ptr<Topic> topic =
-            std::make_shared<Topic>(topic_name, type_name, domain);
-
-    // Expectation: The topic is created and given ID 1
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, topic_name);
-                EXPECT_EQ(entity->alias, topic_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
-
-                return EntityId(1);
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::TOPIC,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
-
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {topic, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_topic_throws)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string topic_name = "topic";
-    std::string type_name = "type";
-
-    std::shared_ptr<Domain> domain;
-    std::shared_ptr<Topic> topic =
-            std::make_shared<Topic>(topic_name, type_name, domain);
-
-    // Expectation: The topic creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, topic_name);
-                EXPECT_EQ(entity->alias, topic_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {topic, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
 }
 
 TEST_F(database_queue_tests, push_datawriter)
 {
-    // Create the domain hierarchy
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string datawriter_name = "datawriter";
+
+    // Create the writer info
+    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
     std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
 
-    std::shared_ptr<Topic> topic;
-    std::shared_ptr<DomainParticipant> participant;
+    EntityDiscoveryInfo info(EntityKind::DATAWRITER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datawriter_guid_str) >> info.guid;
+    info.qos = datawriter_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
 
-    std::shared_ptr<DataWriter> datawriter =
-            std::make_shared<DataWriter>(datawriter_name, datawriter_qos, datawriter_guid_str,
-                    participant, topic);
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
+
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
+
+    // Precondition: The topic exists and has ID 2
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic));
+
+    // Precondition: The locators exist and have ID 100 and 101
+    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
+    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+            .WillRepeatedly(Return(ulocator));
+
+    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
+    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+            .WillRepeatedly(Return(mlocator));
 
     // Datawriter undiscovery: FAILURE
     {
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
-        // Expectations: The status will throw an exception because the datawriter is not in the database
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
-                .WillRepeatedly(Throw(BadParameter("Error")));
+        EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datawriter update: FAILURE
     {
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
-        // Expectations: The status will throw an exception because the datawriter is not in the database
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
-                .WillRepeatedly(Throw(BadParameter("Error")));
+        EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datawriter discovery: SUCCESS
     {
-        // Expectation: The datawriter is created and given ID 1
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The datawriter is created and given ID 3
         InsertEntityArgs insert_args([&](
                     std::shared_ptr<Entity> entity)
                 {
@@ -942,148 +587,454 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
                     EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
 
-                    return EntityId(1);
+                    return EntityId(3);
                 });
 
         EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAWRITER,
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
                 details::StatisticsBackendData::DISCOVERY))
                 .Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::DISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datawriter update: SUCCESS
     {
+        // Precondition: The writer exists and has ID 3
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAWRITER,
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
                 details::StatisticsBackendData::UPDATE)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datawriter undiscovery: SUCCESS
     {
+        // Precondition: The writer exists and has ID 3
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAWRITER,
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
                 details::StatisticsBackendData::UNDISCOVERY)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.flush();
+    }
+    // Datawriter undiscovery: THROWS
+    {
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The writer creation throws
+        InsertEntityArgs insert_args([&](
+                    std::shared_ptr<Entity> entity) -> EntityId
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(entity->name, datawriter_name);
+                    EXPECT_EQ(entity->alias, datawriter_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                    throw BadParameter("Error");
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(1)
+                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
+        // Add to the queue and wait to be processed
+        entity_queue.stop_consumer();
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.do_swap();
+
+        EXPECT_NO_THROW(entity_queue.consume_sample());
+        entity_queue.start_consumer();
+    }
+}
+
+TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the writer info
+    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
+    Qos datawriter_qos;
+    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+
+    EntityDiscoveryInfo info(EntityKind::DATAWRITER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datawriter_guid_str) >> info.guid;
+    info.qos = datawriter_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
+
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
+
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
+
+    // Precondition: The topic does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The locators exist and have ID 100 and 101
+    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
+    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+            .WillRepeatedly(Return(ulocator));
+
+    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
+    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+            .WillRepeatedly(Return(mlocator));
+
+    // Datawriter discovery: SUCCESS
+    {
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The topic is created and given ID 2
+        InsertEntityArgs topic_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::TOPIC);
+                    EXPECT_EQ(entity->name, topic_name);
+                    EXPECT_EQ(entity->alias, topic_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+
+                    return EntityId(2);
+                });
+
+        // Expectation: The datawriter is created and given ID 3
+        InsertEntityArgs writer_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(entity->name, datawriter_name);
+                    EXPECT_EQ(entity->alias, datawriter_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                    return EntityId(3);
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(2)
+                .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::TOPIC,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
 }
 
-TEST_F(database_queue_tests, push_datawriter_throws)
+TEST_F(database_queue_tests, push_datawriter_locator_does_not_exist)
 {
-    // Create the domain hierarchy
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string datawriter_name = "datawriter";
+
+    // Create the writer info
+    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
     std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
 
-    std::shared_ptr<Topic> topic;
-    std::shared_ptr<DomainParticipant> participant;
+    EntityDiscoveryInfo info(EntityKind::DATAWRITER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datawriter_guid_str) >> info.guid;
+    info.qos = datawriter_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
 
-    std::shared_ptr<DataWriter> datawriter =
-            std::make_shared<DataWriter>(datawriter_name, datawriter_qos, datawriter_guid_str,
-                    participant, topic);
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
 
-    // Expectation: The datawriter creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, datawriter_name);
-                EXPECT_EQ(entity->alias, datawriter_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
 
-                throw BadParameter("Error");
-            });
+    // Precondition: The topic exists and has ID 2
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    // Precondition: The locators do not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+    // Datawriter discovery: SUCCESS
+    {
+        // Precondition: The writer does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
 
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {datawriter, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
+        // Expectation: The locator is created and given ID 100
+        InsertEntityArgs unicast_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                    EXPECT_EQ(entity->name, unicast_locator_str);
+                    EXPECT_EQ(entity->alias, unicast_locator_str);
 
-    EXPECT_NO_THROW(entity_queue.consume_sample());
+                    return EntityId(100);
+                });
+
+        // Expectation: The locator is created and given ID 101
+        InsertEntityArgs multicast_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                    EXPECT_EQ(entity->name, multicast_locator_str);
+                    EXPECT_EQ(entity->alias, multicast_locator_str);
+
+                    return EntityId(101);
+                });
+
+        // Expectation: The datawriter is created and given ID 3
+        InsertEntityArgs writer_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(entity->name, datawriter_name);
+                    EXPECT_EQ(entity->alias, datawriter_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+
+                    return EntityId(3);
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(3)
+                .WillOnce(Invoke(&unicast_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        // Add to the queue and wait to be processed
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.flush();
+    }
 }
 
 TEST_F(database_queue_tests, push_datareader)
 {
-    // Create the domain hierarchy
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string datareader_name = "datareader";
+
+    // Create the reader info
+    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
     std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
 
-    std::shared_ptr<Topic> topic;
-    std::shared_ptr<DomainParticipant> participant;
+    EntityDiscoveryInfo info(EntityKind::DATAREADER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datareader_guid_str) >> info.guid;
+    info.qos = datareader_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
 
-    std::shared_ptr<DataReader> datareader =
-            std::make_shared<DataReader>(datareader_name, datareader_qos, datareader_guid_str,
-                    participant, topic);
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
+
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
+
+    // Precondition: The topic exists and has ID 2
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic));
+
+    // Precondition: The locators exist and have ID 100 and 101
+    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
+    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+            .WillRepeatedly(Return(ulocator));
+
+    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
+    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+            .WillRepeatedly(Return(mlocator));
 
     // Datareader undiscovery: FAILURE
     {
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
-        // Expectations: The status will throw an exception because the datareader is not in the database
-        EXPECT_CALL(database,
-                change_entity_status(_, false)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
+        EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datareader update: FAILURE
     {
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will throw an exception because the datareader is not in the database
-        EXPECT_CALL(database,
-                change_entity_status(_, true)).Times(AnyNumber()).WillRepeatedly(Throw(BadParameter("Error")));
+        EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datareader discovery: SUCCESS
     {
-        // Expectation: The datareader is created and given ID 1
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The datareader is created and given ID 3
         InsertEntityArgs insert_args([&](
                     std::shared_ptr<Entity> entity)
                 {
@@ -1093,166 +1044,344 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
                     EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
-                    return EntityId(1);
+                    return EntityId(3);
                 });
 
         EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status( EntityId(1), true)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::DATAREADER,
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
                 details::StatisticsBackendData::DISCOVERY))
                 .Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::DISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datareader update: SUCCESS
     {
+        // Precondition: The reader exists and has ID 3
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, true)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAREADER,
-                details::StatisticsBackendData::UPDATE))
-                .Times(1);
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
+                details::StatisticsBackendData::UPDATE)).Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UPDATE});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
     // Datareader undiscovery: SUCCESS
     {
+        // Precondition: The reader exists and has ID 3
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
+
         EXPECT_CALL(database, insert(_)).Times(0);
 
         // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(_, false)).Times(1);
+        EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), _, EntityKind::DATAREADER,
-                details::StatisticsBackendData::UNDISCOVERY))
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
+                details::StatisticsBackendData::UNDISCOVERY)).Times(1);
+
+        // Add to the queue and wait to be processed
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.flush();
+    }
+    // Datareader undiscovery: THROWS
+    {
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The reader creation throws
+        InsertEntityArgs insert_args([&](
+                    std::shared_ptr<Entity> entity) -> EntityId
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(entity->name, datareader_name);
+                    EXPECT_EQ(entity->alias, datareader_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+
+                    throw BadParameter("Error");
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(1)
+                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: No notification to user
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+
+        // Add to the queue and wait to be processed
+        entity_queue.stop_consumer();
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.do_swap();
+
+        EXPECT_NO_THROW(entity_queue.consume_sample());
+        entity_queue.start_consumer();
+    }
+}
+
+TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the reader info
+    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
+    Qos datareader_qos;
+    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+
+    EntityDiscoveryInfo info(EntityKind::DATAREADER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datareader_guid_str) >> info.guid;
+    info.qos = datareader_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
+
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
+
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
+
+    // Precondition: The topic does not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+
+    // Precondition: The locators exist and have ID 100 and 101
+    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(100)))));
+    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
+            .WillRepeatedly(Return(ulocator));
+
+    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(101)))));
+    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
+            .WillRepeatedly(Return(mlocator));
+
+    // Datareader discovery: SUCCESS
+    {
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
+
+        // Expectation: The topic is created and given ID 2
+        InsertEntityArgs topic_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::TOPIC);
+                    EXPECT_EQ(entity->name, topic_name);
+                    EXPECT_EQ(entity->alias, topic_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+
+                    return EntityId(2);
+                });
+
+        // Expectation: The datareader is created and given ID 3
+        InsertEntityArgs reader_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(entity->name, datareader_name);
+                    EXPECT_EQ(entity->alias, datareader_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+
+                    return EntityId(3);
+                });
+
+        EXPECT_CALL(database, insert(_)).Times(2)
+                .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
+
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::TOPIC,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
+
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY))
                 .Times(1);
 
         // Add to the queue and wait to be processed
-        entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::UNDISCOVERY});
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
 }
 
-TEST_F(database_queue_tests, push_datareader_throws)
+TEST_F(database_queue_tests, push_datareader_locator_does_not_exist)
 {
-    // Create the domain hierarchy
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string datareader_name = "datareader";
+
+    // Create the reader info
+    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
     std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string topic_name = "topic_name";
+    std::string type_name = "type_name";
+    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
+    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
 
-    std::shared_ptr<Topic> topic;
-    std::shared_ptr<DomainParticipant> participant;
+    EntityDiscoveryInfo info(EntityKind::DATAREADER);
+    info.domain_id = EntityId(0);
+    std::stringstream(datareader_guid_str) >> info.guid;
+    info.qos = datareader_qos;
+    info.topic_name = topic_name;
+    info.type_name = type_name;
+    Locator_t unicast_locator;
+    std::stringstream(unicast_locator_str) >> unicast_locator;
+    info.locators.add_unicast_locator(unicast_locator);
+    Locator_t multicast_locator;
+    std::stringstream(multicast_locator_str) >> multicast_locator;
+    info.locators.add_multicast_locator(multicast_locator);
 
-    std::shared_ptr<DataReader> datareader =
-            std::make_shared<DataReader>(datareader_name, datareader_qos, datareader_guid_str,
-                    participant, topic);
+    // Precondition: The domain exists and has ID 0
+    std::shared_ptr<Domain> domain;
+    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
+            .WillRepeatedly(Return(domain));
 
-    // Expectation: The datareader creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, datareader_name);
-                EXPECT_EQ(entity->alias, datareader_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+    // Precondition: The participant exists and has ID 1
+    std::string participant_name = "participant";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
+        participant_name, Qos(), participant_guid_str, nullptr, domain);
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
+            .WillRepeatedly(Return(participant));
 
-                throw BadParameter("Error");
-            });
+    // Precondition: The topic exists and has ID 2
+    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
+    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(topic));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    // Precondition: The locators do not exist
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
+    // Datareader discovery: SUCCESS
+    {
+        // Precondition: The reader does not exist
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
+                .WillOnce(Throw(BadParameter("Error")));
 
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {datareader, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
+        // Expectation: The locator is created and given ID 100
+        InsertEntityArgs unicast_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                    EXPECT_EQ(entity->name, unicast_locator_str);
+                    EXPECT_EQ(entity->alias, unicast_locator_str);
 
-    EXPECT_NO_THROW(entity_queue.consume_sample());
-}
+                    return EntityId(100);
+                });
 
-TEST_F(database_queue_tests, push_locator)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string locator_name = "locator";
+        // Expectation: The locator is created and given ID 101
+        InsertEntityArgs multicast_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                    EXPECT_EQ(entity->name, multicast_locator_str);
+                    EXPECT_EQ(entity->alias, multicast_locator_str);
 
-    std::shared_ptr<Locator> locator =
-            std::make_shared<Locator>(locator_name);
+                    return EntityId(101);
+                });
 
-    // Expectation: The locator is created and given ID 1
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, locator_name);
-                EXPECT_EQ(entity->alias, locator_name);
-                return EntityId(1);
-            });
+        // Expectation: The datareader is created and given ID 3
+        InsertEntityArgs reader_insert_args([&](
+                    std::shared_ptr<Entity> entity)
+                {
+                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(entity->name, datareader_name);
+                    EXPECT_EQ(entity->alias, datareader_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+                    return EntityId(3);
+                });
 
-    // Expectations: Request the backend to notify user (if needed)
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::LOCATOR,
-            details::StatisticsBackendData::DISCOVERY)).Times(1);
+        EXPECT_CALL(database, insert(_)).Times(3)
+                .WillOnce(Invoke(&unicast_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
+                .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
 
-    // Add to the queue and wait to be processed
-    entity_queue.push(timestamp, {locator, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.flush();
-}
+        // Expectations: The status will be updated
+        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
-TEST_F(database_queue_tests, push_locator_throws)
-{
-    // Create the domain hierarchy
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string locator_name = "locator";
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
 
-    std::shared_ptr<Locator> locator =
-            std::make_shared<Locator>(locator_name);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
 
-    // Expectation: The locator creation throws
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, locator_name);
-                EXPECT_EQ(entity->alias, locator_name);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
+                details::StatisticsBackendData::DISCOVERY))
+                .Times(1);
 
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
-
-    // Expectations: No notification to user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    entity_queue.stop_consumer();
-    entity_queue.push(timestamp, {locator, 0, details::StatisticsBackendData::DISCOVERY});
-    entity_queue.do_swap();
-
-    EXPECT_NO_THROW(entity_queue.consume_sample());
+        // Add to the queue and wait to be processed
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.flush();
+    }
 }
 
 TEST_F(database_queue_tests, push_history_latency)
