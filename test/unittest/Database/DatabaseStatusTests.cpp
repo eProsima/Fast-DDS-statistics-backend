@@ -1078,7 +1078,7 @@ TEST_F(database_status_tests, endpoints)
     // The new entities will be active
     auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant, topic);
     auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
-    writer_locator1->id = db.generate_entity_id();
+    writer_locator1->id = db.insert(writer_locator1);
     datawriter1->locators[writer_locator1->id] = writer_locator1;
     db.insert(datawriter1);
     ASSERT_TRUE(datawriter1->active);
@@ -1086,7 +1086,7 @@ TEST_F(database_status_tests, endpoints)
 
     auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant, topic);
     auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
-    reader_locator1->id = db.generate_entity_id();
+    reader_locator1->id = db.insert(reader_locator1);
     datareader1->locators[reader_locator1->id] = reader_locator1;
     db.insert(datareader1);
     ASSERT_TRUE(datareader1->active);

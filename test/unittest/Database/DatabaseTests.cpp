@@ -57,7 +57,7 @@ void insert_ddsendpoint_valid()
         endpoint_name, db.test_qos, endpoint_guid, participant, topic);
     // Create a locator for the endpoint
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     auto endpoint_id = db.insert(endpoint);
 
@@ -126,7 +126,7 @@ void insert_ddsendpoint_two_valid()
     auto endpoint = std::make_shared<T>(
         endpoint_name, db.test_qos, endpoint_guid, participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     auto endpoint_id = db.insert(endpoint);
 
@@ -135,7 +135,7 @@ void insert_ddsendpoint_two_valid()
     auto endpoint_2 = std::make_shared<T>(
         endpoint_name_2, db.test_qos, endpoint_guid_2, participant, topic);
     auto locator_2 = std::make_shared<Locator>("test_locator_2");
-    locator_2->id = db.generate_entity_id();
+    locator_2->id = db.insert(locator_2);
     endpoint_2->locators[locator_2->id] = locator_2;
     auto endpoint_id_2 = db.insert(endpoint_2);
 
@@ -227,7 +227,7 @@ void insert_ddsendpoint_duplicated()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
     ASSERT_THROW(db.insert(endpoint), BadParameter);
@@ -258,7 +258,7 @@ void insert_ddsendpoint_wrong_participant()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant_2, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -287,7 +287,7 @@ void insert_ddsendpoint_wrong_topic()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "test_guid", participant, topic_2);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -315,7 +315,7 @@ void insert_ddsendpoint_empty_name()
     auto endpoint = std::make_shared<T>(
         "", db.test_qos, "test_guid", participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -343,7 +343,7 @@ void insert_ddsendpoint_empty_qos()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", Qos(), "test_guid", participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -371,7 +371,7 @@ void insert_ddsendpoint_empty_guid()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, "", participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     ASSERT_THROW(db.insert(endpoint), BadParameter);
 }
@@ -425,7 +425,7 @@ void insert_ddsendpoint_two_same_domain_same_guid()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
 
@@ -466,7 +466,7 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     auto endpoint = std::make_shared<T>(
         "test_endpoint", db.test_qos, endpoint_guid, participant, topic);
     auto locator = std::make_shared<Locator>("test_locator");
-    locator->id = db.generate_entity_id();
+    locator->id = db.insert(locator);
     endpoint->locators[locator->id] = locator;
     db.insert(endpoint);
 
@@ -574,12 +574,12 @@ public:
         topic.reset(new Topic(topic_name, topic_type, domain));
         topic_id = db.insert(topic);
         writer_locator.reset(new Locator(writer_locator_name));
-        writer_locator->id = db.generate_entity_id();
+        writer_locator->id = db.insert(writer_locator);
         writer.reset(new DataWriter(writer_name, db.test_qos, writer_guid, participant, topic));
         writer->locators[writer_locator->id] = writer_locator;
         writer_id = db.insert(writer);
         reader_locator.reset(new Locator(reader_locator_name));
-        reader_locator->id = db.generate_entity_id();
+        reader_locator->id = db.insert(reader_locator);
         reader.reset(new DataReader(reader_name, db.test_qos, reader_guid, participant, topic));
         reader->locators[reader_locator->id] = reader_locator;
         reader_id = db.insert(reader);
