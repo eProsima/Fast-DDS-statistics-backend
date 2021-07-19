@@ -31,6 +31,7 @@
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
@@ -233,6 +234,10 @@ EntityId StatisticsBackend::init_monitor(
     // Previous string conversion is needed for string_255
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
     participant_qos.name(participant_name);
+    /* Workaround to avoid using SHM transport by default */
+    auto udp_transport = std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+    participant_qos.transport().user_transports.push_back(udp_transport);
+    participant_qos.transport().use_builtin_transports = false;
 
     StatusMask participant_mask = StatusMask::all();
     participant_mask ^= StatusMask::data_on_readers();
