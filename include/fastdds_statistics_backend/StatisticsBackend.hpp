@@ -86,9 +86,9 @@ public:
      * The server \c GuidPrefix_t is set to the default one: \c eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
      * If any other server is to be used, call the overload method that receives the \c GuidPrefix_t as parameter.
      *
-     * The format to specify a locator is: <tt>kind:[IPaddress]:port</tt>, where:
+     * The format to specify a locator is: <tt>kind:[IP]:port</tt>, where:
      *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv4 }
-     *  * \b IPaddress is the IP address
+     *  * \b IP is the IP address
      *  * \b port is the IP port
      * Note that \c SHM locators are not supported. For any server configured with shared memory locators,
      * initialize the monitor using only the non shared memory locators.
@@ -112,9 +112,9 @@ public:
      * This function creates a new statistics DomainParticipant that starts monitoring
      * the network of the server with the given \c GuidPrefix_t and with the given locators.
      *
-     * The format to specify a locator is: <tt>kind:[IPaddress]:port</tt>, where:
+     * The format to specify a locator is: <tt>kind:[IP]:port</tt>, where:
      *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv4 }
-     *  * \b IPaddress is the IP address
+     *  * \b IP is the IP address
      *  * \b port is the IP port
      * Note that \c SHM locators are not supported. For any server configured with shared memory locators,
      * initialize the monitor using only the non shared memory locators.

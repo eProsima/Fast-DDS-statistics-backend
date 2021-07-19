@@ -12,7 +12,6 @@ datawriter
 destructor
 eProsima
 Gtest
-IPaddress
 monitorization
 monitorizations
 ostream
