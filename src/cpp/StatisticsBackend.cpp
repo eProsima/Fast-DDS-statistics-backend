@@ -231,7 +231,7 @@ EntityId StatisticsBackend::init_monitor(
 
     /* Create DomainParticipant */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
-    // Previous string conversion is needed for string_255
+    /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
     participant_qos.name(participant_name);
     /* Avoid using SHM transport by default */

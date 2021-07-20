@@ -549,7 +549,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
     EXPECT_EQ(participant_qos.transport().user_transports.size(), 1);
     std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> participant_transport =
             std::dynamic_pointer_cast<eprosima::fastdds::rtps::UDPv4TransportDescriptor>(
-                    participant_qos.transport().user_transports.back());
+        participant_qos.transport().user_transports.back());
     EXPECT_TRUE(nullptr != participant_transport);
 
     /* Stop the monitor to avoid interfering on the next test */
