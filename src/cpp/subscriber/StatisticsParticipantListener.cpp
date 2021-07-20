@@ -383,12 +383,26 @@ void StatisticsParticipantListener::on_participant_discovery(
             {
                 // Meaningful prefix for metatraffic entities
                 const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
-                                                       std::to_string(domain_id_.value()) + "___";
+                        std::to_string(domain_id_.value()) + "___";
 
                 std::shared_ptr<database::Topic> metatraffic_topic;
 
-                // Check if is the first participant discovered
-                if (database_->get_entities(EntityKind::PARTICIPANT, domain_id_).empty())
+                // Check if is the metatraffic topic already exists
+                try
+                {
+                    std::vector<std::pair<EntityId, EntityId>> metatraffic_topic_ids =
+                            database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC");
+
+                    for (const auto& topic_id : metatraffic_topic_ids)
+                    {
+                        if (topic_id.first == domain_id_)
+                        {
+                            metatraffic_topic = std::const_pointer_cast<database::Topic>(
+                                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+                        }
+                    }
+                }
+                catch (const std::exception& e)
                 {
                     // Create the metatraffic topic
                     metatraffic_topic = std::make_shared<database::Topic>(
@@ -403,14 +417,6 @@ void StatisticsParticipantListener::on_participant_discovery(
                     topic_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                     entity_queue_->push(timestamp, topic_discovery_info);
                 }
-                else
-                {
-                    // Obtain reference to metatraffic topic
-                    EntityId metatraffic_topic_id =
-                        database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")[0].second;
-                    metatraffic_topic = std::const_pointer_cast<database::Topic>(
-                        std::static_pointer_cast<const database::Topic>(database_->get_entity(metatraffic_topic_id)));
-                }
 
                 // Create metatraffic endpoint and locator on the metatraffic topic.
                 {
@@ -424,29 +430,30 @@ void StatisticsParticipantListener::on_participant_discovery(
 
                     // Routine to process one locator from the locator list of the particpant
                     auto process_locators = [&](const Locator_t& dds_locator)
-                        {
-                            // Look for the locator
-                            auto locator_ids =
-                                    database_->get_entities_by_name(EntityKind::LOCATOR,
-                                            to_string(dds_locator));
-                            if (locator_ids.empty())
                             {
-                                // The locator is not in the database. Add the new one.
-                                std::shared_ptr<database::Locator> locator =
-                                        std::make_shared<database::Locator>(to_string(dds_locator));
+                                // Look for the locator
+                                auto locator_ids =
+                                        database_->get_entities_by_name(EntityKind::LOCATOR,
+                                                to_string(dds_locator));
+                                if (locator_ids.empty())
+                                {
+                                    // The locator is not in the database. Add the new one.
+                                    std::shared_ptr<database::Locator> locator =
+                                            std::make_shared<database::Locator>(to_string(dds_locator));
 
-                                locator->id = database_->generate_entity_id();
-                                datawriter->locators[locator->id] = locator;
-                            }
-                            else
-                            {
-                                // The locator exists. Add the existing one.
-                                auto existing = std::const_pointer_cast<database::Locator>(
-                                    std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.
-                                            front().second)));
-                                datawriter->locators[existing->id] = existing;
-                            }
-                        };
+                                    locator->id = database_->generate_entity_id();
+                                    datawriter->locators[locator->id] = locator;
+                                }
+                                else
+                                {
+                                    // The locator exists. Add the existing one.
+                                    auto existing = std::const_pointer_cast<database::Locator>(
+                                        std::static_pointer_cast<const database::Locator>(database_->get_entity(
+                                            locator_ids.
+                                                    front().second)));
+                                    datawriter->locators[existing->id] = existing;
+                                }
+                            };
 
                     for (auto dds_locator : info.info.metatraffic_locators.unicast)
                     {
