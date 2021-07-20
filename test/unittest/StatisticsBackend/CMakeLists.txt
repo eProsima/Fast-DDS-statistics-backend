@@ -313,6 +313,8 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_several_monitors
     init_monitor_twice
     stop_monitor
+    init_monitor_check_participant_name
+    init_monitor_check_participant_transport
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})
@@ -482,7 +484,7 @@ endforeach()
 
 if(GTEST_FOUND AND GMOCK_FOUND)
     find_package(Threads REQUIRED)
-        
+
     add_executable(is_active_tests IsActiveTests.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp

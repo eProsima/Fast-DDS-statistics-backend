@@ -19,8 +19,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
@@ -485,6 +488,72 @@ TEST_F(init_monitor_tests, stop_monitor)
 
     // Reset the singleton instead of removing the monitor
     details::StatisticsBackendData::reset_instance();
+}
+
+TEST_F(init_monitor_tests, init_monitor_check_participant_name)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    EXPECT_TRUE(monitor_id.is_valid());
+
+    std::map<EntityId, std::shared_ptr<details::Monitor>> domain_monitors =
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+
+    /* Check that only one monitor is created */
+    EXPECT_EQ(domain_monitors.size(), 1);
+
+    eprosima::fastdds::dds::DomainParticipant* participant = domain_monitors[monitor_id]->participant;
+    eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
+
+    /* Check that the DomainParticipant name is set correctly */
+    EXPECT_EQ(participant_qos.name(), "monitor_domain_0");
+
+
+    /* Stop the monitor to avoid interfering on the next test */
+    StatisticsBackend::stop_monitor(monitor_id);
+}
+
+TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    EXPECT_TRUE(monitor_id.is_valid());
+
+    std::map<EntityId, std::shared_ptr<details::Monitor>> domain_monitors =
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+
+    /* Check that only one monitor is created */
+    EXPECT_EQ(domain_monitors.size(), 1);
+
+    eprosima::fastdds::dds::DomainParticipant* participant = domain_monitors[monitor_id]->participant;
+    eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
+
+    /* Check that the DomainParticipant builtin transports are disabled */
+    EXPECT_FALSE(participant_qos.transport().use_builtin_transports);
+
+    /* Check that the DomainParticipant has only one transport set and it is a UDPv4TransportDescriptor */
+    EXPECT_EQ(participant_qos.transport().user_transports.size(), 1);
+    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> participant_transport =
+            std::dynamic_pointer_cast<eprosima::fastdds::rtps::UDPv4TransportDescriptor>(
+                    participant_qos.transport().user_transports.back());
+    EXPECT_TRUE(nullptr != participant_transport);
+
+    /* Stop the monitor to avoid interfering on the next test */
+    StatisticsBackend::stop_monitor(monitor_id);
 }
 
 int main(
