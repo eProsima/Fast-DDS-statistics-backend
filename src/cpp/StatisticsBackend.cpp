@@ -230,7 +230,9 @@ EntityId StatisticsBackend::init_monitor(
 
     /* Create DomainParticipant */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
-    participant_qos.name("monitor_domain_" + domain_id);
+    // Previous string conversion is needed for string_255
+    std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
+    participant_qos.name(participant_name);
 
     StatusMask participant_mask = StatusMask::all();
     participant_mask ^= StatusMask::data_on_readers();
