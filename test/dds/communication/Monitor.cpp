@@ -152,9 +152,12 @@ int main(
     int arg_count = 1;
     uint32_t seed = 7800;
     unsigned int num_participants = 2;
-    unsigned int num_endpoints = 2;
-    unsigned int num_topics = 1;
-    unsigned int num_entities = num_participants + num_topics + num_endpoints;
+    unsigned int num_readers = 1;
+    // Each participant creates a meta traffic endpoint
+    unsigned int num_writers = num_participants + 1;
+    // Additionally, we need a meta traffic topic per domain
+    unsigned int num_topics = 2;
+    unsigned int num_entities = num_participants + num_topics + num_readers + num_writers;
 
     // Process arguments
     while (arg_count < argc)
@@ -284,18 +287,18 @@ int main(
             {
                 throw Error("Error: database contains unexpected PARTICIPANT");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_writers)
             {
                 throw Error("Error: database contains unexpected DATAWRITER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_readers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_readers)
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -383,18 +386,18 @@ int main(
             {
                 throw Error("Error: database contains unexpected PARTICIPANT");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_writers)
             {
                 throw Error("Error: database contains unexpected DATAWRITER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_readers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_readers)
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -484,18 +487,18 @@ int main(
             {
                 throw Error("Error: database contains unexpected PARTICIPANT");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAWRITER).size() != num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAWRITER, monitor_id).size() != num_writers)
             {
                 throw Error("Error: database contains unexpected DATAWRITER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_endpoints / 2 ||
-                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_endpoints / 2)
+            else if (StatisticsBackend::get_entities(EntityKind::DATAREADER).size() != num_readers ||
+                    StatisticsBackend::get_entities(EntityKind::DATAREADER, monitor_id).size() != num_readers)
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_endpoints ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_endpoints)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
