@@ -2432,9 +2432,114 @@ TEST_F(database_tests, get_entity_locator)
     ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
 }
 
+TEST_F(database_tests, get_entity_host_efficient_search)
+{
+    auto local_host = db.get_entity(host_id, EntityKind::HOST);
+    ASSERT_EQ(local_host.get(), host.get());
+}
+
+TEST_F(database_tests, get_entity_process_efficient_search)
+{
+    auto local_process = db.get_entity(process_id, EntityKind::PROCESS);
+    ASSERT_EQ(local_process.get(), process.get());
+}
+
+TEST_F(database_tests, get_entity_user_efficient_search)
+{
+    auto local_user = db.get_entity(user_id, EntityKind::USER);
+    ASSERT_EQ(local_user.get(), user.get());
+}
+
+TEST_F(database_tests, get_entity_domain_efficient_search)
+{
+    auto local_domain = db.get_entity(domain_id, EntityKind::DOMAIN);
+    ASSERT_EQ(local_domain.get(), domain.get());
+}
+
+TEST_F(database_tests, get_entity_topic_efficient_search)
+{
+    auto local_topic = db.get_entity(topic_id, EntityKind::TOPIC);
+    ASSERT_EQ(local_topic.get(), topic.get());
+}
+
+TEST_F(database_tests, get_entity_participant_efficient_search)
+{
+    auto local_participant = db.get_entity(participant_id, EntityKind::PARTICIPANT);
+    ASSERT_EQ(local_participant.get(), participant.get());
+}
+
+TEST_F(database_tests, get_entity_datareader_efficient_search)
+{
+    auto local_reader = db.get_entity(reader_id, EntityKind::DATAREADER);
+    ASSERT_EQ(local_reader.get(), reader.get());
+}
+
+TEST_F(database_tests, get_entity_datawriter_efficient_search)
+{
+    auto local_writer = db.get_entity(writer_id, EntityKind::DATAWRITER);
+    ASSERT_EQ(local_writer.get(), writer.get());
+}
+
+TEST_F(database_tests, get_entity_locator_efficient_search)
+{
+    auto local_reader_locator = db.get_entity(reader_locator->id, EntityKind::LOCATOR);
+    ASSERT_EQ(local_reader_locator.get(), reader_locator.get());
+    auto local_writer_locator = db.get_entity(writer_locator->id, EntityKind::LOCATOR);
+    ASSERT_EQ(local_writer_locator.get(), writer_locator.get());
+}
+
 TEST_F(database_tests, get_entity_no_existing)
 {
     ASSERT_THROW(db.get_entity(EntityId()), BadParameter);
+    // With specific kind
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::HOST), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::USER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::PROCESS), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DOMAIN), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::TOPIC), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::PARTICIPANT), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DATAREADER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::DATAWRITER), BadParameter);
+    ASSERT_THROW(db.get_entity(EntityId(), EntityKind::LOCATOR), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_no_correct_kind)
+{
+    std::map<EntityId, EntityKind> correct_kinds = {
+        {host_id, EntityKind::HOST},
+        {process_id, EntityKind::PROCESS},
+        {user_id, EntityKind::USER},
+        {domain_id, EntityKind::DOMAIN},
+        {topic_id, EntityKind::TOPIC},
+        {participant_id, EntityKind::PARTICIPANT},
+        {reader_id, EntityKind::DATAREADER},
+        {writer_id, EntityKind::DATAWRITER},
+        {reader_locator->id, EntityKind::LOCATOR},
+        {writer_locator->id, EntityKind::LOCATOR}
+    };
+
+    std::vector<EntityKind> all_kinds = {
+        EntityKind::HOST,
+        EntityKind::PROCESS,
+        EntityKind::USER,
+        EntityKind::DOMAIN,
+        EntityKind::TOPIC,
+        EntityKind::PARTICIPANT,
+        EntityKind::DATAREADER,
+        EntityKind::DATAWRITER,
+        EntityKind::LOCATOR
+    };
+
+    for (auto correct_kind : correct_kinds)
+    {
+        for (auto kind : all_kinds)
+        {
+            if (kind != correct_kind.second)
+            {
+                ASSERT_THROW(db.get_entity(correct_kind.first, kind), BadParameter);
+            }
+        }
+    }
 }
 
 TEST_F(database_tests, get_entities_by_name_host)
@@ -2714,235 +2819,237 @@ TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
 
 TEST_F(database_tests, select_invalid_entities)
 {
-#ifndef NDEBUG
-    // Test assertions
+    // Test Bad Parameter errors
 
     Timestamp t_from = std::chrono::system_clock::now();
     Timestamp t_to = t_from + std::chrono::seconds(1);
 
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, host_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, user_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, process_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, domain_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, topic_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, participant_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, host_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, user_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, process_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, domain_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, topic_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, participant_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, reader_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, reader_locator->id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, participant_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, host_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, user_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, process_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, domain_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, topic_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, participant_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_id, reader_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, host_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, user_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, process_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, domain_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, topic_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, reader_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, reader_locator->id, t_from,
+            t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, participant_id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, host_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, user_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, process_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, domain_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, topic_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, reader_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, reader_locator->id, t_from,
+            t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, participant_id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, host_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, user_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, process_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, domain_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, topic_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, reader_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, reader_locator->id, t_from,
+            t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, participant_id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, host_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, user_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, process_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, domain_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, topic_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, host_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, user_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, process_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, domain_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, topic_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, reader_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, reader_locator->id, t_from,
+            t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, participant_id, reader_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RESENT_DATA, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::HEARTBEAT_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::ACKNACK_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NACKFRAG_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::GAP_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DATA_COUNT, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::PDP_PACKETS, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, writer_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::EDP_PACKETS, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, host_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, user_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, process_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, domain_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, topic_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, writer_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, reader_id, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, writer_locator->id, participant_id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), "");
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, writer_locator->id, t_from, t_to), BadParameter);
 
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, host_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, user_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, process_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, domain_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, topic_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, participant_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, reader_id, t_from, t_to), "");
-    ASSERT_DEATH(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, t_from, t_to), "");
-#endif // ifndef NDEBUG
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, host_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, user_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, process_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, domain_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, topic_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, participant_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::SAMPLE_DATAS, writer_locator->id, t_from, t_to), BadParameter);
 }
 
 TEST_F(database_tests, select_invalid_entity_id)
@@ -2952,19 +3059,31 @@ TEST_F(database_tests, select_invalid_entity_id)
     EntityId invalid_id;
 
     EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::FASTDDS_LATENCY, writer_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::NETWORK_LATENCY, reader_locator->id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_SENT, reader_locator->id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_SENT, reader_locator->id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_PACKETS_LOST, reader_locator->id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, writer_locator->id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, invalid_id, reader_locator->id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, writer_locator->id, invalid_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::RTPS_BYTES_LOST, reader_locator->id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, participant_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, writer_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, invalid_id, reader_id, t_from, t_to), BadParameter);
+    EXPECT_THROW(db.select(DataKind::DISCOVERY_TIME, participant_id, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::PUBLICATION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::SUBSCRIPTION_THROUGHPUT, invalid_id, t_from, t_to), BadParameter);
     EXPECT_THROW(db.select(DataKind::RESENT_DATA, invalid_id, t_from, t_to), BadParameter);

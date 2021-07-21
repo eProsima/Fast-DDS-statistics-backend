@@ -1165,85 +1165,122 @@ void Database::link_participant_with_process_nts(
 }
 
 const std::shared_ptr<const Entity> Database::get_entity(
-        const EntityId& entity_id) const
+        const EntityId& entity_id,
+        const EntityKind entity_kind /* = EntityKind::INVALID */) const
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     /* Iterate over all the collections looking for the entity */
-    for (const auto& host_it : hosts_)
+    if (EntityKind::INVALID == entity_kind || EntityKind::HOST == entity_kind)
     {
-        if (host_it.second->id == entity_id)
+        for (const auto& host_it : hosts_)
         {
-            return host_it.second;
-        }
-    }
-    for (const auto& process_it : processes_)
-    {
-        if (process_it.second->id == entity_id)
-        {
-            return process_it.second;
-        }
-    }
-    for (const auto& user_it : users_)
-    {
-        if (user_it.second->id == entity_id)
-        {
-            return user_it.second;
-        }
-    }
-    for (const auto& domain_it : domains_)
-    {
-        if (domain_it.second->id == entity_id)
-        {
-            return domain_it.second;
-        }
-    }
-    for (const auto& domain_it : topics_)
-    {
-        for (const auto& topic_it : domain_it.second)
-        {
-            if (topic_it.second->id == entity_id)
+            if (host_it.second->id == entity_id)
             {
-                return topic_it.second;
+                return host_it.second;
             }
         }
     }
-    for (const auto& domain_it : participants_)
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::PROCESS == entity_kind)
     {
-        for (const auto& participant_it : domain_it.second)
+        for (const auto& process_it : processes_)
         {
-            if (participant_it.second->id == entity_id)
+            if (process_it.second->id == entity_id)
             {
-                return participant_it.second;
+                return process_it.second;
             }
         }
     }
-    for (const auto& domain_it : datareaders_)
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::USER == entity_kind)
     {
-        for (const auto& datareader_it : domain_it.second)
+        for (const auto& user_it : users_)
         {
-            if (datareader_it.second->id == entity_id)
+            if (user_it.second->id == entity_id)
             {
-                return datareader_it.second;
+                return user_it.second;
             }
         }
     }
-    for (const auto& domain_it : datawriters_)
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::DOMAIN == entity_kind)
     {
-        for (const auto& datawriter_it : domain_it.second)
+        for (const auto& domain_it : domains_)
         {
-            if (datawriter_it.second->id == entity_id)
+            if (domain_it.second->id == entity_id)
             {
-                return datawriter_it.second;
+                return domain_it.second;
             }
         }
     }
-    for (const auto& locator_it : locators_)
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::TOPIC == entity_kind)
     {
-        if (locator_it.second->id == entity_id)
+        for (const auto& domain_it : topics_)
         {
-            return locator_it.second;
+            for (const auto& topic_it : domain_it.second)
+            {
+                if (topic_it.second->id == entity_id)
+                {
+                    return topic_it.second;
+                }
+            }
         }
     }
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::PARTICIPANT == entity_kind)
+    {
+        for (const auto& domain_it : participants_)
+        {
+            for (const auto& participant_it : domain_it.second)
+            {
+                if (participant_it.second->id == entity_id)
+                {
+                    return participant_it.second;
+                }
+            }
+        }
+    }
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::DATAREADER == entity_kind)
+    {
+        for (const auto& domain_it : datareaders_)
+        {
+            for (const auto& datareader_it : domain_it.second)
+            {
+                if (datareader_it.second->id == entity_id)
+                {
+                    return datareader_it.second;
+                }
+            }
+        }
+    }
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::DATAWRITER == entity_kind)
+    {
+        for (const auto& domain_it : datawriters_)
+        {
+            for (const auto& datawriter_it : domain_it.second)
+            {
+                if (datawriter_it.second->id == entity_id)
+                {
+                    return datawriter_it.second;
+                }
+            }
+        }
+    }
+
+    if (EntityKind::INVALID == entity_kind || EntityKind::LOCATOR == entity_kind)
+    {
+        for (const auto& locator_it : locators_)
+        {
+            if (locator_it.second->id == entity_id)
+            {
+                return locator_it.second;
+            }
+        }
+    }
+
     /* The entity has not been found */
     throw BadParameter("Database does not contain an entity with ID " + entity_id.value());
 }
@@ -1458,8 +1495,63 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    auto source_entity = get_entity(entity_id_source);
-    auto target_entity = get_entity(entity_id_target);
+    std::shared_ptr<const eprosima::statistics_backend::database::Entity> source_entity;
+    std::shared_ptr<const eprosima::statistics_backend::database::Entity> target_entity;
+
+    for (auto kinds : StatisticsBackend::get_data_supported_entity_kinds(data_type))
+    {
+        try
+        {
+            // If the entity has already been found, the kind must be checked.
+            // If the kind is the same as the one needed, continue looking for the target.
+            // If it is not, this pair of kinds is not correct so the search continues to the next pair.
+            if (!source_entity)
+            {
+                source_entity = get_entity(entity_id_source, kinds.first);
+            }
+            else
+            {
+                // There are no possibility with the current kinds to arrive to this branch
+                assert(source_entity->kind == kinds.first);
+                // If in the future new kinds are added that could use this branch, use this code
+                // if (source_entity->kind != kinds.first)
+                // {
+                //     continue;
+                // }
+            }
+
+            if (!target_entity)
+            {
+                target_entity = get_entity(entity_id_target, kinds.second);
+            }
+            else
+            {
+                // There are no possibility with the current kinds to arrive to this branch
+                assert(target_entity->kind == kinds.second);
+                // If in the future new kinds are added that could use this branch, use this code
+                // if (target_entity->kind != kinds.second)
+                // {
+                //     continue;
+                // }
+            }
+        }
+        catch (const std::exception& e)
+        {
+            // It has not found the entity, check next possible kinds
+            continue;
+        }
+
+        // In case both entities have been found, follow with them
+        break;
+    }
+
+    // There is no way to set both to not null unless it is a pair with both types.
+    // Every time source entity is found in correct kind look for target, if found correct, if not target is null.
+    // Target does not look for an entity unless source has been found AND in the correct entity.
+    if (!source_entity || !target_entity)
+    {
+        throw BadParameter("Entity not found in required EntityKind for the given DataKind");
+    }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
@@ -1467,8 +1559,6 @@ std::vector<const StatisticsSample*> Database::select(
     {
         case DataKind::FASTDDS_LATENCY:
         {
-            assert(EntityKind::DATAWRITER == source_entity->kind);
-            assert(EntityKind::DATAREADER == target_entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(source_entity);
             /* Look if the writer has information about the required reader */
             auto reader = writer->data.history2history_latency.find(entity_id_target);
@@ -1494,8 +1584,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            assert(EntityKind::LOCATOR == source_entity->kind);
-            assert(EntityKind::LOCATOR == target_entity->kind);
             auto locator = std::static_pointer_cast<const Locator>(source_entity);
             /* Look if the locator has information about the required locator */
             auto remote_locator = locator->data.network_latency_per_locator.find(entity_id_target);
@@ -1518,8 +1606,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::RTPS_PACKETS_SENT:
         {
-            assert(EntityKind::PARTICIPANT == source_entity->kind);
-            assert(EntityKind::LOCATOR == target_entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
             /* Look if the participant has information about the required locator */
             auto locator = participant->data.rtps_packets_sent.find(entity_id_target);
@@ -1542,8 +1628,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::RTPS_BYTES_SENT:
         {
-            assert(EntityKind::PARTICIPANT == source_entity->kind);
-            assert(EntityKind::LOCATOR == target_entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
             /* Look if the participant has information about the required locator */
             auto locator = participant->data.rtps_bytes_sent.find(entity_id_target);
@@ -1566,8 +1650,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::RTPS_PACKETS_LOST:
         {
-            assert(EntityKind::PARTICIPANT == source_entity->kind);
-            assert(EntityKind::LOCATOR == target_entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
             /* Look if the participant has information about the required locator */
             auto locator = participant->data.rtps_packets_lost.find(entity_id_target);
@@ -1590,8 +1672,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::RTPS_BYTES_LOST:
         {
-            assert(EntityKind::PARTICIPANT == source_entity->kind);
-            assert(EntityKind::LOCATOR == target_entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
             /* Look if the participant has information about the required locator */
             auto locator = participant->data.rtps_bytes_lost.find(entity_id_target);
@@ -1614,9 +1694,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::DISCOVERY_TIME:
         {
-            assert(EntityKind::PARTICIPANT == source_entity->kind);
-            assert(EntityKind::PARTICIPANT == target_entity->kind || EntityKind::DATAREADER == target_entity->kind ||
-                    EntityKind::DATAWRITER == target_entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
             /* Look if the participant has information about the required dds entity */
             auto dds_entity = participant->data.discovered_entity.find(entity_id_target);
@@ -1657,7 +1734,28 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    auto entity = get_entity(entity_id);
+    std::shared_ptr<const eprosima::statistics_backend::database::Entity> entity;
+
+    for (auto kinds : StatisticsBackend::get_data_supported_entity_kinds(data_type))
+    {
+        try
+        {
+            entity = get_entity(entity_id, kinds.first);
+        }
+        catch (const std::exception& e)
+        {
+            // It has not found the entity, check next possible kind
+            continue;
+        }
+
+        // In case it has found the entity, follow with it
+        break;
+    }
+
+    if (!entity)
+    {
+        throw BadParameter("Entity not found in required EntityKind for the given DataKind");
+    }
 
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
@@ -1665,7 +1763,6 @@ std::vector<const StatisticsSample*> Database::select(
     {
         case DataKind::PUBLICATION_THROUGHPUT:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             // TODO(jlbueno) Knowing that the samples are ordered by timestamp it would be more efficient to
@@ -1687,7 +1784,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
-            assert(EntityKind::DATAREADER == entity->kind);
             auto reader = std::static_pointer_cast<const DataReader>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : reader->data.subscription_throughput)
@@ -1705,7 +1801,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::RESENT_DATA:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : writer->data.resent_datas)
@@ -1723,7 +1818,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::HEARTBEAT_COUNT:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : writer->data.heartbeat_count)
@@ -1741,7 +1835,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::ACKNACK_COUNT:
         {
-            assert(EntityKind::DATAREADER == entity->kind);
             auto reader = std::static_pointer_cast<const DataReader>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : reader->data.acknack_count)
@@ -1759,7 +1852,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NACKFRAG_COUNT:
         {
-            assert(EntityKind::DATAREADER == entity->kind);
             auto reader = std::static_pointer_cast<const DataReader>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : reader->data.nackfrag_count)
@@ -1777,7 +1869,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::GAP_COUNT:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : writer->data.gap_count)
@@ -1795,7 +1886,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::DATA_COUNT:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : writer->data.data_count)
@@ -1813,7 +1903,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::PDP_PACKETS:
         {
-            assert(EntityKind::PARTICIPANT == entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : participant->data.pdp_packets)
@@ -1831,7 +1920,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::EDP_PACKETS:
         {
-            assert(EntityKind::PARTICIPANT == entity->kind);
             auto participant = std::static_pointer_cast<const DomainParticipant>(entity);
             /* Look for the samples between the given timestamps */
             for (auto& sample : participant->data.edp_packets)
@@ -1849,7 +1937,6 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::SAMPLE_DATAS:
         {
-            assert(EntityKind::DATAWRITER == entity->kind);
             auto writer = std::static_pointer_cast<const DataWriter>(entity);
             /* This case is different from the above. Check all map keys and add sample if it is between the given
                timestamps. The samples do not need to be ordered by source timestamp so they should be sorted */
@@ -1944,7 +2031,8 @@ EntityKind Database::get_entity_kind(
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
-        const EntityId& entity_id) const
+        const EntityId& entity_id,
+        const EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::shared_ptr<const Entity> origin;
 
@@ -1953,8 +2041,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     {
         // This call will throw BadParameter if there is no such entity.
         // We let this exception through, as it meets expectations
-        origin = get_entity(entity_id);
-        assert(origin->kind != EntityKind::INVALID);
+        origin = get_entity(entity_id, source_entity_kind);
     }
 
     auto entities = get_entities(entity_kind, origin);
@@ -1979,10 +2066,11 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
 
 std::vector<EntityId> Database::get_entity_ids(
         EntityKind entity_kind,
-        const EntityId& entity_id) const
+        const EntityId& entity_id,
+        const EntityKind source_entity_kind /* = EntityKind::INVALID */) const
 {
     std::vector<EntityId> entitiesIds;
-    for (const auto& entity : get_entities(entity_kind, entity_id))
+    for (const auto& entity : get_entities(entity_kind, entity_id, source_entity_kind))
     {
         entitiesIds.push_back(entity->id);
     }

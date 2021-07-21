@@ -215,11 +215,13 @@ public:
      * Get an entity given its EntityId
      *
      * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @param entity_kind Kind of the entity to speed up the search. Default/Unknown INVALID.
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      * @return A constant shared pointer to the Entity.
      */
     const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const;
+            const EntityId& entity_id,
+            const EntityKind entity_kind = EntityKind::INVALID) const;
 
     /**
      * Get all entities of a given EntityKind related to another entity.
@@ -229,6 +231,7 @@ public:
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related.
      * @param entity_kind The EntityKind of the fetched entities.
+     * @param source_entity_kind Kind of the source of the entity to speed up the search. Default/Unknown INVALID.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *            * if the \c entity_kind is \c INVALID.
      *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
@@ -237,7 +240,8 @@ public:
      */
     const std::vector<std::shared_ptr<const Entity>> get_entities(
             EntityKind entity_kind,
-            const EntityId& entity_id) const;
+            const EntityId& entity_id,
+            const EntityKind source_entity_kind = EntityKind::INVALID) const;
 
     /**
      * Get all EntityIds of a given EntityKind related to another entity.
@@ -247,6 +251,7 @@ public:
      * @param entity_id constant reference to the EntityId of the entity to which the returned
      *                  entities are related.
      * @param entity_kind The EntityKind of the fetched entities.
+     * @param source_entity_kind Kind of the source of the entity to speed up the search. Default/Unknown INVALID.
      * @throws eprosima::statistics_backend::BadParameter in the following case:
      *            * if the \c entity_kind is \c INVALID.
      *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
@@ -255,7 +260,8 @@ public:
      */
     std::vector<EntityId> get_entity_ids(
             EntityKind entity_type,
-            const EntityId& entity_id) const;
+            const EntityId& entity_id,
+            const EntityKind source_entity_kind = EntityKind::INVALID) const;
 
     /**
      *  @brief Generate an EntityId that is unique for the database.

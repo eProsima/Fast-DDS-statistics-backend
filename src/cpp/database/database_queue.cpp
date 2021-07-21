@@ -699,7 +699,7 @@ void DatabaseDataQueue::process_sample()
                 {
                     // Host name reported by Fast DDS are considered unique
                     std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
-                                        hosts.front().second));
+                                        hosts.front().second, EntityKind::HOST));
                     host = std::const_pointer_cast<Host>(const_host);
                 }
 
@@ -709,7 +709,7 @@ void DatabaseDataQueue::process_sample()
                 for (const auto& it : users)
                 {
                     std::shared_ptr<const User> const_user =
-                            std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
+                            std::dynamic_pointer_cast<const User>(database_->get_entity(it.second, EntityKind::USER));
 
                     // The user name is unique within the host
                     if (const_user->host == host)
@@ -731,7 +731,9 @@ void DatabaseDataQueue::process_sample()
                 for (const auto& it : processes)
                 {
                     std::shared_ptr<const Process> const_process =
-                            std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
+                            std::dynamic_pointer_cast<const Process>(database_->get_entity(
+                                        it.second,
+                                        EntityKind::PROCESS));
 
                     // There is only one process with the same name for a given user
                     if (const_process->user == user)

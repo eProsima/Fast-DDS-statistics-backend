@@ -1345,7 +1345,7 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database_, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database_, get_entity(EntityId(2), EntityKind::HOST)).Times(AnyNumber())
             .WillRepeatedly(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -1355,7 +1355,7 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database_, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database_, get_entity(EntityId(3), EntityKind::USER)).Times(AnyNumber())
             .WillRepeatedly(Return(user));
 
     // Precondition: The process exists and has ID 4
@@ -1365,7 +1365,7 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
 
     auto process = std::make_shared<Process>(processname, pid, user);
     process->id = EntityId(4);
-    EXPECT_CALL(database_, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database_, get_entity(EntityId(4), EntityKind::PROCESS)).Times(AnyNumber())
             .WillRepeatedly(Return(process));
 
     // Expectation: The link method is called with appropriate arguments

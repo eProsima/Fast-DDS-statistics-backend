@@ -66,7 +66,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     // This may throw if the domain does not exist
     // The database MUST contain the domain, or something went wrong upstream
     std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+        std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_, EntityKind::DOMAIN)));
 
     // Get the participant from the database
     GUID_t endpoint_guid = info.info.guid();
@@ -86,7 +86,7 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     std::shared_ptr<database::DomainParticipant> participant =
             std::const_pointer_cast<database::DomainParticipant>(
         std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
-            participant_id.second)));
+            participant_id.second, EntityKind::PARTICIPANT)));
 
     assert(participant_id.first == domain_id_);
 
@@ -100,7 +100,9 @@ void StatisticsParticipantListener::process_endpoint_discovery(
         if (topic_id.first == domain_id_)
         {
             topic = std::const_pointer_cast<database::Topic>(
-                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+                std::static_pointer_cast<const database::Topic>(database_->get_entity(
+                    topic_id.second,
+                    EntityKind::TOPIC)));
 
             if (topic->data_type == info.info.typeName().to_string())
             {
@@ -134,7 +136,6 @@ void StatisticsParticipantListener::process_endpoint_discovery(
     auto endpoint = create_endpoint(endpoint_guid, info, participant, topic);
 
     /* Start processing the locator info */
-
     // Routine to process one locator from the locator list of the endpoint
     auto process_locators = [&](const Locator_t& dds_locator)
             {
@@ -149,8 +150,9 @@ void StatisticsParticipantListener::process_endpoint_discovery(
                 {
                     // The locator exists.
                     locator = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
-                                second)));
+                        std::static_pointer_cast<const database::Locator>(database_->get_entity(
+                            locator_ids.front().second,
+                            EntityKind::LOCATOR)));
                 }
                 else
                 {
@@ -319,7 +321,9 @@ void StatisticsParticipantListener::on_participant_discovery(
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = std::const_pointer_cast<database::DomainParticipant>(
-            std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_id)));
+            std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
+                participant_id,
+                EntityKind::PARTICIPANT)));
 
         switch (info.status)
         {
@@ -352,7 +356,9 @@ void StatisticsParticipantListener::on_participant_discovery(
             // This may throw if the domain does not exist
             // The database MUST contain the domain, or something went wrong upstream
             std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(domain_id_)));
+                std::static_pointer_cast<const database::Domain>(database_->get_entity(
+                    domain_id_,
+                    EntityKind::DOMAIN)));
 
             std::string name = info.info.m_participantName.to_string();
 
@@ -418,7 +424,9 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = std::const_pointer_cast<database::DataReader>(
-            std::static_pointer_cast<const database::DataReader>(database_->get_entity(datareader_id)));
+            std::static_pointer_cast<const database::DataReader>(database_->get_entity(
+                datareader_id,
+                EntityKind::DATAREADER)));
 
         switch (info.status)
         {
@@ -488,7 +496,9 @@ void StatisticsParticipantListener::on_publisher_discovery(
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
         entity_discovery_info.entity = std::const_pointer_cast<database::DataWriter>(
-            std::static_pointer_cast<const database::DataWriter>(database_->get_entity(datawriter_id)));
+            std::static_pointer_cast<const database::DataWriter>(database_->get_entity(
+                datawriter_id,
+                EntityKind::DATAWRITER)));
 
         switch (info.status)
         {

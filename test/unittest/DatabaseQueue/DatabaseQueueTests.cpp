@@ -3441,7 +3441,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(1)
             .WillOnce(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -3450,7 +3450,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::USER)).Times(1)
             .WillOnce(Return(user));
 
     // Precondition: The process exists and has ID 4
@@ -3459,7 +3459,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
     auto process = std::make_shared<Process>(processname, pid, user);
     process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::PROCESS)).Times(1)
             .WillOnce(Return(process));
 
     // Expectation: The link method is called with appropriate arguments
@@ -3519,7 +3519,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(AnyNumber())
             .WillOnce(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -3528,7 +3528,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::USER)).Times(AnyNumber())
             .WillOnce(Return(user));
 
     // Precondition: The process exists and has ID 4
@@ -3537,7 +3537,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     auto process = std::make_shared<Process>(processname, pid, user);
     process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(4), EntityKind::PROCESS)).Times(AnyNumber())
             .WillOnce(Return(process));
 
     // Expectation: The user is not notified
@@ -3597,7 +3597,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(1)
             .WillOnce(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -3606,7 +3606,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::USER)).Times(1)
             .WillOnce(Return(user));
 
     // Precondition: The process does not exist
@@ -3689,7 +3689,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(1)
             .WillOnce(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -3699,7 +3699,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::USER)).Times(1)
             .WillOnce(Return(user));
 
     // Precondition: The process does not exist
@@ -3783,7 +3783,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(1)
             .WillOnce(Return(host));
 
     // Precondition: The user does not exist
@@ -3888,7 +3888,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(1)
             .WillOnce(Return(host));
 
     // Precondition: The user does not exist
@@ -4170,7 +4170,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     auto host = std::make_shared<Host>(hostname);
     host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(2), EntityKind::HOST)).Times(AnyNumber())
             .WillOnce(Return(host));
 
     // Precondition: The user exists and has ID 3
@@ -4179,7 +4179,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     auto user = std::make_shared<User>(username, host);
     user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
+    EXPECT_CALL(database, get_entity(EntityId(3), EntityKind::USER)).Times(AnyNumber())
             .WillOnce(Return(user));
 
     // Precondition: The process does not exist

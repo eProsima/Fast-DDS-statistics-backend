@@ -300,7 +300,19 @@ set(DATABASE_TEST_LIST
     get_entity_datareader
     get_entity_datawriter
     get_entity_locator
+    get_entity_host_efficient_search
+    get_entity_process_efficient_search
+    get_entity_user_efficient_search
+    get_entity_domain_efficient_search
+    get_entity_topic_efficient_search
+    get_entity_participant_efficient_search
+    get_entity_datareader_efficient_search
+    get_entity_datawriter_efficient_search
+    get_entity_locator_efficient_search
+
     get_entity_no_existing
+    get_entity_no_correct_kind
+
     # get_entities_by_name
     get_entities_by_name_host
     get_entities_by_name_host_wrong_name
@@ -473,7 +485,7 @@ endforeach()
 add_executable(database_load_tests DatabaseLoadTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_load_tests PRIVATE 
+    target_compile_definitions(database_load_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -525,7 +537,7 @@ endforeach()
 add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_load_insert_tests PRIVATE 
+    target_compile_definitions(database_load_insert_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -565,7 +577,7 @@ endforeach()
 add_executable(database_status_tests DatabaseStatusTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_status_tests PRIVATE 
+    target_compile_definitions(database_status_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -615,7 +627,7 @@ endforeach()
 add_executable(database_erase_tests DatabaseEraseTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_erase_tests PRIVATE 
+    target_compile_definitions(database_erase_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
