@@ -20,6 +20,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     add_executable(database_queue_tests DatabaseQueueTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
@@ -49,25 +50,13 @@ if(GTEST_FOUND AND GMOCK_FOUND)
 
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush
-        push_host
-        push_host_throws
-        push_user
-        push_user_throws
-        push_process
-        push_process_throws
-        push_domain
-        push_domain_throws
-        push_participant_process_exists
-        push_participant_no_process_exists
-        push_participant_throws
-        push_topic
-        push_topic_throws
+        push_participant
         push_datawriter
-        push_datawriter_throws
+        push_datawriter_topic_does_not_exist
+        push_datawriter_locator_does_not_exist
         push_datareader
-        push_datareader_throws
-        push_locator
-        push_locator_throws
+        push_datareader_topic_does_not_exist
+        push_datareader_locator_does_not_exist
         push_history_latency
         push_history_latency_no_reader
         push_history_latency_no_writer
