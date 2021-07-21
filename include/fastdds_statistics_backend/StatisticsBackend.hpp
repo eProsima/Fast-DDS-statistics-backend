@@ -79,19 +79,56 @@ public:
             DataKindMask data_mask = DataKindMask::none());
 
     /**
-     * @brief Starts monitoring the domain corresponding to a server.
+     * @brief Starts monitoring the network corresponding to a server.
      *
      * This function creates a new statistics DomainParticipant that starts monitoring
-     * the domain of the server with the given locator.
+     * the network of the server with the given locators.
+     * The server \c GuidPrefix_t is set to the default one: \c eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+     * If any other server is to be used, call the overload method that receives the \c GuidPrefix_t as parameter.
      *
-     * @param discovery_server_locators The locator of the server whose domain is to be monitored,
-     *                                  formatted as "IPV4address:port".
+     * The format to specify a locator is: <tt>kind:[IP]:port</tt>, where:
+     *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv4 }
+     *  * \b IP is the IP address
+     *  * \b port is the IP port
+     * Note that \c SHM locators are not supported. For any server configured with shared memory locators,
+     * initialize the monitor using only the non shared memory locators.
+     *
+     * @param discovery_server_locators The locator list of the server whose network is to be monitored,
+     *                                  formatted as a semicolon separated list of locators.
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
      * @return The ID of the created statistics Domain.
      */
     static EntityId init_monitor(
+            std::string discovery_server_locators,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
+
+    /**
+     * @brief Starts monitoring the network corresponding to a server.
+     *
+     * This function creates a new statistics DomainParticipant that starts monitoring
+     * the network of the server with the given \c GuidPrefix_t and with the given locators.
+     *
+     * The format to specify a locator is: <tt>kind:[IP]:port</tt>, where:
+     *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv4 }
+     *  * \b IP is the IP address
+     *  * \b port is the IP port
+     * Note that \c SHM locators are not supported. For any server configured with shared memory locators,
+     * initialize the monitor using only the non shared memory locators.
+     *
+     * @param discovery_server_guid_prefix Server \c GuidPrefix_t to be monitored.
+     * @param discovery_server_locators The locator list of the server whose network is to be monitored,
+     *                                  formatted as a semicolon separated list of locators.
+     * @param domain_listener Listener with the callback to use to inform of events.
+     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored.
+     * @return The ID of the created statistics Domain.
+     */
+    static EntityId init_monitor(
+            std::string discovery_server_guid_prefix,
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
