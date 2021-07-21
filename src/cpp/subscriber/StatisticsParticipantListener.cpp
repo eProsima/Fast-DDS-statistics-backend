@@ -309,6 +309,10 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
+    // Meaningful prefix for metatraffic entities
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+            std::to_string(domain_id_.value()) + "___";
+
     // The participant is already in the database
     try
     {
@@ -318,8 +322,9 @@ void StatisticsParticipantListener::on_participant_discovery(
         // Build discovery info
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
-        entity_discovery_info.entity = std::const_pointer_cast<database::DomainParticipant>(
+        std::shared_ptr<database::DomainParticipant> participant = std::const_pointer_cast<database::DomainParticipant>(
             std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_id)));
+        entity_discovery_info.entity = participant;
 
         switch (info.status)
         {
@@ -338,6 +343,32 @@ void StatisticsParticipantListener::on_participant_discovery(
             {
                 entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
                 break;
+            }
+        }
+
+        if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != entity_discovery_info.discovery_status)
+        {
+            // Need to activate the meta traffic endpoint too
+            // Check if is the metatraffic endpoint already exists
+            std::shared_ptr<database::DataWriter> metatraffic_endpoint;
+            for (const auto& endpoint : participant->data_writers)
+            {
+                if (endpoint.second->name == metatraffic_prefix + "ENDPOINT_" + to_string(info.info.m_guid))
+                {
+                    metatraffic_endpoint = endpoint.second;
+                }
+            }
+            if (nullptr == metatraffic_endpoint)
+            {
+                logError(STATISTICS_BACKEND, "Participant " << to_string(info.info.m_guid) + " without meta-traffic endpoint")
+            }
+            else
+            {
+                database::EntityDiscoveryInfo endpoint_discovery_info;
+                endpoint_discovery_info.domain_id = domain_id_;
+                endpoint_discovery_info.entity = metatraffic_endpoint;
+                endpoint_discovery_info.discovery_status = entity_discovery_info.discovery_status;
+                entity_queue_->push(timestamp, endpoint_discovery_info);
             }
         }
 
@@ -381,28 +412,21 @@ void StatisticsParticipantListener::on_participant_discovery(
 
             // Create metatraffic entities
             {
-                // Meaningful prefix for metatraffic entities
-                const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
-                        std::to_string(domain_id_.value()) + "___";
-
                 std::shared_ptr<database::Topic> metatraffic_topic;
 
                 // Check if is the metatraffic topic already exists
-                try
-                {
-                    std::vector<std::pair<EntityId, EntityId>> metatraffic_topic_ids =
-                            database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC");
+                std::vector<std::pair<EntityId, EntityId>> metatraffic_topic_ids =
+                        database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC");
 
-                    for (const auto& topic_id : metatraffic_topic_ids)
+                for (const auto& topic_id : metatraffic_topic_ids)
+                {
+                    if (topic_id.first == domain_id_)
                     {
-                        if (topic_id.first == domain_id_)
-                        {
-                            metatraffic_topic = std::const_pointer_cast<database::Topic>(
-                                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
-                        }
+                        metatraffic_topic = std::const_pointer_cast<database::Topic>(
+                            std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
                     }
                 }
-                catch (const std::exception& e)
+                if (nullptr == metatraffic_topic)
                 {
                     // Create the metatraffic topic
                     metatraffic_topic = std::make_shared<database::Topic>(
@@ -420,10 +444,12 @@ void StatisticsParticipantListener::on_participant_discovery(
 
                 // Create metatraffic endpoint and locator on the metatraffic topic.
                 {
-                    // Create the metatraffic endpoint
+                    // The endpoint QoS cannot be empty. We can use this to give a description to the user.
+                    database::Qos meta_traffic_qos = {
+                        {"description", "This is a virtual placeholder endpoint with no real counterpart"}};
                     auto datawriter = std::make_shared<database::DataWriter>(
                         metatraffic_prefix + "ENDPOINT_" + to_string(participant_guid),
-                        database::Qos({}),
+                        meta_traffic_qos,
                         to_string(participant_guid),
                         participant,
                         metatraffic_topic);
