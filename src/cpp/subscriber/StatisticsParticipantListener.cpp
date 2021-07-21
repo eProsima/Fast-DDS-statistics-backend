@@ -360,7 +360,8 @@ void StatisticsParticipantListener::on_participant_discovery(
             }
             if (nullptr == metatraffic_endpoint)
             {
-                logError(STATISTICS_BACKEND, "Participant " << to_string(info.info.m_guid) + " without meta-traffic endpoint")
+                logError(STATISTICS_BACKEND, "Participant " << to_string(
+                            info.info.m_guid) + " without meta-traffic endpoint")
             }
             else
             {

@@ -188,7 +188,7 @@ public:
         metatraffic_endpoint_name_ = metatraffic_prefix + "ENDPOINT_" + participant_guid_str_;
         metatraffic_qos_ = {{"description", "This is a virtual placeholder endpoint with no real counterpart"}};
         metatraffic_endpoint_ = std::make_shared<DataWriter>(metatraffic_endpoint_name_, metatraffic_qos_,
-                participant_guid_str_, participant_, metatraffic_topic_);
+                        participant_guid_str_, participant_, metatraffic_topic_);
 
         // Locators
         metatraffic_unicast_locator = std::make_shared<Locator>("UDPv4:[0.0.0.0]:1");

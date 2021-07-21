@@ -298,7 +298,8 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                    monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -397,7 +398,8 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                    monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -498,7 +500,8 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_readers + num_writers)
+                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                    monitor_id).size() != num_readers + num_writers)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
