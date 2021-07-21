@@ -1498,19 +1498,6 @@ public:
         details::StatisticsBackendData::reset_instance();
     }
 
-    void check_entity_discovery_args(
-            const DomainListener::Status& status,
-            int32_t total_count,
-            int32_t total_count_change,
-            int32_t current_count,
-            int32_t current_count_change)
-    {
-        EXPECT_EQ(total_count, status.total_count);
-        EXPECT_EQ(total_count_change, status.total_count_change);
-        EXPECT_EQ(current_count, status.current_count);
-        EXPECT_EQ(current_count_change, status.current_count_change);
-    }
-
     MockedPhysicalListener physical_listener_;
     MockedDomainListener domain_listener_;
     EntityId monitor_id_;
@@ -1557,17 +1544,69 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 1, 1, 1, 1);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&participant_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs metatraffic_topic_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&metatraffic_topic_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs metatraffic_endpoint_discovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&metatraffic_endpoint_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    PhysicalEntityDiscoveryArgs participant_locator_discovery_args([&](
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
+            });
+
+    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(1)
+            .WillOnce(Invoke(&participant_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Simulate the discovery of a participant
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
     eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
     participant_data.m_guid = participant_guid_;
     participant_data.m_participantName = participant_name_;
+
+    // The participant locator
+    eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+    participant_locator.address[12] = 127;
+    participant_locator.address[15] = 1;
+    participant_data.default_locators.add_unicast_locator(participant_locator);
 
     // Finish building the discovered participant info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
@@ -1589,7 +1628,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(participant_name_, participant->name);
     EXPECT_EQ(nullptr, participant->process);
     EXPECT_TRUE(participant->data_readers.empty());
-    EXPECT_TRUE(participant->data_writers.empty());
+    ASSERT_EQ(1, participant->data_writers.size()); // There is the metatraffic endpoint
 
     /* TOPIC */
     // the topic will be discovered with the datawriter
@@ -1599,7 +1638,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 1, 1, 1, 1);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1612,9 +1654,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(2, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(2, status.current_count);
                 EXPECT_EQ(1, status.current_count_change);
             });
 
@@ -1625,7 +1667,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 EntityId /*entity_id*/,
                 const DomainListener::Status& status)
             {
-                check_entity_discovery_args(status, 1, 1, 1, 1);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(1)
@@ -1693,7 +1738,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 1, 1, 1, 1);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1703,9 +1751,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 EntityId /*entity_id*/,
                 const DomainListener::Status& status)
             {
-                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(3, status.total_count);
                 EXPECT_EQ(1, status.total_count_change);
-                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(3, status.current_count);
                 EXPECT_EQ(1, status.current_count_change);
             });
 
@@ -1776,7 +1824,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 1, 2, 1);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(3, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1788,7 +1839,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 1, 2, 1);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1854,7 +1908,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 1, 2, 1);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(1, status.total_count_change);
+                EXPECT_EQ(3, status.current_count);
+                EXPECT_EQ(1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -1917,7 +1974,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 0, 1, -1);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -1942,7 +2002,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
     EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(3, participant->data_writers.size());
     EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader_undiscovery_args([&](
@@ -1951,7 +2011,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 0, 1, -1);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -1963,7 +2026,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 0, 1, -1);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(2, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
@@ -1988,7 +2054,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
     EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(3, participant->data_writers.size());
     EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     /* Remove the DATAWRITER and DATAREADER on the second TOPIC */
@@ -1998,7 +2064,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 0, 0, -1);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(1, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
@@ -2023,7 +2092,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(3, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader2_undiscovery_args([&](
@@ -2032,7 +2101,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 2, 0, 0, -1);
+                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_datareader_discovery(monitor_id_, _, _)).Times(1)
@@ -2044,9 +2116,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                EXPECT_EQ(2, status.total_count);
+                EXPECT_EQ(3, status.total_count);
                 EXPECT_EQ(0, status.total_count_change);
-                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(1, status.current_count);
                 EXPECT_EQ(-1, status.current_count_change);
             });
 
@@ -2072,7 +2144,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_TRUE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(3, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     /* Remove the PARTICIPANT */
@@ -2082,11 +2154,44 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
                 const DomainListener::Status& status)
             {
                 EXPECT_EQ(monitor_id_, domain_id);
-                check_entity_discovery_args(status, 1, 0, 0, -1);
+                EXPECT_EQ(1, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
             });
 
     EXPECT_CALL(domain_listener_, on_participant_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&participant_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs metatraffic_topic_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&metatraffic_topic_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
+
+    DomainEntityDiscoveryArgs metatraffic_endpoint_undiscovery_args([&](
+                EntityId domain_id,
+                EntityId /*entity_id*/,
+                const DomainListener::Status& status)
+            {
+                EXPECT_EQ(monitor_id_, domain_id);
+                EXPECT_EQ(3, status.total_count);
+                EXPECT_EQ(0, status.total_count_change);
+                EXPECT_EQ(0, status.current_count);
+                EXPECT_EQ(-1, status.current_count_change);
+            });
+
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
+            .WillOnce(Invoke(&metatraffic_endpoint_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
     participant_undiscovery_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
@@ -2107,7 +2212,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(participant->active);
     ASSERT_EQ(2, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(2, participant->data_writers.size());
+    ASSERT_EQ(3, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 }
 #endif //!defined(_WIN32)
