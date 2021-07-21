@@ -342,7 +342,7 @@ int main(
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            std::cerr << "Stop Monitor_" << seed << "\n" << e.what() << '\n';
             return 1;
         }
     }
@@ -441,7 +441,7 @@ int main(
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            std::cerr << "Stop Monitor_" << seed << "\n" << e.what() << '\n';
             return 1;
         }
     }
@@ -455,7 +455,7 @@ int main(
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Error stopping monitor" << e.what() << '\n';
+            std::cerr << "Stop Monitor_" << seed << "\n" << "Error stopping monitor" << e.what() << '\n';
             return 1;
         }
 
@@ -542,7 +542,7 @@ int main(
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            std::cerr << "Stop Monitor_" << seed << "\n" << e.what() << '\n';
             return 1;
         }
     }
@@ -576,10 +576,11 @@ int main(
     //     }
     //     catch (const std::exception& e)
     //     {
-    //         std::cerr << e.what() << '\n';
+    //         std::cerr << "Stop Monitor_" << seed << "\n" << e.what() << '\n';
     //         return 1;
     //     }
     // }
 
+    std::cerr << "Stop Monitor_" << seed << '\n';
     return 0;
 }

@@ -96,7 +96,7 @@ def communication(monitor_proc, pid):
                     
                     print("___" + pid + "___Creating publisher___")
                     sys.stdout.flush()
-                    publisher_proc1 = subprocess.Popen([publisher_command, "--seed", pid]
+                    publisher_proc1 = subprocess.Popen([publisher_command, "--seed", pid, "--wait", "1"]
                         + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
                         + extra_pub_args)
 
@@ -108,12 +108,17 @@ def communication(monitor_proc, pid):
                     sys.stdout.flush()
                     subscriber1_proc.communicate()
 
+                elif (line == ("Stop Monitor_" + pid)):
                     print("___" + pid + "___Stop Monitor___")
                     sys.stdout.flush()
                     run = False
 
+                else:
+                    print("___" + pid + '_ ' + line)
+                    sys.stdout.flush()
+
             except queue.Empty:
-                print("___" + pid + 'could not get line from queue')
+                print("___" + pid + '_ could not get line from queue')
                 sys.stdout.flush()
 
             time.sleep(0.1)
@@ -123,20 +128,20 @@ def communication(monitor_proc, pid):
             monitor_proc.wait(timeout=0.2)
             print("___" + pid + '== subprocess exited with rc =', monitor_proc.returncode)
         except subprocess.TimeoutExpired:
-            print("___" + pid + 'subprocess did not terminate in time')
+            print("___" + pid + '_ subprocess did not terminate in time')
 
     while outq.empty() != True:
         line = outq.get(block=False).rstrip()
-        print("___" + pid + line)
+        print("___" + pid + '_ ' + line)
         sys.stdout.flush()
 
     t.join()
 
 monitor_proc_0 = subprocess.Popen([monitor_command, "--seed", str(os.getpid())],
-                                stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 monitor_proc_1 = subprocess.Popen([monitor_command, "--seed", str(os.getpid() + 1)],
-                                stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 t_0 = threading.Thread(target=communication, args=(monitor_proc_0,str(os.getpid())))
 t_1 = threading.Thread(target=communication, args=(monitor_proc_1,str(os.getpid() + 1)))
