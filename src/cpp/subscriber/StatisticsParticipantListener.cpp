@@ -350,15 +350,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         {
             // Need to activate the meta traffic endpoint too
             // Check if is the metatraffic endpoint already exists
-            std::shared_ptr<database::DataWriter> metatraffic_endpoint;
-            for (const auto& endpoint : participant->data_writers)
-            {
-                if (endpoint.second->name == metatraffic_prefix + "ENDPOINT_" + to_string(info.info.m_guid))
-                {
-                    metatraffic_endpoint = endpoint.second;
-                }
-            }
-            if (nullptr == metatraffic_endpoint)
+            if (nullptr == participant->meta_traffic_endpoint)
             {
                 logError(STATISTICS_BACKEND, "Participant " << to_string(
                             info.info.m_guid) + " without meta-traffic endpoint")
@@ -367,7 +359,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             {
                 database::EntityDiscoveryInfo endpoint_discovery_info;
                 endpoint_discovery_info.domain_id = domain_id_;
-                endpoint_discovery_info.entity = metatraffic_endpoint;
+                endpoint_discovery_info.entity = participant->meta_traffic_endpoint;
                 endpoint_discovery_info.discovery_status = entity_discovery_info.discovery_status;
                 entity_queue_->push(timestamp, endpoint_discovery_info);
             }
@@ -455,6 +447,9 @@ void StatisticsParticipantListener::on_participant_discovery(
                         to_string(participant_guid),
                         participant,
                         metatraffic_topic);
+
+                    // Mark it as the meta traffic one
+                    datawriter->is_metatraffic = true;
 
                     // Routine to process one locator from the locator list of the particpant
                     auto process_locators = [&](const Locator_t& dds_locator)
