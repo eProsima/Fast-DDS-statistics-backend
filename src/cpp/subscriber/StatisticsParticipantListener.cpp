@@ -425,6 +425,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                     {
                         metatraffic_topic = std::const_pointer_cast<database::Topic>(
                             std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+                        break;
                     }
                 }
                 if (nullptr == metatraffic_topic)
