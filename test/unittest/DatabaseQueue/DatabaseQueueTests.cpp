@@ -1677,7 +1677,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
                 EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
                 EXPECT_EQ(entity->name, dst_locator_str);
                 EXPECT_EQ(entity->alias, dst_locator_str);
-                return EntityId(1);
+                return EntityId(2);
             });
 
     EXPECT_CALL(database, insert(_)).Times(1)
