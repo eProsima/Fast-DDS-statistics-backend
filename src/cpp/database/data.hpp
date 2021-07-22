@@ -161,7 +161,7 @@ struct DomainParticipantData : RTPSData
     /*
      * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC
      *
-     * Store the reported latencies between the local and remote locator, identified by its
+     * Store the reported latencies between the participant and remote locator, identified by its
      * EntityId.
      */
     std::map<EntityId, std::vector<EntityDataSample>> network_latency_per_locator;
