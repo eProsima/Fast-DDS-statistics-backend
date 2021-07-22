@@ -76,9 +76,16 @@ void DatabaseDataQueue::process_sample_type(
     {
         std::shared_ptr<Locator> locator = std::make_shared<Locator>(remote_locator);
         locator->id = database_->insert(locator);
-        found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                locator->id,
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        sample.remote_locator = locator->id;
     }
-    sample.remote_locator = found_remote_locators.front().second;
+    else
+    {
+        sample.remote_locator = found_remote_locators.front().second;
+    }
 
     std::string source_locator = deserialize_guid(item.src_locator());
     // This call will throw BadParameter if there is no such entity
