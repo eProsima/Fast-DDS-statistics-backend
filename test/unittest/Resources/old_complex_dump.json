@@ -65,7 +65,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"14"
+            "topic":"14",
+            "metatraffic":false
         },
         "26":{
             "data":{
@@ -130,7 +131,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"23"
+            "topic":"23",
+            "metatraffic":false
         },
         "8":{
             "data":{
@@ -195,7 +197,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"5"
+            "topic":"5",
+            "metatraffic":false
         }
     },
     "datawriters":{
@@ -331,7 +334,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"14"
+            "topic":"14",
+            "metatraffic":false
         },
         "25":{
             "data":{
@@ -465,7 +469,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"23"
+            "topic":"23",
+            "metatraffic":false
         },
         "7":{
             "data":{
@@ -599,7 +604,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"5"
+            "topic":"5",
+            "metatraffic":false
         }
     },
     "domains":{

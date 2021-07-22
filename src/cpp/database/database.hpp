@@ -513,6 +513,11 @@ protected:
 
         /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
+        if (endpoint->is_metatraffic)
+        {
+            assert(nullptr == endpoint->participant->meta_traffic_endpoint);
+            endpoint->participant->meta_traffic_endpoint = endpoint;
+        }
 
         /* Add to x_by_y_ collections and to locators_ */
         for (auto& locator_it : endpoint->locators)

@@ -309,6 +309,10 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
+    // Meaningful prefix for metatraffic entities
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+            std::to_string(domain_id_.value()) + "___";
+
     // The participant is already in the database
     try
     {
@@ -318,8 +322,9 @@ void StatisticsParticipantListener::on_participant_discovery(
         // Build discovery info
         database::EntityDiscoveryInfo entity_discovery_info;
         entity_discovery_info.domain_id = domain_id_;
-        entity_discovery_info.entity = std::const_pointer_cast<database::DomainParticipant>(
+        std::shared_ptr<database::DomainParticipant> participant = std::const_pointer_cast<database::DomainParticipant>(
             std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(participant_id)));
+        entity_discovery_info.entity = participant;
 
         switch (info.status)
         {
@@ -338,6 +343,25 @@ void StatisticsParticipantListener::on_participant_discovery(
             {
                 entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
                 break;
+            }
+        }
+
+        if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != entity_discovery_info.discovery_status)
+        {
+            // Need to activate the meta traffic endpoint too
+            // Check if is the metatraffic endpoint already exists
+            if (nullptr == participant->meta_traffic_endpoint)
+            {
+                logError(STATISTICS_BACKEND, "Participant " << to_string(
+                            info.info.m_guid) + " without meta-traffic endpoint")
+            }
+            else
+            {
+                database::EntityDiscoveryInfo endpoint_discovery_info;
+                endpoint_discovery_info.domain_id = domain_id_;
+                endpoint_discovery_info.entity = participant->meta_traffic_endpoint;
+                endpoint_discovery_info.discovery_status = entity_discovery_info.discovery_status;
+                entity_queue_->push(timestamp, endpoint_discovery_info);
             }
         }
 
@@ -373,12 +397,113 @@ void StatisticsParticipantListener::on_participant_discovery(
                 domain);
 
             // Build discovery info
-            database::EntityDiscoveryInfo entity_discovery_info;
-            entity_discovery_info.domain_id = domain_id_;
-            entity_discovery_info.entity = participant;
-            entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            database::EntityDiscoveryInfo participant_discovery_info;
+            participant_discovery_info.domain_id = domain_id_;
+            participant_discovery_info.entity = participant;
+            participant_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            entity_queue_->push(timestamp, participant_discovery_info);
 
-            entity_queue_->push(timestamp, entity_discovery_info);
+            // Create metatraffic entities
+            {
+                std::shared_ptr<database::Topic> metatraffic_topic;
+
+                // Check if is the metatraffic topic already exists
+                std::vector<std::pair<EntityId, EntityId>> metatraffic_topic_ids =
+                        database_->get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC");
+
+                for (const auto& topic_id : metatraffic_topic_ids)
+                {
+                    if (topic_id.first == domain_id_)
+                    {
+                        metatraffic_topic = std::const_pointer_cast<database::Topic>(
+                            std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+                        break;
+                    }
+                }
+                if (nullptr == metatraffic_topic)
+                {
+                    // Create the metatraffic topic
+                    metatraffic_topic = std::make_shared<database::Topic>(
+                        metatraffic_prefix + "TOPIC",
+                        metatraffic_prefix + "TYPE",
+                        domain);
+
+                    // Push it to the queue
+                    database::EntityDiscoveryInfo topic_discovery_info;
+                    topic_discovery_info.domain_id = domain_id_;
+                    topic_discovery_info.entity = metatraffic_topic;
+                    topic_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+                    entity_queue_->push(timestamp, topic_discovery_info);
+                }
+
+                // Create metatraffic endpoint and locator on the metatraffic topic.
+                {
+                    // The endpoint QoS cannot be empty. We can use this to give a description to the user.
+                    database::Qos meta_traffic_qos = {
+                        {"description", "This is a virtual placeholder endpoint with no real counterpart"}};
+                    auto datawriter = std::make_shared<database::DataWriter>(
+                        metatraffic_prefix + "ENDPOINT_" + to_string(participant_guid),
+                        meta_traffic_qos,
+                        to_string(participant_guid),
+                        participant,
+                        metatraffic_topic);
+
+                    // Mark it as the meta traffic one
+                    datawriter->is_metatraffic = true;
+
+                    // Routine to process one locator from the locator list of the particpant
+                    auto process_locators = [&](const Locator_t& dds_locator)
+                            {
+                                // Look for the locator
+                                auto locator_ids =
+                                        database_->get_entities_by_name(EntityKind::LOCATOR,
+                                                to_string(dds_locator));
+                                if (locator_ids.empty())
+                                {
+                                    // The locator is not in the database. Add the new one.
+                                    std::shared_ptr<database::Locator> locator =
+                                            std::make_shared<database::Locator>(to_string(dds_locator));
+
+                                    locator->id = database_->generate_entity_id();
+                                    datawriter->locators[locator->id] = locator;
+                                }
+                                else
+                                {
+                                    // The locator exists. Add the existing one.
+                                    auto existing = std::const_pointer_cast<database::Locator>(
+                                        std::static_pointer_cast<const database::Locator>(database_->get_entity(
+                                            locator_ids.
+                                                    front().second)));
+                                    datawriter->locators[existing->id] = existing;
+                                }
+                            };
+
+                    for (auto dds_locator : info.info.metatraffic_locators.unicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.metatraffic_locators.multicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.default_locators.unicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+                    for (auto dds_locator : info.info.default_locators.multicast)
+                    {
+                        process_locators(dds_locator);
+                    }
+
+                    // Push it to the queue
+                    database::EntityDiscoveryInfo datawriter_discovery_info;
+                    datawriter_discovery_info.domain_id = domain_id_;
+                    datawriter_discovery_info.entity = datawriter;
+                    datawriter_discovery_info.discovery_status =
+                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+                    entity_queue_->push(timestamp, datawriter_discovery_info);
+                }
+            }
         }
         else
         {

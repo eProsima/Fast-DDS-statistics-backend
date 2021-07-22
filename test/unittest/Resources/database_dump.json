@@ -149,7 +149,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"14"
+            "topic":"14",
+            "metatraffic":false
         },
         "26":{
             "data":{
@@ -178,7 +179,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"23"
+            "topic":"23",
+            "metatraffic":false
         }
     },
     "datawriters":{
@@ -527,7 +529,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"14"
+            "topic":"14",
+            "metatraffic":false
         },
         "25":{
             "data":{
@@ -572,7 +575,8 @@
             "qos":{
                 "qos":"empty"
             },
-            "topic":"23"
+            "topic":"23",
+            "metatraffic":false
         }
     },
     "locators":{

@@ -222,6 +222,40 @@ struct DDSEntity : Entity
 };
 
 /*
+ * Base class for the DDS Endpoints.
+ */
+struct DDSEndpoint : DDSEntity
+{
+    DDSEndpoint(
+            EntityKind entity_kind = EntityKind::INVALID,
+            std::string endpoint_name = "INVALID",
+            Qos endpoint_qos = {},
+            std::string endpoint_guid = "|GUID UNKNOWN|",
+            std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
+            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept
+        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
+        , participant(endpoint_participant)
+        , topic(endpoint_topic)
+    {
+    }
+
+    //! Reference to the DomainParticipant in which this Endpoint runs.
+    std::shared_ptr<DomainParticipant> participant;
+
+    //! Reference to the Domain in which this endpoint publishes/subscribes.
+    std::shared_ptr<Topic> topic;
+
+    //! Flag to signal that this is a virtual endpoint used to collect meta traffic data.
+    bool is_metatraffic = false;
+
+    /*
+     * Collection of Locators related to this endpoint.
+     * The collection is ordered by the EntityId of the Locator nodes.
+     */
+    std::map<EntityId, std::shared_ptr<Locator>> locators;
+};
+
+/*
  * DomainParticipant entities hold data about the DomainParticipant involved in the communication.
  */
 struct DomainParticipant : DDSEntity
@@ -251,6 +285,9 @@ struct DomainParticipant : DDSEntity
 
     //! Reference to the Domain in which this DomainParticipant runs.
     std::shared_ptr<Domain> domain;
+
+    //! Reference to the meta traffic endpoint of this DomainParticipant.
+    std::shared_ptr<DDSEndpoint> meta_traffic_endpoint;
 
     /*
      * Collection of DataReaders within the DomainParticipant which are involved in the communication.
@@ -309,37 +346,6 @@ struct Topic : Entity
      * The collection is ordered by the EntityId of the DataWriter nodes.
      */
     std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
-};
-
-/*
- * Base class for the DDS Endpoints.
- */
-struct DDSEndpoint : DDSEntity
-{
-    DDSEndpoint(
-            EntityKind entity_kind = EntityKind::INVALID,
-            std::string endpoint_name = "INVALID",
-            Qos endpoint_qos = {},
-            std::string endpoint_guid = "|GUID UNKNOWN|",
-            std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
-            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept
-        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
-        , participant(endpoint_participant)
-        , topic(endpoint_topic)
-    {
-    }
-
-    //! Reference to the DomainParticipant in which this Endpoint runs.
-    std::shared_ptr<DomainParticipant> participant;
-
-    //! Reference to the Domain in which this endpoint publishes/subscribes.
-    std::shared_ptr<Topic> topic;
-
-    /*
-     * Collection of Locators related to this endpoint.
-     * The collection is ordered by the EntityId of the Locator nodes.
-     */
-    std::map<EntityId, std::shared_ptr<Locator>> locators;
 };
 
 /*
