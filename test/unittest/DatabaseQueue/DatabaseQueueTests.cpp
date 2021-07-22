@@ -2074,20 +2074,67 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-    // Precondition: The locator does_not_exist
+    // Precondition: The destination locator does not exist the first time
+    // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()))
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
 
-    // Expectation: The insert method is never called, ddata dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    // Expectation: the remote locator is created and given ID 2
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, dst_locator_str);
+                EXPECT_EQ(entity->alias, dst_locator_str);
+                return EntityId(2);
+            });
 
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_SENT)).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_SENT)).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
-    data_queue.flush();
-}
+    data_queue.flush();}
 
 TEST_F(database_queue_tests, push_rtps_lost)
 {
@@ -2279,15 +2326,63 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-    // Precondition: The locator does not exist
+    // Precondition: The destination locator does not exist the first time
+    // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(BadParameter("Error")));
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()))
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
 
-    // Expectation: The insert method is never called. data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    // Expectation: the remote locator is created and given ID 2
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, dst_locator_str);
+                EXPECT_EQ(entity->alias, dst_locator_str);
+                return EntityId(2);
+            });
 
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args1([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
+            });
+
+    InsertDataArgs args2([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
+            });
+
+    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+            .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
+            .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_PACKETS_LOST)).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::RTPS_BYTES_LOST)).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
