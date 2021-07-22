@@ -818,7 +818,7 @@ std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_suppo
              {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::DATAREADER)})},
 
         {DataKind::NETWORK_LATENCY, std::vector<std::pair<EntityKind, EntityKind>>(
-             {std::pair<EntityKind, EntityKind> (EntityKind::LOCATOR, EntityKind::LOCATOR)})},
+             {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::LOCATOR)})},
 
         {DataKind::PUBLICATION_THROUGHPUT, std::vector<std::pair<EntityKind, EntityKind>>(
              {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::INVALID)})},

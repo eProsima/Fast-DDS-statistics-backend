@@ -145,6 +145,16 @@
                         }
                     ]
                 },
+                "network_latency_per_locator":
+                {
+                    "0":
+                    [
+                        {
+                            "src_time": "0",
+                            "data": 1.1
+                        }
+                    ]
+                },
 
                 "last_reported_edp_packets":{
                     "count":2,
@@ -333,21 +343,7 @@
             "name": "locator_0",
             "alias": "locator_0",
             "datawriters": ["7"],
-            "datareaders": ["8"],
-
-            "data":
-            {
-                "network_latency_per_locator":
-                {
-                    "0":
-                    [
-                        {
-                            "src_time": "0",
-                            "data": 1.1
-                        }
-                    ]
-                }
-            }
+            "datareaders": ["8"]
         }
     }
 }

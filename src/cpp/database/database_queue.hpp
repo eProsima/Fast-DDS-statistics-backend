@@ -479,6 +479,22 @@ protected:
         return ss.str();
     }
 
+    std::string deserialize_guid(
+            StatisticsLocator data) const
+    {
+        if (data.port() != 0)
+        {
+            throw Error("Wrong format: src_locator.port must be 0");
+        }
+        eprosima::fastrtps::rtps::GUID_t guid;
+        memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastrtps::rtps::GuidPrefix_t::size);
+        memcpy(guid.entityId.value, data.address().data() + eprosima::fastrtps::rtps::GuidPrefix_t::size,
+                eprosima::fastrtps::rtps::EntityId_t::size);
+        std::stringstream ss;
+        ss << guid;
+        return ss.str();
+    }
+
     std::string deserialize_locator(
             StatisticsLocator data) const
     {

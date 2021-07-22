@@ -284,6 +284,7 @@ TEST_F(database_load_insert_tests, load_insert)
             ASSERT_TRUE(insertedData.last_reported_pdp_packets == loadedData.last_reported_pdp_packets);
             ASSERT_TRUE(insertedData.edp_packets == loadedData.edp_packets);
             ASSERT_TRUE(insertedData.last_reported_edp_packets == loadedData.last_reported_edp_packets);
+            ASSERT_TRUE(map_compare(insertedData.network_latency_per_locator, loadedData.network_latency_per_locator));
         }
     }
 
@@ -334,17 +335,7 @@ TEST_F(database_load_insert_tests, load_insert)
         }
     }
 
-    // Locator
-    for (auto it = db.locators().cbegin(); it != db.locators().cend(); ++it)
-    {
-        LocatorData insertedData = db.locators().at(it->first)->data;
-        LocatorData loadedData = db_loaded.locators().at(it->first)->data;
-
-        ASSERT_TRUE(map_compare(insertedData.network_latency_per_locator, loadedData.network_latency_per_locator));
-    }
-
     // ------------------ Compare entities ------------------------
-
 
     // Host
     for (auto insertedIt = db.hosts().cbegin(), loadedIt = db_loaded.hosts().cbegin();

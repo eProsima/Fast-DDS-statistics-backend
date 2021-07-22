@@ -36,6 +36,8 @@ TEST(database, domainparticipant_data_clear)
     DiscoveryTimeSample time_sample;
     time_sample.discovered = true;
     time_sample.time = std::chrono::system_clock::now();
+    EntityDataSample data_sample;
+    data_sample.data = 11.0;
 
     // RTPSData
     data.rtps_packets_sent[EntityId(2)].push_back(count_sample);
@@ -53,6 +55,7 @@ TEST(database, domainparticipant_data_clear)
     data.last_reported_pdp_packets = count_sample;
     data.edp_packets.push_back(count_sample);
     data.last_reported_edp_packets = count_sample;
+    data.network_latency_per_locator[EntityId(6)].push_back(data_sample);
 
     /* Check that data in cleared */
     data.clear();
@@ -69,6 +72,7 @@ TEST(database, domainparticipant_data_clear)
     ASSERT_EQ(data.last_reported_pdp_packets.count, 0);
     ASSERT_TRUE(data.edp_packets.empty());
     ASSERT_EQ(data.last_reported_edp_packets.count, 0);
+    ASSERT_TRUE(data.network_latency_per_locator.empty());
 }
 
 TEST(database, datareader_data_clear)
@@ -131,26 +135,6 @@ TEST(database, datawriter_data_clear)
     ASSERT_TRUE(data.data_count.empty());
     ASSERT_EQ(data.last_reported_data_count.count, 0);
     ASSERT_TRUE(data.sample_datas.empty());
-}
-
-TEST(database, locator_data_clear)
-{
-    /* Add dummy data to LocatorData */
-    LocatorData data;
-    EntityDataSample data_sample;
-    data_sample.data = 11.0;
-    EntityCountSample count_sample;
-    count_sample.count = 12;
-    ByteCountSample byte_sample;
-    byte_sample.count = 13;
-    byte_sample.magnitude_order = 2;
-
-    // LocatorData
-    data.network_latency_per_locator[EntityId(6)].push_back(data_sample);
-
-    /* Check that data in cleared */
-    data.clear();
-    ASSERT_TRUE(data.network_latency_per_locator.empty());
 }
 
 int main(

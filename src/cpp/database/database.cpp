@@ -544,18 +544,18 @@ void Database::insert_nts(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
-
-            // Create locator if it does not exist
-            std::shared_ptr<Locator> locator = get_locator_nts(entity_id);
-
-            // Create remote_locator if it does not exist
-            get_locator_nts(network_latency.remote_locator);
-
-            // Add the info to the locator
-            locator->data.network_latency_per_locator[network_latency.remote_locator].push_back(network_latency);
-
-            break;
+            /* Check that the entity is a known participant */
+            auto participant = participants_[domain_id][entity_id];
+            if (participant)
+            {
+                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                participant->data.network_latency_per_locator[network_latency.remote_locator].push_back(
+                    network_latency);
+                break;
+            }
+            throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
         }
         case DataKind::PUBLICATION_THROUGHPUT:
         {
@@ -1494,12 +1494,12 @@ std::vector<const StatisticsSample*> Database::select(
         }
         case DataKind::NETWORK_LATENCY:
         {
-            assert(EntityKind::LOCATOR == source_entity->kind);
+            assert(EntityKind::PARTICIPANT == source_entity->kind);
             assert(EntityKind::LOCATOR == target_entity->kind);
-            auto locator = std::static_pointer_cast<const Locator>(source_entity);
-            /* Look if the locator has information about the required locator */
-            auto remote_locator = locator->data.network_latency_per_locator.find(entity_id_target);
-            if (remote_locator != locator->data.network_latency_per_locator.end())
+            auto participant = std::static_pointer_cast<const DomainParticipant>(source_entity);
+            /* Look if the participant has information about the required locator */
+            auto remote_locator = participant->data.network_latency_per_locator.find(entity_id_target);
+            if (remote_locator != participant->data.network_latency_per_locator.end())
             {
                 /* Look for the samples between the given timestamps */
                 for (auto& sample : remote_locator->second)
@@ -2803,6 +2803,9 @@ DatabaseDump Database::dump_entity_(
         // rtps_bytes_lost
         data[DATA_KIND_RTPS_BYTES_LOST_TAG] = dump_data_(entity->data.rtps_bytes_lost);
 
+        // network_latency_per_locator
+        data[DATA_KIND_NETWORK_LATENCY_TAG] = dump_data_(entity->data.network_latency_per_locator);
+
         // pdp_packets last reported
         data[DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG] = dump_data_(entity->data.last_reported_pdp_packets);
 
@@ -2970,16 +2973,6 @@ DatabaseDump Database::dump_entity_(
             subentities.push_back(id_to_string(sub_it.first));
         }
         entity_info[DATAREADER_CONTAINER_TAG] = subentities;
-    }
-
-    // Store data from the entity
-    {
-        DatabaseDump data = DatabaseDump::object();
-
-        // network_latency_per_locator
-        data[DATA_KIND_NETWORK_LATENCY_TAG] = dump_data_(entity->data.network_latency_per_locator);
-
-        entity_info[DATA_CONTAINER_TAG] = data;
     }
 
     return entity_info;
@@ -3218,11 +3211,6 @@ void Database::clear_statistics_data()
             it.second->data.clear(false);
         }
     }
-    // Locators
-    for (const auto& it : locators_)
-    {
-        it.second->data.clear();
-    }
 }
 
 /**
@@ -3328,9 +3316,6 @@ void Database::load_database(
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
             insert_nts(entity, entity_id);
-
-            // Load data and insert into database
-            load_data((*it).at(DATA_CONTAINER_TAG), entity);
         }
     }
 
@@ -3791,6 +3776,34 @@ void Database::load_data(
                 // int16_t
                 sample.magnitude_order =
                         static_cast<int16_t>(string_to_int(to_string((*it).at(DATA_VALUE_MAGNITUDE_TAG))));
+
+                // EntityId
+                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
+
+                // Insert data into database
+                insert_nts(entity->domain->id, entity->id, sample, true);
+            }
+        }
+    }
+
+    // network_latency
+    {
+        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
+
+        // RemoteEntities iterator
+        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
+        {
+            // Data iterator
+            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
+            {
+                NetworkLatencySample sample;
+
+                // std::chrono::system_clock::time_point
+                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
+                sample.src_ts = nanoseconds_to_systemclock(time);
+
+                // double
+                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
 
                 // EntityId
                 sample.remote_locator = EntityId(string_to_int(remote_it.key()));
@@ -4308,39 +4321,6 @@ void Database::load_data(
 
             // Insert data into database
             insert_nts(entity->participant->domain->id, entity->id, sample, true, true);
-        }
-    }
-}
-
-void Database::load_data(
-        const DatabaseDump& dump,
-        const std::shared_ptr<Locator>& entity)
-{
-    // NetworkLatency
-    {
-        DatabaseDump container = dump.at(DATA_KIND_NETWORK_LATENCY_TAG);
-
-        // RemoteEntities iterator
-        for (auto remote_it = container.begin(); remote_it != container.end(); ++remote_it)
-        {
-            // Data iterator
-            for (auto it = container.at(remote_it.key()).begin(); it != container.at(remote_it.key()).end(); ++it)
-            {
-                NetworkLatencySample sample;
-
-                // std::chrono::system_clock::time_point
-                uint64_t time = string_to_uint((*it).at(DATA_VALUE_SRC_TIME_TAG));
-                sample.src_ts = nanoseconds_to_systemclock(time);
-
-                // double
-                sample.data = (*it).at(DATA_VALUE_DATA_TAG);
-
-                // EntityId
-                sample.remote_locator = EntityId(string_to_int(remote_it.key()));
-
-                // Insert data into database
-                insert_nts(EntityId::invalid(), entity->id, sample, true);
-            }
         }
     }
 }

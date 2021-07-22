@@ -339,7 +339,6 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
     check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
-    check_entity_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_VALUE_DATA_TAG);
 
     // ------------ DATAWRITERS ----------------
 
@@ -378,6 +377,7 @@ TEST(database_load_tests, load_erased_keys)
     check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
     check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_EDP_PACKETS_LAST_REPORTED_TAG);
     check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_PDP_PACKETS_LAST_REPORTED_TAG);
+    check_data_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
 
     check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG);
     check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_TAG);
@@ -388,6 +388,7 @@ TEST(database_load_tests, load_erased_keys)
     check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_SENT_LAST_REPORTED_TAG);
     check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_LOST_LAST_REPORTED_TAG);
     check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_PACKETS_SENT_LAST_REPORTED_TAG);
+    check_data_value_no_id_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
 
     check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_DISCOVERY_TIME_TAG,
             DATA_VALUE_SRC_TIME_TAG);
@@ -446,6 +447,10 @@ TEST(database_load_tests, load_erased_keys)
             DATA_VALUE_COUNT_TAG);
     check_data_value_index_last_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_RTPS_BYTES_LOST_LAST_REPORTED_TAG,
             DATA_VALUE_MAGNITUDE_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG,
+            DATA_VALUE_SRC_TIME_TAG);
+    check_data_value_index_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG,
+            DATA_VALUE_DATA_TAG);
 
     // ------------ DATAWRITER DATA ----------------
 
@@ -522,14 +527,6 @@ TEST(database_load_tests, load_erased_keys)
             DATA_VALUE_SRC_TIME_TAG);
     check_data_value_last_no_key(dump, DATAREADER_CONTAINER_TAG, DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG,
             DATA_VALUE_COUNT_TAG);
-
-    // ------------ LOCATOR DATA ----------------
-
-    check_data_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
-
-    check_data_value_no_id_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG);
-    check_data_value_index_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG, DATA_VALUE_SRC_TIME_TAG);
-    check_data_value_index_no_key(dump, LOCATOR_CONTAINER_TAG, DATA_KIND_NETWORK_LATENCY_TAG, DATA_VALUE_DATA_TAG);
 }
 
 void check_and_restore(
@@ -746,7 +743,6 @@ TEST(database_load_tests, load_wrong_values)
     check_is_string(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
-    check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]);
 
     // Datawriter
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG]);
@@ -863,6 +859,18 @@ TEST(database_load_tests, load_wrong_values)
             [DATA_KIND_RTPS_BYTES_LOST_TAG].begin().value().begin().value()[DATA_VALUE_MAGNITUDE_TAG]);
     check_is_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
             [DATA_KIND_RTPS_BYTES_LOST_TAG].begin().value().begin().value()[DATA_VALUE_COUNT_TAG]);
+
+    // network_latency_per_locator
+    check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG]);
+    check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value());
+    check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value());
+    check_is_string_uint(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
+    check_is_double(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
+            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
 
     // last_reported_edp_packets
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
@@ -1080,21 +1088,6 @@ TEST(database_load_tests, load_wrong_values)
             [DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG][DATA_VALUE_SRC_TIME_TAG]);
     check_is_uint(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
             [DATA_KIND_NACKFRAG_COUNT_LAST_REPORTED_TAG][DATA_VALUE_COUNT_TAG]);
-
-    // --------------------- Locators ---------------------
-
-    // network_latency_per_locator
-    check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
-            [DATA_KIND_NETWORK_LATENCY_TAG]);
-    check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
-            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value());
-    check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
-            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value());
-    check_is_string_uint(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
-            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_SRC_TIME_TAG]);
-    check_is_double(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATA_CONTAINER_TAG]
-            [DATA_KIND_NETWORK_LATENCY_TAG].begin().value().begin().value()[DATA_VALUE_DATA_TAG]);
-
 }
 
 void check_reference(

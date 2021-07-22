@@ -63,21 +63,7 @@
             "name": "locator_0",
             "alias": "locator_0",
             "datawriters": [],
-            "datareaders": [],
-
-            "data":
-            {
-                "network_latency_per_locator":
-                {
-                    "0":
-                    [
-                        {
-                            "src_time": "0",
-                            "data": 1.1
-                        }
-                    ]
-                }
-            }
+            "datareaders": []
         }
     }
 }

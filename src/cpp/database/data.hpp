@@ -157,6 +157,14 @@ struct DomainParticipantData : RTPSData
      * This is done to speed up the calculation of the entries in edp_packets
      */
     EntityCountSample last_reported_edp_packets;
+
+    /*
+     * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC
+     *
+     * Store the reported latencies between the participant and remote locator, identified by its
+     * EntityId.
+     */
+    std::map<EntityId, std::vector<EntityDataSample>> network_latency_per_locator;
 };
 
 /*
@@ -291,25 +299,6 @@ struct DataWriterData
      * EntityId) histories.
      */
     std::map<EntityId, std::vector<EntityDataSample>> history2history_latency;
-};
-
-/*
- * Data related to a locator
- */
-struct LocatorData
-{
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    void clear();
-
-    /*
-     * Data reported by topic: eprosima::fastdds::statistics::NETWORK_LATENCY_TOPIC
-     *
-     * Store the reported latencies between the local and remote locator, identified by its
-     * EntityId.
-     */
-    std::map<EntityId, std::vector<EntityDataSample>> network_latency_per_locator;
 };
 
 } //namespace database

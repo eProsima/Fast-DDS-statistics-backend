@@ -428,9 +428,6 @@ struct Locator : Entity
      * The collection is ordered by the EntityId of the DataWriter nodes.
      */
     std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
-
-    //! Actual statistical data reported by Fast DDS Statistics Module regarding this locator.
-    LocatorData data;
 };
 
 } //namespace database

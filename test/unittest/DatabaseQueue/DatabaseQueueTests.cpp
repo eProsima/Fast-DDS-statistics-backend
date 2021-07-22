@@ -1198,7 +1198,7 @@ TEST_F(database_queue_tests, push_locator)
     std::shared_ptr<Locator> locator =
             std::make_shared<Locator>(locator_name);
 
-    // Expectation: The datareader is created and given ID 1
+    // Expectation: The locator is created and given ID 1
     InsertEntityArgs insert_args([&](
                 std::shared_ptr<Entity> entity)
             {
@@ -1230,7 +1230,7 @@ TEST_F(database_queue_tests, push_locator_throws)
     std::shared_ptr<Locator> locator =
             std::make_shared<Locator>(locator_name);
 
-    // Expectation: The datareader creation throws
+    // Expectation: The locator creation throws
     InsertEntityArgs insert_args([&](
                 std::shared_ptr<Entity> entity) -> EntityId
             {
@@ -1446,8 +1446,8 @@ TEST_F(database_queue_tests, push_network_latency)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 1024;
-    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    uint32_t src_locator_port = 0;
+    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
@@ -1474,9 +1474,9 @@ TEST_F(database_queue_tests, push_network_latency)
     data->locator2locator_data(inner_data);
     data->_d(EventKind::NETWORK_LATENCY);
 
-    // Precondition: The source locator exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
     // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(1)
@@ -1507,13 +1507,13 @@ TEST_F(database_queue_tests, push_network_latency)
     data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_network_latency_no_source_locator)
+TEST_F(database_queue_tests, push_network_latency_no_participant)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 1024;
-    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    uint32_t src_locator_port = 0;
+    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
@@ -1540,9 +1540,60 @@ TEST_F(database_queue_tests, push_network_latency_no_source_locator)
     data->locator2locator_data(inner_data);
     data->_d(EventKind::NETWORK_LATENCY);
 
-    // Precondition: The source locator does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    // Precondition: The participant does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+
+    // Precondition: The destination locator exists and has ID 2
+    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    data_queue.push(timestamp, data);
+    data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    uint32_t src_locator_port = 1;
+    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    uint32_t dst_locator_port = 2048;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    // Build the source locator
+    DatabaseDataQueue::StatisticsLocator src_locator;
+    src_locator.kind(LOCATOR_KIND_TCPv4);
+    src_locator.port(src_locator_port);
+    src_locator.address(src_locator_address);
+
+    // Build the destination locator
+    DatabaseDataQueue::StatisticsLocator dst_locator;
+    dst_locator.kind(LOCATOR_KIND_TCPv4);
+    dst_locator.port(dst_locator_port);
+    dst_locator.address(dst_locator_address);
+
+    // Build the Statistics data
+    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    inner_data.data(1.0);
+    inner_data.src_locator(src_locator);
+    inner_data.dst_locator(dst_locator);
+
+    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
+    data->locator2locator_data(inner_data);
+    data->_d(EventKind::NETWORK_LATENCY);
+
+    // Precondition: The participant is not searched
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(0);
 
     // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
@@ -1564,8 +1615,8 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 1024;
-    std::string src_locator_str = "TCPv4:[13.14.15.16]:1024";
+    uint32_t src_locator_port = 0;
+    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
@@ -1592,19 +1643,49 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     data->locator2locator_data(inner_data);
     data->_d(EventKind::NETWORK_LATENCY);
 
-    // Precondition: The source locator exists and has ID 1
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, src_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(1)))));
+    // Precondition: The participant exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
+            .WillOnce(Return(std::pair<EntityId, EntityId>(std::make_pair(EntityId(0), EntityId(1)))));
 
-    // Precondition: The destination locator does not exist
+    // Precondition: The destination locator does not exist the first time
+    // Precondition: The destination locator exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, dst_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()))
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
 
-    // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    // Expectation: The insert method is called with appropriate arguments
+    InsertDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const StatisticsSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.src_ts, timestamp);
+                EXPECT_EQ(sample.kind, DataKind::NETWORK_LATENCY);
+                EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
+            });
 
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+            .WillOnce(Invoke(&args, &InsertDataArgs::insert));
+
+    // Expectation: the remote locator is created and given ID 2
+    InsertEntityArgs insert_args([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
+                EXPECT_EQ(entity->name, dst_locator_str);
+                EXPECT_EQ(entity->alias, dst_locator_str);
+                return EntityId(2);
+            });
+
+    EXPECT_CALL(database, insert(_)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_data_available(EntityId(0), EntityId(1), DataKind::NETWORK_LATENCY)).Times(1);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);

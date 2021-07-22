@@ -710,9 +710,6 @@ protected:
     void load_data(
             const DatabaseDump& dump,
             const std::shared_ptr<DataReader>& entity);
-    void load_data(
-            const DatabaseDump& dump,
-            const std::shared_ptr<Locator>& entity);
 
     /**
      * Change the status (active/inactive) of an entity given an EntityId.

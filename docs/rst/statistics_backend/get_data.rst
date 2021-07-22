@@ -31,7 +31,7 @@ The following table illustrates the expected inputs depending on the query's |Da
 +===============================+====================================+====================================+
 | |FASTDDS_LATENCY-api|         | |DATAWRITER-api|                   | |DATAREADER-api|                   |
 +-------------------------------+------------------------------------+------------------------------------+
-| |NETWORK_LATENCY-api|         | |LOCATOR-api|                      | |LOCATOR-api|                      |
+| |NETWORK_LATENCY-api|         | |PARTICIPANT-api|                  | |LOCATOR-api|                      |
 +-------------------------------+------------------------------------+------------------------------------+
 | |PUBLICATION_THROUGHPUT-api|  | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+

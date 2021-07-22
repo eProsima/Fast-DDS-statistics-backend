@@ -130,6 +130,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_FALSE(participant->data.rtps_bytes_sent.empty());
             ASSERT_FALSE(participant->data.rtps_packets_lost.empty());
             ASSERT_FALSE(participant->data.rtps_bytes_lost.empty());
+            ASSERT_FALSE(participant->data.network_latency_per_locator.empty());
 
             ASSERT_FALSE(participant->data.last_reported_rtps_packets_sent_count.empty());
             ASSERT_FALSE(participant->data.last_reported_rtps_bytes_sent_count.empty());
@@ -189,12 +190,6 @@ TEST(backend_dump_tests, database_dump_and_clear)
                     std::chrono::system_clock::time_point() &&
                     datareader->data.last_reported_nackfrag_count.count == 0);
         }
-        // Locators
-        for (const auto& it : locators)
-        {
-            auto locator = std::dynamic_pointer_cast<const Locator>(it);
-            ASSERT_FALSE(locator->data.network_latency_per_locator.empty());
-        }
     }
 
     // Check if the output file exists (we do not want to overwrite anything)
@@ -222,6 +217,7 @@ TEST(backend_dump_tests, database_dump_and_clear)
             ASSERT_TRUE(participant->data.rtps_bytes_sent.empty());
             ASSERT_TRUE(participant->data.rtps_packets_lost.empty());
             ASSERT_TRUE(participant->data.rtps_bytes_lost.empty());
+            ASSERT_TRUE(participant->data.network_latency_per_locator.empty());
 
             ASSERT_FALSE(participant->data.last_reported_rtps_packets_sent_count.empty());
             ASSERT_FALSE(participant->data.last_reported_rtps_bytes_sent_count.empty());
@@ -280,12 +276,6 @@ TEST(backend_dump_tests, database_dump_and_clear)
                     datareader->data.last_reported_nackfrag_count.src_ts ==
                     std::chrono::system_clock::time_point() &&
                     datareader->data.last_reported_nackfrag_count.count == 0);
-        }
-        // Locators
-        for (const auto& it : locators)
-        {
-            auto locator = std::dynamic_pointer_cast<const Locator>(it);
-            ASSERT_TRUE(locator->data.network_latency_per_locator.empty());
         }
     }
 
