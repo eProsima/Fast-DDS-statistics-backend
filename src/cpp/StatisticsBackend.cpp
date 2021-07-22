@@ -20,6 +20,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <set>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -492,7 +493,7 @@ Info StatisticsBackend::get_info(
             info[QOS_INFO_TAG] = participant->qos;
 
             // Locators associated to endpoints
-            DatabaseDump locators = DatabaseDump::array();
+            std::set<std::string> locator_set;
 
             // Writers registered in the participant
             for (const auto& writer : participant->data_writers)
@@ -500,7 +501,7 @@ Info StatisticsBackend::get_info(
                 // Locators associated to each writer
                 for (const auto& locator : writer.second.get()->locators)
                 {
-                    locators.push_back(locator.second.get()->name);
+                    locator_set.insert(locator.second.get()->name);
                 }
             }
 
@@ -510,18 +511,15 @@ Info StatisticsBackend::get_info(
                 // Locators associated to each reader
                 for (const auto& locator : reader.second.get()->locators)
                 {
-                    locators.push_back(locator.second.get()->name);
+                    locator_set.insert(locator.second.get()->name);
                 }
             }
 
-            // Remove duplicates
-            auto last = std::unique(locators.begin(), locators.end(), [](
-                                const std::string& first,
-                                const std::string& second)
-                            {
-                                return first.compare(second) == 0;
-                            });
-            locators.erase(last, locators.end());
+            DatabaseDump locators = DatabaseDump::array();
+            for (const auto& locator : locator_set)
+            {
+                locators.push_back(locator);
+            }
             info[LOCATOR_CONTAINER_TAG] = locators;
             break;
         }
