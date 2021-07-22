@@ -129,11 +129,21 @@ void DatabaseDataQueue::process_sample_type(
     sample.count = item.packet_count();
     std::string remote_locator = deserialize_locator(item.dst_locator());
     auto found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator);
+    // In case that the reported locator is not known, create it without being linked to an endpoint
     if (found_remote_locators.empty())
     {
-        throw Error("Locator " + remote_locator + " not found");
+        std::shared_ptr<Locator> locator = std::make_shared<Locator>(remote_locator);
+        locator->id = database_->insert(locator);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                locator->id,
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        sample.remote_locator = locator->id;
     }
-    sample.remote_locator = found_remote_locators.front().second;
+    else
+    {
+        sample.remote_locator = found_remote_locators.front().second;
+    }
 
     std::string guid = deserialize_guid(item.src_guid());
     try
@@ -160,11 +170,21 @@ void DatabaseDataQueue::process_sample_type(
     sample.magnitude_order = item.byte_magnitude_order();
     std::string remote_locator = deserialize_locator(item.dst_locator());
     auto found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, remote_locator);
+    // In case that the reported locator is not known, create it without being linked to an endpoint
     if (found_remote_locators.empty())
     {
-        throw Error("Locator " + remote_locator + " not found");
+        std::shared_ptr<Locator> locator = std::make_shared<Locator>(remote_locator);
+        locator->id = database_->insert(locator);
+        details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                locator->id,
+                EntityKind::LOCATOR,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+        sample.remote_locator = locator->id;
     }
-    sample.remote_locator = found_remote_locators.front().second;
+    else
+    {
+        sample.remote_locator = found_remote_locators.front().second;
+    }
 
     std::string guid = deserialize_guid(item.src_guid());
     try
