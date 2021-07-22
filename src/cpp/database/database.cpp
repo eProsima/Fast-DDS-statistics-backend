@@ -2842,6 +2842,7 @@ DatabaseDump Database::dump_entity_(
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
+    entity_info[METATRAFFIC_TAG] = entity->is_metatraffic;
 
     // Populate subentity array for Locators
     {
@@ -2907,6 +2908,7 @@ DatabaseDump Database::dump_entity_(
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
+    entity_info[METATRAFFIC_TAG] = entity->is_metatraffic;
 
     // Populate subentity array for Locators
     {
@@ -3524,6 +3526,7 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
             entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->is_metatraffic = (*it).at(METATRAFFIC_TAG).get<bool>();
 
             /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
@@ -3577,6 +3580,7 @@ void Database::load_database(
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
             entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->is_metatraffic = (*it).at(METATRAFFIC_TAG).get<bool>();
 
             /* Add reference to locator to the endpoint */
             for (auto it_loc = (*it).at(LOCATOR_CONTAINER_TAG).begin();
