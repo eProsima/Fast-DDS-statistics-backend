@@ -2134,7 +2134,8 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
-    data_queue.flush();}
+    data_queue.flush();
+}
 
 TEST_F(database_queue_tests, push_rtps_lost)
 {
