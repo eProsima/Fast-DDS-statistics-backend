@@ -77,9 +77,9 @@ void DatabaseDataQueue::process_sample_type(
         std::shared_ptr<Locator> locator = std::make_shared<Locator>(remote_locator);
         locator->id = database_->insert(locator);
         details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                locator->id,
-                EntityKind::LOCATOR,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+            locator->id,
+            EntityKind::LOCATOR,
+            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
         sample.remote_locator = locator->id;
     }
     else
