@@ -527,6 +527,9 @@ protected:
         return std::make_pair(writer_guid, sequence_number);
     }
 
+    EntityId get_or_create_locator(
+            const std::string& locator_name) const;
+
     // Database
     Database* database_;
 
