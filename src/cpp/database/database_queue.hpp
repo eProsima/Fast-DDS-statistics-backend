@@ -528,7 +528,7 @@ protected:
     }
 
     EntityId get_or_create_locator(
-        const std::string& locator_name) const;
+            const std::string& locator_name) const;
 
     // Database
     Database* database_;
