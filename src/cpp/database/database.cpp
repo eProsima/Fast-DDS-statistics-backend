@@ -303,19 +303,23 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new topic and that its name and type combination is unique in the domain */
-            for (const auto& topic_it: topics_[topic->domain->id])
+            auto domain_topics = topics_.find(topic->domain->id);
+            if (domain_topics != topics_.end())
             {
-                if (topic.get() == topic_it.second.get())
+                for (const auto& topic_it: domain_topics->second)
                 {
-                    throw BadParameter("Topic already exists in the database");
-                }
-                if (topic->name == topic_it.second->name &&
-                        topic->data_type == topic_it.second->data_type)
-                {
-                    throw BadParameter(
-                              "A topic with name '" + topic->name +
-                              "' and type '" + topic->data_type +
-                              "' already exists in the database for the same domain");
+                    if (topic.get() == topic_it.second.get())
+                    {
+                        throw BadParameter("Topic already exists in the database");
+                    }
+                    if (topic->name == topic_it.second->name &&
+                            topic->data_type == topic_it.second->data_type)
+                    {
+                        throw BadParameter(
+                                "A topic with name '" + topic->name +
+                                "' and type '" + topic->data_type +
+                                "' already exists in the database for the same domain");
+                    }
                 }
             }
 
