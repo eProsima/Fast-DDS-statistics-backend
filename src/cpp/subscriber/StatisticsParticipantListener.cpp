@@ -312,6 +312,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     // Meaningful prefix for metatraffic entities
     const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
             std::to_string(domain_id_.value()) + "___";
+    const std::string metatraffic_alias = "_metatraffic_";
 
     // The participant is already in the database
     try
@@ -427,6 +428,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                         metatraffic_prefix + "TOPIC",
                         metatraffic_prefix + "TYPE",
                         domain);
+                    metatraffic_topic->alias = metatraffic_alias;
 
                     // Push it to the queue
                     database::EntityDiscoveryInfo topic_discovery_info;
@@ -447,6 +449,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                         to_string(participant_guid),
                         participant,
                         metatraffic_topic);
+                    datawriter->alias = metatraffic_alias;
 
                     // Mark it as the meta traffic one
                     datawriter->is_metatraffic = true;
