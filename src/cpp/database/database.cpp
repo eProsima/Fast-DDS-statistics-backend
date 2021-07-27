@@ -591,13 +591,17 @@ void Database::insert_nts(
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const SubscriptionThroughputSample& subscription_throughput =
-                        dynamic_cast<const SubscriptionThroughputSample&>(sample);
-                reader->data.subscription_throughput.push_back(subscription_throughput);
-                break;
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
+                {
+                    const SubscriptionThroughputSample& subscription_throughput =
+                            dynamic_cast<const SubscriptionThroughputSample&>(sample);
+                    reader->second->data.subscription_throughput.push_back(subscription_throughput);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
@@ -878,34 +882,38 @@ void Database::insert_nts(
         case DataKind::ACKNACK_COUNT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
                 {
-                    if (last_reported)
+                    const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        reader->data.last_reported_acknack_count = acknack_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            reader->second->data.last_reported_acknack_count = acknack_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            reader->second->data.acknack_count.push_back(acknack_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        reader->data.acknack_count.push_back(acknack_count);
+                        // Store the increment since the last report
+                        reader->second->data.acknack_count.push_back(acknack_count - reader->second->data.last_reported_acknack_count);
+                        // Update last report
+                        reader->second->data.last_reported_acknack_count = acknack_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    reader->data.acknack_count.push_back(acknack_count - reader->data.last_reported_acknack_count);
-                    // Update last report
-                    reader->data.last_reported_acknack_count = acknack_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
@@ -914,34 +922,38 @@ void Database::insert_nts(
         case DataKind::NACKFRAG_COUNT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
                 {
-                    if (last_reported)
+                    const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        reader->data.last_reported_nackfrag_count = nackfrag_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            reader->second->data.last_reported_nackfrag_count = nackfrag_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            reader->second->data.nackfrag_count.push_back(nackfrag_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        reader->data.nackfrag_count.push_back(nackfrag_count);
+                        // Store the increment since the last report
+                        reader->second->data.nackfrag_count.push_back(nackfrag_count - reader->second->data.last_reported_nackfrag_count);
+                        // Update last report
+                        reader->second->data.last_reported_nackfrag_count = nackfrag_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    reader->data.nackfrag_count.push_back(nackfrag_count - reader->data.last_reported_nackfrag_count);
-                    // Update last report
-                    reader->data.last_reported_nackfrag_count = nackfrag_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
