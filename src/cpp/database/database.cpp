@@ -303,19 +303,23 @@ void Database::insert_nts(
             }
 
             /* Check that this is indeed a new topic and that its name and type combination is unique in the domain */
-            for (const auto& topic_it: topics_[topic->domain->id])
+            auto domain_topics = topics_.find(topic->domain->id);
+            if (domain_topics != topics_.end())
             {
-                if (topic.get() == topic_it.second.get())
+                for (const auto& topic_it: domain_topics->second)
                 {
-                    throw BadParameter("Topic already exists in the database");
-                }
-                if (topic->name == topic_it.second->name &&
-                        topic->data_type == topic_it.second->data_type)
-                {
-                    throw BadParameter(
-                              "A topic with name '" + topic->name +
-                              "' and type '" + topic->data_type +
-                              "' already exists in the database for the same domain");
+                    if (topic.get() == topic_it.second.get())
+                    {
+                        throw BadParameter("Topic already exists in the database");
+                    }
+                    if (topic->name == topic_it.second->name &&
+                            topic->data_type == topic_it.second->data_type)
+                    {
+                        throw BadParameter(
+                                  "A topic with name '" + topic->name +
+                                  "' and type '" + topic->data_type +
+                                  "' already exists in the database for the same domain");
+                    }
                 }
             }
 
@@ -521,22 +525,28 @@ void Database::insert_nts(
 {
 
     /* Check that domain_id refers to a known domain */
-    if (sample.kind != DataKind::NETWORK_LATENCY && !domains_[domain_id])
+    if (sample.kind != DataKind::NETWORK_LATENCY)
     {
-        throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+        if (domains_.find(domain_id) == domains_.end())
+        {
+            throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+        }
     }
-
     switch (sample.kind)
     {
         case DataKind::FASTDDS_LATENCY:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
-                writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
+                    writer->second->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -545,13 +555,17 @@ void Database::insert_nts(
         case DataKind::NETWORK_LATENCY:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
-                participant->data.network_latency_per_locator[network_latency.remote_locator].push_back(
-                    network_latency);
-                break;
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
+                {
+                    const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
+                    participant->second->data.network_latency_per_locator[network_latency.remote_locator].push_back(
+                        network_latency);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -560,13 +574,17 @@ void Database::insert_nts(
         case DataKind::PUBLICATION_THROUGHPUT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const PublicationThroughputSample& publication_throughput =
-                        dynamic_cast<const PublicationThroughputSample&>(sample);
-                writer->data.publication_throughput.push_back(publication_throughput);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const PublicationThroughputSample& publication_throughput =
+                            dynamic_cast<const PublicationThroughputSample&>(sample);
+                    writer->second->data.publication_throughput.push_back(publication_throughput);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -575,13 +593,17 @@ void Database::insert_nts(
         case DataKind::SUBSCRIPTION_THROUGHPUT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const SubscriptionThroughputSample& subscription_throughput =
-                        dynamic_cast<const SubscriptionThroughputSample&>(sample);
-                reader->data.subscription_throughput.push_back(subscription_throughput);
-                break;
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
+                {
+                    const SubscriptionThroughputSample& subscription_throughput =
+                            dynamic_cast<const SubscriptionThroughputSample&>(sample);
+                    reader->second->data.subscription_throughput.push_back(subscription_throughput);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
@@ -590,42 +612,49 @@ void Database::insert_nts(
         case DataKind::RTPS_PACKETS_SENT:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
-
-                // Create remote_locator if it does not exist
-                get_locator_nts(rtps_packets_sent.remote_locator);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
+
+                    // Create remote_locator if it does not exist
+                    get_locator_nts(rtps_packets_sent.remote_locator);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
-                                rtps_packets_sent;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.
+                                            remote_locator] =
+                                    rtps_packets_sent;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
+                                rtps_packets_sent);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
-                            rtps_packets_sent);
+                        // Store the increment since the last report
+                        participant->second->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
+                            rtps_packets_sent -
+                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.
+                                    remote_locator]);
+                        // Update last report
+                        participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator
+                        ] =
+                                rtps_packets_sent;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
-                        rtps_packets_sent -
-                        participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
-                    // Update last report
-                    participant->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
-                            rtps_packets_sent;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -634,42 +663,47 @@ void Database::insert_nts(
         case DataKind::RTPS_BYTES_SENT:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
-
-                // Create remote_locator if it does not exist
-                get_locator_nts(rtps_bytes_sent.remote_locator);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
+
+                    // Create remote_locator if it does not exist
+                    get_locator_nts(rtps_bytes_sent.remote_locator);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
-                                rtps_bytes_sent;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator
+                            ] =
+                                    rtps_bytes_sent;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
+                                rtps_bytes_sent);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
-                            rtps_bytes_sent);
+                        // Store the increment since the last report
+                        participant->second->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
+                            rtps_bytes_sent -
+                            participant->second->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator]);
+                        // Update last report
+                        participant->second->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
+                                rtps_bytes_sent;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.rtps_bytes_sent[rtps_bytes_sent.remote_locator].push_back(
-                        rtps_bytes_sent -
-                        participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator]);
-                    // Update last report
-                    participant->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
-                            rtps_bytes_sent;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -678,42 +712,49 @@ void Database::insert_nts(
         case DataKind::RTPS_PACKETS_LOST:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
-
-                // Create remote_locator if it does not exist
-                get_locator_nts(rtps_packets_lost.remote_locator);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
+
+                    // Create remote_locator if it does not exist
+                    get_locator_nts(rtps_packets_lost.remote_locator);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
-                                rtps_packets_lost;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.
+                                            remote_locator] =
+                                    rtps_packets_lost;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
+                                rtps_packets_lost);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
-                            rtps_packets_lost);
+                        // Store the increment since the last report
+                        participant->second->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
+                            rtps_packets_lost -
+                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.
+                                    remote_locator]);
+                        // Update last report
+                        participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator
+                        ] =
+                                rtps_packets_lost;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
-                        rtps_packets_lost -
-                        participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator]);
-                    // Update last report
-                    participant->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
-                            rtps_packets_lost;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -722,41 +763,47 @@ void Database::insert_nts(
         case DataKind::RTPS_BYTES_LOST:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
-
-                // Create remote_locator if it does not exist
-                get_locator_nts(rtps_bytes_lost.remote_locator);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
+
+                    // Create remote_locator if it does not exist
+                    get_locator_nts(rtps_bytes_lost.remote_locator);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
-                                rtps_bytes_lost;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator
+                            ] =
+                                    rtps_bytes_lost;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
+                                rtps_bytes_lost);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                        // Store the increment since the last report
+                        participant->second->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
+                            rtps_bytes_lost -
+                            participant->second->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator]);
+                        // Update last report
+                        participant->second->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
+                                rtps_bytes_lost;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
-                        rtps_bytes_lost -
-                        participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator]);
-                    // Update last report
-                    participant->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
-                            rtps_bytes_lost;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -765,34 +812,39 @@ void Database::insert_nts(
         case DataKind::RESENT_DATA:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_resent_datas = resent_datas;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_resent_datas = resent_datas;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.resent_datas.push_back(resent_datas);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.resent_datas.push_back(resent_datas);
+                        // Store the increment since the last report
+                        writer->second->data.resent_datas.push_back(
+                            resent_datas - writer->second->data.last_reported_resent_datas);
+                        // Update last report
+                        writer->second->data.last_reported_resent_datas = resent_datas;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.resent_datas.push_back(resent_datas - writer->data.last_reported_resent_datas);
-                    // Update last report
-                    writer->data.last_reported_resent_datas = resent_datas;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -801,35 +853,39 @@ void Database::insert_nts(
         case DataKind::HEARTBEAT_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_heartbeat_count = heartbeat_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_heartbeat_count = heartbeat_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.heartbeat_count.push_back(heartbeat_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.heartbeat_count.push_back(heartbeat_count);
+                        // Store the increment since the last report
+                        writer->second->data.heartbeat_count.push_back(heartbeat_count -
+                                writer->second->data.last_reported_heartbeat_count);
+                        // Update last report
+                        writer->second->data.last_reported_heartbeat_count = heartbeat_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.heartbeat_count.push_back(heartbeat_count -
-                            writer->data.last_reported_heartbeat_count);
-                    // Update last report
-                    writer->data.last_reported_heartbeat_count = heartbeat_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -838,34 +894,39 @@ void Database::insert_nts(
         case DataKind::ACKNACK_COUNT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
                 {
-                    if (last_reported)
+                    const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        reader->data.last_reported_acknack_count = acknack_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            reader->second->data.last_reported_acknack_count = acknack_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            reader->second->data.acknack_count.push_back(acknack_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        reader->data.acknack_count.push_back(acknack_count);
+                        // Store the increment since the last report
+                        reader->second->data.acknack_count.push_back(
+                            acknack_count - reader->second->data.last_reported_acknack_count);
+                        // Update last report
+                        reader->second->data.last_reported_acknack_count = acknack_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    reader->data.acknack_count.push_back(acknack_count - reader->data.last_reported_acknack_count);
-                    // Update last report
-                    reader->data.last_reported_acknack_count = acknack_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
@@ -874,34 +935,39 @@ void Database::insert_nts(
         case DataKind::NACKFRAG_COUNT:
         {
             /* Check that the entity is a known reader */
-            auto reader = datareaders_[domain_id][entity_id];
-            if (reader)
+            auto domain_readers = datareaders_.find(domain_id);
+            if (domain_readers != datareaders_.end())
             {
-                const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto reader = domain_readers->second.find(entity_id);
+                if (reader != domain_readers->second.end())
                 {
-                    if (last_reported)
+                    const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        reader->data.last_reported_nackfrag_count = nackfrag_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            reader->second->data.last_reported_nackfrag_count = nackfrag_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            reader->second->data.nackfrag_count.push_back(nackfrag_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        reader->data.nackfrag_count.push_back(nackfrag_count);
+                        // Store the increment since the last report
+                        reader->second->data.nackfrag_count.push_back(
+                            nackfrag_count - reader->second->data.last_reported_nackfrag_count);
+                        // Update last report
+                        reader->second->data.last_reported_nackfrag_count = nackfrag_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    reader->data.nackfrag_count.push_back(nackfrag_count - reader->data.last_reported_nackfrag_count);
-                    // Update last report
-                    reader->data.last_reported_nackfrag_count = nackfrag_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
@@ -910,34 +976,39 @@ void Database::insert_nts(
         case DataKind::GAP_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_gap_count = gap_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_gap_count = gap_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.gap_count.push_back(gap_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.gap_count.push_back(gap_count);
+                        // Store the increment since the last report
+                        writer->second->data.gap_count.push_back(
+                            gap_count - writer->second->data.last_reported_gap_count);
+                        // Update last report
+                        writer->second->data.last_reported_gap_count = gap_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.gap_count.push_back(gap_count - writer->data.last_reported_gap_count);
-                    // Update last report
-                    writer->data.last_reported_gap_count = gap_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -946,34 +1017,39 @@ void Database::insert_nts(
         case DataKind::DATA_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_data_count = data_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_data_count = data_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.data_count.push_back(data_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.data_count.push_back(data_count);
+                        // Store the increment since the last report
+                        writer->second->data.data_count.push_back(
+                            data_count - writer->second->data.last_reported_data_count);
+                        // Update last report
+                        writer->second->data.last_reported_data_count = data_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.data_count.push_back(data_count - writer->data.last_reported_data_count);
-                    // Update last report
-                    writer->data.last_reported_data_count = data_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -982,35 +1058,40 @@ void Database::insert_nts(
         case DataKind::PDP_PACKETS:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_pdp_packets = pdp_packets;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_pdp_packets = pdp_packets;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.pdp_packets.push_back(pdp_packets);
+                        }
+
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.pdp_packets.push_back(pdp_packets);
+                        // Store the increment since the last report
+                        participant->second->data.pdp_packets.push_back(
+                            pdp_packets - participant->second->data.last_reported_pdp_packets);
+                        // Update last report
+                        participant->second->data.last_reported_pdp_packets = pdp_packets;
                     }
 
+                    break;
                 }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.pdp_packets.push_back(pdp_packets - participant->data.last_reported_pdp_packets);
-                    // Update last report
-                    participant->data.last_reported_pdp_packets = pdp_packets;
-                }
-
-                break;
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -1019,34 +1100,39 @@ void Database::insert_nts(
         case DataKind::EDP_PACKETS:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
                 {
-                    if (last_reported)
+                    const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        participant->data.last_reported_edp_packets = edp_packets;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            participant->second->data.last_reported_edp_packets = edp_packets;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            participant->second->data.edp_packets.push_back(edp_packets);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        participant->data.edp_packets.push_back(edp_packets);
+                        // Store the increment since the last report
+                        participant->second->data.edp_packets.push_back(
+                            edp_packets - participant->second->data.last_reported_edp_packets);
+                        // Update last report
+                        participant->second->data.last_reported_edp_packets = edp_packets;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    participant->data.edp_packets.push_back(edp_packets - participant->data.last_reported_edp_packets);
-                    // Update last report
-                    participant->data.last_reported_edp_packets = edp_packets;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -1055,12 +1141,16 @@ void Database::insert_nts(
         case DataKind::DISCOVERY_TIME:
         {
             /* Check that the entity is a known participant */
-            auto participant = participants_[domain_id][entity_id];
-            if (participant)
+            auto domain_participants = participants_.find(domain_id);
+            if (domain_participants != participants_.end())
             {
-                const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
-                participant->data.discovered_entity[discovery_time.remote_entity].push_back(discovery_time);
-                break;
+                auto participant = domain_participants->second.find(entity_id);
+                if (participant != domain_participants->second.end())
+                {
+                    const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
+                    participant->second->data.discovered_entity[discovery_time.remote_entity].push_back(discovery_time);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
@@ -1069,14 +1159,18 @@ void Database::insert_nts(
         case DataKind::SAMPLE_DATAS:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
-                // Only save the last received sample for each sequence number
-                writer->data.sample_datas[sample_datas.sequence_number].clear();
-                writer->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
+                    // Only save the last received sample for each sequence number
+                    writer->second->data.sample_datas[sample_datas.sequence_number].clear();
+                    writer->second->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(

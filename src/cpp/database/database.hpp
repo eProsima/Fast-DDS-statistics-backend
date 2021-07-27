@@ -453,12 +453,16 @@ protected:
 
         /* Check that participant exits */
         bool participant_exists = false;
-        for (const auto& participant_it : participants_[endpoint->participant->domain->id])
+        auto domain_participants = participants_.find(endpoint->participant->domain->id);
+        if (domain_participants != participants_.end())
         {
-            if (endpoint->participant.get() == participant_it.second.get())
+            for (const auto& participant_it : domain_participants->second)
             {
-                participant_exists = true;
-                break;
+                if (endpoint->participant.get() == participant_it.second.get())
+                {
+                    participant_exists = true;
+                    break;
+                }
             }
         }
 
@@ -469,12 +473,16 @@ protected:
 
         /* Check that topic exists */
         bool topic_exists = false;
-        for (const auto& topic_it : topics_[endpoint->topic->domain->id])
+        auto domain_topics = topics_.find(endpoint->topic->domain->id);
+        if (domain_topics != topics_.end())
         {
-            if (endpoint->topic.get() == topic_it.second.get())
+            for (const auto& topic_it : domain_topics->second)
             {
-                topic_exists = true;
-                break;
+                if (endpoint->topic.get() == topic_it.second.get())
+                {
+                    topic_exists = true;
+                    break;
+                }
             }
         }
 
