@@ -535,12 +535,16 @@ void Database::insert_nts(
         case DataKind::FASTDDS_LATENCY:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
-                writer->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
+                    writer->second->data.history2history_latency[fastdds_latency.reader].push_back(fastdds_latency);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -568,13 +572,17 @@ void Database::insert_nts(
         case DataKind::PUBLICATION_THROUGHPUT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const PublicationThroughputSample& publication_throughput =
-                        dynamic_cast<const PublicationThroughputSample&>(sample);
-                writer->data.publication_throughput.push_back(publication_throughput);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const PublicationThroughputSample& publication_throughput =
+                            dynamic_cast<const PublicationThroughputSample&>(sample);
+                    writer->second->data.publication_throughput.push_back(publication_throughput);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -789,34 +797,38 @@ void Database::insert_nts(
         case DataKind::RESENT_DATA:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_resent_datas = resent_datas;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_resent_datas = resent_datas;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.resent_datas.push_back(resent_datas);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.resent_datas.push_back(resent_datas);
+                        // Store the increment since the last report
+                        writer->second->data.resent_datas.push_back(resent_datas - writer->second->data.last_reported_resent_datas);
+                        // Update last report
+                        writer->second->data.last_reported_resent_datas = resent_datas;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.resent_datas.push_back(resent_datas - writer->data.last_reported_resent_datas);
-                    // Update last report
-                    writer->data.last_reported_resent_datas = resent_datas;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -825,35 +837,39 @@ void Database::insert_nts(
         case DataKind::HEARTBEAT_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_heartbeat_count = heartbeat_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_heartbeat_count = heartbeat_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.heartbeat_count.push_back(heartbeat_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.heartbeat_count.push_back(heartbeat_count);
+                        // Store the increment since the last report
+                        writer->second->data.heartbeat_count.push_back(heartbeat_count -
+                                writer->second->data.last_reported_heartbeat_count);
+                        // Update last report
+                        writer->second->data.last_reported_heartbeat_count = heartbeat_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.heartbeat_count.push_back(heartbeat_count -
-                            writer->data.last_reported_heartbeat_count);
-                    // Update last report
-                    writer->data.last_reported_heartbeat_count = heartbeat_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -934,34 +950,38 @@ void Database::insert_nts(
         case DataKind::GAP_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_gap_count = gap_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_gap_count = gap_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.gap_count.push_back(gap_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.gap_count.push_back(gap_count);
+                        // Store the increment since the last report
+                        writer->second->data.gap_count.push_back(gap_count - writer->second->data.last_reported_gap_count);
+                        // Update last report
+                        writer->second->data.last_reported_gap_count = gap_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.gap_count.push_back(gap_count - writer->data.last_reported_gap_count);
-                    // Update last report
-                    writer->data.last_reported_gap_count = gap_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -970,34 +990,38 @@ void Database::insert_nts(
         case DataKind::DATA_COUNT:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
-
-                // Check if the insertion is from the load
-                if (loading)
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
                 {
-                    if (last_reported)
+                    const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
+
+                    // Check if the insertion is from the load
+                    if (loading)
                     {
-                        // Store last reported
-                        writer->data.last_reported_data_count = data_count;
+                        if (last_reported)
+                        {
+                            // Store last reported
+                            writer->second->data.last_reported_data_count = data_count;
+                        }
+                        else
+                        {
+                            // Store data directly
+                            writer->second->data.data_count.push_back(data_count);
+                        }
                     }
                     else
                     {
-                        // Store data directly
-                        writer->data.data_count.push_back(data_count);
+                        // Store the increment since the last report
+                        writer->second->data.data_count.push_back(data_count - writer->second->data.last_reported_data_count);
+                        // Update last report
+                        writer->second->data.last_reported_data_count = data_count;
                     }
-                }
-                else
-                {
-                    // Store the increment since the last report
-                    writer->data.data_count.push_back(data_count - writer->data.last_reported_data_count);
-                    // Update last report
-                    writer->data.last_reported_data_count = data_count;
-                }
 
-                break;
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
@@ -1105,14 +1129,18 @@ void Database::insert_nts(
         case DataKind::SAMPLE_DATAS:
         {
             /* Check that the entity is a known writer */
-            auto writer = datawriters_[domain_id][entity_id];
-            if (writer)
+            auto domain_writers = datawriters_.find(domain_id);
+            if (domain_writers != datawriters_.end())
             {
-                const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
-                // Only save the last received sample for each sequence number
-                writer->data.sample_datas[sample_datas.sequence_number].clear();
-                writer->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
-                break;
+                auto writer = domain_writers->second.find(entity_id);
+                if (writer != domain_writers->second.end())
+                {
+                    const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
+                    // Only save the last received sample for each sequence number
+                    writer->second->data.sample_datas[sample_datas.sequence_number].clear();
+                    writer->second->data.sample_datas[sample_datas.sequence_number].push_back(sample_datas);
+                    break;
+                }
             }
             throw BadParameter(std::to_string(
                               entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
