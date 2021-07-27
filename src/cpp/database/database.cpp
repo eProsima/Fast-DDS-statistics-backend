@@ -525,11 +525,13 @@ void Database::insert_nts(
 {
 
     /* Check that domain_id refers to a known domain */
-    if (sample.kind != DataKind::NETWORK_LATENCY && !domains_[domain_id])
+    if (sample.kind != DataKind::NETWORK_LATENCY)
     {
-        throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+        if (domains_.find(domain_id) == domains_.end())
+        {
+            throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+        }
     }
-
     switch (sample.kind)
     {
         case DataKind::FASTDDS_LATENCY:
