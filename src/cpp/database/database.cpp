@@ -316,9 +316,9 @@ void Database::insert_nts(
                             topic->data_type == topic_it.second->data_type)
                     {
                         throw BadParameter(
-                                "A topic with name '" + topic->name +
-                                "' and type '" + topic->data_type +
-                                "' already exists in the database for the same domain");
+                                  "A topic with name '" + topic->name +
+                                  "' and type '" + topic->data_type +
+                                  "' already exists in the database for the same domain");
                     }
                 }
             }
@@ -629,7 +629,8 @@ void Database::insert_nts(
                         if (last_reported)
                         {
                             // Store last reported
-                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
+                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.
+                                            remote_locator] =
                                     rtps_packets_sent;
                         }
                         else
@@ -644,9 +645,11 @@ void Database::insert_nts(
                         // Store the increment since the last report
                         participant->second->data.rtps_packets_sent[rtps_packets_sent.remote_locator].push_back(
                             rtps_packets_sent -
-                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator]);
+                            participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.
+                                    remote_locator]);
                         // Update last report
-                        participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator] =
+                        participant->second->data.last_reported_rtps_packets_sent_count[rtps_packets_sent.remote_locator
+                        ] =
                                 rtps_packets_sent;
                     }
 
@@ -677,7 +680,8 @@ void Database::insert_nts(
                         if (last_reported)
                         {
                             // Store last reported
-                            participant->second->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator] =
+                            participant->second->data.last_reported_rtps_bytes_sent_count[rtps_bytes_sent.remote_locator
+                            ] =
                                     rtps_bytes_sent;
                         }
                         else
@@ -725,7 +729,8 @@ void Database::insert_nts(
                         if (last_reported)
                         {
                             // Store last reported
-                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
+                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.
+                                            remote_locator] =
                                     rtps_packets_lost;
                         }
                         else
@@ -740,9 +745,11 @@ void Database::insert_nts(
                         // Store the increment since the last report
                         participant->second->data.rtps_packets_lost[rtps_packets_lost.remote_locator].push_back(
                             rtps_packets_lost -
-                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator]);
+                            participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.
+                                    remote_locator]);
                         // Update last report
-                        participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator] =
+                        participant->second->data.last_reported_rtps_packets_lost_count[rtps_packets_lost.remote_locator
+                        ] =
                                 rtps_packets_lost;
                     }
 
@@ -773,13 +780,15 @@ void Database::insert_nts(
                         if (last_reported)
                         {
                             // Store last reported
-                            participant->second->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator] =
+                            participant->second->data.last_reported_rtps_bytes_lost_count[rtps_bytes_lost.remote_locator
+                            ] =
                                     rtps_bytes_lost;
                         }
                         else
                         {
                             // Store data directly
-                            participant->second->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(rtps_bytes_lost);
+                            participant->second->data.rtps_bytes_lost[rtps_bytes_lost.remote_locator].push_back(
+                                rtps_bytes_lost);
                         }
                     }
                     else
@@ -828,7 +837,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        writer->second->data.resent_datas.push_back(resent_datas - writer->second->data.last_reported_resent_datas);
+                        writer->second->data.resent_datas.push_back(
+                            resent_datas - writer->second->data.last_reported_resent_datas);
                         // Update last report
                         writer->second->data.last_reported_resent_datas = resent_datas;
                     }
@@ -909,7 +919,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        reader->second->data.acknack_count.push_back(acknack_count - reader->second->data.last_reported_acknack_count);
+                        reader->second->data.acknack_count.push_back(
+                            acknack_count - reader->second->data.last_reported_acknack_count);
                         // Update last report
                         reader->second->data.last_reported_acknack_count = acknack_count;
                     }
@@ -949,7 +960,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        reader->second->data.nackfrag_count.push_back(nackfrag_count - reader->second->data.last_reported_nackfrag_count);
+                        reader->second->data.nackfrag_count.push_back(
+                            nackfrag_count - reader->second->data.last_reported_nackfrag_count);
                         // Update last report
                         reader->second->data.last_reported_nackfrag_count = nackfrag_count;
                     }
@@ -989,7 +1001,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        writer->second->data.gap_count.push_back(gap_count - writer->second->data.last_reported_gap_count);
+                        writer->second->data.gap_count.push_back(
+                            gap_count - writer->second->data.last_reported_gap_count);
                         // Update last report
                         writer->second->data.last_reported_gap_count = gap_count;
                     }
@@ -1029,7 +1042,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        writer->second->data.data_count.push_back(data_count - writer->second->data.last_reported_data_count);
+                        writer->second->data.data_count.push_back(
+                            data_count - writer->second->data.last_reported_data_count);
                         // Update last report
                         writer->second->data.last_reported_data_count = data_count;
                     }
@@ -1070,7 +1084,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        participant->second->data.pdp_packets.push_back(pdp_packets - participant->second->data.last_reported_pdp_packets);
+                        participant->second->data.pdp_packets.push_back(
+                            pdp_packets - participant->second->data.last_reported_pdp_packets);
                         // Update last report
                         participant->second->data.last_reported_pdp_packets = pdp_packets;
                     }
@@ -1110,7 +1125,8 @@ void Database::insert_nts(
                     else
                     {
                         // Store the increment since the last report
-                        participant->second->data.edp_packets.push_back(edp_packets - participant->second->data.last_reported_edp_packets);
+                        participant->second->data.edp_packets.push_back(
+                            edp_packets - participant->second->data.last_reported_edp_packets);
                         // Update last report
                         participant->second->data.last_reported_edp_packets = edp_packets;
                     }
