@@ -22,6 +22,8 @@
 #include <chrono>
 #include <string>
 
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
@@ -80,6 +82,16 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityId init_monitor(
             DomainId domain,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static EntityId init_monitor(
+            DomainId domain,
+            const fastdds::dds::DomainParticipantQos& participant_qos,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none(),
