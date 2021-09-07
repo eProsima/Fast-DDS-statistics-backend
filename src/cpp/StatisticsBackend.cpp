@@ -26,7 +26,6 @@
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
@@ -174,6 +173,80 @@ void register_statistics_type_and_topic(
     }
 }
 
+int16_t retrieve_entity_id(
+        const std::string& topic_name)
+{
+    if (HISTORY_LATENCY_TOPIC == topic_name)
+    {
+        return 1;
+    }
+    else if (NETWORK_LATENCY_TOPIC == topic_name)
+    {
+        return 2;
+    }
+    else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name)
+    {
+        return 4;
+    }
+    else if (SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
+    {
+        return 8;
+    }
+    else if (RTPS_SENT_TOPIC == topic_name)
+    {
+        return 16;
+    }
+    else if (RTPS_LOST_TOPIC == topic_name)
+    {
+        return 32;
+    }
+    else if (RESENT_DATAS_TOPIC == topic_name)
+    {
+        return 64;
+    }
+    else if (HEARTBEAT_COUNT_TOPIC == topic_name)
+    {
+        return 128;
+    }
+    else if (ACKNACK_COUNT_TOPIC == topic_name)
+    {
+        return 256;
+    }
+    else if (NACKFRAG_COUNT_TOPIC == topic_name)
+    {
+        return 512;
+    }
+    else if (GAP_COUNT_TOPIC == topic_name)
+    {
+        return 1024;
+    }
+    else if (DATA_COUNT_TOPIC == topic_name )
+    {
+        return 2048;
+    }
+    else if (PDP_PACKETS_TOPIC == topic_name)
+    {
+        return 4096;
+    }
+    else if (EDP_PACKETS_TOPIC == topic_name)
+    {
+        return 8192;
+    }
+    else if (DISCOVERY_TOPIC == topic_name)
+    {
+        return 16384;
+    }
+    else if (SAMPLE_DATAS_TOPIC == topic_name)
+    {
+        return 32768;
+    }
+    else if (PHYSICAL_DATA_TOPIC == topic_name)
+    {
+    }
+
+    return -1;
+}
+
 EntityId create_and_register_monitor(
         const std::string& domain_name,
         DomainListener* domain_listener,
@@ -249,10 +322,15 @@ EntityId create_and_register_monitor(
             throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
         }
 
+        DataReaderQos datareader_qos = eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS;
+        datareader_qos.endpoint().entity_id = retrieve_entity_id(topic);
+        datareader_qos.endpoint().user_defined_id = -2;
+
+
         /* Create DataReaders */
         monitor->readers[topic] = monitor->subscriber->create_datareader(
             monitor->topics[topic],
-            eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
+            datareader_qos,
             monitor->reader_listener,
             StatusMask::all());
 
@@ -326,6 +404,35 @@ EntityId StatisticsBackend::init_monitor(
 
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
                    domain_id);
+}
+
+EntityId StatisticsBackend::init_monitor(
+        DomainId domain_id,
+        const DomainParticipantQos& participant_qos,
+        DomainListener* domain_listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask)
+{
+    /* Set domain_name */
+    std::stringstream domain_name;
+    domain_name << domain_id;
+
+    /* Set DomainParticipantQoS */
+    DomainParticipantQos participant_qos_copy = participant_qos;
+    /* Previous string conversion is needed for string_255 */
+    std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
+    participant_qos_copy.name(participant_name);
+    if (participant_qos_copy.transport().use_builtin_transports)
+    {
+        /* Avoid using SHM transport by default */
+        std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
+                std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+        participant_qos_copy.transport().user_transports.push_back(udp_transport);
+        participant_qos_copy.transport().use_builtin_transports = false;
+    }
+    return create_and_register_monitor(
+        domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos_copy,
+        domain_id);
 }
 
 void StatisticsBackend::stop_monitor(
