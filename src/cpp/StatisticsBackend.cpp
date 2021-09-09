@@ -186,62 +186,63 @@ int16_t retrieve_entity_id(
     }
     else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name)
     {
-        return 4;
+        return 3;
     }
     else if (SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
     {
-        return 8;
+        return 4;
     }
     else if (RTPS_SENT_TOPIC == topic_name)
     {
-        return 16;
+        return 5;
     }
     else if (RTPS_LOST_TOPIC == topic_name)
     {
-        return 32;
+        return 6;
     }
     else if (RESENT_DATAS_TOPIC == topic_name)
     {
-        return 64;
+        return 7;
     }
     else if (HEARTBEAT_COUNT_TOPIC == topic_name)
     {
-        return 128;
+        return 8;
     }
     else if (ACKNACK_COUNT_TOPIC == topic_name)
     {
-        return 256;
+        return 9;
     }
     else if (NACKFRAG_COUNT_TOPIC == topic_name)
     {
-        return 512;
+        return 10;
     }
     else if (GAP_COUNT_TOPIC == topic_name)
     {
-        return 1024;
+        return 11;
     }
     else if (DATA_COUNT_TOPIC == topic_name )
     {
-        return 2048;
+        return 12;
     }
     else if (PDP_PACKETS_TOPIC == topic_name)
     {
-        return 4096;
+        return 13;
     }
     else if (EDP_PACKETS_TOPIC == topic_name)
     {
-        return 8192;
+        return 14;
     }
     else if (DISCOVERY_TOPIC == topic_name)
     {
-        return 16384;
+        return 15;
     }
     else if (SAMPLE_DATAS_TOPIC == topic_name)
     {
-        return 32768;
+        return 16;
     }
     else if (PHYSICAL_DATA_TOPIC == topic_name)
     {
+        return 17;
     }
 
     return -1;
