@@ -13,79 +13,174 @@
 // limitations under the License.
 
 /**
- * @file HelloWorld_main.cpp
+ * @file main.cpp
  *
  */
 
 #include "HelloWorldPublisher.h"
 #include "HelloWorldSubscriber.h"
 #include "Monitor.h"
+#include "arg_configuration.h"
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <string>
 
-#include <fastrtps/log/Log.h>
+enum Type
+{
+    publisher,
+    subscriber,
+    monitor
+};
 
-using eprosima::fastdds::dds::Log;
 
 int main(
         int argc,
         char** argv)
 {
+    int columns;
+
+#if defined(_WIN32)
+    char* buf = nullptr;
+    size_t sz = 0;
+    if (_dupenv_s(&buf, &sz, "COLUMNS") == 0 && buf != nullptr)
+    {
+        columns = strtol(buf, nullptr, 10);
+        free(buf);
+    }
+    else
+    {
+        columns = 80;
+    }
+#else
+    columns = getenv("COLUMNS") ? atoi(getenv("COLUMNS")) : 80;
+#endif // if defined(_WIN32)
+
     std::cout << "Starting " << std::endl;
-    int type = 1;
-    int count = 10;
-    int sleep = 100;
+    Type type = publisher;
+    int count = 0;
+    long sleep = 100;
+    int num_wait_matched = 0;
+    int domain = 0;
     if (argc > 1)
     {
-        if (strcmp(argv[1], "publisher") == 0)
+        if (!strcmp(argv[1], "publisher"))
         {
-            type = 1;
-            if (argc >= 3)
+            type = publisher;
+        }
+        else if (!strcmp(argv[1], "subscriber"))
+        {
+            type = subscriber;
+        }
+        else if (!strcmp(argv[1], "monitor"))
+        {
+            type = monitor;
+        }
+        else if (!(strcmp(argv[1], "-h") && strcmp(argv[1], "--help")))
+        {
+            option::printUsage(fwrite, stdout, usage, columns);
+            return 0;
+        }
+        else
+        {
+            std::cerr << "ERROR: first argument can only be <publisher|subscriber|monitor>" << std::endl;
+            option::printUsage(fwrite, stdout, usage, columns);
+            return 1;
+        }
+
+        argc -= (argc > 0);
+        argv += (argc > 0); // skip program name argv[0] if present
+        --argc; ++argv; // skip pub/sub argument
+        option::Stats stats(usage, argc, argv);
+        std::vector<option::Option> options(stats.options_max);
+        std::vector<option::Option> buffer(stats.buffer_max);
+        option::Parser parse(usage, argc, argv, &options[0], &buffer[0]);
+
+        if (parse.error())
+        {
+            option::printUsage(fwrite, stdout, usage, columns);
+            return 1;
+        }
+
+        if (options[optionIndex::HELP])
+        {
+            option::printUsage(fwrite, stdout, usage, columns);
+            return 0;
+        }
+
+        for (int i = 0; i < parse.optionsCount(); ++i)
+        {
+            option::Option& opt = buffer[i];
+            switch (opt.index())
             {
-                count = atoi(argv[2]);
-                if (argc == 4)
-                {
-                    sleep = atoi(argv[3]);
-                }
+                case optionIndex::HELP:
+                    // not possible, because handled further above and exits the program
+                    break;
+
+                case optionIndex::DOMAIN:
+                    domain = strtol(opt.arg, nullptr, 10);
+                    break;
+
+                case optionIndex::SAMPLES:
+                    count = strtol(opt.arg, nullptr, 10);
+                    break;
+
+                case optionIndex::INTERVAL:
+                    if (type == publisher)
+                    {
+                        sleep = strtol(opt.arg, nullptr, 10);
+                    }
+                    else
+                    {
+                        print_warning("publisher", opt.name);
+                    }
+                    break;
+
+                case optionIndex::WAIT:
+                    if (type == publisher)
+                    {
+                        num_wait_matched = strtol(opt.arg, nullptr, 10);
+                    }
+                    else
+                    {
+                        print_warning("publisher", opt.name);
+                    }
+                    break;
+
+                case optionIndex::UNKNOWN_OPT:
+                    std::cerr << "ERROR: " << opt.name << " is not a valid argument." << std::endl;
+                    option::printUsage(fwrite, stdout, usage, columns);
+                    return 1;
+                    break;
             }
-        }
-        else if (strcmp(argv[1], "subscriber") == 0)
-        {
-            type = 2;
-        }
-        else if (strcmp(argv[1], "monitor") == 0)
-        {
-            type = 3;
         }
     }
     else
     {
-        std::cout << "'publisher', 'subscriber', or 'monitor' argument needed" << std::endl;
-        Log::Reset();
-        return 0;
+        std::cerr << "ERROR: <publisher|subscriber|monitor> argument is required." << std::endl;
+        option::printUsage(fwrite, stdout, usage, columns);
+        return 1;
     }
 
     switch(type)
     {
-        case 1:
+        case publisher:
             {
                 HelloWorldPublisher mypub;
-                if(mypub.init())
+                if(mypub.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(num_wait_matched)))
                 {
                     mypub.run(static_cast<uint32_t>(count), static_cast<uint32_t>(sleep));
                 }
                 break;
             }
-        case 2:
+        case subscriber:
             {
                 HelloWorldSubscriber mysub;
-                if(mysub.init())
+                if(mysub.init(static_cast<uint32_t>(count), static_cast<uint32_t>(domain)))
                 {
-                    mysub.run();
+                    mysub.run(static_cast<uint32_t>(count));
                 }
                 break;
             }
-        case 3:
+        case monitor:
             {
                 Monitor monitor;
                 if(monitor.init())
@@ -95,6 +190,5 @@ int main(
                 break;
             }
     }
-    Log::Reset();
     return 0;
 }

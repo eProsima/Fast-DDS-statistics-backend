@@ -26,7 +26,14 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 
+#include <csignal>
+
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::rtps;
+
+std::atomic<bool> HelloWorldSubscriber::stop_(false);
+std::mutex HelloWorldSubscriber::terminate_cv_mtx_;
+std::condition_variable HelloWorldSubscriber::terminate_cv_;
 
 HelloWorldSubscriber::HelloWorldSubscriber()
     : participant_(nullptr)
@@ -37,10 +44,24 @@ HelloWorldSubscriber::HelloWorldSubscriber()
 {
 }
 
-bool HelloWorldSubscriber::init()
+bool HelloWorldSubscriber::is_stopped()
+{
+    return stop_;
+}
+
+void HelloWorldSubscriber::stop()
+{
+    stop_ = true;
+    terminate_cv_.notify_one();
+}
+
+bool HelloWorldSubscriber::init(
+        uint32_t max_messages,
+        uint32_t domain)
 {
     DomainParticipantQos pqos;
     pqos.name("Participant_sub");
+
     // Activate Fast DDS Statistics module
     pqos.properties().properties().emplace_back("fastdds.statistics",
         "HISTORY_LATENCY_TOPIC;" \
@@ -61,7 +82,7 @@ bool HelloWorldSubscriber::init()
         "DISCOVERY_TOPIC;" \
         "PHYSICAL_DATA_TOPIC");
 
-    participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
+    participant_ = DomainParticipantFactory::get_instance()->create_participant(domain, pqos);
 
     if (participant_ == nullptr)
     {
@@ -91,8 +112,11 @@ bool HelloWorldSubscriber::init()
     }
 
     // CREATE THE READER
+    if (max_messages > 0)
+    {
+        listener_.set_max_messages(max_messages);
+    }
     DataReaderQos rqos = DATAREADER_QOS_DEFAULT;
-    rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
     reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
 
     if (reader_ == nullptr)
@@ -118,6 +142,12 @@ HelloWorldSubscriber::~HelloWorldSubscriber()
         participant_->delete_subscriber(subscriber_);
     }
     DomainParticipantFactory::get_instance()->delete_participant(participant_);
+}
+
+void HelloWorldSubscriber::SubListener::set_max_messages(
+        uint32_t max_messages)
+{
+    max_messages_ = max_messages;
 }
 
 void HelloWorldSubscriber::SubListener::on_subscription_matched(
@@ -152,22 +182,33 @@ void HelloWorldSubscriber::SubListener::on_data_available(
             samples_++;
             // Print your structure data here.
             std::cout << "Message " << hello_.message() << " " << hello_.index() << " RECEIVED" << std::endl;
+            if (max_messages_ > 0 && (samples_ >= max_messages_))
+            {
+                stop();
+            }
         }
     }
 }
 
-void HelloWorldSubscriber::run()
-{
-    std::cout << "Subscriber running. Please press enter to stop the Subscriber" << std::endl;
-    std::cin.ignore();
-}
-
 void HelloWorldSubscriber::run(
-        uint32_t number)
+        uint32_t samples)
 {
-    std::cout << "Subscriber running until " << number << "samples have been received" << std::endl;
-    while (number > listener_.samples_)
+    stop_ = false;
+    if (samples > 0)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::cout << "Subscriber running until " << samples << " samples have been received" << std::endl;
     }
+    else
+    {
+        std::cout << "Subscriber running. Please press CTRL+C to stop the Subscriber" << std::endl;
+    }
+    signal(SIGINT, [](int signum)
+            {
+                static_cast<void>(signum); HelloWorldSubscriber::stop();
+            });
+    std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
+    terminate_cv_.wait(lck, []
+            {
+                return is_stopped();
+            });
 }

@@ -24,8 +24,11 @@
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastrtps/subscriber/SampleInfo.h>
 #include <fastdds/dds/core/status/SubscriptionMatchedStatus.hpp>
+
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 
 class HelloWorldSubscriber
 {
@@ -36,14 +39,17 @@ public:
     virtual ~HelloWorldSubscriber();
 
     //!Initialize the subscriber
-    bool init();
+    bool init(
+            uint32_t max_messages,
+            uint32_t domain);
 
-    //!RUN the subscriber
-    void run();
-
-    //!Run the subscriber until number samples have been received.
+    //!Run the subscriber
     void run(
             uint32_t number);
+
+    static bool is_stopped();
+
+    static void stop();
 
 private:
 
@@ -64,12 +70,16 @@ private:
         SubListener()
             : matched_(0)
             , samples_(0)
+            , max_messages_(0)
         {
         }
 
         ~SubListener() override
         {
         }
+
+        void set_max_messages(
+                uint32_t max_messages);
 
         void on_data_available(
                 eprosima::fastdds::dds::DataReader* reader) override;
@@ -78,13 +88,23 @@ private:
                 eprosima::fastdds::dds::DataReader* reader,
                 const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
 
+    private:
+
         HelloWorld hello_;
 
         int matched_;
 
         uint32_t samples_;
+
+        uint32_t max_messages_;
     }
     listener_;
+
+    static std::atomic<bool> stop_;
+
+    static std::mutex terminate_cv_mtx_;
+
+    static std::condition_variable terminate_cv_;
 };
 
 #endif /* HELLOWORLDSUBSCRIBER_H_ */

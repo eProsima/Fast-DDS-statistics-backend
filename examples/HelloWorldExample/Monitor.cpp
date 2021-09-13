@@ -19,21 +19,19 @@
 #include <string>
 #include <vector>
 #include <chrono>
-#include <chrono>
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "Monitor.h"
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 
 using namespace eprosima::statistics_backend;
-using namespace eprosima::fastdds::dds;
 
 Monitor::Monitor()
 {
@@ -60,18 +58,19 @@ bool Monitor::init()
 
 void Monitor::run()
 {
-    std::cout << "Monitor running. Please press enter to stop the Monitor" << std::endl;
+    std::cout << "Monitor running. Please press CTRL+C to stop the Monitor at any time." << std::endl;
 
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::cout << std::endl;
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
     }
 }
 
 /***************************************************************
- * Implementation of the functions to collect the data. 
+ * Implementation of the functions to collect the data.
  ***************************************************************/
 
 std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
