@@ -26,6 +26,10 @@
 #include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+
 class HelloWorldPublisher
 {
 public:
@@ -35,16 +39,21 @@ public:
     virtual ~HelloWorldPublisher();
 
     //!Initialize
-    bool init();
+    bool init(
+            uint32_t domain,
+            uint32_t num_wait_matched);
 
     //!Publish a sample
-    bool publish(
-            bool waitForListener = true);
+    void publish();
 
     //!Run for number samples
     void run(
             uint32_t number,
             uint32_t sleep);
+
+    static bool is_stopped();
+
+    static void stop();
 
 private:
 
@@ -58,15 +67,13 @@ private:
 
     eprosima::fastdds::dds::DataWriter* writer_;
 
-    bool stop_;
-
     class PubListener : public eprosima::fastdds::dds::DataWriterListener
     {
-public:
+    public:
 
         PubListener()
             : matched_(0)
-            , firstConnected_(false)
+            , num_wait_matched_(0)
         {
         }
 
@@ -78,9 +85,24 @@ public:
                 eprosima::fastdds::dds::DataWriter* writer,
                 const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
 
-        int matched_;
+        void set_num_wait_matched(
+                uint32_t num_wait_matched);
 
-        bool firstConnected_;
+        bool enough_matched();
+
+        void wait();
+
+        static void awake();
+
+    private:
+
+        std::atomic<std::uint32_t> matched_;
+
+        uint32_t num_wait_matched_;
+
+        static std::mutex wait_matched_cv_mtx_;
+
+        static std::condition_variable wait_matched_cv_;
     } listener_;
 
     void runThread(
@@ -88,6 +110,8 @@ public:
             uint32_t sleep);
 
     eprosima::fastdds::dds::TypeSupport type_;
+
+    static std::atomic<bool> stop_;
 };
 
 

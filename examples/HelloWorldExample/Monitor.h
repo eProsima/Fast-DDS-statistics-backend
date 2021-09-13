@@ -22,9 +22,6 @@
 #include <list>
 #include <string>
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/topic/TopicDataType.hpp>
-
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
@@ -32,7 +29,6 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 
 using namespace eprosima::statistics_backend;
-using namespace eprosima::fastdds::dds;
 
 class Monitor
 {
@@ -41,7 +37,7 @@ public:
 
     virtual ~Monitor();
 
-    //! Initilize monitor
+    //! Initialize monitor
     bool init();
 
     //! Run the monitor
