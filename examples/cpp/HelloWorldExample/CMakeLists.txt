@@ -45,4 +45,4 @@ target_compile_definitions(HelloWorldExample PRIVATE
 )
 target_link_libraries(HelloWorldExample fastrtps fastcdr fastdds_statistics_backend)
 install(TARGETS HelloWorldExample
-    RUNTIME DESTINATION examples/C++/DDS/HelloWorldExample/${BIN_INSTALL_DIR})
+    RUNTIME DESTINATION examples/cpp/HelloWorldExample/${BIN_INSTALL_DIR})

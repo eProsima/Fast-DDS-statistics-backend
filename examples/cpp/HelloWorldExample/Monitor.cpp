@@ -42,8 +42,12 @@ Monitor::~Monitor()
     StatisticsBackend::stop_monitor(monitor_id_);
 }
 
-bool Monitor::init()
+bool Monitor::init(
+        uint32_t n_bins,
+        uint32_t t_interval)
 {
+    n_bins_ = n_bins;
+    t_interval_ = t_interval;
     monitor_id_ = StatisticsBackend::init_monitor(0);
     if (!monitor_id_.is_valid())
     {
@@ -60,7 +64,7 @@ void Monitor::run()
 {
     std::cout << "Monitor running. Please press CTRL+C to stop the Monitor at any time." << std::endl;
 
-    while(true)
+    while (true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         std::cout << std::endl;
@@ -70,8 +74,8 @@ void Monitor::run()
 }
 
 /***************************************************************
- * Implementation of the functions to collect the data.
- ***************************************************************/
+* Implementation of the functions to collect the data.
+***************************************************************/
 
 std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
 {
@@ -96,25 +100,25 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
 
     /* Get the DataWriters and DataReaders in a Topic */
     std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(
-            EntityKind::DATAWRITER,
-            helloworld_topic_id);
+        EntityKind::DATAWRITER,
+        helloworld_topic_id);
     std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entities(
-            EntityKind::DATAREADER,
-            helloworld_topic_id);
+        EntityKind::DATAREADER,
+        helloworld_topic_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
     /*
-    * Get the median of the FASTDDS_LATENCY of the last 10 minutes
-    * between the DataWriters and DataReaders publishing under and subscribed to the HelloWorld topic.
-    */
+     * Get the median of the FASTDDS_LATENCY of the last 10 minutes
+     * between the DataWriters and DataReaders publishing under and subscribed to the HelloWorld topic.
+     */
     latency_data = StatisticsBackend::get_data(
         DataKind::FASTDDS_LATENCY,                                   // DataKind
         topic_datawriters,                                           // Source entities
         topic_datareaders,                                           // Target entities
-        1,                                                           // Number of bins
-        now - std::chrono::seconds(5),                               // t_from
+        n_bins_,                                                     // Number of bins
+        now - std::chrono::seconds(t_interval_),                     // t_from
         now,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
@@ -122,7 +126,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
     {
 
         std::cout << "Fast DDS Latency of HelloWorld topic: ["
-                    << timestamp_to_string(latency.first) << ", " << latency.second/1000 << " μs]" << std::endl;
+                  << timestamp_to_string(latency.first) << ", " << latency.second / 1000 << " μs]" << std::endl;
     }
 
     return latency_data;
@@ -151,20 +155,20 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
 
     /* Get the DataWriters and DataReaders in a Topic */
     std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(
-            EntityKind::DATAWRITER,
-            participant_id);
+        EntityKind::DATAWRITER,
+        participant_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
     /*
-    *
-    */
+     *
+     */
     publication_throughput_data = StatisticsBackend::get_data(
         DataKind::PUBLICATION_THROUGHPUT,                            // DataKind
         topic_datawriters,                                           // Source entities
-        1,                                                           // Number of bins
-        now - std::chrono::seconds(5),                               // t_from
+        n_bins_,                                                     // Number of bins
+        now - std::chrono::seconds(t_interval_),                     // t_from
         now,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
@@ -172,16 +176,16 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     {
 
         std::cout << "Publication throughput of Participant " << participant_info["name"] << ": ["
-                    << timestamp_to_string(publication_throughput.first) << ", "
-                    << publication_throughput.second << " B/s]" << std::endl;
+                  << timestamp_to_string(publication_throughput.first) << ", "
+                  << publication_throughput.second << " B/s]" << std::endl;
     }
 
     return publication_throughput_data;
 }
 
 /***************************************************************
- * Monitor Listener callbacks implementation
- ***************************************************************/
+* Monitor Listener callbacks implementation
+***************************************************************/
 void Monitor::Listener::on_participant_discovery(
         EntityId domain_id,
         EntityId participant_id,
@@ -307,8 +311,8 @@ void Monitor::Listener::on_topic_discovery(
 }
 
 /***************************************************************
- * Utils
- ***************************************************************/
+* Utils
+***************************************************************/
 std::string Monitor::timestamp_to_string(
         const Timestamp timestamp)
 {
@@ -327,4 +331,3 @@ std::string Monitor::timestamp_to_string(
 
     return ss.str();
 }
-

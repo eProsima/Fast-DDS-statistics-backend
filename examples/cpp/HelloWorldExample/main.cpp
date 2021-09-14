@@ -60,6 +60,9 @@ int main(
     long sleep = 100;
     int num_wait_matched = 0;
     int domain = 0;
+    // Monitor params
+    int n_bins = 1;
+    int t_interval = 5;
     if (argc > 1)
     {
         if (!strcmp(argv[1], "publisher"))
@@ -116,11 +119,25 @@ int main(
                     break;
 
                 case optionIndex::DOMAIN:
-                    domain = strtol(opt.arg, nullptr, 10);
+                    if (type == monitor)
+                    {
+                        print_warning("publisher|subscriber", opt.name);
+                    }
+                    else
+                    {
+                        domain = strtol(opt.arg, nullptr, 10);
+                    }
                     break;
 
                 case optionIndex::SAMPLES:
-                    count = strtol(opt.arg, nullptr, 10);
+                    if (type == monitor)
+                    {
+                        print_warning("publisher|subscriber", opt.name);
+                    }
+                    else
+                    {
+                        count = strtol(opt.arg, nullptr, 10);
+                    }
                     break;
 
                 case optionIndex::INTERVAL:
@@ -145,6 +162,28 @@ int main(
                     }
                     break;
 
+                case optionIndex::N_BINS:
+                    if (type == monitor)
+                    {
+                        n_bins = strtol(opt.arg, nullptr, 10);
+                    }
+                    else
+                    {
+                        print_warning("monitor", opt.name);
+                    }
+                    break;
+
+                case optionIndex::T_INTERVAL:
+                    if (type == monitor)
+                    {
+                        t_interval = strtol(opt.arg, nullptr, 10);
+                    }
+                    else
+                    {
+                        print_warning("monitor", opt.name);
+                    }
+                    break;
+
                 case optionIndex::UNKNOWN_OPT:
                     std::cerr << "ERROR: " << opt.name << " is not a valid argument." << std::endl;
                     option::printUsage(fwrite, stdout, usage, columns);
@@ -160,35 +199,35 @@ int main(
         return 1;
     }
 
-    switch(type)
+    switch (type)
     {
         case publisher:
+        {
+            HelloWorldPublisher mypub;
+            if (mypub.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(num_wait_matched)))
             {
-                HelloWorldPublisher mypub;
-                if(mypub.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(num_wait_matched)))
-                {
-                    mypub.run(static_cast<uint32_t>(count), static_cast<uint32_t>(sleep));
-                }
-                break;
+                mypub.run(static_cast<uint32_t>(count), static_cast<uint32_t>(sleep));
             }
+            break;
+        }
         case subscriber:
+        {
+            HelloWorldSubscriber mysub;
+            if (mysub.init(static_cast<uint32_t>(count), static_cast<uint32_t>(domain)))
             {
-                HelloWorldSubscriber mysub;
-                if(mysub.init(static_cast<uint32_t>(count), static_cast<uint32_t>(domain)))
-                {
-                    mysub.run(static_cast<uint32_t>(count));
-                }
-                break;
+                mysub.run(static_cast<uint32_t>(count));
             }
+            break;
+        }
         case monitor:
+        {
+            Monitor monitor;
+            if (monitor.init(static_cast<uint32_t>(n_bins), static_cast<uint32_t>(t_interval)))
             {
-                Monitor monitor;
-                if(monitor.init())
-                {
-                    monitor.run();
-                }
-                break;
+                monitor.run();
             }
+            break;
+        }
     }
     return 0;
 }

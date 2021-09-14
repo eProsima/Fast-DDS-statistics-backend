@@ -33,12 +33,15 @@ using namespace eprosima::statistics_backend;
 class Monitor
 {
 public:
+
     Monitor();
 
     virtual ~Monitor();
 
     //! Initialize monitor
-    bool init();
+    bool init(
+            uint32_t n_bins,
+            uint32_t t_interval);
 
     //! Run the monitor
     void run();
@@ -51,13 +54,13 @@ public:
 
     //! Serialize the timestamp of a given data value
     std::string timestamp_to_string(
-        const Timestamp timestamp);
+            const Timestamp timestamp);
 
 protected:
 
     class Listener : public eprosima::statistics_backend::PhysicalListener
     {
-public:
+    public:
 
         Listener()
         {
@@ -111,9 +114,16 @@ public:
                 EntityId datawriter_id,
                 const DomainListener::Status& status) override;
 
-    } physical_listener_;
+    }
+    physical_listener_;
 
     EntityId monitor_id_;
+
+private:
+
+    uint32_t n_bins_;
+
+    uint32_t t_interval_;
 };
 
 #endif /* MONITOR_H_ */

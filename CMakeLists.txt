@@ -97,6 +97,15 @@ option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 add_subdirectory(src/cpp)
 
 ###############################################################################
+# Examples
+###############################################################################
+option(COMPILE_EXAMPLES "Build example" OFF)
+
+if(COMPILE_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+###############################################################################
 # Test
 ###############################################################################
 option(BUILD_TESTS "Build Fast DDS Statistics Backend library and documentation tests" OFF)
