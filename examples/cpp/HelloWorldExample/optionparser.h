@@ -1556,9 +1556,9 @@ inline bool Parser::workhorse(bool gnu, const Descriptor usage[], int numargs, c
 
     do // loop over short options in group, for long options the body is executed only once
     {
-      int idx(0);
+      int idx;
 
-      const char* optarg = nullptr;
+      const char* optarg;
 
       /******************** long option **********************/
       if (handle_short_options == false || try_single_minus_longopt)
@@ -2689,7 +2689,7 @@ struct PrintUsageImplementation
  * #include <iostream>  // cout
  * #include <sstream>   // ostringstream
  * #include <cstdio>    // fwrite()
- *
+ * using namespace std;
  *
  * void my_write(const char* str, int size) {
  *   fwrite(str, size, 1, stdout);

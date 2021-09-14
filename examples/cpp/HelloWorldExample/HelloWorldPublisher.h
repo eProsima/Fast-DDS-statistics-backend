@@ -103,7 +103,8 @@ private:
         static std::mutex wait_matched_cv_mtx_;
 
         static std::condition_variable wait_matched_cv_;
-    } listener_;
+    }
+    listener_;
 
     void runThread(
             uint32_t number,

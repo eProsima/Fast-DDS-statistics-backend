@@ -23,7 +23,7 @@
 #include <string>
 #include <iostream>
 
-#include <optionparser.h>
+#include "optionparser.h"
 
 struct Arg : public option::Arg
 {
@@ -98,6 +98,7 @@ struct Arg : public option::Arg
         }
         return option::ARG_ILLEGAL;
     }
+
 };
 
 enum optionIndex
@@ -107,12 +108,14 @@ enum optionIndex
     WAIT,
     SAMPLES,
     INTERVAL,
-    DOMAIN
+    DOMAIN,
+    N_BINS,
+    T_INTERVAL
 };
 
 const option::Descriptor usage[] = {
     { UNKNOWN_OPT, 0, "", "",                Arg::None,
-      "Usage: HelloWorldExample <publisher|monitor>\n\nGeneral options:" },
+      "Usage: HelloWorldExample <publisher|subscriber|monitor>\n\nGeneral options:" },
     { HELP,    0, "h", "help",               Arg::None,      "  -h \t--help  \tProduce help message." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nPublisher options:"},
@@ -133,6 +136,10 @@ const option::Descriptor usage[] = {
       "  -s <num> \t--samples=<num>  \tNumber of samples to wait for (Default: 0 => infinite samples)." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nMonitor options:"},
+    { N_BINS, 0, "b", "bins",              Arg::Numeric,
+      "  -b <num> \t--bins=<num>  \tNumber of bins in which a time interval is divided (Default: 1)." },
+    { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
+      "  -t <num> \t--time=<num>  \tDuration in seconds of each time frame (Default: 5)." },
 
 
     { 0, 0, 0, 0, 0, 0 }
