@@ -119,14 +119,7 @@ int main(
                     break;
 
                 case optionIndex::DOMAIN:
-                    if (type == monitor)
-                    {
-                        print_warning("publisher|subscriber", opt.name);
-                    }
-                    else
-                    {
-                        domain = strtol(opt.arg, nullptr, 10);
-                    }
+                    domain = strtol(opt.arg, nullptr, 10);
                     break;
 
                 case optionIndex::SAMPLES:
@@ -222,7 +215,8 @@ int main(
         case monitor:
         {
             Monitor monitor;
-            if (monitor.init(static_cast<uint32_t>(n_bins), static_cast<uint32_t>(t_interval)))
+            if (monitor.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(n_bins),
+                    static_cast<uint32_t>(t_interval)))
             {
                 monitor.run();
             }

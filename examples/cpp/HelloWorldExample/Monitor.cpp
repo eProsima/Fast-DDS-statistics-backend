@@ -43,12 +43,13 @@ Monitor::~Monitor()
 }
 
 bool Monitor::init(
+        uint32_t domain,
         uint32_t n_bins,
         uint32_t t_interval)
 {
     n_bins_ = n_bins;
     t_interval_ = t_interval;
-    monitor_id_ = StatisticsBackend::init_monitor(0);
+    monitor_id_ = StatisticsBackend::init_monitor(domain);
     if (!monitor_id_.is_valid())
     {
         std::cout << "Error creating monitor" << std::endl;

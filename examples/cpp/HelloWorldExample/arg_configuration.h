@@ -136,6 +136,8 @@ const option::Descriptor usage[] = {
       "  -s <num> \t--samples=<num>  \tNumber of samples to wait for (Default: 0 => infinite samples)." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nMonitor options:"},
+    { DOMAIN, 0, "d", "domain",                Arg::Numeric,
+      "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
     { N_BINS, 0, "b", "bins",              Arg::Numeric,
       "  -b <num> \t--bins=<num>  \tNumber of bins in which a time interval is divided (Default: 1)." },
     { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
