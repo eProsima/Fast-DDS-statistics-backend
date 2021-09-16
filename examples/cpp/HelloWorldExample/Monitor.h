@@ -40,6 +40,7 @@ public:
 
     //! Initialize monitor
     bool init(
+            uint32_t domain,
             uint32_t n_bins,
             uint32_t t_interval);
 
