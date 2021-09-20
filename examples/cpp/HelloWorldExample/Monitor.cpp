@@ -16,16 +16,15 @@
  * @file Monitor.cpp
  */
 
-#include <string>
-#include <vector>
 #include <chrono>
 #include <iomanip>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "Monitor.h"
-
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>

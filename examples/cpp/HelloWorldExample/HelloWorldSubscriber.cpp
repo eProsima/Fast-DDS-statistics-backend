@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
  *
  */
 
+#include <csignal>
+
 #include "HelloWorldSubscriber.h"
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/attributes/SubscriberAttributes.h>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-
-#include <csignal>
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -52,7 +52,7 @@ bool HelloWorldSubscriber::is_stopped()
 void HelloWorldSubscriber::stop()
 {
     stop_ = true;
-    terminate_cv_.notify_one();
+    terminate_cv_.notify_all();
 }
 
 bool HelloWorldSubscriber::init(
@@ -82,6 +82,7 @@ bool HelloWorldSubscriber::init(
             "DISCOVERY_TOPIC;" \
             "PHYSICAL_DATA_TOPIC");
 
+    // CREATE THE PARTICIPANT
     participant_ = DomainParticipantFactory::get_instance()->create_participant(domain, pqos);
 
     if (participant_ == nullptr)
@@ -89,10 +90,10 @@ bool HelloWorldSubscriber::init(
         return false;
     }
 
-    //REGISTER THE TYPE
+    // REGISTER THE TYPE
     type_.register_type(participant_);
 
-    //CREATE THE SUBSCRIBER
+    // CREATE THE SUBSCRIBER
     subscriber_ = participant_->create_subscriber(SUBSCRIBER_QOS_DEFAULT, nullptr);
 
     if (subscriber_ == nullptr)
@@ -100,7 +101,7 @@ bool HelloWorldSubscriber::init(
         return false;
     }
 
-    //CREATE THE TOPIC
+    // CREATE THE TOPIC
     topic_ = participant_->create_topic(
         "HelloWorldTopic",
         "HelloWorld",
@@ -129,19 +130,22 @@ bool HelloWorldSubscriber::init(
 
 HelloWorldSubscriber::~HelloWorldSubscriber()
 {
-    if (reader_ != nullptr)
+    if (participant_ != nullptr)
     {
-        subscriber_->delete_datareader(reader_);
+        if (topic_ != nullptr)
+        {
+            participant_->delete_topic(topic_);
+        }
+        if (subscriber_ != nullptr)
+        {
+            if (reader_ != nullptr)
+            {
+                subscriber_->delete_datareader(reader_);
+            }
+            participant_->delete_subscriber(subscriber_);
+        }
+        DomainParticipantFactory::get_instance()->delete_participant(participant_);
     }
-    if (topic_ != nullptr)
-    {
-        participant_->delete_topic(topic_);
-    }
-    if (subscriber_ != nullptr)
-    {
-        participant_->delete_subscriber(subscriber_);
-    }
-    DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
 void HelloWorldSubscriber::SubListener::set_max_messages(
@@ -156,12 +160,12 @@ void HelloWorldSubscriber::SubListener::on_subscription_matched(
 {
     if (info.current_count_change == 1)
     {
-        matched_ = info.total_count;
+        matched_ = info.current_count;
         std::cout << "Subscriber matched." << std::endl;
     }
     else if (info.current_count_change == -1)
     {
-        matched_ = info.total_count;
+        matched_ = info.current_count;
         std::cout << "Subscriber unmatched." << std::endl;
     }
     else
@@ -175,7 +179,7 @@ void HelloWorldSubscriber::SubListener::on_data_available(
         DataReader* reader)
 {
     SampleInfo info;
-    if (reader->take_next_sample(&hello_, &info) == ReturnCode_t::RETCODE_OK)
+    while (reader->take_next_sample(&hello_, &info) == ReturnCode_t::RETCODE_OK)
     {
         if (info.instance_state == ALIVE_INSTANCE_STATE)
         {
