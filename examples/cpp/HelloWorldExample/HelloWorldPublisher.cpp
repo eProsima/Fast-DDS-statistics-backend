@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@
  *
  */
 
+#include <csignal>
+#include <thread>
+
 #include "HelloWorldPublisher.h"
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
+#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/attributes/PublisherAttributes.h>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/publisher/Publisher.hpp>
-#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
-#include <fastdds/dds/publisher/DataWriter.hpp>
-#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
-
-#include <thread>
-#include <csignal>
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -86,6 +86,7 @@ bool HelloWorldPublisher::init(
             "DISCOVERY_TOPIC;" \
             "PHYSICAL_DATA_TOPIC");
 
+    // CREATE THE PARTICIPANT
     participant_ = DomainParticipantFactory::get_instance()->create_participant(domain, pqos);
 
     if (participant_ == nullptr)
@@ -93,10 +94,10 @@ bool HelloWorldPublisher::init(
         return false;
     }
 
-    //REGISTER THE TYPE
+    // REGISTER THE TYPE
     type_.register_type(participant_);
 
-    //CREATE THE PUBLISHER
+    // CREATE THE PUBLISHER
     publisher_ = participant_->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
 
     if (publisher_ == nullptr)
@@ -104,6 +105,7 @@ bool HelloWorldPublisher::init(
         return false;
     }
 
+    // CREATE THE TOPIC
     topic_ = participant_->create_topic("HelloWorldTopic", "HelloWorld", TOPIC_QOS_DEFAULT);
 
     if (topic_ == nullptr)
@@ -123,19 +125,22 @@ bool HelloWorldPublisher::init(
 
 HelloWorldPublisher::~HelloWorldPublisher()
 {
-    if (writer_ != nullptr)
+    if (participant_ != nullptr)
     {
-        publisher_->delete_datawriter(writer_);
+        if (publisher_ != nullptr)
+        {
+            if (writer_ != nullptr)
+            {
+                publisher_->delete_datawriter(writer_);
+            }
+            participant_->delete_publisher(publisher_);
+        }
+        if (topic_ != nullptr)
+        {
+            participant_->delete_topic(topic_);
+        }
+        DomainParticipantFactory::get_instance()->delete_participant(participant_);
     }
-    if (publisher_ != nullptr)
-    {
-        participant_->delete_publisher(publisher_);
-    }
-    if (topic_ != nullptr)
-    {
-        participant_->delete_topic(topic_);
-    }
-    DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
 void HelloWorldPublisher::PubListener::on_publication_matched(
@@ -144,7 +149,7 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
 {
     if (info.current_count_change == 1)
     {
-        matched_ = info.total_count;
+        matched_ = info.current_count;
         std::cout << "Publisher matched." << std::endl;
         if (enough_matched())
         {
@@ -153,7 +158,7 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
     }
     else if (info.current_count_change == -1)
     {
-        matched_ = info.total_count;
+        matched_ = info.current_count;
         std::cout << "Publisher unmatched." << std::endl;
     }
     else
@@ -185,50 +190,25 @@ void HelloWorldPublisher::PubListener::wait()
 
 void HelloWorldPublisher::PubListener::awake()
 {
-    wait_matched_cv_.notify_one();
+    wait_matched_cv_.notify_all();
 }
 
 void HelloWorldPublisher::runThread(
         uint32_t samples,
         uint32_t sleep)
 {
-    if (samples == 0)
+    while (!is_stopped() && (samples == 0 || hello_.index() < samples))
     {
-        while (!is_stopped())
+        if (listener_.enough_matched())
         {
-            if (listener_.enough_matched())
-            {
-                publish();
-                std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
-                          << " SENT" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
-            }
-            else
-            {
-                listener_.wait();
-            }
+            publish();
+            std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
+                        << " SENT" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
         }
-    }
-    else
-    {
-        for (uint32_t i = 0; i < samples; ++i)
+        else
         {
-            if (is_stopped())
-            {
-                break;
-            }
-            if (listener_.enough_matched())
-            {
-                publish();
-                std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
-                          << " SENT" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
-            }
-            else
-            {
-                --i;
-                listener_.wait();
-            }
+            listener_.wait();
         }
     }
 }

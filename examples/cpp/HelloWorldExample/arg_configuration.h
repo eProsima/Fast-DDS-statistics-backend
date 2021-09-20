@@ -17,11 +17,11 @@
  *
  */
 
-#ifndef ARG_CONFIGURATION_H_
-#define ARG_CONFIGURATION_H_
+#ifndef _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_ARG_CONFIGURATION_H_
+#define _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_ARG_CONFIGURATION_H_
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "optionparser.h"
 
@@ -108,7 +108,7 @@ enum optionIndex
     WAIT,
     SAMPLES,
     INTERVAL,
-    DOMAIN,
+    DOMAIN_ID,
     N_BINS,
     T_INTERVAL
 };
@@ -119,7 +119,7 @@ const option::Descriptor usage[] = {
     { HELP,    0, "h", "help",               Arg::None,      "  -h \t--help  \tProduce help message." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nPublisher options:"},
-    { DOMAIN, 0, "d", "domain",                Arg::Numeric,
+    { DOMAIN_ID, 0, "d", "domain",                Arg::Numeric,
       "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
     { WAIT, 0, "w", "wait",                 Arg::Numeric,
       "  -w <num> \t--wait=<num> \tNumber of matched subscribers required to publish"
@@ -130,13 +130,13 @@ const option::Descriptor usage[] = {
       "  -i <num> \t--interval=<num>  \tTime between samples in milliseconds (Default: 100)." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nSubscriber options:"},
-    { DOMAIN, 0, "d", "domain",                Arg::Numeric,
+    { DOMAIN_ID, 0, "d", "domain",                Arg::Numeric,
       "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
     { SAMPLES, 0, "s", "samples",              Arg::Numeric,
       "  -s <num> \t--samples=<num>  \tNumber of samples to wait for (Default: 0 => infinite samples)." },
 
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nMonitor options:"},
-    { DOMAIN, 0, "d", "domain",                Arg::Numeric,
+    { DOMAIN_ID, 0, "d", "domain",                Arg::Numeric,
       "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
     { N_BINS, 0, "b", "bins",              Arg::Numeric,
       "  -b <num> \t--bins=<num>  \tNumber of bins in which a time interval is divided (Default: 1)." },
@@ -154,4 +154,4 @@ void print_warning(
     std::cerr << "WARNING: " << opt << " is a " << type << " option, ignoring argument." << std::endl;
 }
 
-#endif /* ARG_CONFIGURATION_H_ */
+#endif /* _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_ARG_CONFIGURATION_H_ */

@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@
  *
  */
 
+#include <string>
+
+#include "arg_configuration.h"
 #include "HelloWorldPublisher.h"
 #include "HelloWorldSubscriber.h"
 #include "Monitor.h"
-#include "arg_configuration.h"
 
-#include <string>
-
-enum Type
+enum EntityType
 {
-    publisher,
-    subscriber,
-    monitor
+    PUBLISHER,
+    SUBSCRIBER,
+    MONITOR
 };
 
 
@@ -54,8 +54,7 @@ int main(
     columns = getenv("COLUMNS") ? atoi(getenv("COLUMNS")) : 80;
 #endif // if defined(_WIN32)
 
-    std::cout << "Starting " << std::endl;
-    Type type = publisher;
+    EntityType type = PUBLISHER;
     int count = 0;
     long sleep = 100;
     int num_wait_matched = 0;
@@ -67,16 +66,17 @@ int main(
     {
         if (!strcmp(argv[1], "publisher"))
         {
-            type = publisher;
+            type = PUBLISHER;
         }
         else if (!strcmp(argv[1], "subscriber"))
         {
-            type = subscriber;
+            type = SUBSCRIBER;
         }
         else if (!strcmp(argv[1], "monitor"))
         {
-            type = monitor;
+            type = MONITOR;
         }
+        // check if first argument is help, needed because we skip it when parsing
         else if (!(strcmp(argv[1], "-h") && strcmp(argv[1], "--help")))
         {
             option::printUsage(fwrite, stdout, usage, columns);
@@ -118,12 +118,12 @@ int main(
                     // not possible, because handled further above and exits the program
                     break;
 
-                case optionIndex::DOMAIN:
+                case optionIndex::DOMAIN_ID:
                     domain = strtol(opt.arg, nullptr, 10);
                     break;
 
                 case optionIndex::SAMPLES:
-                    if (type == monitor)
+                    if (type == MONITOR)
                     {
                         print_warning("publisher|subscriber", opt.name);
                     }
@@ -134,7 +134,7 @@ int main(
                     break;
 
                 case optionIndex::INTERVAL:
-                    if (type == publisher)
+                    if (type == PUBLISHER)
                     {
                         sleep = strtol(opt.arg, nullptr, 10);
                     }
@@ -145,7 +145,7 @@ int main(
                     break;
 
                 case optionIndex::WAIT:
-                    if (type == publisher)
+                    if (type == PUBLISHER)
                     {
                         num_wait_matched = strtol(opt.arg, nullptr, 10);
                     }
@@ -156,7 +156,7 @@ int main(
                     break;
 
                 case optionIndex::N_BINS:
-                    if (type == monitor)
+                    if (type == MONITOR)
                     {
                         n_bins = strtol(opt.arg, nullptr, 10);
                     }
@@ -167,7 +167,7 @@ int main(
                     break;
 
                 case optionIndex::T_INTERVAL:
-                    if (type == monitor)
+                    if (type == MONITOR)
                     {
                         t_interval = strtol(opt.arg, nullptr, 10);
                     }
@@ -194,7 +194,7 @@ int main(
 
     switch (type)
     {
-        case publisher:
+        case PUBLISHER:
         {
             HelloWorldPublisher mypub;
             if (mypub.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(num_wait_matched)))
@@ -203,7 +203,7 @@ int main(
             }
             break;
         }
-        case subscriber:
+        case SUBSCRIBER:
         {
             HelloWorldSubscriber mysub;
             if (mysub.init(static_cast<uint32_t>(count), static_cast<uint32_t>(domain)))
@@ -212,7 +212,7 @@ int main(
             }
             break;
         }
-        case monitor:
+        case MONITOR:
         {
             Monitor monitor;
             if (monitor.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(n_bins),
