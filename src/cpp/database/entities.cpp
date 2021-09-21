@@ -24,17 +24,17 @@ bool is_metatraffic_topic(
 {
     bool is_metatraffic = false;
     std::set<std::string> metatraffic_topics = {
-            "___EPROSIMA___METATRAFFIC___DOMAIN_0___TOPIC",
-            "ros_discovery_info",
-            "rosout",
-            "parameter_events",
-            "get_parameters",
-            "set_parameters",
-            "get_parameter_types",
-            "set_parameters_atomically",
-            "describe_parameters",
-            "list_parameters",
-            "_fastdds_statistics_"};
+        "___EPROSIMA___METATRAFFIC___DOMAIN_0___TOPIC",
+        "ros_discovery_info",
+        "rosout",
+        "parameter_events",
+        "get_parameters",
+        "set_parameters",
+        "get_parameter_types",
+        "set_parameters_atomically",
+        "describe_parameters",
+        "list_parameters",
+        "_fastdds_statistics_"};
 
     std::set<std::string>::iterator it = metatraffic_topics.begin();
     size_t found;
@@ -58,9 +58,9 @@ DDSEndpoint::DDSEndpoint(
         std::string endpoint_guid, /* "|GUID UNKNOWN|" */
         std::shared_ptr<DomainParticipant> endpoint_participant, /* nullptr */
         std::shared_ptr<Topic> endpoint_topic /* nullptr */) noexcept
-        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
-        , participant(endpoint_participant)
-        , topic(endpoint_topic)
+    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
+    , participant(endpoint_participant)
+    , topic(endpoint_topic)
 {
     if (topic != nullptr)
     {

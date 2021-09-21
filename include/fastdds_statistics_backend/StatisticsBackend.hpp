@@ -228,7 +228,7 @@ public:
     static bool is_active(
             EntityId entity_id);
 
-        /**
+    /**
      * @brief Returns whether the entity is related to a metatraffic topic.
      *
      * For Topics, it is true when they are used for sharing metatraffic data.
