@@ -95,6 +95,8 @@ constexpr const char* NAME_INFO_TAG                 = "name";
 constexpr const char* ALIAS_INFO_TAG                 = "alias";
 //! Key tag for alive status of an entity
 constexpr const char* ALIVE_INFO_TAG                  = "alive";
+//! Key tag for metatraffic attribute of an entity
+constexpr const char* METATRAFFIC_INFO_TAG          = "metatraffic";
 //! Key tag for process id of a process entity
 constexpr const char* PID_INFO_TAG                  = "pid";
 //! Key tag for type name of a topic entity
@@ -103,8 +105,8 @@ constexpr const char* DATA_TYPE_INFO_TAG            = "data_type";
 constexpr const char* GUID_INFO_TAG                 = "guid";
 //! Key tag for QoS of a participant, datawriter or datareader entity
 constexpr const char* QOS_INFO_TAG                  = "qos";
-//! Key tag for meta traffic flag of an endpoint
-constexpr const char* METATRAFFIC_TAG                = "metatraffic";
+//! Key tag for meta traffic flag of a virtual endpoint
+constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,

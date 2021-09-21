@@ -452,7 +452,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                     datawriter->alias = metatraffic_alias;
 
                     // Mark it as the meta traffic one
-                    datawriter->is_metatraffic = true;
+                    datawriter->is_virtual_metatraffic = true;
 
                     // Routine to process one locator from the locator list of the particpant
                     auto process_locators = [&](const Locator_t& dds_locator)

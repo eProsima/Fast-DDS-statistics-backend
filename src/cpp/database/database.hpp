@@ -521,7 +521,7 @@ protected:
 
         /* Add endpoint to participant' collection */
         (*(endpoint->participant)).template ddsendpoints<T>()[endpoint->id] = endpoint;
-        if (endpoint->is_metatraffic)
+        if (endpoint->is_virtual_metatraffic)
         {
             assert(nullptr == endpoint->participant->meta_traffic_endpoint);
             endpoint->participant->meta_traffic_endpoint = endpoint;

@@ -228,6 +228,19 @@ public:
     static bool is_active(
             EntityId entity_id);
 
+        /**
+     * @brief Returns whether the entity is related to a metatraffic topic.
+     *
+     * For Topics, it is true when they are used for sharing metatraffic data.
+     * For DDSEndpoints, it is true when their associated to a metatraffic Topic.
+     * For the rest of entities, metatraffic is always false.
+     *
+     * @param entity_id The ID of the entity whose metatraffic attribute is requested.
+     * @return true if metatraffic, false otherwise.
+     */
+    static bool is_metatraffic(
+            EntityId entity_id);
+
     /**
      * @brief Returns the entity kind of a given id.
      *

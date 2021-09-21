@@ -449,6 +449,12 @@ bool StatisticsBackend::is_active(
     return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
 }
 
+bool StatisticsBackend::is_metatraffic(
+        EntityId entity_id)
+{
+    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+}
+
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
@@ -468,6 +474,7 @@ Info StatisticsBackend::get_info(
     info[NAME_INFO_TAG] = entity->name;
     info[ALIAS_INFO_TAG] = entity->alias;
     info[ALIVE_INFO_TAG] = entity->active;
+    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
 
     switch (entity->kind)
     {

@@ -20,6 +20,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 
+#include <set>
 #include <string>
 
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -39,6 +40,15 @@ struct DataReader;
 struct DataWriter;
 struct Locator;
 
+/**
+ * @brief Check whether a specific topic corresponds to a metatraffic topic.
+ *
+ * @param topic_name Name of the topic to check.
+ * @return true if metatraffic topic, false otherwise.
+ */
+bool is_metatraffic_topic(
+        std::string topic_name);
+
 /*
  * Base struct for all the database possible entities.
  *
@@ -51,11 +61,13 @@ struct Entity
     Entity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID",
-            bool entity_active = true) noexcept
+            bool entity_active = true,
+            bool entity_metatraffic = false) noexcept
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
         , active(entity_active)
+        , metatraffic(entity_metatraffic)
     {
     }
 
@@ -82,6 +94,9 @@ struct Entity
 
     //! Active means that there is statistical data being reported within the entity.
     bool active;
+
+    //! Flag to signal that this entity is related to a topic used to share meta traffic data.
+    bool metatraffic;
 };
 
 /*
@@ -232,12 +247,7 @@ struct DDSEndpoint : DDSEntity
             Qos endpoint_qos = {},
             std::string endpoint_guid = "|GUID UNKNOWN|",
             std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
-            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept
-        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
-        , participant(endpoint_participant)
-        , topic(endpoint_topic)
-    {
-    }
+            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     std::shared_ptr<DomainParticipant> participant;
@@ -246,7 +256,7 @@ struct DDSEndpoint : DDSEntity
     std::shared_ptr<Topic> topic;
 
     //! Flag to signal that this is a virtual endpoint used to collect meta traffic data.
-    bool is_metatraffic = false;
+    bool is_virtual_metatraffic = false;
 
     /*
      * Collection of Locators related to this endpoint.
@@ -315,7 +325,7 @@ struct Topic : Entity
             std::string topic_name,
             std::string topic_type,
             std::shared_ptr<Domain> topic_domain) noexcept
-        : Entity(EntityKind::TOPIC, topic_name)
+        : Entity(EntityKind::TOPIC, topic_name, true, is_metatraffic_topic(topic_name))
         , data_type(topic_type)
         , domain(topic_domain)
     {
