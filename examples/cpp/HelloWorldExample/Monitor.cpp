@@ -24,11 +24,12 @@
 #include <thread>
 #include <vector>
 
-#include "Monitor.h"
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+
+#include "Monitor.h"
 
 using namespace eprosima::statistics_backend;
 

@@ -19,7 +19,6 @@
 
 #include <csignal>
 
-#include "HelloWorldSubscriber.h"
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
@@ -27,6 +26,8 @@
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/attributes/SubscriberAttributes.h>
+
+#include "HelloWorldSubscriber.h"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
