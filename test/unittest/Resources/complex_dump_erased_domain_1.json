@@ -66,7 +66,7 @@
                 "qos":"empty"
             },
             "topic":"23",
-            "metatraffic":false
+            "virtual_metatraffic":false
         },
         "8":{
             "data":{
@@ -132,7 +132,7 @@
                 "qos":"empty"
             },
             "topic":"5",
-            "metatraffic":false
+            "virtual_metatraffic":false
         }
     },
     "datawriters":{
@@ -261,7 +261,7 @@
                 "qos":"empty"
             },
             "topic":"23",
-            "metatraffic":false
+            "virtual_metatraffic":false
         },
         "7":{
             "data":{
@@ -388,7 +388,7 @@
                 "qos":"empty"
             },
             "topic":"5",
-            "metatraffic":false
+            "virtual_metatraffic":false
         }
     },
     "domains":{
