@@ -206,7 +206,7 @@
             "participant": "6",
             "topic": "5",
             "locators": ["0"],
-            "metatraffic":false,
+            "virtual_metatraffic":false,
 
             "data":
             {
@@ -298,7 +298,7 @@
             "participant": "6",
             "topic": "5",
             "locators": ["0"],
-            "metatraffic":false,
+            "virtual_metatraffic":false,
 
             "data":
             {
