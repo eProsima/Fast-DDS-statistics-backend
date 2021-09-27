@@ -20,7 +20,6 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_ENTITIES_HPP_
 
-#include <set>
 #include <string>
 
 #include <fastdds_statistics_backend/types/types.hpp>

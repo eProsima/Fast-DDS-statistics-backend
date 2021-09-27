@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <set>
+
 #include "entities.hpp"
 
 namespace eprosima {
