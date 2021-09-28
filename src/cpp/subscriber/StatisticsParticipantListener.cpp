@@ -595,12 +595,6 @@ void StatisticsParticipantListener::on_publisher_discovery(
 {
     static_cast<void>(participant);
 
-    // Filter out other statistics writers
-    if (is_statistics_builtin(info.info.guid().entityId))
-    {
-        return;
-    }
-
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
