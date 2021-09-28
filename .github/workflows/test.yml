@@ -125,7 +125,8 @@ jobs:
           colcon test \
             --packages-select fastdds_statistics_backend \
             --event-handlers=console_direct+ \
-            --return-code-on-test-failure
+            --return-code-on-test-failure \
+            --ctest-args -R "init_monitor_tests"
 
       - name: Generate coverage report
         run: |
