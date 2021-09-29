@@ -181,14 +181,11 @@ EntityId create_and_register_monitor(
         const DomainParticipantQos& participant_qos,
         const DomainId domain_id = 0)
 {
-    std::cout << "I'm in create_and_register_monitor 1" << std::endl;
     details::StatisticsBackendData::get_instance()->lock();
-    std::cout << "I'm in create_and_register_monitor 2" << std::endl;
 
     /* Create monitor instance and register it in the database */
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
-    std::cout << "I'm in create_and_register_monitor 3" << std::endl;
     try
     {
         domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
@@ -198,72 +195,62 @@ EntityId create_and_register_monitor(
         details::StatisticsBackendData::get_instance()->unlock();
         throw;
     }
-    std::cout << "I'm in create_and_register_monitor 4" << std::endl;
 
     monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    std::cout << "I'm in create_and_register_monitor 5 (before get_instance)" << std::endl;
     details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
-    std::cout << "I'm in create_and_register_monitor 6 (after get_instance)" << std::endl;
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
         details::StatisticsBackendData::get_instance()->database_.get(),
         details::StatisticsBackendData::get_instance()->entity_queue_,
         details::StatisticsBackendData::get_instance()->data_queue_);
-    std::cout << "I'm in create_and_register_monitor 7" << std::endl;
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         details::StatisticsBackendData::get_instance()->data_queue_);
-    std::cout << "I'm in create_and_register_monitor 8" << std::endl;
 
     /* Create DomainParticipant */
+    std::cout << "I'm in create_and_register_monitor 1" << std::endl;
     StatusMask participant_mask = StatusMask::all();
+    std::cout << "I'm in create_and_register_monitor 2" << std::endl;
     participant_mask ^= StatusMask::data_on_readers();
+    std::cout << "I'm in create_and_register_monitor 3" << std::endl;
     monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
         participant_qos,
         monitor->participant_listener,
         participant_mask);
 
-    std::cout << "I'm in create_and_register_monitor 9" << std::endl;
+    std::cout << "I'm in create_and_register_monitor 4" << std::endl;
     if (monitor->participant == nullptr)
     {
-        std::cout << "I'm in create_and_register_monitor 10" << std::endl;
         details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create participant");
     }
-    std::cout << "I'm in create_and_register_monitor 11" << std::endl;
 
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
         SUBSCRIBER_QOS_DEFAULT,
         nullptr,
         StatusMask::none());
-    std::cout << "I'm in create_and_register_monitor 12" << std::endl;
 
     if (monitor->subscriber == nullptr)
     {
-        std::cout << "I'm in create_and_register_monitor 13" << std::endl;
         details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create subscriber");
     }
-    std::cout << "I'm in create_and_register_monitor 14" << std::endl;
 
     for (const auto& topic : topics)
     {
-        std::cout << "I'm in create_and_register_monitor 15" << std::endl;
         /* Register the type and topic*/
         register_statistics_type_and_topic(monitor, topic);
 
         if (monitor->topics[topic] == nullptr)
         {
-            std::cout << "I'm in create_and_register_monitor 16" << std::endl;
             details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
         }
-        std::cout << "I'm in create_and_register_monitor 17" << std::endl;
 
         /* Create DataReaders */
         monitor->readers[topic] = monitor->subscriber->create_datareader(
@@ -271,20 +258,15 @@ EntityId create_and_register_monitor(
             eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
             monitor->reader_listener,
             StatusMask::all());
-        std::cout << "I'm in create_and_register_monitor 18" << std::endl;
 
         if (monitor->readers[topic] == nullptr)
         {
-            std::cout << "I'm in create_and_register_monitor 19" << std::endl;
             details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
-        std::cout << "I'm in create_and_register_monitor 20" << std::endl;
     }
 
-    std::cout << "I'm in create_and_register_monitor prefinal" << std::endl;
     details::StatisticsBackendData::get_instance()->unlock();
-    std::cout << "I'm in create_and_register_monitor final" << std::endl;
     return domain->id;
 }
 
@@ -323,13 +305,11 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    std::cout << "I'm in init_monitor__1 1" << std::endl;
     /* Set domain_name */
     std::stringstream domain_name;
     domain_name << domain_id;
 
     /* Set DomainParticipantQoS */
-    std::cout << "I'm in init_monitor__1 2" << std::endl;
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
@@ -340,7 +320,6 @@ EntityId StatisticsBackend::init_monitor(
     participant_qos.transport().user_transports.push_back(udp_transport);
     participant_qos.transport().use_builtin_transports = false;
 
-    std::cout << "I'm in init_monitor__1 3 (before create_and_register_monitor)" << std::endl;
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
                    domain_id);
 }
@@ -390,7 +369,6 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    std::cout << "I'm in init_monitor__2 único" << std::endl;
     return init_monitor(DEFAULT_ROS2_SERVER_GUIDPREFIX, discovery_server_locators, domain_listener, callback_mask,
                    data_mask);
 }
@@ -402,7 +380,6 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    std::cout << "I'm in init_monitor__3 1" << std::endl;
     /* Set DomainParticipantQoS */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
@@ -421,7 +398,6 @@ EntityId StatisticsBackend::init_monitor(
     // Add locators
     std::stringstream locators(discovery_server_locators);
     std::string locator_str;
-    std::cout << "I'm in init_monitor__3 2 (before while)" << std::endl;
     while (std::getline(locators, locator_str, ';'))
     {
         std::stringstream ss(locator_str);
@@ -445,9 +421,7 @@ EntityId StatisticsBackend::init_monitor(
         {
             server.metatrafficUnicastLocatorList.push_back(locator);
         }
-        std::cout << "I'm in init_monitor__3 3 (in while)" << std::endl;
     }
-    std::cout << "I'm in init_monitor__3 4 (before create_and_register_monitor)" << std::endl;
     participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(server);
 
     return create_and_register_monitor(discovery_server_guid_prefix, domain_listener, callback_mask, data_mask,

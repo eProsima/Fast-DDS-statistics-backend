@@ -152,19 +152,16 @@ public:
             const CallbackMask& callback_mask,
             const DataKindMask& datakind_mask)
     {
-        std::cout << "I'm in init_monitors 1" << std::endl;
         EntityId monitor_id = StatisticsBackend::init_monitor(
             domain_id,
             domain_listener,
             callback_mask,
             datakind_mask);
-        std::cout << "I'm in init_monitors 2" << std::endl;
         EntityId monitor_id_1 = StatisticsBackend::init_monitor(
             server_locators,
             domain_listener,
             callback_mask,
             datakind_mask);
-        std::cout << "I'm in init_monitors 3" << std::endl;
         EntityId monitor_id_2 = StatisticsBackend::init_monitor(
             server_guid_prefix,
             server_locators,
@@ -176,9 +173,7 @@ public:
         EXPECT_TRUE(monitor_id_1.is_valid());
         EXPECT_TRUE(monitor_id_2.is_valid());
 
-        std::cout << "I'm in init_monitors 4 (before get_instance)" << std::endl;
         auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
-        std::cout << "I'm in init_monitors 5 (after get_instance)" << std::endl;
 
         /* Check that three monitors are created */
         EXPECT_EQ(domain_monitors.size(), 3);
