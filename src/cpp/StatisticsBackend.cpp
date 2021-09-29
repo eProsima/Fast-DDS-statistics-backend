@@ -211,18 +211,14 @@ EntityId create_and_register_monitor(
         details::StatisticsBackendData::get_instance()->data_queue_);
 
     /* Create DomainParticipant */
-    std::cout << "I'm in create_and_register_monitor 1" << std::endl;
     StatusMask participant_mask = StatusMask::all();
-    std::cout << "I'm in create_and_register_monitor 2" << std::endl;
     participant_mask ^= StatusMask::data_on_readers();
-    std::cout << "I'm in create_and_register_monitor 3" << std::endl;
     monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
         participant_qos,
         monitor->participant_listener,
         participant_mask);
 
-    std::cout << "I'm in create_and_register_monitor 4" << std::endl;
     if (monitor->participant == nullptr)
     {
         details::StatisticsBackendData::get_instance()->unlock();
