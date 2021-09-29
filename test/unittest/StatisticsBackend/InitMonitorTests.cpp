@@ -152,16 +152,19 @@ public:
             const CallbackMask& callback_mask,
             const DataKindMask& datakind_mask)
     {
+        std::cout << "I'm in init_monitors 1" << std::endl;
         EntityId monitor_id = StatisticsBackend::init_monitor(
             domain_id,
             domain_listener,
             callback_mask,
             datakind_mask);
+        std::cout << "I'm in init_monitors 2" << std::endl;
         EntityId monitor_id_1 = StatisticsBackend::init_monitor(
             server_locators,
             domain_listener,
             callback_mask,
             datakind_mask);
+        std::cout << "I'm in init_monitors 3" << std::endl;
         EntityId monitor_id_2 = StatisticsBackend::init_monitor(
             server_guid_prefix,
             server_locators,
@@ -173,7 +176,9 @@ public:
         EXPECT_TRUE(monitor_id_1.is_valid());
         EXPECT_TRUE(monitor_id_2.is_valid());
 
+        std::cout << "I'm in init_monitors 4 (before get_instance)" << std::endl;
         auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+        std::cout << "I'm in init_monitors 5 (after get_instance)" << std::endl;
 
         /* Check that three monitors are created */
         EXPECT_EQ(domain_monitors.size(), 3);
@@ -312,15 +317,12 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
-    std::cout << "I'm in step 1" << std::endl;
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
                     CallbackMask::none(), all_datakind_mask_);
 
-    std::cout << "I'm in step 2" << std::endl;
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
     {
-        std::cout << "I'm in step 3" << std::endl;
         /* Check that the domain listener is set correctly */
         EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
 
@@ -337,23 +339,18 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
         }
 
         monitor_ids.push_back(monitor.first);
-        std::cout << "I'm in step 4" << std::endl;
     }
-    std::cout << "I'm in step 5" << std::endl;
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
     check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
     check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
-    std::cout << "I'm in step 6" << std::endl;
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
     {
         StatisticsBackend::stop_monitor(monitor.first);
-        std::cout << "I'm in step 7" << std::endl;
     }
-    std::cout << "I'm in step 8" << std::endl;
 }
 
 TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
