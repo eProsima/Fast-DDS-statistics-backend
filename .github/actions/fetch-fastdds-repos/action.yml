@@ -5,6 +5,6 @@ runs:
   steps:
     - id: fetch-fastdds-repos
       run: |
-        wget https://raw.githubusercontent.com/eProsima/Fast-DDS/testing/init-monitor-tests/fastrtps.repos
+        wget https://raw.githubusercontent.com/eProsima/Fast-DDS/master/fastrtps.repos
         vcs import src < fastrtps.repos
       shell: bash
