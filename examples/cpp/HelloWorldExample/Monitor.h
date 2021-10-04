@@ -122,8 +122,10 @@ protected:
 
 private:
 
+    //! Number of time intervals in which the measurement time is divided
     uint32_t n_bins_;
 
+    //! Time interval of the returned measures
     uint32_t t_interval_;
 };
 
