@@ -119,7 +119,8 @@ jobs:
           colcon test \
             --packages-select fastdds_statistics_backend \
             --event-handlers=console_direct+ \
-            --return-code-on-test-failure
+            --return-code-on-test-failure |
+            --ctest-args --timeout 60
 
       - name: Generate coverage report
         run: |
