@@ -152,8 +152,8 @@ private:
         // Fill each bin with the initial value and the initial timestamp of the bin
         do
         {
-            data_.emplace_back(t_from, initial_value);
             t_from += interval_;
+            data_.emplace_back(t_from, initial_value);
             bins--;
         } while (bins > 0);
     }
