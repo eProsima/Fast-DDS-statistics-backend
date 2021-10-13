@@ -382,7 +382,7 @@ EntityId StatisticsBackend::init_monitor(
 {
     /* Deactivate statistics in case they were set */
     unsetenv("FASTDDS_STATISTICS");
-    
+
     /* Set DomainParticipantQoS */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);

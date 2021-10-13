@@ -77,7 +77,7 @@ struct Entity
      * @return true if metatraffic topic, false otherwise.
      */
     static bool is_metatraffic_topic(
-        std::string topic_name);
+            std::string topic_name);
 
     //! The unique identification of the entity
     EntityId id;
@@ -93,7 +93,7 @@ struct Entity
 
     //! Flag to signal that this entity is related to a topic used to share meta traffic data.
     bool metatraffic;
-    
+
     //! Active means that there is statistical data being reported within the entity.
     bool active;
 };
