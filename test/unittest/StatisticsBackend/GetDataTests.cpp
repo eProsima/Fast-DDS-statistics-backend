@@ -131,6 +131,10 @@ TEST_P(get_data_no_data_tests, no_data)
 
     std::vector<StatisticsData> result;
 
+    // The number of bins is also used for the time interval so the time interval correspoding to each data point is
+    // exactly 1 second.
+    uint16_t bins = 10;
+
     if (entity2.is_valid())
     {
         result = StatisticsBackend::get_data(
@@ -148,12 +152,12 @@ TEST_P(get_data_no_data_tests, no_data)
             data_type,
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, entity2),
-            10,
+            bins,
             Timestamp(),
-            Timestamp() + std::chrono::seconds(10),
+            Timestamp() + std::chrono::seconds(bins),
             statistic);
 
-        ASSERT_EQ(10, result.size());
+        ASSERT_EQ(bins, result.size());
     }
     else
     {
@@ -170,18 +174,21 @@ TEST_P(get_data_no_data_tests, no_data)
         result = StatisticsBackend::get_data(
             data_type,
             std::vector<EntityId>(1, entity1),
-            10,
+            bins,
             Timestamp(),
-            Timestamp() + std::chrono::seconds(10),
+            Timestamp() + std::chrono::seconds(bins),
             statistic);
 
-        ASSERT_EQ(10, result.size());
+        ASSERT_EQ(bins, result.size());
     }
 
     for (size_t i = 0; i < result.size(); ++i)
     {
         ASSERT_TRUE(std::isnan(result[i].second));
-        ASSERT_EQ(Timestamp() + std::chrono::seconds(i), result[i].first);
+        // The timestamp of each datapoint is the timestamp correspoding to the end of the time interval. For this
+        // tests the time interval is configure to be 1 second as the number of bins is equal to the time interval in
+        // seconds.
+        ASSERT_EQ(Timestamp() + std::chrono::seconds(1) + std::chrono::seconds(i), result[i].first);
     }
 }
 
@@ -481,7 +488,7 @@ void fill_expected_result (
     for (uint16_t i = 0; i < nbins; ++i)
     {
         StatisticsData data;
-        data.first = start + (bin_size * i);
+        data.first = start + bin_size + (bin_size * i);
         data.second = count ? 0 : std::numeric_limits<double>::quiet_NaN();
         expected.push_back(data);
     }

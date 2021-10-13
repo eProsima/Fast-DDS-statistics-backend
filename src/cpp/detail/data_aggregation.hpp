@@ -79,7 +79,7 @@ struct IDataAggregator
         for (auto& it = *iterators.first; it != *iterators.second; ++it)
         {
             // Find and check the bin corresponding to the sample timestamp
-            Timestamp ts = it.get_timestamp();
+            Timestamp ts = it.get_timestamp() + interval_;
             auto index = (ts - data_[0].first) / interval_;
             assert((index >= 0) && static_cast<size_t>(index) < data_.size());
 
@@ -152,8 +152,8 @@ private:
         // Fill each bin with the initial value and the initial timestamp of the bin
         do
         {
-            data_.emplace_back(t_from, initial_value);
             t_from += interval_;
+            data_.emplace_back(t_from, initial_value);
             bins--;
         } while (bins > 0);
     }
