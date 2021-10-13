@@ -81,7 +81,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_writer_no_topic
         new_writer_several_locators
         new_writer_several_locators_no_host
-        new_writer_statistics_writer
         new_writer_undiscovered
         new_writer_undiscovered_writer_already_exists
         )

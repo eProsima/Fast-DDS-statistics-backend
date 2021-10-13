@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdlib.h>
 #include <string>
 #include <set>
 
@@ -301,6 +302,9 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    /* Deactivate statistics in case they were set */
+    unsetenv("FASTDDS_STATISTICS");
+
     /* Set domain_name */
     std::stringstream domain_name;
     domain_name << domain_id;
@@ -376,6 +380,9 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    /* Deactivate statistics in case they were set */
+    unsetenv("FASTDDS_STATISTICS");
+    
     /* Set DomainParticipantQoS */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);

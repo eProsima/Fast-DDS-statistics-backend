@@ -39,15 +39,6 @@ struct DataReader;
 struct DataWriter;
 struct Locator;
 
-/**
- * @brief Check whether a specific topic corresponds to a metatraffic topic.
- *
- * @param topic_name Name of the topic to check.
- * @return true if metatraffic topic, false otherwise.
- */
-bool is_metatraffic_topic(
-        std::string topic_name);
-
 /*
  * Base struct for all the database possible entities.
  *
@@ -60,13 +51,13 @@ struct Entity
     Entity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID",
-            bool entity_active = true,
-            bool entity_metatraffic = false) noexcept
+            bool entity_metatraffic = false,
+            bool entity_active = true) noexcept
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
-        , active(entity_active)
         , metatraffic(entity_metatraffic)
+        , active(entity_active)
     {
     }
 
@@ -78,6 +69,15 @@ struct Entity
     virtual void clear()
     {
     }
+
+    /**
+     * @brief Check whether a specific topic corresponds to a metatraffic topic.
+     *
+     * @param topic_name Name of the topic to check.
+     * @return true if metatraffic topic, false otherwise.
+     */
+    static bool is_metatraffic_topic(
+        std::string topic_name);
 
     //! The unique identification of the entity
     EntityId id;
@@ -91,11 +91,11 @@ struct Entity
     //! A user defined name for the entity
     std::string alias;
 
-    //! Active means that there is statistical data being reported within the entity.
-    bool active;
-
     //! Flag to signal that this entity is related to a topic used to share meta traffic data.
     bool metatraffic;
+    
+    //! Active means that there is statistical data being reported within the entity.
+    bool active;
 };
 
 /*
@@ -105,7 +105,7 @@ struct Host : Entity
 {
     Host(
             std::string host_name) noexcept
-        : Entity(EntityKind::HOST, host_name, false)
+        : Entity(EntityKind::HOST, host_name, false, false)
     {
     }
 
@@ -129,7 +129,7 @@ struct User : Entity
     User(
             std::string user_name,
             std::shared_ptr<Host> user_host) noexcept
-        : Entity(EntityKind::USER, user_name, false)
+        : Entity(EntityKind::USER, user_name, false, false)
         , host(user_host)
     {
     }
@@ -158,7 +158,7 @@ struct Process : Entity
             std::string process_name,
             std::string process_id,
             std::shared_ptr<User> process_user) noexcept
-        : Entity(EntityKind::PROCESS, process_name, false)
+        : Entity(EntityKind::PROCESS, process_name, false, false)
         , pid(process_id)
         , user(process_user)
     {
@@ -324,7 +324,7 @@ struct Topic : Entity
             std::string topic_name,
             std::string topic_type,
             std::shared_ptr<Domain> topic_domain) noexcept
-        : Entity(EntityKind::TOPIC, topic_name, true, is_metatraffic_topic(topic_name))
+        : Entity(EntityKind::TOPIC, topic_name, is_metatraffic_topic(topic_name))
         , data_type(topic_type)
         , domain(topic_domain)
     {

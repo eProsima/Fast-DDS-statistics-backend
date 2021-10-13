@@ -31,6 +31,8 @@
 
 constexpr const char* EMPTY_DUMP_FILE = "../Resources/empty_dump.json";
 constexpr const char* EMPTY_ENTITIES_DUMP_FILE = "../Resources/empty_entities_dump.json";
+constexpr const char* EMPTY_ENTITIES_DUMP_UNLINKED_ENTITIES_FILE =
+        "../Resources/empty_entities_dump_unlinked_entities.json";
 constexpr const char* SIMPLE_DUMP_FILE = "../Resources/simple_dump.json";
 constexpr const char* COMPLEX_DUMP_FILE = "../Resources/complex_dump.json";
 constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE =

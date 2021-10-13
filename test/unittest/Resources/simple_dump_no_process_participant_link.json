@@ -9,6 +9,8 @@
         {
             "name": "host_0",
             "alias": "host_0",
+            "metatraffic":false,
+            "alive":false,
             "users": ["2"]
         }
     },
@@ -19,6 +21,8 @@
         {
             "name": "user_0",
             "alias": "user_0",
+            "metatraffic":false,
+            "alive":false,
             "host": "1",
             "processes": ["3"]
         }
@@ -30,6 +34,8 @@
         {
             "name": "process_0",
             "alias": "process_0",
+            "metatraffic":false,
+            "alive":false,
             "pid": "36000",
             "user": "2",
             "participants": []
@@ -43,6 +49,8 @@
             "name": "120",
             "alias": "domain_0",
             "participants": ["6"],
+            "metatraffic":false,
+            "alive":true,
             "topics": ["5"]
         }
     },
@@ -53,6 +61,8 @@
         {
             "name": "topic_0",
             "alias": "topic_0",
+            "metatraffic":false,
+            "alive":true,
             "data_type": "data_type",
             "domain": "4",
             "datawriters": ["7"],
@@ -66,6 +76,8 @@
         {
             "name": "participant_0",
             "alias": "participant_0",
+            "metatraffic":false,
+            "alive":true,
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "qos": {"qos": "empty"},
 
@@ -200,6 +212,8 @@
         {
             "name": "datawriter_0",
             "alias": "datawriter_0",
+            "metatraffic":false,
+            "alive":true,
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "qos": {"qos": "empty"},
 
@@ -292,6 +306,8 @@
         {
             "name": "datareader_0",
             "alias": "datareader_0",
+            "metatraffic":false,
+            "alive":true,
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
             "qos": {"qos": "empty"},
 
@@ -342,6 +358,8 @@
         {
             "name": "locator_0",
             "alias": "locator_0",
+            "metatraffic":false,
+            "alive":true,
             "datawriters": ["7"],
             "datareaders": ["8"]
         }

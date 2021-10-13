@@ -21,12 +21,12 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
-bool is_metatraffic_topic(
+bool Entity::is_metatraffic_topic(
         std::string topic_name)
 {
     bool is_metatraffic = false;
-    std::set<std::string> metatraffic_topics = {
-        "___EPROSIMA___METATRAFFIC___DOMAIN_0___TOPIC",
+    std::set<std::string> metatraffic_topics_keywords = {
+        "___EPROSIMA___METATRAFFIC___",
         "ros_discovery_info",
         "rosout",
         "parameter_events",
@@ -38,9 +38,9 @@ bool is_metatraffic_topic(
         "list_parameters",
         "_fastdds_statistics_"};
 
-    std::set<std::string>::iterator it = metatraffic_topics.begin();
+    std::set<std::string>::iterator it = metatraffic_topics_keywords.begin();
     size_t found;
-    while (it != metatraffic_topics.end())
+    while (it != metatraffic_topics_keywords.end())
     {
         found = topic_name.rfind(*it);
         if (found != std::string::npos)

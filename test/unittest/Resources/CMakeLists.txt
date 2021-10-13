@@ -27,6 +27,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/empty_entities_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/empty_entities_dump.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/empty_entities_dump_unlinked_entities.json
+    ${CMAKE_CURRENT_BINARY_DIR}/empty_entities_dump_unlinked_entities.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/simple_dump.json
     COPYONLY)

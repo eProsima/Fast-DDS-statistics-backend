@@ -409,7 +409,7 @@ TEST(database, dump_unlinked_database)
     initialize_empty_entities_unlinked(db, 0);
 
     DatabaseDump dump;
-    load_file(EMPTY_ENTITIES_DUMP_FILE, dump);
+    load_file(EMPTY_ENTITIES_DUMP_UNLINKED_ENTITIES_FILE, dump);
     dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG] = "-1";
     dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG] = DatabaseDump::array();
 

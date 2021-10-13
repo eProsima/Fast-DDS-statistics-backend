@@ -1515,6 +1515,23 @@ void Database::erase(
         if (participant.second->process)
         {
             processes_[participant.second->process->id]->participants.erase(participant.first);
+            bool change_status = true;
+            if (!processes_[participant.second->process->id]->participants.empty())
+            {
+                for (const auto& entity_it : processes_[participant.second->process->id]->participants)
+                {
+                    if (entity_it.second->active)
+                    {
+                        change_status = false;
+                        break;
+                    }
+                }
+            }
+            if (change_status)
+            {
+                change_entity_status_of_kind(processes_[participant.second->process->id]->id, false,
+                        EntityKind::PROCESS, domain_id);
+            }
         }
         // Erase locators_by_participant map element
         locators_by_participant_.erase(participant.second->id);
@@ -2713,6 +2730,10 @@ DatabaseDump Database::dump_entity_(
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
 
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     // Populate subentity array
     {
         DatabaseDump subentities = DatabaseDump::array();
@@ -2734,6 +2755,10 @@ DatabaseDump Database::dump_entity_(
     entity_info[ALIAS_INFO_TAG] = entity->alias;
 
     entity_info[HOST_ENTITY_TAG] = id_to_string(entity->host->id);
+
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
 
     // Populate subentity array
     {
@@ -2758,6 +2783,10 @@ DatabaseDump Database::dump_entity_(
 
     entity_info[USER_ENTITY_TAG] = id_to_string(entity->user->id);
 
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     // Populate subentity array
     {
         DatabaseDump subentities = DatabaseDump::array();
@@ -2777,6 +2806,10 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
 
     // Populate subentity array for Topics
     {
@@ -2811,6 +2844,10 @@ DatabaseDump Database::dump_entity_(
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     // Populate subentity array for DataWriters
     {
         DatabaseDump subentities = DatabaseDump::array();
@@ -2844,6 +2881,11 @@ DatabaseDump Database::dump_entity_(
     entity_info[QOS_INFO_TAG] = entity->qos;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
+
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     if (entity->process)
     {
         entity_info[PROCESS_ENTITY_TAG] = id_to_string(entity->process->id);
@@ -2941,6 +2983,10 @@ DatabaseDump Database::dump_entity_(
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
     entity_info[VIRTUAL_METATRAFFIC_TAG] = entity->is_virtual_metatraffic;
 
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     // Populate subentity array for Locators
     {
         DatabaseDump subentities = DatabaseDump::array();
@@ -3007,6 +3053,10 @@ DatabaseDump Database::dump_entity_(
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
     entity_info[VIRTUAL_METATRAFFIC_TAG] = entity->is_virtual_metatraffic;
 
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
+
     // Populate subentity array for Locators
     {
         DatabaseDump subentities = DatabaseDump::array();
@@ -3048,6 +3098,10 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+
+    // metatraffic and active attributes are stored but ignored when loading
+    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    entity_info[ALIVE_INFO_TAG] = entity->active;
 
     // Populate subentity array for DataWriters
     {
