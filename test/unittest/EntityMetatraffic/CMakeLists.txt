@@ -46,14 +46,11 @@ target_include_directories(entitymetatraffic_tests PRIVATE
 
 target_link_libraries(entitymetatraffic_tests PUBLIC ${GTEST_LIBRARIES} fastrtps fastcdr)
 
-get_win32_path_dependencies(entityid_tests TEST_FRIENDLY_PATH)
+get_win32_path_dependencies(entitymetatraffic_tests TEST_FRIENDLY_PATH)
 
 set(ENTITYMETATRAFFIC_TEST_LIST
-    metatraffic_endpoint
     metatraffic_topic
-    non_metatraffic_endpoint
-    non_metatraffic_topic
-    other_entity_kinds)
+    non_metatraffic_topic)
 
 foreach(test_name ${ENTITYMETATRAFFIC_TEST_LIST})
     add_test(NAME entitymetatraffic.${test_name}
