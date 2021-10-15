@@ -470,7 +470,7 @@ endforeach()
 add_executable(database_load_tests DatabaseLoadTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_load_tests PRIVATE 
+    target_compile_definitions(database_load_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -522,7 +522,7 @@ endforeach()
 add_executable(database_load_insert_tests DatabaseLoadInsertTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_load_insert_tests PRIVATE 
+    target_compile_definitions(database_load_insert_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -562,7 +562,7 @@ endforeach()
 add_executable(database_status_tests DatabaseStatusTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_status_tests PRIVATE 
+    target_compile_definitions(database_status_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -612,7 +612,7 @@ endforeach()
 add_executable(database_erase_tests DatabaseEraseTests.cpp ${LIBRARY_SOURCES})
 
 if(MSVC)
-    target_compile_definitions(database_erase_tests PRIVATE 
+    target_compile_definitions(database_erase_tests PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
 endif(MSVC)
 
@@ -632,7 +632,8 @@ target_link_libraries(database_erase_tests PUBLIC
 get_win32_path_dependencies(database_erase_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_ERASE_TEST_LIST
-    erase_domain
+    erase_domain_1
+    erase_domain_2
     erase_domain_unlinked_participant_process
     erase_wrong_kind
 )

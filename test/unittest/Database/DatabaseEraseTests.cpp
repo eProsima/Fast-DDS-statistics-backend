@@ -119,9 +119,19 @@ void erase_and_check(
  * It loads the complex_dump.json and erases the domain_1.
  * The resulting dump should be equal to the one loaded from complex_dump_erased_domain_1.json.
  */
-TEST(database_erase_tests, erase_domain)
+TEST(database_erase_tests, erase_domain_1)
 {
-    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DUMP_FILE, "121");
+    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DOMAIN_1_DUMP_FILE, "121");
+}
+
+/**
+ * This test checks the erase feature, when a process has participants from several domains.
+ * It loads the alternative_complex_dump.json and erases the domain_2.
+ * The resulting dump should be equal to the one loaded from alternative_complex_dump_erased_domain_2.json.
+ */
+TEST(database_erase_tests, erase_domain_2)
+{
+    erase_and_check(ALTERNATIVE_COMPLEX_DUMP_FILE, ALTERNATIVE_COMPLEX_ERASED_DOMAIN_2_DUMP_FILE, "122");
 }
 
 // This test checks that erasing a database where the participant is not yet linked to the process works as expected

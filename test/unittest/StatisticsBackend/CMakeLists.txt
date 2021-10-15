@@ -548,6 +548,65 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     endforeach()
 endif()
 
+# is_metatraffic_tests
+###############################################################################
+
+if(GTEST_FOUND AND GMOCK_FOUND)
+    find_package(Threads REQUIRED)
+
+    add_executable(is_metatraffic_tests IsMetatrafficTests.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+    if(MSVC)
+        target_compile_definitions(is_metatraffic_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
+    target_include_directories(is_metatraffic_tests PRIVATE
+        ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/src/cpp)
+
+    target_link_libraries(is_metatraffic_tests PUBLIC
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+    get_win32_path_dependencies(is_metatraffic_tests TEST_FRIENDLY_PATH)
+
+    set(IS_METATRAFFIC_TEST_LIST
+        metatraffic_endpoint
+        metatraffic_topic
+        non_metatraffic_endpoint
+        non_metatraffic_topic
+        other_entity_kinds
+    )
+
+    foreach(test_name ${IS_METATRAFFIC_TEST_LIST})
+        add_test(NAME is_metatraffic_tests.${test_name}
+                COMMAND is_metatraffic_tests
+                --gtest_filter=is_metatraffic_tests.${test_name}:*/is_metatraffic_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(is_metatraffic_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+    endforeach()
+endif()
+
 # load_database and dump_database
 ##################################################################
 

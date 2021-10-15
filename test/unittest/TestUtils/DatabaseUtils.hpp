@@ -35,12 +35,15 @@ constexpr const char* EMPTY_ENTITIES_DUMP_UNLINKED_ENTITIES_FILE =
         "../Resources/empty_entities_dump_unlinked_entities.json";
 constexpr const char* SIMPLE_DUMP_FILE = "../Resources/simple_dump.json";
 constexpr const char* COMPLEX_DUMP_FILE = "../Resources/complex_dump.json";
+constexpr const char* ALTERNATIVE_COMPLEX_DUMP_FILE = "../Resources/alternative_complex_dump.json";
 constexpr const char* NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE =
         "../Resources/simple_dump_no_process_participant_link.json";
 constexpr const char* NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE =
         "../Resources/simple_dump_no_process_participant_link_erased_domain.json";
 constexpr const char* OLD_COMPLEX_DUMP_FILE = "../Resources/old_complex_dump.json";
-constexpr const char* COMPLEX_ERASED_DUMP_FILE = "../Resources/complex_dump_erased_domain_1.json";
+constexpr const char* COMPLEX_ERASED_DOMAIN_1_DUMP_FILE = "../Resources/complex_dump_erased_domain_1.json";
+constexpr const char* ALTERNATIVE_COMPLEX_ERASED_DOMAIN_2_DUMP_FILE =
+        "../Resources/alternative_complex_dump_erased_domain_2.json";
 
 constexpr const char* DESCRIPTION_TAG = "description";
 
