@@ -303,7 +303,7 @@ EntityId StatisticsBackend::init_monitor(
         DataKindMask data_mask)
 {
     /* Deactivate statistics in case they were set */
-    unsetenv("FASTDDS_STATISTICS");
+    putenv("FASTDDS_STATISTICS=");
 
     /* Set domain_name */
     std::stringstream domain_name;
@@ -381,7 +381,7 @@ EntityId StatisticsBackend::init_monitor(
         DataKindMask data_mask)
 {
     /* Deactivate statistics in case they were set */
-    unsetenv("FASTDDS_STATISTICS");
+    putenv("FASTDDS_STATISTICS=");
 
     /* Set DomainParticipantQoS */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();

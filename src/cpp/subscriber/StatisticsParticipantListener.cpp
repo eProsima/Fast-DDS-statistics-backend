@@ -593,6 +593,8 @@ void StatisticsParticipantListener::on_publisher_discovery(
         DomainParticipant* participant,
         WriterDiscoveryInfo&& info)
 {
+    // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
+    // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
 
     // First stop the data queue until the new entity is created
