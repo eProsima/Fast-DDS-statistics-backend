@@ -70,74 +70,6 @@
             "topic":"14",
             "virtual_metatraffic":false
         },
-        "26":{
-            "data":{
-                "acknack_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_acknack_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_nackfrag_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "nackfrag_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "subscription_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ]
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "locators":[
-                "18"
-            ],
-            "name":"datareader_2",
-            "alias":"datareader_2",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"24",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"23",
-            "virtual_metatraffic":false
-        },
         "8":{
             "data":{
                 "acknack_count":[
@@ -337,135 +269,6 @@
             "topic":"14",
             "virtual_metatraffic":false
         },
-        "25":{
-            "data":{
-                "data_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "gap_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "heartbeat_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "history2history_latency":{
-                    "26":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "last_reported_data_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_gap_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_heartbeat_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_resent_datas":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "publication_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ],
-                "resent_datas":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "samples_datas":{
-                    "3":
-                    [
-                        {
-                            "src_time": "200",
-                            "count": 2
-                        }
-                    ]
-                }
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "locators":[
-                "18"
-            ],
-            "name":"datawriter_2",
-            "alias":"datawriter_2",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"24",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"23",
-            "virtual_metatraffic":false
-        },
         "7":{
             "data":{
                 "data_count":[
@@ -574,7 +377,7 @@
                     "3":
                     [
                         {
-                            "src_time": "200",
+                            "src_time":"200",
                             "count": 2
                         }
                     ]
@@ -609,18 +412,6 @@
                 "14"
             ]
         },
-        "22":{
-            "name":"122",
-            "alias":"domain_2",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "24"
-            ],
-            "topics":[
-                "23"
-            ]
-        },
         "4":{
             "name":"120",
             "alias":"domain_0",
@@ -652,15 +443,6 @@
             "users":[
                 "11"
             ]
-        },
-        "19":{
-            "name":"host_2",
-            "alias":"host_2",
-            "metatraffic":false,
-            "alive":true,
-            "users":[
-                "20"
-            ]
         }
     },
     "locators":{
@@ -678,10 +460,8 @@
         },
         "18":{
             "datareaders":[
-                "26"
             ],
             "datawriters":[
-                "25"
             ],
             "name":"locator_2",
             "alias":"locator_2",
@@ -892,196 +672,6 @@
                 "qos":"empty"
             }
         },
-        "24":{
-            "data":{
-                "discovery_time":{
-                    "24":[
-                        {
-                            "src_time":"100",
-                            "time": "0",
-                            "remote_id": "24",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"200",
-                            "time":"100",
-                            "remote_id": "24",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"300",
-                            "time":"200",
-                            "remote_id": "24",
-                            "discovered": true
-                        }
-                    ]
-                },
-                "edp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_edp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_pdp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_rtps_bytes_lost":{
-                    "18":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_bytes_sent":{
-                    "18":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_lost":{
-                    "18":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_sent":{
-                    "18":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "pdp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "rtps_bytes_lost":{
-                    "18":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent":{
-                    "18":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_lost":{
-                    "18":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_sent":{
-                    "18":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "network_latency_per_locator":{
-                    "18":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
-            },
-            "datareaders":[
-                "26"
-            ],
-            "datawriters":[
-                "25"
-            ],
-            "domain":"22",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "name":"participant_2",
-            "alias":"participant_2",
-            "metatraffic":false,
-            "alive":true,
-            "process":"21",
-            "qos":{
-                "qos":"empty"
-            }
-        },
         "6":{
             "data":{
                 "discovery_time":{
@@ -1285,17 +875,6 @@
             "pid":"36000",
             "user":"11"
         },
-        "21":{
-            "name":"process_2",
-            "alias":"process_2",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "24"
-            ],
-            "pid":"36000",
-            "user":"20"
-        },
         "3":{
             "name":"process_0",
             "alias":"process_0",
@@ -1320,20 +899,6 @@
             "domain":"13",
             "name":"topic_1",
             "alias":"topic_1",
-            "metatraffic":false,
-            "alive":true
-        },
-        "23":{
-            "data_type":"data_type",
-            "datareaders":[
-                "26"
-            ],
-            "datawriters":[
-                "25"
-            ],
-            "domain":"22",
-            "name":"topic_2",
-            "alias":"topic_2",
             "metatraffic":false,
             "alive":true
         },
@@ -1371,16 +936,6 @@
             "alive":true,
             "processes":[
                 "3"
-            ]
-        },
-        "20":{
-            "host":"19",
-            "name":"user_2",
-            "alias":"user_2",
-            "metatraffic":false,
-            "alive":true,
-            "processes":[
-                "21"
             ]
         }
     },

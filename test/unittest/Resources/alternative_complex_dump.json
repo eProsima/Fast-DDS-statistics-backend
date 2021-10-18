@@ -652,15 +652,6 @@
             "users":[
                 "11"
             ]
-        },
-        "19":{
-            "name":"host_2",
-            "alias":"host_2",
-            "metatraffic":false,
-            "alive":true,
-            "users":[
-                "20"
-            ]
         }
     },
     "locators":{
@@ -1077,7 +1068,7 @@
             "alias":"participant_2",
             "metatraffic":false,
             "alive":true,
-            "process":"21",
+            "process":"3",
             "qos":{
                 "qos":"empty"
             }
@@ -1285,24 +1276,14 @@
             "pid":"36000",
             "user":"11"
         },
-        "21":{
-            "name":"process_2",
-            "alias":"process_2",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "24"
-            ],
-            "pid":"36000",
-            "user":"20"
-        },
         "3":{
             "name":"process_0",
             "alias":"process_0",
             "metatraffic":false,
             "alive":true,
             "participants":[
-                "6"
+                "6",
+                "24"
             ],
             "pid":"36000",
             "user":"2"
@@ -1371,16 +1352,6 @@
             "alive":true,
             "processes":[
                 "3"
-            ]
-        },
-        "20":{
-            "host":"19",
-            "name":"user_2",
-            "alias":"user_2",
-            "metatraffic":false,
-            "alive":true,
-            "processes":[
-                "21"
             ]
         }
     },

@@ -13,11 +13,62 @@
  * limitations under the License.
  */
 
+#include <set>
+
 #include "entities.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
 namespace database {
+
+bool Entity::is_metatraffic_topic(
+        std::string topic_name)
+{
+    bool is_metatraffic = false;
+    std::set<std::string> metatraffic_topics_keywords = {
+        "___EPROSIMA___METATRAFFIC___",
+        "ros_discovery_info",
+        "rosout",
+        "parameter_events",
+        "get_parameters",
+        "set_parameters",
+        "get_parameter_types",
+        "set_parameters_atomically",
+        "describe_parameters",
+        "list_parameters",
+        "_fastdds_statistics_"};
+
+    std::set<std::string>::iterator it = metatraffic_topics_keywords.begin();
+    size_t found;
+    while (it != metatraffic_topics_keywords.end())
+    {
+        found = topic_name.rfind(*it);
+        if (found != std::string::npos)
+        {
+            is_metatraffic = true;
+            break;
+        }
+        it++;
+    }
+    return is_metatraffic;
+}
+
+DDSEndpoint::DDSEndpoint(
+        EntityKind entity_kind, /* EntityKind::INVALID */
+        std::string endpoint_name, /* "INVALID" */
+        Qos endpoint_qos, /* {} */
+        std::string endpoint_guid, /* "|GUID UNKNOWN|" */
+        std::shared_ptr<DomainParticipant> endpoint_participant, /* nullptr */
+        std::shared_ptr<Topic> endpoint_topic /* nullptr */) noexcept
+    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
+    , participant(endpoint_participant)
+    , topic(endpoint_topic)
+{
+    if (topic != nullptr)
+    {
+        metatraffic = topic->metatraffic;
+    }
+}
 
 void Host::clear()
 {

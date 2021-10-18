@@ -27,6 +27,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/empty_entities_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/empty_entities_dump.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/empty_entities_dump_unlinked_entities.json
+    ${CMAKE_CURRENT_BINARY_DIR}/empty_entities_dump_unlinked_entities.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/simple_dump.json
     COPYONLY)
@@ -45,6 +49,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/complex_dump.json
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/complex_dump_erased_domain_1.json
     ${CMAKE_CURRENT_BINARY_DIR}/complex_dump_erased_domain_1.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/alternative_complex_dump.json
+    ${CMAKE_CURRENT_BINARY_DIR}/alternative_complex_dump.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/alternative_complex_dump_erased_domain_2.json
+    ${CMAKE_CURRENT_BINARY_DIR}/alternative_complex_dump_erased_domain_2.json
     COPYONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json

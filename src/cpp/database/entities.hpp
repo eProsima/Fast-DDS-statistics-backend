@@ -51,10 +51,12 @@ struct Entity
     Entity(
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID",
+            bool entity_metatraffic = false,
             bool entity_active = true) noexcept
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
+        , metatraffic(entity_metatraffic)
         , active(entity_active)
     {
     }
@@ -68,6 +70,15 @@ struct Entity
     {
     }
 
+    /**
+     * @brief Check whether a specific topic corresponds to a metatraffic topic.
+     *
+     * @param topic_name Name of the topic to check.
+     * @return true if metatraffic topic, false otherwise.
+     */
+    static bool is_metatraffic_topic(
+            std::string topic_name);
+
     //! The unique identification of the entity
     EntityId id;
 
@@ -80,6 +91,9 @@ struct Entity
     //! A user defined name for the entity
     std::string alias;
 
+    //! Flag to signal that this entity is related to a topic used to share meta traffic data.
+    bool metatraffic;
+
     //! Active means that there is statistical data being reported within the entity.
     bool active;
 };
@@ -91,7 +105,7 @@ struct Host : Entity
 {
     Host(
             std::string host_name) noexcept
-        : Entity(EntityKind::HOST, host_name, false)
+        : Entity(EntityKind::HOST, host_name, false, false)
     {
     }
 
@@ -115,7 +129,7 @@ struct User : Entity
     User(
             std::string user_name,
             std::shared_ptr<Host> user_host) noexcept
-        : Entity(EntityKind::USER, user_name, false)
+        : Entity(EntityKind::USER, user_name, false, false)
         , host(user_host)
     {
     }
@@ -144,7 +158,7 @@ struct Process : Entity
             std::string process_name,
             std::string process_id,
             std::shared_ptr<User> process_user) noexcept
-        : Entity(EntityKind::PROCESS, process_name, false)
+        : Entity(EntityKind::PROCESS, process_name, false, false)
         , pid(process_id)
         , user(process_user)
     {
@@ -232,12 +246,7 @@ struct DDSEndpoint : DDSEntity
             Qos endpoint_qos = {},
             std::string endpoint_guid = "|GUID UNKNOWN|",
             std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
-            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept
-        : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
-        , participant(endpoint_participant)
-        , topic(endpoint_topic)
-    {
-    }
+            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     std::shared_ptr<DomainParticipant> participant;
@@ -246,7 +255,7 @@ struct DDSEndpoint : DDSEntity
     std::shared_ptr<Topic> topic;
 
     //! Flag to signal that this is a virtual endpoint used to collect meta traffic data.
-    bool is_metatraffic = false;
+    bool is_virtual_metatraffic = false;
 
     /*
      * Collection of Locators related to this endpoint.
@@ -315,7 +324,7 @@ struct Topic : Entity
             std::string topic_name,
             std::string topic_type,
             std::shared_ptr<Domain> topic_domain) noexcept
-        : Entity(EntityKind::TOPIC, topic_name)
+        : Entity(EntityKind::TOPIC, topic_name, is_metatraffic_topic(topic_name))
         , data_type(topic_type)
         , domain(topic_domain)
     {

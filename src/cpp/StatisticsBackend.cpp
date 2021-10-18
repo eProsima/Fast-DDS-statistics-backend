@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdlib.h>
 #include <string>
 #include <set>
 
@@ -301,6 +302,13 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    /* Deactivate statistics in case they were set */
+#ifdef _WIN32
+    _putenv_s("FASTDDS_STATISTICS=", "");
+#else
+    unsetenv("FASTDDS_STATISTICS");
+#endif // ifdef _WIN32
+
     /* Set domain_name */
     std::stringstream domain_name;
     domain_name << domain_id;
@@ -376,6 +384,13 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
+    /* Deactivate statistics in case they were set */
+#ifdef _WIN32
+    _putenv_s("FASTDDS_STATISTICS=", "");
+#else
+    unsetenv("FASTDDS_STATISTICS");
+#endif // ifdef _WIN32
+
     /* Set DomainParticipantQoS */
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
@@ -449,6 +464,12 @@ bool StatisticsBackend::is_active(
     return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
 }
 
+bool StatisticsBackend::is_metatraffic(
+        EntityId entity_id)
+{
+    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+}
+
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
@@ -468,6 +489,7 @@ Info StatisticsBackend::get_info(
     info[NAME_INFO_TAG] = entity->name;
     info[ALIAS_INFO_TAG] = entity->alias;
     info[ALIVE_INFO_TAG] = entity->active;
+    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
 
     switch (entity->kind)
     {

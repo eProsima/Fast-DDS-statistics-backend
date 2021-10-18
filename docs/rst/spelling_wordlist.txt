@@ -12,6 +12,7 @@ datawriter
 destructor
 eProsima
 Gtest
+metatraffic
 monitorization
 monitorizations
 ostream

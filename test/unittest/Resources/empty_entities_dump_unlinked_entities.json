@@ -10,7 +10,7 @@
             "name": "host_0",
             "alias": "host_0",
             "metatraffic":false,
-            "alive":true,
+            "alive":false,
             "users": ["2"]
         }
     },
@@ -22,7 +22,7 @@
             "name": "user_0",
             "alias": "user_0",
             "metatraffic":false,
-            "alive":true,
+            "alive":false,
             "host": "1",
             "processes": ["3"]
         }
@@ -35,10 +35,10 @@
             "name": "process_0",
             "alias": "process_0",
             "metatraffic":false,
-            "alive":true,
+            "alive":false,
             "pid": "36000",
             "user": "2",
-            "participants": ["6"]
+            "participants": []
         }
     },
 

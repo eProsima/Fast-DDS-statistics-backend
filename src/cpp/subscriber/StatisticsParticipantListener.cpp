@@ -452,7 +452,7 @@ void StatisticsParticipantListener::on_participant_discovery(
                     datawriter->alias = metatraffic_alias;
 
                     // Mark it as the meta traffic one
-                    datawriter->is_metatraffic = true;
+                    datawriter->is_virtual_metatraffic = true;
 
                     // Routine to process one locator from the locator list of the particpant
                     auto process_locators = [&](const Locator_t& dds_locator)
@@ -593,13 +593,9 @@ void StatisticsParticipantListener::on_publisher_discovery(
         DomainParticipant* participant,
         WriterDiscoveryInfo&& info)
 {
+    // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
+    // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
-
-    // Filter out other statistics writers
-    if (is_statistics_builtin(info.info.guid().entityId))
-    {
-        return;
-    }
 
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
