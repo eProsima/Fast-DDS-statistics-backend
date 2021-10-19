@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <sstream>
 #include <type_traits> // enable_if, is_integral
@@ -527,6 +528,39 @@ protected:
             endpoint->participant->meta_traffic_endpoint = endpoint;
         }
 
+        // Check if every locator is not repeated already in the database
+        // This is a workaround for an error ocurred when two same locators arrive to the queue inside different
+        // endpoints, and so both are inserted in the database when they are the same
+
+        // First copy the map (there is no way to change key in a map inside a loop)
+        std::map<EntityId, std::shared_ptr<Locator>> actual_locators_map;
+
+        // Iterate over every locator in the current map (that may already exist in the database)
+        for (auto& locator_it : endpoint->locators)
+        {
+            // See if we already know the locator
+            auto locators_with_same_name = get_entities_by_name(EntityKind::LOCATOR, locator_it.second->name);
+            if (!locators_with_same_name.empty())
+            {
+                // It could be only one in the database with the same name
+                assert(locators_with_same_name.size() == 1);
+
+                // As the locator already exists, take it and use it for this endpoint
+                std::shared_ptr<database::Locator> locator = std::const_pointer_cast<database::Locator>(
+                        std::static_pointer_cast<const database::Locator>(
+                            get_entity(locators_with_same_name.front().second)));
+                actual_locators_map[locator->id] = locator;
+            }
+            else
+            {
+                // It is actually a new locator, so it is added to the new map
+                actual_locators_map[locator_it.first] = locator_it.second;
+            }
+        }
+
+        // Change the curent locators map for the new updated one
+        endpoint->locators = actual_locators_map;
+
         /* Add to x_by_y_ collections and to locators_ */
         for (auto& locator_it : endpoint->locators)
         {
@@ -535,6 +569,7 @@ protected:
             {
                 // Is a new one, must add and inform the user
                 // The connection to the endpoint is still not done, but that's expected at this moment
+                // In this case, we know for sure that the locator is not in the database
                 locators_[locator_it.first] = locator_it.second;
                 notify_locator_discovery(locator_it.first);
             }
@@ -797,7 +832,7 @@ protected:
     std::atomic<int64_t> next_id_{0};
 
     //! Read-write synchronization mutex
-    mutable std::shared_timed_mutex mutex_;
+    mutable std::recursive_timed_mutex mutex_;
 };
 
 template<>
