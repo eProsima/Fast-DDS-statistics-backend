@@ -553,8 +553,22 @@ protected:
             }
             else
             {
-                // It is actually a new locator, so it is added to the new map
-                actual_locators_map[locator_it.first] = locator_it.second;
+                // Check whether this locator is repeated inside this same endpoint
+                bool repeated = false;
+                for (auto new_locators : actual_locators_map)
+                {
+                    if (new_locators.second->name == locator_it.second->name)
+                    {
+                        repeated = true;
+                        break;
+                    }
+                }
+
+                if (!repeated)
+                {
+                    // It is actually a new locator, so it is added to the new map
+                    actual_locators_map[locator_it.first] = locator_it.second;
+                }
             }
         }
 
