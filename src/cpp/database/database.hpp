@@ -547,8 +547,8 @@ protected:
 
                 // As the locator already exists, take it and use it for this endpoint
                 std::shared_ptr<database::Locator> locator = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(
-                            get_entity(locators_with_same_name.front().second)));
+                    std::static_pointer_cast<const database::Locator>(
+                        get_entity(locators_with_same_name.front().second)));
                 actual_locators_map[locator->id] = locator;
             }
             else
