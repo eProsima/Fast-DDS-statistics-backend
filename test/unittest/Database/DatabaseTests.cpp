@@ -523,8 +523,8 @@ void insert_ddsendpoint_two_equal_locators()
     auto locators = db.locators();
     auto locators_by_participant = db.locators_by_participant();
     auto participants_by_locator = db.participants_by_locator();
-    ASSERT_EQ(locators_by_participant[participant_id].size(), endpoint->locators.size());
-    ASSERT_EQ(participants_by_locator[locator1->id].size(), endpoint->locators.size());
+    ASSERT_EQ(locators_by_participant[participant_id].size(), 1); // Check there is only one, as it is repeaated
+    ASSERT_EQ(participants_by_locator[locator1->id].size(), 1);
     for (auto locator_it : endpoint->locators)
     {
         // Check that the endpoint's locators are correctly inserted in locators_
@@ -549,6 +549,9 @@ void insert_ddsendpoint_two_equal_locators()
     ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
     ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
     ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
+
+    // Getting locator by name should only give one
+    ASSERT_EQ(db.get_entities_by_name(EntityKind::LOCATOR, "test_locator").size(), 1);
 }
 
 class database_tests : public ::testing::Test
