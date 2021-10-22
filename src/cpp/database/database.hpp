@@ -548,7 +548,7 @@ protected:
                 // As the locator already exists, take it and use it for this endpoint
                 std::shared_ptr<database::Locator> locator = std::const_pointer_cast<database::Locator>(
                     std::static_pointer_cast<const database::Locator>(
-                        get_entity(locators_with_same_name.front().second)));
+                        get_entity_nts(locators_with_same_name.front().second)));
                 actual_locators_map[locator->id] = locator;
             }
             else
@@ -729,6 +729,16 @@ protected:
             const bool last_reported = false);
 
     /**
+     * Get an entity given its EntityId. This method is not thread safe.
+     *
+     * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return A constant shared pointer to the Entity.
+     */
+    const std::shared_ptr<const Entity> get_entity_nts(
+            const EntityId& entity_id) const;
+
+    /**
      * @brief Create the link between a participant and a process. This method is not thread safe.
      *
      * This operation entails:
@@ -846,7 +856,7 @@ protected:
     std::atomic<int64_t> next_id_{0};
 
     //! Read-write synchronization mutex
-    mutable std::recursive_timed_mutex mutex_;
+    mutable std::shared_timed_mutex mutex_;
 };
 
 template<>

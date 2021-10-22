@@ -38,7 +38,7 @@ namespace database {
 EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Insert in the database with a unique ID
     EntityId entity_id = EntityId::invalid();
@@ -479,7 +479,7 @@ void Database::insert(
         const EntityId& entity_id,
         const StatisticsSample& sample)
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     insert_nts(domain_id, entity_id, sample);
 }
@@ -1189,7 +1189,7 @@ void Database::link_participant_with_process(
         const EntityId& participant_id,
         const EntityId& process_id)
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     link_participant_with_process_nts(participant_id, process_id);
 }
@@ -1261,7 +1261,13 @@ void Database::link_participant_with_process_nts(
 const std::shared_ptr<const Entity> Database::get_entity(
         const EntityId& entity_id) const
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id);
+}
+
+const std::shared_ptr<const Entity> Database::get_entity_nts(
+        const EntityId& entity_id) const
+{
     /* Iterate over all the collections looking for the entity */
     for (const auto& host_it : hosts_)
     {
@@ -1480,7 +1486,7 @@ void Database::erase(
     }
 
     // The mutex should be taken only once. get_entity_kind already locks.
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     for (auto& reader : datareaders_[domain_id])
     {
@@ -1572,7 +1578,7 @@ std::vector<const StatisticsSample*> Database::select(
     auto source_entity = get_entity(entity_id_source);
     auto target_entity = get_entity(entity_id_target);
 
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
     switch (data_type)
     {
@@ -1770,7 +1776,7 @@ std::vector<const StatisticsSample*> Database::select(
 
     auto entity = get_entity(entity_id);
 
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<const StatisticsSample*> samples;
     switch (data_type)
     {
@@ -2583,7 +2589,7 @@ void Database::insert_ddsendpoint_to_locator(
 DatabaseDump Database::dump_database(
         bool clear)
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     DatabaseDump dump = DatabaseDump::object();
 
@@ -3439,7 +3445,7 @@ void check_entity_contains_all_references(
 void Database::load_database(
         const DatabaseDump& dump)
 {
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     if (next_id_ != 0)
     {
@@ -4863,7 +4869,7 @@ void Database::change_entity_status(
         entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
         entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
 
-    std::unique_lock<std::recursive_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 
