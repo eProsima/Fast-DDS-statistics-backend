@@ -38,6 +38,9 @@
 #include <fastdds/rtps/attributes/ServerAttributes.h>
 #include <fastdds/rtps/common/Locator.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/UDPv6TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastrtps/utils/IPLocator.h>
@@ -396,16 +399,16 @@ EntityId StatisticsBackend::init_monitor(
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
 
     /* Avoid using SHM transport by default */
-    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
-            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-    participant_qos.transport().user_transports.push_back(udp_transport);
     participant_qos.transport().use_builtin_transports = false;
 
+    /* Setting as SuperClient */
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
             eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;
+
     RemoteServerAttributes server;
     // Set the server guidPrefix
     server.ReadguidPrefix(discovery_server_guid_prefix.c_str());
+
     // Add locators
     std::stringstream locators(discovery_server_locators);
     std::string locator_str;
@@ -421,6 +424,50 @@ EntityId StatisticsBackend::init_monitor(
         if (locator.port > std::numeric_limits<uint32_t>::max())
         {
             throw BadParameter(locator.port + " is out of range");
+        }
+
+        // WARNING: This could add same descriptor more than once if the kind is repeated
+        switch (locator.kind)
+        {
+            case LOCATOR_KIND_UDPv4:
+                {
+                    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udpv4_transport =
+                            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+                    participant_qos.transport().user_transports.push_back(udpv4_transport);
+                }
+                break;
+
+            case LOCATOR_KIND_UDPv6:
+                {
+                    std::shared_ptr<eprosima::fastdds::rtps::UDPv6TransportDescriptor> udpv6_transport =
+                            std::make_shared<eprosima::fastdds::rtps::UDPv6TransportDescriptor>();
+                    participant_qos.transport().user_transports.push_back(udpv6_transport);
+                }
+                break;
+
+            case LOCATOR_KIND_TCPv4:
+                {
+                    std::shared_ptr<eprosima::fastdds::rtps::TCPv4TransportDescriptor> tcpv4_transport =
+                            std::make_shared<eprosima::fastdds::rtps::TCPv4TransportDescriptor>();
+                    participant_qos.transport().user_transports.push_back(tcpv4_transport);
+
+                    // Setting Physical and Logical port
+                    uint16_t port = locator.port;
+                    eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(locator, port);
+                    eprosima::fastrtps::rtps::IPLocator::setLogicalPort(locator, port);
+                }
+                break;
+
+            case LOCATOR_KIND_TCPv6:
+                {
+                    std::shared_ptr<eprosima::fastdds::rtps::TCPv6TransportDescriptor> tcpv6_transport =
+                            std::make_shared<eprosima::fastdds::rtps::TCPv6TransportDescriptor>();
+                    participant_qos.transport().user_transports.push_back(tcpv6_transport);
+                }
+                break;
+
+            default:
+                break;
         }
 
         // Check unicast/multicast address
