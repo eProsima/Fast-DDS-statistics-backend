@@ -21,8 +21,6 @@
 #define _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_HELLOWORLDPUBLISHER_H_
 
 #include <atomic>
-#include <condition_variable>
-#include <mutex>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
@@ -44,8 +42,7 @@ public:
 
     //! Initialize the publisher
     bool init(
-            uint32_t domain,
-            uint32_t num_wait_matched);
+            uint32_t domain);
 
     //! Publish a sample
     void publish();
@@ -84,7 +81,6 @@ private:
 
         PubListener()
             : matched_(0)
-            , num_wait_matched_(0)
         {
         }
 
@@ -97,32 +93,10 @@ private:
                 eprosima::fastdds::dds::DataWriter* writer,
                 const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
 
-        //! Set the number of matched DataReaders required for publishing
-        void set_num_wait_matched(
-                uint32_t num_wait_matched);
-
-        //! Return true if there are at least num_wait_matched_ matched DataReaders
-        bool enough_matched();
-
-        //! Block the thread until enough DataReaders are matched
-        void wait();
-
-        //! Unblock the thread so publication of samples begins/resumes
-        static void awake();
-
     private:
 
         //! Number of DataReaders matched to the associated DataWriter
         std::atomic<std::uint32_t> matched_;
-
-        //! Number of matched DataReaders required for publishing
-        uint32_t num_wait_matched_;
-
-        //! Protects wait_matched condition variable
-        static std::mutex wait_matched_cv_mtx_;
-
-        //! Waits until enough DataReaders are matched
-        static std::condition_variable wait_matched_cv_;
     }
     listener_;
 

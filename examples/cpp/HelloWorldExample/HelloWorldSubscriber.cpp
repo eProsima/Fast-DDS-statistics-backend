@@ -91,6 +91,8 @@ bool HelloWorldSubscriber::init(
         return false;
     }
 
+    std::cout << "Participant " << pqos.name() << " created with GUID " << participant_->guid() << std::endl;
+
     // REGISTER THE TYPE
     type_.register_type(participant_);
 
@@ -125,6 +127,8 @@ bool HelloWorldSubscriber::init(
     {
         return false;
     }
+
+    std::cout << "DataReader created with GUID " << reader_->guid() << std::endl;
 
     return true;
 }

@@ -57,7 +57,6 @@ int main(
     EntityType type = PUBLISHER;
     int count = 0;
     long sleep = 100;
-    int num_wait_matched = 0;
     int domain = 0;
     // Monitor params
     int n_bins = 1;
@@ -144,21 +143,16 @@ int main(
                     }
                     break;
 
-                case optionIndex::WAIT:
-                    if (type == PUBLISHER)
-                    {
-                        num_wait_matched = strtol(opt.arg, nullptr, 10);
-                    }
-                    else
-                    {
-                        print_warning("publisher", opt.name);
-                    }
-                    break;
-
                 case optionIndex::N_BINS:
                     if (type == MONITOR)
                     {
                         n_bins = strtol(opt.arg, nullptr, 10);
+                        if (n_bins < 0)
+                        {
+                            std::cerr << "ERROR: only nonnegative values accepted for --bins option." << std::endl;
+                            option::printUsage(fwrite, stdout, usage, columns);
+                            return 1;
+                        }
                     }
                     else
                     {
@@ -170,6 +164,12 @@ int main(
                     if (type == MONITOR)
                     {
                         t_interval = strtol(opt.arg, nullptr, 10);
+                        if (t_interval < 1)
+                        {
+                            std::cerr << "ERROR: only positive values accepted for --time option." << std::endl;
+                            option::printUsage(fwrite, stdout, usage, columns);
+                            return 1;
+                        }
                     }
                     else
                     {
@@ -197,7 +197,7 @@ int main(
         case PUBLISHER:
         {
             HelloWorldPublisher mypub;
-            if (mypub.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(num_wait_matched)))
+            if (mypub.init(static_cast<uint32_t>(domain)))
             {
                 mypub.run(static_cast<uint32_t>(count), static_cast<uint32_t>(sleep));
             }

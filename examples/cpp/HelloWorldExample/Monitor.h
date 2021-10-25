@@ -19,7 +19,10 @@
 #ifndef _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_MONITOR_H_
 #define _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_MONITOR_H_
 
+#include <atomic>
+#include <condition_variable>
 #include <list>
+#include <mutex>
 #include <string>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
@@ -46,6 +49,12 @@ public:
 
     //! Run the monitor
     void run();
+
+    //! Return the current state of execution
+    static bool is_stopped();
+
+    //! Trigger the end of execution
+    static void stop();
 
     //! Get the Fast DDS latency mean of the last 10 seconds between the publisher and the subscriber
     std::vector<StatisticsData> get_fastdds_latency_mean();
@@ -86,11 +95,6 @@ protected:
                 EntityId process_id,
                 const DomainListener::Status& status) override;
 
-        //! Callback when a new Locator is discovered
-        void on_locator_discovery(
-                EntityId locator_id,
-                const DomainListener::Status& status) override;
-
         //! Callback when a new Topic is discovered
         void on_topic_discovery(
                 EntityId domain_id,
@@ -127,6 +131,15 @@ private:
 
     //! Time interval of the returned measures
     uint32_t t_interval_;
+
+    //! Member used for control flow purposes
+    static std::atomic<bool> stop_;
+
+    //! Protects terminate condition variable
+    static std::mutex terminate_cv_mtx_;
+
+    //! Waits during execution until SIGINT is received
+    static std::condition_variable terminate_cv_;
 };
 
 #endif /* _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_MONITOR_H_ */

@@ -20,9 +20,18 @@ endif()
 
 project(HelloWorldExample)
 
-find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
-find_package(fastdds_statistics_backend REQUIRED)
+# Find requirements
+if(NOT fastcdr_FOUND)
+    find_package(fastcdr REQUIRED)
+endif()
+
+if(NOT fastrtps_FOUND)
+    find_package(fastrtps REQUIRED)
+endif()
+
+if(NOT fastdds_statistics_backend_FOUND)
+    find_package(fastdds_statistics_backend REQUIRED)
+endif()
 
 #Check C++11
 include(CheckCXXCompilerFlag)

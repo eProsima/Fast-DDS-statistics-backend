@@ -34,8 +34,6 @@ using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 
 std::atomic<bool> HelloWorldPublisher::stop_(false);
-std::mutex HelloWorldPublisher::PubListener::wait_matched_cv_mtx_;
-std::condition_variable HelloWorldPublisher::PubListener::wait_matched_cv_;
 
 HelloWorldPublisher::HelloWorldPublisher()
     : participant_(nullptr)
@@ -54,18 +52,15 @@ bool HelloWorldPublisher::is_stopped()
 void HelloWorldPublisher::stop()
 {
     stop_ = true;
-    PubListener::awake();
 }
 
 bool HelloWorldPublisher::init(
-        uint32_t domain,
-        uint32_t num_wait_matched)
+        uint32_t domain)
 {
     hello_.index(0);
     hello_.message("HelloWorld");
     DomainParticipantQos pqos;
     pqos.name("Participant_pub");
-    listener_.set_num_wait_matched(num_wait_matched);
 
     // Activate Fast DDS Statistics module
     pqos.properties().properties().emplace_back("fastdds.statistics",
@@ -95,6 +90,8 @@ bool HelloWorldPublisher::init(
         return false;
     }
 
+    std::cout << "Participant " << pqos.name() << " created with GUID " << participant_->guid() << std::endl;
+
     // REGISTER THE TYPE
     type_.register_type(participant_);
 
@@ -121,6 +118,9 @@ bool HelloWorldPublisher::init(
     {
         return false;
     }
+
+    std::cout << "DataWriter created with GUID " << writer_->guid() << std::endl;
+
     return true;
 }
 
@@ -152,10 +152,6 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
     {
         matched_ = info.current_count;
         std::cout << "Publisher matched." << std::endl;
-        if (enough_matched())
-        {
-            awake();
-        }
     }
     else if (info.current_count_change == -1)
     {
@@ -169,48 +165,16 @@ void HelloWorldPublisher::PubListener::on_publication_matched(
     }
 }
 
-void HelloWorldPublisher::PubListener::set_num_wait_matched(
-        uint32_t num_wait_matched)
-{
-    num_wait_matched_ = num_wait_matched;
-}
-
-bool HelloWorldPublisher::PubListener::enough_matched()
-{
-    return matched_ >= num_wait_matched_;
-}
-
-void HelloWorldPublisher::PubListener::wait()
-{
-    std::unique_lock<std::mutex> lck(wait_matched_cv_mtx_);
-    wait_matched_cv_.wait(lck, [this]
-            {
-                return enough_matched() || is_stopped();
-            });
-}
-
-void HelloWorldPublisher::PubListener::awake()
-{
-    wait_matched_cv_.notify_all();
-}
-
 void HelloWorldPublisher::runThread(
         uint32_t samples,
         uint32_t sleep)
 {
     while (!is_stopped() && (samples == 0 || hello_.index() < samples))
     {
-        if (listener_.enough_matched())
-        {
-            publish();
-            std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
-                      << " SENT" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
-        }
-        else
-        {
-            listener_.wait();
-        }
+        publish();
+        std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
+                  << " SENT" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
     }
 }
 

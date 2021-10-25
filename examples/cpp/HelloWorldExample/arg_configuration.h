@@ -105,7 +105,6 @@ enum optionIndex
 {
     UNKNOWN_OPT,
     HELP,
-    WAIT,
     SAMPLES,
     INTERVAL,
     DOMAIN_ID,
@@ -121,9 +120,6 @@ const option::Descriptor usage[] = {
     { UNKNOWN_OPT, 0, "", "",                Arg::None,      "\nPublisher options:"},
     { DOMAIN_ID, 0, "d", "domain",                Arg::Numeric,
       "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
-    { WAIT, 0, "w", "wait",                 Arg::Numeric,
-      "  -w <num> \t--wait=<num> \tNumber of matched subscribers required to publish"
-      " (Default: 0 => does not wait)." },
     { SAMPLES, 0, "s", "samples",              Arg::Numeric,
       "  -s <num> \t--samples=<num>  \tNumber of samples to send (Default: 0 => infinite samples)." },
     { INTERVAL, 0, "i", "interval",            Arg::Numeric,
@@ -139,7 +135,8 @@ const option::Descriptor usage[] = {
     { DOMAIN_ID, 0, "d", "domain",                Arg::Numeric,
       "  -d <id> \t--domain=<id>  \tDDS domain ID (Default: 0)." },
     { N_BINS, 0, "b", "bins",              Arg::Numeric,
-      "  -b <num> \t--bins=<num>  \tNumber of bins in which a time interval is divided (Default: 1)." },
+      "  -b <num> \t--bins=<num>  \tNumber of bins in which a time interval is divided (Default: 1)"
+      " (0 => no mean calculation, return raw data)." },
     { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
       "  -t <num> \t--time=<num>  \tDuration in seconds of each time frame (Default: 5)." },
 

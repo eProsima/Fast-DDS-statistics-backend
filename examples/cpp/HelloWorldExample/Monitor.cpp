@@ -17,6 +17,7 @@
  */
 
 #include <chrono>
+#include <csignal>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -33,6 +34,10 @@
 
 using namespace eprosima::statistics_backend;
 
+std::atomic<bool> Monitor::stop_(false);
+std::mutex Monitor::terminate_cv_mtx_;
+std::condition_variable Monitor::terminate_cv_;
+
 Monitor::Monitor()
 {
 }
@@ -40,6 +45,17 @@ Monitor::Monitor()
 Monitor::~Monitor()
 {
     StatisticsBackend::stop_monitor(monitor_id_);
+}
+
+bool Monitor::is_stopped()
+{
+    return stop_;
+}
+
+void Monitor::stop()
+{
+    stop_ = true;
+    terminate_cv_.notify_all();
 }
 
 bool Monitor::init(
@@ -63,11 +79,21 @@ bool Monitor::init(
 
 void Monitor::run()
 {
+    stop_ = false;
     std::cout << "Monitor running. Please press CTRL+C to stop the Monitor at any time." << std::endl;
+    signal(SIGINT, [](int signum)
+            {
+                std::cout << "SIGINT received, stopping Monitor execution." << std::endl;
+                static_cast<void>(signum); Monitor::stop();
+            });
 
-    while (true)
+    while (!is_stopped())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
+        terminate_cv_.wait_for(lck, std::chrono::milliseconds(5000), []
+                {
+                    return is_stopped();
+                });
         std::cout << std::endl;
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
@@ -143,9 +169,10 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     for (auto participant : participants)
     {
         participant_info = StatisticsBackend::get_info(participant);
-        if (participant_info["name"] == "Participant_pub")
+        if (participant_info["name"] == "Participant_pub" && participant_info["alive"])
         {
             participant_id = participant;
+            break;
         }
     }
 
@@ -176,7 +203,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     for (auto publication_throughput : publication_throughput_data)
     {
 
-        std::cout << "Publication throughput of Participant " << participant_info["name"] << ": ["
+        std::cout << "Publication throughput of Participant " << std::string(participant_info["name"]) << ": ["
                   << timestamp_to_string(publication_throughput.first) << ", "
                   << publication_throughput.second << " B/s]" << std::endl;
     }
@@ -193,14 +220,15 @@ void Monitor::Listener::on_participant_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info participant_info = StatisticsBackend::get_info(participant_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Participant " << participant_id << " discovered." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Participant " << participant_id << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -210,14 +238,15 @@ void Monitor::Listener::on_datareader_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info datareader_info = StatisticsBackend::get_info(datareader_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataReader " << datareader_id << " discovered." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataReader " << datareader_id << " update info." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -227,14 +256,15 @@ void Monitor::Listener::on_datawriter_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info datawriter_info = StatisticsBackend::get_info(datawriter_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataWriter " << datawriter_id << " discovered." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataWriter " << datawriter_id << " update info." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -242,56 +272,66 @@ void Monitor::Listener::on_host_discovery(
         EntityId host_id,
         const DomainListener::Status& status)
 {
-    if (status.current_count_change == 1)
-    {
-        std::cout << "Host " << host_id << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "Host " << host_id << " update info." << std::endl;
-    }
+    // TODO (eProsima)
+    // Deadlock caused by calling get_info from within a physical entity listener callback
+    /*
+       Info host_info = StatisticsBackend::get_info(host_id);
+
+       if (status.current_count_change == 1)
+       {
+        std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
+       }
+       else
+       {
+        std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
+       }
+     */
+    static_cast<void>(host_id);
+    static_cast<void>(status);
 }
 
 void Monitor::Listener::on_user_discovery(
         EntityId user_id,
         const DomainListener::Status& status)
 {
-    if (status.current_count_change == 1)
-    {
-        std::cout << "User " << user_id << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "User " << user_id << " update info." << std::endl;
-    }
+    // TODO (eProsima)
+    // Deadlock caused by calling get_info from within a physical entity listener callback
+    /*
+       Info user_info = StatisticsBackend::get_info(user_id);
+
+       if (status.current_count_change == 1)
+       {
+        std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
+       }
+       else
+       {
+        std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
+       }
+     */
+    static_cast<void>(user_id);
+    static_cast<void>(status);
 }
 
 void Monitor::Listener::on_process_discovery(
         EntityId process_id,
         const DomainListener::Status& status)
 {
-    if (status.current_count_change == 1)
-    {
-        std::cout << "Process " << process_id << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "Process " << process_id << " update info." << std::endl;
-    }
-}
+    // TODO (eProsima)
+    // Deadlock caused by calling get_info from within a physical entity listener callback
+    /*
+       Info process_info = StatisticsBackend::get_info(process_id);
 
-void Monitor::Listener::on_locator_discovery(
-        EntityId locator_id,
-        const DomainListener::Status& status)
-{
-    if (status.current_count_change == 1)
-    {
-        std::cout << "Locator " << locator_id << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "Locator " << locator_id << " update info." << std::endl;
-    }
+       if (status.current_count_change == 1)
+       {
+        std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
+       }
+       else
+       {
+        std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
+       }
+     */
+    static_cast<void>(process_id);
+    static_cast<void>(status);
 }
 
 void Monitor::Listener::on_topic_discovery(
@@ -300,14 +340,15 @@ void Monitor::Listener::on_topic_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info topic_info = StatisticsBackend::get_info(topic_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Topic " << topic_id << " discovered." << std::endl;
+        std::cout << "Topic " << std::string(topic_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Topic " << topic_id << " update info." << std::endl;
+        std::cout << "Topic " << std::string(topic_info["name"]) << " update info." << std::endl;
     }
 }
 

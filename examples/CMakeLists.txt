@@ -12,4 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set(fastdds_statistics_backend_FOUND TRUE)
 add_subdirectory(cpp/HelloWorldExample)
