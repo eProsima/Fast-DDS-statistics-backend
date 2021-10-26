@@ -90,7 +90,7 @@ void Monitor::run()
     while (!is_stopped())
     {
         std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
-        terminate_cv_.wait_for(lck, std::chrono::milliseconds(5000), []
+        terminate_cv_.wait_for(lck, std::chrono::seconds(t_interval_), []
                 {
                     return is_stopped();
                 });
@@ -240,13 +240,17 @@ void Monitor::Listener::on_datareader_discovery(
     static_cast<void>(domain_id);
     Info datareader_info = StatisticsBackend::get_info(datareader_id);
 
-    if (status.current_count_change == 1)
+    if (!datareader_info["metatraffic"])
     {
-        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." << std::endl;
+        if (status.current_count_change == 1)
+        {
+            std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
+        }
+        else
+        {
+            std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." <<
+                std::endl;
+        }
     }
 }
 
@@ -258,13 +262,17 @@ void Monitor::Listener::on_datawriter_discovery(
     static_cast<void>(domain_id);
     Info datawriter_info = StatisticsBackend::get_info(datawriter_id);
 
-    if (status.current_count_change == 1)
+    if (!datawriter_info["metatraffic"])
     {
-        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." << std::endl;
+        if (status.current_count_change == 1)
+        {
+            std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
+        }
+        else
+        {
+            std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." <<
+                std::endl;
+        }
     }
 }
 
@@ -342,13 +350,16 @@ void Monitor::Listener::on_topic_discovery(
     static_cast<void>(domain_id);
     Info topic_info = StatisticsBackend::get_info(topic_id);
 
-    if (status.current_count_change == 1)
+    if (!topic_info["metatraffic"])
     {
-        std::cout << "Topic " << std::string(topic_info["name"]) << " discovered." << std::endl;
-    }
-    else
-    {
-        std::cout << "Topic " << std::string(topic_info["name"]) << " update info." << std::endl;
+        if (status.current_count_change == 1)
+        {
+            std::cout << "Topic " << std::string(topic_info["name"]) << " discovered." << std::endl;
+        }
+        else
+        {
+            std::cout << "Topic " << std::string(topic_info["name"]) << " update info." << std::endl;
+        }
     }
 }
 
