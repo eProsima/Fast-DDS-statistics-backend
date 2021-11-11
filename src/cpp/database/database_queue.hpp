@@ -463,6 +463,12 @@ public:
             T& sample,
             const Q& item) const
     {
+        static_cast<void>(domain);
+        static_cast<void>(entity);
+        static_cast<void>(entity_kind);
+        static_cast<void>(sample);
+        static_cast<void>(item);
+
         throw BadParameter("Unsupported Sample type and Data type combination");
     }
 
