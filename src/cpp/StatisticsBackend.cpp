@@ -420,7 +420,7 @@ EntityId StatisticsBackend::init_monitor(
         }
         if (locator.port > std::numeric_limits<uint32_t>::max())
         {
-            throw BadParameter(locator.port + " is out of range");
+            throw BadParameter(std::to_string(locator.port) + " is out of range");
         }
 
         // Check unicast/multicast address
