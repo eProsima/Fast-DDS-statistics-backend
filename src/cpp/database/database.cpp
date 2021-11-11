@@ -1262,6 +1262,12 @@ const std::shared_ptr<const Entity> Database::get_entity(
         const EntityId& entity_id) const
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id);
+}
+
+const std::shared_ptr<const Entity> Database::get_entity_nts(
+        const EntityId& entity_id) const
+{
     /* Iterate over all the collections looking for the entity */
     for (const auto& host_it : hosts_)
     {
@@ -4863,7 +4869,7 @@ void Database::change_entity_status(
         entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
         entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
 
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 

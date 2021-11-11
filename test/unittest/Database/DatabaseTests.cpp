@@ -476,6 +476,84 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     ASSERT_THROW(db.insert(endpoint_2), BadParameter);
 }
 
+template<typename T>
+void insert_ddsendpoint_two_equal_locators()
+{
+    /* Insert a host, user, process, domain, topic, and participant */
+    DataBaseTest db;
+    auto host = std::make_shared<Host>("test_host");
+    db.insert(host);
+    auto user = std::make_shared<User>("test_user", host);
+    db.insert(user);
+    auto process = std::make_shared<Process>("test_process", "test_pid", user);
+    db.insert(process);
+    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain_id = db.insert(domain);
+    auto participant = std::make_shared<DomainParticipant>(
+        "test_participant", db.test_qos, "01.02.03.04", process, domain);
+    auto participant_id = db.insert(participant);
+    auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain);
+    db.insert(topic);
+
+    /* Insert a DDSEndpoint */
+    std::string endpoint_name = "test_endpoint";
+    std::string endpoint_guid = "test_guid";
+    auto endpoint = std::make_shared<T>(
+        endpoint_name, db.test_qos, endpoint_guid, participant, topic);
+
+    // Create two equal locator for the endpoint
+    auto locator1 = std::make_shared<Locator>("test_locator");
+    locator1->id = db.generate_entity_id();
+    auto locator2 = std::make_shared<Locator>("test_locator");
+    locator2->id = db.generate_entity_id();
+
+    endpoint->locators[locator1->id] = locator1;
+    endpoint->locators[locator2->id] = locator2;
+    auto endpoint_id = db.insert(endpoint);
+
+    /* Check that the endpoint is correctly inserted in participant */
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+
+    /* Check that the endpoint is correctly inserted in topic */
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
+
+    /* Check x_by_y_ collections and locators_ */
+    auto locators = db.locators();
+    auto locators_by_participant = db.locators_by_participant();
+    auto participants_by_locator = db.participants_by_locator();
+    ASSERT_EQ(locators_by_participant[participant_id].size(), 1); // Check there is only one, as it is repeaated
+    ASSERT_EQ(participants_by_locator[locator1->id].size(), 1);
+    for (auto locator_it : endpoint->locators)
+    {
+        // Check that the endpoint's locators are correctly inserted in locators_
+        ASSERT_NE(
+            locators.find(locator_it.first),
+            locators.end());
+        // Check that the endpoint's locators are correctly inserted in locators_by_participant_
+        ASSERT_NE(
+            locators_by_participant[participant_id].find(locator_it.first),
+            locators_by_participant[participant_id].end());
+        // Check that the endpoint's participant is correctly inserted in participants_by_locator_
+        ASSERT_NE(
+            participants_by_locator[locator_it.first].find(participant_id),
+            participants_by_locator[locator_it.first].end());
+    }
+
+    /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
+    auto endpoints = db.get_dds_endpoints<T>();
+    ASSERT_EQ(endpoints.size(), 1);
+    ASSERT_EQ(endpoints[domain_id].size(), 1);
+    ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
+    ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
+    ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
+    ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
+
+    // Getting locator by name should only give one
+    ASSERT_EQ(db.get_entities_by_name(EntityKind::LOCATOR, "test_locator").size(), 1);
+}
+
 class database_tests : public ::testing::Test
 {
 public:
@@ -1545,6 +1623,15 @@ TEST_F(database_tests, insert_ddsendpoint_two_diff_domain_same_guid)
 {
     insert_ddsendpoint_two_diff_domain_same_guid<DataReader>();
     insert_ddsendpoint_two_diff_domain_same_guid<DataWriter>();
+}
+
+/*
+ * Check that creating an Endpoint with repeated locators does not break
+ */
+TEST_F(database_tests, insert_ddsendpoint_two_equal_locators)
+{
+    insert_ddsendpoint_two_equal_locators<DataReader>();
+    insert_ddsendpoint_two_equal_locators<DataWriter>();
 }
 
 TEST_F(database_tests, insert_locator)

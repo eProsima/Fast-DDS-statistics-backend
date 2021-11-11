@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <sstream>
 #include <type_traits> // enable_if, is_integral
@@ -527,6 +528,53 @@ protected:
             endpoint->participant->meta_traffic_endpoint = endpoint;
         }
 
+        // Check if every locator is not repeated already in the database
+        // This is a workaround for an error ocurred when two same locators arrive to the queue inside different
+        // endpoints, and so both are inserted in the database when they are the same
+
+        // First copy the map (there is no way to change key in a map inside a loop)
+        std::map<EntityId, std::shared_ptr<Locator>> actual_locators_map;
+
+        // Iterate over every locator in the current map (that may already exist in the database)
+        for (auto& locator_it : endpoint->locators)
+        {
+            // See if we already know the locator
+            auto locators_with_same_name = get_entities_by_name(EntityKind::LOCATOR, locator_it.second->name);
+            if (!locators_with_same_name.empty())
+            {
+                // It could be only one in the database with the same name
+                assert(locators_with_same_name.size() == 1);
+
+                // As the locator already exists, take it and use it for this endpoint
+                std::shared_ptr<database::Locator> locator = std::const_pointer_cast<database::Locator>(
+                    std::static_pointer_cast<const database::Locator>(
+                        get_entity_nts(locators_with_same_name.front().second)));
+                actual_locators_map[locator->id] = locator;
+            }
+            else
+            {
+                // Check whether this locator is repeated inside this same endpoint
+                bool repeated = false;
+                for (auto new_locators : actual_locators_map)
+                {
+                    if (new_locators.second->name == locator_it.second->name)
+                    {
+                        repeated = true;
+                        break;
+                    }
+                }
+
+                if (!repeated)
+                {
+                    // It is actually a new locator, so it is added to the new map
+                    actual_locators_map[locator_it.first] = locator_it.second;
+                }
+            }
+        }
+
+        // Change the curent locators map for the new updated one
+        endpoint->locators = actual_locators_map;
+
         /* Add to x_by_y_ collections and to locators_ */
         for (auto& locator_it : endpoint->locators)
         {
@@ -535,6 +583,7 @@ protected:
             {
                 // Is a new one, must add and inform the user
                 // The connection to the endpoint is still not done, but that's expected at this moment
+                // In this case, we know for sure that the locator is not in the database
                 locators_[locator_it.first] = locator_it.second;
                 notify_locator_discovery(locator_it.first);
             }
@@ -678,6 +727,16 @@ protected:
             const StatisticsSample& sample,
             const bool loading = false,
             const bool last_reported = false);
+
+    /**
+     * Get an entity given its EntityId. This method is not thread safe.
+     *
+     * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return A constant shared pointer to the Entity.
+     */
+    const std::shared_ptr<const Entity> get_entity_nts(
+            const EntityId& entity_id) const;
 
     /**
      * @brief Create the link between a participant and a process. This method is not thread safe.

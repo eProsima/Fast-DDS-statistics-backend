@@ -232,6 +232,7 @@ set(DATABASE_TEST_LIST
     insert_ddsendpoint_empty_locators
     insert_ddsendpoint_two_same_domain_same_guid
     insert_ddsendpoint_two_diff_domain_same_guid
+    insert_ddsendpoint_two_equal_locators
     # Insert invalid
     insert_invalid
     insert_locator
