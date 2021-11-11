@@ -190,12 +190,12 @@ jobs:
           cat src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
           colcon build \
             --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/clang_colcon.meta
 
       - name: Run clang-tidy
         run: |
           cd build/fastdds_statistics_backend
-          run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus'
+          run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus' -quiet 2> ${{ github.workspace }}/clang_results.yml
 
   uncrustify:
     runs-on: ubuntu-latest
