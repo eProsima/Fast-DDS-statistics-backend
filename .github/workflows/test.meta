@@ -14,8 +14,7 @@
             [
                 "-DBUILD_DOCUMENTATION=ON",
                 "-DBUILD_TESTS=ON",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                "-DCMAKE_BUILD_TYPE=Debug"
             ]
         }
     }

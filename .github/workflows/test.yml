@@ -113,10 +113,10 @@ jobs:
 
       - name: Build workspace
         run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
+          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
           colcon build \
             --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta \
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta \
             --mixin coverage-gcc asan-gcc
 
       - name: Run tests
@@ -187,10 +187,10 @@ jobs:
 
       - name: Build workspace
         run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/colcon.meta
+          cat src/Fast-DDS-statistics-backend/.github/workflows/clang.meta
           colcon build \
             --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/clang_colcon.meta
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/clang.meta
 
       - name: Run clang-tidy
         run: |
