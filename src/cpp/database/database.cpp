@@ -1339,7 +1339,7 @@ const std::shared_ptr<const Entity> Database::get_entity(
         }
     }
     /* The entity has not been found */
-    throw BadParameter("Database does not contain an entity with ID " + entity_id.value());
+    throw BadParameter("Database does not contain an entity with ID " + std::to_string(entity_id.value()));
 }
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(

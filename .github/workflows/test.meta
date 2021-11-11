@@ -1,0 +1,21 @@
+{
+    "names":
+    {
+        "fastrtps":
+        {
+            "cmake-args":
+            [
+                "-DFASTDDS_STATISTICS=ON",
+            ]
+        },
+        "fastdds_statistics_backend":
+        {
+            "cmake-args":
+            [
+                "-DBUILD_DOCUMENTATION=ON",
+                "-DBUILD_TESTS=ON",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ]
+        }
+    }
+}
