@@ -47,7 +47,7 @@
 .. |DATA_COUNT-api| replace:: :cpp:enumerator:`DATA_COUNT<eprosima::statistics_backend::DataKind::DATA_COUNT>`
 .. |PDP_PACKETS-api| replace:: :cpp:enumerator:`PDP_PACKETS<eprosima::statistics_backend::DataKind::PDP_PACKETS>`
 .. |EDP_PACKETS-api| replace:: :cpp:enumerator:`EDP_PACKETS<eprosima::statistics_backend::DataKind::EDP_PACKETS>`
-.. |DISCOVERED_ENTITY-api| replace:: :cpp:enumerator:`DISCOVERED_ENTITY<eprosima::statistics_backend::DataKind::DISCOVERED_ENTITY>`
+.. |DISCOVERY_TIME-api| replace:: :cpp:enumerator:`DISCOVERY_TIME<eprosima::statistics_backend::DataKind::DISCOVERY_TIME>`
 .. |SAMPLE_DATAS-api| replace:: :cpp:enumerator:`SAMPLE_DATAS<eprosima::statistics_backend::DataKind::SAMPLE_DATAS>`
 
 .. |StatisticsData-api| replace:: :cpp:type:`StatisticsData<eprosima::statistics_backend::StatisticsData>`

@@ -43,7 +43,7 @@ We refer to the nature of these data values as their |DataKind-api|.
 
 - |EDP_PACKETS-api|: Amount of EDP packets sent by a participant.
 
-- |DISCOVERED_ENTITY-api|: Time when a participant discovers another DDS entity.
+- |DISCOVERY_TIME-api|: Time when a participant discovers another DDS entity.
 
 - |SAMPLE_DATAS-api|: Amount of DATA/DATAFRAGs needed to send a single sample.
 
@@ -90,7 +90,7 @@ measurement of each data kind:
 +-------------------------------+-------------------+---------------+
 | |EDP_PACKETS-api|             | DomainParticipant | -             |
 +-------------------------------+-------------------+---------------+
-| |DISCOVERED_ENTITY-api|       | DomainParticipant | DDSEntity     |
+| |DISCOVERY_TIME-api|          | DomainParticipant | DDSEntity     |
 +-------------------------------+-------------------+---------------+
 | |SAMPLE_DATAS-api|            | DataWriter        | -             |
 +-------------------------------+-------------------+---------------+
