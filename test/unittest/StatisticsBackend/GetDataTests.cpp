@@ -533,9 +533,9 @@ void check_get_data (
     {
         ASSERT_EQ(expected[i].first, result[i].first);
 
-        if (isnan(expected[i].second))
+        if (std::isnan(expected[i].second))
         {
-            ASSERT_TRUE(isnan(result[i].second));
+            ASSERT_TRUE(std::isnan(result[i].second));
         }
         else
         {
