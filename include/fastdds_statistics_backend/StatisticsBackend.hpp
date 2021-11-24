@@ -456,7 +456,7 @@ public:
      * Other DataKind relate to two different Entity, each one of a given EntityKind.
      * For example, @c FASTDDS_LATENCY relates to a @c DATAWRITER as source
      * and a @c DATAREADER as target of the data flow.
-     * In the specific case of @c DISCOVERED_ENTITY, the DataKind relates to a @c PARTICIPANT as the discoverer,
+     * In the specific case of @c DISCOVERY_TIME, the DataKind relates to a @c PARTICIPANT as the discoverer,
      * but can relate to a @c DATAWRITER, @c DATAREADER or another @c PARTICIPANT as the discovered entity.
      *
      * Given a DataKind, this method provides a collection of all pairs of EntityKind to which

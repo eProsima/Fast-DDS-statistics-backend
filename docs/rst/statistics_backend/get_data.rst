@@ -61,7 +61,7 @@ The following table illustrates the expected inputs depending on the query's |Da
 +-------------------------------+------------------------------------+------------------------------------+
 | |EDP_PACKETS-api|             | |PARTICIPANT-api|                  | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
-| |DISCOVERED_ENTITY-api|       | |PARTICIPANT-api|                  | Not applicable                     |
+| |DISCOVERY_TIME-api|          | |PARTICIPANT-api|                  | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
