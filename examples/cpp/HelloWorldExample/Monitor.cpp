@@ -284,11 +284,11 @@ void Monitor::Listener::on_host_discovery(
 
     if (status.current_count_change == 1)
     {
-    std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
+        std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-    std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
+        std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -300,11 +300,11 @@ void Monitor::Listener::on_user_discovery(
 
     if (status.current_count_change == 1)
     {
-    std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
+        std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-    std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
+        std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -316,11 +316,11 @@ void Monitor::Listener::on_process_discovery(
 
     if (status.current_count_change == 1)
     {
-    std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
+        std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-    std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
+        std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
     }
 }
 
