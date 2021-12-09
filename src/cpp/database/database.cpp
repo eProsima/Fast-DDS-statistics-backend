@@ -1189,9 +1189,13 @@ void Database::link_participant_with_process(
         const EntityId& participant_id,
         const EntityId& process_id)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    // TODO (eProsima) Workaround to avoid deadlock caused by calling get_info from within a physical entity listener
+    // callback. A refactor for not calling on_physical_entity_discovery from within this function would be required.
+    mutex_.lock();
 
     link_participant_with_process_nts(participant_id, process_id);
+
+    mutex_.unlock();
 }
 
 void Database::link_participant_with_process_nts(
@@ -4516,8 +4520,10 @@ void Database::change_entity_status_of_kind(
             if (host != nullptr && host->active != active)
             {
                 host->active = active;
+                mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
+                mutex_.lock();
             }
             break;
         }
@@ -4568,8 +4574,10 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering user after discovering host
+                mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
+                mutex_.lock();
             }
             break;
         }
@@ -4620,8 +4628,10 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering process after discovering user
+                mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
+                mutex_.lock();
             }
             break;
         }
