@@ -4524,7 +4524,7 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                execute_without_lock([=] ()
+                execute_without_lock([=]()
                         {
                             details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                             entity_kind, get_status(active));
@@ -4583,7 +4583,7 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                execute_without_lock([=] ()
+                execute_without_lock([=]()
                         {
                             details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                             entity_kind, get_status(active));
@@ -4642,7 +4642,7 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                execute_without_lock([=] ()
+                execute_without_lock([=]()
                         {
                             details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                             entity_kind, get_status(active));
