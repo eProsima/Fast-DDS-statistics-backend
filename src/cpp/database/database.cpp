@@ -4520,6 +4520,10 @@ void Database::change_entity_status_of_kind(
             if (host != nullptr && host->active != active)
             {
                 host->active = active;
+
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
+                // this function would be required.
                 mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
@@ -4574,6 +4578,10 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering user after discovering host
+
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
+                // this function would be required.
                 mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
@@ -4628,6 +4636,10 @@ void Database::change_entity_status_of_kind(
                 }
 
                 // Discovering process after discovering user
+
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
+                // this function would be required.
                 mutex_.unlock();
                 details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
                         entity_kind, get_status(active));
