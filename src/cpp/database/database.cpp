@@ -4524,10 +4524,11 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                mutex_.unlock();
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
-                        entity_kind, get_status(active));
-                mutex_.lock();
+                execute_without_lock([=] ()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
+                            entity_kind, get_status(active));
+                        });
             }
             break;
         }
@@ -4582,10 +4583,11 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                mutex_.unlock();
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
-                        entity_kind, get_status(active));
-                mutex_.lock();
+                execute_without_lock([=] ()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
+                            entity_kind, get_status(active));
+                        });
             }
             break;
         }
@@ -4640,10 +4642,11 @@ void Database::change_entity_status_of_kind(
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_physical_entity_discovery from within
                 // this function would be required.
-                mutex_.unlock();
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
-                        entity_kind, get_status(active));
-                mutex_.lock();
+                execute_without_lock([=] ()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(entity_id,
+                            entity_kind, get_status(active));
+                        });
             }
             break;
         }
@@ -4893,6 +4896,19 @@ void Database::change_entity_status(
 
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     change_entity_status_of_kind(entity_id, active, entity_kind);
+}
+
+template<typename Functor>
+void Database::execute_without_lock(
+        const Functor& lambda) noexcept
+{
+    bool is_locked = !mutex_.try_lock();
+    mutex_.unlock();
+    lambda();
+    if (is_locked)
+    {
+        mutex_.lock();
+    }
 }
 
 } //namespace database
