@@ -1189,13 +1189,9 @@ void Database::link_participant_with_process(
         const EntityId& participant_id,
         const EntityId& process_id)
 {
-    // TODO (eProsima) Workaround to avoid deadlock caused by calling get_info from within a physical entity listener
-    // callback. A refactor for not calling on_physical_entity_discovery from within this function would be required.
-    mutex_.lock();
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     link_participant_with_process_nts(participant_id, process_id);
-
-    mutex_.unlock();
 }
 
 void Database::link_participant_with_process_nts(
@@ -4687,8 +4683,14 @@ void Database::change_entity_status_of_kind(
             {
                 topic->active = active;
 
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain_id, entity_id,
-                        entity_kind, get_status(active));
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_entity_discovery from within
+                // this function would be required.
+                execute_without_lock([=]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(domain_id,
+                            entity_id, entity_kind, get_status(active));
+                        });
             }
             break;
         }
