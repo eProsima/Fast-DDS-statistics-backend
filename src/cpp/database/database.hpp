@@ -793,6 +793,18 @@ protected:
             const EntityKind& entity_kind,
             const EntityId& domain_id = EntityId::invalid()) noexcept;
 
+    /**
+     * @brief Run a function without the database mutex taken.
+     *
+     * If the mutex is taken, unlock it previous to execution, and lock it again afterwards.
+     * If the mutex is not taken, execute the function and do not lock afterwards.
+     *
+     * @param lambda The function to be run without protection.
+     */
+    template<typename Functor>
+    void execute_without_lock(
+            const Functor& lambda) noexcept;
+
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
 

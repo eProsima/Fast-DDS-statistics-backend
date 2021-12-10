@@ -280,66 +280,48 @@ void Monitor::Listener::on_host_discovery(
         EntityId host_id,
         const DomainListener::Status& status)
 {
-    // TODO (eProsima)
-    // Deadlock caused by calling get_info from within a physical entity listener callback
-    /*
-       Info host_info = StatisticsBackend::get_info(host_id);
+    Info host_info = StatisticsBackend::get_info(host_id);
 
-       if (status.current_count_change == 1)
-       {
+    if (status.current_count_change == 1)
+    {
         std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
-       }
-       else
-       {
+    }
+    else
+    {
         std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
-       }
-     */
-    static_cast<void>(host_id);
-    static_cast<void>(status);
+    }
 }
 
 void Monitor::Listener::on_user_discovery(
         EntityId user_id,
         const DomainListener::Status& status)
 {
-    // TODO (eProsima)
-    // Deadlock caused by calling get_info from within a physical entity listener callback
-    /*
-       Info user_info = StatisticsBackend::get_info(user_id);
+    Info user_info = StatisticsBackend::get_info(user_id);
 
-       if (status.current_count_change == 1)
-       {
+    if (status.current_count_change == 1)
+    {
         std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
-       }
-       else
-       {
+    }
+    else
+    {
         std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
-       }
-     */
-    static_cast<void>(user_id);
-    static_cast<void>(status);
+    }
 }
 
 void Monitor::Listener::on_process_discovery(
         EntityId process_id,
         const DomainListener::Status& status)
 {
-    // TODO (eProsima)
-    // Deadlock caused by calling get_info from within a physical entity listener callback
-    /*
-       Info process_info = StatisticsBackend::get_info(process_id);
+    Info process_info = StatisticsBackend::get_info(process_id);
 
-       if (status.current_count_change == 1)
-       {
+    if (status.current_count_change == 1)
+    {
         std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
-       }
-       else
-       {
+    }
+    else
+    {
         std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
-       }
-     */
-    static_cast<void>(process_id);
-    static_cast<void>(status);
+    }
 }
 
 void Monitor::Listener::on_topic_discovery(
