@@ -37,16 +37,16 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
     database::Qos kind;
     switch (qos.durabilityKind())
     {
-        case eprosima::fastrtps::rtps::VOLATILE:
+        case fastdds::dds::VOLATILE_DURABILITY_QOS:
             kind[kind_tag] = durability_volatile_tag;
             break;
-        case eprosima::fastrtps::rtps::TRANSIENT_LOCAL:
+        case fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS:
             kind[kind_tag] = durability_transient_local_tag;
             break;
-        case eprosima::fastrtps::rtps::TRANSIENT:
+        case fastdds::dds::TRANSIENT_DURABILITY_QOS:
             kind[kind_tag] = durability_transient_tag;
             break;
-        case eprosima::fastrtps::rtps::PERSISTENT:
+        case fastdds::dds::PERSISTENT_DURABILITY_QOS:
             kind[kind_tag] = durability_persistent_tag;
             break;
     }
