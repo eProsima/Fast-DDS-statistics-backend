@@ -103,7 +103,7 @@ public:
         info->no_writers_generation_count = 1;
         info->sample_rank = 0;
         info->generation_rank = 0;
-        info->absoulte_generation_rank = 0;
+        info->absolute_generation_rank = 0;
         info->valid_data = true;
         info->instance_state = ALIVE_INSTANCE_STATE;
 
