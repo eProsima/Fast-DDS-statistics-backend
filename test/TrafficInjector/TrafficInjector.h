@@ -19,11 +19,10 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_TRAFFICINJECTOR_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_TRAFFICINJECTOR_HPP_
 
-#include <MessageSerializer.h>
-#include <exception/Exception.hpp>
-#include <topic_types/types.h>
-#include <topic_types/typesPubSubTypes.h>
-#include <types/types.hpp>
+#include <condition_variable>
+#include <fstream>
+#include <mutex>
+#include <string>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -31,11 +30,14 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
-
 #include <nlohmann-json/json.hpp>
 
-#include <string>
-#include <fstream>
+#include <exception/Exception.hpp>
+#include <MessageSerializer.h>
+#include <topic_types/types.h>
+#include <topic_types/typesPubSubTypes.h>
+#include <types/types.hpp>
+
 
 namespace eprosima {
 namespace statistics_backend {
