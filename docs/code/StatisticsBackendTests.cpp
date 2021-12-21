@@ -579,6 +579,17 @@ void is_active_example()
     }
 }
 
+void is_metatraffic_example()
+{
+    {
+        EntityId entity_id;
+        //CONF-IS-METATRAFFIC-EXAMPLE
+        bool metatraffic = StatisticsBackend::is_metatraffic(entity_id);
+        //!--
+        static_cast<void>(metatraffic);
+    }
+}
+
 void entity_id()
 {
     {
