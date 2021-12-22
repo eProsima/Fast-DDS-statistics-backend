@@ -17,6 +17,8 @@ This release includes the following **bug fixes and improvements**:
 * Return the end of the time interval as the data point's timestamps instead of the initial one.
 * Avoid adding the same locator twice to the database.
 * Fix deadlock when accessing the database within a callback implementation.
+* Avoid using deprecated namespace.
+* Improvements on CI.
 
 Previous versions
 =================
