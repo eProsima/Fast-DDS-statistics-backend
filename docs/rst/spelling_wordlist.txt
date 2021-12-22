@@ -16,6 +16,7 @@ Gtest
 metatraffic
 monitorization
 monitorizations
+namespace
 ostream
 OStream
 preprocessed

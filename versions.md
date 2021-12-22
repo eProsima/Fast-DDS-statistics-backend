@@ -1,6 +1,25 @@
 Forthcoming
 -----------
 
+Version 0.4.0
+-------------
+
+This release has the following **API extensions**:
+
+* `StatisticsBackend::is_metatraffic` allows the user to know if a specific topic or endpoint is related to metatraffic
+data.
+* 
+
+This release adds the following **features**:
+
+* Add HelloWorld Example.
+
+This release includes the following **bug fixes and improvements**:
+
+* Return the end of the time interval as the data point's timestamps instead of the initial one.
+* Avoid adding the same locator twice to the database.
+* Fix deadlock when accessing the database within a callback implementation.
+
 Version 0.3.0
 -------------
 

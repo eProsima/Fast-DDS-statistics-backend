@@ -1,35 +1,28 @@
 .. _release_notes:
 
-Version 0.3.0
+Version 0.4.0
 =============
 
-This release has the following **API breaks**:
+This release has the following **API extensions**:
 
-* `StatisticsBackend::dump_database` methods now have an additional argument `clear`.
+* `StatisticsBackend::is_metatraffic` allows the user to know if a specific topic or endpoint is related to metatraffic
+  data.
 
 This release adds the following **features**:
 
-* Dumping the database can optionally delete the traffic data from the internal data structures
-  after the dump is completed, in order to reduce memory footprint.
-* Support to create monitors on discovery server networks.
-* Statistics data related to meta-traffic are now collected under the builtin meta-traffic endpoint
-  created on each participant.
-* Entities removed from the network now have a *non-active* status.
-* Transitions between active and non-active status are notified to the user listeners.
-* It is possible to change the domain listener and mask after the monitor is created.
+* Add HelloWorld Example.
 
 This release includes the following **bug fixes and improvements**:
 
-* By default, statistics data is received using UDP transport, shared memory is disabled.
-* Network latency data now relates to a source participant and a destination locator
-  (previously a source locator and a destination locator).
-* Statistics data can now trigger the discovery of a new locator.
-* Improved entity names and aliases to be more user friendly.
-* Solved an issue that may cause the internal database to freeze.
-* Allow for topics with the same name to be on different domains.
+* Return the end of the time interval as the data point's timestamps instead of the initial one.
+* Avoid adding the same locator twice to the database.
+* Fix deadlock when accessing the database within a callback implementation.
+* Avoid using deprecated namespace.
+* Improvements on CI.
 
 Previous versions
 =================
 
 .. include:: previous_versions/v0.1.0.rst
 .. include:: previous_versions/v0.2.0.rst
+.. include:: previous_versions/v0.3.0.rst
