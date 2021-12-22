@@ -6,8 +6,7 @@ Version 0.4.0
 This release has the following **API extensions**:
 
 * `StatisticsBackend::is_metatraffic` allows the user to know if a specific topic or endpoint is related to metatraffic
-data.
-* 
+  data.
 
 This release adds the following **features**:
 
