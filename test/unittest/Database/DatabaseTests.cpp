@@ -503,7 +503,7 @@ void insert_ddsendpoint_two_equal_locators()
 
     // Create two equal locator for the endpoint
     auto locator1 = std::make_shared<Locator>("test_locator");
-    locator1->id = db.generate_entity_id();
+    locator1->id = db.insert(locator1);
     auto locator2 = std::make_shared<Locator>("test_locator");
     locator2->id = db.generate_entity_id();
 
@@ -644,7 +644,7 @@ TEST_F(database_tests, insert_host)
 
     /* Check that the host is inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
-    ASSERT_EQ(hosts.size(), 1);
+    ASSERT_EQ(hosts.size(), 1u);
     ASSERT_NE(hosts.find(host_id), hosts.end());
     ASSERT_EQ(host_name, hosts[host_id]->name);
     ASSERT_EQ(host_name, hosts[host_id]->alias);
@@ -663,7 +663,7 @@ TEST_F(database_tests, insert_host_two)
 
     /* Check that the hosts are inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
-    ASSERT_EQ(hosts.size(), 2);
+    ASSERT_EQ(hosts.size(), 2u);
     ASSERT_NE(hosts.find(host_id), hosts.end());
     ASSERT_NE(hosts.find(host_id_2), hosts.end());
     ASSERT_EQ(host_name, hosts[host_id]->name);
@@ -713,12 +713,12 @@ TEST_F(database_tests, insert_user_valid)
     EntityId user_id = db.insert(user);
 
     /* Check that the user is correctly inserted in host */
-    ASSERT_EQ(host->users.size(), 1);
+    ASSERT_EQ(host->users.size(), 1u);
     ASSERT_EQ(host->users[user_id].get(), user.get());
 
     /* Check that the user is correctly inserted users_ */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
-    ASSERT_EQ(users.size(), 1);
+    ASSERT_EQ(users.size(), 1u);
     ASSERT_NE(users.find(user_id), users.end());
     ASSERT_EQ(user_name, users[user_id]->name);
     ASSERT_EQ(user_name, users[user_id]->alias);
@@ -740,13 +740,13 @@ TEST_F(database_tests, insert_user_two_valid)
     EntityId user_id_2 = db.insert(user_2);
 
     /* Check that the users are correctly inserted in host */
-    ASSERT_EQ(host->users.size(), 2);
+    ASSERT_EQ(host->users.size(), 2u);
     ASSERT_EQ(host->users[user_id].get(), user.get());
     ASSERT_EQ(host->users[user_id_2].get(), user_2.get());
 
     /* Check that the users are correctly inserted users_ */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
-    ASSERT_EQ(users.size(), 2);
+    ASSERT_EQ(users.size(), 2u);
     ASSERT_NE(users.find(user_id), users.end());
     ASSERT_NE(users.find(user_id_2), users.end());
     ASSERT_EQ(user_name, users[user_id]->name);
@@ -829,12 +829,12 @@ TEST_F(database_tests, insert_process_valid)
     EntityId process_id = db.insert(process);
 
     /* Check that the process is correctly inserted in user */
-    ASSERT_EQ(user->processes.size(), 1);
+    ASSERT_EQ(user->processes.size(), 1u);
     ASSERT_EQ(user->processes[process_id].get(), process.get());
 
     /* Check that the process is correctly inserted processes_s */
     auto processes = db.processes();
-    ASSERT_EQ(processes.size(), 1);
+    ASSERT_EQ(processes.size(), 1u);
     ASSERT_NE(processes.find(process_id), processes.end());
     ASSERT_EQ(process_name, processes[process_id]->name);
     ASSERT_EQ(process_name, processes[process_id]->alias);
@@ -863,13 +863,13 @@ TEST_F(database_tests, insert_process_two_valid)
     EntityId process_id_2 = db.insert(process_2);
 
     /* Check that the processes are correctly inserted in user */
-    ASSERT_EQ(user->processes.size(), 2);
+    ASSERT_EQ(user->processes.size(), 2u);
     ASSERT_EQ(user->processes[process_id].get(), process.get());
     ASSERT_EQ(user->processes[process_id_2].get(), process_2.get());
 
     /* Check that the processes are correctly inserted processes_ */
     auto processes = db.processes();
-    ASSERT_EQ(processes.size(), 2);
+    ASSERT_EQ(processes.size(), 2u);
     ASSERT_NE(processes.find(process_id), processes.end());
     ASSERT_NE(processes.find(process_id_2), processes.end());
     ASSERT_EQ(process_name, processes[process_id]->name);
@@ -964,13 +964,13 @@ TEST_F(database_tests, insert_process_two_same_user_diff_pid)
     auto process_id_2 = db.insert(process_2);
 
     /* Check that the processes are correctly inserted in user */
-    ASSERT_EQ(user->processes.size(), 2);
+    ASSERT_EQ(user->processes.size(), 2u);
     ASSERT_EQ(user->processes[process_id].get(), process.get());
     ASSERT_EQ(user->processes[process_id_2].get(), process_2.get());
 
     /* Check that the processes are correctly inserted processes_ */
     auto processes = db.processes();
-    ASSERT_EQ(processes.size(), 2);
+    ASSERT_EQ(processes.size(), 2u);
     ASSERT_NE(processes.find(process_id), processes.end());
     ASSERT_NE(processes.find(process_id_2), processes.end());
     ASSERT_EQ(process_pid, processes[process_id]->pid);
@@ -1044,14 +1044,14 @@ TEST_F(database_tests, insert_process_two_diff_host_same_pid)
     auto process_id_2 = db.insert(process_2);
 
     /* Check that the processes are correctly inserted in user */
-    ASSERT_EQ(user->processes.size(), 1);
-    ASSERT_EQ(user_2->processes.size(), 1);
+    ASSERT_EQ(user->processes.size(), 1u);
+    ASSERT_EQ(user_2->processes.size(), 1u);
     ASSERT_EQ(user->processes[process_id].get(), process.get());
     ASSERT_EQ(user_2->processes[process_id_2].get(), process_2.get());
 
     /* Check that the processes are correctly inserted processes_ */
     auto processes = db.processes();
-    ASSERT_EQ(processes.size(), 2);
+    ASSERT_EQ(processes.size(), 2u);
     ASSERT_NE(processes.find(process_id), processes.end());
     ASSERT_NE(processes.find(process_id_2), processes.end());
     ASSERT_EQ(process_pid, processes[process_id]->pid);
@@ -1068,7 +1068,7 @@ TEST_F(database_tests, insert_domain_valid)
 
     /* Check that the domain is inserted correctly */
     auto domains = db.domains();
-    ASSERT_EQ(domains.size(), 1);
+    ASSERT_EQ(domains.size(), 1u);
     ASSERT_NE(domains.find(domain_id), domains.end());
     ASSERT_EQ(domain_name, domains[domain_id]->name);
     ASSERT_EQ(domain_name, domains[domain_id]->alias);
@@ -1087,7 +1087,7 @@ TEST_F(database_tests, insert_domain_two_valid)
 
     /* Check that the domains are inserted correctly */
     auto domains = db.domains();
-    ASSERT_EQ(domains.size(), 2);
+    ASSERT_EQ(domains.size(), 2u);
     ASSERT_NE(domains.find(domain_id), domains.end());
     ASSERT_NE(domains.find(domain_id_2), domains.end());
     ASSERT_EQ(domain_name, domains[domain_id]->name);
@@ -1137,13 +1137,13 @@ TEST_F(database_tests, insert_topic_valid)
     EntityId topic_id = db.insert(topic);
 
     /* Check that the topic is correctly inserted in domain */
-    ASSERT_EQ(domain->topics.size(), 1);
+    ASSERT_EQ(domain->topics.size(), 1u);
     ASSERT_EQ(domain->topics[topic_id].get(), topic.get());
 
     /* Check that the topic is inserted correctly inserted in topic_ */
     auto topics = db.topics();
-    ASSERT_EQ(topics.size(), 1);
-    ASSERT_EQ(topics[domain_id].size(), 1);
+    ASSERT_EQ(topics.size(), 1u);
+    ASSERT_EQ(topics[domain_id].size(), 1u);
     ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->alias);
@@ -1169,14 +1169,14 @@ TEST_F(database_tests, insert_topic_two_valid)
     EntityId topic_id_2 = db.insert(topic_2);
 
     /* Check that the topics are correctly inserted in domain */
-    ASSERT_EQ(domain->topics.size(), 2);
+    ASSERT_EQ(domain->topics.size(), 2u);
     ASSERT_EQ(domain->topics[topic_id].get(), topic.get());
     ASSERT_EQ(domain->topics[topic_id_2].get(), topic_2.get());
 
     /* Check that the topics are correctly inserted in topic_ */
     auto topics = db.topics();
-    ASSERT_EQ(topics.size(), 1);
-    ASSERT_EQ(topics[domain_id].size(), 2);
+    ASSERT_EQ(topics.size(), 1u);
+    ASSERT_EQ(topics[domain_id].size(), 2u);
     ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
     ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
@@ -1256,14 +1256,14 @@ TEST_F(database_tests, insert_topic_two_same_domain_same_name)
     EntityId topic_id_2 = db.insert(topic_2);
 
     /* Check that the topics are correctly inserted in domain */
-    ASSERT_EQ(domain->topics.size(), 2);
+    ASSERT_EQ(domain->topics.size(), 2u);
     ASSERT_EQ(domain->topics[topic_id].get(), topic.get());
     ASSERT_EQ(domain->topics[topic_id_2].get(), topic_2.get());
 
     /* Check that the topics are correctly inserted in topic_ */
     auto topics = db.topics();
-    ASSERT_EQ(topics.size(), 1);
-    ASSERT_EQ(topics[domain_id].size(), 2);
+    ASSERT_EQ(topics.size(), 1u);
+    ASSERT_EQ(topics[domain_id].size(), 2u);
     ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
     ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
@@ -1309,14 +1309,14 @@ TEST_F(database_tests, insert_topic_two_same_domain_diff_name_same_type)
     EntityId topic_id_2 = db.insert(topic_2);
 
     /* Check that the topics are correctly inserted in domain */
-    ASSERT_EQ(domain->topics.size(), 2);
+    ASSERT_EQ(domain->topics.size(), 2u);
     ASSERT_EQ(domain->topics[topic_id].get(), topic.get());
     ASSERT_EQ(domain->topics[topic_id_2].get(), topic_2.get());
 
     /* Check that the topics are correctly inserted in topic_ */
     auto topics = db.topics();
-    ASSERT_EQ(topics.size(), 1);
-    ASSERT_EQ(topics[domain_id].size(), 2);
+    ASSERT_EQ(topics.size(), 1u);
+    ASSERT_EQ(topics[domain_id].size(), 2u);
     ASSERT_NE(topics[domain_id].find(topic_id), topics[domain_id].end());
     ASSERT_NE(topics[domain_id].find(topic_id_2), topics[domain_id].end());
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
@@ -1350,13 +1350,13 @@ TEST_F(database_tests, insert_participant_valid)
     auto participant_id = db.insert(participant);
 
     /* Check that the participant is correctly inserted in domain */
-    ASSERT_EQ(domain->participants.size(), 1);
+    ASSERT_EQ(domain->participants.size(), 1u);
     ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
 
     /* Check that the participant is inserted correctly inserted in participants_ */
     auto participants = db.participants();
-    ASSERT_EQ(participants.size(), 1);
-    ASSERT_EQ(participants[domain_id].size(), 1);
+    ASSERT_EQ(participants.size(), 1u);
+    ASSERT_EQ(participants[domain_id].size(), 1u);
     ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->alias);
@@ -1393,14 +1393,14 @@ TEST_F(database_tests, insert_participant_two_valid)
     auto participant_id_2 = db.insert(participant_2);
 
     /* Check that the participants are correctly inserted in domain */
-    ASSERT_EQ(domain->participants.size(), 2);
+    ASSERT_EQ(domain->participants.size(), 2u);
     ASSERT_EQ(domain->participants[participant_id].get(), participant.get());
     ASSERT_EQ(domain->participants[participant_id_2].get(), participant_2.get());
 
     /* Check that the participants are inserted correctly inserted in participants_ */
     auto participants = db.participants();
-    ASSERT_EQ(participants.size(), 1);
-    ASSERT_EQ(participants[domain_id].size(), 2);
+    ASSERT_EQ(participants.size(), 1u);
+    ASSERT_EQ(participants[domain_id].size(), 2u);
     ASSERT_NE(participants[domain_id].find(participant_id), participants[domain_id].end());
     ASSERT_NE(participants[domain_id].find(participant_id_2), participants[domain_id].end());
     ASSERT_EQ(part_name, participants[domain_id][participant_id]->name);
@@ -1644,7 +1644,7 @@ TEST_F(database_tests, insert_locator)
 
     /* Check that the locator is inserted correctly */
     std::map<EntityId, std::shared_ptr<Locator>> locators = db.locators();
-    ASSERT_EQ(locators.size(), 1);
+    ASSERT_EQ(locators.size(), 1u);
     ASSERT_NE(locators.find(host_id), locators.end());
     ASSERT_EQ(locator_name, locators[locator_id]->name);
     ASSERT_EQ(locator_name, locators[locator_id]->alias);
@@ -1663,7 +1663,7 @@ TEST_F(database_tests, insert_locator_two)
 
     /* Check that the locators are inserted correctly */
     std::map<EntityId, std::shared_ptr<Locator>> locators = db.locators();
-    ASSERT_EQ(locators.size(), 2);
+    ASSERT_EQ(locators.size(), 2u);
     ASSERT_NE(locators.find(locator_id), locators.end());
     ASSERT_NE(locators.find(locator_id_2), locators.end());
     ASSERT_EQ(locator_name, locators[locator_id]->name);
@@ -1729,19 +1729,19 @@ TEST_F(database_tests, link_participant_with_process_unlinked)
     ASSERT_NO_THROW(db.link_participant_with_process(participant_id, process_id));
 
     /* Check that the participant is correctly inserted in process */
-    ASSERT_EQ(process->participants.size(), 1);
+    ASSERT_EQ(process->participants.size(), 1u);
     ASSERT_EQ(process->participants[participant_id].get(), participant.get());
 
     /* Check that domain is inserted correctly in domains_by_process_ */
     auto domains_by_process = db.domains_by_process();
-    ASSERT_EQ(domains_by_process.size(), 1);
-    ASSERT_EQ(domains_by_process[process_id].size(), 1);
+    ASSERT_EQ(domains_by_process.size(), 1u);
+    ASSERT_EQ(domains_by_process[process_id].size(), 1u);
     ASSERT_EQ(domains_by_process[process_id][domain_id].get(), domain.get());
 
     /* Check that domain is inserted correctly in processes_by_domain_ */
     auto processes_by_domain = db.processes_by_domain();
-    ASSERT_EQ(processes_by_domain.size(), 1);
-    ASSERT_EQ(processes_by_domain[domain_id].size(), 1);
+    ASSERT_EQ(processes_by_domain.size(), 1u);
+    ASSERT_EQ(processes_by_domain[domain_id].size(), 1u);
     ASSERT_EQ(processes_by_domain[domain_id][process_id].get(), process.get());
 }
 
@@ -1845,7 +1845,7 @@ TEST_F(database_tests, insert_sample_network_latency)
     sample_2.data = 13;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id].size(), 2);
+    ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id][0],
             static_cast<EntityDataSample>(sample));
     ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id][1],
@@ -1870,7 +1870,7 @@ TEST_F(database_tests, insert_sample_publication_throughput)
     sample_2.data = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.publication_throughput.size(), 2);
+    ASSERT_EQ(writer->data.publication_throughput.size(), 2u);
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(writer->data.publication_throughput[1], static_cast<EntityDataSample>(sample_2));
 }
@@ -1892,7 +1892,7 @@ TEST_F(database_tests, insert_sample_subscription_throughput)
     sample_2.data = 13;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
-    ASSERT_EQ(reader->data.subscription_throughput.size(), 2);
+    ASSERT_EQ(reader->data.subscription_throughput.size(), 2u);
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(reader->data.subscription_throughput[1], static_cast<EntityDataSample>(sample_2));
 }
@@ -1916,8 +1916,8 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -1944,8 +1944,8 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent_unknown_remote_locator)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.get_entity(remote_id));
 
-    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_sent[remote_id].size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_sent[remote_id].size(), 1u);
     ASSERT_EQ(participant->data.rtps_packets_sent[remote_id][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.last_reported_rtps_packets_sent_count[remote_id].count, sample.count);
 }
@@ -1964,8 +1964,8 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent)
     sample_2.magnitude_order = 3;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
     ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][1],
             static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
@@ -1995,8 +1995,8 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent_unknown_remote_locator)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.get_entity(remote_id));
 
-    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_sent[remote_id].size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[remote_id].size(), 1u);
     ASSERT_EQ(participant->data.rtps_bytes_sent[remote_id][0], static_cast<ByteCountSample>(sample));
     ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[remote_id].count, sample.count);
     ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[remote_id].magnitude_order, sample.magnitude_order);
@@ -2014,8 +2014,8 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2041,8 +2041,8 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost_unknown_remote_locator)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.get_entity(remote_id));
 
-    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_packets_lost[remote_id].size(), 1);
+    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_lost[remote_id].size(), 1u);
     ASSERT_EQ(participant->data.rtps_packets_lost[remote_id][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.last_reported_rtps_packets_lost_count[remote_id].count, sample.count);
 }
@@ -2061,8 +2061,8 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost)
     sample_2.magnitude_order = 3;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2);
+    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
     ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][1],
             static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
@@ -2092,8 +2092,8 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost_unknown_remote_locator)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.get_entity(remote_id));
 
-    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1);
-    ASSERT_EQ(participant->data.rtps_bytes_lost[remote_id].size(), 1);
+    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[remote_id].size(), 1u);
     ASSERT_EQ(participant->data.rtps_bytes_lost[remote_id][0], static_cast<ByteCountSample>(sample));
     ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[remote_id].count, sample.count);
     ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[remote_id].magnitude_order, sample.magnitude_order);
@@ -2109,7 +2109,7 @@ TEST_F(database_tests, insert_sample_resent_data)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.resent_datas.size(), 2);
+    ASSERT_EQ(writer->data.resent_datas.size(), 2u);
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.resent_datas[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2133,7 +2133,7 @@ TEST_F(database_tests, insert_sample_heartbeat_count)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.heartbeat_count.size(), 2);
+    ASSERT_EQ(writer->data.heartbeat_count.size(), 2u);
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.heartbeat_count[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2157,7 +2157,7 @@ TEST_F(database_tests, insert_sample_acknack_count)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
-    ASSERT_EQ(reader->data.acknack_count.size(), 2);
+    ASSERT_EQ(reader->data.acknack_count.size(), 2u);
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(reader->data.acknack_count[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2181,7 +2181,7 @@ TEST_F(database_tests, insert_sample_nackfrag_count)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
-    ASSERT_EQ(reader->data.nackfrag_count.size(), 2);
+    ASSERT_EQ(reader->data.nackfrag_count.size(), 2u);
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(reader->data.nackfrag_count[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2205,7 +2205,7 @@ TEST_F(database_tests, insert_sample_gap_count)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.gap_count.size(), 2);
+    ASSERT_EQ(writer->data.gap_count.size(), 2u);
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.gap_count[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2229,7 +2229,7 @@ TEST_F(database_tests, insert_sample_data_count)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.data_count.size(), 2);
+    ASSERT_EQ(writer->data.data_count.size(), 2u);
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.data_count[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2253,7 +2253,7 @@ TEST_F(database_tests, insert_sample_pdp_packets)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.pdp_packets.size(), 2);
+    ASSERT_EQ(participant->data.pdp_packets.size(), 2u);
     ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.pdp_packets[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2277,7 +2277,7 @@ TEST_F(database_tests, insert_sample_edp_packets)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.edp_packets.size(), 2);
+    ASSERT_EQ(participant->data.edp_packets.size(), 2u);
     ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.edp_packets[1],
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
@@ -2305,8 +2305,8 @@ TEST_F(database_tests, insert_sample_discovery_time)
     sample_2.discovered = true;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
-    ASSERT_EQ(participant->data.discovered_entity.size(), 1);
-    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2);
+    ASSERT_EQ(participant->data.discovered_entity.size(), 1u);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2u);
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
     ASSERT_EQ(participant->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
 }
@@ -2332,7 +2332,7 @@ TEST_F(database_tests, insert_sample_sample_datas)
     sample_2.count = 13;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.sample_datas.size(), 2);
+    ASSERT_EQ(writer->data.sample_datas.size(), 2u);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.sample_datas[sample_2.sequence_number][0], static_cast<EntityCountSample>(sample_2));
 
@@ -2342,8 +2342,8 @@ TEST_F(database_tests, insert_sample_sample_datas)
     sample_3.count = 16;
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
 
-    ASSERT_EQ(writer->data.sample_datas.size(), 2);
-    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number].size(), 1);
+    ASSERT_EQ(writer->data.sample_datas.size(), 2u);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number].size(), 1u);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample_3));
 }
 
@@ -2483,7 +2483,7 @@ TEST_F(database_tests, get_entities_by_name_host)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto hosts = db.get_entities_by_name(EntityKind::HOST, host_name);
-    EXPECT_EQ(hosts.size(), 1);
+    EXPECT_EQ(hosts.size(), 1u);
     EXPECT_FALSE(hosts[0].first.is_valid_and_unique());
     EXPECT_EQ(hosts[0].second, host_id);
 }
@@ -2491,14 +2491,14 @@ TEST_F(database_tests, get_entities_by_name_host)
 TEST_F(database_tests, get_entities_by_name_host_wrong_name)
 {
     auto hosts = db.get_entities_by_name(EntityKind::HOST, "wrong_name");
-    EXPECT_EQ(hosts.size(), 0);
+    EXPECT_EQ(hosts.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_user)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto users = db.get_entities_by_name(EntityKind::USER, user_name);
-    EXPECT_EQ(users.size(), 1);
+    EXPECT_EQ(users.size(), 1u);
     EXPECT_FALSE(users[0].first.is_valid_and_unique());
     EXPECT_EQ(users[0].second, user_id);
 
@@ -2510,7 +2510,7 @@ TEST_F(database_tests, get_entities_by_name_user)
     std::vector<EntityId> ids = {user_id, user_id_2};
     users = db.get_entities_by_name(EntityKind::USER, user_name);
 
-    EXPECT_EQ(users.size(), 2);
+    EXPECT_EQ(users.size(), 2u);
     for (size_t i = 0; i < users.size(); i++)
     {
         EXPECT_FALSE(users[i].first.is_valid_and_unique());
@@ -2521,14 +2521,14 @@ TEST_F(database_tests, get_entities_by_name_user)
 TEST_F(database_tests, get_entities_by_name_user_wrong_name)
 {
     auto users = db.get_entities_by_name(EntityKind::USER, "wrong_name");
-    EXPECT_EQ(users.size(), 0);
+    EXPECT_EQ(users.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_process)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
-    EXPECT_EQ(processes.size(), 1);
+    EXPECT_EQ(processes.size(), 1u);
     EXPECT_FALSE(processes[0].first.is_valid_and_unique());
     EXPECT_EQ(processes[0].second, process_id);
 
@@ -2538,7 +2538,7 @@ TEST_F(database_tests, get_entities_by_name_process)
     std::vector<EntityId> ids = {process_id, process_id_2};
     processes = db.get_entities_by_name(EntityKind::PROCESS, process_name);
 
-    EXPECT_EQ(processes.size(), 2);
+    EXPECT_EQ(processes.size(), 2u);
     for (size_t i = 0; i < processes.size(); i++)
     {
         EXPECT_FALSE(processes[i].first.is_valid_and_unique());
@@ -2549,14 +2549,14 @@ TEST_F(database_tests, get_entities_by_name_process)
 TEST_F(database_tests, get_entities_by_name_process_wrong_name)
 {
     auto processes = db.get_entities_by_name(EntityKind::PROCESS, "wrong_name");
-    EXPECT_EQ(processes.size(), 0);
+    EXPECT_EQ(processes.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_domain)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto domains = db.get_entities_by_name(EntityKind::DOMAIN, domain_name);
-    EXPECT_EQ(domains.size(), 1);
+    EXPECT_EQ(domains.size(), 1u);
     EXPECT_EQ(domains[0].first, domain_id);
     EXPECT_EQ(domains[0].second, domain_id);
 }
@@ -2564,14 +2564,14 @@ TEST_F(database_tests, get_entities_by_name_domain)
 TEST_F(database_tests, get_entities_by_name_domain_wrong_name)
 {
     auto domains = db.get_entities_by_name(EntityKind::DOMAIN, "wrong_name");
-    EXPECT_EQ(domains.size(), 0);
+    EXPECT_EQ(domains.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_participant)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
-    EXPECT_EQ(participants.size(), 1);
+    EXPECT_EQ(participants.size(), 1u);
     EXPECT_EQ(participants[0].first, domain_id);
     EXPECT_EQ(participants[0].second, participant_id);
 
@@ -2582,7 +2582,7 @@ TEST_F(database_tests, get_entities_by_name_participant)
     std::vector<EntityId> ids = {participant_id, participant_id_2};
     participants = db.get_entities_by_name(EntityKind::PARTICIPANT, participant_name);
 
-    EXPECT_EQ(participants.size(), 2);
+    EXPECT_EQ(participants.size(), 2u);
     for (size_t i = 0; i < participants.size(); i++)
     {
         EXPECT_TRUE(participants[i].first.is_valid_and_unique());
@@ -2593,14 +2593,14 @@ TEST_F(database_tests, get_entities_by_name_participant)
 TEST_F(database_tests, get_entities_by_name_participant_wrong_name)
 {
     auto participants = db.get_entities_by_name(EntityKind::PARTICIPANT, "wrong_name");
-    EXPECT_EQ(participants.size(), 0);
+    EXPECT_EQ(participants.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_topic)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
-    EXPECT_EQ(topics.size(), 1);
+    EXPECT_EQ(topics.size(), 1u);
     EXPECT_EQ(topics[0].first, domain_id);
     EXPECT_EQ(topics[0].second, topic_id);
 
@@ -2612,7 +2612,7 @@ TEST_F(database_tests, get_entities_by_name_topic)
     std::vector<EntityId> ids = {topic_id, topic_id_2};
     topics = db.get_entities_by_name(EntityKind::TOPIC, topic_name);
 
-    EXPECT_EQ(topics.size(), 2);
+    EXPECT_EQ(topics.size(), 2u);
     for (size_t i = 0; i < topics.size(); i++)
     {
         EXPECT_TRUE(topics[i].first.is_valid_and_unique());
@@ -2623,14 +2623,14 @@ TEST_F(database_tests, get_entities_by_name_topic)
 TEST_F(database_tests, get_entities_by_name_topic_wrong_name)
 {
     auto topics = db.get_entities_by_name(EntityKind::TOPIC, "wrong_name");
-    EXPECT_EQ(topics.size(), 0);
+    EXPECT_EQ(topics.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_datawriter)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
-    EXPECT_EQ(datawriters.size(), 1);
+    EXPECT_EQ(datawriters.size(), 1u);
     EXPECT_EQ(datawriters[0].first, domain_id);
     EXPECT_EQ(datawriters[0].second, writer_id);
 
@@ -2641,7 +2641,7 @@ TEST_F(database_tests, get_entities_by_name_datawriter)
     std::vector<EntityId> ids = {writer_id, writer_id_2};
     datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, writer_name);
 
-    EXPECT_EQ(datawriters.size(), 2);
+    EXPECT_EQ(datawriters.size(), 2u);
     for (size_t i = 0; i < datawriters.size(); i++)
     {
         EXPECT_TRUE(datawriters[i].first.is_valid_and_unique());
@@ -2652,14 +2652,14 @@ TEST_F(database_tests, get_entities_by_name_datawriter)
 TEST_F(database_tests, get_entities_by_name_datawriter_wrong_name)
 {
     auto datawriters = db.get_entities_by_name(EntityKind::DATAWRITER, "wrong_name");
-    EXPECT_EQ(datawriters.size(), 0);
+    EXPECT_EQ(datawriters.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_datareader)
 {
     /* Check that the inserted entity is retrieved correctly */
     auto datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
-    EXPECT_EQ(datareaders.size(), 1);
+    EXPECT_EQ(datareaders.size(), 1u);
     EXPECT_EQ(datareaders[0].first, domain_id);
     EXPECT_EQ(datareaders[0].second, reader_id);
 
@@ -2670,7 +2670,7 @@ TEST_F(database_tests, get_entities_by_name_datareader)
     std::vector<EntityId> ids = {reader_id, reader_id_2};
     datareaders = db.get_entities_by_name(EntityKind::DATAREADER, reader_name);
 
-    EXPECT_EQ(datareaders.size(), 2);
+    EXPECT_EQ(datareaders.size(), 2u);
     for (size_t i = 0; i < datareaders.size(); i++)
     {
         EXPECT_TRUE(datareaders[i].first.is_valid_and_unique());
@@ -2681,13 +2681,13 @@ TEST_F(database_tests, get_entities_by_name_datareader)
 TEST_F(database_tests, get_entities_by_name_datareader_wrong_name)
 {
     auto datareaders = db.get_entities_by_name(EntityKind::DATAREADER, "wrong_name");
-    EXPECT_EQ(datareaders.size(), 0);
+    EXPECT_EQ(datareaders.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_locator)
 {
     auto locators = db.get_entities_by_name(EntityKind::LOCATOR, writer_locator_name);
-    EXPECT_EQ(locators.size(), 1);
+    EXPECT_EQ(locators.size(), 1u);
     EXPECT_FALSE(locators[0].first.is_valid_and_unique());
     EXPECT_EQ(locators[0].second, writer_locator->id);
 }
@@ -2695,7 +2695,7 @@ TEST_F(database_tests, get_entities_by_name_locator)
 TEST_F(database_tests, get_entities_by_name_locator_wrong_name)
 {
     auto locators = db.get_entities_by_name(EntityKind::LOCATOR, "wrong_name");
-    EXPECT_EQ(locators.size(), 0);
+    EXPECT_EQ(locators.size(), 0u);
 }
 
 TEST_F(database_tests, get_entities_by_name_invalid)

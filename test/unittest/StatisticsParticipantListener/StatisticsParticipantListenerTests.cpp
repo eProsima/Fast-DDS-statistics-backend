@@ -182,10 +182,10 @@ public:
         // Metatraffic Topic entity
         metatraffic_topic_name_ = metatraffic_prefix + "TOPIC";
         metatraffic_type_name_ = metatraffic_prefix + "TYPE";
-        metatraffic_topic_ = std::make_shared<Topic>(topic_name_, type_name_, domain_);
+        metatraffic_topic_ = std::make_shared<Topic>(metatraffic_topic_name_, metatraffic_type_name_, domain_);
 
         // Metatraffic Endpoint entity
-        metatraffic_endpoint_name_ = metatraffic_prefix + "ENDPOINT_" + participant_guid_str_;
+        metatraffic_endpoint_name_ = "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1";
         metatraffic_qos_ = {{"description", "This is a virtual placeholder endpoint with no real counterpart"}};
         metatraffic_endpoint_ = std::make_shared<DataWriter>(metatraffic_endpoint_name_, metatraffic_qos_,
                         participant_guid_str_, participant_, metatraffic_topic_);
@@ -238,19 +238,20 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            .Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-    EXPECT_CALL(database, get_entities(EntityKind::PARTICIPANT, EntityId(0)))
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>()));
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -259,9 +260,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: There are unicast locators in database
     EXPECT_CALL(database,
@@ -283,18 +283,18 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:2"))
             .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter(
-                "Database does not contain an entity with ID 2")));
+            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_multicast_locator));
 
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:4"))
             .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(4)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter(
-                "Database does not contain an entity with ID 4")));
+            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(default_multicast_locator));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -342,7 +342,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -354,9 +354,26 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
 
-    // Precondition: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+    // Expectation: The Participant is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(10), EntityKind::PARTICIPANT,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
+
+    // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: The metatraffic endpoint is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(12), EntityKind::DATAWRITER,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
+
+    // Expectation: The topic is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::TOPIC,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
     info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
@@ -406,22 +423,22 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
     // Precondition: The Participant_1 Metatrafic Endpoint exists and has ID 7
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_endpoint_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(7)))));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(7))));
     EXPECT_CALL(database, get_entity(EntityId(7))).Times(AnyNumber())
             .WillRepeatedly(Return(metatraffic_endpoint_));
 
     // Precondition: The new Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_2_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_2_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_2_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: There are unicast locators in database
     EXPECT_CALL(database,
@@ -443,18 +460,18 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:2"))
             .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter(
-                "Database does not contain an entity with ID 2")));
+            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_multicast_locator));
 
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:4"))
             .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(4)))));
     EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter(
-                "Database does not contain an entity with ID 4")));
+            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(default_multicast_locator));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -481,7 +498,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(entity->name, participant_2_name);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_2_guid_str);
                 EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_info_to_backend_qos(info));
+                participant_proxy_data_to_backend_qos(info.info));
 
                 return EntityId(10);
             });
@@ -491,7 +508,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_2_guid_str);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_2_guid_str);
 
@@ -502,8 +519,20 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
 
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+    // Expectation: The Participant is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(10), EntityKind::PARTICIPANT,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
+
+    // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: The metatraffic endpoint is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(12), EntityKind::DATAWRITER,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
     info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
@@ -567,10 +596,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Participant does not exist
     EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+            get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -579,9 +610,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -623,7 +653,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -634,9 +664,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -681,11 +708,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -694,9 +722,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -822,7 +849,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -833,9 +860,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -880,11 +904,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -893,9 +918,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -1003,7 +1027,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -1014,9 +1038,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1061,11 +1082,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1074,9 +1096,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
     eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
@@ -1164,7 +1186,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -1175,9 +1197,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1222,11 +1241,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1235,9 +1255,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -1303,7 +1322,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -1314,9 +1333,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1361,11 +1377,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
 
     // Precondition: The Participant does not exist
-    EXPECT_CALL(database,
-            get_entity_by_guid(EntityKind::PARTICIPANT,
-            participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                    BadParameter(
-                "Error")));
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
+            .Times(AnyNumber())
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
+            .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
+    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
+            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1374,9 +1391,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_prefix + "ENDPOINT_" + participant_guid_str_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -1494,7 +1510,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 std::shared_ptr<Entity> entity)
             {
                 EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "ENDPOINT_" + participant_guid_str_);
+                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
                 EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
 
@@ -1505,9 +1521,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The Participant change it status
-    EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1540,14 +1553,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
 {
     // Precondition: The Domain 0 does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
+            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            .Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
+
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Metatrafic Endpoint does not exist
+    EXPECT_CALL(database,
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
@@ -1597,12 +1619,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
 
     // Precondition: The Metatrafic Endpoint exists and has ID 7
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DATAWRITER,
-            metatraffic_endpoint_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(7)))));
-    EXPECT_CALL(database, get_entity(EntityId(7))).Times(AnyNumber())
-            .WillRepeatedly(Return(metatraffic_endpoint_));
+            get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(7))));
 
     // Precondition: There are unicast locators in database
     EXPECT_CALL(database,
@@ -1656,7 +1674,20 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     EXPECT_CALL(database, insert(_)).Times(0);
 
     // Expectation: The Participant status is set to active
+    EXPECT_CALL(database, change_entity_status(EntityId(7), true)).Times(1);
     EXPECT_CALL(database, change_entity_status(EntityId(5), true)).Times(1);
+
+    // Expectation: The Participant is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(5), EntityKind::PARTICIPANT,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
+
+    // Expectation: The metatraffic endpoint is discovered
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(EntityId(0), EntityId(7), EntityKind::DATAWRITER,
+        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener.
     info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;

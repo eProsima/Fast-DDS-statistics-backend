@@ -167,7 +167,10 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
     }
 
+    entity_queue_->push(timestamp, discovery_info);
+
     // Create metatraffic entities
+    if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
         // Create metatraffic endpoint and locator on the metatraffic topic.
         {
@@ -197,6 +200,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.domain_id = domain_id_;
             datawriter_discovery_info.topic_name = metatraffic_prefix + "TOPIC";
             datawriter_discovery_info.type_name = metatraffic_prefix + "TYPE";
+            datawriter_discovery_info.guid = info.info.m_guid;
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
@@ -205,8 +209,6 @@ void StatisticsParticipantListener::on_participant_discovery(
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
-
-    entity_queue_->push(timestamp, discovery_info);
 
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
