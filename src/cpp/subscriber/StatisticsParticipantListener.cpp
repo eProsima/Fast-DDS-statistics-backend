@@ -170,7 +170,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     entity_queue_->push(timestamp, discovery_info);
 
     // Create metatraffic entities
-    if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+    if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != discovery_info.discovery_status)
     {
         // Create metatraffic endpoint and locator on the metatraffic topic.
         {
@@ -204,8 +204,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
-            datawriter_discovery_info.discovery_status =
-                    details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
