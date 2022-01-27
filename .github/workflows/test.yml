@@ -12,6 +12,11 @@ on:
 jobs:
   windows-build-test:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        cmake-config:
+          - 'Release'
+          - 'Debug'
     env:
       CXXFLAGS: /MP
       OPENSSL64_ROOT: "C:/Program Files/OpenSSL-Win64"
@@ -37,8 +42,7 @@ jobs:
             git clone https://github.com/google/googletest.git;
             cmake -DCMAKE_INSTALL_PREFIX='C:\Program Files\gtest' -Dgtest_force_shared_crt=ON -DBUILD_GMOCK=ON `
               -B build\gtest -A x64 -T host=x64 googletest;
-            cmake --build build\gtest --config Debug --target install;
-            cmake --build build\gtest --config Release --target install
+            cmake --build build\gtest --config ${{ matrix.cmake-config }} --target install;
           }
 
       - name: install foonatham memory
@@ -47,16 +51,14 @@ jobs:
           git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
           cmake -DBUILD_SHARED_LIBS=OFF -DFOONATHAN_MEMORY_BUILD_TOOLS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON `
             -DFOONATHAN_MEMORY_BUILD_TESTS=OFF -Ax64 -T host=x64 -B build\memory memory;
-          cmake --build build\memory --config Debug --target install;
-          cmake --build build\memory --config Release --target install
+          cmake --build build\memory --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-CDR
         shell: pwsh
         run: >
           git clone https://github.com/eProsima/Fast-CDR.git;
           cmake -Ax64 -T host=x64 -B build\fastcdr Fast-CDR;
-          cmake --build build\fastcdr --config Debug --target install;
-          cmake --build build\fastcdr --config Release --target install
+          cmake --build build\fastcdr --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-DDS
         shell: pwsh
@@ -64,24 +66,18 @@ jobs:
           git clone https://github.com/eProsima/Fast-DDS.git;
           cmake -DTHIRDPARTY=ON -DSECURITY=ON -DCOMPILE_EXAMPLES=OFF -DEPROSIMA_BUILD_TESTS=OFF `
             -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
-          cmake --build build\fastdds --config Debug --target install;
-          cmake --build build\fastdds --config Release --target install
+          cmake --build build\fastdds --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-DDS-statistics-backend
         shell: pwsh
         run: >
           cmake -DCMAKE_PREFIX_PATH='C:\Program Files\gtest' -DBUILD_LIBRARY_TESTS=ON `
             -B build\backend -A x64 -T host=x64 Fast-DDS-statistics-backend;
-          cmake --build build\backend --config Debug --target install;
-          cmake --build build\backend --config Release --target install
+          cmake --build build\backend --config ${{ matrix.cmake-config }} --target install;
 
-      - name: Run tests on Release
+      - name: Run tests on ${{ matrix.cmake-config }}
         shell: pwsh
-        run: ctest -C Release --test-dir build\backend -V --timeout 60
-
-      - name: Run tests on Debug
-        shell: pwsh
-        run: ctest -C Debug --test-dir build\backend -V --timeout 60
+        run: ctest -C ${{ matrix.cmake-config }} --test-dir build\backend -V --timeout 60
 
   ubuntu-build-test:
     runs-on: ubuntu-latest
