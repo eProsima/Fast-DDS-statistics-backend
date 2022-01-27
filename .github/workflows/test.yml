@@ -27,6 +27,7 @@ jobs:
           path: Fast-DDS-statistics-backend
 
       - name: install OpenSSL
+        continue-on-error: true
         shell: pwsh
         run: >
           choco install openssl -yr --no-progress;
@@ -34,6 +35,7 @@ jobs:
           | rm -ErrorAction SilentlyContinue
 
       - name: install GoogleTest
+        continue-on-error: true
         shell: pwsh
         run: >
           cmake --find-package -DNAME=GTest -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST | Tee-Object -Variable res;
@@ -46,6 +48,7 @@ jobs:
           }
 
       - name: install foonatham memory
+        continue-on-error: true
         shell: pwsh
         run: >
           git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
@@ -54,6 +57,7 @@ jobs:
           cmake --build build\memory --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-CDR
+        continue-on-error: true
         shell: pwsh
         run: >
           git clone https://github.com/eProsima/Fast-CDR.git;
@@ -61,6 +65,7 @@ jobs:
           cmake --build build\fastcdr --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-DDS
+        continue-on-error: true
         shell: pwsh
         run: >
           git clone https://github.com/eProsima/Fast-DDS.git;
@@ -69,6 +74,7 @@ jobs:
           cmake --build build\fastdds --config ${{ matrix.cmake-config }} --target install;
 
       - name: install Fast-DDS-statistics-backend
+        continue-on-error: true
         shell: pwsh
         run: >
           cmake -DCMAKE_PREFIX_PATH='C:\Program Files\gtest' -DBUILD_LIBRARY_TESTS=ON `
@@ -76,6 +82,7 @@ jobs:
           cmake --build build\backend --config ${{ matrix.cmake-config }} --target install;
 
       - name: Run tests on ${{ matrix.cmake-config }}
+        continue-on-error: true
         shell: pwsh
         run: ctest -C ${{ matrix.cmake-config }} --test-dir build\backend -V --timeout 60
 
