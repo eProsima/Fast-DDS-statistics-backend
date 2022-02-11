@@ -146,10 +146,12 @@ public:
     {
         if (consuming_)
         {
-            std::unique_lock<std::mutex> guard(cv_mutex_);
-            consuming_ = false;
-            guard.unlock();
-            cv_.notify_all();
+            {
+                std::unique_lock<std::mutex> guard(cv_mutex_);
+                consuming_ = false;
+                guard.unlock();
+                cv_.notify_all();
+            }
             consumer_thread_->join();
             consumer_thread_.reset();
             return true;
