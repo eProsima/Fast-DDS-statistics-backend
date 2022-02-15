@@ -122,6 +122,8 @@ public:
                             return;
                         }
 
+                        g_qos.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+
                         g_reader = g_subscriber->create_datareader(
                             g_topic,
                             g_qos,
@@ -167,10 +169,13 @@ public:
                     }
                 };
 
-        participant->register_remote_type(
-            type_information,
-            type_name.to_string(),
-            callback);
+        if (eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK != participant->register_remote_type(
+                    type_information,
+                    type_name.to_string(),
+                    callback))
+        {
+            std::cout << "ERROR: Cannot register remote type" << std::endl;
+        }
     }
 
 #if HAVE_SECURITY
@@ -399,6 +404,10 @@ int main(
                     return listener.number_samples_ >= samples;
                 });
     }
+
+    std::cout << "Subscriber finished receiving samples" << std::endl;
+    char c;
+    std::cin >> c;
 
     if (g_reader != nullptr)
     {
