@@ -35,7 +35,9 @@ namespace eprosima {
                 EntityId_sPubSubType::EntityId_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::EntityId_s");
-                    m_typeSize = static_cast<uint32_t>(EntityId_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = EntityId_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = EntityId_s::isKeyDefined();
                     size_t keyLength = EntityId_s::getKeyMaxCdrSerializedSize() > 16 ?
                             EntityId_s::getKeyMaxCdrSerializedSize() : 16;
@@ -84,21 +86,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    EntityId_s* p_type = static_cast<EntityId_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        EntityId_s* p_type = static_cast<EntityId_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -173,7 +175,9 @@ namespace eprosima {
                 GuidPrefix_sPubSubType::GuidPrefix_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::GuidPrefix_s");
-                    m_typeSize = static_cast<uint32_t>(GuidPrefix_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = GuidPrefix_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = GuidPrefix_s::isKeyDefined();
                     size_t keyLength = GuidPrefix_s::getKeyMaxCdrSerializedSize() > 16 ?
                             GuidPrefix_s::getKeyMaxCdrSerializedSize() : 16;
@@ -222,21 +226,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    GuidPrefix_s* p_type = static_cast<GuidPrefix_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        GuidPrefix_s* p_type = static_cast<GuidPrefix_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -311,7 +315,9 @@ namespace eprosima {
                 GUID_sPubSubType::GUID_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::GUID_s");
-                    m_typeSize = static_cast<uint32_t>(GUID_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = GUID_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = GUID_s::isKeyDefined();
                     size_t keyLength = GUID_s::getKeyMaxCdrSerializedSize() > 16 ?
                             GUID_s::getKeyMaxCdrSerializedSize() : 16;
@@ -360,21 +366,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    GUID_s* p_type = static_cast<GUID_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        GUID_s* p_type = static_cast<GUID_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -449,7 +455,9 @@ namespace eprosima {
                 SequenceNumber_sPubSubType::SequenceNumber_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::SequenceNumber_s");
-                    m_typeSize = static_cast<uint32_t>(SequenceNumber_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = SequenceNumber_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = SequenceNumber_s::isKeyDefined();
                     size_t keyLength = SequenceNumber_s::getKeyMaxCdrSerializedSize() > 16 ?
                             SequenceNumber_s::getKeyMaxCdrSerializedSize() : 16;
@@ -498,21 +506,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    SequenceNumber_s* p_type = static_cast<SequenceNumber_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        SequenceNumber_s* p_type = static_cast<SequenceNumber_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -587,7 +595,9 @@ namespace eprosima {
                 SampleIdentity_sPubSubType::SampleIdentity_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::SampleIdentity_s");
-                    m_typeSize = static_cast<uint32_t>(SampleIdentity_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = SampleIdentity_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = SampleIdentity_s::isKeyDefined();
                     size_t keyLength = SampleIdentity_s::getKeyMaxCdrSerializedSize() > 16 ?
                             SampleIdentity_s::getKeyMaxCdrSerializedSize() : 16;
@@ -636,21 +646,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    SampleIdentity_s* p_type = static_cast<SampleIdentity_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        SampleIdentity_s* p_type = static_cast<SampleIdentity_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -725,7 +735,9 @@ namespace eprosima {
                 Locator_sPubSubType::Locator_sPubSubType()
                 {
                     setName("eprosima::fastdds::statistics::detail::Locator_s");
-                    m_typeSize = static_cast<uint32_t>(Locator_s::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                    auto type_size = Locator_s::getMaxCdrSerializedSize();
+                    type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                    m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                     m_isGetKeyDefined = Locator_s::isKeyDefined();
                     size_t keyLength = Locator_s::getKeyMaxCdrSerializedSize() > 16 ?
                             Locator_s::getKeyMaxCdrSerializedSize() : 16;
@@ -774,21 +786,21 @@ namespace eprosima {
                         SerializedPayload_t* payload,
                         void* data)
                 {
-                    //Convert DATA to pointer of your type
-                    Locator_s* p_type = static_cast<Locator_s*>(data);
-
-                    // Object that manages the raw buffer.
-                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                    // Object that deserializes the data.
-                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                    // Deserialize encapsulation.
-                    deser.read_encapsulation();
-                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                     try
                     {
+                        //Convert DATA to pointer of your type
+                        Locator_s* p_type = static_cast<Locator_s*>(data);
+
+                        // Object that manages the raw buffer.
+                        eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                        // Object that deserializes the data.
+                        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                        // Deserialize encapsulation.
+                        deser.read_encapsulation();
+                        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                         // Deserialize the object.
                         p_type->deserialize(deser);
                     }
@@ -865,7 +877,9 @@ namespace eprosima {
             DiscoveryTimePubSubType::DiscoveryTimePubSubType()
             {
                 setName("eprosima::fastdds::statistics::DiscoveryTime");
-                m_typeSize = static_cast<uint32_t>(DiscoveryTime::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = DiscoveryTime::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = DiscoveryTime::isKeyDefined();
                 size_t keyLength = DiscoveryTime::getKeyMaxCdrSerializedSize() > 16 ?
                         DiscoveryTime::getKeyMaxCdrSerializedSize() : 16;
@@ -914,21 +928,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                DiscoveryTime* p_type = static_cast<DiscoveryTime*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    DiscoveryTime* p_type = static_cast<DiscoveryTime*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1003,7 +1017,9 @@ namespace eprosima {
             EntityCountPubSubType::EntityCountPubSubType()
             {
                 setName("eprosima::fastdds::statistics::EntityCount");
-                m_typeSize = static_cast<uint32_t>(EntityCount::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = EntityCount::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = EntityCount::isKeyDefined();
                 size_t keyLength = EntityCount::getKeyMaxCdrSerializedSize() > 16 ?
                         EntityCount::getKeyMaxCdrSerializedSize() : 16;
@@ -1052,21 +1068,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                EntityCount* p_type = static_cast<EntityCount*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    EntityCount* p_type = static_cast<EntityCount*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1141,7 +1157,9 @@ namespace eprosima {
             SampleIdentityCountPubSubType::SampleIdentityCountPubSubType()
             {
                 setName("eprosima::fastdds::statistics::SampleIdentityCount");
-                m_typeSize = static_cast<uint32_t>(SampleIdentityCount::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = SampleIdentityCount::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = SampleIdentityCount::isKeyDefined();
                 size_t keyLength = SampleIdentityCount::getKeyMaxCdrSerializedSize() > 16 ?
                         SampleIdentityCount::getKeyMaxCdrSerializedSize() : 16;
@@ -1190,21 +1208,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                SampleIdentityCount* p_type = static_cast<SampleIdentityCount*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    SampleIdentityCount* p_type = static_cast<SampleIdentityCount*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1279,7 +1297,9 @@ namespace eprosima {
             Entity2LocatorTrafficPubSubType::Entity2LocatorTrafficPubSubType()
             {
                 setName("eprosima::fastdds::statistics::Entity2LocatorTraffic");
-                m_typeSize = static_cast<uint32_t>(Entity2LocatorTraffic::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = Entity2LocatorTraffic::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = Entity2LocatorTraffic::isKeyDefined();
                 size_t keyLength = Entity2LocatorTraffic::getKeyMaxCdrSerializedSize() > 16 ?
                         Entity2LocatorTraffic::getKeyMaxCdrSerializedSize() : 16;
@@ -1328,21 +1348,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                Entity2LocatorTraffic* p_type = static_cast<Entity2LocatorTraffic*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    Entity2LocatorTraffic* p_type = static_cast<Entity2LocatorTraffic*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1417,7 +1437,9 @@ namespace eprosima {
             WriterReaderDataPubSubType::WriterReaderDataPubSubType()
             {
                 setName("eprosima::fastdds::statistics::WriterReaderData");
-                m_typeSize = static_cast<uint32_t>(WriterReaderData::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = WriterReaderData::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = WriterReaderData::isKeyDefined();
                 size_t keyLength = WriterReaderData::getKeyMaxCdrSerializedSize() > 16 ?
                         WriterReaderData::getKeyMaxCdrSerializedSize() : 16;
@@ -1466,21 +1488,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                WriterReaderData* p_type = static_cast<WriterReaderData*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    WriterReaderData* p_type = static_cast<WriterReaderData*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1555,7 +1577,9 @@ namespace eprosima {
             Locator2LocatorDataPubSubType::Locator2LocatorDataPubSubType()
             {
                 setName("eprosima::fastdds::statistics::Locator2LocatorData");
-                m_typeSize = static_cast<uint32_t>(Locator2LocatorData::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = Locator2LocatorData::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = Locator2LocatorData::isKeyDefined();
                 size_t keyLength = Locator2LocatorData::getKeyMaxCdrSerializedSize() > 16 ?
                         Locator2LocatorData::getKeyMaxCdrSerializedSize() : 16;
@@ -1604,21 +1628,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                Locator2LocatorData* p_type = static_cast<Locator2LocatorData*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    Locator2LocatorData* p_type = static_cast<Locator2LocatorData*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1693,7 +1717,9 @@ namespace eprosima {
             EntityDataPubSubType::EntityDataPubSubType()
             {
                 setName("eprosima::fastdds::statistics::EntityData");
-                m_typeSize = static_cast<uint32_t>(EntityData::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = EntityData::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = EntityData::isKeyDefined();
                 size_t keyLength = EntityData::getKeyMaxCdrSerializedSize() > 16 ?
                         EntityData::getKeyMaxCdrSerializedSize() : 16;
@@ -1742,21 +1768,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                EntityData* p_type = static_cast<EntityData*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    EntityData* p_type = static_cast<EntityData*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
@@ -1831,7 +1857,9 @@ namespace eprosima {
             PhysicalDataPubSubType::PhysicalDataPubSubType()
             {
                 setName("eprosima::fastdds::statistics::PhysicalData");
-                m_typeSize = static_cast<uint32_t>(PhysicalData::getMaxCdrSerializedSize()) + 4 /*encapsulation*/;
+                auto type_size = PhysicalData::getMaxCdrSerializedSize();
+                type_size += eprosima::fastcdr::Cdr::alignment(type_size, 4); /* possible submessage alignment */
+                m_typeSize = static_cast<uint32_t>(type_size) + 4; /*encapsulation*/
                 m_isGetKeyDefined = PhysicalData::isKeyDefined();
                 size_t keyLength = PhysicalData::getKeyMaxCdrSerializedSize() > 16 ?
                         PhysicalData::getKeyMaxCdrSerializedSize() : 16;
@@ -1880,21 +1908,21 @@ namespace eprosima {
                     SerializedPayload_t* payload,
                     void* data)
             {
-                //Convert DATA to pointer of your type
-                PhysicalData* p_type = static_cast<PhysicalData*>(data);
-
-                // Object that manages the raw buffer.
-                eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
-
-                // Object that deserializes the data.
-                eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
-
-                // Deserialize encapsulation.
-                deser.read_encapsulation();
-                payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
                 try
                 {
+                    //Convert DATA to pointer of your type
+                    PhysicalData* p_type = static_cast<PhysicalData*>(data);
+
+                    // Object that manages the raw buffer.
+                    eprosima::fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(payload->data), payload->length);
+
+                    // Object that deserializes the data.
+                    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR);
+
+                    // Deserialize encapsulation.
+                    deser.read_encapsulation();
+                    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+
                     // Deserialize the object.
                     p_type->deserialize(deser);
                 }
