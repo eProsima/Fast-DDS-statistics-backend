@@ -130,6 +130,7 @@ jobs:
           --xml-pretty \
           --exclude='.*nlohmann-json/.*' \
           --exclude='.*docs/.*' \
+          --exclude='.*examples/.*' \
           --exclude='.*test/.*' \
           --exclude='.*github/.*' \
           --exclude='.*topic_types/.*' \
