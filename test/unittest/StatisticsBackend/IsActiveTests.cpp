@@ -46,6 +46,7 @@ public:
         domain = db->domains().begin()->second;
         topic = db->topics().begin()->second.begin()->second;
         participant = db->participants().begin()->second.begin()->second;
+        // Jump the metatraffic datawriter.
         datawriter = db->get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
         datareader = db->get_dds_endpoints<DataReader>().begin()->second.begin()->second;
         locator = db->locators().begin()->second;

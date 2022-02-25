@@ -1,1388 +1,1384 @@
 {
-    "description": "DB dump with 3 entities of each kind, and 3 data in each data kind for each entity",
-
-    "datareaders":{
-        "17":{
-            "data":{
-                "acknack_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_acknack_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_nackfrag_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "nackfrag_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "subscription_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ]
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0",
-            "locators":[
-                "9"
-            ],
-            "name":"datareader_1",
-            "alias":"datareader_1",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"15",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"14",
-            "virtual_metatraffic":false
+  "description": "DB dump with 3 entities of each kind, and 3 data in each data kind for each entity",
+  "datareaders": {
+    "17": {
+      "data": {
+        "acknack_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_acknack_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "26":{
-            "data":{
-                "acknack_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_acknack_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_nackfrag_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "nackfrag_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "subscription_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ]
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "locators":[
-                "18"
-            ],
-            "name":"datareader_2",
-            "alias":"datareader_2",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"24",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"23",
-            "virtual_metatraffic":false
+        "last_reported_nackfrag_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "8":{
-            "data":{
-                "acknack_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_acknack_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_nackfrag_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "nackfrag_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "subscription_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ]
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
-            "locators":[
-                "0"
-            ],
-            "name":"datareader_0",
-            "alias":"datareader_0",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"6",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"5",
-            "virtual_metatraffic":false
-        }
+        "nackfrag_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "subscription_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ]
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0",
+      "locators": [
+        "9"
+      ],
+      "name": "datareader_1",
+      "alias": "datareader_1",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "15",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "14",
+      "virtual_metatraffic": false
     },
-    "datawriters":{
-        "16":{
-            "data":{
-                "data_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "gap_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "heartbeat_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "history2history_latency":{
-                    "17":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "last_reported_data_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_gap_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_heartbeat_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_resent_datas":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "publication_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ],
-                "resent_datas":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "samples_datas":{
-                    "3":
-                    [
-                        {
-                            "src_time": "200",
-                            "count": 2
-                        }
-                    ]
-                }
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0",
-            "locators":[
-                "9"
-            ],
-            "name":"datawriter_1",
-            "alias":"datawriter_1",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"15",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"14",
-            "virtual_metatraffic":false
+    "26": {
+      "data": {
+        "acknack_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_acknack_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "25":{
-            "data":{
-                "data_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "gap_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "heartbeat_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "history2history_latency":{
-                    "26":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "last_reported_data_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_gap_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_heartbeat_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_resent_datas":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "publication_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ],
-                "resent_datas":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "samples_datas":{
-                    "3":
-                    [
-                        {
-                            "src_time": "200",
-                            "count": 2
-                        }
-                    ]
-                }
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "locators":[
-                "18"
-            ],
-            "name":"datawriter_2",
-            "alias":"datawriter_2",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"24",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"23",
-            "virtual_metatraffic":false
+        "last_reported_nackfrag_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "7":{
-            "data":{
-                "data_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "gap_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "heartbeat_count":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "history2history_latency":{
-                    "8":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "last_reported_data_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_gap_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_heartbeat_count":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_resent_datas":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "publication_throughput":[
-                    {
-                        "data":1.1,
-                        "src_time":"0"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"100"
-                    },
-                    {
-                        "data":1.1,
-                        "src_time":"200"
-                    }
-                ],
-                "resent_datas":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "samples_datas":{
-                    "3":
-                    [
-                        {
-                            "src_time": "200",
-                            "count": 2
-                        }
-                    ]
-                }
-            },
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
-            "locators":[
-                "0"
-            ],
-            "name":"datawriter_0",
-            "alias":"datawriter_0",
-            "metatraffic":false,
-            "alive":true,
-            "participant":"6",
-            "qos":{
-                "qos":"empty"
-            },
-            "topic":"5",
-            "virtual_metatraffic":false
-        }
+        "nackfrag_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "subscription_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ]
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
+      "locators": [
+        "18"
+      ],
+      "name": "datareader_2",
+      "alias": "datareader_2",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "24",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "23",
+      "virtual_metatraffic": false
     },
-    "domains":{
-        "13":{
-            "name":"121",
-            "alias":"domain_1",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "15"
-            ],
-            "topics":[
-                "14"
-            ]
+    "8": {
+      "data": {
+        "acknack_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_acknack_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "22":{
-            "name":"122",
-            "alias":"domain_2",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "24"
-            ],
-            "topics":[
-                "23"
-            ]
+        "last_reported_nackfrag_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "4":{
-            "name":"120",
-            "alias":"domain_0",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "6"
-            ],
-            "topics":[
-                "5"
-            ]
-        }
-    },
-    "hosts":{
-        "1":{
-            "name":"host_0",
-            "alias":"host_0",
-            "metatraffic":false,
-            "alive":true,
-            "users":[
-                "2"
-            ]
-        },
-        "10":{
-            "name":"host_1",
-            "alias":"host_1",
-            "metatraffic":false,
-            "alive":true,
-            "users":[
-                "11"
-            ]
-        },
-        "19":{
-            "name":"host_2",
-            "alias":"host_2",
-            "metatraffic":false,
-            "alive":true,
-            "users":[
-                "20"
-            ]
-        }
-    },
-    "locators":{
-        "0":{
-            "datareaders":[
-                "8"
-            ],
-            "datawriters":[
-                "7"
-            ],
-            "name":"locator_0",
-            "alias":"locator_0",
-            "metatraffic":false,
-            "alive":true
-        },
-        "18":{
-            "datareaders":[
-                "26"
-            ],
-            "datawriters":[
-                "25"
-            ],
-            "name":"locator_2",
-            "alias":"locator_2",
-            "metatraffic":false,
-            "alive":true
-        },
-        "9":{
-            "datareaders":[
-                "17"
-            ],
-            "datawriters":[
-                "16"
-            ],
-            "name":"locator_1",
-            "alias":"locator_1",
-            "metatraffic":false,
-            "alive":true
-        }
-    },
-    "participants":{
-        "15":{
-            "data":{
-                "discovery_time":{
-                    "15":[
-                        {
-                            "src_time":"100",
-                            "time": "0",
-                            "remote_id": "15",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"200",
-                            "time":"100",
-                            "remote_id": "15",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"300",
-                            "time":"200",
-                            "remote_id": "15",
-                            "discovered": true
-                        }
-                    ]
-                },
-                "edp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_edp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_pdp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_rtps_bytes_lost":{
-                    "9":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_bytes_sent":{
-                    "9":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_lost":{
-                    "9":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_sent":{
-                    "9":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "pdp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "rtps_bytes_lost":{
-                    "9":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent":{
-                    "9":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_lost":{
-                    "9":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_sent":{
-                    "9":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "network_latency_per_locator":{
-                    "9":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
+        "nackfrag_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "subscription_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ]
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
+      "locators": [
+        "0"
+      ],
+      "name": "datareader_0",
+      "alias": "datareader_0",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "6",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "5",
+      "virtual_metatraffic": false
+    }
+  },
+  "datawriters": {
+    "16": {
+      "data": {
+        "data_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "gap_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "heartbeat_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "history2history_latency": {
+          "17": [
+            {
+              "data": 1.1,
+              "src_time": "0"
             },
-            "datareaders":[
-                "17"
-            ],
-            "datawriters":[
-                "16"
-            ],
-            "domain":"13",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0",
-            "name":"participant_1",
-            "alias":"participant_1",
-            "metatraffic":false,
-            "alive":true,
-            "process":"12",
-            "qos":{
-                "qos":"empty"
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
             }
+          ]
         },
-        "24":{
-            "data":{
-                "discovery_time":{
-                    "24":[
-                        {
-                            "src_time":"100",
-                            "time": "0",
-                            "remote_id": "24",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"200",
-                            "time":"100",
-                            "remote_id": "24",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"300",
-                            "time":"200",
-                            "remote_id": "24",
-                            "discovered": true
-                        }
-                    ]
-                },
-                "edp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_edp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_pdp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_rtps_bytes_lost":{
-                    "18":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_bytes_sent":{
-                    "18":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_lost":{
-                    "18":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_sent":{
-                    "18":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "pdp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "rtps_bytes_lost":{
-                    "18":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent":{
-                    "18":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_lost":{
-                    "18":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_sent":{
-                    "18":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "network_latency_per_locator":{
-                    "18":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
-            },
-            "datareaders":[
-                "26"
-            ],
-            "datawriters":[
-                "25"
-            ],
-            "domain":"22",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
-            "name":"participant_2",
-            "alias":"participant_2",
-            "metatraffic":false,
-            "alive":true,
-            "process":"21",
-            "qos":{
-                "qos":"empty"
+        "last_reported_data_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_gap_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_heartbeat_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_resent_datas": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "publication_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ],
+        "resent_datas": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "samples_datas": {
+          "3": [
+            {
+              "src_time": "200",
+              "count": 2
             }
-        },
-        "6":{
-            "data":{
-                "discovery_time":{
-                    "6":[
-                        {
-                            "src_time":"100",
-                            "time": "0",
-                            "remote_id": "6",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"200",
-                            "time":"100",
-                            "remote_id": "6",
-                            "discovered": true
-                        },
-                        {
-                            "src_time":"300",
-                            "time":"200",
-                            "remote_id": "6",
-                            "discovered": true
-                        }
-                    ]
-                },
-                "edp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "last_reported_edp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_pdp_packets":{
-                    "count":2,
-                    "src_time":"200"
-                },
-                "last_reported_rtps_bytes_lost":{
-                    "0":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_bytes_sent":{
-                    "0":{
-                        "count":2,
-                        "magnitude":0,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_lost":{
-                    "0":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "last_reported_rtps_packets_sent":{
-                    "0":{
-                        "count":2,
-                        "src_time":"200"
-                    }
-                },
-                "pdp_packets":[
-                    {
-                        "count":2,
-                        "src_time":"0"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"100"
-                    },
-                    {
-                        "count":0,
-                        "src_time":"200"
-                    }
-                ],
-                "rtps_bytes_lost":{
-                    "0":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_bytes_sent":{
-                    "0":[
-                        {
-                            "count":2,
-                            "magnitude":0,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "magnitude":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_lost":{
-                    "0":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "rtps_packets_sent":{
-                    "0":[
-                        {
-                            "count":2,
-                            "src_time":"0"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"100"
-                        },
-                        {
-                            "count":0,
-                            "src_time":"200"
-                        }
-                    ]
-                },
-                "network_latency_per_locator":{
-                    "0":[
-                        {
-                            "data":1.1,
-                            "src_time":"0"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"100"
-                        },
-                        {
-                            "data":1.1,
-                            "src_time":"200"
-                        }
-                    ]
-                }
+          ]
+        }
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.0.0",
+      "locators": [
+        "9"
+      ],
+      "name": "datawriter_1",
+      "alias": "datawriter_1",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "15",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "14",
+      "virtual_metatraffic": false
+    },
+    "25": {
+      "data": {
+        "data_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "gap_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "heartbeat_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "history2history_latency": {
+          "26": [
+            {
+              "data": 1.1,
+              "src_time": "0"
             },
-            "datareaders":[
-                "8"
-            ],
-            "datawriters":[
-                "7"
-            ],
-            "domain":"4",
-            "guid":"01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
-            "name":"participant_0",
-            "alias":"participant_0",
-            "metatraffic":false,
-            "alive":true,
-            "process":"3",
-            "qos":{
-                "qos":"empty"
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
             }
+          ]
+        },
+        "last_reported_data_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_gap_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_heartbeat_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_resent_datas": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "publication_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ],
+        "resent_datas": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "samples_datas": {
+          "3": [
+            {
+              "src_time": "200",
+              "count": 2
+            }
+          ]
         }
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|0.0.0.0",
+      "locators": [
+        "18"
+      ],
+      "name": "datawriter_2",
+      "alias": "datawriter_2",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "24",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "23",
+      "virtual_metatraffic": false
     },
-    "processes":{
-        "12":{
-            "name":"process_1",
-            "alias":"process_1",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "15"
-            ],
-            "pid":"36000",
-            "user":"11"
+    "7": {
+      "data": {
+        "data_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "gap_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "heartbeat_count": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "history2history_latency": {
+          "8": [
+            {
+              "data": 1.1,
+              "src_time": "0"
+            },
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
+            }
+          ]
         },
-        "21":{
-            "name":"process_2",
-            "alias":"process_2",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "24"
-            ],
-            "pid":"36000",
-            "user":"20"
+        "last_reported_data_count": {
+          "count": 2,
+          "src_time": "200"
         },
-        "3":{
-            "name":"process_0",
-            "alias":"process_0",
-            "metatraffic":false,
-            "alive":true,
-            "participants":[
-                "6"
-            ],
-            "pid":"36000",
-            "user":"2"
+        "last_reported_gap_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_heartbeat_count": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_resent_datas": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "publication_throughput": [
+          {
+            "data": 1.1,
+            "src_time": "0"
+          },
+          {
+            "data": 1.1,
+            "src_time": "100"
+          },
+          {
+            "data": 1.1,
+            "src_time": "200"
+          }
+        ],
+        "resent_datas": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "samples_datas": {
+          "3": [
+            {
+              "src_time": "200",
+              "count": 2
+            }
+          ]
         }
+      },
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
+      "locators": [
+        "0"
+      ],
+      "name": "datawriter_0",
+      "alias": "datawriter_0",
+      "metatraffic": false,
+      "alive": true,
+      "participant": "6",
+      "qos": {
+        "qos": "empty"
+      },
+      "topic": "5",
+      "virtual_metatraffic": false
+    }
+  },
+  "domains": {
+    "13": {
+      "name": "121",
+      "alias": "domain_1",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "15"
+      ],
+      "topics": [
+        "14"
+      ]
     },
-    "topics":{
-        "14":{
-            "data_type":"data_type",
-            "datareaders":[
-                "17"
-            ],
-            "datawriters":[
-                "16"
-            ],
-            "domain":"13",
-            "name":"topic_1",
-            "alias":"topic_1",
-            "metatraffic":false,
-            "alive":true
+    "22": {
+      "name": "122",
+      "alias": "domain_2",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "24"
+      ],
+      "topics": [
+        "23"
+      ]
+    },
+    "4": {
+      "name": "120",
+      "alias": "domain_0",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "6"
+      ],
+      "topics": [
+        "5"
+      ]
+    }
+  },
+  "hosts": {
+    "1": {
+      "name": "host_0",
+      "alias": "host_0",
+      "metatraffic": false,
+      "alive": true,
+      "users": [
+        "2"
+      ]
+    },
+    "10": {
+      "name": "host_1",
+      "alias": "host_1",
+      "metatraffic": false,
+      "alive": true,
+      "users": [
+        "11"
+      ]
+    },
+    "19": {
+      "name": "host_2",
+      "alias": "host_2",
+      "metatraffic": false,
+      "alive": true,
+      "users": [
+        "20"
+      ]
+    }
+  },
+  "locators": {
+    "0": {
+      "datareaders": [
+        "8"
+      ],
+      "datawriters": [
+        "7"
+      ],
+      "name": "locator_0",
+      "alias": "locator_0",
+      "metatraffic": false,
+      "alive": true
+    },
+    "18": {
+      "datareaders": [
+        "26"
+      ],
+      "datawriters": [
+        "25"
+      ],
+      "name": "locator_2",
+      "alias": "locator_2",
+      "metatraffic": false,
+      "alive": true
+    },
+    "9": {
+      "datareaders": [
+        "17"
+      ],
+      "datawriters": [
+        "16"
+      ],
+      "name": "locator_1",
+      "alias": "locator_1",
+      "metatraffic": false,
+      "alive": true
+    }
+  },
+  "participants": {
+    "15": {
+      "data": {
+        "discovery_time": {
+          "15": [
+            {
+              "src_time": "100",
+              "time": "0",
+              "remote_id": "15",
+              "discovered": true
+            },
+            {
+              "src_time": "200",
+              "time": "100",
+              "remote_id": "15",
+              "discovered": true
+            },
+            {
+              "src_time": "300",
+              "time": "200",
+              "remote_id": "15",
+              "discovered": true
+            }
+          ]
         },
-        "23":{
-            "data_type":"data_type",
-            "datareaders":[
-                "26"
-            ],
-            "datawriters":[
-                "25"
-            ],
-            "domain":"22",
-            "name":"topic_2",
-            "alias":"topic_2",
-            "metatraffic":false,
-            "alive":true
+        "edp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_edp_packets": {
+          "count": 2,
+          "src_time": "200"
         },
-        "5":{
-            "data_type":"data_type",
-            "datareaders":[
-                "8"
-            ],
-            "datawriters":[
-                "7"
-            ],
-            "domain":"4",
-            "name":"topic_0",
-            "alias":"topic_0",
-            "metatraffic":false,
-            "alive":true
+        "last_reported_pdp_packets": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_rtps_bytes_lost": {
+          "9": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_bytes_sent": {
+          "9": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_lost": {
+          "9": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_sent": {
+          "9": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "pdp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "rtps_bytes_lost": {
+          "9": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_bytes_sent": {
+          "9": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_lost": {
+          "9": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_sent": {
+          "9": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "network_latency_per_locator": {
+          "9": [
+            {
+              "data": 1.1,
+              "src_time": "0"
+            },
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
+            }
+          ]
         }
+      },
+      "datareaders": [
+        "17"
+      ],
+      "datawriters": [
+        "16"
+      ],
+      "domain": "13",
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.0",
+      "name": "participant_1",
+      "alias": "participant_1",
+      "metatraffic": false,
+      "alive": true,
+      "process": "12",
+      "qos": {
+        "qos": "empty"
+      }
     },
-    "users":{
-        "11":{
-            "host":"10",
-            "name":"user_1",
-            "alias":"user_1",
-            "metatraffic":false,
-            "alive":true,
-            "processes":[
-                "12"
-            ]
+    "24": {
+      "data": {
+        "discovery_time": {
+          "24": [
+            {
+              "src_time": "100",
+              "time": "0",
+              "remote_id": "24",
+              "discovered": true
+            },
+            {
+              "src_time": "200",
+              "time": "100",
+              "remote_id": "24",
+              "discovered": true
+            },
+            {
+              "src_time": "300",
+              "time": "200",
+              "remote_id": "24",
+              "discovered": true
+            }
+          ]
         },
-        "2":{
-            "host":"1",
-            "name":"user_0",
-            "alias":"user_0",
-            "metatraffic":false,
-            "alive":true,
-            "processes":[
-                "3"
-            ]
+        "edp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_edp_packets": {
+          "count": 2,
+          "src_time": "200"
         },
-        "20":{
-            "host":"19",
-            "name":"user_2",
-            "alias":"user_2",
-            "metatraffic":false,
-            "alive":true,
-            "processes":[
-                "21"
-            ]
+        "last_reported_pdp_packets": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_rtps_bytes_lost": {
+          "18": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_bytes_sent": {
+          "18": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_lost": {
+          "18": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_sent": {
+          "18": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "pdp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "rtps_bytes_lost": {
+          "18": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_bytes_sent": {
+          "18": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_lost": {
+          "18": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_sent": {
+          "18": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "network_latency_per_locator": {
+          "18": [
+            {
+              "data": 1.1,
+              "src_time": "0"
+            },
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
+            }
+          ]
         }
+      },
+      "datareaders": [
+        "26"
+      ],
+      "datawriters": [
+        "25"
+      ],
+      "domain": "22",
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.02|0.0.1.0",
+      "name": "participant_2",
+      "alias": "participant_2",
+      "metatraffic": false,
+      "alive": true,
+      "process": "21",
+      "qos": {
+        "qos": "empty"
+      }
     },
-    "version":"0.0"
+    "6": {
+      "data": {
+        "discovery_time": {
+          "6": [
+            {
+              "src_time": "100",
+              "time": "0",
+              "remote_id": "6",
+              "discovered": true
+            },
+            {
+              "src_time": "200",
+              "time": "100",
+              "remote_id": "6",
+              "discovered": true
+            },
+            {
+              "src_time": "300",
+              "time": "200",
+              "remote_id": "6",
+              "discovered": true
+            }
+          ]
+        },
+        "edp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "last_reported_edp_packets": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_pdp_packets": {
+          "count": 2,
+          "src_time": "200"
+        },
+        "last_reported_rtps_bytes_lost": {
+          "0": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_bytes_sent": {
+          "0": {
+            "count": 2,
+            "magnitude": 0,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_lost": {
+          "0": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "last_reported_rtps_packets_sent": {
+          "0": {
+            "count": 2,
+            "src_time": "200"
+          }
+        },
+        "pdp_packets": [
+          {
+            "count": 2,
+            "src_time": "0"
+          },
+          {
+            "count": 0,
+            "src_time": "100"
+          },
+          {
+            "count": 0,
+            "src_time": "200"
+          }
+        ],
+        "rtps_bytes_lost": {
+          "0": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_bytes_sent": {
+          "0": [
+            {
+              "count": 2,
+              "magnitude": 0,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "magnitude": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_lost": {
+          "0": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "rtps_packets_sent": {
+          "0": [
+            {
+              "count": 2,
+              "src_time": "0"
+            },
+            {
+              "count": 0,
+              "src_time": "100"
+            },
+            {
+              "count": 0,
+              "src_time": "200"
+            }
+          ]
+        },
+        "network_latency_per_locator": {
+          "0": [
+            {
+              "data": 1.1,
+              "src_time": "0"
+            },
+            {
+              "data": 1.1,
+              "src_time": "100"
+            },
+            {
+              "data": 1.1,
+              "src_time": "200"
+            }
+          ]
+        }
+      },
+      "datareaders": [
+        "8"
+      ],
+      "datawriters": [
+        "7"
+      ],
+      "domain": "4",
+      "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.0",
+      "name": "participant_0",
+      "alias": "participant_0",
+      "metatraffic": false,
+      "alive": true,
+      "process": "3",
+      "qos": {
+        "qos": "empty"
+      }
+    }
+  },
+  "processes": {
+    "12": {
+      "name": "process_1",
+      "alias": "process_1",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "15"
+      ],
+      "pid": "36000",
+      "user": "11"
+    },
+    "21": {
+      "name": "process_2",
+      "alias": "process_2",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "24"
+      ],
+      "pid": "36000",
+      "user": "20"
+    },
+    "3": {
+      "name": "process_0",
+      "alias": "process_0",
+      "metatraffic": false,
+      "alive": true,
+      "participants": [
+        "6"
+      ],
+      "pid": "36000",
+      "user": "2"
+    }
+  },
+  "topics": {
+    "14": {
+      "data_type": "data_type",
+      "datareaders": [
+        "17"
+      ],
+      "datawriters": [
+        "16"
+      ],
+      "domain": "13",
+      "name": "topic_1",
+      "alias": "topic_1",
+      "metatraffic": false,
+      "alive": true
+    },
+    "23": {
+      "data_type": "data_type",
+      "datareaders": [
+        "26"
+      ],
+      "datawriters": [
+        "25"
+      ],
+      "domain": "22",
+      "name": "topic_2",
+      "alias": "topic_2",
+      "metatraffic": false,
+      "alive": true
+    },
+    "5": {
+      "data_type": "data_type",
+      "datareaders": [
+        "8"
+      ],
+      "datawriters": [
+        "7"
+      ],
+      "domain": "4",
+      "name": "topic_0",
+      "alias": "topic_0",
+      "metatraffic": false,
+      "alive": true
+    }
+  },
+  "users": {
+    "11": {
+      "host": "10",
+      "name": "user_1",
+      "alias": "user_1",
+      "metatraffic": false,
+      "alive": true,
+      "processes": [
+        "12"
+      ]
+    },
+    "2": {
+      "host": "1",
+      "name": "user_0",
+      "alias": "user_0",
+      "metatraffic": false,
+      "alive": true,
+      "processes": [
+        "3"
+      ]
+    },
+    "20": {
+      "host": "19",
+      "name": "user_2",
+      "alias": "user_2",
+      "metatraffic": false,
+      "alive": true,
+      "processes": [
+        "21"
+      ]
+    }
+  },
+  "version": "0.0"
 }

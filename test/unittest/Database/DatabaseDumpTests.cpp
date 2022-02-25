@@ -67,6 +67,7 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 
 // at least pass microseconds tenths to avoid windows system_clock resolution issue
 #define TIME_DEFAULT(x) nanoseconds_to_systemclock(100 * (x))
+#define PART_GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|0.0.1.0"
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|0.0.0.0"
 
 void initialize_empty_entities(
@@ -83,15 +84,15 @@ void initialize_empty_entities(
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
-                        PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), nullptr, domain);
+                        PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, PART_GUID_DEFAULT(index), nullptr, domain);
     std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(
                         DATAWRITER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
     std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(
                         DATAREADER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
     std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_DEFAULT_NAME(index)));
 
-    locator->id = db.generate_entity_id();
-
+    locator->id = db.insert(locator);
+    ASSERT_NE(locator->id, EntityId::invalid());
     dw->locators[locator->id] = locator;
     dr->locators[locator->id] = locator;
 
@@ -376,15 +377,15 @@ void initialize_empty_entities_unlinked(
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
     std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(std::string(
-                        PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), nullptr, domain);
+                        PARTICIPANT_DEFAULT_NAME(index)), QOS_DEFAULT, PART_GUID_DEFAULT(index), nullptr, domain);
     std::shared_ptr<DataWriter> dw = std::make_shared<DataWriter>(std::string(
                         DATAWRITER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
     std::shared_ptr<DataReader> dr = std::make_shared<DataReader>(std::string(
                         DATAREADER_DEFAULT_NAME(index)), QOS_DEFAULT, GUID_DEFAULT(index), participant, topic);
     std::shared_ptr<Locator> locator = std::make_shared<Locator>(std::string(LOCATOR_DEFAULT_NAME(index)));
 
-    locator->id = db.generate_entity_id();
-
+    locator->id = db.insert(locator);
+    ASSERT_NE(locator->id, EntityId::invalid());
     dw->locators[locator->id] = locator;
     dr->locators[locator->id] = locator;
 

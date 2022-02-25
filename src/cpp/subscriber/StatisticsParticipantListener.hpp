@@ -89,36 +89,11 @@ public:
 
 protected:
 
-    template<typename T>
-    void process_endpoint_discovery(
-            T&& info);
-
-    template<typename T>
-    std::shared_ptr<database::DDSEndpoint> create_endpoint(
-            const eprosima::fastrtps::rtps::GUID_t& guid,
-            const T& qos,
-            std::shared_ptr<database::DomainParticipant> participant,
-            std::shared_ptr<database::Topic> topic);
-
     EntityId domain_id_;                            ///< The DomainId this listener is monitoring
     database::Database* database_;                  ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;   ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue* data_queue_;       ///< Reference to the statistics data queue. Injected on construction
 };
-
-template<>
-std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
-        const eprosima::fastrtps::rtps::GUID_t& guid,
-        const fastrtps::rtps::ReaderDiscoveryInfo& info,
-        std::shared_ptr<database::DomainParticipant> participant,
-        std::shared_ptr<database::Topic> topic);
-
-template<>
-std::shared_ptr<database::DDSEndpoint> StatisticsParticipantListener::create_endpoint(
-        const eprosima::fastrtps::rtps::GUID_t& guid,
-        const fastrtps::rtps::WriterDiscoveryInfo& info,
-        std::shared_ptr<database::DomainParticipant> participant,
-        std::shared_ptr<database::Topic> topic);
 
 
 } //namespace database

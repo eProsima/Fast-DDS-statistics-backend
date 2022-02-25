@@ -30,6 +30,7 @@
 #include <fastdds/rtps/common/Guid.h>
 #include <fastdds/rtps/common/Locator.h>
 #include <fastdds/rtps/common/SequenceNumber.h>
+#include <fastdds/rtps/common/RemoteLocators.hpp>
 #include <fastdds/dds/log/Log.hpp>
 
 #include <database/database.hpp>
@@ -145,10 +146,12 @@ public:
     {
         if (consuming_)
         {
-            std::unique_lock<std::mutex> guard(cv_mutex_);
-            consuming_ = false;
-            guard.unlock();
-            cv_.notify_all();
+            {
+                std::unique_lock<std::mutex> guard(cv_mutex_);
+                consuming_ = false;
+                guard.unlock();
+                cv_.notify_all();
+            }
             consumer_thread_->join();
             consumer_thread_.reset();
             return true;
@@ -328,9 +331,40 @@ protected:
 
 struct EntityDiscoveryInfo
 {
-    std::shared_ptr<Entity> entity;
-    EntityId domain_id;
     details::StatisticsBackendData::DiscoveryStatus discovery_status;
+    EntityId domain_id;
+
+    fastrtps::rtps::GUID_t guid;
+    database::Qos qos;
+
+    // Participant data
+    std::string address;
+    std::string participant_name;
+
+    // Enpoint data
+    std::string topic_name;
+    std::string type_name;
+    fastrtps::rtps::RemoteLocatorList locators;
+
+    // Alias
+    std::string alias;
+    bool is_virtual_metatraffic = false;
+
+    EntityDiscoveryInfo(
+            EntityKind kind)
+        : entity_kind(kind)
+    {
+    }
+
+    EntityKind kind() const
+    {
+        return entity_kind;
+    }
+
+protected:
+
+    EntityKind entity_kind;
+
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
@@ -352,69 +386,68 @@ public:
 
 protected:
 
+    EntityId process_participant(
+            const EntityDiscoveryInfo& info);
+
+    EntityId process_datareader(
+            const EntityDiscoveryInfo& info);
+
+    EntityId process_datawriter(
+            const EntityDiscoveryInfo& info);
+
     virtual void process_sample() override
     {
         try
         {
             const EntityDiscoveryInfo& info = front().second;
+            assert (info.kind() == EntityKind::PARTICIPANT ||
+                    info.kind() == EntityKind::DATAREADER ||
+                    info.kind() == EntityKind::DATAWRITER);
 
-            // Physical entities
-            if (EntityKind::HOST  == info.entity->kind ||
-                    EntityKind::USER == info.entity->kind ||
-                    EntityKind::PROCESS == info.entity->kind ||
-                    EntityKind::LOCATOR == info.entity->kind)
+            EntityId entity_id;
+            switch (info.kind())
             {
-                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
-                info.entity->id = database_->insert(info.entity);
-
-                details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                    info.entity->id,
-                    info.entity->kind, info.discovery_status);
+                case EntityKind::PARTICIPANT:
+                    entity_id = process_participant(info);
+                    break;
+                case EntityKind::DATAREADER:
+                    entity_id = process_datareader(info);
+                    break;
+                case EntityKind::DATAWRITER:
+                    entity_id = process_datawriter(info);
+                    break;
+                default:
+                    break;
+                    // Already asserted
             }
-            // Domains are not discovered, they are created on monitor initialization
-            else if (EntityKind::DOMAIN == info.entity->kind)
-            {
-                assert(info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
-                info.entity->id = database_->insert(info.entity);
-            }
-            // Domain entities
-            else
-            {
-                // The topic is never updated/undiscovered, is only discovered. So the status is not changed.
-                // It status will only be updated if its endpoints are discovered/undiscovered.
-                if (info.entity->kind == EntityKind::TOPIC)
-                {
-                    assert(
-                        info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
-                        !info.entity->id.is_valid_and_unique());
-                    info.entity->id = database_->insert(info.entity);
-                }
-                else
-                {
-                    // Insert the entity only if is discovered and is not yet inserted in the database
-                    if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY &&
-                            !info.entity->id.is_valid_and_unique())
-                    {
-                        info.entity->id = database_->insert(info.entity);
-                    }
 
-                    // Update the entity status and check if its references must also change it status
-                    database_->change_entity_status(info.entity->id,
-                            info.discovery_status !=
-                            details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
-                }
-
-                details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(info.domain_id,
-                        info.entity->id,
-                        info.entity->kind,
-                        info.discovery_status);
-            }
+            details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
+                info.domain_id,
+                entity_id,
+                info.kind(),
+                info.discovery_status);
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {
             logError(BACKEND_DATABASE_QUEUE, e.what());
         }
     }
+
+    template<typename T>
+    EntityId process_endpoint_discovery(
+            const T& info);
+
+    std::shared_ptr<database::DDSEndpoint> create_datareader(
+            const eprosima::fastrtps::rtps::GUID_t& guid,
+            const EntityDiscoveryInfo& info,
+            std::shared_ptr<database::DomainParticipant> participant,
+            std::shared_ptr<database::Topic> topic);
+
+    std::shared_ptr<database::DDSEndpoint> create_datawriter(
+            const eprosima::fastrtps::rtps::GUID_t& guid,
+            const EntityDiscoveryInfo& info,
+            std::shared_ptr<database::DomainParticipant> participant,
+            std::shared_ptr<database::Topic> topic);
 
     // Database
     Database* database_;

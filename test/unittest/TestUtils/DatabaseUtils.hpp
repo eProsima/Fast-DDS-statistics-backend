@@ -224,7 +224,7 @@ public:
 
         auto datareader1 = std::make_shared<DataReader>("datareader1", "qos", "11.12.13.14", participant2, topic2);
         auto reader_locator1 = std::make_shared<Locator>("reader_locator1");
-        reader_locator1->id = db.generate_entity_id();
+        reader_locator1->id = db.insert(reader_locator1);
         datareader1->locators[reader_locator1->id] = reader_locator1;
         db.insert(datareader1);
         entities[13] = datareader1;
@@ -232,7 +232,7 @@ public:
 
         auto datareader2 = std::make_shared<DataReader>("datareader2", "qos", "15.16.17.18", participant2, topic2);
         auto reader_locator2 = std::make_shared<Locator>("reader_locator2");
-        reader_locator2->id = db.generate_entity_id();
+        reader_locator2->id = db.insert(reader_locator2);
         datareader2->locators[reader_locator1->id] = reader_locator1;
         datareader2->locators[reader_locator2->id] = reader_locator2;
         db.insert(datareader2);
@@ -241,7 +241,7 @@ public:
 
         auto datawriter1 = std::make_shared<DataWriter>("datawriter1", "qos", "21.22.23.24", participant2, topic2);
         auto writer_locator1 = std::make_shared<Locator>("writer_locator1");
-        writer_locator1->id = db.generate_entity_id();
+        writer_locator1->id = db.insert(writer_locator1);
         datawriter1->locators[writer_locator1->id] = writer_locator1;
         db.insert(datawriter1);
         entities[17] = datawriter1;
@@ -249,7 +249,7 @@ public:
 
         auto datawriter2 = std::make_shared<DataWriter>("datawriter2", "qos", "25.26.27.28", participant2, topic2);
         auto writer_locator2 = std::make_shared<Locator>("writer_locator2");
-        writer_locator2->id = db.generate_entity_id();
+        writer_locator2->id = db.insert(writer_locator2);
         datawriter2->locators[writer_locator1->id] = writer_locator1;
         datawriter2->locators[writer_locator2->id] = writer_locator2;
         db.insert(datawriter2);
