@@ -4,7 +4,7 @@ Forthcoming
 Version 0.5.0
 -------------
 
-This release add the following **improvements**
+This release adds the following **improvements**
 
 * Improvements on Windows CI
 * Refactor on processing queues to avoid data races with entity creation order
@@ -15,9 +15,7 @@ Version 0.4.0
 
 This release has the following **API extensions**:
 
-* `StatisticsBackend::is_metatraffic` allows the user to know if a specific topic or endpoint is related to metatraffic
-data.
-*
+* `StatisticsBackend::is_metatraffic` allows the user to know if a specific topic or endpoint is related to metatraffic data.
 
 This release adds the following **features**:
 
