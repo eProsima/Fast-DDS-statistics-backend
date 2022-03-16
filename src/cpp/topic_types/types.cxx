@@ -1199,8 +1199,14 @@ eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime()
 
     // m_remote_entity_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_time com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1677d1
+    // m_time com.eprosima.idl.parser.typecode.PrimitiveTypeCode@7f010382
     m_time = 0;
+    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@1e802ef9
+    m_host ="";
+    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@2b6faea6
+    m_user ="";
+    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@778d1062
+    m_process ="";
 
 }
 
@@ -1209,6 +1215,9 @@ eprosima::fastdds::statistics::DiscoveryTime::~DiscoveryTime()
 
 
 
+
+
+
 }
 
 eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime(
@@ -1217,6 +1226,9 @@ eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime(
     m_local_participant_guid = x.m_local_participant_guid;
     m_remote_entity_guid = x.m_remote_entity_guid;
     m_time = x.m_time;
+    m_host = x.m_host;
+    m_user = x.m_user;
+    m_process = x.m_process;
 }
 
 eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime(
@@ -1225,6 +1237,9 @@ eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime(
     m_local_participant_guid = std::move(x.m_local_participant_guid);
     m_remote_entity_guid = std::move(x.m_remote_entity_guid);
     m_time = x.m_time;
+    m_host = std::move(x.m_host);
+    m_user = std::move(x.m_user);
+    m_process = std::move(x.m_process);
 }
 
 eprosima::fastdds::statistics::DiscoveryTime& eprosima::fastdds::statistics::DiscoveryTime::operator =(
@@ -1234,6 +1249,9 @@ eprosima::fastdds::statistics::DiscoveryTime& eprosima::fastdds::statistics::Dis
     m_local_participant_guid = x.m_local_participant_guid;
     m_remote_entity_guid = x.m_remote_entity_guid;
     m_time = x.m_time;
+    m_host = x.m_host;
+    m_user = x.m_user;
+    m_process = x.m_process;
 
     return *this;
 }
@@ -1245,6 +1263,9 @@ eprosima::fastdds::statistics::DiscoveryTime& eprosima::fastdds::statistics::Dis
     m_local_participant_guid = std::move(x.m_local_participant_guid);
     m_remote_entity_guid = std::move(x.m_remote_entity_guid);
     m_time = x.m_time;
+    m_host = std::move(x.m_host);
+    m_user = std::move(x.m_user);
+    m_process = std::move(x.m_process);
 
     return *this;
 }
@@ -1253,7 +1274,7 @@ bool eprosima::fastdds::statistics::DiscoveryTime::operator ==(
         const DiscoveryTime& x) const
 {
 
-    return (m_local_participant_guid == x.m_local_participant_guid && m_remote_entity_guid == x.m_remote_entity_guid && m_time == x.m_time);
+    return (m_local_participant_guid == x.m_local_participant_guid && m_remote_entity_guid == x.m_remote_entity_guid && m_time == x.m_time && m_host == x.m_host && m_user == x.m_user && m_process == x.m_process);
 }
 
 bool eprosima::fastdds::statistics::DiscoveryTime::operator !=(
@@ -1273,6 +1294,12 @@ size_t eprosima::fastdds::statistics::DiscoveryTime::getMaxCdrSerializedSize(
     current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
 
 
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
 
     return current_alignment - initial_alignment;
 }
@@ -1290,6 +1317,12 @@ size_t eprosima::fastdds::statistics::DiscoveryTime::getCdrSerializedSize(
     current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
 
 
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.host().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.user().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.process().size() + 1;
+
 
     return current_alignment - initial_alignment;
 }
@@ -1301,6 +1334,9 @@ void eprosima::fastdds::statistics::DiscoveryTime::serialize(
     scdr << m_local_participant_guid;
     scdr << m_remote_entity_guid;
     scdr << m_time;
+    scdr << m_host;
+    scdr << m_user;
+    scdr << m_process;
 
 }
 
@@ -1311,6 +1347,9 @@ void eprosima::fastdds::statistics::DiscoveryTime::deserialize(
     dcdr >> m_local_participant_guid;
     dcdr >> m_remote_entity_guid;
     dcdr >> m_time;
+    dcdr >> m_host;
+    dcdr >> m_user;
+    dcdr >> m_process;
 }
 
 /*!
@@ -1415,6 +1454,117 @@ uint64_t& eprosima::fastdds::statistics::DiscoveryTime::time()
     return m_time;
 }
 
+/*!
+ * @brief This function copies the value in member host
+ * @param _host New value to be copied in member host
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::host(
+        const std::string& _host)
+{
+    m_host = _host;
+}
+
+/*!
+ * @brief This function moves the value in member host
+ * @param _host New value to be moved in member host
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::host(
+        std::string&& _host)
+{
+    m_host = std::move(_host);
+}
+
+/*!
+ * @brief This function returns a constant reference to member host
+ * @return Constant reference to member host
+ */
+const std::string& eprosima::fastdds::statistics::DiscoveryTime::host() const
+{
+    return m_host;
+}
+
+/*!
+ * @brief This function returns a reference to member host
+ * @return Reference to member host
+ */
+std::string& eprosima::fastdds::statistics::DiscoveryTime::host()
+{
+    return m_host;
+}
+/*!
+ * @brief This function copies the value in member user
+ * @param _user New value to be copied in member user
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::user(
+        const std::string& _user)
+{
+    m_user = _user;
+}
+
+/*!
+ * @brief This function moves the value in member user
+ * @param _user New value to be moved in member user
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::user(
+        std::string&& _user)
+{
+    m_user = std::move(_user);
+}
+
+/*!
+ * @brief This function returns a constant reference to member user
+ * @return Constant reference to member user
+ */
+const std::string& eprosima::fastdds::statistics::DiscoveryTime::user() const
+{
+    return m_user;
+}
+
+/*!
+ * @brief This function returns a reference to member user
+ * @return Reference to member user
+ */
+std::string& eprosima::fastdds::statistics::DiscoveryTime::user()
+{
+    return m_user;
+}
+/*!
+ * @brief This function copies the value in member process
+ * @param _process New value to be copied in member process
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::process(
+        const std::string& _process)
+{
+    m_process = _process;
+}
+
+/*!
+ * @brief This function moves the value in member process
+ * @param _process New value to be moved in member process
+ */
+void eprosima::fastdds::statistics::DiscoveryTime::process(
+        std::string&& _process)
+{
+    m_process = std::move(_process);
+}
+
+/*!
+ * @brief This function returns a constant reference to member process
+ * @return Constant reference to member process
+ */
+const std::string& eprosima::fastdds::statistics::DiscoveryTime::process() const
+{
+    return m_process;
+}
+
+/*!
+ * @brief This function returns a reference to member process
+ * @return Reference to member process
+ */
+std::string& eprosima::fastdds::statistics::DiscoveryTime::process()
+{
+    return m_process;
+}
 
 size_t eprosima::fastdds::statistics::DiscoveryTime::getKeyMaxCdrSerializedSize(
         size_t current_alignment)
@@ -1424,6 +1574,9 @@ size_t eprosima::fastdds::statistics::DiscoveryTime::getKeyMaxCdrSerializedSize(
 
      current_align += eprosima::fastdds::statistics::detail::GUID_s::getMaxCdrSerializedSize(current_align);
      current_align += eprosima::fastdds::statistics::detail::GUID_s::getMaxCdrSerializedSize(current_align);
+
+
+
 
 
     return current_align;
@@ -1447,7 +1600,7 @@ eprosima::fastdds::statistics::EntityCount::EntityCount()
 {
     // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4313f5bc
+    // m_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1ed1993a
     m_count = 0;
 
 }
@@ -1645,9 +1798,9 @@ void eprosima::fastdds::statistics::EntityCount::serializeKey(
 
 eprosima::fastdds::statistics::SampleIdentityCount::SampleIdentityCount()
 {
-    // m_sample_id com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@2b6faea6
+    // m_sample_id com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4b5a5ed1
 
-    // m_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@778d1062
+    // m_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@59d016c9
     m_count = 0;
 
 }
@@ -1847,13 +2000,13 @@ eprosima::fastdds::statistics::Entity2LocatorTraffic::Entity2LocatorTraffic()
 {
     // m_src_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@794cb805
+    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
 
-    // m_packet_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4b5a5ed1
+    // m_packet_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4b14c583
     m_packet_count = 0;
-    // m_byte_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@59d016c9
+    // m_byte_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@65466a6a
     m_byte_count = 0;
-    // m_byte_magnitude_order com.eprosima.idl.parser.typecode.PrimitiveTypeCode@3cc2931c
+    // m_byte_magnitude_order com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4ddced80
     m_byte_magnitude_order = 0;
 
 }
@@ -2187,7 +2340,7 @@ eprosima::fastdds::statistics::WriterReaderData::WriterReaderData()
 
     // m_reader_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@3967e60c
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@2ea227af
     m_data = 0.0;
 
 }
@@ -2433,11 +2586,11 @@ void eprosima::fastdds::statistics::WriterReaderData::serializeKey(
 
 eprosima::fastdds::statistics::Locator2LocatorData::Locator2LocatorData()
 {
-    // m_src_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@794cb805
+    // m_src_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
 
-    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@794cb805
+    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@7c0c77c7
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4386f16
     m_data = 0.0;
 
 }
@@ -2685,7 +2838,7 @@ eprosima::fastdds::statistics::EntityData::EntityData()
 {
     // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@7adda9cc
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@363ee3a2
     m_data = 0.0;
 
 }
@@ -2885,11 +3038,11 @@ eprosima::fastdds::statistics::PhysicalData::PhysicalData()
 {
     // m_participant_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
-    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@4690b489
+    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@3c22fc4c
     m_host ="";
-    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@79b06cab
+    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@460d0a57
     m_user ="";
-    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@3eb7fc54
+    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@47d90b9e
     m_process ="";
 
 }
@@ -3194,21 +3347,21 @@ void eprosima::fastdds::statistics::PhysicalData::serializeKey(
 eprosima::fastdds::statistics::Data::Data()
 {
     m__d = HISTORY2HISTORY_LATENCY;
-    // m_writer_reader_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@6f96c77
+    // m_writer_reader_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49d904ec
 
-    // m_locator2locator_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@be64738
+    // m_locator2locator_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@48e4374
 
-    // m_entity_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3ba9ad43
+    // m_entity_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3d680b5a
 
-    // m_entity2locator_traffic com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49d904ec
+    // m_entity2locator_traffic com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4b5d6a01
 
-    // m_entity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@48e4374
+    // m_entity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4a22f9e2
 
-    // m_discovery_time com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3d680b5a
+    // m_discovery_time com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3c419631
 
-    // m_sample_identity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4b5d6a01
+    // m_sample_identity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@418e7838
 
-    // m_physical_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4a22f9e2
+    // m_physical_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@61230f6a
 
 }
 
