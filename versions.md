@@ -1,6 +1,13 @@
 Forthcoming
 -----------
 
+Version 0.6.0
+-------------
+
+This release adds the following **improvement**:
+
+* Update statistics type support including physical data in `DISCOVERY_TOPIC`
+
 Version 0.5.0
 -------------
 

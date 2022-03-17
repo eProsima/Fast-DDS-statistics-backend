@@ -1,0 +1,8 @@
+Version 0.5.0
+-------------
+
+This release adds the following **improvements**:
+
+* Improvements on Windows CI
+* Refactor on processing queues to avoid data races with entity creation order
+* Update Statistics Module type support
