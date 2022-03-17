@@ -26,7 +26,7 @@ string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
 
 set(PROJECT_NAME_LARGE "Fast DDS Statistics Backend")
 
-project(${PROJECT_NAME} VERSION 0.5.0
+project(${PROJECT_NAME} VERSION 0.6.0
     DESCRIPTION "eProsima ${PROJECT_NAME_LARGE} library provides a simple and easy-to-use API for interacting with data from Fast DDS statistics module")
 
 set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "C++ library for bridging Fast DDS statistics module data")
