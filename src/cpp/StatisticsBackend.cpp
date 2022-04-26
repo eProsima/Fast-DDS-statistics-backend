@@ -392,6 +392,8 @@ EntityId StatisticsBackend::init_monitor(
 #endif // ifdef _WIN32
 
     /* Set DomainParticipantQoS */
+    /* Since configuring the default Qos from an XML is a posibility, we need to load the XML profiles just in case */
+    DomainParticipantFactory::get_instance()->load_profiles();
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
 
