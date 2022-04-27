@@ -314,6 +314,8 @@ EntityId StatisticsBackend::init_monitor(
     domain_name << domain_id;
 
     /* Set DomainParticipantQoS */
+    /* Since configuring the default Qos from an XML is a posibility, we need to load the XML profiles just in case */
+    DomainParticipantFactory::get_instance()->load_profiles();
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
     /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
