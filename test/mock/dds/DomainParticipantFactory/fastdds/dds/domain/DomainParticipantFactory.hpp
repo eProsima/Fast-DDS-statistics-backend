@@ -46,6 +46,12 @@ public:
         return &instance;
     }
 
+    MOCK_METHOD0(
+        load_profiles,
+        fastrtps::types::ReturnCode_t
+            ()
+        );
+
     MOCK_METHOD4(
         create_participant,
         DomainParticipant *
