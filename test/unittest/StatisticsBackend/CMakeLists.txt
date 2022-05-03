@@ -382,12 +382,17 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_topic_exists_with_another_type
     init_monitor_invalid_ipv4
     init_monitor_invalid_ipv6
+    init_monitor_no_ip_address
+    init_monitor_no_ip_brackets
     init_monitor_invalid_port
     init_monitor_port_out_of_range
+    init_monitor_empty_port
+    init_monitor_no_port
     init_monitor_unsupported_shm
     init_monitor_extra_characters
     init_monitor_no_locator_kind_old_serialization
     init_monitor_no_locator_kind_new_serialization
+    init_monitor_empty_locator_kind
     init_monitor_invalid_locator_kind
     )
 

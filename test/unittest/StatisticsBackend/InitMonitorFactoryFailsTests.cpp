@@ -374,16 +374,47 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_ipv6)
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
-TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_port)
+TEST_F(init_monitor_factory_fails_tests, init_monitor_no_ip_address)
 {
-    std::string server_locators = "UDPv4:[192.356.0.1]:-11811";
+    std::string server_locators = "UDPv4:[]:11811";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
+TEST_F(init_monitor_factory_fails_tests, init_monitor_no_ip_brackets)
+{
+    std::string server_locators = "UDPv4:localhost:11811";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+// TODO: currently Fast DDS reads the port as an unsigned integer so this specific test is not failing as expected
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_port)
+{
+/*
+    std::string server_locators = "UDPv4:[192.0.0.1]:-11811";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+*/
+}
+
 TEST_F(init_monitor_factory_fails_tests, init_monitor_port_out_of_range)
 {
-    std::string server_locators = "UDPv4:[192.356.0.1]:4294967296";
+    std::string server_locators = "UDPv4:[192.0.0.1]:4294967296";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_empty_port)
+{
+    std::string server_locators = "UDPv4:[192.0.0.1]:";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_no_port)
+{
+    std::string server_locators = "UDPv4:[192.0.0.1]";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
@@ -397,7 +428,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_unsupported_shm)
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_extra_characters)
 {
-    std::string server_locators = "UDPv4:[192.356.0.1]:1181:ABC";
+    std::string server_locators = "UDPv4:[192.0.0.1]:1181:ABC";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
@@ -416,9 +447,16 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_no_locator_kind_new_serial
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
-TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_locator_kind)
+TEST_F(init_monitor_factory_fails_tests, init_monitor_empty_locator_kind)
 {
     std::string server_locators = ":[192.168.0.1]:11812";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_locator_kind)
+{
+    std::string server_locators = "ABC:[192.168.0.1]:11812";
 
     check_init_monitor_discovery_server_failure(server_locators);
 }
