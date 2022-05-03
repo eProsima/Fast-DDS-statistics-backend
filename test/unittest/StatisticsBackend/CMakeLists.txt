@@ -386,6 +386,9 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_port_out_of_range
     init_monitor_unsupported_shm
     init_monitor_extra_characters
+    init_monitor_no_locator_kind_old_serialization
+    init_monitor_no_locator_kind_new_serialization
+    init_monitor_invalid_locator_kind
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

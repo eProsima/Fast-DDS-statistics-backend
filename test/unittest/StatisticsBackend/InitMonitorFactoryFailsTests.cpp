@@ -402,6 +402,27 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_extra_characters)
     check_init_monitor_discovery_server_failure(server_locators);
 }
 
+TEST_F(init_monitor_factory_fails_tests, init_monitor_no_locator_kind_old_serialization)
+{
+    std::string server_locators = "192.168.0.1:11812";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_no_locator_kind_new_serialization)
+{
+    std::string server_locators = "[192.168.0.1]:11812";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
+TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_locator_kind)
+{
+    std::string server_locators = ":[192.168.0.1]:11812";
+
+    check_init_monitor_discovery_server_failure(server_locators);
+}
+
 int main(
         int argc,
         char** argv)
