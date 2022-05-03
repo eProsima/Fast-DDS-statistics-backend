@@ -391,11 +391,11 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_no_ip_brackets)
 // TODO: currently Fast DDS reads the port as an unsigned integer so this specific test is not failing as expected
 TEST_F(init_monitor_factory_fails_tests, init_monitor_invalid_port)
 {
-/*
-    std::string server_locators = "UDPv4:[192.0.0.1]:-11811";
+    /*
+        std::string server_locators = "UDPv4:[192.0.0.1]:-11811";
 
-    check_init_monitor_discovery_server_failure(server_locators);
-*/
+        check_init_monitor_discovery_server_failure(server_locators);
+     */
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_port_out_of_range)

@@ -106,7 +106,8 @@ void init_monitor_examples()
         // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
         // The monitor uses a custom listener, a CallbackMask, and a DataKindMask.
         EntityId disc_server_monitor_id =
-                StatisticsBackend::init_monitor("UDPv4:[localhost]:11811", &domain_listener, callback_mask, datakind_mask);
+                StatisticsBackend::init_monitor("UDPv4:[localhost]:11811", &domain_listener, callback_mask,
+                        datakind_mask);
 
         // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
         // address 127.0.0.1 and port 11811 using UDP transport layer, and that uses the GUID prefix
