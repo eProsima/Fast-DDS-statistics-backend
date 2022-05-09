@@ -310,7 +310,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string server_locators = "UDPv4:[localhost]:11811";
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
                     CallbackMask::none(), all_datakind_mask_);
@@ -395,7 +395,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 {
     DomainId domain_id = 0;
     std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
-    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string server_locators = "UDPv4:[localhost]:11811";
 
     auto domain_monitors = init_monitors(domain_id, nullptr, server_guid_prefix, server_locators,
                     all_callback_mask_, all_datakind_mask_);
@@ -555,7 +555,7 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
 {
     std::string server_locators =
             // unicast addresses
-            "UDPv4:[127.0.0.1]:11811;TCPv4:[127.0.0.1]:11812;UDPv6:[::1]:11813;TCPv6:[::1]:11814;"
+            "UDPv4:[localhost]:11811;TCPv4:[localhost]:11812;UDPv6:[::1]:11813;TCPv6:[::1]:11814;"
             // multicast addresses
             "UDPv4:[239.255.0.1]:11821;UDPv6:[ff1e::ffff:efff:1]:11823";
     EntityId monitor_id =  StatisticsBackend::init_monitor(server_locators);
