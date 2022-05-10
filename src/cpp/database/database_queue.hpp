@@ -152,8 +152,24 @@ public:
                 guard.unlock();
                 cv_.notify_all();
             }
-            consumer_thread_->join();
-            consumer_thread_.reset();
+
+            // WORKAROUND: stop_consumer could be called from different threads (it is called from callback from fast)
+            // thus the consumer_thread_ destruction must be protected.
+            // Otherwise, there is a segfault by:
+            // - calling ->join() over a nullptr     or
+            // - calling ->join() in a thread already joined and destroying thread (~thread provoke segfault is
+            //      any thread is waiting in join in std::terminate())
+
+            // TODO: refactor queue so stop consumer is called more rationally
+            // IMPORTANT TODO: Refactor: DO NOT CREATE THREADS WITH EVERY CALLBACK PLEEEASEEE!!
+
+            std::unique_lock<std::mutex> guard(consumer_thread_destruction_mutex_);
+            if (consumer_thread_)
+            {
+                consumer_thread_->join();
+                consumer_thread_.reset();
+            }
+
             return true;
         }
 
@@ -325,6 +341,9 @@ protected:
     std::unique_ptr<std::thread> consumer_thread_;
     std::condition_variable cv_;
     std::mutex cv_mutex_;
+
+    //! Mutex that protects the destruction of consumer_thread_
+    std::mutex consumer_thread_destruction_mutex_;
     bool consuming_;
     unsigned char current_loop_;
 };
