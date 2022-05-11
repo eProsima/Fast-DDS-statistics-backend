@@ -144,36 +144,37 @@ public:
      */
     bool stop_consumer()
     {
-        if (consuming_)
+        // WORKAROUND: There was an error when calling stop_consumer from 2 threads at the same time that could lead
+        // to a segfault, as both try to join the thread, and one destroys the thread while the other is waiting.
+        // There exist a second problem: start_consumer could be called AFTER stop_consumer set consuming_ to false
+        // but BEFORE stop_consumer actually join and destroy the thread, what leads to an orphan thread
+        // wandering in neverland limbo
+        // SOLUTION: using a tmp variable to store the thread that must be joined and destroyed,
+        // so after setting consuming_ to false, the thread still exists but it is not destroyed, and the internal
+        // object thread has been reset so it could be set again from start_consumer
+        std::unique_ptr<std::thread> tmp_thread_;
+
         {
+            std::unique_lock<std::mutex> guard(cv_mutex_);
+            if (consuming_)
             {
-                std::unique_lock<std::mutex> guard(cv_mutex_);
                 consuming_ = false;
-                guard.unlock();
-                cv_.notify_all();
+                tmp_thread_ = std::move(consumer_thread_);
+                consumer_thread_.reset(); // Redundant call, as moving it already releases it (speak with richi)
             }
-
-            // WORKAROUND: stop_consumer could be called from different threads (it is called from callback from fast)
-            // thus the consumer_thread_ destruction must be protected.
-            // Otherwise, there is a segfault by:
-            // - calling ->join() over a nullptr     or
-            // - calling ->join() in a thread already joined and destroying thread (~thread provoke segfault is
-            //      any thread is waiting in join in std::terminate())
-
-            // TODO: refactor queue so stop consumer is called more rationally
-            // IMPORTANT TODO: Refactor: DO NOT CREATE THREADS WITH EVERY CALLBACK PLEEEASEEE!!
-
-            std::unique_lock<std::mutex> guard(consumer_thread_destruction_mutex_);
-            if (consumer_thread_)
+            else
             {
-                consumer_thread_->join();
-                consumer_thread_.reset();
+                return false;
             }
-
-            return true;
         }
 
-        return false;
+        // At this point, we are sure the thread was consuming and it has been stopped
+        cv_.notify_all();
+
+        // Wait for thread to finish, join it and destroy it (this is done without mutex taken or deadlock will occur)
+        tmp_thread_->join();
+
+        return true;
     }
 
     /**
@@ -187,6 +188,7 @@ public:
         if (!consuming_ && !consumer_thread_)
         {
             consuming_ = true;
+            // IMPORTANT TODO: Refactor: DO NOT CREATE THREADS WITH EVERY CALLBACK PLEEEASEEE!!
             consumer_thread_.reset(new std::thread(&DatabaseQueue::run, this));
             return true;
         }
@@ -342,8 +344,6 @@ protected:
     std::condition_variable cv_;
     std::mutex cv_mutex_;
 
-    //! Mutex that protects the destruction of consumer_thread_
-    std::mutex consumer_thread_destruction_mutex_;
     bool consuming_;
     unsigned char current_loop_;
 };
