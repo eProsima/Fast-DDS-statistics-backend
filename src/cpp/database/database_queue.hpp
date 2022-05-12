@@ -160,7 +160,7 @@ public:
             {
                 consuming_ = false;
                 tmp_thread_ = std::move(consumer_thread_);
-                consumer_thread_.reset(); // Redundant call, as moving it already releases it (speak with richi)
+                consumer_thread_.reset(); // Redundant call, as moving it already releases it (speak with richiware)
             }
             else
             {
@@ -188,7 +188,7 @@ public:
         if (!consuming_ && !consumer_thread_)
         {
             consuming_ = true;
-            // IMPORTANT TODO: Refactor: DO NOT CREATE THREADS WITH EVERY CALLBACK PLEEEASEEE!!
+            // This should be refactor to create less threads. Task associated: #14556
             consumer_thread_.reset(new std::thread(&DatabaseQueue::run, this));
             return true;
         }
