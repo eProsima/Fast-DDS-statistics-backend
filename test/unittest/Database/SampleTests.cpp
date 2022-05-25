@@ -51,7 +51,7 @@ TEST(database, entitycount_sample_clear)
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
     ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
-    ASSERT_EQ(sample.count, 0);
+    ASSERT_EQ(sample.count, 0u);
 }
 
 TEST(database, bytecount_sample_clear)
@@ -63,7 +63,7 @@ TEST(database, bytecount_sample_clear)
     sample.clear();
     ASSERT_EQ(sample.kind, DataKind::INVALID);
     ASSERT_EQ(sample.src_ts, std::chrono::system_clock::time_point());
-    ASSERT_EQ(sample.count, 0);
+    ASSERT_EQ(sample.count, 0u);
     ASSERT_EQ(sample.magnitude_order, 0);
 }
 
@@ -117,12 +117,12 @@ TEST(database, entitycountsample_operator_minus)
     sample_2.count = 2;
     EntityCountSample sample_3;
     sample_3 = sample_1 - sample_2;
-    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.count, 0u);
     ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
 
     sample_2.count = 1;
     sample_3 = sample_1 - sample_2;
-    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.count, 1u);
     ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
 
 #ifndef NDEBUG
@@ -180,7 +180,7 @@ TEST(database, bytecountsample_operator_minus)
 
     sample_3 = sample_2 - sample_1;
     ASSERT_EQ(sample_3.magnitude_order, 1);
-    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.count, 1u);
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Initialize samples 1 and 2 so that one digit on 1 is smaller than in 2, while the other is larger */
@@ -196,7 +196,7 @@ TEST(database, bytecountsample_operator_minus)
 
     sample_3 = sample_2 - sample_1;
     ASSERT_EQ(sample_3.magnitude_order, -1);
-    ASSERT_EQ(sample_3.count, 1);
+    ASSERT_EQ(sample_3.count, 1u);
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Check when count is equal, but magnitude_order is not */
@@ -207,12 +207,12 @@ TEST(database, bytecountsample_operator_minus)
 
     sample_3 = sample_1 - sample_2;
     ASSERT_EQ(sample_3.magnitude_order, 1);
-    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.count, 0u);
     ASSERT_EQ(sample_3.src_ts, ts_1);
 
     sample_3 = sample_2 - sample_1;
     ASSERT_EQ(sample_3.magnitude_order, -1);
-    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.count, 0u);
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Check when magnitude_order is equal, but count is not */
@@ -228,13 +228,13 @@ TEST(database, bytecountsample_operator_minus)
 
     sample_3 = sample_2 - sample_1;
     ASSERT_EQ(sample_3.magnitude_order, 0);
-    ASSERT_EQ(sample_3.count, 2);
+    ASSERT_EQ(sample_3.count, 2u);
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Check that 2 minus itself is 0 */
     sample_3 = sample_2 - sample_2;
     ASSERT_EQ(sample_3.magnitude_order, 0);
-    ASSERT_EQ(sample_3.count, 0);
+    ASSERT_EQ(sample_3.count, 0u);
     ASSERT_EQ(sample_3.src_ts, ts_2);
 
     /* Check that an exception is thrown if the result is less than (-2^15, 0) */

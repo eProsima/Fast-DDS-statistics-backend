@@ -60,18 +60,18 @@ TEST(database, domainparticipant_data_clear)
     /* Check that data in cleared */
     data.clear();
     ASSERT_TRUE(data.rtps_packets_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_sent_count[EntityId(2)].count, 0);
+    ASSERT_EQ(data.last_reported_rtps_packets_sent_count[EntityId(2)].count, 0u);
     ASSERT_TRUE(data.rtps_bytes_sent.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_sent_count[EntityId(3)].count, 0);
+    ASSERT_EQ(data.last_reported_rtps_bytes_sent_count[EntityId(3)].count, 0u);
     ASSERT_TRUE(data.rtps_packets_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_packets_lost_count[EntityId(4)].count, 0);
+    ASSERT_EQ(data.last_reported_rtps_packets_lost_count[EntityId(4)].count, 0u);
     ASSERT_TRUE(data.rtps_bytes_lost.empty());
-    ASSERT_EQ(data.last_reported_rtps_bytes_lost_count[EntityId(5)].count, 0);
+    ASSERT_EQ(data.last_reported_rtps_bytes_lost_count[EntityId(5)].count, 0u);
     ASSERT_TRUE(data.discovered_entity.empty());
     ASSERT_TRUE(data.pdp_packets.empty());
-    ASSERT_EQ(data.last_reported_pdp_packets.count, 0);
+    ASSERT_EQ(data.last_reported_pdp_packets.count, 0u);
     ASSERT_TRUE(data.edp_packets.empty());
-    ASSERT_EQ(data.last_reported_edp_packets.count, 0);
+    ASSERT_EQ(data.last_reported_edp_packets.count, 0u);
     ASSERT_TRUE(data.network_latency_per_locator.empty());
 }
 
@@ -95,9 +95,9 @@ TEST(database, datareader_data_clear)
     data.clear();
     ASSERT_TRUE(data.subscription_throughput.empty());
     ASSERT_TRUE(data.acknack_count.empty());
-    ASSERT_EQ(data.last_reported_acknack_count.count, 0);
+    ASSERT_EQ(data.last_reported_acknack_count.count, 0u);
     ASSERT_TRUE(data.nackfrag_count.empty());
-    ASSERT_EQ(data.last_reported_nackfrag_count.count, 0);
+    ASSERT_EQ(data.last_reported_nackfrag_count.count, 0u);
 }
 
 TEST(database, datawriter_data_clear)
@@ -127,13 +127,13 @@ TEST(database, datawriter_data_clear)
     ASSERT_TRUE(data.history2history_latency.empty());
     ASSERT_TRUE(data.publication_throughput.empty());
     ASSERT_TRUE(data.resent_datas.empty());
-    ASSERT_EQ(data.last_reported_resent_datas.count, 0);
+    ASSERT_EQ(data.last_reported_resent_datas.count, 0u);
     ASSERT_TRUE(data.heartbeat_count.empty());
-    ASSERT_EQ(data.last_reported_heartbeat_count.count, 0);
+    ASSERT_EQ(data.last_reported_heartbeat_count.count, 0u);
     ASSERT_TRUE(data.gap_count.empty());
-    ASSERT_EQ(data.last_reported_gap_count.count, 0);
+    ASSERT_EQ(data.last_reported_gap_count.count, 0u);
     ASSERT_TRUE(data.data_count.empty());
-    ASSERT_EQ(data.last_reported_data_count.count, 0);
+    ASSERT_EQ(data.last_reported_data_count.count, 0u);
     ASSERT_TRUE(data.sample_datas.empty());
 }
 
