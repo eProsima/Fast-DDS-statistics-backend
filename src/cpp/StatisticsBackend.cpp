@@ -320,11 +320,14 @@ EntityId StatisticsBackend::init_monitor(
     /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
     participant_qos.name(participant_name);
-    /* Avoid using SHM transport by default */
-    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
-            std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-    participant_qos.transport().user_transports.push_back(udp_transport);
-    participant_qos.transport().use_builtin_transports = false;
+    if (participant_qos.transport().use_builtin_transports)
+    {
+        /* Avoid using SHM transport by default */
+        std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
+                std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
+        participant_qos.transport().user_transports.push_back(udp_transport);
+        participant_qos.transport().use_builtin_transports = false;
+    }
 
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
                    domain_id);
