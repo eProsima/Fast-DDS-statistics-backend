@@ -1,6 +1,19 @@
 Forthcoming
 -----------
 
+Version 0.7.0
+-------------
+
+This release adds the following **feature**:
+
+* Possibility of loading Fast DDS Statistics Backend's `DomainParticipant` from Fast DDS XML configuration files.
+
+This release adds the following **improvements**:
+
+* Warn the user the Fast DDS Statistics module needs to be enable.
+* Update documentation regarding `locator` specification.
+* Fix destruction error in the Database's queue thread.
+
 Version 0.6.0
 -------------
 
