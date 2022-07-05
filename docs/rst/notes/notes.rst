@@ -9,7 +9,7 @@ This release adds the following **feature**:
 
 This release adds the following **improvements**:
 
-* Warn the user the Fast DDS Statistics module needs to be enable.
+* Warn the user the Fast DDS Statistics module needs to be enabled.
 * Update documentation regarding :class:`locator` specification.
 * Fix destruction error in the Database's queue thread.
 
