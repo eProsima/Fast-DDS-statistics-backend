@@ -249,13 +249,13 @@ TEST_F(database_queue_tests, start_stop_flush)
     int_queue.push(timestamp, 2);
 
     EXPECT_TRUE(int_queue.get_foreground_queue().empty());
-    EXPECT_EQ(2, int_queue.get_background_queue().size());
+    EXPECT_EQ(2u, int_queue.get_background_queue().size());
 
     // Flushing a stopped queue does nothing
     EXPECT_CALL(int_queue, process_sample()).Times(0);
     int_queue.flush();
     EXPECT_TRUE(int_queue.get_foreground_queue().empty());
-    EXPECT_EQ(2, int_queue.get_background_queue().size());
+    EXPECT_EQ(2u, int_queue.get_background_queue().size());
 
     // Start the queue and flush
     EXPECT_CALL(int_queue, process_sample()).Times(2);
@@ -2070,7 +2070,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
             });
 
@@ -2083,7 +2083,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
@@ -2233,7 +2233,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
             });
 
@@ -2246,7 +2246,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
@@ -2323,7 +2323,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
             });
 
@@ -2336,7 +2336,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
@@ -2486,7 +2486,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
             });
 
@@ -2499,7 +2499,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
@@ -2662,7 +2662,7 @@ TEST_F(database_queue_tests, push_resent_datas)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::RESENT_DATA);
-                EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -2758,7 +2758,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::HEARTBEAT_COUNT);
-                EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -2854,7 +2854,7 @@ TEST_F(database_queue_tests, push_acknack_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::ACKNACK_COUNT);
-                EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -2950,7 +2950,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::NACKFRAG_COUNT);
-                EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -3046,7 +3046,7 @@ TEST_F(database_queue_tests, push_gap_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::GAP_COUNT);
-                EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -3142,7 +3142,7 @@ TEST_F(database_queue_tests, push_data_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::DATA_COUNT);
-                EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -3238,7 +3238,7 @@ TEST_F(database_queue_tests, push_pdp_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::PDP_PACKETS);
-                EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -3334,7 +3334,7 @@ TEST_F(database_queue_tests, push_edp_count)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::EDP_PACKETS);
-                EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database, insert(_, _, _)).Times(1)
@@ -3634,7 +3634,7 @@ TEST_F(database_queue_tests, push_sample_datas)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.src_ts, timestamp);
                 EXPECT_EQ(sample.kind, DataKind::SAMPLE_DATAS);
-                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).sequence_number, sn.to64long());
             });
     EXPECT_CALL(database, insert(_, _, _)).Times(1)

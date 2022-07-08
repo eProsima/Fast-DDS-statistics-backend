@@ -585,7 +585,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsSentSample&>(sample).remote_locator, 2);
             });
 
@@ -597,7 +597,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_SENT);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
@@ -673,7 +673,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_PACKETS_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const RtpsPacketsLostSample&>(sample).remote_locator, 2);
             });
 
@@ -685,7 +685,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::RTPS_BYTES_LOST);
-                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048);
+                EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).count, 2048u);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).magnitude_order, 10);
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
@@ -744,7 +744,7 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::RESENT_DATA);
-                EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -800,7 +800,7 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::HEARTBEAT_COUNT);
-                EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -856,7 +856,7 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::ACKNACK_COUNT);
-                EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -912,7 +912,7 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::NACKFRAG_COUNT);
-                EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -968,7 +968,7 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::GAP_COUNT);
-                EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -1024,7 +1024,7 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::DATA_COUNT);
-                EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -1080,7 +1080,7 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::PDP_PACKETS);
-                EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -1136,7 +1136,7 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::EDP_PACKETS);
-                EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024u);
             });
 
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
@@ -1279,7 +1279,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, DataKind::SAMPLE_DATAS);
-                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024);
+                EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).sequence_number, sn.to64long());
             });
     EXPECT_CALL(database_, insert(_, _, _)).Times(1)
