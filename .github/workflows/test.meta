@@ -15,7 +15,8 @@
                 "-DBUILD_DOCUMENTATION=ON",
                 "-DBUILD_TESTS=ON",
                 "-DCMAKE_BUILD_TYPE=Debug",
-                "-DCOMPILE_EXAMPLES=ON"
+                "-DCOMPILE_EXAMPLES=ON",
+                "-DCMAKE_CXX_FLAGS='-Werror'",
             ]
         }
     }
