@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 #include "Monitor.h"
 
@@ -114,18 +115,19 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
     std::vector<StatisticsData> latency_data{};
 
     std::vector<EntityId> topics = StatisticsBackend::get_entities(EntityKind::TOPIC);
-    EntityId helloworld_topic_id = -1;
+    EntityId chatter_topic_id = -1;
     Info topic_info;
     for (auto topic_id : topics)
     {
         topic_info = StatisticsBackend::get_info(topic_id);
-        if (topic_info["name"] == "HelloWorldTopic" && topic_info["data_type"] == "HelloWorld")
+        if (topic_info["name"] == "rt/chatter" && topic_info["data_type"] == "std_msgs::msg::dds_::String_")
         {
-            helloworld_topic_id = topic_id;
+            chatter_topic_id = topic_id;
+            break;
         }
     }
 
-    if (helloworld_topic_id < 0)
+    if (chatter_topic_id < 0)
     {
         return latency_data;
     }
@@ -133,17 +135,17 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
     /* Get the DataWriters and DataReaders in a Topic */
     std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(
             EntityKind::DATAWRITER,
-            helloworld_topic_id);
+            chatter_topic_id);
     std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entities(
             EntityKind::DATAREADER,
-            helloworld_topic_id);
+            chatter_topic_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
     /*
-    * Get the median of the FASTDDS_LATENCY of the last 10 minutes
-    * between the DataWriters and DataReaders publishing under and subscribed to the HelloWorld topic.
+    * Get the mean of the FASTDDS_LATENCY of the last 5 seconds
+    * between the DataWriters and DataReaders publishing under and subscribed to the rt/chatter topic.
     */
     latency_data = StatisticsBackend::get_data(
         DataKind::FASTDDS_LATENCY,                                   // DataKind
@@ -156,12 +158,17 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
 
     for (auto latency : latency_data)
     {
+        if (std::isnan(latency.second))
+        {
+            return latency_data;
+        }
+
         std::int64_t timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                 latency.first.time_since_epoch()).count();
         fastdds_latency_mean_->Set(latency.second/1000, timestamp_ms);
 
-        std::cout << "Fast DDS Latency of HelloWorld topic: ["
-                    << timestamp_to_string(latency.first) << ", " << latency.second/1000 << " μs]" << std::endl;
+        std::cout << "ROS 2 Latency in topic " << topic_info["name"] << ": ["
+                  << timestamp_to_string(latency.first) << ", " << latency.second/1000 << " μs]" << std::endl;
     }
 
     return latency_data;
@@ -171,49 +178,52 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
 {
     std::vector<StatisticsData> publication_throughput_data{};
 
-    std::vector<EntityId> participants = StatisticsBackend::get_entities(EntityKind::PARTICIPANT);
-    EntityId participant_id = -1;
-    Info participant_info;
-    for (auto participant : participants)
+    std::vector<EntityId> topics = StatisticsBackend::get_entities(EntityKind::TOPIC);
+    EntityId chatter_topic_id = -1;
+    Info topic_info;
+    for (auto topic_id : topics)
     {
-        participant_info = StatisticsBackend::get_info(participant);
-        if (participant_info["name"] == "Participant_pub")
+        topic_info = StatisticsBackend::get_info(topic_id);
+        if (topic_info["name"] == "rt/chatter" && topic_info["data_type"] == "std_msgs::msg::dds_::String_")
         {
-            participant_id = participant;
+            chatter_topic_id = topic_id;
+            break;
         }
     }
 
-    if (participant_id < 0)
+    if (chatter_topic_id < 0)
     {
         return publication_throughput_data;
     }
 
     /* Get the DataWriters and DataReaders in a Topic */
-    std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(
+    std::vector<EntityId> chatter_datawriters = StatisticsBackend::get_entities(
             EntityKind::DATAWRITER,
-            participant_id);
+            chatter_topic_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-    /*
-    *
-    */
     publication_throughput_data = StatisticsBackend::get_data(
         DataKind::PUBLICATION_THROUGHPUT,                            // DataKind
-        topic_datawriters,                                           // Source entities
+        chatter_datawriters,                                         // Source entities
         1,                                                           // Number of bins
-        now - std::chrono::seconds(5),                               // t_from
+        now - std::chrono::seconds(10),                               // t_from
         now,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
     for (auto publication_throughput : publication_throughput_data)
     {
+        if (std::isnan(publication_throughput.second))
+        {
+            return publication_throughput_data;
+        }
+
         std::int64_t timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                 publication_throughput.first.time_since_epoch()).count();
         publication_throughput_mean_->Set(publication_throughput.second, timestamp_ms);
 
-        std::cout << "Publication throughput of Participant " << participant_info["name"] << ": ["
+        std::cout << "Publication throughput in topic " << topic_info["name"] << ": ["
                     << timestamp_to_string(publication_throughput.first) << ", "
                     << publication_throughput.second << " B/s]" << std::endl;
     }
@@ -279,13 +289,14 @@ void Monitor::Listener::on_host_discovery(
         EntityId host_id,
         const DomainListener::Status& status)
 {
+    Info host_info = StatisticsBackend::get_info(host_id);
     if (status.current_count_change == 1)
     {
-        std::cout << "Host " << host_id << " discovered." << std::endl;
+        std::cout << "Host " << host_info["name"] << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Host " << host_id << " update info." << std::endl;
+        std::cout << "Host " << host_info["name"] << " update info." << std::endl;
     }
 }
 
@@ -293,13 +304,14 @@ void Monitor::Listener::on_user_discovery(
         EntityId user_id,
         const DomainListener::Status& status)
 {
+    Info user_info = StatisticsBackend::get_info(user_id);
     if (status.current_count_change == 1)
     {
-        std::cout << "User " << user_id << " discovered." << std::endl;
+        std::cout << "User " << user_info["name"] << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "User " << user_id << " update info." << std::endl;
+        std::cout << "User " << user_info["name"] << " update info." << std::endl;
     }
 }
 
@@ -307,13 +319,14 @@ void Monitor::Listener::on_process_discovery(
         EntityId process_id,
         const DomainListener::Status& status)
 {
+    Info process_info = StatisticsBackend::get_info(process_id);
     if (status.current_count_change == 1)
     {
-        std::cout << "Process " << process_id << " discovered." << std::endl;
+        std::cout << "Process " << process_info["name"] << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Process " << process_id << " update info." << std::endl;
+        std::cout << "Process " << process_info["name"] << " update info." << std::endl;
     }
 }
 
@@ -336,15 +349,17 @@ void Monitor::Listener::on_topic_discovery(
         EntityId topic_id,
         const DomainListener::Status& status)
 {
-    static_cast<void>(domain_id);
-
+    Info topic_info = StatisticsBackend::get_info(topic_id);
+    Info domain_info = StatisticsBackend::get_info(domain_id);
     if (status.current_count_change == 1)
     {
-        std::cout << "Topic " << topic_id << " discovered." << std::endl;
+        std::cout << "Topic " << topic_info["name"] << ":" << topic_info["data_type"]
+                  << " discovered in Domain " << domain_info["name"] << std::endl;
     }
     else
     {
-        std::cout << "Topic " << topic_id << " update info." << std::endl;
+        std::cout << "Topic " << topic_info["name"] << ":" << topic_info["data_type"]
+                  << " updated info in Domain " << domain_info["name"] << std::endl;
     }
 }
 
