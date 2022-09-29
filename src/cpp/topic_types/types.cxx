@@ -36,7 +36,7 @@ using namespace eprosima::fastcdr::exception;
 
 eprosima::fastdds::statistics::detail::EntityId_s::EntityId_s()
 {
-    // m_value com.eprosima.idl.parser.typecode.ArrayTypeCode@5ae63ade
+    // m_value com.eprosima.idl.parser.typecode.ArrayTypeCode@23e028a9
     memset(&m_value, 0, (4) * 1);
 
 }
@@ -191,7 +191,7 @@ void eprosima::fastdds::statistics::detail::EntityId_s::serializeKey(
 
 eprosima::fastdds::statistics::detail::GuidPrefix_s::GuidPrefix_s()
 {
-    // m_value com.eprosima.idl.parser.typecode.ArrayTypeCode@1f36e637
+    // m_value com.eprosima.idl.parser.typecode.ArrayTypeCode@2b552920
     memset(&m_value, 0, (12) * 1);
 
 }
@@ -346,9 +346,9 @@ void eprosima::fastdds::statistics::detail::GuidPrefix_s::serializeKey(
 
 eprosima::fastdds::statistics::detail::GUID_s::GUID_s()
 {
-    // m_guidPrefix com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@59906517
+    // m_guidPrefix com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@6043cd28
 
-    // m_entityId com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5bfbf16f
+    // m_entityId com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@cb51256
 
 
 }
@@ -550,9 +550,9 @@ void eprosima::fastdds::statistics::detail::GUID_s::serializeKey(
 
 eprosima::fastdds::statistics::detail::SequenceNumber_s::SequenceNumber_s()
 {
-    // m_high com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4d3167f4
+    // m_high com.eprosima.idl.parser.typecode.PrimitiveTypeCode@3aeaafa6
     m_high = 0;
-    // m_low com.eprosima.idl.parser.typecode.PrimitiveTypeCode@ed9d034
+    // m_low com.eprosima.idl.parser.typecode.PrimitiveTypeCode@76a3e297
     m_low = 0;
 
 }
@@ -744,9 +744,9 @@ void eprosima::fastdds::statistics::detail::SequenceNumber_s::serializeKey(
 
 eprosima::fastdds::statistics::detail::SampleIdentity_s::SampleIdentity_s()
 {
-    // m_writer_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_writer_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_sequence_number com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@1060b431
+    // m_sequence_number com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
 
 
 }
@@ -948,11 +948,11 @@ void eprosima::fastdds::statistics::detail::SampleIdentity_s::serializeKey(
 
 eprosima::fastdds::statistics::detail::Locator_s::Locator_s()
 {
-    // m_kind com.eprosima.idl.parser.typecode.PrimitiveTypeCode@6a1aab78
+    // m_kind com.eprosima.idl.parser.typecode.PrimitiveTypeCode@74ad1f1f
     m_kind = 0;
-    // m_port com.eprosima.idl.parser.typecode.PrimitiveTypeCode@462d5aee
+    // m_port com.eprosima.idl.parser.typecode.PrimitiveTypeCode@6a1aab78
     m_port = 0;
-    // m_address com.eprosima.idl.parser.typecode.ArrayTypeCode@69b0fd6f
+    // m_address com.eprosima.idl.parser.typecode.ArrayTypeCode@462d5aee
     memset(&m_address, 0, (16) * 1);
 
 }
@@ -1195,17 +1195,17 @@ void eprosima::fastdds::statistics::detail::Locator_s::serializeKey(
 
 eprosima::fastdds::statistics::DiscoveryTime::DiscoveryTime()
 {
-    // m_local_participant_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_local_participant_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_remote_entity_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_remote_entity_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_time com.eprosima.idl.parser.typecode.PrimitiveTypeCode@7f010382
+    // m_time com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1e802ef9
     m_time = 0;
-    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@1e802ef9
+    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@2b6faea6
     m_host ="";
-    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@2b6faea6
+    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@778d1062
     m_user ="";
-    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@778d1062
+    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@670002
     m_process ="";
 
 }
@@ -1334,9 +1334,9 @@ void eprosima::fastdds::statistics::DiscoveryTime::serialize(
     scdr << m_local_participant_guid;
     scdr << m_remote_entity_guid;
     scdr << m_time;
-    scdr << m_host;
-    scdr << m_user;
-    scdr << m_process;
+    scdr << m_host.c_str();
+    scdr << m_user.c_str();
+    scdr << m_process.c_str();
 
 }
 
@@ -1598,7 +1598,7 @@ void eprosima::fastdds::statistics::DiscoveryTime::serializeKey(
 
 eprosima::fastdds::statistics::EntityCount::EntityCount()
 {
-    // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
     // m_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1ed1993a
     m_count = 0;
@@ -1998,15 +1998,15 @@ void eprosima::fastdds::statistics::SampleIdentityCount::serializeKey(
 
 eprosima::fastdds::statistics::Entity2LocatorTraffic::Entity2LocatorTraffic()
 {
-    // m_src_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_src_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
+    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5cee5251
 
-    // m_packet_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4b14c583
+    // m_packet_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@433d61fb
     m_packet_count = 0;
-    // m_byte_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@65466a6a
+    // m_byte_count com.eprosima.idl.parser.typecode.PrimitiveTypeCode@5c909414
     m_byte_count = 0;
-    // m_byte_magnitude_order com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4ddced80
+    // m_byte_magnitude_order com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4b14c583
     m_byte_magnitude_order = 0;
 
 }
@@ -2336,11 +2336,11 @@ void eprosima::fastdds::statistics::Entity2LocatorTraffic::serializeKey(
 
 eprosima::fastdds::statistics::WriterReaderData::WriterReaderData()
 {
-    // m_writer_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_writer_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_reader_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_reader_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@2ea227af
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1534f01b
     m_data = 0.0;
 
 }
@@ -2586,11 +2586,11 @@ void eprosima::fastdds::statistics::WriterReaderData::serializeKey(
 
 eprosima::fastdds::statistics::Locator2LocatorData::Locator2LocatorData()
 {
-    // m_src_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
+    // m_src_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5cee5251
 
-    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5c909414
+    // m_dst_locator com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@5cee5251
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@4386f16
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@78e117e3
     m_data = 0.0;
 
 }
@@ -2836,9 +2836,9 @@ void eprosima::fastdds::statistics::Locator2LocatorData::serializeKey(
 
 eprosima::fastdds::statistics::EntityData::EntityData()
 {
-    // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@363ee3a2
+    // m_data com.eprosima.idl.parser.typecode.PrimitiveTypeCode@2ea227af
     m_data = 0.0;
 
 }
@@ -3036,13 +3036,13 @@ void eprosima::fastdds::statistics::EntityData::serializeKey(
 
 eprosima::fastdds::statistics::PhysicalData::PhysicalData()
 {
-    // m_participant_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@612fc6eb
+    // m_participant_guid com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@eafc191
 
-    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@3c22fc4c
+    // m_host com.eprosima.idl.parser.typecode.StringTypeCode@3eb7fc54
     m_host ="";
-    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@460d0a57
+    // m_user com.eprosima.idl.parser.typecode.StringTypeCode@7f552bd3
     m_user ="";
-    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@47d90b9e
+    // m_process com.eprosima.idl.parser.typecode.StringTypeCode@3c22fc4c
     m_process ="";
 
 }
@@ -3151,9 +3151,9 @@ void eprosima::fastdds::statistics::PhysicalData::serialize(
 {
 
     scdr << m_participant_guid;
-    scdr << m_host;
-    scdr << m_user;
-    scdr << m_process;
+    scdr << m_host.c_str();
+    scdr << m_user.c_str();
+    scdr << m_process.c_str();
 
 }
 
@@ -3347,21 +3347,21 @@ void eprosima::fastdds::statistics::PhysicalData::serializeKey(
 eprosima::fastdds::statistics::Data::Data()
 {
     m__d = HISTORY2HISTORY_LATENCY;
-    // m_writer_reader_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49d904ec
+    // m_writer_reader_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3ba9ad43
 
-    // m_locator2locator_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@48e4374
+    // m_locator2locator_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49d904ec
 
-    // m_entity_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3d680b5a
+    // m_entity_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@48e4374
 
-    // m_entity2locator_traffic com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4b5d6a01
+    // m_entity2locator_traffic com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3d680b5a
 
-    // m_entity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4a22f9e2
+    // m_entity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4b5d6a01
 
-    // m_discovery_time com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3c419631
+    // m_discovery_time com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@4a22f9e2
 
-    // m_sample_identity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@418e7838
+    // m_sample_identity_count com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@3c419631
 
-    // m_physical_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@61230f6a
+    // m_physical_data com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@418e7838
 
 }
 
@@ -4408,7 +4408,3 @@ void eprosima::fastdds::statistics::Data::deserialize(
         break;
     }
 }
-
-
-
-
