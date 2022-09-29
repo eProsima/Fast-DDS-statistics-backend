@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2022 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
  * @file Monitor.cpp
  */
 
-#include <string>
-#include <vector>
 #include <chrono>
-#include <chrono>
+#include <csignal>
 #include <iomanip>
-#include <sstream>
 #include <iostream>
-#include <cmath>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
 
 #include "Monitor.h"
 
@@ -43,8 +43,20 @@ using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace prometheus;
 
-Monitor::Monitor()
-    : registry_(std::make_shared<Registry>())
+std::atomic<bool> Monitor::stop_(false);
+std::mutex Monitor::terminate_cv_mtx_;
+std::condition_variable Monitor::terminate_cv_;
+
+Monitor::Monitor(
+        uint32_t domain,
+        uint32_t n_bins,
+        uint32_t t_interval,
+        std::string exposer_addr /* 127.0.0.1:8080 */)
+    : domain_(domain)
+    , n_bins_(n_bins)
+    , t_interval_(t_interval)
+    , exposer_(exposer_addr)
+    , registry_(std::make_shared<Registry>())
     , fastdds_latency_mean_(nullptr)
     , publication_throughput_mean_(nullptr)
 {
@@ -82,7 +94,7 @@ bool Monitor::init()
     /******************************
      * Initialize monitor
      ******************************/
-    monitor_id_ = StatisticsBackend::init_monitor(0);
+    monitor_id_ = StatisticsBackend::init_monitor(domain_);
     if (!monitor_id_.is_valid())
     {
         std::cout << "Error creating monitor" << std::endl;
@@ -96,14 +108,31 @@ bool Monitor::init()
 
 void Monitor::run()
 {
-    std::cout << "Monitor running. Please press enter to stop the Monitor" << std::endl;
+    stop_.store(false);
+    std::cout << "Monitor running. Please press CTRL+C to stop the Monitor at any time." << std::endl;
+    signal(SIGINT, [](int signum)
+            {
+                std::cout << "\nSIGINT received, stopping Monitor execution." << std::endl;
+                static_cast<void>(signum);
+                Monitor::stop();
+            });
 
-    while(true)
+    while (!stop_.load())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
+        terminate_cv_.wait_for(lck, std::chrono::seconds(t_interval_), []
+                {
+                    return stop_.load();
+                });
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
     }
+}
+
+void Monitor::stop()
+{
+    stop_.store(true);
+    terminate_cv_.notify_all();
 }
 
 /***************************************************************
@@ -151,8 +180,8 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
         DataKind::FASTDDS_LATENCY,                                   // DataKind
         topic_datawriters,                                           // Source entities
         topic_datareaders,                                           // Target entities
-        1,                                                           // Number of bins
-        now - std::chrono::seconds(5),                               // t_from
+        n_bins_,                                                           // Number of bins
+        now - std::chrono::seconds(t_interval_),                               // t_from
         now,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
@@ -207,8 +236,8 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     publication_throughput_data = StatisticsBackend::get_data(
         DataKind::PUBLICATION_THROUGHPUT,                            // DataKind
         chatter_datawriters,                                         // Source entities
-        1,                                                           // Number of bins
-        now - std::chrono::seconds(10),                               // t_from
+        n_bins_,                                                           // Number of bins
+        now - std::chrono::seconds(t_interval_),                               // t_from
         now,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
@@ -240,14 +269,15 @@ void Monitor::Listener::on_participant_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info participant_info = StatisticsBackend::get_info(participant_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Participant " << participant_id << " discovered." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Participant " << participant_id << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -257,14 +287,15 @@ void Monitor::Listener::on_datareader_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info datareader_info = StatisticsBackend::get_info(datareader_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataReader " << datareader_id << " discovered." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataReader " << datareader_id << " update info." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -274,14 +305,15 @@ void Monitor::Listener::on_datawriter_discovery(
         const DomainListener::Status& status)
 {
     static_cast<void>(domain_id);
+    Info datawriter_info = StatisticsBackend::get_info(datawriter_id);
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataWriter " << datawriter_id << " discovered." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataWriter " << datawriter_id << " update info." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." << std::endl;
     }
 }
 
@@ -290,13 +322,14 @@ void Monitor::Listener::on_host_discovery(
         const DomainListener::Status& status)
 {
     Info host_info = StatisticsBackend::get_info(host_id);
+
     if (status.current_count_change == 1)
     {
-        std::cout << "Host " << host_info["name"] << " discovered." << std::endl;
+        std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Host " << host_info["name"] << " update info." << std::endl;
+        std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -305,13 +338,14 @@ void Monitor::Listener::on_user_discovery(
         const DomainListener::Status& status)
 {
     Info user_info = StatisticsBackend::get_info(user_id);
+
     if (status.current_count_change == 1)
     {
-        std::cout << "User " << user_info["name"] << " discovered." << std::endl;
+        std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "User " << user_info["name"] << " update info." << std::endl;
+        std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -320,13 +354,14 @@ void Monitor::Listener::on_process_discovery(
         const DomainListener::Status& status)
 {
     Info process_info = StatisticsBackend::get_info(process_id);
+
     if (status.current_count_change == 1)
     {
-        std::cout << "Process " << process_info["name"] << " discovered." << std::endl;
+        std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Process " << process_info["name"] << " update info." << std::endl;
+        std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -334,13 +369,15 @@ void Monitor::Listener::on_locator_discovery(
         EntityId locator_id,
         const DomainListener::Status& status)
 {
+    Info locator_info = StatisticsBackend::get_info(locator_id);
+
     if (status.current_count_change == 1)
     {
-        std::cout << "Locator " << locator_id << " discovered." << std::endl;
+        std::cout << "Locator " << std::string(locator_info["name"]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Locator " << locator_id << " update info." << std::endl;
+        std::cout << "Locator " << std::string(locator_info["name"]) << " update info." << std::endl;
     }
 }
 
@@ -351,15 +388,18 @@ void Monitor::Listener::on_topic_discovery(
 {
     Info topic_info = StatisticsBackend::get_info(topic_id);
     Info domain_info = StatisticsBackend::get_info(domain_id);
+
     if (status.current_count_change == 1)
     {
-        std::cout << "Topic " << topic_info["name"] << ":" << topic_info["data_type"]
-                  << " discovered in Domain " << domain_info["name"] << std::endl;
+        std::cout << "Topic " << std::string(topic_info["name"])
+                  << " [" << std::string(topic_info["data_type"])
+                  << "] discovered." << std::endl;
     }
     else
     {
-        std::cout << "Topic " << topic_info["name"] << ":" << topic_info["data_type"]
-                  << " updated info in Domain " << domain_info["name"] << std::endl;
+        std::cout << "Topic " << std::string(topic_info["name"])
+                  << " [" << std::string(topic_info["data_type"])
+                  << "] updated info." << std::endl;
     }
 }
 

@@ -1,4 +1,4 @@
-# Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2022 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.0)
     cmake_policy(SET CMP0048 NEW)
 endif()
 
-project(HelloWorldExample)
+project(ROS2Prometheus)
 
 find_package(fastcdr REQUIRED)
 find_package(fastrtps REQUIRED)
@@ -39,11 +39,11 @@ message(STATUS "Configuring HelloWorld example...")
 file(GLOB HELLOWORLD_EXAMPLE_SOURCES_CXX "*.cxx")
 file(GLOB HELLOWORLD_EXAMPLE_SOURCES_CPP "*.cpp")
 
-add_executable(HelloWorldExample ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP})
-target_compile_definitions(HelloWorldExample PRIVATE
+add_executable(ROS2Prometheus ${HELLOWORLD_EXAMPLE_SOURCES_CXX} ${HELLOWORLD_EXAMPLE_SOURCES_CPP})
+target_compile_definitions(ROS2Prometheus PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
 )
-target_link_libraries(HelloWorldExample fastrtps fastcdr fastdds_statistics_backend prometheus-cpp::pull)
-install(TARGETS HelloWorldExample
-    RUNTIME DESTINATION examples/C++/DDS/HelloWorldExample/${BIN_INSTALL_DIR})
+target_link_libraries(ROS2Prometheus fastrtps fastcdr fastdds_statistics_backend prometheus-cpp::pull)
+install(TARGETS ROS2Prometheus
+    RUNTIME DESTINATION examples/cpp/ROS2Prometheus/${BIN_INSTALL_DIR})

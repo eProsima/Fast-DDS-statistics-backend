@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2022 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 #ifndef MONITOR_H_
 #define MONITOR_H_
 
+#include <atomic>
+#include <condition_variable>
 #include <list>
 #include <string>
 
@@ -45,20 +47,27 @@ using namespace prometheus;
 class Monitor
 {
 public:
-    Monitor();
+    Monitor(
+            uint32_t domain,
+            uint32_t n_bins,
+            uint32_t t_interval,
+            std::string exposer_addr = "127.0.0.1:8080");
 
     virtual ~Monitor();
 
-    //! Initilize monitor
+    //! Initialize monitor
     bool init();
 
     //! Run the monitor
     void run();
 
-    //! Get the Fast DDS latency mean of the last 10 seconds between the publisher and the subscriber
+    //! Stop the monitor
+    static void stop();
+
+    //! Get the Fast DDS latency mean of the last t_interval seconds between the talker and the listener
     std::vector<StatisticsData> get_fastdds_latency_mean();
 
-    //! Get the publication throughput mean of the last 10 seconds of the publisher
+    //! Get the publication throughput mean of the last t_interval seconds of the talker
     std::vector<StatisticsData> get_publication_throughput_mean();
 
     //! Serialize the timestamp of a given data value
@@ -125,8 +134,29 @@ public:
 
     } physical_listener_;
 
+    //! DDS Domain Id to monitor
+    DomainId domain_;
+
+    //! Number of time intervals in which the measurement time is divided
+    uint32_t n_bins_;
+
+    //! Time interval of the returned measures
+    uint32_t t_interval_;
+
+    //! EntityId of the initialized monitor
     EntityId monitor_id_;
-    Exposer exposer_{"127.0.0.1:8080"};
+
+    //! Signals that the monitor has been stopped
+    static std::atomic<bool> stop_;
+
+    //! Protects terminate condition variable
+    static std::mutex terminate_cv_mtx_;
+
+    //! Waits during execution until SIGINT is received
+    static std::condition_variable terminate_cv_;
+
+
+    Exposer exposer_;
     std::shared_ptr<prometheus::Registry> registry_;
     Gauge* fastdds_latency_mean_;
     Gauge* publication_throughput_mean_;
