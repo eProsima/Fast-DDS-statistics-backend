@@ -1,17 +1,13 @@
 .. _release_notes:
 
-Version 0.7.0
+Version 0.7.1
 =============
-
-This release adds the following **feature**:
-
-* Possibility of loading Fast DDS Statistics Backend's :class:`DomainParticipant` from Fast DDS XML configuration files.
 
 This release adds the following **improvements**:
 
-* Warn the user the Fast DDS Statistics module needs to be enabled.
-* Update documentation regarding :class:`locator` specification.
-* Fix destruction error in the Database's queue thread.
+* Update python dependencies for building the documentation
+* Re-generate Fast DDS-Gen generated TypeSupport with Fast DDS-Gen v2.2.0
+* Example to export ROS 2 statistics to Prometheus
 
 Previous versions
 =================
