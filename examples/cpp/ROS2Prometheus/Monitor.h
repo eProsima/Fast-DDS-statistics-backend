@@ -45,6 +45,7 @@ using namespace eprosima::fastdds::dds;
 class Monitor
 {
 public:
+
     Monitor(
             uint32_t domain,
             uint32_t n_bins,
@@ -70,13 +71,13 @@ public:
 
     //! Serialize the timestamp of a given data value
     std::string timestamp_to_string(
-        const Timestamp timestamp);
+            const Timestamp timestamp);
 
 protected:
 
     class Listener : public eprosima::statistics_backend::PhysicalListener
     {
-public:
+    public:
 
         Listener()
         {
@@ -130,7 +131,8 @@ public:
                 EntityId datawriter_id,
                 const DomainListener::Status& status) override;
 
-    } physical_listener_;
+    }
+    physical_listener_;
 
     //! DDS Domain Id to monitor
     DomainId domain_;

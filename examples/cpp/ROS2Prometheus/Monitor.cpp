@@ -69,30 +69,30 @@ Monitor::~Monitor()
 bool Monitor::init()
 {
     /******************************
-     * Initialize prometheus server
-     ******************************/
+    * Initialize prometheus server
+    ******************************/
     auto& fastdds_latency_gauge = prometheus::BuildGauge()
-            .Name("fastdds_latency")
-            .Help("Fast DDS Latency")
-            .Register(*registry_);
+                    .Name("fastdds_latency")
+                    .Help("Fast DDS Latency")
+                    .Register(*registry_);
 
     fastdds_latency_mean_ =
-        &fastdds_latency_gauge.Add({{"statistic", "mean"}});
+            &fastdds_latency_gauge.Add({{"statistic", "mean"}});
 
     auto& publication_throughput_gauge = prometheus::BuildGauge()
-            .Name("publication_throughput")
-            .Help("Publication throughput")
-            .Register(*registry_);
+                    .Name("publication_throughput")
+                    .Help("Publication throughput")
+                    .Register(*registry_);
 
     publication_throughput_mean_ =
-        &publication_throughput_gauge.Add({{"statistic", "mean"}});
+            &publication_throughput_gauge.Add({{"statistic", "mean"}});
 
     /* Ask the exposer to scrape the registry on incoming HTTP requests */
     exposer_.RegisterCollectable(registry_);
 
     /******************************
-     * Initialize monitor
-     ******************************/
+    * Initialize monitor
+    ******************************/
     monitor_id_ = StatisticsBackend::init_monitor(domain_);
     if (!monitor_id_.is_valid())
     {
@@ -135,8 +135,8 @@ void Monitor::stop()
 }
 
 /***************************************************************
- * Implementation of the functions to collect the data.
- ***************************************************************/
+* Implementation of the functions to collect the data.
+***************************************************************/
 
 std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
 {
@@ -162,19 +162,19 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
 
     /* Get the DataWriters and DataReaders in a Topic */
     std::vector<EntityId> topic_datawriters = StatisticsBackend::get_entities(
-            EntityKind::DATAWRITER,
-            chatter_topic_id);
+        EntityKind::DATAWRITER,
+        chatter_topic_id);
     std::vector<EntityId> topic_datareaders = StatisticsBackend::get_entities(
-            EntityKind::DATAREADER,
-            chatter_topic_id);
+        EntityKind::DATAREADER,
+        chatter_topic_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
     /*
-    * Get the mean of the FASTDDS_LATENCY of the last 5 seconds
-    * between the DataWriters and DataReaders publishing under and subscribed to the rt/chatter topic.
-    */
+     * Get the mean of the FASTDDS_LATENCY of the last 5 seconds
+     * between the DataWriters and DataReaders publishing under and subscribed to the rt/chatter topic.
+     */
     latency_data = StatisticsBackend::get_data(
         DataKind::FASTDDS_LATENCY,                                   // DataKind
         topic_datawriters,                                           // Source entities
@@ -192,11 +192,11 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
         }
 
         std::int64_t timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                latency.first.time_since_epoch()).count();
-        fastdds_latency_mean_->Set(latency.second/1000, timestamp_ms);
+            latency.first.time_since_epoch()).count();
+        fastdds_latency_mean_->Set(latency.second / 1000, timestamp_ms);
 
         std::cout << "ROS 2 Latency in topic " << topic_info["name"] << ": ["
-                  << timestamp_to_string(latency.first) << ", " << latency.second/1000 << " μs]" << std::endl;
+                  << timestamp_to_string(latency.first) << ", " << latency.second / 1000 << " μs]" << std::endl;
     }
 
     return latency_data;
@@ -226,8 +226,8 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
 
     /* Get the DataWriters and DataReaders in a Topic */
     std::vector<EntityId> chatter_datawriters = StatisticsBackend::get_entities(
-            EntityKind::DATAWRITER,
-            chatter_topic_id);
+        EntityKind::DATAWRITER,
+        chatter_topic_id);
 
     /* Get the current time */
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -248,20 +248,20 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
         }
 
         std::int64_t timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                publication_throughput.first.time_since_epoch()).count();
+            publication_throughput.first.time_since_epoch()).count();
         publication_throughput_mean_->Set(publication_throughput.second, timestamp_ms);
 
         std::cout << "Publication throughput in topic " << topic_info["name"] << ": ["
-                    << timestamp_to_string(publication_throughput.first) << ", "
-                    << publication_throughput.second << " B/s]" << std::endl;
+                  << timestamp_to_string(publication_throughput.first) << ", "
+                  << publication_throughput.second << " B/s]" << std::endl;
     }
 
     return publication_throughput_data;
 }
 
 /***************************************************************
- * Monitor Listener callbacks implementation
- ***************************************************************/
+* Monitor Listener callbacks implementation
+***************************************************************/
 void Monitor::Listener::on_participant_discovery(
         EntityId domain_id,
         EntityId participant_id,
@@ -403,8 +403,8 @@ void Monitor::Listener::on_topic_discovery(
 }
 
 /***************************************************************
- * Utils
- ***************************************************************/
+* Utils
+***************************************************************/
 std::string Monitor::timestamp_to_string(
         const Timestamp timestamp)
 {
@@ -423,4 +423,3 @@ std::string Monitor::timestamp_to_string(
 
     return ss.str();
 }
-
