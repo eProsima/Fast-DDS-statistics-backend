@@ -62,11 +62,11 @@ void insert_ddsendpoint_valid()
     auto endpoint_id = db.insert(endpoint);
 
     /* Check that the endpoint is correctly inserted in participant */
-    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1u);
     ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
 
     /* Check that the endpoint is correctly inserted in topic */
-    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1u);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
 
     /* Check x_by_y_ collections and locators_ */
@@ -93,8 +93,8 @@ void insert_ddsendpoint_valid()
 
     /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
     auto endpoints = db.get_dds_endpoints<T>();
-    ASSERT_EQ(endpoints.size(), 1);
-    ASSERT_EQ(endpoints[domain_id].size(), 1);
+    ASSERT_EQ(endpoints.size(), 1u);
+    ASSERT_EQ(endpoints[domain_id].size(), 1u);
     ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
     ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
     ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
@@ -140,12 +140,12 @@ void insert_ddsendpoint_two_valid()
     auto endpoint_id_2 = db.insert(endpoint_2);
 
     /* Check that the endpoints are correctly inserted in participant */
-    ASSERT_EQ(participant->ddsendpoints<T>().size(), 2);
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 2u);
     ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
     ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
 
     /* Check that the endpoints are correctly inserted in topic */
-    ASSERT_EQ(topic->ddsendpoints<T>().size(), 2);
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 2u);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id_2].get(), endpoint_2.get());
 
@@ -190,8 +190,8 @@ void insert_ddsendpoint_two_valid()
 
     /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
     auto endpoints = db.get_dds_endpoints<T>();
-    ASSERT_EQ(endpoints.size(), 1);
-    ASSERT_EQ(endpoints[domain_id].size(), 2);
+    ASSERT_EQ(endpoints.size(), 1u);
+    ASSERT_EQ(endpoints[domain_id].size(), 2u);
     ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
     ASSERT_NE(endpoints[domain_id].find(endpoint_id_2), endpoints[domain_id].end());
     ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
@@ -512,19 +512,19 @@ void insert_ddsendpoint_two_equal_locators()
     auto endpoint_id = db.insert(endpoint);
 
     /* Check that the endpoint is correctly inserted in participant */
-    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(participant->ddsendpoints<T>().size(), 1u);
     ASSERT_EQ(participant->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
 
     /* Check that the endpoint is correctly inserted in topic */
-    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1);
+    ASSERT_EQ(topic->ddsendpoints<T>().size(), 1u);
     ASSERT_EQ(topic->ddsendpoints<T>()[endpoint_id].get(), endpoint.get());
 
     /* Check x_by_y_ collections and locators_ */
     auto locators = db.locators();
     auto locators_by_participant = db.locators_by_participant();
     auto participants_by_locator = db.participants_by_locator();
-    ASSERT_EQ(locators_by_participant[participant_id].size(), 1); // Check there is only one, as it is repeaated
-    ASSERT_EQ(participants_by_locator[locator1->id].size(), 1);
+    ASSERT_EQ(locators_by_participant[participant_id].size(), 1u); // Check there is only one, as it is repeaated
+    ASSERT_EQ(participants_by_locator[locator1->id].size(), 1u);
     for (auto locator_it : endpoint->locators)
     {
         // Check that the endpoint's locators are correctly inserted in locators_
@@ -543,15 +543,15 @@ void insert_ddsendpoint_two_equal_locators()
 
     /* Check that the ddsendpoint is inserted correctly inserted in the endpoints_<T> collection */
     auto endpoints = db.get_dds_endpoints<T>();
-    ASSERT_EQ(endpoints.size(), 1);
-    ASSERT_EQ(endpoints[domain_id].size(), 1);
+    ASSERT_EQ(endpoints.size(), 1u);
+    ASSERT_EQ(endpoints[domain_id].size(), 1u);
     ASSERT_NE(endpoints[domain_id].find(endpoint_id), endpoints[domain_id].end());
     ASSERT_EQ(endpoint_name, endpoints[domain_id][endpoint_id]->name);
     ASSERT_EQ(db.test_qos, endpoints[domain_id][endpoint_id]->qos);
     ASSERT_EQ(endpoint_guid, endpoints[domain_id][endpoint_id]->guid);
 
     // Getting locator by name should only give one
-    ASSERT_EQ(db.get_entities_by_name(EntityKind::LOCATOR, "test_locator").size(), 1);
+    ASSERT_EQ(db.get_entities_by_name(EntityKind::LOCATOR, "test_locator").size(), 1u);
 }
 
 class database_tests : public ::testing::Test
@@ -1820,7 +1820,7 @@ TEST_F(database_tests, insert_sample_history_latency)
     sample_2.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
-    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2);
+    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2u);
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(writer->data.history2history_latency[reader_id][1], static_cast<EntityDataSample>(sample_2));
 }

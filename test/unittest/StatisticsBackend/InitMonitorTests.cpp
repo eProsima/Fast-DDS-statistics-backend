@@ -176,7 +176,7 @@ public:
         auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
         /* Check that three monitors are created */
-        EXPECT_EQ(domain_monitors.size(), 3);
+        EXPECT_EQ(domain_monitors.size(), 3u);
 
         return domain_monitors;
     }
@@ -457,7 +457,7 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that two monitors are created */
-    EXPECT_EQ(domain_monitors.size(), 2);
+    EXPECT_EQ(domain_monitors.size(), 2u);
 
     /* Check that the domain listener is set correctly */
     EXPECT_EQ(&domain_listener, domain_monitors[monitor_id1]->domain_listener);
@@ -516,7 +516,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that three monitors are created */
-    EXPECT_EQ(domain_monitors.size(), 3);
+    EXPECT_EQ(domain_monitors.size(), 3u);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -565,7 +565,7 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
     auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that a monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
+    EXPECT_EQ(domain_monitors.size(), 1u);
 
     DomainParticipantQos participant_qos;
     domain_monitors[monitor_id]->participant->get_qos(participant_qos);
@@ -651,7 +651,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_name)
             details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
+    EXPECT_EQ(domain_monitors.size(), 1u);
 
     eprosima::fastdds::dds::DomainParticipant* participant = domain_monitors[monitor_id]->participant;
     eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
@@ -681,7 +681,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
             details::StatisticsBackendData::get_instance()->monitors_by_entity_;
 
     /* Check that only one monitor is created */
-    EXPECT_EQ(domain_monitors.size(), 1);
+    EXPECT_EQ(domain_monitors.size(), 1u);
 
     eprosima::fastdds::dds::DomainParticipant* participant = domain_monitors[monitor_id]->participant;
     eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
@@ -690,7 +690,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
     EXPECT_FALSE(participant_qos.transport().use_builtin_transports);
 
     /* Check that the DomainParticipant has only one transport set and it is a UDPv4TransportDescriptor */
-    EXPECT_EQ(participant_qos.transport().user_transports.size(), 1);
+    EXPECT_EQ(participant_qos.transport().user_transports.size(), 1u);
     std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> participant_transport =
             std::dynamic_pointer_cast<eprosima::fastdds::rtps::UDPv4TransportDescriptor>(
         participant_qos.transport().user_transports.back());

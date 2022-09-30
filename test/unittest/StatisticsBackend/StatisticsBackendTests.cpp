@@ -354,7 +354,7 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
     for (auto element : data_to_entity_map)
     {
         auto res = StatisticsBackend::get_data_supported_entity_kinds(element.first);
-        ASSERT_EQ(res.size(), 1);
+        ASSERT_EQ(res.size(), 1u);
 
         ASSERT_EQ(res[0].first, element.second.first);
         ASSERT_EQ(res[0].second, element.second.second);
@@ -369,7 +369,7 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
         });
 
         auto res = StatisticsBackend::get_data_supported_entity_kinds(DataKind::DISCOVERY_TIME);
-        ASSERT_EQ(res.size(), 3);
+        ASSERT_EQ(res.size(), 3u);
 
         for (auto types_allowed : res)
         {
@@ -415,12 +415,12 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
     // Check that there is a monitor with EntityId(7)
     // This will be used in all calls to on_domain_entity_discovery
     auto result = StatisticsBackendTest::get_entities(EntityKind::DOMAIN, EntityId(7));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
     EntityId monitor_id = EntityId(7);
 
     // Check that there is a host with EntityId(1)
     result = StatisticsBackendTest::get_entities(EntityKind::HOST, EntityId(1));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
@@ -444,7 +444,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a user with EntityId(3)
     result = StatisticsBackendTest::get_entities(EntityKind::USER, EntityId(3));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
@@ -468,7 +468,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a process with EntityId(5)
     result = StatisticsBackendTest::get_entities(EntityKind::PROCESS, EntityId(5));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
@@ -492,7 +492,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a locator with EntityId(17)
     result = StatisticsBackendTest::get_entities(EntityKind::LOCATOR, EntityId(17));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_domain_entity_discovery with a physical entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
@@ -516,7 +516,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a Participant with EntityId(9)
     result = StatisticsBackendTest::get_entities(EntityKind::PARTICIPANT, EntityId(9));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
@@ -537,7 +537,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a topic with EntityId(11)
     result = StatisticsBackendTest::get_entities(EntityKind::TOPIC, EntityId(11));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
@@ -558,7 +558,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a datareader with EntityId(13)
     result = StatisticsBackendTest::get_entities(EntityKind::DATAREADER, EntityId(13));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
@@ -579,7 +579,7 @@ TEST_F(statistics_backend_tests, internal_callbacks_negative_cases)
 
     // Check that there is a datawriter with EntityId(17)
     result = StatisticsBackendTest::get_entities(EntityKind::DATAWRITER, EntityId(17));
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     // Calling on_physical_entity_discovery with a domain entity should fail
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(

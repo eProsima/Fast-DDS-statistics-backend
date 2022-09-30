@@ -1628,7 +1628,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(participant_name_, participant->name);
     EXPECT_EQ(nullptr, participant->process);
     EXPECT_TRUE(participant->data_readers.empty());
-    ASSERT_EQ(1, participant->data_writers.size()); // There is the metatraffic endpoint
+    ASSERT_EQ(1u, participant->data_writers.size()); // There is the metatraffic endpoint
 
     /* TOPIC */
     // the topic will be discovered with the datawriter
@@ -1716,19 +1716,19 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(monitor_id_, topic->domain->id);
     EXPECT_EQ(topic_name_, topic->name);
     EXPECT_EQ(topic_type_, topic->data_type);
-    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(1u, topic->data_writers.size());
     EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
     EXPECT_TRUE(topic->data_readers.empty());
 
     // Check that the locator was created OK
-    ASSERT_EQ(1, writer->locators.size());
+    ASSERT_EQ(1u, writer->locators.size());
     const std::shared_ptr<const database::Locator> wlocator =
             writer->locators.begin()->second;
     EXPECT_TRUE(wlocator->active);
     std::stringstream s;
     s << writer_locator;
     EXPECT_EQ(s.str(), wlocator->name);
-    ASSERT_EQ(1, wlocator->data_writers.size());
+    ASSERT_EQ(1u, wlocator->data_writers.size());
     EXPECT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
 
     /* DATAREADER */
@@ -1800,20 +1800,20 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(monitor_id_, topic->domain->id);
     EXPECT_EQ(topic_name_, topic->name);
     EXPECT_EQ(topic_type_, topic->data_type);
-    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(1u, topic->data_readers.size());
     EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(1u, topic->data_writers.size());
     EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
 
     // Check that the locator was created OK
-    ASSERT_EQ(1, reader->locators.size());
+    ASSERT_EQ(1u, reader->locators.size());
     const std::shared_ptr<const database::Locator> rlocator =
             reader->locators.begin()->second;
     EXPECT_TRUE(rlocator->active);
     s.str(std::string());
     s << reader_locator;
     EXPECT_EQ(s.str(), rlocator->name);
-    ASSERT_EQ(1, rlocator->data_readers.size());
+    ASSERT_EQ(1u, rlocator->data_readers.size());
     EXPECT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
 
 
@@ -1888,17 +1888,17 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(monitor_id_, topic2->domain->id);
     EXPECT_EQ(topic2_name, topic2->name);
     EXPECT_EQ(topic_type_, topic2->data_type);
-    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(1u, topic2->data_readers.size());
     EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
     EXPECT_TRUE(topic2->data_writers.empty());
 
     // Check that the locator is OK
-    ASSERT_EQ(1, reader2->locators.size());
+    ASSERT_EQ(1u, reader2->locators.size());
     EXPECT_EQ(wlocator.get(), reader2->locators.begin()->second.get());
     EXPECT_TRUE(wlocator->active);
-    ASSERT_EQ(1, wlocator->data_readers.size());
+    ASSERT_EQ(1u, wlocator->data_readers.size());
     EXPECT_EQ(reader2.get(), wlocator->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(1, wlocator->data_writers.size());
+    ASSERT_EQ(1u, wlocator->data_writers.size());
     EXPECT_EQ(writer.get(), wlocator->data_writers.find(writer->id)->second.get());
 
     /* A DATAWRITER on the second topic, on the reader's locator */
@@ -1953,18 +1953,18 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     ASSERT_TRUE(writer2->topic);
     EXPECT_EQ(topic2.get(), writer2->topic.get());
     EXPECT_TRUE(topic2->active);
-    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(1u, topic2->data_readers.size());
     EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(1u, topic2->data_writers.size());
     EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
 
     // Check that the locator is OK
-    ASSERT_EQ(1, writer2->locators.size());
+    ASSERT_EQ(1u, writer2->locators.size());
     EXPECT_EQ(rlocator.get(), writer2->locators.begin()->second.get());
     EXPECT_TRUE(rlocator->active);
-    ASSERT_EQ(1, rlocator->data_readers.size());
+    ASSERT_EQ(1u, rlocator->data_readers.size());
     EXPECT_EQ(reader.get(), rlocator->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(1, rlocator->data_writers.size());
+    ASSERT_EQ(1u, rlocator->data_writers.size());
     EXPECT_EQ(writer2.get(), rlocator->data_writers.find(writer2->id)->second.get());
 
     /* Remove the DATAWRITER and DATAREADER on the first TOPIC */
@@ -1993,16 +1993,16 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(writer->active);
     EXPECT_TRUE(reader->active);
     EXPECT_TRUE(topic->active);
-    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(1u, topic->data_readers.size());
     EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(1u, topic->data_writers.size());
     EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
     EXPECT_TRUE(wlocator->active);
     EXPECT_TRUE(rlocator->active);
     EXPECT_TRUE(participant->active);
-    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(2u, participant->data_readers.size());
     EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(3, participant->data_writers.size());
+    ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader_undiscovery_args([&](
@@ -2045,16 +2045,16 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(writer->active);
     EXPECT_FALSE(reader->active);
     EXPECT_FALSE(topic->active);
-    ASSERT_EQ(1, topic->data_readers.size());
+    ASSERT_EQ(1u, topic->data_readers.size());
     EXPECT_EQ(reader.get(), topic->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(1, topic->data_writers.size());
+    ASSERT_EQ(1u, topic->data_writers.size());
     EXPECT_EQ(writer.get(), topic->data_writers.find(writer->id)->second.get());
     EXPECT_TRUE(wlocator->active);
     EXPECT_TRUE(rlocator->active);
     EXPECT_TRUE(participant->active);
-    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(2u, participant->data_readers.size());
     EXPECT_EQ(reader.get(), participant->data_readers.find(reader->id)->second.get());
-    ASSERT_EQ(3, participant->data_writers.size());
+    ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer.get(), participant->data_writers.find(writer->id)->second.get());
 
     /* Remove the DATAWRITER and DATAREADER on the second TOPIC */
@@ -2083,16 +2083,16 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(writer2->active);
     EXPECT_TRUE(reader2->active);
     EXPECT_TRUE(topic2->active);
-    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(1u, topic2->data_readers.size());
     EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(1u, topic2->data_writers.size());
     EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
     EXPECT_TRUE(wlocator->active);
     EXPECT_TRUE(rlocator->active);
     EXPECT_TRUE(participant->active);
-    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(2u, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(3, participant->data_writers.size());
+    ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     DomainEntityDiscoveryArgs datareader2_undiscovery_args([&](
@@ -2135,16 +2135,16 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(writer2->active);
     EXPECT_FALSE(reader2->active);
     EXPECT_FALSE(topic2->active);
-    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(1u, topic2->data_readers.size());
     EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(1u, topic2->data_writers.size());
     EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
     EXPECT_TRUE(wlocator->active);
     EXPECT_TRUE(rlocator->active);
     EXPECT_TRUE(participant->active);
-    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(2u, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(3, participant->data_writers.size());
+    ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 
     /* Remove the PARTICIPANT */
@@ -2203,16 +2203,16 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_FALSE(writer2->active);
     EXPECT_FALSE(reader2->active);
     EXPECT_FALSE(topic2->active);
-    ASSERT_EQ(1, topic2->data_readers.size());
+    ASSERT_EQ(1u, topic2->data_readers.size());
     EXPECT_EQ(reader2.get(), topic2->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(1, topic2->data_writers.size());
+    ASSERT_EQ(1u, topic2->data_writers.size());
     EXPECT_EQ(writer2.get(), topic2->data_writers.find(writer2->id)->second.get());
     EXPECT_TRUE(wlocator->active);
     EXPECT_TRUE(rlocator->active);
     EXPECT_FALSE(participant->active);
-    ASSERT_EQ(2, participant->data_readers.size());
+    ASSERT_EQ(2u, participant->data_readers.size());
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
-    ASSERT_EQ(3, participant->data_writers.size());
+    ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
 }
 #endif //!defined(_WIN32)
