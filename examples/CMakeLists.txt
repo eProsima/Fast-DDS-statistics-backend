@@ -14,3 +14,11 @@
 
 set(fastdds_statistics_backend_FOUND TRUE)
 add_subdirectory(cpp/HelloWorldExample)
+
+find_package(prometheus-cpp CONFIG)
+if (prometheus-cpp_FOUND)
+    add_subdirectory(cpp/ROS2Prometheus)
+else()
+    message(WARNING "C++ Prometheus exporter was not found.\n"
+        "Please download it from https://github.com/eProsima/prometheus-cpp to compile the ROS2Prometheus example.")
+endif()

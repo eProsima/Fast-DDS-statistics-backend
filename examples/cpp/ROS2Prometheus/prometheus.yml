@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+  external_labels:
+    monitor: 'statistics-monitor'
+
+scrape_configs:
+  - job_name: 'statistics-backend'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:8080']
