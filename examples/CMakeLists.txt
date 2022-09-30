@@ -20,5 +20,5 @@ if (prometheus-cpp_FOUND)
     add_subdirectory(cpp/ROS2Prometheus)
 else()
     message(WARNING "C++ Prometheus exporter was not found.\n"
-        "Please download it from https://github.com/rsanchez15/prometheus-cpp to compile the ROS2Prometheus example.")
+        "Please download it from https://github.com/eProsima/prometheus-cpp to compile the ROS2Prometheus example.")
 endif()

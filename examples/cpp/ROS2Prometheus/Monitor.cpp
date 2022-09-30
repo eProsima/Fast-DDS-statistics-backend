@@ -41,7 +41,6 @@
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
-using namespace prometheus;
 
 std::atomic<bool> Monitor::stop_(false);
 std::mutex Monitor::terminate_cv_mtx_;
@@ -56,7 +55,7 @@ Monitor::Monitor(
     , n_bins_(n_bins)
     , t_interval_(t_interval)
     , exposer_(exposer_addr)
-    , registry_(std::make_shared<Registry>())
+    , registry_(std::make_shared<prometheus::Registry>())
     , fastdds_latency_mean_(nullptr)
     , publication_throughput_mean_(nullptr)
 {
@@ -72,7 +71,7 @@ bool Monitor::init()
     /******************************
      * Initialize prometheus server
      ******************************/
-    auto& fastdds_latency_gauge = BuildGauge()
+    auto& fastdds_latency_gauge = prometheus::BuildGauge()
             .Name("fastdds_latency")
             .Help("Fast DDS Latency")
             .Register(*registry_);
@@ -80,7 +79,7 @@ bool Monitor::init()
     fastdds_latency_mean_ =
         &fastdds_latency_gauge.Add({{"statistic", "mean"}});
 
-    auto& publication_throughput_gauge = BuildGauge()
+    auto& publication_throughput_gauge = prometheus::BuildGauge()
             .Name("publication_throughput")
             .Help("Publication throughput")
             .Register(*registry_);

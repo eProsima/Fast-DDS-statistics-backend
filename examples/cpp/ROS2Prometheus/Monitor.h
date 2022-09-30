@@ -41,8 +41,6 @@
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
-using namespace prometheus;
-
 
 class Monitor
 {
@@ -156,10 +154,10 @@ public:
     static std::condition_variable terminate_cv_;
 
 
-    Exposer exposer_;
+    prometheus::Exposer exposer_;
     std::shared_ptr<prometheus::Registry> registry_;
-    Gauge* fastdds_latency_mean_;
-    Gauge* publication_throughput_mean_;
+    prometheus::Gauge* fastdds_latency_mean_;
+    prometheus::Gauge* publication_throughput_mean_;
 };
 
 #endif /* MONITOR_H_ */

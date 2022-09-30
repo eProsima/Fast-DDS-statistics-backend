@@ -8,8 +8,10 @@ This example also exports the statistics collected by the monitor to Prometheus.
 
 Additional dependencies are required to run this example.
 
-* [C++ Prometheus exporter](https://github.com/rsanchez15/prometheus-cpp) (required)
-* [Prometheus](https://prometheus.io/) (optional)
+* [C++ Prometheus exporter](https://github.com/eProsima/prometheus-cpp) (**required**)
+Install this concrete version of *Prometheus exporter* by following any of the methods described in the given link.
+* [Prometheus](https://prometheus.io/) (**optional**)
+Follow the installation guide from the official website. The configuration file needed to run this example is provided under this same directory (`prometheus.yml`).
 
 ## Execution instructions
 

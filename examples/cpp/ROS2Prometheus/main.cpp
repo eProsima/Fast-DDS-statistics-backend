@@ -63,7 +63,6 @@ int main(
 
         argc -= (argc > 0);
         argv += (argc > 0); // skip program name argv[0] if present
-        --argc; ++argv; // skip pub/sub argument
         option::Stats stats(usage, argc, argv);
         std::vector<option::Option> options(stats.options_max);
         std::vector<option::Option> buffer(stats.buffer_max);
