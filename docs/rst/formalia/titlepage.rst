@@ -29,3 +29,11 @@ generate statistical information to be used by applications.
   the `FASTDDS_STATISTICS` environment variable or the DomainParticipantQos to activate the statistics DataWriters.
   For more information, please refer to the
   `Statistics Module documentation <https://fast-dds.docs.eprosima.com/en/latest/fastdds/statistics/statistics.html#statistics-module>`_.
+
+.. warning::
+  If Fast DDS has been compiled with statistics and they are explicitly enabled and statistical data are not correctly
+  received, only few data arrive or even none, configure the Fast DDS endpoints publishing statistics data with a less
+  restrictive memory constraints.
+  Please check the following
+  `documentation <https://fast-dds.docs.eprosima.com/en/latest/fastdds/statistics/dds_layer/qos.html?highlight=Troubleshooting#statistics-qos-troubleshooting>`_
+  for more details on how to do this.
