@@ -45,7 +45,9 @@ public:
     bool init(
             uint32_t domain,
             uint32_t n_bins,
-            uint32_t t_interval);
+            uint32_t t_interval,
+            std::string bump_file = "",
+            bool reset = false);
 
     //! Run the monitor
     void run();
@@ -67,6 +69,10 @@ public:
             const Timestamp timestamp);
 
 protected:
+
+    void bump_in_file();
+
+    void clear_inactive_entities();
 
     class Listener : public eprosima::statistics_backend::PhysicalListener
     {
@@ -131,6 +137,12 @@ private:
 
     //! Time interval of the returned measures
     uint32_t t_interval_;
+
+    //! Path where the bump_file will be stored
+    std::string bump_file_;
+
+    //! Whether the internal data must be removed each interval
+    bool reset_;
 
     //! Member used for control flow purposes
     static std::atomic<bool> stop_;

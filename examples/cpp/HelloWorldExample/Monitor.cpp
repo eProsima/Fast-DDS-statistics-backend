@@ -18,6 +18,8 @@
 
 #include <chrono>
 #include <csignal>
+#include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -61,11 +63,16 @@ void Monitor::stop()
 bool Monitor::init(
         uint32_t domain,
         uint32_t n_bins,
-        uint32_t t_interval)
+        uint32_t t_interval,
+        std::string bump_file /* = "" */,
+        bool reset /* = false */)
 {
     n_bins_ = n_bins;
     t_interval_ = t_interval;
     monitor_id_ = StatisticsBackend::init_monitor(domain);
+    bump_file_ = bump_file;
+    reset_ = reset;
+
     if (!monitor_id_.is_valid())
     {
         std::cout << "Error creating monitor" << std::endl;
@@ -97,7 +104,47 @@ void Monitor::run()
         std::cout << std::endl;
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
+
+        // TODO: decide whether inactive entities must be inside json bump
+        // If not so, reset must be done before bumping file
+        if (!bump_file_.empty())
+        {
+            bump_in_file();
+        }
+
+        if (reset_)
+        {
+            clear_inactive_entities();
+            std::cout << "Removing inactive entities from Statistics Backend." << std::endl;
+        }
     }
+}
+
+void Monitor::bump_in_file()
+{
+    // Get current timestamp
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+    std::string current_time = oss.str();
+
+    // Get file name
+    std::string complete_file_name = bump_file_ + "_" + current_time + ".json";
+    std::cout << "Bumping info in file " << complete_file_name << std::endl;
+
+    // Bump to get json
+    auto dump = StatisticsBackend::dump_database(reset_);
+
+    // Store it in json file
+    std::ofstream file(complete_file_name);
+    // Pretty print json
+    file << std::setw(4) << dump << std::endl;
+}
+
+void Monitor::clear_inactive_entities()
+{
+    StatisticsBackend::clear_inactive_entities();
 }
 
 /***************************************************************
