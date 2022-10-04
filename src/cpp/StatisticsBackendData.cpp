@@ -61,7 +61,7 @@ StatisticsBackendData::~StatisticsBackendData()
     {
         // Beware that stop_monitor removes the monitor from monitors_by_entity_
         // so we cannot use iterators here
-        auto monitor = monitors_by_entity_.begin()->second;
+        const auto& monitor = monitors_by_entity_.begin()->second;
         stop_monitor(monitor->id);
     }
 
@@ -116,7 +116,7 @@ void StatisticsBackendData::on_data_available(
     auto monitor = monitors_by_entity_.find(domain_id);
     assert(monitor != monitors_by_entity_.end());
 
-    if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
+    if (should_call_domain_listener(monitor->second.get(), CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
         monitor->second->domain_listener->on_data_available(domain_id, entity_id, data_kind);
     }
@@ -127,10 +127,12 @@ void StatisticsBackendData::on_data_available(
 }
 
 bool StatisticsBackendData::should_call_domain_listener(
-        std::shared_ptr<Monitor>& monitor,
+        const Monitor* monitor,
         CallbackKind callback_kind,
         DataKind data_kind)
 {
+    assert(monitor != nullptr);
+
     if (nullptr == monitor->domain_listener)
     {
         // No user listener
@@ -211,7 +213,7 @@ void StatisticsBackendData::on_domain_entity_discovery(
             // The status must be recorded regardless of the callback
             prepare_entity_discovery_status(discovery_status, monitor->second->participant_status_);
 
-            if (should_call_domain_listener(monitor->second, CallbackKind::ON_PARTICIPANT_DISCOVERY))
+            if (should_call_domain_listener(monitor->second.get(), CallbackKind::ON_PARTICIPANT_DISCOVERY))
             {
                 monitor->second->domain_listener->on_participant_discovery(domain_id, entity_id,
                         monitor->second->participant_status_);
@@ -230,7 +232,7 @@ void StatisticsBackendData::on_domain_entity_discovery(
             // The status must be recorded regardless of the callback
             prepare_entity_discovery_status(discovery_status, monitor->second->topic_status_);
 
-            if (should_call_domain_listener(monitor->second, CallbackKind::ON_TOPIC_DISCOVERY))
+            if (should_call_domain_listener(monitor->second.get(), CallbackKind::ON_TOPIC_DISCOVERY))
             {
                 monitor->second->domain_listener->on_topic_discovery(domain_id, entity_id,
                         monitor->second->topic_status_);
@@ -248,7 +250,7 @@ void StatisticsBackendData::on_domain_entity_discovery(
             // The status must be recorded regardless of the callback
             prepare_entity_discovery_status(discovery_status, monitor->second->datawriter_status_);
 
-            if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATAWRITER_DISCOVERY))
+            if (should_call_domain_listener(monitor->second.get(), CallbackKind::ON_DATAWRITER_DISCOVERY))
             {
                 monitor->second->domain_listener->on_datawriter_discovery(domain_id, entity_id,
                         monitor->second->datawriter_status_);
@@ -266,7 +268,7 @@ void StatisticsBackendData::on_domain_entity_discovery(
             // The status must be recorded regardless of the callback
             prepare_entity_discovery_status(discovery_status, monitor->second->datareader_status_);
 
-            if (should_call_domain_listener(monitor->second, CallbackKind::ON_DATAREADER_DISCOVERY))
+            if (should_call_domain_listener(monitor->second.get(), CallbackKind::ON_DATAREADER_DISCOVERY))
             {
                 monitor->second->domain_listener->on_datareader_discovery(domain_id, entity_id,
                         monitor->second->datareader_status_);
@@ -353,7 +355,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 void StatisticsBackendData::stop_monitor(
         EntityId monitor_id)
 {
-    lock();
+    std::lock_guard<StatisticsBackendData> guard(*this);
 
     //Find the monitor
     auto it = monitors_by_entity_.find(monitor_id);
@@ -362,8 +364,7 @@ void StatisticsBackendData::stop_monitor(
         unlock();
         throw BadParameter("No monitor with such ID");
     }
-    auto monitor = it->second;
-    monitors_by_entity_.erase(it);
+    auto& monitor = it->second;
 
     // Delete everything created during monitor initialization
     // These values are not always set, as could come from an error creating Monitor, or for test sake.
@@ -404,7 +405,7 @@ void StatisticsBackendData::stop_monitor(
         database_->change_entity_status(monitor_id, false);
     }
 
-    unlock();
+    monitors_by_entity_.erase(it);
 }
 
 } // namespace details

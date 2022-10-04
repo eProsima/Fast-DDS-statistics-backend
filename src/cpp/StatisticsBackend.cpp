@@ -87,10 +87,13 @@ static const char* topics[] =
 };
 
 void find_or_create_topic_and_type(
-        std::shared_ptr<details::Monitor> monitor,
+        details::Monitor* monitor,
         const std::string& topic_name,
         const TypeSupport& type)
 {
+    // Argument safe check
+    assert(monitor != nullptr);
+
     // Find if the topic has been already created and if the associated type is correct
     TopicDescription* topic_desc = monitor->participant->lookup_topicdescription(topic_name);
     if (nullptr != topic_desc)
@@ -125,9 +128,12 @@ void find_or_create_topic_and_type(
 }
 
 void register_statistics_type_and_topic(
-        std::shared_ptr<details::Monitor> monitor,
+        details::Monitor* monitor,
         const std::string& topic_name)
 {
+    // Argument safe check
+    assert(monitor != nullptr);
+
     if (HISTORY_LATENCY_TOPIC == topic_name)
     {
         TypeSupport history_latency_type(new WriterReaderDataPubSubType);
@@ -191,8 +197,8 @@ EntityId create_and_register_monitor(
     auto& backend_data = StatisticsBackendData::get_instance();
     std::lock_guard<details::StatisticsBackendData> guard(*backend_data);
 
-    // Create monitor instance.
-    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    /* Create monitor instance and register it in the database */
+    std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
 
     // Throw exception in fail case
@@ -205,7 +211,6 @@ EntityId create_and_register_monitor(
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    backend_data->monitors_by_entity_[domain->id] = monitor;
     auto se_erase_monitor_database_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
@@ -275,7 +280,7 @@ EntityId create_and_register_monitor(
         /* Register the type and topic*/
         try
         {
-            register_statistics_type_and_topic(monitor, topic);
+            register_statistics_type_and_topic(monitor.get(), topic);
         }
         catch (const std::exception& e)
         {
@@ -301,6 +306,8 @@ EntityId create_and_register_monitor(
     se_participant_.cancel();
     se_subscriber_.cancel();
     se_topics_datareaders_.cancel();
+
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
 
     return domain->id;
 }
