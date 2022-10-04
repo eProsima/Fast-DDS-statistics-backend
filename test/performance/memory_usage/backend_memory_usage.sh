@@ -9,8 +9,7 @@ FASTDDS_EXAMPLE_EXECUTABLE="${WORKSPACE_DIR}/BasicConfigurationExample/BasicConf
 BACKEND_EXAMPLE_EXECUTABLE="${WORKSPACE_DIR}/HelloWorldExampleHelloWorldExample"
 
 RESULT_PAHT='./result'
-RESULT_FILE="memory_usage.csv"
-MEASURAMENT_RATE=0.2
+RESULT_FILE="backend_memory_usage.csv"
 LIBRARIES_TO_MEASURE="libfastcdr libfastrtps libfastdds_statistics_backend stack heap anon"
 
 ENTITIES_LOOP_ITERATIONS=5
@@ -20,6 +19,7 @@ STATISTIC_TOPICS="HISTORY_LATENCY_TOPIC;NETWORK_LATENCY_TOPIC;PUBLICATION_THROUG
 SLEEP_RESIDUAL_TIME=2
 
 PUBLICATION_RATE=10
+RESET_BACKEND=" "
 
 DEBUG=0
 
@@ -143,11 +143,6 @@ do
         shift # past argument
         shift # past value
         ;;
-        --measurament-rate)
-        MEASURAMENT_RATE="$2"
-        shift # past argument
-        shift # past value
-        ;;
         --measurament-libraries)
         LIBRARIES_TO_MEASURE="$2"
         shift # past argument
@@ -160,7 +155,7 @@ do
         shift # past value
         ;;
         --loop-elapsed)
-        ENTITIES_LOOP_ELAPSE="$2"
+        ENTITIES_LOOP_ELAPSED="$2"
         shift # past argument
         shift # past value
         ;;
@@ -174,16 +169,15 @@ do
         shift # past argument
         shift # past value
         ;;
-        --residual-time)
-        SLEEP_RESIDUAL_TIME="$2"
-        shift # past argument
-        shift # past value
-        ;;
 
         --publication-rate)
         PUBLICATION_RATE="$2"
         shift # past argument
         shift # past value
+        ;;
+        --reset)
+        RESET_BACKEND=" --reset "
+        shift # past argument
         ;;
 
         --debug)
@@ -241,16 +235,18 @@ echo "total(KB)" >> ${RESULT_FILE_PATH}
 ############################################################
 echo
 echo "---------------------------------------------------------------------------"
-echo "Executing Fast DDS Statistics Backend exaple ${BACKEND_EXAMPLE_EXECUTABLE}"
+echo "Executing Fast DDS Statistics Backend example ${BACKEND_EXAMPLE_EXECUTABLE}"
 echo "---------------------------------------------------------------------------"
 echo
 
-if [ $DEBUG ];
+RESET_TIME=$((${ENTITIES_LOOP_ELAPSED}+((${SLEEP_RESIDUAL_TIME}*2)*${ENTITIES_IN_LOOP})+(${SLEEP_RESIDUAL_TIME}*2)))
+
+if [ $DEBUG -eq 1 ];
 then
-    ${BACKEND_EXAMPLE_EXECUTABLE} monitor --time=${ENTITIES_LOOP_ELAPSED} &
+    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} --time=${RESET_TIME} &
     BACKEND_EXAMPLE_PID=$!
 else
-    ${BACKEND_EXAMPLE_EXECUTABLE} monitor --time=10000 > /dev/null 2>&1 &
+    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} --time=${RESET_TIME} > /dev/null 2>&1 &
     BACKEND_EXAMPLE_PID=$!
 fi
 
@@ -296,13 +292,17 @@ do
 
     # Kill entities
     echo "Killing Fast DDS Entities"
-    for pid_value in "${arrVar[@]}"
+    for pid_value in "${fastdds_entities_pid[@]}"
     do
         echo "Killing PID ${pid_value}"
         kill $pid_value
     done
 
     # Store memory usage measure
+    sleep ${SLEEP_RESIDUAL_TIME}
+    print_memory_usage "${BACKEND_EXAMPLE_PID}" "${LIBRARIES_TO_MEASURE}" "${RESULT_FILE_PATH}"
+
+    # Wait for data to be removed and store measure
     sleep ${SLEEP_RESIDUAL_TIME}
     print_memory_usage "${BACKEND_EXAMPLE_PID}" "${LIBRARIES_TO_MEASURE}" "${RESULT_FILE_PATH}"
 

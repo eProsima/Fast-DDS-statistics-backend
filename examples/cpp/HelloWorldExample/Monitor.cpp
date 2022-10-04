@@ -61,11 +61,14 @@ void Monitor::stop()
 bool Monitor::init(
         uint32_t domain,
         uint32_t n_bins,
-        uint32_t t_interval)
+        uint32_t t_interval,
+        bool reset /* = false */)
 {
     n_bins_ = n_bins;
     t_interval_ = t_interval;
     monitor_id_ = StatisticsBackend::init_monitor(domain);
+    reset_ = reset;
+
     if (!monitor_id_.is_valid())
     {
         std::cout << "Error creating monitor" << std::endl;
@@ -97,6 +100,12 @@ void Monitor::run()
         std::cout << std::endl;
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
+
+        if (reset_)
+        {
+            std::cout << "Removing internal data from Statistics Backend." << std::endl;
+            StatisticsBackend::dump_database(true);
+        }
     }
 }
 

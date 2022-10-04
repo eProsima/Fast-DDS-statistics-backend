@@ -14,6 +14,8 @@
 
 set(fastdds_statistics_backend_FOUND TRUE)
 add_subdirectory(cpp/HelloWorldExample)
+add_subdirectory(cpp/DummyJsonExample)
+add_subdirectory(cpp/DummyMapExample)
 
 find_package(prometheus-cpp CONFIG)
 if (prometheus-cpp_FOUND)
