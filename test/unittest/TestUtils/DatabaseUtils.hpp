@@ -731,12 +731,12 @@ public:
             EntityKind::DOMAIN, EntityId::all());
         for (auto domain : domains)
         {
-            std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+            std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
             std::stringstream domain_name;
             domain_name << domain->name;
             monitor->id = domain->id;
             monitor->domain_listener = nullptr;
-            details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
         }
         has_database_been_set_ = true;
     }

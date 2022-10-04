@@ -48,6 +48,26 @@ using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastrtps::rtps;
 
+namespace test
+{
+
+/**
+ * @brief Get the monitors from database object
+ *
+ * @return Monitors initialized in raw ptrs
+ */
+std::map<EntityId, eprosima::statistics_backend::details::Monitor*> get_monitors_from_database()
+{
+    std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors;
+    for (const auto& it: details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+    {
+        domain_monitors.emplace(it.first, it.second.get());
+    }
+    return domain_monitors;
+}
+
+} // namespace test
+
 
 class init_monitor_tests : public ::testing::Test
 {
@@ -144,7 +164,7 @@ public:
         details::StatisticsBackendData::reset_instance();
     }
 
-    std::map<EntityId, std::shared_ptr<eprosima::statistics_backend::details::Monitor>> init_monitors(
+    std::map<EntityId, eprosima::statistics_backend::details::Monitor*> init_monitors(
             DomainId domain_id,
             DomainListener* domain_listener,
             const std::string& server_guid_prefix,
@@ -173,7 +193,8 @@ public:
         EXPECT_TRUE(monitor_id_1.is_valid());
         EXPECT_TRUE(monitor_id_2.is_valid());
 
-        auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+        std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
+            test::get_monitors_from_database();
 
         /* Check that three monitors are created */
         EXPECT_EQ(domain_monitors.size(), 3u);
@@ -235,7 +256,7 @@ public:
     }
 
     void check_dds_entities(
-            const std::shared_ptr<eprosima::statistics_backend::details::Monitor> monitor,
+            eprosima::statistics_backend::details::Monitor* monitor,
             const std::string& server_guid_prefix = "")
     {
         EXPECT_NE(nullptr, monitor->participant);
@@ -454,7 +475,7 @@ TEST_F(init_monitor_tests, init_monitor_several_monitors)
 
     EXPECT_TRUE(monitor_id2.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+    auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that two monitors are created */
     EXPECT_EQ(domain_monitors.size(), 2u);
@@ -513,7 +534,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
                 CallbackMask::none(),
                 DataKindMask::none()), BadParameter);
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+    auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that three monitors are created */
     EXPECT_EQ(domain_monitors.size(), 3u);
@@ -562,7 +583,7 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    auto domain_monitors = details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+    auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that a monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1u);
@@ -647,8 +668,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_name)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    std::map<EntityId, std::shared_ptr<details::Monitor>> domain_monitors =
-            details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+    auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1u);
@@ -677,8 +697,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
 
     EXPECT_TRUE(monitor_id.is_valid());
 
-    std::map<EntityId, std::shared_ptr<details::Monitor>> domain_monitors =
-            details::StatisticsBackendData::get_instance()->monitors_by_entity_;
+    auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that only one monitor is created */
     EXPECT_EQ(domain_monitors.size(), 1u);

@@ -42,9 +42,9 @@ public:
 
         // Simulate that the backend is motorizing the domain
         // NOTE: This is dangerous, please do not do it again
-        std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
         monitor->id = domain->id;
-        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
 
         // Simulate the discover of the entitiy
         db.change_entity_status_test(host->id, true, domain->id);

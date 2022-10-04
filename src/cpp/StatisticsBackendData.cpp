@@ -361,7 +361,6 @@ void StatisticsBackendData::stop_monitor(
     auto it = monitors_by_entity_.find(monitor_id);
     if (it == monitors_by_entity_.end())
     {
-        unlock();
         throw BadParameter("No monitor with such ID");
     }
     auto& monitor = it->second;

@@ -1476,7 +1476,7 @@ public:
             DataKindMask::all());
 
         // Get the participant listener of the created monitor
-        monitor_ = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_];
+        monitor_ = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_].get();
         participant_listener_ = monitor_->participant_listener;
         reader_listener_ = monitor_->reader_listener;
         participant_ = monitor_->participant;
@@ -1501,7 +1501,7 @@ public:
     MockedPhysicalListener physical_listener_;
     MockedDomainListener domain_listener_;
     EntityId monitor_id_;
-    std::shared_ptr<details::Monitor> monitor_;
+    details::Monitor* monitor_;
 
     eprosima::fastdds::dds::DomainParticipantListener* participant_listener_;
     eprosima::fastdds::dds::DataReaderListener* reader_listener_;
