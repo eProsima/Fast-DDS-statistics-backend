@@ -58,8 +58,8 @@ DDSEndpoint::DDSEndpoint(
         std::string endpoint_name, /* "INVALID" */
         Qos endpoint_qos, /* {} */
         std::string endpoint_guid, /* "|GUID UNKNOWN|" */
-        std::shared_ptr<DomainParticipant> endpoint_participant, /* nullptr */
-        std::shared_ptr<Topic> endpoint_topic /* nullptr */) noexcept
+        details::fragile_ptr<DomainParticipant> endpoint_participant, /* nullptr */
+        details::fragile_ptr<Topic> endpoint_topic /* nullptr */) noexcept
     : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid)
     , participant(endpoint_participant)
     , topic(endpoint_topic)
@@ -121,25 +121,25 @@ void Locator::clear()
 }
 
 template<>
-std::map<EntityId, std::shared_ptr<DataReader>>& DomainParticipant::ddsendpoints<DataReader>()
+std::map<EntityId, details::fragile_ptr<DataReader>>& DomainParticipant::ddsendpoints<DataReader>()
 {
     return data_readers;
 }
 
 template<>
-std::map<EntityId, std::shared_ptr<DataWriter>>& DomainParticipant::ddsendpoints<DataWriter>()
+std::map<EntityId, details::fragile_ptr<DataWriter>>& DomainParticipant::ddsendpoints<DataWriter>()
 {
     return data_writers;
 }
 
 template<>
-std::map<EntityId, std::shared_ptr<DataReader>>& Topic::ddsendpoints<DataReader>()
+std::map<EntityId, details::fragile_ptr<DataReader>>& Topic::ddsendpoints<DataReader>()
 {
     return data_readers;
 }
 
 template<>
-std::map<EntityId, std::shared_ptr<DataWriter>>& Topic::ddsendpoints<DataWriter>()
+std::map<EntityId, details::fragile_ptr<DataWriter>>& Topic::ddsendpoints<DataWriter>()
 {
     return data_writers;
 }

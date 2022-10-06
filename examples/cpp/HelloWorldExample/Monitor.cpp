@@ -87,7 +87,8 @@ void Monitor::run()
                 static_cast<void>(signum); Monitor::stop();
             });
 
-    while (!is_stopped())
+    int i=0;
+    while (i++ < 1)
     {
         std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
         terminate_cv_.wait_for(lck, std::chrono::seconds(t_interval_), []

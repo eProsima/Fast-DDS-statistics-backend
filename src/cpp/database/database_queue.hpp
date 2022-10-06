@@ -41,6 +41,31 @@
 #include <StatisticsBackendData.hpp>
 
 
+class CustomThread : public std::thread
+{
+public:
+    template<typename _Callable, typename... _Args>
+    CustomThread(_Callable&& __f, _Args&&... __args)
+        : std::thread(__f, std::forward<_Args>(__args)...)
+    {
+        std::cout << "Creating new thread " << this << std::endl;
+    }
+
+    ~CustomThread()
+    {
+        std::cout << "Deleting thread " << this << std::endl;
+    }
+
+    CustomThread& operator=(CustomThread&& __t) noexcept
+    {
+        std::cout << "Moving thread " << &__t << " to " << this << std::endl;
+        if (joinable())
+            std::terminate();
+        swap(__t);
+        return *this;
+    }
+};
+
 namespace eprosima {
 namespace statistics_backend {
 namespace database {
@@ -152,7 +177,8 @@ public:
         // SOLUTION: using a tmp variable to store the thread that must be joined and destroyed,
         // so after setting consuming_ to false, the thread still exists but it is not destroyed, and the internal
         // object thread has been reset so it could be set again from start_consumer
-        std::unique_ptr<std::thread> tmp_thread_;
+        std::cout << "stop consumer" << std::endl;
+        std::unique_ptr<CustomThread> tmp_thread_;
 
         {
             std::unique_lock<std::mutex> guard(cv_mutex_);
@@ -189,7 +215,17 @@ public:
         {
             consuming_ = true;
             // This should be refactor to create less threads. Task associated: #14556
-            consumer_thread_.reset(new std::thread(&DatabaseQueue::run, this));
+            if (consumer_thread_)
+            {
+                std::cout << "Joining thread " << consumer_thread_.get() << " in " << this << std::endl;
+                consumer_thread_->join();
+            }
+            std::cout << "Reseting thread " << consumer_thread_.get() << " in " << this << std::endl;
+            consumer_thread_.reset();
+            std::cout << "Creating a new one" << std::endl;
+            consumer_thread_ = std::make_unique<CustomThread>(&DatabaseQueue::run, this);
+            std::cout << "New thread created: " << consumer_thread_.get() << " in " << this << std::endl;
+            // consumer_thread_.reset(new CustomThread(&DatabaseQueue::run, this));
             return true;
         }
 
@@ -340,7 +376,7 @@ protected:
     mutable std::mutex background_mutex_;
 
     // Consumer
-    std::unique_ptr<std::thread> consumer_thread_;
+    std::unique_ptr<CustomThread> consumer_thread_;
     std::condition_variable cv_;
     std::mutex cv_mutex_;
 

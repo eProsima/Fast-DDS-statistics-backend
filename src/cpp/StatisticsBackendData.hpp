@@ -166,17 +166,17 @@ public:
             EntityId entity_id,
             DataKind data_kind);
 
-protected:
+    /**
+     * @brief Protected destructor of the singleton
+     */
+    ~StatisticsBackendData();
 
     /**
      * @brief Protected constructor of the singleton
      */
     StatisticsBackendData();
 
-    /**
-     * @brief Protected destructor of the singleton
-     */
-    ~StatisticsBackendData();
+protected:
 
     /**
      * @brief Check whether the domain listener should be called given the arguments
@@ -228,7 +228,7 @@ protected:
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
 
-    static StatisticsBackendData* instance_;
+    static std::unique_ptr<StatisticsBackendData> instance_;
 };
 
 } // namespace details

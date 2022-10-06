@@ -25,6 +25,8 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
+#include <types/fragile_ptr.hpp>
+
 #include "data.hpp"
 
 namespace eprosima {
@@ -118,7 +120,7 @@ struct Host : Entity
      * Collection of users within the host which are involved in the communication.
      * The collection is ordered by the EntityId of the user nodes.
      */
-    std::map<EntityId, std::shared_ptr<User>> users;
+    std::map<EntityId, details::fragile_ptr<User>> users;
 };
 
 /*
@@ -128,7 +130,7 @@ struct User : Entity
 {
     User(
             std::string user_name,
-            std::shared_ptr<Host> user_host) noexcept
+            details::fragile_ptr<Host> user_host) noexcept
         : Entity(EntityKind::USER, user_name, false, false)
         , host(user_host)
     {
@@ -140,13 +142,13 @@ struct User : Entity
     void clear() final;
 
     //! Reference to the Host in which this user runs
-    std::shared_ptr<Host> host;
+    details::fragile_ptr<Host> host;
 
     /*
      * Collection of processes within the host which are involved in the communication.
      * The collection is ordered by the EntityId of the process nodes.
      */
-    std::map<EntityId, std::shared_ptr<Process>> processes;
+    std::map<EntityId, details::fragile_ptr<Process>> processes;
 };
 
 /*
@@ -157,7 +159,7 @@ struct Process : Entity
     Process(
             std::string process_name,
             std::string process_id,
-            std::shared_ptr<User> process_user) noexcept
+            details::fragile_ptr<User> process_user) noexcept
         : Entity(EntityKind::PROCESS, process_name, false, false)
         , pid(process_id)
         , user(process_user)
@@ -173,13 +175,13 @@ struct Process : Entity
     std::string pid;
 
     //! Reference to the User in which this process runs.
-    std::shared_ptr<User> user;
+    details::fragile_ptr<User> user;
 
     /*
      * Collection of DomainParticipant within the process which are involved in the communication.
      * The collection is ordered by the EntityId of the DomainParticipant nodes.
      */
-    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
+    std::map<EntityId, details::fragile_ptr<DomainParticipant>> participants;
 };
 
 /*
@@ -203,13 +205,13 @@ struct Domain : Entity
      * Collection of Topics within the Domain which are either published, subscribed, or both.
      * The collection is ordered by the EntityId of the Topic nodes.
      */
-    std::map<EntityId, std::shared_ptr<Topic>> topics;
+    std::map<EntityId, details::fragile_ptr<Topic>> topics;
 
     /*
      * Collection of DomainParticipant within the Domain which are involved in the communication.
      * The collection is ordered by the EntityId of the DomainParticipant nodes.
      */
-    std::map<EntityId, std::shared_ptr<DomainParticipant>> participants;
+    std::map<EntityId, details::fragile_ptr<DomainParticipant>> participants;
 };
 
 /*
@@ -245,14 +247,14 @@ struct DDSEndpoint : DDSEntity
             std::string endpoint_name = "INVALID",
             Qos endpoint_qos = {},
             std::string endpoint_guid = "|GUID UNKNOWN|",
-            std::shared_ptr<DomainParticipant> endpoint_participant = nullptr,
-            std::shared_ptr<Topic> endpoint_topic = nullptr) noexcept;
+            details::fragile_ptr<DomainParticipant> endpoint_participant = nullptr,
+            details::fragile_ptr<Topic> endpoint_topic = nullptr) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
-    std::shared_ptr<DomainParticipant> participant;
+    details::fragile_ptr<DomainParticipant> participant;
 
     //! Reference to the Domain in which this endpoint publishes/subscribes.
-    std::shared_ptr<Topic> topic;
+    details::fragile_ptr<Topic> topic;
 
     //! Flag to signal that this is a virtual endpoint used to collect meta traffic data.
     bool is_virtual_metatraffic = false;
@@ -261,7 +263,7 @@ struct DDSEndpoint : DDSEntity
      * Collection of Locators related to this endpoint.
      * The collection is ordered by the EntityId of the Locator nodes.
      */
-    std::map<EntityId, std::shared_ptr<Locator>> locators;
+    std::map<EntityId, details::fragile_ptr<Locator>> locators;
 };
 
 /*
@@ -273,8 +275,8 @@ struct DomainParticipant : DDSEntity
             std::string participant_name,
             Qos participant_qos,
             std::string participant_guid,
-            std::shared_ptr<Process> participant_process,
-            std::shared_ptr<Domain> participant_domain) noexcept
+            details::fragile_ptr<Process> participant_process,
+            details::fragile_ptr<Domain> participant_domain) noexcept
         : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid)
         , process(participant_process)
         , domain(participant_domain)
@@ -287,28 +289,28 @@ struct DomainParticipant : DDSEntity
     void clear() final;
 
     template<typename T>
-    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
+    std::map<EntityId, details::fragile_ptr<T>>& ddsendpoints();
 
     //! Reference to the Process in which this DomainParticipant runs.
-    std::shared_ptr<Process> process;
+    details::fragile_ptr<Process> process;
 
     //! Reference to the Domain in which this DomainParticipant runs.
-    std::shared_ptr<Domain> domain;
+    details::fragile_ptr<Domain> domain;
 
     //! Reference to the meta traffic endpoint of this DomainParticipant.
-    std::shared_ptr<DDSEndpoint> meta_traffic_endpoint;
+    details::fragile_ptr<DDSEndpoint> meta_traffic_endpoint;
 
     /*
      * Collection of DataReaders within the DomainParticipant which are involved in the communication.
      * The collection is ordered by the EntityId of the DataReader nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
+    std::map<EntityId, details::fragile_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters within the DomainParticipant which are involved in the communication.
      * The collection is ordered by the EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
+    std::map<EntityId, details::fragile_ptr<DataWriter>> data_writers;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantData data;
@@ -323,7 +325,7 @@ struct Topic : Entity
     Topic(
             std::string topic_name,
             std::string topic_type,
-            std::shared_ptr<Domain> topic_domain) noexcept
+            details::fragile_ptr<Domain> topic_domain) noexcept
         : Entity(EntityKind::TOPIC, topic_name, is_metatraffic_topic(topic_name))
         , data_type(topic_type)
         , domain(topic_domain)
@@ -336,25 +338,25 @@ struct Topic : Entity
     void clear() final;
 
     template<typename T>
-    std::map<EntityId, std::shared_ptr<T>>& ddsendpoints();
+    std::map<EntityId, details::fragile_ptr<T>>& ddsendpoints();
 
     //! The data type name of the topic
     std::string data_type;
 
     //! Reference to the Domain in which this topic is published/subscribed.
-    std::shared_ptr<Domain> domain;
+    details::fragile_ptr<Domain> domain;
 
     /*
      * Collection of Datareaders subscribing to this topic.
      * The collection is ordered by the EntityId of the Datareader nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
+    std::map<EntityId, details::fragile_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters publishind in this topic.
      * The collection is ordered by the EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
+    std::map<EntityId, details::fragile_ptr<DataWriter>> data_writers;
 };
 
 /*
@@ -366,8 +368,8 @@ struct DataReader : DDSEndpoint
             std::string datareader_name,
             Qos datareader_qos,
             std::string datareader_guid,
-            std::shared_ptr<DomainParticipant> datareader_participant,
-            std::shared_ptr<Topic> datareader_topic) noexcept
+            details::fragile_ptr<DomainParticipant> datareader_participant,
+            details::fragile_ptr<Topic> datareader_topic) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
                 datareader_topic)
     {
@@ -392,8 +394,8 @@ struct DataWriter : DDSEndpoint
             std::string datawriter_name,
             Qos datawriter_qos,
             std::string datawriter_guid,
-            std::shared_ptr<DomainParticipant> datawriter_participant,
-            std::shared_ptr<Topic> datawriter_topic) noexcept
+            details::fragile_ptr<DomainParticipant> datawriter_participant,
+            details::fragile_ptr<Topic> datawriter_topic) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
                 datawriter_topic)
     {
@@ -430,13 +432,13 @@ struct Locator : Entity
      * Collection of DataReaders using this locator.
      * The collection is ordered by the EntityId of the DataReader nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataReader>> data_readers;
+    std::map<EntityId, details::fragile_ptr<DataReader>> data_readers;
 
     /*
      * Collection of DataWriters using this locator.
      * The collection is ordered by the EntityId of the DataWriter nodes.
      */
-    std::map<EntityId, std::shared_ptr<DataWriter>> data_writers;
+    std::map<EntityId, details::fragile_ptr<DataWriter>> data_writers;
 };
 
 } //namespace database

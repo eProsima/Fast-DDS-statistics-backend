@@ -2188,7 +2188,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::USER:
                         for (const auto& user : host->users)
                         {
-                            entities.push_back(user.second);
+                            entities.push_back(user.second.lock());
                         }
                         break;
                     case EntityKind::PROCESS:
@@ -2200,7 +2200,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& user : host->users)
                         {
-                            auto sub_entities = get_entities(entity_kind, user.second);
+                            auto sub_entities = get_entities(entity_kind, user.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2215,7 +2215,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 switch (entity_kind)
                 {
                     case EntityKind::HOST:
-                        entities.push_back(user->host);
+                        entities.push_back(user->host.lock());
                         break;
                     case EntityKind::USER:
                         entities.push_back(user);
@@ -2223,7 +2223,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                         for (const auto& process : user->processes)
                         {
-                            entities.push_back(process.second);
+                            entities.push_back(process.second.lock());
                         }
                         break;
                     case EntityKind::DOMAIN:
@@ -2234,7 +2234,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& process : user->processes)
                         {
-                            auto sub_entities = get_entities(entity_kind, process.second);
+                            auto sub_entities = get_entities(entity_kind, process.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2250,12 +2250,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 {
                     case EntityKind::HOST:
                     {
-                        auto sub_entities = get_entities(entity_kind, process->user);
+                        auto sub_entities = get_entities(entity_kind, process->user.lock());
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
                     case EntityKind::USER:
-                        entities.push_back(process->user);
+                        entities.push_back(process->user.lock());
                         break;
                     case EntityKind::PROCESS:
                         entities.push_back(process);
@@ -2263,7 +2263,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PARTICIPANT:
                         for (const auto& participant : process->participants)
                         {
-                            entities.push_back(participant.second);
+                            entities.push_back(participant.second.lock());
                         }
                         break;
                     case EntityKind::DOMAIN:
@@ -2273,7 +2273,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& participant : process->participants)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            auto sub_entities = get_entities(entity_kind, participant.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2293,13 +2293,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PARTICIPANT:
                         for (const auto& participant : domain->participants)
                         {
-                            entities.push_back(participant.second);
+                            entities.push_back(participant.second.lock());
                         }
                         break;
                     case EntityKind::TOPIC:
                         for (const auto& topic : domain->topics)
                         {
-                            entities.push_back(topic.second);
+                            entities.push_back(topic.second.lock());
                         }
                         break;
                     case EntityKind::HOST:
@@ -2310,7 +2310,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& participant : domain->participants)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            auto sub_entities = get_entities(entity_kind, participant.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2331,7 +2331,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         // May not have the relation process - participant yet
                         if (participant->process)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant->process);
+                            auto sub_entities = get_entities(entity_kind, participant->process.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                     }
@@ -2340,11 +2340,11 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         // May not have the relation process - participant yet
                         if (participant->process)
                         {
-                            entities.push_back(participant->process);
+                            entities.push_back(participant->process.lock());
                         }
                         break;
                     case EntityKind::DOMAIN:
-                        entities.push_back(participant->domain);
+                        entities.push_back(participant->domain.lock());
                         break;
                     case EntityKind::PARTICIPANT:
                         entities.push_back(participant);
@@ -2352,25 +2352,25 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : participant->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            entities.push_back(writer.second.lock());
                         }
                         break;
                     case EntityKind::DATAREADER:
                         for (const auto& reader : participant->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            entities.push_back(reader.second.lock());
                         }
                         break;
                     case EntityKind::TOPIC:
                     case EntityKind::LOCATOR:
                         for (const auto& writer : participant->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities(entity_kind, writer.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : participant->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities(entity_kind, reader.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2385,7 +2385,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 switch (entity_kind)
                 {
                     case EntityKind::DOMAIN:
-                        entities.push_back(topic->domain);
+                        entities.push_back(topic->domain.lock());
                         break;
                     case EntityKind::TOPIC:
                         entities.push_back(topic);
@@ -2393,13 +2393,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : topic->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            entities.push_back(writer.second.lock());
                         }
                         break;
                     case EntityKind::DATAREADER:
                         for (const auto& reader : topic->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            entities.push_back(reader.second.lock());
                         }
                         break;
                     case EntityKind::HOST:
@@ -2409,12 +2409,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& writer : topic->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities(entity_kind, writer.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : topic->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities(entity_kind, reader.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -2429,10 +2429,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 switch (entity_kind)
                 {
                     case EntityKind::TOPIC:
-                        entities.push_back(writer->topic);
+                        entities.push_back(writer->topic.lock());
                         break;
                     case EntityKind::PARTICIPANT:
-                        entities.push_back(writer->participant);
+                        entities.push_back(writer->participant.lock());
                         break;
                     case EntityKind::DATAWRITER:
                         entities.push_back(writer);
@@ -2440,12 +2440,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& locator : writer->locators)
                         {
-                            entities.push_back(locator.second);
+                            entities.push_back(locator.second.lock());
                         }
                         break;
                     case EntityKind::DATAREADER:
                     {
-                        auto sub_entities = get_entities(entity_kind, writer->topic);
+                        auto sub_entities = get_entities(entity_kind, writer->topic.lock());
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -2454,7 +2454,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                     case EntityKind::DOMAIN:
                     {
-                        auto sub_entities = get_entities(entity_kind, writer->participant);
+                        auto sub_entities = get_entities(entity_kind, writer->participant.lock());
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -2469,10 +2469,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 switch (entity_kind)
                 {
                     case EntityKind::TOPIC:
-                        entities.push_back(reader->topic);
+                        entities.push_back(reader->topic.lock());
                         break;
                     case EntityKind::PARTICIPANT:
-                        entities.push_back(reader->participant);
+                        entities.push_back(reader->participant.lock());
                         break;
                     case EntityKind::DATAREADER:
                         entities.push_back(reader);
@@ -2480,12 +2480,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& locator : reader->locators)
                         {
-                            entities.push_back(locator.second);
+                            entities.push_back(locator.second.lock());
                         }
                         break;
                     case EntityKind::DATAWRITER:
                     {
-                        auto sub_entities = get_entities(entity_kind, reader->topic);
+                        auto sub_entities = get_entities(entity_kind, reader->topic.lock());
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -2494,7 +2494,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                     case EntityKind::DOMAIN:
                     {
-                        auto sub_entities = get_entities(entity_kind, reader->participant);
+                        auto sub_entities = get_entities(entity_kind, reader->participant.lock());
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -2511,13 +2511,13 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DATAREADER:
                         for (const auto& reader : locator->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            entities.push_back(reader.second.lock());
                         }
                         break;
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : locator->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            entities.push_back(writer.second.lock());
                         }
                         break;
                     case EntityKind::LOCATOR:
@@ -2531,12 +2531,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DOMAIN:
                         for (const auto& writer : locator->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities(entity_kind, writer.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : locator->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities(entity_kind, reader.second.lock());
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;

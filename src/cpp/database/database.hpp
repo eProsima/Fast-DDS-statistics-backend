@@ -572,17 +572,19 @@ protected:
             }
         }
 
-        // Change the curent locators map for the new updated one
-        endpoint->locators = actual_locators_map;
+        endpoint->locators.clear();
 
         /* Add to x_by_y_ collections and to locators_ */
-        for (auto& locator_it : endpoint->locators)
+        for (auto& locator_it : actual_locators_map)
         {
             /* Check that locator exists */
             if (locators_.find(locator_it.first) == locators_.end())
             {
                 throw BadParameter("Locator does not exist in the database");
             }
+
+            // Add it to endpoint
+            endpoint->locators[locator_it.first] = locator_it.second;
 
             // Even if it is not new, it may be new to the participant
             // Add reader's locators to locators_by_participant_

@@ -32,7 +32,8 @@ namespace eprosima {
 namespace statistics_backend {
 namespace details {
 
-StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+// StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+std::unique_ptr<StatisticsBackendData> StatisticsBackendData::instance_;
 
 StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
@@ -71,19 +72,17 @@ StatisticsBackendData* StatisticsBackendData::get_instance()
 {
     if (nullptr == instance_)
     {
-        instance_ = new StatisticsBackendData();
+        instance_ = std::make_unique<StatisticsBackendData>();
     }
-    return instance_;
+    return instance_.get();
 }
 
 void StatisticsBackendData::reset_instance()
 {
     if (nullptr != instance_)
     {
-        delete instance_;
+        instance_.reset(new StatisticsBackendData());
     }
-
-    instance_ = new StatisticsBackendData();
 }
 
 void StatisticsBackendData::lock()
