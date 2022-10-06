@@ -19,7 +19,9 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 
+#include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 
@@ -44,6 +46,18 @@ class DatabaseDataQueue;
 
 namespace details {
 
+// Forward declaration
+class StatisticsBackendData;
+
+/**
+ * @brief Data type for the Singleton instance.
+ *
+ * It uses a unique_ptr so it is removed when the process finishes.
+ *
+ * @note This is only an alias to improve readability.
+ * @note It uses a custom deleter so destructor can be protected.
+ */
+using SingletonType = std::unique_ptr<StatisticsBackendData, std::function<void(StatisticsBackendData*)>>;
 
 /**
  * @brief Structure holding all the detailed state of the backend.
@@ -228,7 +242,14 @@ protected:
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
 
-    static StatisticsBackendData* instance_;
+    /**
+     * @brief Reference to the instance of the Singleton.
+     *
+     * It is initialized first time \c get_instance is called.
+     * It is removed at the end of the process thanks to be a smart ptr.
+     * It could be reset in \c reset_instance call.
+     */
+    static SingletonType instance_;
 };
 
 } // namespace details

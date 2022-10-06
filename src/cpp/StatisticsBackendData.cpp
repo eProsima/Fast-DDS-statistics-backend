@@ -32,7 +32,8 @@ namespace eprosima {
 namespace statistics_backend {
 namespace details {
 
-StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+// Declare singleton instance as default (nullptr)
+SingletonType StatisticsBackendData::instance_;
 
 StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
@@ -69,21 +70,19 @@ StatisticsBackendData::~StatisticsBackendData()
 
 StatisticsBackendData* StatisticsBackendData::get_instance()
 {
-    if (nullptr == instance_)
+    if (!instance_)
     {
-        instance_ = new StatisticsBackendData();
+        instance_ =
+            SingletonType(
+                new StatisticsBackendData(),
+                [](StatisticsBackendData* s){delete s;});
     }
-    return instance_;
+    return instance_.get();
 }
 
 void StatisticsBackendData::reset_instance()
 {
-    if (nullptr != instance_)
-    {
-        delete instance_;
-    }
-
-    instance_ = new StatisticsBackendData();
+    instance_.reset(new StatisticsBackendData());
 }
 
 void StatisticsBackendData::lock()
