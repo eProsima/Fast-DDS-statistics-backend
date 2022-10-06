@@ -292,9 +292,35 @@ public:
             const CorruptedFile& other) = default;
 };
 
+/**
+ * @brief Exception to signal that there has been found an inconsistency inside the database.
+ */
+class Inconsistency : public Exception
+{
+
+public:
+
+    using Exception::Exception;
+
+    /**
+     * @brief Copies the statistics_backend::Inconsistency exception into a new one
+     *
+     * @param other The original exception object to copy
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI Inconsistency(
+            const Inconsistency& other) = default;
+
+    /**
+     * @brief Copies the statistics_backend::Inconsistency exception into the current one
+     *
+     * @param other The original statistics_backend::Inconsistency exception to copy
+     * @return the current statistics_backend::Inconsistency exception after the copy
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI Inconsistency& operator =(
+            const Inconsistency& other) = default;
+};
+
 } // namespace statistics_backend
 } // namespace eprosima
 
-
 #endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
-
