@@ -39,6 +39,8 @@ message(STATUS "Version: ${PROJECT_VERSION}")
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
+include(${PROJECT_SOURCE_DIR}/cmake/common/asan.cmake)
+
 ###############################################################################
 # Load external projects.
 ###############################################################################
