@@ -71,6 +71,15 @@ else()
 endif()
 
 ###############################################################################
+# Activate Address sanitizer
+###############################################################################
+option(ASAN_BUILD "Activate address sanitizer flags" OFF)
+
+if (ASAN_BUILD)
+    activate_address_sanitizer()
+endif()
+
+###############################################################################
 # Installation paths
 ###############################################################################
 set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
