@@ -24,6 +24,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
+
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastrtps/types/TypesBase.h>
@@ -44,6 +46,16 @@ public:
     {
         static DomainParticipantFactory instance;
         return &instance;
+    }
+
+    static std::shared_ptr<DomainParticipantFactory> get_shared_instance()
+    {
+        static std::shared_ptr<DomainParticipantFactory> instance(new DomainParticipantFactory());
+        return instance;
+    }
+
+    ~DomainParticipantFactory()
+    {
     }
 
     MOCK_METHOD0(

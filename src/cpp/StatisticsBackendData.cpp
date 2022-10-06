@@ -20,9 +20,17 @@
 #include <map>
 #include <string>
 
-#include "StatisticsBackendData.hpp"
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/Topic.hpp>
 
-#include "StatisticsBackend.hpp"
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
+
+#include "StatisticsBackendData.hpp"
 
 #include "Monitor.hpp"
 #include <database/database_queue.hpp>
@@ -41,6 +49,7 @@ StatisticsBackendData::StatisticsBackendData()
     , data_queue_(new database::DatabaseDataQueue(database_.get()))
     , physical_listener_(nullptr)
     , lock_(mutex_, std::defer_lock)
+    , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
 }
 
@@ -52,7 +61,7 @@ StatisticsBackendData::~StatisticsBackendData()
         // Beware that stop_monitor removes the monitor from monitors_by_entity_
         // so we cannot use iterators here
         auto monitor = monitors_by_entity_.begin()->second;
-        StatisticsBackend::stop_monitor(monitor->id);
+        stop_monitor(monitor->id);
     }
 
     if (entity_queue_)
@@ -335,6 +344,68 @@ void StatisticsBackendData::on_physical_entity_discovery(
             assert(false && "Invalid physical entity kind");
         }
     }
+}
+
+void StatisticsBackendData::stop_monitor(
+        EntityId monitor_id)
+{
+    lock();
+
+    //Find the monitor
+    auto it = monitors_by_entity_.find(monitor_id);
+    if (it == monitors_by_entity_.end())
+    {
+        unlock();
+        throw BadParameter("No monitor with such ID");
+    }
+    auto monitor = it->second;
+    monitors_by_entity_.erase(it);
+
+    // Delete everything created during monitor initialization
+    for (const auto& reader : monitor->readers)
+    {
+        monitor->subscriber->delete_datareader(reader.second);
+    }
+    monitor->readers.clear();
+
+    for (const auto& topic : monitor->topics)
+    {
+        monitor->participant->delete_topic(topic.second);
+    }
+    monitor->topics.clear();
+
+    // NOTE: for test sake, this is not always set
+    if (monitor->subscriber)
+    {
+        monitor->participant->delete_subscriber(monitor->subscriber);
+    }
+
+    // NOTE: for test sake, this is not always set
+    if (monitor->participant)
+    {
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    }
+
+    // NOTE: for test sake, this is not always set
+    if (monitor->reader_listener)
+    {
+        delete monitor->reader_listener;
+    }
+
+    // NOTE: for test sake, this is not always set
+    if (monitor->participant_listener)
+    {
+        delete monitor->participant_listener;
+    }
+
+    // The monitor is inactive
+    // NOTE: for test sake, this is not always set
+    if (database_->is_entity_present(monitor_id))
+    {
+        database_->change_entity_status(monitor_id, false);
+    }
+
+    unlock();
 }
 
 } // namespace details

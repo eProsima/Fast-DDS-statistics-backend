@@ -285,8 +285,9 @@ void StatisticsBackend::set_domain_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    auto monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-    if (monitor == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    auto statistics_backend_data = details::StatisticsBackendData::get_instance();
+    auto monitor = statistics_backend_data->monitors_by_entity_.find(monitor_id);
+    if (monitor == statistics_backend_data->monitors_by_entity_.end())
     {
         throw BadParameter("There is no monitor with the given ID");
     }
@@ -336,40 +337,7 @@ EntityId StatisticsBackend::init_monitor(
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
-    details::StatisticsBackendData::get_instance()->lock();
-
-    //Find the monitor
-    auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-    if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw BadParameter("No monitor with such ID");
-    }
-    auto monitor = it->second;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(it);
-
-    // Delete everything created during monitor initialization
-    for (const auto& reader : monitor->readers)
-    {
-        monitor->subscriber->delete_datareader(reader.second);
-    }
-    monitor->readers.clear();
-
-    for (const auto& topic : monitor->topics)
-    {
-        monitor->participant->delete_topic(topic.second);
-    }
-    monitor->topics.clear();
-
-    monitor->participant->delete_subscriber(monitor->subscriber);
-    DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-    delete monitor->reader_listener;
-    delete monitor->participant_listener;
-
-    // The monitor is inactive
-    details::StatisticsBackendData::get_instance()->database_->change_entity_status(monitor_id, false);
-
-    details::StatisticsBackendData::get_instance()->unlock();
+    details::StatisticsBackendData::get_instance()->stop_monitor(monitor_id);
 }
 
 EntityId StatisticsBackend::init_monitor(
