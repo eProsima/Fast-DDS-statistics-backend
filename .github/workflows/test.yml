@@ -227,8 +227,8 @@ jobs:
       - name: Report ASAN errors
         if: always()
         run: |
-          echo "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
-          echo -n $(sed 's/==.*==ERROR:/==.*==ERROR:\n/g' log/latest_test/stdout_stderr.log | grep -c "==.*==ERROR:") >> $GITHUB_STEP_SUMMARY
+          echo -n "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
+          echo $(sed 's/==.*==ERROR:/==.*==ERROR:\n/g' log/latest_test/fastdds_statistics_backend/stdout_stderr.log | grep -c "==.*==ERROR:") >> $GITHUB_STEP_SUMMARY
           python3 src/Fast-DDS-statistics-backend/.github/workflows/asan_log_parser.py
 
   clang-tidy:
