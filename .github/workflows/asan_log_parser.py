@@ -1,13 +1,31 @@
-from tomark import Tomark
+# Copyright 2022 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"Script to parse the colcon test output file."
+
 import re
 import os
 
+from tomark import Tomark
+
+# Python summary file saved in GITHUB_STEP_SUMMARY environment variable
 SUMMARY_FILE = os.getenv('GITHUB_STEP_SUMMARY')
+LOG_FILE = 'log/latest_test/fastdds_statistics_backend/stdout_stderr.log'
 
+# Save the lines with failed tests
 saved_lines = []
-failed_tests_str = []
-
-with open('log/latest_test/stdout_stderr.log', 'r') as file:
+with open(LOG_FILE, 'r') as file:
     for line in reversed(file.readlines()):
         saved_lines.append(line)
         if (re.search('.*The following tests FAILED:.*', line)):
@@ -17,17 +35,19 @@ with open('log/latest_test/stdout_stderr.log', 'r') as file:
 if (not saved_lines):
     exit(0)
 
-for i, test in enumerate(saved_lines):
-    s = re.search('\d* - .* \(Failed\)', test)
-    if (s):
-        failed_tests_str.insert(0, s.group())
-
 failed_tests = []
-for test in failed_tests_str:
-    s = re.findall('\S+', test)
-    failed_tests.append(dict({"ID": s[0], "Name": s[2]}))
+for test in saved_lines:
+    match = re.search('\d* - .* \(Failed\)', test)
+    if (match):
+        split_test = match.group().split()
+        failed_tests.insert(
+            0,
+            dict({'ID': split_test[0], 'Name': split_test[2]}))
 
-print(Tomark.table(failed_tests))
-with open(SUMMARY_FILE, "a") as file:
+# Convert python dict to markdown table
+md_table = Tomark.table(failed_tests)
+print(md_table)
 
-    file.write(f'\n{Tomark.table(failed_tests)}')
+# Save table of failed test to GitHub action summary file
+with open(SUMMARY_FILE, 'a') as file:
+    file.write(f'\n{md_table}')
