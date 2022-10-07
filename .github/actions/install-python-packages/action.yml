@@ -17,5 +17,6 @@ runs:
           vcstool \
           GitPython \
           setuptools \
-          gcovr
+          gcovr \
+          tomark
       shell: bash
