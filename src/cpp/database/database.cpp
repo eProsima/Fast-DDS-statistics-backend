@@ -1984,7 +1984,7 @@ bool Database::is_entity_present(
         auto result = get_entity(entity_id);
         return result.operator bool();
     }
-    catch(const BadParameter& e)
+    catch(const BadParameter&)
     {
         return false;
     }

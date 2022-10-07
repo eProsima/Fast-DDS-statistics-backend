@@ -24,8 +24,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <boost/interprocess/sync/interprocess_mutex.hpp>
-
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastrtps/types/TypesBase.h>
