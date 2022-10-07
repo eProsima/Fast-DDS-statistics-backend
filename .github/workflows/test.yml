@@ -23,18 +23,19 @@ jobs:
       OPENSSL64_ROOT: "C:/Program Files/OpenSSL-Win64"
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Sync eProsima/Fast-DDS-Statistics-Backend repository
+        uses: actions/checkout@v2
         with:
           path: Fast-DDS-statistics-backend
 
-      - name: install OpenSSL
+      - name: Install OpenSSL
         shell: pwsh
         run: >
           choco install openssl -yr --no-progress;
           @(ls -Path C:\Windows\System32\* -Include libssl-*.dll; ls -Path C:\Windows\SysWOW64\* -Include libssl-*.dll)
           | rm -ErrorAction SilentlyContinue
 
-      - name: install GoogleTest
+      - name: Install GoogleTest
         shell: pwsh
         run: >
           cmake --find-package -DNAME=GTest -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST | Tee-Object -Variable res;
@@ -46,7 +47,7 @@ jobs:
             cmake --build build\gtest --config ${{ matrix.cmake-config }} --target install;
           }
 
-      - name: install foonatham memory
+      - name: Install foonatham memory
         shell: pwsh
         run: >
           git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
@@ -54,14 +55,14 @@ jobs:
             -DFOONATHAN_MEMORY_BUILD_TESTS=OFF -Ax64 -T host=x64 -B build\memory memory;
           cmake --build build\memory --config ${{ matrix.cmake-config }} --target install;
 
-      - name: install Fast-CDR
+      - name: Install Fast-CDR
         shell: pwsh
         run: >
           git clone https://github.com/eProsima/Fast-CDR.git;
           cmake -Ax64 -T host=x64 -B build\fastcdr Fast-CDR;
           cmake --build build\fastcdr --config ${{ matrix.cmake-config }} --target install;
 
-      - name: install Fast-DDS
+      - name: Install Fast-DDS
         shell: pwsh
         run: >
           git clone https://github.com/eProsima/Fast-DDS.git;
@@ -69,7 +70,7 @@ jobs:
             -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
           cmake --build build\fastdds --config ${{ matrix.cmake-config }} --target install;
 
-      - name: install Fast-DDS-statistics-backend
+      - name: Install Fast-DDS-statistics-backend
         shell: pwsh
         run: >
           cmake -DCMAKE_PREFIX_PATH='C:\Program Files\gtest' -DBUILD_LIBRARY_TESTS=ON `
@@ -90,10 +91,17 @@ jobs:
         with:
           path: src/Fast-DDS-statistics-backend
 
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+      - name: Install apt packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+
+      - name: Install GTest
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
+
+      - name: Install Python packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+
+      - name: Fetch eProsima dependencies
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
       - name: Update colcon mixin
         run: |
@@ -108,7 +116,7 @@ jobs:
           colcon build \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta \
-            --mixin coverage-gcc asan-gcc
+            --mixin coverage-gcc
 
       - name: Run tests
         run: |
@@ -166,6 +174,63 @@ jobs:
           path: install/fastdds_statistics_backend/docs/fastdds_statistics_backend/sphinx/html/
         if: always()
 
+  asan-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/Fast-DDS-statistics-backend
+
+      - name: Install apt packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+
+      - name: Install GTest
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
+
+      - name: Install Python packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+
+      - name: Fetch eProsima dependencies
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+
+      - name: Update colcon mixin
+        run: |
+          colcon mixin add default \
+            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+          colcon mixin update default
+        continue-on-error: true
+
+      - name: Build workspace
+        run: |
+          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
+          colcon build \
+            --event-handlers=console_direct+ \
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/asan.meta
+
+      - name: Run tests
+        run: |
+          source install/setup.bash && \
+          colcon test \
+            --packages-select fastdds_statistics_backend \
+            --event-handlers=console_direct+ \
+            --return-code-on-test-failure \
+            --ctest-args --timeout 60
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v1
+        with:
+          name: asan-logs
+          path: log/
+        if: always()
+
+      - name: Report ASAN errors
+        if: always()
+        run: |
+          echo -n "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
+          echo $(sed 's/==.*==ERROR:/==.*==ERROR:\n/g' log/latest_test/fastdds_statistics_backend/stdout_stderr.log | grep -c "==.*==ERROR:") >> $GITHUB_STEP_SUMMARY
+          python3 src/Fast-DDS-statistics-backend/.github/workflows/asan_log_parser.py
+
   clang-tidy:
     runs-on: ubuntu-latest
     steps:
@@ -173,10 +238,17 @@ jobs:
         with:
           path: src/Fast-DDS-statistics-backend
 
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+      - name: Install apt packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+
+      - name: Install GTest
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
+
+      - name: Install Python packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+
+      - name: Fetch eProsima dependencies
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
 
       - name: Build workspace
         run: |
@@ -202,8 +274,11 @@ jobs:
           cd src/Fast-DDS-statistics-backend
           git fetch --prune --unshallow
 
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-      - uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+      - name: Install apt packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+
+      - name: Install Python packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Install uncrustify
         run: |

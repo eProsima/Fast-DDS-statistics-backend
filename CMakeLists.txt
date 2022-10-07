@@ -39,6 +39,8 @@ message(STATUS "Version: ${PROJECT_VERSION}")
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
+include(${PROJECT_SOURCE_DIR}/cmake/common/asan.cmake)
+
 ###############################################################################
 # Load external projects.
 ###############################################################################
@@ -68,6 +70,15 @@ else()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
     endif()
+endif()
+
+###############################################################################
+# Activate Address sanitizer
+###############################################################################
+option(ASAN_BUILD "Activate address sanitizer flags" OFF)
+
+if (ASAN_BUILD)
+    activate_address_sanitizer()
 endif()
 
 ###############################################################################
