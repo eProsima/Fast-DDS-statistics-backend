@@ -73,18 +73,26 @@ public:
     /////////////////////
     // OPERATOR METHODS
 
-    template <typename U>
-    bool operator==(const std::shared_ptr<T>& other) const noexcept
-    {
-        static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
-        return std::dynamic_pointer_cast<U>(this->safety_lock_()) == other;
-    }
+    // template <typename U>
+    // bool operator==(const std::shared_ptr<T>& other) const noexcept
+    // {
+    //     static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
+    //     return std::dynamic_pointer_cast<U>(this->safety_lock_()) == other;
+    // }
 
     // TODO: use if_enabled or somehow limit this cast to only those U that are coherent
     template <typename U>
     bool operator==(const std::shared_ptr<U>& other) const noexcept
     {
-        return this->safety_lock_() == other;
+        static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
+        if (other == nullptr)
+        {
+            return this->expired();
+        }
+        else
+        {
+            return this->safety_lock_() == other;
+        }
     }
 
     /////////////////////
@@ -237,7 +245,15 @@ std::ostream& operator <<(
         std::ostream& o,
         const fragile_ptr<T>& f)
 {
-    return o << f.lock();
+    if (f.expired())
+    {
+        o << "{nullptr}";
+    }
+    else
+    {
+        o << f.lock();
+    }
+    return o;
 }
 
 } // namespace details
