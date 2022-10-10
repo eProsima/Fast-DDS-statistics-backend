@@ -51,6 +51,7 @@ StatisticsBackendData::StatisticsBackendData()
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
+    // Do nothing
 }
 
 StatisticsBackendData::~StatisticsBackendData()

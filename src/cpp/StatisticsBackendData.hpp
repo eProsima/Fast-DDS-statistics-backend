@@ -130,6 +130,9 @@ public:
      * @brief Resets the instance of the singleton
      *
      * This method exists for internal debugging / testing purposes.
+     *
+     * @warning this method is very dangerous to have in a singleton.
+     * @todo refactor this singleton to separate singleton handler and implementation, and so remove this problem.
      */
     static void reset_instance();
 

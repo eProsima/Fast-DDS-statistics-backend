@@ -147,12 +147,14 @@ public:
 
         // The factories will by default return mocked instances
         domain_participant_factory_ = DomainParticipantFactory::get_instance();
+        // Mock method create_participant to return this participant
+        domain_participant_factory_->domain_participant = &domain_participant_;
 
-        ON_CALL(*domain_participant_factory_, get_default_participant_qos())
-                .WillByDefault(ReturnRef(domain_participant_qos_));
+        // ON_CALL(*domain_participant_factory_, get_default_participant_qos())
+        //         .WillByDefault(ReturnRef(domain_participant_qos_));
 
-        ON_CALL(*domain_participant_factory_, create_participant(_, _, _, _))
-                .WillByDefault(Return(&domain_participant_));
+        // ON_CALL(*domain_participant_factory_, create_participant(_, _, _, _))
+        //         .WillByDefault(Return(&domain_participant_));
 
         ON_CALL(domain_participant_, get_default_subscriber_qos())
                 .WillByDefault(ReturnRef(subscriber_qos_));
@@ -189,13 +191,16 @@ public:
 
         // We usually do not care about these calls
         // This can be overriden on specific tests if necessary
-        EXPECT_CALL(*domain_participant_factory_, get_default_participant_qos()).Times(AnyNumber());
+        // EXPECT_CALL(*domain_participant_factory_, get_default_participant_qos()).Times(AnyNumber());
+        // EXPECT_CALL(*domain_participant_factory_, load_profiles()).Times(AnyNumber());
+        // EXPECT_CALL(*domain_participant_factory_, delete_participant(_)).Times(AnyNumber());
+
         EXPECT_CALL(domain_participant_, get_default_subscriber_qos()).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, get_default_topic_qos()).Times(AnyNumber());
         EXPECT_CALL(subscriber_, get_default_datareader_qos()).Times(AnyNumber());
 
         // The default expectations
-        EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(AnyNumber());
+        // EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_topic(_, _, _, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_topic(_, _, _, _)).Times(AnyNumber());
@@ -266,11 +271,16 @@ constexpr const DataKind init_monitor_factory_fails_tests::all_data_kinds_[];
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails)
 {
+    // Mock create_participant to return nullptr
+    domain_participant_factory_->domain_participant = nullptr;
     // Expect failure on the participant creation
-    EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(3)
-            .WillRepeatedly(Return(nullptr));
+    // EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(3)
+    //         .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
+
+    // 3 calls expected to create_participant
+    ASSERT_EQ(domain_participant_factory_->create_participant_count, 3u);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)

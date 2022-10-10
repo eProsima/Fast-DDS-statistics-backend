@@ -25,6 +25,7 @@
 #include <gmock/gmock.h>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastrtps/types/TypesBase.h>
 
@@ -35,6 +36,20 @@ namespace dds {
 class DomainParticipantListener;
 class DomainParticipant;
 
+/**
+ * @brief Fake + Stub class to supplant DomainParticipantFactory from fastrtps.
+ *
+ * This is not a MOCK function as mocking singletons with gmock is very hard.
+ * It is much easier to use a fake function, and check that its methods are called as many times as expected
+ * in the test explicitly.
+ *
+ * Using this is even a recommendation from gtest:
+ * "If you really intend to leak a mock, you can suppress this error using testing::Mock::AllowLeak(mock_object),
+ * or you may use a fake or stub instead of a mock."
+ *
+ * Use \c domain_participant variable to force the returnment of \c create_participant() .
+ * \c domain_participant variable is never set neither deleted from this class.
+ */
 class DomainParticipantFactory
 {
 
@@ -42,8 +57,7 @@ public:
 
     static DomainParticipantFactory* get_instance()
     {
-        static DomainParticipantFactory instance;
-        return &instance;
+        return get_shared_instance().get();
     }
 
     static std::shared_ptr<DomainParticipantFactory> get_shared_instance()
@@ -54,34 +68,44 @@ public:
 
     ~DomainParticipantFactory()
     {
+        // Do nothing
     }
 
-    MOCK_METHOD0(
-        load_profiles,
-        fastrtps::types::ReturnCode_t
-            ()
-        );
+    fastrtps::types::ReturnCode_t load_profiles()
+    {
+        load_profiles_count++;
+        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+    }
 
-    MOCK_METHOD4(
-        create_participant,
-        DomainParticipant *
-        (
-            DomainId_t domain_id,
-            const DomainParticipantQos& qos,
-            DomainParticipantListener * listener,
-            const StatusMask& mask
-        ));
+    DomainParticipant * create_participant(
+            DomainId_t ,
+            const DomainParticipantQos& ,
+            DomainParticipantListener * ,
+            const StatusMask& )
+    {
+        create_participant_count++;
+        return domain_participant;
+    }
 
-    MOCK_METHOD1(
-        delete_participant,
-        void
-        (
-            DomainParticipant * participant
-        ));
 
-    MOCK_CONST_METHOD0(
-        get_default_participant_qos,
-        DomainParticipantQos & ());
+    void delete_participant(DomainParticipant* )
+    {
+        delete_participant_count++;
+    }
+
+    const DomainParticipantQos& get_default_participant_qos()
+    {
+        get_default_participant_qos_count++;
+        return qos;
+    }
+
+    DomainParticipantQos qos{};
+    DomainParticipant* domain_participant = nullptr;
+
+    unsigned int load_profiles_count = 0;
+    unsigned int create_participant_count = 0;
+    unsigned int delete_participant_count = 0;
+    unsigned int get_default_participant_qos_count = 0;
 
 };
 
