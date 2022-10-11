@@ -363,41 +363,7 @@ void StatisticsBackendData::stop_monitor(
     monitors_by_entity_.erase(it);
 
     // Delete everything created during monitor initialization
-    for (const auto& reader : monitor->readers)
-    {
-        monitor->subscriber->delete_datareader(reader.second);
-    }
-    monitor->readers.clear();
-
-    for (const auto& topic : monitor->topics)
-    {
-        monitor->participant->delete_topic(topic.second);
-    }
-    monitor->topics.clear();
-
-    // NOTE: for test sake, this is not always set
-    if (monitor->subscriber)
-    {
-        monitor->participant->delete_subscriber(monitor->subscriber);
-    }
-
-    // NOTE: for test sake, this is not always set
-    if (monitor->participant)
-    {
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-    }
-
-    // NOTE: for test sake, this is not always set
-    if (monitor->reader_listener)
-    {
-        delete monitor->reader_listener;
-    }
-
-    // NOTE: for test sake, this is not always set
-    if (monitor->participant_listener)
-    {
-        delete monitor->participant_listener;
-    }
+    monitor.reset();
 
     // The monitor is inactive
     // NOTE: for test sake, this is not always set

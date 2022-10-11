@@ -184,24 +184,14 @@ EntityId create_and_register_monitor(
 {
     details::StatisticsBackendData::get_instance()->lock();
 
-    /* Create monitor instance and register it in the database */
+    // Create monitor instance.
+    // NOTE: register in database at the end, in case any creation fails
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
-    try
-    {
-        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
-    }
-    catch (const std::exception&)
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw;
-    }
 
-    monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
@@ -262,6 +252,22 @@ EntityId create_and_register_monitor(
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
     }
+
+    // Insert domain entity in database
+    try
+    {
+        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    }
+    catch (const std::exception&)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw;
+    }
+
+    // Insert monitor as a new monitor entity.
+    // NOTE: Monitor Id is only set after insert domain in database
+    monitor->id = domain->id;
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
     details::StatisticsBackendData::get_instance()->unlock();
     return domain->id;
