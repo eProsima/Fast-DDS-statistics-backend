@@ -193,11 +193,6 @@ EntityId create_and_register_monitor(
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
 
-    monitor->participant_listener = new subscriber::StatisticsParticipantListener(
-        domain->id,
-        details::StatisticsBackendData::get_instance()->database_.get(),
-        details::StatisticsBackendData::get_instance()->entity_queue_,
-        details::StatisticsBackendData::get_instance()->data_queue_);
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         details::StatisticsBackendData::get_instance()->data_queue_);
 
@@ -268,6 +263,12 @@ EntityId create_and_register_monitor(
     // NOTE: Monitor Id is only set after insert domain in database
     monitor->id = domain->id;
     details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+
+    monitor->participant_listener = new subscriber::StatisticsParticipantListener(
+        domain->id,
+        details::StatisticsBackendData::get_instance()->database_.get(),
+        details::StatisticsBackendData::get_instance()->entity_queue_,
+        details::StatisticsBackendData::get_instance()->data_queue_);
 
     details::StatisticsBackendData::get_instance()->unlock();
     return domain->id;

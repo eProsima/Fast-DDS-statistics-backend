@@ -343,22 +343,34 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
     EXPECT_CALL(domain_participant_, create_topic(_, _, _, _)).Times(0);
     EXPECT_CALL(domain_participant_, create_topic(_, _, _)).Times(0);
 
-    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
+    EntityId monitor1;
+    EXPECT_NO_THROW(monitor1 = StatisticsBackend::init_monitor(
                 domain_id,
                 &domain_listener,
                 all_callback_mask_,
                 all_datakind_mask_));
-    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
+
+    EntityId monitor2;
+    EXPECT_NO_THROW(monitor2 = StatisticsBackend::init_monitor(
                 server_locators,
                 &domain_listener,
                 all_callback_mask_,
                 all_datakind_mask_));
-    EXPECT_NO_THROW(StatisticsBackend::init_monitor(
+
+    EntityId monitor3;
+    EXPECT_NO_THROW(monitor3 = StatisticsBackend::init_monitor(
                 server_guid_prefix,
                 server_locators,
                 &domain_listener,
                 all_callback_mask_,
                 all_datakind_mask_));
+
+    // IMPORTANT: It is required to stop monitors.
+    // Otherwise, they will be stopped in Singleton destruction, what implies that are destructed after test
+    // destruction, and thus the mock instances does not longer exist, so SEGFAULT served.
+    StatisticsBackend::stop_monitor(monitor1);
+    StatisticsBackend::stop_monitor(monitor2);
+    StatisticsBackend::stop_monitor(monitor3);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)
