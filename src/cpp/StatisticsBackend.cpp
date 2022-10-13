@@ -95,7 +95,6 @@ void find_or_create_topic_and_type(
     {
         if (topic_desc->get_type_name() != type->getName())
         {
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is not using expected type " + type->getName() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
@@ -107,7 +106,6 @@ void find_or_create_topic_and_type(
         catch (const std::bad_cast& e)
         {
             // TODO[ILG]: Could we support other TopicDescription types in this context?
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
         }
 
@@ -117,7 +115,6 @@ void find_or_create_topic_and_type(
         if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
         {
             // Name already in use
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
         monitor->topics[topic_name] =
@@ -182,17 +179,42 @@ EntityId create_and_register_monitor(
         const DomainParticipantQos& participant_qos,
         const DomainId domain_id = 0)
 {
+    // NOTE: This method is quite awful to read because of the error handle of every entity
+    // This could be done much nicer encapsulating this in Monitor creation in destruction, but you know...
+    // Why do not call stop_monitor in error case?, youll ask. Well, mutexes are treated rarely here, as this static
+    // class locks and unlocks StatisticsBackendData mutex, what makes very difficult to do some coherent
+    // calls from one to another.
+    // What should happen is that all this logic is moved to StatisticsBackendData. You know, some day...
+
     details::StatisticsBackendData::get_instance()->lock();
 
     // Create monitor instance.
-    // NOTE: register in database at the end, in case any creation fails
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
 
+    try
+    {
+        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    }
+    catch (const std::exception&)
+    {
+        details::StatisticsBackendData::get_instance()->unlock();
+        throw;
+    }
+    // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
+    // Participant. There must exist a way in database to delete a domain, or to make a rollback.
+
+    monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
+    monitor->participant_listener = new subscriber::StatisticsParticipantListener(
+        domain->id,
+        details::StatisticsBackendData::get_instance()->database_.get(),
+        details::StatisticsBackendData::get_instance()->entity_queue_,
+        details::StatisticsBackendData::get_instance()->data_queue_);
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         details::StatisticsBackendData::get_instance()->data_queue_);
 
@@ -207,6 +229,11 @@ EntityId create_and_register_monitor(
 
     if (monitor->participant == nullptr)
     {
+        // Remove those elements that have been set
+        delete monitor->reader_listener;
+        delete monitor->participant_listener;
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
+
         details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create participant");
     }
@@ -219,6 +246,12 @@ EntityId create_and_register_monitor(
 
     if (monitor->subscriber == nullptr)
     {
+        // Remove those elements that have been set
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+        delete monitor->reader_listener;
+        delete monitor->participant_listener;
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
+
         details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create subscriber");
     }
@@ -226,12 +259,35 @@ EntityId create_and_register_monitor(
     for (const auto& topic : topics)
     {
         /* Register the type and topic*/
-        register_statistics_type_and_topic(monitor, topic);
-
-        if (monitor->topics[topic] == nullptr)
+        try
         {
+            register_statistics_type_and_topic(monitor, topic);
+        }
+        catch (const std::exception& e)
+        {
+            // Remove those elements that have been set
+            for (auto& it : monitor->readers)
+            {
+                if (nullptr != it.second)
+                {
+                    monitor->subscriber->delete_datareader(it.second);
+                }
+            }
+            for (auto& it : monitor->topics)
+            {
+                if (nullptr != it.second)
+                {
+                    monitor->participant->delete_topic(it.second);
+                }
+            }
+            monitor->participant->delete_subscriber(monitor->subscriber);
+            DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+            delete monitor->reader_listener;
+            delete monitor->participant_listener;
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
+
             details::StatisticsBackendData::get_instance()->unlock();
-            throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
+            throw Error("Error registering topic " + std::string(topic) + " : " + e.what());
         }
 
         /* Create DataReaders */
@@ -243,32 +299,31 @@ EntityId create_and_register_monitor(
 
         if (monitor->readers[topic] == nullptr)
         {
+            // Remove those elements that have been set
+            for (auto& it : monitor->readers)
+            {
+                if (nullptr != it.second)
+                {
+                    monitor->subscriber->delete_datareader(it.second);
+                }
+            }
+            for (auto& it : monitor->topics)
+            {
+                if (nullptr != it.second)
+                {
+                    monitor->participant->delete_topic(it.second);
+                }
+            }
+            monitor->participant->delete_subscriber(monitor->subscriber);
+            DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+            delete monitor->reader_listener;
+            delete monitor->participant_listener;
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
+
             details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
     }
-
-    // Insert domain entity in database
-    try
-    {
-        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
-    }
-    catch (const std::exception&)
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw;
-    }
-
-    // Insert monitor as a new monitor entity.
-    // NOTE: Monitor Id is only set after insert domain in database
-    monitor->id = domain->id;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
-
-    monitor->participant_listener = new subscriber::StatisticsParticipantListener(
-        domain->id,
-        details::StatisticsBackendData::get_instance()->database_.get(),
-        details::StatisticsBackendData::get_instance()->entity_queue_,
-        details::StatisticsBackendData::get_instance()->data_queue_);
 
     details::StatisticsBackendData::get_instance()->unlock();
     return domain->id;

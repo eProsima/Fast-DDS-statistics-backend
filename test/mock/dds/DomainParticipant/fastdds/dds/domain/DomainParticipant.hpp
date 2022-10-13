@@ -187,6 +187,11 @@ public:
             const std::string& type_name
         ));
 
+    MOCK_METHOD0(
+        enable,
+        ReturnCode_t
+        ());
+
     DomainParticipantQos qos_;
     DomainId_t domain_id_;
     eprosima::fastrtps::rtps::GUID_t guid_;

@@ -26,6 +26,7 @@
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastrtps/types/TypesBase.h>
 
@@ -96,16 +97,34 @@ public:
     const DomainParticipantQos& get_default_participant_qos()
     {
         get_default_participant_qos_count++;
-        return qos;
+        return participant_qos;
     }
 
-    DomainParticipantQos qos{};
+    ReturnCode_t get_qos(DomainParticipantFactoryQos& qos) const
+    {
+        get_qos_count++;
+        qos = factory_qos;
+        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+    }
+
+    ReturnCode_t set_qos(
+            const DomainParticipantFactoryQos& qos)
+    {
+        set_qos_count++;
+        factory_qos = qos;
+        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+    }
+
+    DomainParticipantFactoryQos factory_qos{};
+    DomainParticipantQos participant_qos{};
     DomainParticipant* domain_participant = nullptr;
 
-    unsigned int load_profiles_count = 0;
-    unsigned int create_participant_count = 0;
-    unsigned int delete_participant_count = 0;
-    unsigned int get_default_participant_qos_count = 0;
+    mutable unsigned int load_profiles_count = 0;
+    mutable unsigned int create_participant_count = 0;
+    mutable unsigned int delete_participant_count = 0;
+    mutable unsigned int get_default_participant_qos_count = 0;
+    mutable unsigned int get_qos_count = 0;
+    mutable unsigned int set_qos_count = 0;
 
 };
 

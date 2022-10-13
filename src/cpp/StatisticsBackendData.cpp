@@ -22,6 +22,7 @@
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
@@ -51,7 +52,10 @@ StatisticsBackendData::StatisticsBackendData()
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
-    // Do nothing
+    // Set in DomainParticipantFactory that entities are created disabled
+    eprosima::fastdds::dds::DomainParticipantFactoryQos qos;
+    participant_factory_instance_->get_qos(qos);
+    qos.entity_factory().autoenable_created_entities = false;
 }
 
 StatisticsBackendData::~StatisticsBackendData()
@@ -363,7 +367,36 @@ void StatisticsBackendData::stop_monitor(
     monitors_by_entity_.erase(it);
 
     // Delete everything created during monitor initialization
-    monitor.reset();
+    // These values are not always set, as could come from an error creating Monitor, or for test sake.
+    if (monitor->participant)
+    {
+        if (monitor->subscriber)
+        {
+            for (auto& reader : monitor->readers)
+            {
+                monitor->subscriber->delete_datareader(reader.second);
+            }
+
+            monitor->participant->delete_subscriber(monitor->subscriber);
+        }
+
+        for (auto& topic : monitor->topics)
+        {
+            monitor->participant->delete_topic(topic.second);
+        }
+
+        fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    }
+
+    if (monitor->reader_listener)
+    {
+        delete monitor->reader_listener;
+    }
+
+    if (monitor->participant_listener)
+    {
+        delete monitor->participant_listener;
+    }
 
     // The monitor is inactive
     // NOTE: for test sake, this is not always set

@@ -22,23 +22,24 @@
 #include <map>
 #include <string>
 
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipantListener.hpp>
-#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/DataReaderListener.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/topic/qos/TopicQos.hpp>
-#include <fastdds/dds/topic/Topic.hpp>
-
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
 namespace eprosima {
+namespace fastdds {
+namespace dds {
+
+class DomainParticipant;
+class DomainParticipantListener;
+class Subscriber;
+class Topic;
+class DataReader;
+class DataReaderListener;
+
+} // namespace dds
+} // namespace fastdds
+
 namespace statistics_backend {
 namespace details {
 
@@ -49,50 +50,6 @@ namespace details {
  */
 struct Monitor
 {
-    /**
-     * @brief Destroy the Monitor object
-     *
-     * Destroy every pointer that has been set.
-     * This method works even if the monitor creation has failed
-     *
-     * @warning this may not be the best way to implement the destruction of subentities, as they are not created
-     * under this class. But it is very convenience so it is reused during Monitor creation in case an error occurs
-     * and also it is used to normally destroy the Monitor.
-     */
-    ~Monitor()
-    {
-        // These values are not always set, as could come from an error creating Monitor, or for test sake.
-        if (participant)
-        {
-            if (subscriber)
-            {
-                for (auto& reader : readers)
-                {
-                    subscriber->delete_datareader(reader.second);
-                }
-
-                participant->delete_subscriber(subscriber);
-            }
-
-            for (auto& topic : topics)
-            {
-                participant->delete_topic(topic.second);
-            }
-
-            fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(participant);
-        }
-
-        if (reader_listener)
-        {
-            delete reader_listener;
-        }
-
-        if (participant_listener)
-        {
-            delete participant_listener;
-        }
-    }
-
     //! The EntityId of the monitored domain
     EntityId id{};
 
@@ -111,7 +68,6 @@ struct Monitor
     //! The listener linked to the \c participant
     //! It will process the entity discoveries
     fastdds::dds::DomainParticipantListener* participant_listener = nullptr;
-
 
     //! The participant created to communicate with the statistics reporting publishers in this monitor
     fastdds::dds::Subscriber* subscriber = nullptr;
