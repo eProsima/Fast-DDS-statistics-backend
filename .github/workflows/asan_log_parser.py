@@ -45,9 +45,14 @@ for test in saved_lines:
             dict({'ID': split_test[0], 'Name': split_test[2]}))
 
 # Convert python dict to markdown table
-md_table = Tomark.table(failed_tests)
-print(md_table)
+if (failed_tests):
+    md_table = Tomark.table(failed_tests)
+    print(md_table)
+    # Save table of failed test to GitHub action summary file
+    with open(SUMMARY_FILE, 'a') as file:
+        file.write(f'\n{md_table}')
 
-# Save table of failed test to GitHub action summary file
-with open(SUMMARY_FILE, 'a') as file:
-    file.write(f'\n{md_table}')
+else:
+    print('NO TESTS FAILED!')
+    with open(SUMMARY_FILE, 'a') as file:
+        file.write('\nNO TESTS FAILED!')

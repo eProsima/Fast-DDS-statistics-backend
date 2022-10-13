@@ -232,6 +232,7 @@ jobs:
         if: always()
 
       - name: Report ASAN errors
+        continue-on-error: true
         if: always()
         run: |
           echo -n "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
