@@ -27,7 +27,7 @@ add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE})
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
-endif(MSVC) 
+endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationPublisher PRIVATE
     ${PROJECT_SOURCE_DIR}/test/dds/communication)
@@ -48,7 +48,7 @@ add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE})
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
-endif(MSVC) 
+endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationSubscriber PRIVATE
     ${PROJECT_SOURCE_DIR}/test/dds/communication)
@@ -69,7 +69,7 @@ add_executable(DDSSimpleCommunicationMonitor ${DDS_MONITOR_SOURCE})
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
         _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
-endif(MSVC) 
+endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationMonitor PRIVATE
     ${GTEST_INCLUDE_DIRS}
@@ -118,5 +118,9 @@ if(PYTHONINTERP_FOUND)
     if(TEST_FRIENDLY_PATH)
         set_property(TEST BasicSystemTest APPEND PROPERTY ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
+
+    # Set as not ASAN test
+    # NOTE: this test runs several processes from python, so ASAN report will not be related with the actual backend.
+    set_property(TEST BasicSystemTest APPEND PROPERTY LABELS xasan)
 
 endif()

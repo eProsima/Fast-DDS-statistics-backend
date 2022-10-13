@@ -79,7 +79,8 @@ jobs:
 
       - name: Run tests on ${{ matrix.cmake-config }}
         shell: pwsh
-        run: ctest -C ${{ matrix.cmake-config }} --test-dir build\backend -V --timeout 60
+        run: ctest -C ${{ matrix.cmake-config }} --test-dir build\backend -V --timeout 60 --label-exclude xfail
+
 
   ubuntu-build-test:
     runs-on: ubuntu-latest
@@ -125,7 +126,9 @@ jobs:
             --packages-select fastdds_statistics_backend \
             --event-handlers=console_direct+ \
             --return-code-on-test-failure \
-            --ctest-args --timeout 60
+            --ctest-args \
+              --timeout 60 \
+              --label-exclude xfail
 
       - name: Generate coverage report
         run: |
@@ -203,7 +206,7 @@ jobs:
 
       - name: Build workspace
         run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
+          cat src/Fast-DDS-statistics-backend/.github/workflows/asan.meta
           colcon build \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/asan.meta
@@ -215,7 +218,9 @@ jobs:
             --packages-select fastdds_statistics_backend \
             --event-handlers=console_direct+ \
             --return-code-on-test-failure \
-            --ctest-args --timeout 60
+            --ctest-args \
+              --timeout 60 \
+              --label-exclude xasan xfail
 
       - name: Upload Logs
         uses: actions/upload-artifact@v1
@@ -230,6 +235,60 @@ jobs:
           echo -n "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
           echo $(sed 's/==.*==ERROR:/==.*==ERROR:\n/g' log/latest_test/fastdds_statistics_backend/stdout_stderr.log | grep -c "==.*==ERROR:") >> $GITHUB_STEP_SUMMARY
           python3 src/Fast-DDS-statistics-backend/.github/workflows/asan_log_parser.py
+
+
+  flaky-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: src/Fast-DDS-statistics-backend
+
+      - name: Install apt packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
+
+      - name: Install GTest
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
+
+      - name: Install Python packages
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+
+      - name: Fetch eProsima dependencies
+        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+
+      - name: Update colcon mixin
+        run: |
+          colcon mixin add default \
+            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+          colcon mixin update default
+        continue-on-error: true
+
+      - name: Build workspace
+        run: |
+          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
+          colcon build \
+            --event-handlers=console_direct+ \
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta
+
+      - name: Run tests
+        run: |
+          source install/setup.bash && \
+          colcon test \
+            --packages-select fastdds_statistics_backend \
+            --event-handlers=console_direct+ \
+            --return-code-on-test-failure \
+            --ctest-args \
+              --timeout 60 \
+              --label-regex xfail
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v1
+        with:
+          name: asan-logs
+          path: log/
+        if: always()
+
 
   clang-tidy:
     runs-on: ubuntu-latest
