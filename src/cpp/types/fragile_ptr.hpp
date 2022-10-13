@@ -19,7 +19,6 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_FRAGILEPTR_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_FRAGILEPTR_HPP_
 
-#include <iostream>  // TODO remove
 #include <memory>
 #include <type_traits>
 
@@ -30,7 +29,24 @@ namespace statistics_backend {
 namespace details {
 
 /**
- * TODO add comments
+ * @brief This class represents a Smart Pointer that works as a \c weak_ptr but has the API of a \c shared_ptr .
+ *
+ * A \c fragile_ptr is a Smart Pointer that holds a weak reference to an object of kind \c T .
+ * A weak reference implies that there is no assurance that this object will exit (will not be destroyed somewhere
+ * else) all along the life of this object.
+ * This class replicates the API of a shared_ptr and those times that the internal reference is used
+ * (operator-> and operator*) it throws an exception if the internal reference has expired.
+ *
+ * @note This class may seen as dangerous one. But it is actually better than a shared_ptr, as shared does not
+ * prevent you to do a operator-> of a nullptr, and this does.
+ * @note This class may also seen as a useless one. I agree, but its main use is not to change the whole project
+ * all around where shared_ptr was used before.
+ *
+ * @note This class has been used because internal entities of the database hold references to each other.
+ * This implies loops between shared ptrs.
+ * These references are supposed to not be destroyed as long as the entity (that holds them) lives, so
+ * changing shared for fragile should not change the behaviour.
+ * These shared_ptr has been replaced with fragile_ptr so code does not have to change everywhere.
  */
 template <typename T>
 class fragile_ptr
@@ -41,29 +57,47 @@ public:
     /////////////////////
     // CONSTRUCTORS
 
+    //! Default constructor to nullptr
     fragile_ptr() noexcept = default;
 
+    //! Default constructors and operator= from other \c fragile_ptr ( \c weak_ptr are copiable and moveable).
     fragile_ptr(const fragile_ptr<T>& copy_other) = default;
     fragile_ptr(fragile_ptr<T>&& move_other) = default;
     fragile_ptr& operator=(const fragile_ptr<T>& copy_other) = default;
     fragile_ptr& operator=(fragile_ptr<T>&& move_other) = default;
 
-    ~fragile_ptr() = default;
+    //! Default destructor
+    virtual ~fragile_ptr() = default;
 
     /////////////////////
     // CONSTRUCTORS FROM SHARED PTR
 
+    /**
+     * @brief Construct a new fragile ptr object from a shared one
+     *
+     * It initializes the internal \c weak_ptr with the reference of the shared one.
+     *
+     * @param shared_reference \c shared_ptr to the reference to point from this.
+     */
     fragile_ptr(const std::shared_ptr<T>& shared_reference)
         : reference_(shared_reference)
     {
         // Do nothing
     }
 
+    //! Same as calling basic constructor.
     fragile_ptr(std::nullptr_t)
     {
         // Do nothing
     }
 
+    /**
+     * @brief Construct a new fragile ptr object from a shared one
+     *
+     * It initializes the internal \c weak_ptr with the reference of the shared one.
+     *
+     * @param shared_reference \c shared_ptr to the reference to point from this.
+     */
     fragile_ptr& operator=(const std::shared_ptr<T>& copy_other)
     {
         this->reference_ = copy_other;
@@ -73,36 +107,30 @@ public:
     /////////////////////
     // OPERATOR METHODS
 
-    // template <typename U>
-    // bool operator==(const std::shared_ptr<T>& other) const noexcept
-    // {
-    //     static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
-    //     return std::dynamic_pointer_cast<U>(this->safety_lock_()) == other;
-    // }
-
-    // TODO: use if_enabled or somehow limit this cast to only those U that are coherent
+    /**
+     * @brief Compare this ptr reference with a shared one.
+     *
+     * @todo use if_enabled or somehow limit this cast to only those U that are coherent
+     */
     template <typename U>
     bool operator==(const std::shared_ptr<U>& other) const noexcept
     {
         static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
-        if (other == nullptr)
-        {
-            return this->expired();
-        }
-        else
-        {
-            return this->safety_lock_() == other;
-        }
+        return this->lock() == other;
     }
 
     /////////////////////
     // CAST METHODS
 
-    // TODO: use if_enabled or somehow limit this cast to only those U that are coherent
+    /**
+     * @brief Cast this object to a \c shared_ptr object of type \c U .
+     *
+     * @todo use if_enabled or somehow limit this cast to only those U that are coherent
+     */
     template <typename U>
     operator std::shared_ptr<U> () const
     {
-        auto cast_result = std::dynamic_pointer_cast<U>(safety_lock_());
+        auto cast_result = std::dynamic_pointer_cast<U>(this->lock());
         if (!cast_result)
         {
             // TODO: show in error message the name of the types that are being casted
@@ -114,54 +142,34 @@ public:
         }
     }
 
-    // TODO: implement it somehow
-    // template <typename U>
-    // operator
-    // typename std::enable_if<std::true_type::value, std::shared_ptr<U>>::type () const
-    // {
-    //     auto cast_result = std::dynamic_pointer_cast<U>(safety_lock_());
-    //     if (!cast_result)
-    //     {
-    //         // TODO: show in error message the name of the types that are being casted
-    //         throw Inconsistency("Trying to cast to a not valid object.");
-    //     }
-    //     else
-    //     {
-    //         return cast_result;
-    //     }
-    // }
-
+    //! Cast this object to a \c shared_ptr of the same type.
     operator std::shared_ptr<T>() const
     {
-        return safety_lock_();
+        return this->lock();
     }
 
+    //! Wether the internal ptr is valid (it it has been initialized and it has expired).
     operator bool() const noexcept
     {
         return !reference_.expired();
     }
 
     /////////////////////
-    // INTERACTION METHODS
-
-    std::shared_ptr<T> get_shared_ptr() const
-    {
-        return safety_lock_();
-    }
-
-    /////////////////////
     // WEAK PTR METHODS
 
+    //! \c weak_ptr::expired call.
     bool expired() const noexcept
     {
         return reference_.expired();
     }
 
+    //! \c weak_ptr::lock call.
     std::shared_ptr<T> lock() const noexcept
     {
         return reference_.lock();
     }
 
+    //! \c weak_ptr::reset call.
     void reset() noexcept
     {
         reference_.reset();
@@ -170,16 +178,42 @@ public:
     /////////////////////
     // SHARED PTR METHODS
 
+    /**
+     * @brief Get the internal reference.
+     *
+     * @warning The internal reference is not protected. Thus, it could be removed from other thread while using
+     * it even if this object still exist. Use \c lock instead for a protected use of the internal value.
+     *
+     * @return T* internal reference (could be null)
+     */
+    T* get() const
+    {
+        return lock().get();
+    }
+
+    /**
+     * @brief Get the internal reference by -> operator.
+     *
+     * @warning The internal reference is not protected. Thus, it could be removed from other thread while using
+     * it even if this object still exist. Use \c lock instead for a protected use of the internal value.
+     *
+     * @return T* internal reference if not expired.
+     * @throw \c Inconsistency if the internal reference is not valid.
+     */
     T* operator->() const
     {
         return safety_lock_().operator->();
     }
 
-    T* get() const
-    {
-        return safety_lock_().get();
-    }
-
+    /**
+     * @brief Get the internal reference by * operator.
+     *
+     * @warning The internal reference is not protected. Thus, it could be removed from other thread while using
+     * it even if this object still exist. Use \c lock instead for a protected use of the internal value.
+     *
+     * @return T& internal reference if not expired.
+     * @throw \c Inconsistency if the internal reference is not valid.
+     */
     T& operator*() const
     {
         return safety_lock_().operator*();
@@ -187,6 +221,15 @@ public:
 
 protected:
 
+    /**
+     * @brief This method calls \c weak_ptr::lock . In case the reference is not valid anymore
+     * it throws an exception to warn about its usage.
+     *
+     * It uses for those cases where using the internal reference must be protected by an exception call in error case.
+     *
+     * @return return of shared_ptr result from lock
+     * @throw \c Inconsistency if the internal reference is not valid.
+     */
     std::shared_ptr<T> safety_lock_() const
     {
         auto lock_reference = reference_.lock();
@@ -200,6 +243,7 @@ protected:
         }
     }
 
+    //! Internal weak reference to a ptr.
     std::weak_ptr<T> reference_;
 
 };
@@ -240,6 +284,7 @@ bool operator !=(
     return nullptr != lhs.lock();
 }
 
+//! Serialize operator giving the address of the internal reference, or nullptr if not valid.
 template <typename T>
 std::ostream& operator <<(
         std::ostream& o,
@@ -251,7 +296,7 @@ std::ostream& operator <<(
     }
     else
     {
-        o << f.lock();
+        o << "{" << f.get() << "}";
     }
     return o;
 }
