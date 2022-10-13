@@ -34,6 +34,8 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
+bool StatisticsBackendTest::has_database_been_set_ = false;
+
 /**
  * @brief Fixture for the statistics_backend class tests
  *
@@ -54,6 +56,14 @@ public:
     {
         db = new DataBaseTest;
         entities = PopulateDatabase::populate_database(*db);
+    }
+
+    void TearDown()
+    {
+        if (!StatisticsBackendTest::unset_database())
+        {
+            delete db;
+        }
     }
 
     DataBaseTest* db;

@@ -399,7 +399,7 @@ void StatisticsBackendData::stop_monitor(
 
     // The monitor is inactive
     // NOTE: for test sake, this is not always set
-    if (database_->is_entity_present(monitor_id))
+    if (database_ && database_->is_entity_present(monitor_id))
     {
         database_->change_entity_status(monitor_id, false);
     }

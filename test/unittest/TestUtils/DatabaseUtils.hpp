@@ -738,7 +738,38 @@ public:
             monitor->domain_listener = nullptr;
             details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
         }
+        has_database_been_set_ = true;
     }
+
+    /**
+     * @brief This method unset the internal database
+     *
+     * This method is required because the database is manually and hard set from the test, which makes
+     * ASAN cry.
+     * This will remove this instance in case it has been set, and do nothing otherwise.
+     *
+     * Be aware that in some cases where the database has not been set, it may be removed manually from
+     * the test. (This is why you should not create a smart ptr from a ptr initialized somewhere else.)
+     *
+     * @return true if the database has been reset
+     * @return false otherwise
+     */
+    static bool unset_database()
+    {
+        if (has_database_been_set_)
+        {
+            details::StatisticsBackendData::get_instance()->database_.reset();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+protected:
+
+    static bool has_database_been_set_;
 
 };
 

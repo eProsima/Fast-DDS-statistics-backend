@@ -25,6 +25,8 @@
 
 using namespace eprosima::statistics_backend::subscriber;
 
+bool StatisticsBackendTest::has_database_been_set_ = false;
+
 /**
  * @brief Fixture for the is_active_tests
  * - Create a database loading it from a file.
@@ -36,7 +38,7 @@ public:
 
     void SetUp()
     {
-        db = new DataBaseTest;
+        db = new DataBaseTest;  // This will be deleted inside StatisticsBackendTest unset_database
         DatabaseDump dump;
         load_file(EMPTY_ENTITIES_DUMP_FILE, dump);
         db->load_database(dump);
@@ -106,6 +108,11 @@ public:
         delete entity_queue;
         delete data_queue;
         delete participant_listener;
+
+        if (!StatisticsBackendTest::unset_database())
+        {
+            delete db;
+        }
     }
 
     std::shared_ptr<Host> host;
@@ -121,13 +128,13 @@ public:
     DataBaseTest* db;
 
     // Entity queue, attached to the database
-    DatabaseEntityQueue* entity_queue;
+    DatabaseEntityQueue* entity_queue = nullptr;
     // Data queue, attached to the database
-    DatabaseDataQueue* data_queue;
+    DatabaseDataQueue* data_queue = nullptr;
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
     // Listener under tests. Will receive a pointer to statistics_participant
-    StatisticsParticipantListener* participant_listener;
+    StatisticsParticipantListener* participant_listener = nullptr;
 };
 
 // Windows dll do not export ParticipantProxyData class members (private APIs)

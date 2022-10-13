@@ -80,6 +80,13 @@ class Database
 public:
 
     /**
+     * @brief Destructor of Database.
+     *
+     * @note It requires a virtual dtor for test sake.
+     */
+    virtual ~Database() = default;
+
+    /**
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
