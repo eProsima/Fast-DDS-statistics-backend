@@ -521,24 +521,128 @@ public:
         return locators_;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>>& locators_by_participant() const
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>> locators_by_participant() const
     {
-        return locators_by_participant_;
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>> result;
+
+        // For every domain
+        for (const auto& it_domain : participants_)
+        {
+            // For every participant
+            for (const auto& it_participant : it_domain.second)
+            {
+                // Add new map for this entity
+                result[it_participant.first] = std::map<EntityId, std::shared_ptr<Locator>>();
+                auto& internal_map = result[it_participant.first];
+
+                // For every DataWriter
+                for (const auto& it_endpoint : it_participant.second->data_writers)
+                {
+                    // For every Locator
+                    for (const auto& it_locator : it_endpoint.second->locators)
+                    {
+                        internal_map[it_locator.first] = it_locator.second;
+                    }
+                }
+
+                // For every DataReader
+                for (const auto& it_endpoint : it_participant.second->data_readers)
+                {
+                    // For every Locator
+                    for (const auto& it_locator : it_endpoint.second->locators)
+                    {
+                        internal_map[it_locator.first] = it_locator.second;
+                    }
+                }
+
+                // For every metatraffic locator
+                if (it_participant.second->meta_traffic_endpoint)
+                {
+                    for (const auto& it_locator : it_participant.second->meta_traffic_endpoint->locators)
+                    {
+                        internal_map[it_locator.first] = it_locator.second;
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>& participants_by_locator() const
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants_by_locator() const
     {
-        return participants_by_locator_;
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> result;
+
+        // For every locator
+        for (const auto& it_locator : locators_)
+        {
+            // Add new map for this entity
+            result[it_locator.first] = std::map<EntityId, std::shared_ptr<DomainParticipant>>();
+            auto& internal_map = result[it_locator.first];
+
+            // For every DataWriter
+            for (const auto& it_endpoint : it_locator.second->data_writers)
+            {
+                // Add Participant
+                internal_map[it_endpoint.second->participant->id] = it_endpoint.second->participant;
+            }
+
+            // For every DataReader
+            for (const auto& it_endpoint : it_locator.second->data_readers)
+            {
+                // Add Participant
+                internal_map[it_endpoint.second->participant->id] = it_endpoint.second->participant;
+            }
+        }
+
+        return result;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>>& domains_by_process() const
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>> domains_by_process() const
     {
-        return domains_by_process_;
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>> result;
+
+        // For every process
+        for (const auto& it_process : processes_)
+        {
+            // Add new map for this entity
+            result[it_process.first] = std::map<EntityId, std::shared_ptr<Domain>>();
+            auto& internal_map = result[it_process.first];
+
+            // For every Participant
+            for (const auto& it_participant : it_process.second->participants)
+            {
+                // Add domain
+                internal_map[it_participant.second->domain->id] = it_participant.second->domain;
+            }
+        }
+
+        return result;
     }
 
-    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>>& processes_by_domain() const
+    const std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>> processes_by_domain() const
     {
-        return processes_by_domain_;
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>> result;
+
+        // For every domain
+        for (const auto& it_domain : domains_)
+        {
+            // Add new map for this entity
+            result[it_domain.first] = std::map<EntityId, std::shared_ptr<Process>>();
+            auto& internal_map = result[it_domain.first];
+
+            // For every Participant
+            for (const auto& it_participant : it_domain.second->participants)
+            {
+                // Add process if exist
+                if(it_participant.second->process)
+                {
+                    internal_map[it_participant.second->process->id] = it_participant.second->process;
+                }
+            }
+        }
+
+        return result;
     }
 
     template<typename T>

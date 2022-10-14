@@ -456,12 +456,14 @@ TEST_F(database_load_insert_tests, load_insert)
     }
 
     // domains_by_process
-    for (auto domainIt = db.domains_by_process().cbegin(); domainIt != db.domains_by_process().cend(); ++domainIt)
+    auto domain_by_process = db.domains_by_process();
+    auto loaded_domain_by_process = db_loaded.domains_by_process();
+    for (auto domainIt = domain_by_process.cbegin(); domainIt != domain_by_process.cend(); ++domainIt)
     {
-        for (auto insertedIt = db.domains_by_process().at(domainIt->first).cbegin(),
-                loadedIt = db_loaded.domains_by_process().at(domainIt->first).cbegin();
-                insertedIt != db.domains_by_process().at(domainIt->first).cend() &&
-                loadedIt != db_loaded.domains_by_process().at(domainIt->first).cend();
+        for (auto insertedIt = domain_by_process.at(domainIt->first).cbegin(),
+                loadedIt = loaded_domain_by_process.at(domainIt->first).cbegin();
+                insertedIt != domain_by_process.at(domainIt->first).cend() &&
+                loadedIt != loaded_domain_by_process.at(domainIt->first).cend();
                 insertedIt++, loadedIt++)
         {
             std::shared_ptr<Domain> insertedEntity = insertedIt->second;
@@ -472,12 +474,14 @@ TEST_F(database_load_insert_tests, load_insert)
     }
 
     // processes_by_domain_
-    for (auto domainIt = db.processes_by_domain().cbegin(); domainIt != db.processes_by_domain().cend(); ++domainIt)
+    auto processes_by_domain = db.processes_by_domain();
+    auto loaded_processes_by_domain = db_loaded.processes_by_domain();
+    for (auto domainIt = processes_by_domain.cbegin(); domainIt != processes_by_domain.cend(); ++domainIt)
     {
-        for (auto insertedIt = db.processes_by_domain().at(domainIt->first).cbegin(),
-                loadedIt = db_loaded.processes_by_domain().at(domainIt->first).cbegin();
-                insertedIt != db.processes_by_domain().at(domainIt->first).cend() &&
-                loadedIt != db_loaded.processes_by_domain().at(domainIt->first).cend();
+        for (auto insertedIt = processes_by_domain.at(domainIt->first).cbegin(),
+                loadedIt = loaded_processes_by_domain.at(domainIt->first).cbegin();
+                insertedIt != processes_by_domain.at(domainIt->first).cend() &&
+                loadedIt != loaded_processes_by_domain.at(domainIt->first).cend();
                 insertedIt++, loadedIt++)
         {
             std::shared_ptr<Process> insertedEntity = insertedIt->second;
@@ -488,13 +492,15 @@ TEST_F(database_load_insert_tests, load_insert)
     }
 
     // participants_by_locator
-    for (auto domainIt = db.participants_by_locator().cbegin(); domainIt != db.participants_by_locator().cend();
+    auto participants_by_locator = db.participants_by_locator();
+    auto loaded_participants_by_locator = db_loaded.participants_by_locator();
+    for (auto domainIt = participants_by_locator.cbegin(); domainIt != participants_by_locator.cend();
             ++domainIt)
     {
-        for (auto insertedIt = db.participants_by_locator().at(domainIt->first).cbegin(),
-                loadedIt = db_loaded.participants_by_locator().at(domainIt->first).cbegin();
-                insertedIt != db.participants_by_locator().at(domainIt->first).cend() &&
-                loadedIt != db_loaded.participants_by_locator().at(domainIt->first).cend();
+        for (auto insertedIt = participants_by_locator.at(domainIt->first).cbegin(),
+                loadedIt = loaded_participants_by_locator.at(domainIt->first).cbegin();
+                insertedIt != participants_by_locator.at(domainIt->first).cend() &&
+                loadedIt != loaded_participants_by_locator.at(domainIt->first).cend();
                 insertedIt++, loadedIt++)
         {
             std::shared_ptr<DomainParticipant> insertedEntity = insertedIt->second;
@@ -505,13 +511,15 @@ TEST_F(database_load_insert_tests, load_insert)
     }
 
     // locators_by_participant
-    for (auto domainIt = db.locators_by_participant().cbegin(); domainIt != db.locators_by_participant().cend();
+    auto locators_by_participant = db.locators_by_participant();
+    auto loaded_locators_by_participant = db_loaded.locators_by_participant();
+    for (auto domainIt = locators_by_participant.cbegin(); domainIt != locators_by_participant.cend();
             ++domainIt)
     {
-        for (auto insertedIt = db.locators_by_participant().at(domainIt->first).cbegin(),
-                loadedIt = db_loaded.locators_by_participant().at(domainIt->first).cbegin();
-                insertedIt != db.locators_by_participant().at(domainIt->first).cend() &&
-                loadedIt != db_loaded.locators_by_participant().at(domainIt->first).cend();
+        for (auto insertedIt = locators_by_participant.at(domainIt->first).cbegin(),
+                loadedIt = loaded_locators_by_participant.at(domainIt->first).cbegin();
+                insertedIt != locators_by_participant.at(domainIt->first).cend() &&
+                loadedIt != loaded_locators_by_participant.at(domainIt->first).cend();
                 insertedIt++, loadedIt++)
         {
             std::shared_ptr<Locator> insertedEntity = insertedIt->second;

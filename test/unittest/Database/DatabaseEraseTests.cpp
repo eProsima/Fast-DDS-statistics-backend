@@ -54,12 +54,17 @@ void check_erased_database(
             EXPECT_EQ(locator.second->data_writers.find(writer->id), locator.second->data_writers.end());
         }
     }
+
     // Any reference to the erased domain has been deleted
-    for (auto process : db.domains_by_process())
+    auto domains_by_process = db.domains_by_process();
+    for (auto process : domains_by_process)
     {
         EXPECT_EQ(process.second.find(domain_id), process.second.end());
     }
-    EXPECT_EQ(db.processes_by_domain().find(domain_id), db.processes_by_domain().end());
+
+    auto processes_by_domain = db.processes_by_domain();
+    EXPECT_EQ(processes_by_domain.find(domain_id), processes_by_domain.end());
+
     // Any reference to the erased participant has been deleted
     for (auto participant : participants)
     {
@@ -72,7 +77,9 @@ void check_erased_database(
         {
             EXPECT_EQ(locator.second.find(participant_id), locator.second.end());
         }
-        EXPECT_EQ(db.locators_by_participant().find(participant_id), db.locators_by_participant().end());
+
+        auto locators_by_participant = db.locators_by_participant();
+        EXPECT_EQ(locators_by_participant.find(participant_id), locators_by_participant.end());
     }
 }
 
