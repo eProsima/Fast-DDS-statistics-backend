@@ -331,6 +331,8 @@ public:
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
      *
      * @return DatabaseDump object representing the backend database.
+     *
+     * @note This method includes clear possibility so dump and clear could be under the same mutex lock.
      */
     DatabaseDump dump_database(
             const bool clear = false);
@@ -355,6 +357,16 @@ public:
     void change_entity_status(
             const EntityId& entity_id,
             bool active);
+
+    /**
+     * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     */
+    void clear_statistics_data();
+
+    /**
+     * @brief Remove all inactive entities of the database. This does not include domains.
+     */
+    void clear_inactive_entities();
 
 protected:
 
@@ -682,8 +694,20 @@ protected:
 
     /**
      * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     *
+     * This method does not guard a mutex, as it expected to be called with mutex already taken.
      */
-    void clear_statistics_data();
+    void clear_statistics_data_nts_();
+
+    /**
+     * @brief Remove all inactive entities of the database. This does not include domains.
+     *
+     * This deletion of entities is done in an atomical way, so no other interaction with the
+     * database may occur while deleting or coherence cannot be assured.
+     *
+     * @warning This method does not guard a mutex, as it expected to be called with mutex already taken.
+     */
+    void clear_inactive_entities_nts_();
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.
@@ -817,6 +841,23 @@ protected:
     void execute_without_lock(
             const Functor& lambda) noexcept;
 
+    // TODO comment
+    template<typename E>
+    static void clear_inactive_entities_from_map_(
+            std::map<EntityId, std::shared_ptr<E>>& map);
+
+    template<typename E>
+    static void clear_inactive_entities_from_map_(
+            std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map);
+
+    template<typename E>
+    static void clear_inactive_entities_from_map_(
+            std::map<EntityId, details::fragile_ptr<E>>& map);
+
+    void clear_associated_maps_nts_();
+
+    void clear_internal_references_nts_();
+
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
 
@@ -880,6 +921,59 @@ void Database::insert_ddsendpoint_to_locator(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator);
 
+template<typename E>
+void Database::clear_inactive_entities_from_map_(
+        std::map<EntityId, std::shared_ptr<E>>& map)
+{
+    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
+
+    // Iterate over whole loop and remove those entities that are not alive
+    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
+    {
+        if (!it->second->active)
+        {
+            // Remove it and have reference to next element
+            it = map.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+template<typename E>
+void Database::clear_inactive_entities_from_map_(
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map)
+{
+    // The higher map will not be removed because it holds the domain, so
+    // only internal map should be iterate.
+    for (auto& it : map)
+    {
+        clear_inactive_entities_from_map_(it.second);
+    }
+}
+
+template<typename E>
+void Database::clear_inactive_entities_from_map_(
+        std::map<EntityId, details::fragile_ptr<E>>& map)
+{
+    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
+
+    // Iterate over whole loop and remove those entities that are not alive
+    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
+    {
+        if (it->second.expired())
+        {
+            // Remove it and have reference to next element
+            it = map.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
 
 } //namespace database
 } //namespace statistics_backend

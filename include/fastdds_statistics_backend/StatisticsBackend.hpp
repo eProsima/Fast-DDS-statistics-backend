@@ -433,6 +433,12 @@ public:
     static void load_database(
             const std::string& filename);
 
+    //! Clear all statistics data of all entities.
+    static void clear_statistics_data();
+
+    //! Remove all inactive entities from database.
+    static void clear_inactive_entities();
+
     /**
      * @brief Resets the Fast DDS Statistics Backend.
      *
