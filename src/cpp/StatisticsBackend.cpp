@@ -807,6 +807,16 @@ void StatisticsBackend::dump_database(
     file << StatisticsBackend::dump_database(clear);
 }
 
+void StatisticsBackend::clear_statistics_data()
+{
+    details::StatisticsBackendData::get_instance()->database_->clear_statistics_data();
+}
+
+void StatisticsBackend::clear_inactive_entities()
+{
+    details::StatisticsBackendData::get_instance()->database_->clear_inactive_entities();
+}
+
 void StatisticsBackend::load_database(
         const std::string& filename)
 {

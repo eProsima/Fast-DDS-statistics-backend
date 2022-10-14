@@ -2718,7 +2718,7 @@ DatabaseDump Database::dump_database(
 
     if (clear)
     {
-        clear_statistics_data();
+        clear_statistics_data_nts_();
     }
 
     return dump;
@@ -3333,6 +3333,12 @@ DatabaseDump Database::dump_data_(
 
 void Database::clear_statistics_data()
 {
+    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
+    clear_statistics_data_nts_();
+}
+
+void Database::clear_statistics_data_nts_()
+{
     // Participants
     for (const auto& super_it : participants_)
     {
@@ -3360,6 +3366,36 @@ void Database::clear_statistics_data()
             it.second->data.clear(false);
         }
     }
+}
+
+void Database::clear_inactive_entities()
+{
+    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
+    clear_inactive_entities_nts_();
+}
+
+void Database::clear_inactive_entities_nts_()
+{
+    // Physical entities
+    clear_inactive_entities_from_map_(hosts_);
+    clear_inactive_entities_from_map_(users_);
+    clear_inactive_entities_from_map_(processes_);
+
+    // DDS entities
+    clear_inactive_entities_from_map_(participants_);
+    clear_inactive_entities_from_map_(datawriters_);
+    clear_inactive_entities_from_map_(datareaders_);
+
+    // Logic entities
+    clear_inactive_entities_from_map_(topics_);
+
+    // Domain and Locators are not affected
+
+    // Remove the entities inactive from associated maps
+    clear_associated_maps_nts_();
+
+    //
+    clear_internal_references_nts_();
 }
 
 /**
@@ -4905,6 +4941,71 @@ void Database::execute_without_lock(
     if (is_locked)
     {
         mutex_.lock();
+    }
+}
+
+void Database::clear_associated_maps_nts_()
+{
+    // TODO: check if this is required or maps could be erased
+}
+
+void Database::clear_internal_references_nts_()
+{
+    // Check parent classes for child that could have left
+    // TODO: check if locators must be also removed
+
+    /////
+    // Physical
+
+    // Processes
+    for (auto& it : processes_)
+    {
+        clear_inactive_entities_from_map_(it.second->participants);
+    }
+
+    // Users
+    for (auto& it : users_)
+    {
+        clear_inactive_entities_from_map_(it.second->processes);
+    }
+
+    // Hosts
+    for (auto& it : hosts_)
+    {
+        clear_inactive_entities_from_map_(it.second->users);
+    }
+
+    /////
+    // DDS
+
+    // Participants
+    for (auto& domain_it : participants_)
+    {
+        for (auto& it : domain_it.second)
+        {
+            clear_inactive_entities_from_map_(it.second->data_readers);
+            clear_inactive_entities_from_map_(it.second->data_writers);
+        }
+    }
+
+    /////
+    // Logic
+
+    // Topics
+    for (auto& domain_it : topics_)
+    {
+        for (auto& it : domain_it.second)
+        {
+            clear_inactive_entities_from_map_(it.second->data_readers);
+            clear_inactive_entities_from_map_(it.second->data_writers);
+        }
+    }
+
+    // Domain
+    for (auto& it : domains_)
+    {
+        clear_inactive_entities_from_map_(it.second->topics);
+        clear_inactive_entities_from_map_(it.second->participants);
     }
 }
 
