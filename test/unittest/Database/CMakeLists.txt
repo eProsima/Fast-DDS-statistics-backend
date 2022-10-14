@@ -426,6 +426,51 @@ foreach(test_name ${DATABASE_DUMP_TEST_LIST})
 endforeach()
 
 ###############################################################################
+# Database Clear tests
+###############################################################################
+
+add_executable(database_clear_tests DatabaseClearTests.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_clear_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(database_clear_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+
+
+target_link_libraries(database_clear_tests PUBLIC
+        ${GTEST_LIBRARIES} fastrtps fastcdr
+    )
+
+get_win32_path_dependencies(database_clear_tests TEST_FRIENDLY_PATH)
+
+set(DATABASE_CLEAR_TEST_LIST
+    clear_inactive_entities_database_simple
+    clear_inactive_entities_database_complex
+)
+
+foreach(test_name ${DATABASE_CLEAR_TEST_LIST})
+    add_test(NAME database.${test_name}
+            COMMAND database_clear_tests
+            --gtest_filter=database.${test_name}:*/database.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+    # Hint where the resource files can be found
+    set_tests_properties(database.${test_name} PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+
+endforeach()
+
+###############################################################################
 # Database: get_entities tests
 ###############################################################################
 
