@@ -116,8 +116,7 @@ jobs:
           cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
           colcon build \
             --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta \
-            --mixin coverage-gcc
+            --metas src/Fast-DDS-statistics-backend/.github/workflows/coverage.meta
 
       - name: Run tests
         run: |

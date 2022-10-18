@@ -122,5 +122,6 @@ if(PYTHONINTERP_FOUND)
     # Set as not ASAN test
     # NOTE: this test runs several processes from python, so ASAN report will not be related with the actual backend.
     set_property(TEST BasicSystemTest APPEND PROPERTY LABELS xasan)
+    set_property(TEST BasicSystemTest APPEND PROPERTY LABELS xfail)
 
 endif()
