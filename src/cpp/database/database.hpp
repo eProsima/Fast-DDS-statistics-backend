@@ -118,8 +118,6 @@ public:
      * This operation entails:
      *     1. Adding reference to process to the participant.
      *     2. Adding the participant to the process' list of participants.
-     *     3. Adding entry to domains_by_process_.
-     *     4. Adding entry to processes_by_domain_.
      *
      * @param participant_id The EntityId of the participant.
      * @param process_id The EntityId of the process.
@@ -584,11 +582,6 @@ protected:
                 throw BadParameter("Locator does not exist in the database");
             }
 
-            // Even if it is not new, it may be new to the participant
-            // Add reader's locators to locators_by_participant_
-            locators_by_participant_[endpoint->participant->id][locator_it.first] = locator_it.second;
-            // Add reader's participant to participants_by_locator_
-            participants_by_locator_[locator_it.first][endpoint->participant->id] = endpoint->participant;
             // Add endpoint to locator's collection
             insert_ddsendpoint_to_locator(endpoint, locator_it.second);
         }
@@ -740,8 +733,6 @@ protected:
      * This operation entails:
      *     1. Referencing the process from the participant.
      *     2. Adding the participant to the process' list of participants.
-     *     3. Adding entry to domains_by_process_.
-     *     4. Adding entry to processes_by_domain_.
      *
      * @param participant_id The EntityId of the participant.
      * @param process_id The EntityId of the process.
@@ -843,19 +834,6 @@ protected:
      * Each value in the collection is in turn a map of the actual Topics sorted by EntityId
      */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
-
-    /* Collections with duplicated information used to speed up searches */
-    //! Domains sorted by process EntityId
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<Domain>>> domains_by_process_;
-
-    //! Processes sorted by domain EntityId
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<Process>>> processes_by_domain_;
-
-    //! DomainParticipants sorted by locator EntityId
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants_by_locator_;
-
-    //! Locators sorted by participant EntityId
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<Locator>>> locators_by_participant_;
 
     /**
      * The ID that will be assigned to the next entity.

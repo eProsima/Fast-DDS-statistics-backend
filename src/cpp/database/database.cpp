@@ -1242,12 +1242,6 @@ void Database::link_participant_with_process_nts(
     auto participant = participant_it->second;
     process_it->second->participants[participant_it->first] = participant;
 
-    /* Add entry to domains_by_process_ */
-    domains_by_process_[process_it->first][domain_id] = participant_it->second->domain;
-
-    /* Add entry to processes_by_domain_ */
-    processes_by_domain_[domain_id][process_it->first] = process_it->second;
-
     // If the participant is active, the process must be active
     if (participant->active)
     {
@@ -1539,24 +1533,9 @@ void Database::erase(
                         EntityKind::PROCESS, domain_id);
             }
         }
-        // Erase locators_by_participant map element
-        locators_by_participant_.erase(participant.second->id);
-        // Erase participants_by_locator_ participant reference
-        for (auto& locator : participants_by_locator_)
-        {
-            locator.second.erase(participant.second->id);
-        }
     }
     // Erase participants map element
     participants_.erase(domain_id);
-
-    // Erase processes_by_domain_ map element
-    processes_by_domain_.erase(domain_id);
-    // Erase domains_by_process_ domain reference
-    for (auto& process : domains_by_process_)
-    {
-        process.second.erase(domain_id);
-    }
 
     // Erase domain map element
     domains_.erase(domain_id);
