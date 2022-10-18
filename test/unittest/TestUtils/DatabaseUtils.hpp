@@ -635,7 +635,7 @@ public:
             for (const auto& it_participant : it_domain.second->participants)
             {
                 // Add process if exist
-                if(it_participant.second->process)
+                if (it_participant.second->process)
                 {
                     internal_map[it_participant.second->process->id] = it_participant.second->process;
                 }
