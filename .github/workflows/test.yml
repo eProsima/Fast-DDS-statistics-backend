@@ -250,14 +250,12 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
-      - name: Install GTest
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-
       - name: Install Python packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch eProsima dependencies
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+        run: |
+          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
 
       - name: Update colcon mixin
         run: |

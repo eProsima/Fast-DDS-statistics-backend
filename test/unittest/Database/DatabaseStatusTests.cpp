@@ -40,8 +40,8 @@ public:
         datareader = db.get_dds_endpoints<DataReader>().begin()->second.begin()->second;
         locator = db.locators().begin()->second;
 
-        // Simulate that the backend is monitorizing the domain
-        // NOTE: This is so F*** dangerous, please do not do it again (1)
+        // Simulate that the backend is motorizing the domain
+        // NOTE: This is dangerous, please do not do it again
         std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
         monitor->id = domain->id;
         details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
@@ -80,13 +80,6 @@ public:
                 datareader->kind,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
-
-
-    // void TearDown()
-    // {
-    //     // NOTE: This is thanks to (1) brilliant idea
-    //     details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
-    // }
 
     std::shared_ptr<Host> host;
     std::shared_ptr<User> user;

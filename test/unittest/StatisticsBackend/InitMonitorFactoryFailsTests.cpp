@@ -149,12 +149,8 @@ public:
         domain_participant_factory_ = DomainParticipantFactory::get_instance();
         // Mock method create_participant to return this participant
         domain_participant_factory_->domain_participant = &domain_participant_;
-
-        // ON_CALL(*domain_participant_factory_, get_default_participant_qos())
-        //         .WillByDefault(ReturnRef(domain_participant_qos_));
-
-        // ON_CALL(*domain_participant_factory_, create_participant(_, _, _, _))
-        //         .WillByDefault(Return(&domain_participant_));
+        // NOTE: as DomainParticipantFactory is a "Fake" class and not a Mock, there is no need for
+        // ON_CALL or EXPECT_CALL for its methods.
 
         ON_CALL(domain_participant_, get_default_subscriber_qos())
                 .WillByDefault(ReturnRef(subscriber_qos_));
@@ -189,18 +185,11 @@ public:
                     .WillByDefault(Return(&data_readers_[topic_type.first]));
         }
 
-        // We usually do not care about these calls
-        // This can be overriden on specific tests if necessary
-        // EXPECT_CALL(*domain_participant_factory_, get_default_participant_qos()).Times(AnyNumber());
-        // EXPECT_CALL(*domain_participant_factory_, load_profiles()).Times(AnyNumber());
-        // EXPECT_CALL(*domain_participant_factory_, delete_participant(_)).Times(AnyNumber());
-
         EXPECT_CALL(domain_participant_, get_default_subscriber_qos()).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, get_default_topic_qos()).Times(AnyNumber());
         EXPECT_CALL(subscriber_, get_default_datareader_qos()).Times(AnyNumber());
 
         // The default expectations
-        // EXPECT_CALL(*domain_participant_factory_, create_participant(_, _, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_topic(_, _, _, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, create_topic(_, _, _, _)).Times(AnyNumber());

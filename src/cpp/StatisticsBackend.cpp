@@ -54,6 +54,7 @@
 #include "StatisticsBackendData.hpp"
 #include "detail/data_getters.hpp"
 #include "detail/data_aggregation.hpp"
+#include "detail/ScopeExit.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -187,20 +188,15 @@ EntityId create_and_register_monitor(
     // What should happen is that all this logic is moved to StatisticsBackendData. You know, some day...
 
     details::StatisticsBackendData::get_instance()->lock();
+    MAKE_UNNAMED_SCOPE_EXIT(details::StatisticsBackendData::get_instance()->unlock());
 
     // Create monitor instance.
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
 
-    try
-    {
-        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
-    }
-    catch (const std::exception&)
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw;
-    }
+    // Throw exception in fail case
+    domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+
     // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
     // Participant. There must exist a way in database to delete a domain, or to make a rollback.
 
@@ -209,14 +205,19 @@ EntityId create_and_register_monitor(
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
     details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+    auto se_erase_monitor_database_ =
+        MAKE_SCOPE_EXIT(details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id));
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
         details::StatisticsBackendData::get_instance()->database_.get(),
         details::StatisticsBackendData::get_instance()->entity_queue_,
         details::StatisticsBackendData::get_instance()->data_queue_);
+    auto se_participant_listener_ = MAKE_SCOPE_EXIT(delete monitor->participant_listener);
+
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         details::StatisticsBackendData::get_instance()->data_queue_);
+    auto se_reader_listener_ = MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */
     StatusMask participant_mask = StatusMask::all();
@@ -229,14 +230,9 @@ EntityId create_and_register_monitor(
 
     if (monitor->participant == nullptr)
     {
-        // Remove those elements that have been set
-        delete monitor->reader_listener;
-        delete monitor->participant_listener;
-        details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
-
-        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create participant");
     }
+    auto se_participant_ = MAKE_SCOPE_EXIT(DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
@@ -246,15 +242,29 @@ EntityId create_and_register_monitor(
 
     if (monitor->subscriber == nullptr)
     {
-        // Remove those elements that have been set
-        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-        delete monitor->reader_listener;
-        delete monitor->participant_listener;
-        details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
-
-        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create subscriber");
     }
+    auto se_subscriber_ = MAKE_SCOPE_EXIT(monitor->participant->delete_subscriber(monitor->subscriber));
+
+    auto se_topics_datareaders_ =
+        MAKE_SCOPE_EXIT(
+            {
+                for (auto& it : monitor->readers)
+                {
+                    if (nullptr != it.second)
+                    {
+                        monitor->subscriber->delete_datareader(it.second);
+                    }
+                }
+                for (auto& it : monitor->topics)
+                {
+                    if (nullptr != it.second)
+                    {
+                        monitor->participant->delete_topic(it.second);
+                    }
+                }
+            }
+        );
 
     for (const auto& topic : topics)
     {
@@ -265,28 +275,6 @@ EntityId create_and_register_monitor(
         }
         catch (const std::exception& e)
         {
-            // Remove those elements that have been set
-            for (auto& it : monitor->readers)
-            {
-                if (nullptr != it.second)
-                {
-                    monitor->subscriber->delete_datareader(it.second);
-                }
-            }
-            for (auto& it : monitor->topics)
-            {
-                if (nullptr != it.second)
-                {
-                    monitor->participant->delete_topic(it.second);
-                }
-            }
-            monitor->participant->delete_subscriber(monitor->subscriber);
-            DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-            delete monitor->reader_listener;
-            delete monitor->participant_listener;
-            details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
-
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error registering topic " + std::string(topic) + " : " + e.what());
         }
 
@@ -299,33 +287,17 @@ EntityId create_and_register_monitor(
 
         if (monitor->readers[topic] == nullptr)
         {
-            // Remove those elements that have been set
-            for (auto& it : monitor->readers)
-            {
-                if (nullptr != it.second)
-                {
-                    monitor->subscriber->delete_datareader(it.second);
-                }
-            }
-            for (auto& it : monitor->topics)
-            {
-                if (nullptr != it.second)
-                {
-                    monitor->participant->delete_topic(it.second);
-                }
-            }
-            monitor->participant->delete_subscriber(monitor->subscriber);
-            DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-            delete monitor->reader_listener;
-            delete monitor->participant_listener;
-            details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id);
-
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
     }
 
-    details::StatisticsBackendData::get_instance()->unlock();
+    se_erase_monitor_database_.cancel();
+    se_participant_listener_.cancel();
+    se_reader_listener_.cancel();
+    se_participant_.cancel();
+    se_subscriber_.cancel();
+    se_topics_datareaders_.cancel();
+
     return domain->id;
 }
 

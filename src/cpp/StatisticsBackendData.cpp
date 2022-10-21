@@ -16,6 +16,7 @@
  * @file StatisticsBackendData.cpp
  */
 
+#include "StatisticsBackendData.hpp"
 
 #include <map>
 #include <string>
@@ -30,8 +31,6 @@
 
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
-
-#include "StatisticsBackendData.hpp"
 
 #include "Monitor.hpp"
 #include <database/database_queue.hpp>
@@ -52,10 +51,7 @@ StatisticsBackendData::StatisticsBackendData()
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
-    // Set in DomainParticipantFactory that entities are created disabled
-    eprosima::fastdds::dds::DomainParticipantFactoryQos qos;
-    participant_factory_instance_->get_qos(qos);
-    qos.entity_factory().autoenable_created_entities = false;
+    // Do nothing
 }
 
 StatisticsBackendData::~StatisticsBackendData()
