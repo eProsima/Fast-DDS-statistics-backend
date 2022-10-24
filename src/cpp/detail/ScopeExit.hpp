@@ -39,21 +39,28 @@ template<typename CallableT>
 class ScopeExit final
 {
 public:
-    explicit ScopeExit(CallableT && callable)
+
+    explicit ScopeExit(
+            CallableT&& callable)
         : callable_(std::forward<CallableT>(callable))
     {
     }
 
-    ScopeExit(const ScopeExit &) = delete;
-    ScopeExit(ScopeExit &&) = default;
+    ScopeExit(
+            const ScopeExit&) = delete;
+    ScopeExit(
+            ScopeExit&&) = default;
 
-    ScopeExit & operator=(const ScopeExit &) = delete;
-    ScopeExit & operator=(ScopeExit &&) = default;
+    ScopeExit& operator =(
+            const ScopeExit&) = delete;
+    ScopeExit& operator =(
+            ScopeExit&&) = default;
 
     ~ScopeExit()
     {
-        if (!cancelled_) {
-        callable_();
+        if (!cancelled_)
+        {
+            callable_();
         }
     }
 
@@ -63,13 +70,15 @@ public:
     }
 
 private:
+
     CallableT callable_;
     bool cancelled_{false};
 };
 
 template<typename CallableT>
 ScopeExit<CallableT>
-make_scope_exit(CallableT && callable)
+make_scope_exit(
+        CallableT&& callable)
 {
     return ScopeExit<CallableT>(std::forward<CallableT>(callable));
 }
@@ -78,11 +87,7 @@ make_scope_exit(CallableT && callable)
 }  // namespace statistics_backend
 }  // namespace eprosima
 
-#define MAKE_SCOPE_EXIT(code) \
-  eprosima::statistics_backend::details::make_scope_exit([&]() {code;})
-
-#define JOIN_IMPL(arg1, arg2) arg1 ## arg2
-#define MAKE_UNNAMED_SCOPE_EXIT(code) \
-  auto JOIN_IMPL(scope_exit_, __LINE__) = eprosima::statistics_backend::details::make_scope_exit([&]() {code;})
+#define EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(code) \
+    eprosima::statistics_backend::details::make_scope_exit([&]() {code;})
 
 #endif  // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_SCOPE_EXIT_HPP_

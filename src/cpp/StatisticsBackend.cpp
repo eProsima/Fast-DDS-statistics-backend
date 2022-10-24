@@ -59,6 +59,7 @@
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
+using namespace eprosima::statistics_backend::details;
 
 namespace eprosima {
 namespace statistics_backend {
@@ -187,15 +188,15 @@ EntityId create_and_register_monitor(
     // calls from one to another.
     // What should happen is that all this logic is moved to StatisticsBackendData. You know, some day...
 
-    details::StatisticsBackendData::get_instance()->lock();
-    MAKE_UNNAMED_SCOPE_EXIT(details::StatisticsBackendData::get_instance()->unlock());
+    auto& backend_data = StatisticsBackendData::get_instance();
+    std::lock_guard<details::StatisticsBackendData> guard(*backend_data);
 
     // Create monitor instance.
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
 
     // Throw exception in fail case
-    domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
+    domain->id = backend_data->database_->insert(domain);
 
     // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
     // Participant. There must exist a way in database to delete a domain, or to make a rollback.
@@ -204,20 +205,20 @@ EntityId create_and_register_monitor(
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+    backend_data->monitors_by_entity_[domain->id] = monitor;
     auto se_erase_monitor_database_ =
-        MAKE_SCOPE_EXIT(details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(domain->id));
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
-        details::StatisticsBackendData::get_instance()->database_.get(),
-        details::StatisticsBackendData::get_instance()->entity_queue_,
-        details::StatisticsBackendData::get_instance()->data_queue_);
-    auto se_participant_listener_ = MAKE_SCOPE_EXIT(delete monitor->participant_listener);
+        backend_data->database_.get(),
+        backend_data->entity_queue_,
+        backend_data->data_queue_);
+    auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
-        details::StatisticsBackendData::get_instance()->data_queue_);
-    auto se_reader_listener_ = MAKE_SCOPE_EXIT(delete monitor->reader_listener);
+        backend_data->data_queue_);
+    auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */
     StatusMask participant_mask = StatusMask::all();
@@ -232,7 +233,9 @@ EntityId create_and_register_monitor(
     {
         throw Error("Error initializing monitor. Could not create participant");
     }
-    auto se_participant_ = MAKE_SCOPE_EXIT(DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
+    auto se_participant_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
@@ -244,10 +247,11 @@ EntityId create_and_register_monitor(
     {
         throw Error("Error initializing monitor. Could not create subscriber");
     }
-    auto se_subscriber_ = MAKE_SCOPE_EXIT(monitor->participant->delete_subscriber(monitor->subscriber));
+    auto se_subscriber_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(monitor->participant->delete_subscriber(monitor->subscriber));
 
     auto se_topics_datareaders_ =
-        MAKE_SCOPE_EXIT(
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
             {
                 for (auto& it : monitor->readers)
                 {
@@ -306,11 +310,11 @@ void StatisticsBackend::set_physical_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    details::StatisticsBackendData::get_instance()->lock();
-    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
-    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
-    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
-    details::StatisticsBackendData::get_instance()->unlock();
+    StatisticsBackendData::get_instance()->lock();
+    StatisticsBackendData::get_instance()->physical_listener_ = listener;
+    StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
+    StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
+    StatisticsBackendData::get_instance()->unlock();
 }
 
 void StatisticsBackend::set_domain_listener(
@@ -319,7 +323,7 @@ void StatisticsBackend::set_domain_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    auto statistics_backend_data = details::StatisticsBackendData::get_instance();
+    auto& statistics_backend_data = StatisticsBackendData::get_instance();
     auto monitor = statistics_backend_data->monitors_by_entity_.find(monitor_id);
     if (monitor == statistics_backend_data->monitors_by_entity_.end())
     {
@@ -371,7 +375,7 @@ EntityId StatisticsBackend::init_monitor(
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
-    details::StatisticsBackendData::get_instance()->stop_monitor(monitor_id);
+    StatisticsBackendData::get_instance()->stop_monitor(monitor_id);
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -464,25 +468,25 @@ std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
 }
 
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
+    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
 }
 
 bool StatisticsBackend::is_metatraffic(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
 }
 
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
 Info StatisticsBackend::get_info(
@@ -491,7 +495,7 @@ Info StatisticsBackend::get_info(
     Info info = Info::object();
 
     std::shared_ptr<const database::Entity> entity =
-            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
 
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
@@ -629,7 +633,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
     // Validate entity_ids_source. Note that the only case with more than one pair always has the same source kind.
     EntityKind source_kind = allowed_kinds[0].first;
-    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    database::Database* db = StatisticsBackendData::get_instance()->database_.get();
     check_entity_kinds(source_kind, entity_ids_source, db, "Wrong entity id passed in entity_ids_source");
 
     // Validate entity_ids_target.
@@ -710,7 +714,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
     // Validate entity_ids
     EntityKind allowed_kind = allowed_kinds[0].first;
-    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    database::Database* db = StatisticsBackendData::get_instance()->database_.get();
     check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
@@ -784,7 +788,7 @@ Graph StatisticsBackend::get_graph()
 DatabaseDump StatisticsBackend::dump_database(
         const bool clear)
 {
-    return details::StatisticsBackendData::get_instance()->database_->dump_database(clear);
+    return StatisticsBackendData::get_instance()->database_->dump_database(clear);
 }
 
 void StatisticsBackend::dump_database(
@@ -816,23 +820,23 @@ void StatisticsBackend::load_database(
     DatabaseDump dump;
     file >> dump;
 
-    details::StatisticsBackendData::get_instance()->database_->load_database(dump);
+    StatisticsBackendData::get_instance()->database_->load_database(dump);
 }
 
 void StatisticsBackend::reset()
 {
-    if (!details::StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
+    if (!StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
     {
         std::stringstream message;
         message << "The following monitors are still active: [ ";
-        for (const auto& monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+        for (const auto& monitor : StatisticsBackendData::get_instance()->monitors_by_entity_)
         {
             message << monitor.first << " ";
         }
         message << "]";
         throw PreconditionNotMet(message.str());
     }
-    details::StatisticsBackendData::get_instance()->reset_instance();
+    StatisticsBackendData::get_instance()->reset_instance();
 }
 
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(
@@ -909,7 +913,7 @@ void StatisticsBackend::set_alias(
         const std::string& alias)
 {
     std::shared_ptr<const database::Entity> const_entity =
-            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
     std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
     entity->alias = alias;
 }

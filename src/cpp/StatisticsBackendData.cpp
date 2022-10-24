@@ -78,16 +78,19 @@ StatisticsBackendData::~StatisticsBackendData()
     delete data_queue_;
 }
 
-StatisticsBackendData* StatisticsBackendData::get_instance()
+const SingletonType& StatisticsBackendData::get_instance()
 {
     if (!instance_)
     {
         instance_ =
-            SingletonType(
-                new StatisticsBackendData(),
-                [](StatisticsBackendData* s){delete s;});
+                SingletonType(
+            new StatisticsBackendData(),
+            [](StatisticsBackendData* s)
+            {
+                delete s;
+            });
     }
-    return instance_.get();
+    return instance_;
 }
 
 void StatisticsBackendData::reset_instance()

@@ -59,7 +59,7 @@ class StatisticsBackendData;
  * @note This is only an alias to improve readability.
  * @note It uses a custom deleter so destructor can be protected.
  */
-using SingletonType = std::unique_ptr<StatisticsBackendData, std::function<void(StatisticsBackendData*)>>;
+using SingletonType = std::unique_ptr<StatisticsBackendData, std::function<void (StatisticsBackendData*)>>;
 
 /**
  * @brief Structure holding all the detailed state of the backend.
@@ -76,6 +76,7 @@ public:
     // NOTE: this variables are supposed to be protected. But the current design of the project
     // and the lack of time forces to have them here so tests can access them.
     // TODO: make them private
+    // TODO: convert this data struct to a proper singleton class
 
     //! Reference to the Database
     std::unique_ptr<database::Database> database_;
@@ -124,7 +125,7 @@ public:
      *
      * @return Raw pointer to the singleton instance
      */
-    static StatisticsBackendData* get_instance();
+    static const SingletonType& get_instance();
 
     /**
      * @brief Resets the instance of the singleton

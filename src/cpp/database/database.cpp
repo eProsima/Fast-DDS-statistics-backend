@@ -1975,16 +1975,16 @@ std::vector<const StatisticsSample*> Database::select(
 }
 
 bool Database::is_entity_present(
-        const EntityId& entity_id,
-        const EntityKind& /* = EntityKind::INVALID */) const noexcept
+        const EntityId& entity_id) const noexcept
 {
+    // TODO: once the method get_entity allow calling it with an EntityKind, change this to allow it too.
     try
     {
         // Use get_entity search
         auto result = get_entity(entity_id);
         return result.operator bool();
     }
-    catch(const BadParameter&)
+    catch (const BadParameter&)
     {
         return false;
     }

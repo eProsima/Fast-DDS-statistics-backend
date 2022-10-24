@@ -224,8 +224,7 @@ public:
      * @todo implement fast search in get_entity
      */
     bool is_entity_present(
-            const EntityId& entity_id,
-            const EntityKind& entity_kind = EntityKind::INVALID) const noexcept;
+            const EntityId& entity_id) const noexcept;
 
     /**
      * Get an entity given its EntityId
