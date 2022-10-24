@@ -19,9 +19,13 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATA_HPP_
 
+#include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
+
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
@@ -44,13 +48,35 @@ class DatabaseDataQueue;
 
 namespace details {
 
+// Forward declaration
+class StatisticsBackendData;
+
+/**
+ * @brief Data type for the Singleton instance.
+ *
+ * It uses a unique_ptr so it is removed when the process finishes.
+ *
+ * @note This is only an alias to improve readability.
+ * @note It uses a custom deleter so destructor can be protected.
+ */
+using SingletonType = std::unique_ptr<StatisticsBackendData, std::function<void (StatisticsBackendData*)>>;
 
 /**
  * @brief Structure holding all the detailed state of the backend.
+ *
+ * @todo Methods implemented in StatisticsBackend.cpp must be implemented in this class
+ * for performance, singleton manage and good programming sake.
  */
 class StatisticsBackendData
 {
 public:
+
+    //////////////////////////////
+    // SEMI PROTECTED VARIABLES
+    // NOTE: this variables are supposed to be protected. But the current design of the project
+    // and the lack of time forces to have them here so tests can access them.
+    // TODO: make them protected
+    // TODO: convert this data struct to a proper singleton class
 
     //! Reference to the Database
     std::unique_ptr<database::Database> database_;
@@ -91,17 +117,23 @@ public:
     //! Synchronization lock
     std::unique_lock<std::mutex> lock_;
 
+    //////////////////////////////
+    // SINGLETON METHODS
+
     /**
      * @brief Get the singleton instance object
      *
      * @return Raw pointer to the singleton instance
      */
-    static StatisticsBackendData* get_instance();
+    static const SingletonType& get_instance();
 
     /**
      * @brief Resets the instance of the singleton
      *
      * This method exists for internal debugging / testing purposes.
+     *
+     * @warning this method is very dangerous to have in a singleton.
+     * @todo refactor this singleton to separate singleton handler and implementation, and so remove this problem.
      */
     static void reset_instance();
 
@@ -114,6 +146,10 @@ public:
      * @brief Unlocks the instance
      */
     void unlock();
+
+
+    //////////////////////////////
+    // LISTENER METHODS
 
     /**
      * @brief Specifies the reason of calling the entity discovery methods
@@ -165,6 +201,22 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             DataKind data_kind);
+
+
+    //////////////////////////////
+    // STATISTICS BACKEND METHODS
+
+    /**
+     * @brief Stops a given monitor.
+     *
+     * This function stops a domain monitor.
+     * After stopping, the statistical data related to the domain is still accessible.
+     *
+     * @param monitor_id The entity ID of the monitor to stop.
+     * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered.
+     */
+    void stop_monitor(
+            EntityId monitor_id);
 
 protected:
 
@@ -228,7 +280,23 @@ protected:
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
 
-    static StatisticsBackendData* instance_;
+    /**
+     * @brief Reference to the instance of the Singleton.
+     *
+     * It is initialized first time \c get_instance is called.
+     * It is removed at the end of the process thanks to be a smart ptr.
+     * It could be reset in \c reset_instance call.
+     */
+    static SingletonType instance_;
+
+    /**
+     * @brief Shared ptr to Fast DDS Participant Factory.
+     *
+     * This is required because both classes are singleton, and DomainParticipantFactory must be destroyed
+     * after this one.
+     */
+    std::shared_ptr<eprosima::fastdds::dds::DomainParticipantFactory> participant_factory_instance_;
+
 };
 
 } // namespace details

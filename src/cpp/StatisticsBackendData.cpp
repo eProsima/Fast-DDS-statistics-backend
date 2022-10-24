@@ -16,13 +16,21 @@
  * @file StatisticsBackendData.cpp
  */
 
+#include "StatisticsBackendData.hpp"
 
 #include <map>
 #include <string>
 
-#include "StatisticsBackendData.hpp"
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/Topic.hpp>
 
-#include "StatisticsBackend.hpp"
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
+#include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
 
 #include "Monitor.hpp"
 #include <database/database_queue.hpp>
@@ -32,7 +40,8 @@ namespace eprosima {
 namespace statistics_backend {
 namespace details {
 
-StatisticsBackendData* StatisticsBackendData::instance_ = nullptr;
+// Declare singleton instance as default (nullptr)
+SingletonType StatisticsBackendData::instance_;
 
 StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
@@ -40,7 +49,9 @@ StatisticsBackendData::StatisticsBackendData()
     , data_queue_(new database::DatabaseDataQueue(database_.get()))
     , physical_listener_(nullptr)
     , lock_(mutex_, std::defer_lock)
+    , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
+    // Do nothing
 }
 
 StatisticsBackendData::~StatisticsBackendData()
@@ -51,7 +62,7 @@ StatisticsBackendData::~StatisticsBackendData()
         // Beware that stop_monitor removes the monitor from monitors_by_entity_
         // so we cannot use iterators here
         auto monitor = monitors_by_entity_.begin()->second;
-        StatisticsBackend::stop_monitor(monitor->id);
+        stop_monitor(monitor->id);
     }
 
     if (entity_queue_)
@@ -67,23 +78,24 @@ StatisticsBackendData::~StatisticsBackendData()
     delete data_queue_;
 }
 
-StatisticsBackendData* StatisticsBackendData::get_instance()
+const SingletonType& StatisticsBackendData::get_instance()
 {
-    if (nullptr == instance_)
+    if (!instance_)
     {
-        instance_ = new StatisticsBackendData();
+        instance_ =
+                SingletonType(
+            new StatisticsBackendData(),
+            [](StatisticsBackendData* s)
+            {
+                delete s;
+            });
     }
     return instance_;
 }
 
 void StatisticsBackendData::reset_instance()
 {
-    if (nullptr != instance_)
-    {
-        delete instance_;
-    }
-
-    instance_ = new StatisticsBackendData();
+    instance_.reset(new StatisticsBackendData());
 }
 
 void StatisticsBackendData::lock()
@@ -336,6 +348,63 @@ void StatisticsBackendData::on_physical_entity_discovery(
             assert(false && "Invalid physical entity kind");
         }
     }
+}
+
+void StatisticsBackendData::stop_monitor(
+        EntityId monitor_id)
+{
+    lock();
+
+    //Find the monitor
+    auto it = monitors_by_entity_.find(monitor_id);
+    if (it == monitors_by_entity_.end())
+    {
+        unlock();
+        throw BadParameter("No monitor with such ID");
+    }
+    auto monitor = it->second;
+    monitors_by_entity_.erase(it);
+
+    // Delete everything created during monitor initialization
+    // These values are not always set, as could come from an error creating Monitor, or for test sake.
+    if (monitor->participant)
+    {
+        if (monitor->subscriber)
+        {
+            for (auto& reader : monitor->readers)
+            {
+                monitor->subscriber->delete_datareader(reader.second);
+            }
+
+            monitor->participant->delete_subscriber(monitor->subscriber);
+        }
+
+        for (auto& topic : monitor->topics)
+        {
+            monitor->participant->delete_topic(topic.second);
+        }
+
+        fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    }
+
+    if (monitor->reader_listener)
+    {
+        delete monitor->reader_listener;
+    }
+
+    if (monitor->participant_listener)
+    {
+        delete monitor->participant_listener;
+    }
+
+    // The monitor is inactive
+    // NOTE: for test sake, this is not always set
+    if (database_->is_entity_present(monitor_id))
+    {
+        database_->change_entity_status(monitor_id, false);
+    }
+
+    unlock();
 }
 
 } // namespace details

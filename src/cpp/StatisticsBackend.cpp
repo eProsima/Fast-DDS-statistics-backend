@@ -54,10 +54,12 @@
 #include "StatisticsBackendData.hpp"
 #include "detail/data_getters.hpp"
 #include "detail/data_aggregation.hpp"
+#include "detail/ScopeExit.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
+using namespace eprosima::statistics_backend::details;
 
 namespace eprosima {
 namespace statistics_backend {
@@ -95,7 +97,6 @@ void find_or_create_topic_and_type(
     {
         if (topic_desc->get_type_name() != type->getName())
         {
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is not using expected type " + type->getName() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
@@ -107,7 +108,6 @@ void find_or_create_topic_and_type(
         catch (const std::bad_cast& e)
         {
             // TODO[ILG]: Could we support other TopicDescription types in this context?
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
         }
 
@@ -117,7 +117,6 @@ void find_or_create_topic_and_type(
         if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
         {
             // Name already in use
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
         monitor->topics[topic_name] =
@@ -182,34 +181,44 @@ EntityId create_and_register_monitor(
         const DomainParticipantQos& participant_qos,
         const DomainId domain_id = 0)
 {
-    details::StatisticsBackendData::get_instance()->lock();
+    // NOTE: This method is quite awful to read because of the error handle of every entity
+    // This could be done much nicer encapsulating this in Monitor creation in destruction, but you know...
+    // Why do not call stop_monitor in error case?, youll ask. Well, mutexes are treated rarely here, as this static
+    // class locks and unlocks StatisticsBackendData mutex, what makes very difficult to do some coherent
+    // calls from one to another.
+    // What should happen is that all this logic is moved to StatisticsBackendData. You know, some day...
 
-    /* Create monitor instance and register it in the database */
+    auto& backend_data = StatisticsBackendData::get_instance();
+    std::lock_guard<details::StatisticsBackendData> guard(*backend_data);
+
+    // Create monitor instance.
     std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
-    try
-    {
-        domain->id = details::StatisticsBackendData::get_instance()->database_->insert(domain);
-    }
-    catch (const std::exception&)
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw;
-    }
+
+    // Throw exception in fail case
+    domain->id = backend_data->database_->insert(domain);
+
+    // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
+    // Participant. There must exist a way in database to delete a domain, or to make a rollback.
 
     monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+    backend_data->monitors_by_entity_[domain->id] = monitor;
+    auto se_erase_monitor_database_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
-        details::StatisticsBackendData::get_instance()->database_.get(),
-        details::StatisticsBackendData::get_instance()->entity_queue_,
-        details::StatisticsBackendData::get_instance()->data_queue_);
+        backend_data->database_.get(),
+        backend_data->entity_queue_,
+        backend_data->data_queue_);
+    auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
+
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
-        details::StatisticsBackendData::get_instance()->data_queue_);
+        backend_data->data_queue_);
+    auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */
     StatusMask participant_mask = StatusMask::all();
@@ -222,9 +231,11 @@ EntityId create_and_register_monitor(
 
     if (monitor->participant == nullptr)
     {
-        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create participant");
     }
+    auto se_participant_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
@@ -234,19 +245,41 @@ EntityId create_and_register_monitor(
 
     if (monitor->subscriber == nullptr)
     {
-        details::StatisticsBackendData::get_instance()->unlock();
         throw Error("Error initializing monitor. Could not create subscriber");
     }
+    auto se_subscriber_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(monitor->participant->delete_subscriber(monitor->subscriber));
+
+    auto se_topics_datareaders_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+            {
+                for (auto& it : monitor->readers)
+                {
+                    if (nullptr != it.second)
+                    {
+                        monitor->subscriber->delete_datareader(it.second);
+                    }
+                }
+                for (auto& it : monitor->topics)
+                {
+                    if (nullptr != it.second)
+                    {
+                        monitor->participant->delete_topic(it.second);
+                    }
+                }
+            }
+        );
 
     for (const auto& topic : topics)
     {
         /* Register the type and topic*/
-        register_statistics_type_and_topic(monitor, topic);
-
-        if (monitor->topics[topic] == nullptr)
+        try
         {
-            details::StatisticsBackendData::get_instance()->unlock();
-            throw Error("Error initializing monitor. Could not create topic " + std::string(topic));
+            register_statistics_type_and_topic(monitor, topic);
+        }
+        catch (const std::exception& e)
+        {
+            throw Error("Error registering topic " + std::string(topic) + " : " + e.what());
         }
 
         /* Create DataReaders */
@@ -258,12 +291,17 @@ EntityId create_and_register_monitor(
 
         if (monitor->readers[topic] == nullptr)
         {
-            details::StatisticsBackendData::get_instance()->unlock();
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
     }
 
-    details::StatisticsBackendData::get_instance()->unlock();
+    se_erase_monitor_database_.cancel();
+    se_participant_listener_.cancel();
+    se_reader_listener_.cancel();
+    se_participant_.cancel();
+    se_subscriber_.cancel();
+    se_topics_datareaders_.cancel();
+
     return domain->id;
 }
 
@@ -272,11 +310,12 @@ void StatisticsBackend::set_physical_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    details::StatisticsBackendData::get_instance()->lock();
-    details::StatisticsBackendData::get_instance()->physical_listener_ = listener;
-    details::StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
-    details::StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
-    details::StatisticsBackendData::get_instance()->unlock();
+    auto& backend_data = StatisticsBackendData::get_instance();
+    std::lock_guard<StatisticsBackendData> guard(*backend_data);
+
+    backend_data->physical_listener_ = listener;
+    backend_data->physical_callback_mask_ = callback_mask;
+    backend_data->physical_data_mask_ = data_mask;
 }
 
 void StatisticsBackend::set_domain_listener(
@@ -285,8 +324,9 @@ void StatisticsBackend::set_domain_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    auto monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-    if (monitor == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
+    auto& statistics_backend_data = StatisticsBackendData::get_instance();
+    auto monitor = statistics_backend_data->monitors_by_entity_.find(monitor_id);
+    if (monitor == statistics_backend_data->monitors_by_entity_.end())
     {
         throw BadParameter("There is no monitor with the given ID");
     }
@@ -336,40 +376,7 @@ EntityId StatisticsBackend::init_monitor(
 void StatisticsBackend::stop_monitor(
         EntityId monitor_id)
 {
-    details::StatisticsBackendData::get_instance()->lock();
-
-    //Find the monitor
-    auto it = details::StatisticsBackendData::get_instance()->monitors_by_entity_.find(monitor_id);
-    if (it == details::StatisticsBackendData::get_instance()->monitors_by_entity_.end())
-    {
-        details::StatisticsBackendData::get_instance()->unlock();
-        throw BadParameter("No monitor with such ID");
-    }
-    auto monitor = it->second;
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_.erase(it);
-
-    // Delete everything created during monitor initialization
-    for (const auto& reader : monitor->readers)
-    {
-        monitor->subscriber->delete_datareader(reader.second);
-    }
-    monitor->readers.clear();
-
-    for (const auto& topic : monitor->topics)
-    {
-        monitor->participant->delete_topic(topic.second);
-    }
-    monitor->topics.clear();
-
-    monitor->participant->delete_subscriber(monitor->subscriber);
-    DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
-    delete monitor->reader_listener;
-    delete monitor->participant_listener;
-
-    // The monitor is inactive
-    details::StatisticsBackendData::get_instance()->database_->change_entity_status(monitor_id, false);
-
-    details::StatisticsBackendData::get_instance()->unlock();
+    StatisticsBackendData::get_instance()->stop_monitor(monitor_id);
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -462,25 +469,25 @@ std::vector<EntityId> StatisticsBackend::get_entities(
         EntityKind entity_type,
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
 }
 
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
+    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
 }
 
 bool StatisticsBackend::is_metatraffic(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
 }
 
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {
-    return details::StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
 Info StatisticsBackend::get_info(
@@ -489,7 +496,7 @@ Info StatisticsBackend::get_info(
     Info info = Info::object();
 
     std::shared_ptr<const database::Entity> entity =
-            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
 
     info[ID_INFO_TAG] = entity_id.value();
     info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
@@ -627,7 +634,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
     // Validate entity_ids_source. Note that the only case with more than one pair always has the same source kind.
     EntityKind source_kind = allowed_kinds[0].first;
-    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    database::Database* db = StatisticsBackendData::get_instance()->database_.get();
     check_entity_kinds(source_kind, entity_ids_source, db, "Wrong entity id passed in entity_ids_source");
 
     // Validate entity_ids_target.
@@ -708,7 +715,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
     // Validate entity_ids
     EntityKind allowed_kind = allowed_kinds[0].first;
-    database::Database* db = details::StatisticsBackendData::get_instance()->database_.get();
+    database::Database* db = StatisticsBackendData::get_instance()->database_.get();
     check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
@@ -782,7 +789,7 @@ Graph StatisticsBackend::get_graph()
 DatabaseDump StatisticsBackend::dump_database(
         const bool clear)
 {
-    return details::StatisticsBackendData::get_instance()->database_->dump_database(clear);
+    return StatisticsBackendData::get_instance()->database_->dump_database(clear);
 }
 
 void StatisticsBackend::dump_database(
@@ -814,23 +821,23 @@ void StatisticsBackend::load_database(
     DatabaseDump dump;
     file >> dump;
 
-    details::StatisticsBackendData::get_instance()->database_->load_database(dump);
+    StatisticsBackendData::get_instance()->database_->load_database(dump);
 }
 
 void StatisticsBackend::reset()
 {
-    if (!details::StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
+    if (!StatisticsBackendData::get_instance()->monitors_by_entity_.empty())
     {
         std::stringstream message;
         message << "The following monitors are still active: [ ";
-        for (const auto& monitor : details::StatisticsBackendData::get_instance()->monitors_by_entity_)
+        for (const auto& monitor : StatisticsBackendData::get_instance()->monitors_by_entity_)
         {
             message << monitor.first << " ";
         }
         message << "]";
         throw PreconditionNotMet(message.str());
     }
-    details::StatisticsBackendData::get_instance()->reset_instance();
+    StatisticsBackendData::get_instance()->reset_instance();
 }
 
 std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_supported_entity_kinds(
@@ -907,7 +914,7 @@ void StatisticsBackend::set_alias(
         const std::string& alias)
 {
     std::shared_ptr<const database::Entity> const_entity =
-            details::StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
+            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
     std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
     entity->alias = alias;
 }

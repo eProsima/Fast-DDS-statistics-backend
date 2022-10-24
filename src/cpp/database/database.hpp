@@ -211,6 +211,21 @@ public:
             Timestamp t_to);
 
     /**
+     * @brief Whether an entity id is present/exists in the database.
+     *
+     * \c entity_kind is accelerates the search, but it is not mandatory.
+     *
+     * @param entity_id ID of the Entity to look for.
+     *
+     * @return true if exists an entity with such id
+     * @return false otherwise
+     *
+     * @todo implement fast search in get_entity
+     */
+    bool is_entity_present(
+            const EntityId& entity_id) const noexcept;
+
+    /**
      * Get an entity given its EntityId
      *
      * @param entity_id constant reference to the EntityId of the retrieved entity.

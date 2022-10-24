@@ -51,50 +51,49 @@ namespace details {
 struct Monitor
 {
     //! The EntityId of the monitored domain
-    EntityId id;
+    EntityId id{};
 
     //! The user listener for this monitor
-    DomainListener* domain_listener;
+    DomainListener* domain_listener = nullptr;
 
     //! The callback mask applied to the \c domain_listener
-    CallbackMask domain_callback_mask;
+    CallbackMask domain_callback_mask{};
 
     //! The data mask applied to the \c domain_listener->on_data_available
-    DataKindMask data_mask;
+    DataKindMask data_mask{};
 
     //! The participant created to communicate with the statistics reporting endpoints in this monitor
-    fastdds::dds::DomainParticipant* participant;
+    fastdds::dds::DomainParticipant* participant = nullptr;
 
     //! The listener linked to the \c participant
     //! It will process the entity discoveries
-    fastdds::dds::DomainParticipantListener* participant_listener;
-
+    fastdds::dds::DomainParticipantListener* participant_listener = nullptr;
 
     //! The participant created to communicate with the statistics reporting publishers in this monitor
-    fastdds::dds::Subscriber* subscriber;
+    fastdds::dds::Subscriber* subscriber = nullptr;
 
     //! Holds the topic object created for each of the statistics topics
-    std::map<std::string, fastdds::dds::Topic*> topics;
+    std::map<std::string, fastdds::dds::Topic*> topics{};
 
     //! Holds the datareader object created for each of the statistics topics
-    std::map<std::string, fastdds::dds::DataReader*> readers;
+    std::map<std::string, fastdds::dds::DataReader*> readers{};
 
     //! The listener linked to the \c readers
     //! All readers will use the same listener
     //! The listener will decide how to process the data according to the topic of the reader
-    fastdds::dds::DataReaderListener* reader_listener;
+    fastdds::dds::DataReaderListener* reader_listener = nullptr;
 
     //! Participant discovery status. Used in the participant discovery user callback
-    DomainListener::Status participant_status_;
+    DomainListener::Status participant_status_{};
 
     //! Topic discovery status. Used in the topic discovery user callback
-    DomainListener::Status topic_status_;
+    DomainListener::Status topic_status_{};
 
     //! Datareader discovery status. Used in the datareader discovery user callback
-    DomainListener::Status datareader_status_;
+    DomainListener::Status datareader_status_{};
 
     //! DataWriter discovery status. Used in the datawriter discovery user callback
-    DomainListener::Status datawriter_status_;
+    DomainListener::Status datawriter_status_{};
 };
 
 } // namespace details

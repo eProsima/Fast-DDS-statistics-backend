@@ -60,6 +60,7 @@ public:
 
         // Simulate that the backend is monitorizing the domain
         std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        monitor->id = domain->id;
         details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
 
         // Simulate the discover of the entitiy

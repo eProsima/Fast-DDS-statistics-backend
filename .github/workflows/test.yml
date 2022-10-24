@@ -95,14 +95,12 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
-      - name: Install GTest
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-
       - name: Install Python packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch eProsima dependencies
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+        run: |
+          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
 
       - name: Update colcon mixin
         run: |
@@ -111,10 +109,17 @@ jobs:
           colcon mixin update default
         continue-on-error: true
 
+      - name: Build gtest
+        run: |
+          colcon build \
+            --event-handlers=console_direct+ \
+            --packages-select googletest-distribution
+
       - name: Build workspace
         run: |
           cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
           colcon build \
+            --packages-skip googletest-distribution \
             --event-handlers=console_direct+ \
             --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta
 
@@ -187,14 +192,12 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
-      - name: Install GTest
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-
       - name: Install Python packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch eProsima dependencies
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+        run: |
+          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
 
       - name: Update colcon mixin
         run: |
@@ -247,14 +250,12 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
-      - name: Install GTest
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-
       - name: Install Python packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch eProsima dependencies
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+        run: |
+          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
 
       - name: Update colcon mixin
         run: |
@@ -299,14 +300,12 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
-      - name: Install GTest
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-gtest
-
       - name: Install Python packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
 
       - name: Fetch eProsima dependencies
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/fetch-fastdds-repos
+        run: |
+          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
 
       - name: Build workspace
         run: |
