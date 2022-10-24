@@ -216,7 +216,6 @@ public:
      * \c entity_kind is accelerates the search, but it is not mandatory.
      *
      * @param entity_id ID of the Entity to look for.
-     * @param entity_kind kind of the Entity searched. If INVALID search in all entities.
      *
      * @return true if exists an entity with such id
      * @return false otherwise

@@ -310,11 +310,12 @@ void StatisticsBackend::set_physical_listener(
         CallbackMask callback_mask,
         DataKindMask data_mask)
 {
-    StatisticsBackendData::get_instance()->lock();
-    StatisticsBackendData::get_instance()->physical_listener_ = listener;
-    StatisticsBackendData::get_instance()->physical_callback_mask_ = callback_mask;
-    StatisticsBackendData::get_instance()->physical_data_mask_ = data_mask;
-    StatisticsBackendData::get_instance()->unlock();
+    auto& backend_data = StatisticsBackendData::get_instance();
+    std::lock_guard<StatisticsBackendData> guard(*backend_data);
+
+    backend_data->physical_listener_ = listener;
+    backend_data->physical_callback_mask_ = callback_mask;
+    backend_data->physical_data_mask_ = data_mask;
 }
 
 void StatisticsBackend::set_domain_listener(
