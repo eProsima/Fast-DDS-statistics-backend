@@ -190,7 +190,7 @@ public:
     MOCK_METHOD0(
         enable,
         ReturnCode_t
-        ());
+            ());
 
     DomainParticipantQos qos_;
     DomainId_t domain_id_;

@@ -78,18 +78,18 @@ public:
         return fastrtps::types::ReturnCode_t::RETCODE_OK;
     }
 
-    DomainParticipant * create_participant(
-            DomainId_t ,
-            const DomainParticipantQos& ,
-            DomainParticipantListener * ,
+    DomainParticipant* create_participant(
+            DomainId_t,
+            const DomainParticipantQos&,
+            DomainParticipantListener*,
             const StatusMask& )
     {
         create_participant_count++;
         return domain_participant;
     }
 
-
-    void delete_participant(DomainParticipant* )
+    void delete_participant(
+            DomainParticipant* )
     {
         delete_participant_count++;
     }
@@ -100,7 +100,8 @@ public:
         return participant_qos;
     }
 
-    ReturnCode_t get_qos(DomainParticipantFactoryQos& qos) const
+    ReturnCode_t get_qos(
+            DomainParticipantFactoryQos& qos) const
     {
         get_qos_count++;
         qos = factory_qos;
