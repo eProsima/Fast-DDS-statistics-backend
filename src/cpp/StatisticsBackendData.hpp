@@ -75,7 +75,7 @@ public:
     // SEMI PROTECTED VARIABLES
     // NOTE: this variables are supposed to be protected. But the current design of the project
     // and the lack of time forces to have them here so tests can access them.
-    // TODO: make them private
+    // TODO: make them protected
     // TODO: convert this data struct to a proper singleton class
 
     //! Reference to the Database
