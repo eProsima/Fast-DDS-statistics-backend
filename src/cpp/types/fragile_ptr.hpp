@@ -132,16 +132,8 @@ public:
     template <typename U>
     operator std::shared_ptr<U> () const
     {
-        auto cast_result = std::dynamic_pointer_cast<U>(this->lock());
-        if (!cast_result)
-        {
-            // TODO: show in error message the name of the types that are being casted
-            throw Inconsistency("Trying to cast to a not valid object.");
-        }
-        else
-        {
-            return cast_result;
-        }
+        static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
+        return this->lock();
     }
 
     //! Cast this object to a \c shared_ptr of the same type.
@@ -299,7 +291,7 @@ std::ostream& operator <<(
     }
     else
     {
-        o << "{" << f.get() << "}";
+        o << f.get();
     }
     return o;
 }

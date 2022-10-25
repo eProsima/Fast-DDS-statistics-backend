@@ -51,7 +51,6 @@ if (failed_tests):
     # Save table of failed test to GitHub action summary file
     with open(SUMMARY_FILE, 'a') as file:
         file.write(f'\n{md_table}')
-
 else:
     print('NO TESTS FAILED!')
     with open(SUMMARY_FILE, 'a') as file:

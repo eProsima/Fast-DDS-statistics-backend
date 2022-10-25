@@ -592,7 +592,7 @@ protected:
             }
         }
 
-        // Remove the current locator map as it will be filled in following loop
+        // Remove the current locator map as it will be filled in the following loop
         endpoint->locators.clear();
 
         /* Add to x_by_y_ collections and to locators_ */
