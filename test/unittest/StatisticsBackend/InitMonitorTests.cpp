@@ -48,8 +48,7 @@ using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastrtps::rtps;
 
-namespace test
-{
+namespace test {
 
 /**
  * @brief Get the monitors from database object
@@ -194,7 +193,7 @@ public:
         EXPECT_TRUE(monitor_id_2.is_valid());
 
         std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
-            test::get_monitors_from_database();
+                test::get_monitors_from_database();
 
         /* Check that three monitors are created */
         EXPECT_EQ(domain_monitors.size(), 3u);
