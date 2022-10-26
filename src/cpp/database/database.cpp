@@ -35,10 +35,64 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+template<typename E>
+void clear_inactive_entities_from_map_(
+        std::map<EntityId, std::shared_ptr<E>>& map)
+{
+    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
+
+    // Iterate over whole loop and remove those entities that are not alive
+    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
+    {
+        if (!it->second->active)
+        {
+            // Remove it and have reference to next element
+            it = map.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+template<typename E>
+void clear_inactive_entities_from_map_(
+        std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map)
+{
+    // The higher map will not be removed because it holds the domain, so
+    // only internal map should be iterate.
+    for (auto& it : map)
+    {
+        clear_inactive_entities_from_map_(it.second);
+    }
+}
+
+template<typename E>
+void clear_inactive_entities_from_map_(
+        std::map<EntityId, details::fragile_ptr<E>>& map)
+{
+    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
+
+    // Iterate over whole loop and remove those entities that are not alive
+    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
+    {
+        if (it->second.expired())
+        {
+            // Remove it and have reference to next element
+            it = map.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
 EntityId Database::insert(
         const std::shared_ptr<Entity>& entity)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     // Insert in the database with a unique ID
     EntityId entity_id = EntityId::invalid();
@@ -479,7 +533,7 @@ void Database::insert(
         const EntityId& entity_id,
         const StatisticsSample& sample)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     insert_nts(domain_id, entity_id, sample);
 }
@@ -1189,7 +1243,7 @@ void Database::link_participant_with_process(
         const EntityId& participant_id,
         const EntityId& process_id)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     link_participant_with_process_nts(participant_id, process_id);
 }
@@ -1480,7 +1534,7 @@ void Database::erase(
     }
 
     // The mutex should be taken only once. get_entity_kind already locks.
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     for (auto& reader : datareaders_[domain_id])
     {
@@ -2584,7 +2638,7 @@ void Database::insert_ddsendpoint_to_locator(
 DatabaseDump Database::dump_database(
         bool clear)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     DatabaseDump dump = DatabaseDump::object();
 
@@ -3333,7 +3387,7 @@ DatabaseDump Database::dump_data_(
 
 void Database::clear_statistics_data()
 {
-    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard (mutex_);
     clear_statistics_data_nts_();
 }
 
@@ -3370,7 +3424,7 @@ void Database::clear_statistics_data_nts_()
 
 void Database::clear_inactive_entities()
 {
-    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard (mutex_);
     clear_inactive_entities_nts_();
 }
 
@@ -3391,10 +3445,7 @@ void Database::clear_inactive_entities_nts_()
 
     // Domain and Locators are not affected
 
-    // Remove the entities inactive from associated maps
-    clear_associated_maps_nts_();
-
-    //
+    // Remove internal references of entities to those that have been removed
     clear_internal_references_nts_();
 }
 
@@ -3476,7 +3527,7 @@ void check_entity_contains_all_references(
 void Database::load_database(
         const DatabaseDump& dump)
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard (mutex_);
 
     if (next_id_ != 0)
     {
@@ -4927,7 +4978,7 @@ void Database::change_entity_status(
         entity_kind == EntityKind::PARTICIPANT || entity_kind == EntityKind::DATAWRITER ||
         entity_kind == EntityKind::DATAREADER || entity_kind == EntityKind::DOMAIN);
 
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     change_entity_status_of_kind(entity_id, active, entity_kind);
 }
 
@@ -4942,11 +4993,6 @@ void Database::execute_without_lock(
     {
         mutex_.lock();
     }
-}
-
-void Database::clear_associated_maps_nts_()
-{
-    // TODO: check if this is required or maps could be erased
 }
 
 void Database::clear_internal_references_nts_()

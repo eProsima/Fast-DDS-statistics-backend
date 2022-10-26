@@ -128,11 +128,12 @@ void initialize_empty_entities(
  *   - set DataWriter as inactive
  *   - clear inactive entities
  *   - check that DataWriter no longer exist
+ *   - check that other entities exist and are alive
  * - All Entities
  *   - check that has access to every entity (Host & Participant)
  *   - set Participant as inactive
  *   - clear inactive entities
- *   - check that all entities has been cleared (except Domain and Locators)
+ *   - check that all entities have been cleared (except Domain and Locators)
  */
 TEST(database, clear_inactive_entities_database_simple)
 {
@@ -159,6 +160,23 @@ TEST(database, clear_inactive_entities_database_simple)
         // check that DataWriter no longer exist
         ASSERT_EQ(db.get_entity_ids(EntityKind::DATAWRITER, EntityId::all()).size(), 0u);
         ASSERT_FALSE(db.is_entity_present(datawriter_id));
+
+        // check that other entities exist and are alive
+        std::vector<EntityKind> entities_kind_to_check = {
+            EntityKind::PARTICIPANT,
+            EntityKind::DATAREADER,
+            EntityKind::HOST,
+            EntityKind::USER,
+            EntityKind::PROCESS,
+            EntityKind::DOMAIN,
+            EntityKind::TOPIC
+        };
+        for (const auto& kind : entities_kind_to_check)
+        {
+            auto ids = db.get_entity_ids(kind, EntityId::all());
+            ASSERT_EQ(ids.size(), 1u);
+            ASSERT_TRUE(db.get_entity(ids[0])->active);
+        }
     }
 
     // HOST && PARTICIPANT
@@ -186,22 +204,28 @@ TEST(database, clear_inactive_entities_database_simple)
         // clear inactive entities
         db.clear_inactive_entities();
 
-        // check that all entities has been cleared
-        ASSERT_EQ(db.get_entity_ids(EntityKind::PARTICIPANT, EntityId::all()).size(), 0u);
+        // check that all entities have been cleared (except for locators)
         ASSERT_FALSE(db.is_entity_present(participant_id));
-
-        ASSERT_EQ(db.get_entity_ids(EntityKind::HOST, EntityId::all()).size(), 0u);
         ASSERT_FALSE(db.is_entity_present(host_id));
+
+        std::vector<EntityKind> entities_kind_to_check = {
+            EntityKind::PARTICIPANT,
+            EntityKind::DATAWRITER,
+            EntityKind::DATAREADER,
+            EntityKind::HOST,
+            EntityKind::USER,
+            EntityKind::PROCESS,
+            EntityKind::TOPIC
+        };
+        for (const auto& kind : entities_kind_to_check)
+        {
+            ASSERT_EQ(db.get_entity_ids(kind, EntityId::all()).size(), 0u);
+        }
 
         // 2 entities remain: Domain and 1 locator
         ASSERT_EQ(db.get_entity_ids(EntityKind::DOMAIN, EntityId::all()).size(), 1u);
         ASSERT_EQ(db.get_entity_ids(EntityKind::LOCATOR, EntityId::all()).size(), 1u);
     }
-}
-
-TEST(database, clear_inactive_entities_database_complex)
-{
-    // TODO
 }
 
 int main(

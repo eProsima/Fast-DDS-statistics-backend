@@ -453,7 +453,6 @@ get_win32_path_dependencies(database_clear_tests TEST_FRIENDLY_PATH)
 
 set(DATABASE_CLEAR_TEST_LIST
     clear_inactive_entities_database_simple
-    clear_inactive_entities_database_complex
 )
 
 foreach(test_name ${DATABASE_CLEAR_TEST_LIST})

@@ -359,7 +359,7 @@ public:
             bool active);
 
     /**
-     * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     * @brief Remove the statistics data of the database. This does not include the info or discovery data.
      */
     void clear_statistics_data();
 
@@ -695,7 +695,7 @@ protected:
     /**
      * @brief Remove the statistics data of the database. This not include the info or discovery data.
      *
-     * This method does not guard a mutex, as it expected to be called with mutex already taken.
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
     void clear_statistics_data_nts_();
 
@@ -705,7 +705,7 @@ protected:
      * This deletion of entities is done in an atomical way, so no other interaction with the
      * database may occur while deleting or coherence cannot be assured.
      *
-     * @warning This method does not guard a mutex, as it expected to be called with mutex already taken.
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
     void clear_inactive_entities_nts_();
 
@@ -841,21 +841,24 @@ protected:
     void execute_without_lock(
             const Functor& lambda) noexcept;
 
-    // TODO comment
-    template<typename E>
-    static void clear_inactive_entities_from_map_(
-            std::map<EntityId, std::shared_ptr<E>>& map);
-
-    template<typename E>
-    static void clear_inactive_entities_from_map_(
-            std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map);
-
-    template<typename E>
-    static void clear_inactive_entities_from_map_(
-            std::map<EntityId, details::fragile_ptr<E>>& map);
-
-    void clear_associated_maps_nts_();
-
+    /**
+     * @brief Clear the internal references of each element inside the database to those referenced elements that no
+     * longer exist.
+     *
+     * This is done after clearing entities in the database.
+     * It could happen that an still existing entity in the database references (with a fragile ptr) an erased one,
+     * thus this method checks every still active entity and removes these references.
+     *
+     * The entities that could keep a non valid reference are:
+     * - process -> participant
+     * - user -> process
+     * - host -> user
+     * - participant -> endpoint
+     * - topic -> endpoint
+     * - domain -> topic & participants
+     *
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
+     */
     void clear_internal_references_nts_();
 
     //! Collection of Hosts sorted by EntityId
@@ -920,60 +923,6 @@ template<>
 void Database::insert_ddsendpoint_to_locator(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator);
-
-template<typename E>
-void Database::clear_inactive_entities_from_map_(
-        std::map<EntityId, std::shared_ptr<E>>& map)
-{
-    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
-
-    // Iterate over whole loop and remove those entities that are not alive
-    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
-    {
-        if (!it->second->active)
-        {
-            // Remove it and have reference to next element
-            it = map.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-template<typename E>
-void Database::clear_inactive_entities_from_map_(
-        std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map)
-{
-    // The higher map will not be removed because it holds the domain, so
-    // only internal map should be iterate.
-    for (auto& it : map)
-    {
-        clear_inactive_entities_from_map_(it.second);
-    }
-}
-
-template<typename E>
-void Database::clear_inactive_entities_from_map_(
-        std::map<EntityId, details::fragile_ptr<E>>& map)
-{
-    static_assert(std::is_base_of<Entity, E>::value, "Class does not inherit from Entity.");
-
-    // Iterate over whole loop and remove those entities that are not alive
-    for (auto it = map.cbegin(); it != map.cend(); /* no increment */)
-    {
-        if (it->second.expired())
-        {
-            // Remove it and have reference to next element
-            it = map.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
 
 } //namespace database
 } //namespace statistics_backend
