@@ -87,15 +87,12 @@ static const char* topics[] =
 };
 
 void find_or_create_topic_and_type(
-        details::Monitor* monitor,
+        details::Monitor& monitor,
         const std::string& topic_name,
         const TypeSupport& type)
 {
-    // Argument safe check
-    assert(monitor != nullptr);
-
     // Find if the topic has been already created and if the associated type is correct
-    TopicDescription* topic_desc = monitor->participant->lookup_topicdescription(topic_name);
+    TopicDescription* topic_desc = monitor.participant->lookup_topicdescription(topic_name);
     if (nullptr != topic_desc)
     {
         if (topic_desc->get_type_name() != type->getName())
@@ -106,7 +103,7 @@ void find_or_create_topic_and_type(
 
         try
         {
-            monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+            monitor.topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
         }
         catch (const std::bad_cast& e)
         {
@@ -117,23 +114,20 @@ void find_or_create_topic_and_type(
     }
     else
     {
-        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
+        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->getName()))
         {
             // Name already in use
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
-        monitor->topics[topic_name] =
-                monitor->participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+        monitor.topics[topic_name] =
+                monitor.participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
     }
 }
 
 void register_statistics_type_and_topic(
-        details::Monitor* monitor,
+        details::Monitor& monitor,
         const std::string& topic_name)
 {
-    // Argument safe check
-    assert(monitor != nullptr);
-
     if (HISTORY_LATENCY_TOPIC == topic_name)
     {
         TypeSupport history_latency_type(new WriterReaderDataPubSubType);
@@ -280,7 +274,7 @@ EntityId create_and_register_monitor(
         /* Register the type and topic*/
         try
         {
-            register_statistics_type_and_topic(monitor.get(), topic);
+            register_statistics_type_and_topic(*monitor, topic);
         }
         catch (const std::exception& e)
         {

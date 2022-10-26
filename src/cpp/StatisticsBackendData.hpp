@@ -251,7 +251,7 @@ protected:
      * @return true if the listener should be called. False otherwise.
      */
     bool should_call_domain_listener(
-            const Monitor* monitor,
+            const Monitor& monitor,
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 
