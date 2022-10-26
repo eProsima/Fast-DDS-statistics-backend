@@ -4890,7 +4890,7 @@ class input_stream_adapter
     // end up as the same value, eg. 0xFFFFFFFF.
     std::char_traits<char>::int_type get_character()
     {
-        auto res = sb->sdumpc();
+        auto res = sb->sbumpc();
         // set eof manually, as we don't use the istream interface.
         if (JSON_HEDLEY_UNLIKELY(res == EOF))
         {
