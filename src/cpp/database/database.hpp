@@ -331,6 +331,8 @@ public:
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
      *
      * @return DatabaseDump object representing the backend database.
+     *
+     * @note This method includes clear possibility so dump and clear could be under the same mutex lock.
      */
     DatabaseDump dump_database(
             const bool clear = false);
@@ -355,6 +357,16 @@ public:
     void change_entity_status(
             const EntityId& entity_id,
             bool active);
+
+    /**
+     * @brief Remove the statistics data of the database. This does not include the info or discovery data.
+     */
+    void clear_statistics_data();
+
+    /**
+     * @brief Remove all inactive entities of the database. This does not include domains.
+     */
+    void clear_inactive_entities();
 
 protected:
 
@@ -682,8 +694,20 @@ protected:
 
     /**
      * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     *
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
-    void clear_statistics_data();
+    void clear_statistics_data_nts_();
+
+    /**
+     * @brief Remove all inactive entities of the database. This does not include domains.
+     *
+     * This deletion of entities is done in an atomical way, so no other interaction with the
+     * database may occur while deleting or coherence cannot be assured.
+     *
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
+     */
+    void clear_inactive_entities_nts_();
 
     /**
      * @brief Insert a new entity into the database. This method is not thread safe.
@@ -817,6 +841,26 @@ protected:
     void execute_without_lock(
             const Functor& lambda) noexcept;
 
+    /**
+     * @brief Clear the internal references of each element inside the database to those referenced elements that no
+     * longer exist.
+     *
+     * This is done after clearing entities in the database.
+     * It could happen that an still existing entity in the database references (with a fragile ptr) an erased one,
+     * thus this method checks every still active entity and removes these references.
+     *
+     * The entities that could keep a non valid reference are:
+     * - process -> participant
+     * - user -> process
+     * - host -> user
+     * - participant -> endpoint
+     * - topic -> endpoint
+     * - domain -> topic & participants
+     *
+     * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
+     */
+    void clear_internal_references_nts_();
+
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;
 
@@ -879,7 +923,6 @@ template<>
 void Database::insert_ddsendpoint_to_locator(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator);
-
 
 } //namespace database
 } //namespace statistics_backend
