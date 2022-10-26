@@ -61,10 +61,14 @@ public:
     fragile_ptr() noexcept = default;
 
     //! Default constructors and operator= from other \c fragile_ptr ( \c weak_ptr are copiable and moveable).
-    fragile_ptr(const fragile_ptr<T>& copy_other) noexcept = default;
-    fragile_ptr(fragile_ptr<T>&& move_other) noexcept = default;
-    fragile_ptr& operator=(const fragile_ptr<T>& copy_other) noexcept = default;
-    fragile_ptr& operator=(fragile_ptr<T>&& move_other) noexcept = default;
+    fragile_ptr(
+            const fragile_ptr<T>& copy_other) noexcept = default;
+    fragile_ptr(
+            fragile_ptr<T>&& move_other) noexcept = default;
+    fragile_ptr& operator =(
+            const fragile_ptr<T>& copy_other) noexcept = default;
+    fragile_ptr& operator =(
+            fragile_ptr<T>&& move_other) noexcept = default;
 
     //! Default destructor
     ~fragile_ptr() = default;
@@ -79,14 +83,16 @@ public:
      *
      * @param shared_reference \c shared_ptr to the reference to point from this.
      */
-    fragile_ptr(const std::shared_ptr<T>& shared_reference) noexcept
+    fragile_ptr(
+            const std::shared_ptr<T>& shared_reference) noexcept
         : reference_(shared_reference)
     {
         // Do nothing
     }
 
     //! Same as calling basic constructor.
-    fragile_ptr(std::nullptr_t) noexcept
+    fragile_ptr(
+            std::nullptr_t) noexcept
     {
         // Do nothing
     }
@@ -98,7 +104,8 @@ public:
      *
      * @param shared_reference \c shared_ptr to the reference to point from this.
      */
-    fragile_ptr& operator=(const std::shared_ptr<T>& shared_reference) noexcept
+    fragile_ptr& operator =(
+            const std::shared_ptr<T>& shared_reference) noexcept
     {
         this->reference_ = shared_reference;
         return *this;
@@ -115,7 +122,8 @@ public:
      * @todo use if_enabled or somehow limit this cast to only those U that are coherent.
      */
     template <typename U>
-    bool operator==(const std::shared_ptr<U>& other) const noexcept
+    bool operator ==(
+            const std::shared_ptr<U>& other) const noexcept
     {
         static_assert(std::is_base_of<U, T>::value, "U must inherit from T");
         return this->lock() == other;
@@ -194,9 +202,9 @@ public:
      * @return T* internal reference if not expired.
      * @throw \c Inconsistency if the internal reference is not valid.
      */
-    T* operator->() const
+    T* operator ->() const
     {
-        return safety_lock_().operator->();
+        return safety_lock_().operator ->();
     }
 
     /**
@@ -208,9 +216,9 @@ public:
      * @return T& internal reference if not expired.
      * @throw \c Inconsistency if the internal reference is not valid.
      */
-    T& operator*() const
+    T& operator *() const
     {
-        return safety_lock_().operator*();
+        return safety_lock_().operator *();
     }
 
 protected:

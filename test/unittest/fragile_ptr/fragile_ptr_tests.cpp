@@ -56,10 +56,10 @@ std::string* new_value<std::string>()
     return new std::string("wololo");
 }
 
-
 //! Alloc a new value of type T
 template <typename T>
-std::string to_string(const T& t)
+std::string to_string(
+        const T& t)
 {
     std::stringstream ss;
     ss << "{" << t << "}";
@@ -283,14 +283,14 @@ REGISTER_TYPED_TEST_SUITE_P(
     null_comparison,
     serialize,
     use_ptr_negative
-);
+    );
 
 // Set types used in parametrization
 typedef ::testing::Types<
-        bool,
-        int,
-        std::string
-    > CaseTypes;
+            bool,
+            int,
+            std::string
+            > CaseTypes;
 
 // Generate each test case for each type case
 INSTANTIATE_TYPED_TEST_SUITE_P(
