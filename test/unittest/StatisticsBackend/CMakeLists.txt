@@ -667,3 +667,111 @@ foreach(test_name ${BACKEND_DUMP_TEST_LIST})
 
 endforeach()
 
+# clear_statistics_data
+##################################################################
+
+add_executable(clear_statistics_data_tests ClearDataTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+if(MSVC)
+    target_compile_definitions(clear_statistics_data_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(clear_statistics_data_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(clear_statistics_data_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(clear_statistics_data_tests TEST_FRIENDLY_PATH)
+
+set(BACKEND_DUMP_TEST_LIST
+        clear_statistics_data_simple
+    )
+
+foreach(test_name ${BACKEND_DUMP_TEST_LIST})
+    add_test(NAME clear_statistics_data_tests.${test_name}
+        COMMAND clear_statistics_data_tests
+        --gtest_filter=clear_statistics_data_tests.${test_name}:*/clear_statistics_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(clear_statistics_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
+# clear_inactive_entities
+##################################################################
+
+if(GTEST_FOUND AND GMOCK_FOUND)
+
+    add_executable(clear_inactive_entities_tests ClearEntitiesTests.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+
+    if(MSVC)
+        target_compile_definitions(clear_inactive_entities_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
+    target_include_directories(clear_inactive_entities_tests PRIVATE
+        ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+        ${PROJECT_SOURCE_DIR}/test/mock/dds/DomainParticipant
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/src/cpp)
+
+    target_link_libraries(clear_inactive_entities_tests PUBLIC
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+    get_win32_path_dependencies(clear_inactive_entities_tests TEST_FRIENDLY_PATH)
+
+    set(IS_ACTIVE_TEST_LIST
+        clear_inactive_entities_endpoint
+        clear_inactive_entities_participant
+    )
+
+    foreach(test_name ${IS_ACTIVE_TEST_LIST})
+        add_test(NAME clear_inactive_entities_tests.${test_name}
+                COMMAND clear_inactive_entities_tests
+                --gtest_filter=clear_inactive_entities_tests.${test_name}:*/clear_inactive_entities_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(clear_inactive_entities_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+    endforeach()
+endif()
