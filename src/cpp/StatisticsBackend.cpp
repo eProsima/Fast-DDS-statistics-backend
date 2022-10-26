@@ -87,12 +87,12 @@ static const char* topics[] =
 };
 
 void find_or_create_topic_and_type(
-        std::shared_ptr<details::Monitor> monitor,
+        details::Monitor& monitor,
         const std::string& topic_name,
         const TypeSupport& type)
 {
     // Find if the topic has been already created and if the associated type is correct
-    TopicDescription* topic_desc = monitor->participant->lookup_topicdescription(topic_name);
+    TopicDescription* topic_desc = monitor.participant->lookup_topicdescription(topic_name);
     if (nullptr != topic_desc)
     {
         if (topic_desc->get_type_name() != type->getName())
@@ -103,7 +103,7 @@ void find_or_create_topic_and_type(
 
         try
         {
-            monitor->topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+            monitor.topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
         }
         catch (const std::bad_cast& e)
         {
@@ -114,18 +114,18 @@ void find_or_create_topic_and_type(
     }
     else
     {
-        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor->participant->register_type(type, type->getName()))
+        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->getName()))
         {
             // Name already in use
             throw Error(std::string("Type name ") + type->getName() + " is already in use");
         }
-        monitor->topics[topic_name] =
-                monitor->participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+        monitor.topics[topic_name] =
+                monitor.participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
     }
 }
 
 void register_statistics_type_and_topic(
-        std::shared_ptr<details::Monitor> monitor,
+        details::Monitor& monitor,
         const std::string& topic_name)
 {
     if (HISTORY_LATENCY_TOPIC == topic_name)
@@ -191,8 +191,8 @@ EntityId create_and_register_monitor(
     auto& backend_data = StatisticsBackendData::get_instance();
     std::lock_guard<details::StatisticsBackendData> guard(*backend_data);
 
-    // Create monitor instance.
-    std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+    /* Create monitor instance and register it in the database */
+    std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
 
     // Throw exception in fail case
@@ -205,7 +205,6 @@ EntityId create_and_register_monitor(
     monitor->domain_listener = domain_listener;
     monitor->domain_callback_mask = callback_mask;
     monitor->data_mask = data_mask;
-    backend_data->monitors_by_entity_[domain->id] = monitor;
     auto se_erase_monitor_database_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
@@ -275,7 +274,7 @@ EntityId create_and_register_monitor(
         /* Register the type and topic*/
         try
         {
-            register_statistics_type_and_topic(monitor, topic);
+            register_statistics_type_and_topic(*monitor, topic);
         }
         catch (const std::exception& e)
         {
@@ -301,6 +300,8 @@ EntityId create_and_register_monitor(
     se_participant_.cancel();
     se_subscriber_.cancel();
     se_topics_datareaders_.cancel();
+
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
 
     return domain->id;
 }

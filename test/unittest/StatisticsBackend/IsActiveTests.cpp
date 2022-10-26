@@ -61,9 +61,9 @@ public:
         participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue);
 
         // Simulate that the backend is monitorizing the domain
-        std::shared_ptr<details::Monitor> monitor = std::make_shared<details::Monitor>();
+        std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
         monitor->id = domain->id;
-        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = monitor;
+        details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
 
         // Simulate the discover of the entitiy
         host->active = false;

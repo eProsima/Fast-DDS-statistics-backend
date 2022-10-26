@@ -87,8 +87,12 @@ public:
     //! Reference to the Database data queue
     database::DatabaseDataQueue* data_queue_;
 
-    //! Collection of active monitors
-    std::map<EntityId, std::shared_ptr<Monitor>> monitors_by_entity_;
+    /**
+     * @brief Collection of active monitors
+     *
+     * @note This is a collection of unique_ptr as Monitors belong to this class and their ownership is managed by this.
+     */
+    std::map<EntityId, std::unique_ptr<Monitor>> monitors_by_entity_;
 
     //! Physical  listener
     PhysicalListener* physical_listener_;
@@ -241,13 +245,13 @@ protected:
      * When the method is called on the discovery of an entity, \c data_kind = INVALID
      * should be used, signalling that the value of the data mask set by the user is irrelevant in this case.
      *
-     * @param monitor The monitor whose domain listener we are testing
+     * @param monitor Reference to the monitor whose domain listener we are testing
      * @param callback_kind The callback kind to check against the callback kind mask
      * @param data_kind The data kind to check against the data kind mask
      * @return true if the listener should be called. False otherwise.
      */
     bool should_call_domain_listener(
-            std::shared_ptr<Monitor>& monitor,
+            const Monitor& monitor,
             CallbackKind callback_kind,
             DataKind data_kind = DataKind::INVALID);
 
