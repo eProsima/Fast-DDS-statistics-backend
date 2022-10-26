@@ -14,3 +14,4 @@
 
 add_subdirectory(unittest)
 add_subdirectory(dds/communication)
+add_subdirectory(performance)

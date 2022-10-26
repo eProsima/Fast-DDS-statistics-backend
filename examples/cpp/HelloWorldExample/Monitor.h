@@ -45,7 +45,8 @@ public:
     bool init(
             uint32_t domain,
             uint32_t n_bins,
-            uint32_t t_interval);
+            uint32_t t_interval,
+            bool reset = false);
 
     //! Run the monitor
     void run();
@@ -131,6 +132,9 @@ private:
 
     //! Time interval of the returned measures
     uint32_t t_interval_;
+
+    //! Whether the internal data must be removed each interval
+    bool reset_;
 
     //! Member used for control flow purposes
     static std::atomic<bool> stop_;

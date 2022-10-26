@@ -61,6 +61,8 @@ int main(
     // Monitor params
     int n_bins = 1;
     int t_interval = 5;
+    bool reset = false;
+
     if (argc > 1)
     {
         if (!strcmp(argv[1], "publisher"))
@@ -177,6 +179,17 @@ int main(
                     }
                     break;
 
+                case optionIndex::RESET:
+                    if (type == MONITOR)
+                    {
+                        reset = true;
+                    }
+                    else
+                    {
+                        print_warning("monitor", opt.name);
+                    }
+                    break;
+
                 case optionIndex::UNKNOWN_OPT:
                     std::cerr << "ERROR: " << opt.name << " is not a valid argument." << std::endl;
                     option::printUsage(fwrite, stdout, usage, columns);
@@ -216,7 +229,7 @@ int main(
         {
             Monitor monitor;
             if (monitor.init(static_cast<uint32_t>(domain), static_cast<uint32_t>(n_bins),
-                    static_cast<uint32_t>(t_interval)))
+                    static_cast<uint32_t>(t_interval), reset))
             {
                 monitor.run();
             }

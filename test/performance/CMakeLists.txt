@@ -1,4 +1,4 @@
-# Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2022 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(fastdds_statistics_backend_FOUND TRUE)
-add_subdirectory(cpp/HelloWorldExample)
-add_subdirectory(cpp/DummyJsonExample)
-add_subdirectory(cpp/DummyMapExample)
-
-find_package(prometheus-cpp CONFIG)
-if (prometheus-cpp_FOUND)
-    add_subdirectory(cpp/ROS2Prometheus)
-else()
-    message(WARNING "C++ Prometheus exporter was not found.\n"
-        "Please download it from https://github.com/eProsima/prometheus-cpp to compile the ROS2Prometheus example.")
-endif()
+# TODO uncomment
+# add_subdirectory(memory_usage)

@@ -109,7 +109,8 @@ enum optionIndex
     INTERVAL,
     DOMAIN_ID,
     N_BINS,
-    T_INTERVAL
+    T_INTERVAL,
+    RESET
 };
 
 const option::Descriptor usage[] = {
@@ -139,7 +140,8 @@ const option::Descriptor usage[] = {
       " (0 => no mean calculation, return raw data)." },
     { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
       "  -t <num> \t--time=<num>  \tDuration in seconds of each time frame (Default: 5)." },
-
+    { RESET, 0, "r", "reset",              Arg::None,
+      "  -r \t--reset  \tIf set each time interval the Monitor will remove every internal data." },
 
     { 0, 0, 0, 0, 0, 0 }
 };
