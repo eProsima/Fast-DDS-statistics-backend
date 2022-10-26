@@ -45,7 +45,9 @@ public:
     bool init(
             uint32_t domain,
             uint32_t n_bins,
-            uint32_t t_interval);
+            uint32_t t_interval,
+            std::string dump_file = "",
+            bool reset = false);
 
     //! Run the monitor
     void run();
@@ -67,6 +69,19 @@ public:
             const Timestamp timestamp);
 
 protected:
+
+    /**
+     * @brief Bump the internal database in file \c dump_file_ .
+     *
+     * If \c reset_ is active, it clears the statistical data.
+     */
+    void dump_in_file();
+
+    /**
+     * @brief Clear the inactive entities of the StatisticsBackend
+     *
+     */
+    void clear_inactive_entities();
 
     class Listener : public eprosima::statistics_backend::PhysicalListener
     {
@@ -131,6 +146,12 @@ private:
 
     //! Time interval of the returned measures
     uint32_t t_interval_;
+
+    //! Path where the dump_file will be stored
+    std::string dump_file_;
+
+    //! Whether the internal data must be removed every interval
+    bool reset_;
 
     //! Member used for control flow purposes
     static std::atomic<bool> stop_;
