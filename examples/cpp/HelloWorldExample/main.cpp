@@ -62,7 +62,7 @@ int main(
     int n_bins = 1;
     int t_interval = 5;
     bool reset = false;
-    std::string bump_file = "";
+    std::string dump_file = "";
 
     if (argc > 1)
     {
@@ -194,7 +194,7 @@ int main(
                 case optionIndex::BUMP_FILE:
                     if (type == MONITOR)
                     {
-                        bump_file = opt.arg;
+                        dump_file = opt.arg;
                     }
                     else
                     {
@@ -244,7 +244,7 @@ int main(
                         static_cast<uint32_t>(domain),
                         static_cast<uint32_t>(n_bins),
                         static_cast<uint32_t>(t_interval),
-                        bump_file,
+                        dump_file,
                         reset))
             {
                 monitor.run();

@@ -64,13 +64,13 @@ bool Monitor::init(
         uint32_t domain,
         uint32_t n_bins,
         uint32_t t_interval,
-        std::string bump_file /* = "" */,
+        std::string dump_file /* = "" */,
         bool reset /* = false */)
 {
     n_bins_ = n_bins;
     t_interval_ = t_interval;
     monitor_id_ = StatisticsBackend::init_monitor(domain);
-    bump_file_ = bump_file;
+    dump_file_ = dump_file;
     reset_ = reset;
 
     if (!monitor_id_.is_valid())
@@ -105,11 +105,10 @@ void Monitor::run()
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
 
-        // TODO: decide whether inactive entities must be inside json bump
-        // If not so, reset must be done before bumping file
-        if (!bump_file_.empty())
+        // Dump file and THEN remove them. This means inactive entities would appear in this dump file.
+        if (!dump_file_.empty())
         {
-            bump_in_file();
+            dump_in_file();
         }
 
         if (reset_)
@@ -120,7 +119,7 @@ void Monitor::run()
     }
 }
 
-void Monitor::bump_in_file()
+void Monitor::dump_in_file()
 {
     // Get current timestamp
     auto t = std::time(nullptr);
@@ -130,7 +129,7 @@ void Monitor::bump_in_file()
     std::string current_time = oss.str();
 
     // Get file name
-    std::string complete_file_name = bump_file_ + "_" + current_time + ".json";
+    std::string complete_file_name = dump_file_ + "_" + current_time + ".json";
     std::cout << "Bumping info in file " << complete_file_name << std::endl;
 
     // Bump to get json

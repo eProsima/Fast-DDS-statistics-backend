@@ -141,10 +141,10 @@ const option::Descriptor usage[] = {
       " (0 => no mean calculation, return raw data)." },
     { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
       "  -t <num> \t--time=<num>  \tDuration in seconds of each time frame (Default: 5)." },
-    { BUMP_FILE, 0, "f", "bump-file",              Arg::String,
-      "  -f \t--bump-file  \tIf set, path where the bump file will be stored (timestamp will be added to file name)." },
+    { BUMP_FILE, 0, "f", "dump-file",              Arg::String,
+      "  -f \t--dump-file  \tIf set, path where the dump file will be stored (timestamp will be added to file name)." },
     { RESET, 0, "r", "reset",              Arg::None,
-      "  -r \t--reset  \tIf set each time interval the Monitor will remove internal data and inactive entities." },
+      "  -r \t--reset  \tIf set, the Monitor will remove internal data and inactive entities every time interval ." },
 
     { 0, 0, 0, 0, 0, 0 }
 };
