@@ -65,6 +65,8 @@ public:
     virtual void deserialize(
             void* data,
             const Message& message) = 0;
+
+    virtual ~MessageSerializer() = default;
 };
 
 class GuidMessageSerializer : public MessageSerializer

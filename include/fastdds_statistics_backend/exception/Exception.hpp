@@ -90,21 +90,8 @@ class Error : public Exception
 
 public:
 
-    /**
-     * @brief Construct a new statistics_backend::Error exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI Error(
-            const char* message) noexcept;
-
-    /**
-     * @brief Construct a new statistics_backend::Error exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI Error(
-            const std::string& message);
+    // Use parent constructors.
+    using Exception::Exception;
 
     /**
      * @brief Copies the statistics_backend::Error exception into a new one
@@ -132,21 +119,8 @@ class Unsupported : public Exception
 
 public:
 
-    /**
-     * @brief Construct a new statistics_backend::Unsupported exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported(
-            const char* message) noexcept;
-
-    /**
-     * @brief Construct a new statistics_backend::Unsupported exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI Unsupported(
-            const std::string& message);
+    // Use parent constructors.
+    using Exception::Exception;
 
     /**
      * @brief Copies the statistics_backend::Unsupported exception into a new one
@@ -174,21 +148,8 @@ class BadParameter : public Exception
 
 public:
 
-    /**
-     * @brief Construct a new statistics_backend::BadParameter exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter(
-            const char* message) noexcept;
-
-    /**
-     * @brief Construct a new statistics_backend::BadParameter exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI BadParameter(
-            const std::string& message);
+    // Use parent constructors.
+    using Exception::Exception;
 
     /**
      * @brief Copies the statistics_backend::BadParameter exception into a new one
@@ -216,21 +177,8 @@ class PreconditionNotMet : public Exception
 
 public:
 
-    /**
-     * @brief Construct a new statistics_backend::PreconditionNotMet exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet(
-            const char* message) noexcept;
-
-    /**
-     * @brief Construct a new statistics_backend::PreconditionNotMet exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI PreconditionNotMet(
-            const std::string& message);
+    // Use parent constructors.
+    using Exception::Exception;
 
     /**
      * @brief Copies the statistics_backend::PreconditionNotMet exception into a new one
@@ -258,21 +206,8 @@ class CorruptedFile : public Exception
 
 public:
 
-    /**
-     * @brief Construct a new statistics_backend::CorruptedFile exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile(
-            const char* message) noexcept;
-
-    /**
-     * @brief Construct a new statistics_backend::CorruptedFile exception
-     *
-     * @param message The message to be returned by what()
-     */
-    FASTDDS_STATISTICS_BACKEND_DllAPI CorruptedFile(
-            const std::string& message);
+    // Use parent constructors.
+    using Exception::Exception;
 
     /**
      * @brief Copies the statistics_backend::CorruptedFile exception into a new one
@@ -292,9 +227,36 @@ public:
             const CorruptedFile& other) = default;
 };
 
+/**
+ * @brief Exception to signal that an inconsistency inside the database has been found.
+ */
+class Inconsistency : public Exception
+{
+
+public:
+
+    // Use parent constructors.
+    using Exception::Exception;
+
+    /**
+     * @brief Copies the statistics_backend::Inconsistency exception into a new one
+     *
+     * @param other The original exception object to copy
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI Inconsistency(
+            const Inconsistency& other) = default;
+
+    /**
+     * @brief Copies the statistics_backend::Inconsistency exception into the current one
+     *
+     * @param other The original statistics_backend::Inconsistency exception to copy
+     * @return the current statistics_backend::Inconsistency exception after the copy
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI Inconsistency& operator =(
+            const Inconsistency& other) = default;
+};
+
 } // namespace statistics_backend
 } // namespace eprosima
 
-
 #endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_EXCEPTION_EXCEPTION_HPP_
-

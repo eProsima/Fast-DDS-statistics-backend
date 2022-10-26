@@ -80,6 +80,13 @@ class Database
 public:
 
     /**
+     * @brief Destructor of Database.
+     *
+     * @note It requires a virtual dtor for test sake.
+     */
+    virtual ~Database() = default;
+
+    /**
      * @brief Insert a new entity into the database.
      * @param entity The entity object to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
@@ -465,7 +472,7 @@ protected:
             throw BadParameter("Endpoint locators cannot be empty");
         }
 
-        /* Check that participant exits */
+        /* Check that participant exists */
         bool participant_exists = false;
         auto domain_participants = participants_.find(endpoint->participant->domain->id);
         if (domain_participants != participants_.end())
@@ -585,11 +592,11 @@ protected:
             }
         }
 
-        // Change the curent locators map for the new updated one
-        endpoint->locators = actual_locators_map;
+        // Remove the current locator map as it will be filled in the following loop
+        endpoint->locators.clear();
 
         /* Add to x_by_y_ collections and to locators_ */
-        for (auto& locator_it : endpoint->locators)
+        for (auto& locator_it : actual_locators_map)
         {
             /* Check that locator exists */
             if (locators_.find(locator_it.first) == locators_.end())
@@ -599,6 +606,9 @@ protected:
 
             // Add endpoint to locator's collection
             insert_ddsendpoint_to_locator(endpoint, locator_it.second);
+
+            // Add this locator to the locators map
+            endpoint->locators[locator_it.first] = locator_it.second;
         }
 
         /* Add endpoint to topics's collection */

@@ -179,7 +179,8 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new WriterReaderDataMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer =
+                            std::make_shared<WriterReaderDataMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -197,7 +198,8 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new Locator2LocatorDataMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer =
+                            std::make_shared<Locator2LocatorDataMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -215,7 +217,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityDataMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityDataMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -235,7 +237,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityDataMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityDataMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -255,7 +257,8 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new Entity2LocatorTrafficMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer =
+                            std::make_shared<Entity2LocatorTrafficMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -275,7 +278,8 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new Entity2LocatorTrafficMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer =
+                            std::make_shared<Entity2LocatorTrafficMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -295,7 +299,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -327,7 +331,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -359,7 +363,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -391,7 +395,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -423,7 +427,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -455,7 +459,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -487,7 +491,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -519,7 +523,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new EntityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<EntityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -551,7 +555,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new DiscoveryTimeMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<DiscoveryTimeMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -569,7 +573,8 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new SampleIdentityCountMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer =
+                            std::make_shared<SampleIdentityCountMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -587,7 +592,7 @@ private:
                     type.register_type(participant_);
                     data_types_[kind] = type;
 
-                    MessageSerializer* serializer = new PhysicalDataMessageSerializer();
+                    std::shared_ptr<MessageSerializer> serializer = std::make_shared<PhysicalDataMessageSerializer>();
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
@@ -715,7 +720,7 @@ private:
     std::map<StatisticsEventKind, Topic*> topics_;
     std::map<StatisticsEventKind, TypeSupport> data_types_;
 
-    std::map<StatisticsEventKind, MessageSerializer*> serializers_;
+    std::map<StatisticsEventKind, std::shared_ptr<MessageSerializer>> serializers_;
     std::map<StatisticsEventKind, std::string> event_names_;
     std::map<std::string, StatisticsEventKind> event_kinds_;
 
