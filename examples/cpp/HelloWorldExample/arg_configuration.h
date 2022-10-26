@@ -110,7 +110,7 @@ enum optionIndex
     DOMAIN_ID,
     N_BINS,
     T_INTERVAL,
-    BUMP_FILE,
+    DUMP_FILE,
     RESET
 };
 
@@ -141,7 +141,7 @@ const option::Descriptor usage[] = {
       " (0 => no mean calculation, return raw data)." },
     { T_INTERVAL, 0, "t", "time",              Arg::Numeric,
       "  -t <num> \t--time=<num>  \tDuration in seconds of each time frame (Default: 5)." },
-    { BUMP_FILE, 0, "f", "dump-file",              Arg::String,
+    { DUMP_FILE, 0, "f", "dump-file",              Arg::String,
       "  -f \t--dump-file  \tIf set, path where the dump file will be stored (timestamp will be added to file name)." },
     { RESET, 0, "r", "reset",              Arg::None,
       "  -r \t--reset  \tIf set, the Monitor will remove internal data and inactive entities every time interval ." },

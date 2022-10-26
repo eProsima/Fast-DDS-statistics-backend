@@ -191,7 +191,7 @@ int main(
                     }
                     break;
 
-                case optionIndex::BUMP_FILE:
+                case optionIndex::DUMP_FILE:
                     if (type == MONITOR)
                     {
                         dump_file = opt.arg;

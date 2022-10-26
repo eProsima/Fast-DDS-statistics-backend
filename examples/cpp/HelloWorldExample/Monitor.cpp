@@ -105,7 +105,7 @@ void Monitor::run()
         get_fastdds_latency_mean();
         get_publication_throughput_mean();
 
-        // Dump file and THEN remove them. This means inactive entities would appear in this dump file.
+        // Dump data to file and THEN remove the inactive entities. This means inactive entities would appear in this dump file.
         if (!dump_file_.empty())
         {
             dump_in_file();
@@ -130,7 +130,7 @@ void Monitor::dump_in_file()
 
     // Get file name
     std::string complete_file_name = dump_file_ + "_" + current_time + ".json";
-    std::cout << "Bumping info in file " << complete_file_name << std::endl;
+    std::cout << "Dumping info in file " << complete_file_name << std::endl;
 
     // Bump to get json
     auto dump = StatisticsBackend::dump_database(reset_);
