@@ -40,7 +40,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_simple)
     ASSERT_FALSE(
         StatisticsBackend::get_data(
             DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE).empty()
-    );
+        );
 
     // Clearing data
     StatisticsBackend::clear_statistics_data();
@@ -52,7 +52,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_simple)
     ASSERT_TRUE(
         StatisticsBackend::get_data(
             DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE).empty()
-    );
+        );
 }
 
 int main(

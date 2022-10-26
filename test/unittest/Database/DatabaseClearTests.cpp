@@ -79,8 +79,7 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define PART_GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|0.0.1.0"
 #define GUID_DEFAULT(x) "01.0f.00.00.00.00.00.00.00.00.00.0" + std::to_string(x) + "|0.0.0.0"
 
-namespace test
-{
+namespace test {
 
 void initialize_empty_entities(
         Database& db,
@@ -150,11 +149,11 @@ TEST(database, clear_inactive_entities_database_simple)
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_physical_entity_discovery(
-            _,_,_)).Times(AnyNumber());
+            _, _, _)).Times(AnyNumber());
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(
-            _,_,_,_)).Times(AnyNumber());
+            _, _, _, _)).Times(AnyNumber());
 
     // initialize database
     Database db;
