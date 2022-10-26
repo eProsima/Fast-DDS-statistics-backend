@@ -19,19 +19,28 @@
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 #include <fastdds_statistics_backend/types/types.hpp>
 
+#include <StatisticsBackendData.hpp>  // Mock
+
 #include <database/database.hpp>
 #include <database/entities.hpp>
 #include <database/samples.hpp>
-#include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
+
+using ::testing::_;
+using ::testing::Invoke;
+using ::testing::Return;
+using ::testing::Throw;
+using ::testing::AnyNumber;
+using ::testing::StrictMock;
 
 constexpr const char* GUID_DEFAULT = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0";
 constexpr const char* PID_DEFAULT = "36000";
@@ -137,6 +146,16 @@ void initialize_empty_entities(
  */
 TEST(database, clear_inactive_entities_database_simple)
 {
+    // Expect that discovery callbacks are called with any arguments any number ot times
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_physical_entity_discovery(
+            _,_,_)).Times(AnyNumber());
+    EXPECT_CALL(
+        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+        on_domain_entity_discovery(
+            _,_,_,_)).Times(AnyNumber());
+
     // initialize database
     Database db;
     test::initialize_empty_entities(db, 0, true);
@@ -219,7 +238,8 @@ TEST(database, clear_inactive_entities_database_simple)
         };
         for (const auto& kind : entities_kind_to_check)
         {
-            ASSERT_EQ(db.get_entity_ids(kind, EntityId::all()).size(), 0u);
+            ASSERT_EQ(db.get_entity_ids(kind, EntityId::all()).size(), 0u)
+                << static_cast<int>(kind);
         }
 
         // 2 entities remain: Domain and 1 locator

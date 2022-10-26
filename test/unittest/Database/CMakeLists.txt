@@ -429,7 +429,23 @@ endforeach()
 # Database Clear tests
 ###############################################################################
 
-add_executable(database_clear_tests DatabaseClearTests.cpp ${LIBRARY_SOURCES})
+check_gtest()
+check_gmock()
+
+# Specific sources as it needs StatisticsBackendData mock
+set(LIBRARY_SOURCES_CLEAR_TEST
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    )
+
+add_executable(database_clear_tests DatabaseClearTests.cpp ${LIBRARY_SOURCES_CLEAR_TEST})
 
 if(MSVC)
     target_compile_definitions(database_clear_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
@@ -437,16 +453,16 @@ endif(MSVC)
 
 target_include_directories(database_clear_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/test/mock/StatisticsBackend
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
-
+    )
 
 target_link_libraries(database_clear_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr
     )
 
 get_win32_path_dependencies(database_clear_tests TEST_FRIENDLY_PATH)
@@ -463,10 +479,6 @@ foreach(test_name ${DATABASE_CLEAR_TEST_LIST})
     if(TEST_FRIENDLY_PATH)
         set_tests_properties(database.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
-
-    # Hint where the resource files can be found
-    set_tests_properties(database.${test_name} PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-
 endforeach()
 
 ###############################################################################

@@ -61,7 +61,7 @@ void clear_inactive_entities_from_map_(
         std::map<EntityId, std::map<EntityId, std::shared_ptr<E>>>& map)
 {
     // The higher map will not be removed because it holds the domain, so
-    // only internal map should be iterate.
+    // we should just iterate over the internal map.
     for (auto& it : map)
     {
         clear_inactive_entities_from_map_(it.second);
@@ -4826,6 +4826,26 @@ void Database::change_entity_status_of_kind(
                         change_entity_status_of_kind(participant->process->id, active, participant->process->kind,
                                 participant->domain->id);
                     }
+                }
+
+                // subentities DataWriters
+                for (auto dw_it : participant->data_writers)
+                {
+                    change_entity_status_of_kind(
+                        dw_it.first,
+                        active,
+                        EntityKind::DATAWRITER,
+                        participant->domain->id);
+                }
+
+                // subentities DataReaders
+                for (auto dr_it : participant->data_readers)
+                {
+                    change_entity_status_of_kind(
+                        dr_it.first,
+                        active,
+                        EntityKind::DATAREADER,
+                        participant->domain->id);
                 }
             }
 
