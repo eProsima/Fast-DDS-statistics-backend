@@ -4828,24 +4828,29 @@ void Database::change_entity_status_of_kind(
                     }
                 }
 
-                // subentities DataWriters
-                for (auto dw_it : participant->data_writers)
+                // If Participant is being deactivated, all its endpoints become inactive.
+                // In case Participant turns back to life (e.g. liveliness) entities should not.
+                if (!active)
                 {
-                    change_entity_status_of_kind(
-                        dw_it.first,
-                        active,
-                        EntityKind::DATAWRITER,
-                        participant->domain->id);
-                }
+                    // subentities DataWriters
+                    for (auto dw_it : participant->data_writers)
+                    {
+                        change_entity_status_of_kind(
+                            dw_it.first,
+                            active,
+                            EntityKind::DATAWRITER,
+                            participant->domain->id);
+                    }
 
-                // subentities DataReaders
-                for (auto dr_it : participant->data_readers)
-                {
-                    change_entity_status_of_kind(
-                        dr_it.first,
-                        active,
-                        EntityKind::DATAREADER,
-                        participant->domain->id);
+                    // subentities DataReaders
+                    for (auto dr_it : participant->data_readers)
+                    {
+                        change_entity_status_of_kind(
+                            dr_it.first,
+                            active,
+                            EntityKind::DATAREADER,
+                            participant->domain->id);
+                    }
                 }
             }
 

@@ -682,10 +682,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
 
     // The new entity will be active
@@ -702,10 +702,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_FALSE(participant1->active);
 
@@ -716,10 +716,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(participant1->active);
 
@@ -745,10 +745,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(participant1->active);
 
@@ -776,10 +776,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(participant1->active);
 
@@ -805,10 +805,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_FALSE(participant1->active);
 
@@ -819,10 +819,10 @@ TEST_F(database_status_tests, participant)
     ASSERT_TRUE(user->active);
     ASSERT_TRUE(process->active);
     ASSERT_TRUE(domain->active);
-    ASSERT_TRUE(topic->active);
+    ASSERT_FALSE(topic->active);
     ASSERT_TRUE(participant->active);
-    ASSERT_TRUE(datawriter->active);
-    ASSERT_TRUE(datareader->active);
+    ASSERT_FALSE(datawriter->active);
+    ASSERT_FALSE(datareader->active);
     ASSERT_TRUE(locator->active);
     ASSERT_TRUE(participant1->active);
 }

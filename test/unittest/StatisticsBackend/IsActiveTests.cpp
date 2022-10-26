@@ -191,10 +191,10 @@ TEST_F(is_active_tests, participant)
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(process->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(domain->id));
-    ASSERT_TRUE(StatisticsBackendTest::is_active(topic->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(topic->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(participant->id));
-    ASSERT_TRUE(StatisticsBackendTest::is_active(datawriter->id));
-    ASSERT_TRUE(StatisticsBackendTest::is_active(datareader->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datawriter->id));
+    ASSERT_FALSE(StatisticsBackendTest::is_active(datareader->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 }
 #endif // !defined(_WIN32)
