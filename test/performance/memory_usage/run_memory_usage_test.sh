@@ -7,9 +7,8 @@
 # Script Arguments
 ############################################################
 
-WORKSPACE_DIR=$(pwd)
-FASTDDS_EXAMPLE_EXECUTABLE="${WORKSPACE_DIR}/BasicConfigurationExample/BasicConfigurationExample"
-BACKEND_EXAMPLE_EXECUTABLE="${WORKSPACE_DIR}/HelloWorldExample/HelloWorldExample"
+FASTDDS_EXAMPLE_EXECUTABLE="$(pwd)/BasicConfigurationExample/BasicConfigurationExample"
+BACKEND_EXAMPLE_EXECUTABLE="$(pwd)/HelloWorldExample/HelloWorldExample"
 
 RESULT_PAHT='./result'
 RESULT_FILE="backend_memory_usage.csv"
@@ -23,7 +22,7 @@ SLEEP_RESIDUAL_TIME=2
 
 PUBLICATION_RATE=10
 RESET_BACKEND=" "
-BUMP_BACKEND=" "
+DUMP_BACKEND=" "
 
 DEBUG=0
 
@@ -121,75 +120,95 @@ do
     key="$1"
 
     case $key in
-        --workspace)
-        WORKSPACE_DIR="$2"
-        shift # past argument
-        shift # past value
-        ;;
         --fastdds)
         FASTDDS_EXAMPLE_EXECUTABLE="$2"
+        echo "Using fastdds executable: ${FASTDDS_EXAMPLE_EXECUTABLE}"
         shift # past argument
         shift # past value
         ;;
         --backend)
         BACKEND_EXAMPLE_EXECUTABLE="$2"
+        echo "Using backend executable: ${BACKEND_EXAMPLE_EXECUTABLE}"
+
         shift # past argument
         shift # past value
         ;;
 
         --result-path)
         RESULT_PAHT="$2"
+        echo "Using result directory: ${RESULT_PAHT}"
+
         shift # past argument
         shift # past value
         ;;
         --result-file)
         RESULT_FILE="$2"
+        echo "Using result file: ${RESULT_FILE}"
+
         shift # past argument
         shift # past value
         ;;
         --measurament-libraries)
         LIBRARIES_TO_MEASURE="$2"
+        echo "Using libraries to measure: ${LIBRARIES_TO_MEASURE}"
+
         shift # past argument
         shift # past value
         ;;
 
         --loop-iterations)
         ENTITIES_LOOP_ITERATIONS="$2"
+        echo "Using loop iterations: ${ENTITIES_LOOP_ITERATIONS}"
+
         shift # past argument
         shift # past value
         ;;
         --loop-elapsed)
         ENTITIES_LOOP_ELAPSED="$2"
+        echo "Using loop elapsed time: ${ENTITIES_LOOP_ELAPSED}"
+
         shift # past argument
         shift # past value
         ;;
         --loop-entities)
         ENTITIES_IN_LOOP="$2"
+        echo "Using n entities in loop: ${ENTITIES_IN_LOOP}"
+
         shift # past argument
         shift # past value
         ;;
         --statistics)
         STATISTIC_TOPICS="$2"
+        echo "Using statistic topics: ${STATISTIC_TOPICS}"
+
         shift # past argument
         shift # past value
         ;;
 
         --publication-rate)
         PUBLICATION_RATE="$2"
+        echo "Using publication rate: ${PUBLICATION_RATE}"
+
         shift # past argument
         shift # past value
         ;;
         --reset)
         RESET_BACKEND=" --reset "
+        echo "Using reset option"
+
         shift # past argument
         ;;
-        --bump)
-        BUMP_BACKEND=" --bump-file __tmp_backend_test_bump_ "
+        --dump)
+        DUMP_BACKEND=" --dump-file __tmp_backend_test_dump_ "
+        echo "Using dump option"
+
         shift # past argument
         ;;
 
         --debug)
         DEBUG=1
+        echo "Using debug option"
+
         shift # past argument
         ;;
 
@@ -251,10 +270,10 @@ RESET_TIME=$((${ENTITIES_LOOP_ELAPSED}+((${SLEEP_RESIDUAL_TIME}*2)*${ENTITIES_IN
 
 if [ $DEBUG -eq 1 ];
 then
-    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} ${BUMP_BACKEND} --time=${RESET_TIME} &
+    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} ${DUMP_BACKEND} --time=${RESET_TIME} &
     BACKEND_EXAMPLE_PID=$!
 else
-    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} ${BUMP_BACKEND} --time=${RESET_TIME} > /dev/null 2>&1 &
+    ${BACKEND_EXAMPLE_EXECUTABLE} monitor ${RESET_BACKEND} ${DUMP_BACKEND} --time=${RESET_TIME} > /dev/null &
     BACKEND_EXAMPLE_PID=$!
 fi
 
@@ -280,11 +299,11 @@ do
     # TODO
     for j in $(seq 1 ${ENTITIES_IN_LOOP});
     do
-        FASTDDS_STATISTICS="${STATISTIC_TOPICS}" ${FASTDDS_EXAMPLE_EXECUTABLE} publisher --interval ${PUBLICATION_RATE} --topic "TestTopic${i}" > /dev/null 2>&1 &
+        FASTDDS_STATISTICS="${STATISTIC_TOPICS}" ${FASTDDS_EXAMPLE_EXECUTABLE} publisher --interval ${PUBLICATION_RATE} --topic "TestTopic${i}" > /dev/null &
         fastdds_entities_pid+=($!)
         sleep ${SLEEP_RESIDUAL_TIME}
 
-        FASTDDS_STATISTICS="${STATISTIC_TOPICS}" ${FASTDDS_EXAMPLE_EXECUTABLE} subscriber --topic "TestTopic${i}" > /dev/null 2>&1 &
+        FASTDDS_STATISTICS="${STATISTIC_TOPICS}" ${FASTDDS_EXAMPLE_EXECUTABLE} subscriber --topic "TestTopic${i}" > /dev/null &
         fastdds_entities_pid+=($!)
         sleep ${SLEEP_RESIDUAL_TIME}
 
