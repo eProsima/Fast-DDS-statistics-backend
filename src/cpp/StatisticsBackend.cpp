@@ -192,14 +192,17 @@ EntityId create_and_register_monitor(
     std::lock_guard<details::StatisticsBackendData> guard(*backend_data);
 
     /* Create monitor instance and register it in the database */
-    std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
-
-    // Throw exception in fail case
     domain->id = backend_data->database_->insert(domain);
 
     // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
     // Participant. There must exist a way in database to delete a domain, or to make a rollback.
+
+    // Create monitor and set its variables
+    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] =
+            std::make_unique<details::Monitor>();
+    std::unique_ptr<details::Monitor>& monitor =
+            details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id];
 
     monitor->id = domain->id;
     monitor->domain_listener = domain_listener;
@@ -300,8 +303,6 @@ EntityId create_and_register_monitor(
     se_participant_.cancel();
     se_subscriber_.cancel();
     se_topics_datareaders_.cancel();
-
-    details::StatisticsBackendData::get_instance()->monitors_by_entity_[domain->id] = std::move(monitor);
 
     return domain->id;
 }
