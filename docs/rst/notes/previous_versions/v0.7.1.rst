@@ -1,0 +1,8 @@
+Version 0.7.1
+-------------
+
+This release adds the following **improvements**:
+
+* Update python dependencies for building the documentation
+* Re-generate Fast DDS-Gen generated TypeSupport with Fast DDS-Gen v2.2.0
+* Example to export ROS 2 statistics to Prometheus
