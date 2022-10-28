@@ -26,7 +26,7 @@ string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
 
 set(PROJECT_NAME_LARGE "Fast DDS Statistics Backend")
 
-project(${PROJECT_NAME} VERSION 0.7.1
+project(${PROJECT_NAME} VERSION 0.8.0
     DESCRIPTION "eProsima ${PROJECT_NAME_LARGE} library provides a simple and easy-to-use API for interacting with data from Fast DDS statistics module")
 
 set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "C++ library for bridging Fast DDS statistics module data")
@@ -44,8 +44,10 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/asan.cmake)
 ###############################################################################
 # Load external projects.
 ###############################################################################
+set(FASTDDS_MIN_VERSION "2.8.0")
+
 find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
+find_package(fastrtps ${FASTDDS_MIN_VERSION} REQUIRED)
 
 ###############################################################################
 # Test system configuration

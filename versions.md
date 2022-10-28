@@ -1,6 +1,14 @@
 Forthcoming
 -----------
 
+Version 0.8.0
+-------------
+
+This release has the following **API extensions**:
+
+* `StatisticsBackend::clear_statistics_data` clears the statistics data from every entity.
+* `StatisticsBackend::clear_inactive_entities` removes every inactive entity from the database.
+
 Version 0.7.0
 -------------
 
