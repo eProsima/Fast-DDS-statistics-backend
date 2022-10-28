@@ -143,6 +143,10 @@ void clear_examples()
         //CONF-CLEAR-EXAMPLE
         // Init a monitor in DDS domain 0 with no listener associated
         EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
+        // Clear all statistics data
+        StatisticsBackend::clear_statistics_data();
+        // Clear inactive entities
+        StatisticsBackend::clear_inactive_entities();
         // Stop the monitor
         StatisticsBackend::stop_monitor(domain_monitor_id);
         // Clear all data related to the monitor
