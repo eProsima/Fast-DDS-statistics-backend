@@ -11,7 +11,7 @@ This release includes the following **improvements**:
 
 1. CI improvements:
 
-    1.  Include address-sanitizer job.
+    1. Include address-sanitizer job.
     2. Flaky tests are run in a specific job.
 
 1. Internal implementation improvements:
