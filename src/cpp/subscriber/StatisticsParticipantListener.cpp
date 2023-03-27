@@ -161,6 +161,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
         case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
+        case ParticipantDiscoveryInfo::IGNORED_PARTICIPANT:
         {
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
@@ -253,6 +254,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
             break;
         }
         case ReaderDiscoveryInfo::REMOVED_READER:
+        case ReaderDiscoveryInfo::IGNORED_READER:
         {
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
@@ -303,6 +305,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
             break;
         }
         case WriterDiscoveryInfo::REMOVED_WRITER:
+        case WriterDiscoveryInfo::IGNORED_WRITER:
         {
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
