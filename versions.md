@@ -4,10 +4,6 @@ Forthcoming
 Version 0.9.0
 -------------
 
-This release includes the following **features**:
-
-* Add new ignored Info statuses.
-
 This release includes the following **improvements**:
 
 * Regenerate TypeSupport with Fast DDS-Gen v2.4.0.
@@ -16,6 +12,7 @@ This release includes the following **bugfixes**:
 
 * Fix documentation dependencies security vulnerabilities.
 * Install fixed gcovr version.
+* Fix build issues adding ignored Info statuses.
 
 Version 0.8.0
 -------------
