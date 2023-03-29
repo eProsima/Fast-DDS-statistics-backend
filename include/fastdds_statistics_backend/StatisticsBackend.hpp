@@ -28,6 +28,7 @@
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -74,6 +75,13 @@ public:
      */
     static EntityId init_monitor(
             DomainId domain,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none());
+
+    static EntityId init_monitor(
+            DomainId domain,
+            const fastdds::dds::DomainParticipantQos& participant_qos,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none());
