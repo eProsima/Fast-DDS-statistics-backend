@@ -130,7 +130,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point timestamp = now();
 
     // Meaningful prefix for metatraffic entities
     const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
@@ -228,7 +228,7 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point timestamp = now();
 
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
@@ -279,7 +279,7 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // First stop the data queue until the new entity is created
     data_queue_->stop_consumer();
 
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point timestamp = now();
 
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);

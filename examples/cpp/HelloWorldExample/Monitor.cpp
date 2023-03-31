@@ -180,7 +180,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
         helloworld_topic_id);
 
     /* Get the current time */
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now = now();
 
     /*
      * Get the median of the FASTDDS_LATENCY of the last 10 minutes
@@ -233,7 +233,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
         participant_id);
 
     /* Get the current time */
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now = now();
 
     /*
      *

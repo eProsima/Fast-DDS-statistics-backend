@@ -31,7 +31,8 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
-#include "entities.hpp"
+#include <database/entities.hpp>
+#include <types/DataContainer.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -360,8 +361,11 @@ public:
 
     /**
      * @brief Remove the statistics data of the database. This does not include the info or discovery data.
+     *
+     * @param t_to Timestamp regarding the maximum time to stop removing data.
      */
-    void clear_statistics_data();
+    void clear_statistics_data(
+        const Timestamp& t_to);
 
     /**
      * @brief Remove all inactive entities of the database. This does not include domains.
@@ -670,19 +674,19 @@ protected:
      * @return \c DatabaseDump Object representing the data.
      */
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<ByteCountSample>>& data);
+            const std::map<EntityId, details::DataContainer<ByteCountSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<EntityCountSample>>& data);
+            const std::map<EntityId, details::DataContainer<EntityCountSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<EntityDataSample>>& data);
+            const std::map<EntityId, details::DataContainer<EntityDataSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<EntityId, std::vector<DiscoveryTimeSample>>& data);
+            const std::map<EntityId, details::DataContainer<DiscoveryTimeSample>>& data);
     DatabaseDump dump_data_(
-            const std::map<uint64_t, std::vector<EntityCountSample>>& data);
+            const std::map<uint64_t, details::DataContainer<EntityCountSample>>& data);
     DatabaseDump dump_data_(
-            const std::vector<EntityCountSample>& data);
+            const details::DataContainer<EntityCountSample>& data);
     DatabaseDump dump_data_(
-            const std::vector<EntityDataSample>& data);
+            const details::DataContainer<EntityDataSample>& data);
     DatabaseDump dump_data_(
             const EntityCountSample& data);
     DatabaseDump dump_data_(
@@ -695,9 +699,12 @@ protected:
     /**
      * @brief Remove the statistics data of the database. This not include the info or discovery data.
      *
+     * @param t_to Timestamp regarding the maximum time to stop removing data.
+     *
      * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
-    void clear_statistics_data_nts_();
+    void clear_statistics_data_nts_(
+        const Timestamp& t_to);
 
     /**
      * @brief Remove all inactive entities of the database. This does not include domains.

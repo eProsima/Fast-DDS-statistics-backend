@@ -75,6 +75,7 @@ endif(WIN32)
 
 add_subdirectory(Database)
 add_subdirectory(DatabaseQueue)
+add_subdirectory(DataContainer)
 add_subdirectory(EntityId)
 add_subdirectory(EntityMetatraffic)
 add_subdirectory(fragile_ptr)
@@ -84,4 +85,3 @@ add_subdirectory(StatisticsBackend)
 add_subdirectory(StatisticsParticipantListener)
 add_subdirectory(StatisticsReaderListener)
 add_subdirectory(TrafficInjector)
-

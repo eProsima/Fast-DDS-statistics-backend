@@ -19,41 +19,14 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
-void DomainParticipantData::clear(
-        bool clear_last_reported)
-{
-    RTPSData::clear(clear_last_reported);
-    discovered_entity.clear();
-    pdp_packets.clear();
-    edp_packets.clear();
-    network_latency_per_locator.clear();
-    if (clear_last_reported)
-    {
-        last_reported_pdp_packets.clear();
-        last_reported_edp_packets.clear();
-    }
-}
-
-void DataReaderData::clear(
-        bool clear_last_reported)
-{
-    subscription_throughput.clear();
-    acknack_count.clear();
-    nackfrag_count.clear();
-    if (clear_last_reported)
-    {
-        last_reported_acknack_count.clear();
-        last_reported_nackfrag_count.clear();
-    }
-}
-
 void RTPSData::clear(
+        const Timestamp& t_to,
         bool clear_last_reported)
 {
-    rtps_packets_sent.clear();
-    rtps_bytes_sent.clear();
-    rtps_packets_lost.clear();
-    rtps_bytes_lost.clear();
+    rtps_packets_sent.clear(t_to);
+    rtps_bytes_sent.clear(t_to);
+    rtps_packets_lost.clear(t_to);
+    rtps_bytes_lost.clear(t_to);
     if (clear_last_reported)
     {
         last_reported_rtps_packets_sent_count.clear();
@@ -63,16 +36,47 @@ void RTPSData::clear(
     }
 }
 
-void DataWriterData::clear(
+void DomainParticipantData::clear(
+        const Timestamp& t_to,
         bool clear_last_reported)
 {
-    history2history_latency.clear();
-    publication_throughput.clear();
-    resent_datas.clear();
-    heartbeat_count.clear();
-    gap_count.clear();
-    data_count.clear();
-    sample_datas.clear();
+    RTPSData::clear(t_to, clear_last_reported);
+    discovered_entity.clear(t_to);
+    pdp_packets.clear(t_to);
+    edp_packets.clear(t_to);
+    network_latency_per_locator.clear(t_to);
+    if (clear_last_reported)
+    {
+        last_reported_pdp_packets.clear();
+        last_reported_edp_packets.clear();
+    }
+}
+
+void DataReaderData::clear(
+        const Timestamp& t_to,
+        bool clear_last_reported)
+{
+    subscription_throughput.clear(t_to);
+    acknack_count.clear(t_to);
+    nackfrag_count.clear(t_to);
+    if (clear_last_reported)
+    {
+        last_reported_acknack_count.clear();
+        last_reported_nackfrag_count.clear();
+    }
+}
+
+void DataWriterData::clear(
+        const Timestamp& t_to,
+        bool clear_last_reported)
+{
+    history2history_latency.clear(t_to);
+    publication_throughput.clear(t_to);
+    resent_datas.clear(t_to);
+    heartbeat_count.clear(t_to);
+    gap_count.clear(t_to);
+    data_count.clear(t_to);
+    sample_datas.clear(t_to);
     if (clear_last_reported)
     {
         last_reported_resent_datas.clear();

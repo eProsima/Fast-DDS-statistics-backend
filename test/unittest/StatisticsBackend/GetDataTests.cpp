@@ -142,7 +142,7 @@ TEST_P(get_data_no_data_tests, no_data)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, entity2),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic);
 
@@ -153,8 +153,8 @@ TEST_P(get_data_no_data_tests, no_data)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, entity2),
             bins,
-            Timestamp(),
-            Timestamp() + std::chrono::seconds(bins),
+            the_beginning_of_time(),
+            the_beginning_of_time() + std::chrono::seconds(bins),
             statistic);
 
         ASSERT_EQ(bins, result.size());
@@ -165,7 +165,7 @@ TEST_P(get_data_no_data_tests, no_data)
             data_type,
             std::vector<EntityId>(1, entity1),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic);
 
@@ -175,8 +175,8 @@ TEST_P(get_data_no_data_tests, no_data)
             data_type,
             std::vector<EntityId>(1, entity1),
             bins,
-            Timestamp(),
-            Timestamp() + std::chrono::seconds(bins),
+            the_beginning_of_time(),
+            the_beginning_of_time() + std::chrono::seconds(bins),
             statistic);
 
         ASSERT_EQ(bins, result.size());
@@ -188,7 +188,7 @@ TEST_P(get_data_no_data_tests, no_data)
         // The timestamp of each datapoint is the timestamp correspoding to the end of the time interval. For this
         // tests the time interval is configure to be 1 second as the number of bins is equal to the time interval in
         // seconds.
-        ASSERT_EQ(Timestamp() + std::chrono::seconds(1) + std::chrono::seconds(i), result[i].first);
+        ASSERT_EQ(the_beginning_of_time() + std::chrono::seconds(1) + std::chrono::seconds(i), result[i].first);
     }
 }
 
@@ -242,7 +242,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             std::vector<EntityId>(1, EntityId::invalid()),
             std::vector<EntityId>(1, entity2),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -253,7 +253,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             std::vector<EntityId>(1, EntityId::invalid()),
             std::vector<EntityId>(1, entity2),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -264,7 +264,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, EntityId::invalid()),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -275,7 +275,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, EntityId::invalid()),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -285,7 +285,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             data_type,
             std::vector<EntityId>(1, EntityId::invalid()),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -295,7 +295,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
             data_type,
             std::vector<EntityId>(1, EntityId::invalid()),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -309,7 +309,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
                 std::vector<EntityId>(1, entity2),
                 std::vector<EntityId>(1, entity1),
                 0,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -320,7 +320,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
                 std::vector<EntityId>(1, entity2),
                 std::vector<EntityId>(1, entity1),
                 10,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -330,7 +330,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
                 data_type,
                 std::vector<EntityId>(1, entity2),
                 0,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -340,7 +340,7 @@ TEST_P(get_data_with_data_tests, invalid_entity_kind)
                 data_type,
                 std::vector<EntityId>(1, entity2),
                 10,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -360,7 +360,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             std::vector<EntityId>(1, EntityId(200)),
             std::vector<EntityId>(1, entity2),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -371,7 +371,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             std::vector<EntityId>(1, EntityId(200)),
             std::vector<EntityId>(1, entity2),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -382,7 +382,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, EntityId(200)),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -393,7 +393,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, EntityId(200)),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -403,7 +403,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             data_type,
             std::vector<EntityId>(1, EntityId(200)),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -413,7 +413,7 @@ TEST_P(get_data_with_data_tests, nonexistent_entity_id)
             data_type,
             std::vector<EntityId>(1, EntityId(200)),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -432,7 +432,7 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, entity2),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -443,7 +443,7 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
             std::vector<EntityId>(1, entity1),
             std::vector<EntityId>(1, entity2),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -453,7 +453,7 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
             data_type,
             std::vector<EntityId>(1, entity1),
             0,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -463,7 +463,7 @@ TEST_P(get_data_with_data_tests, invalid_data_kind)
             data_type,
             std::vector<EntityId>(1, entity1),
             10,
-            Timestamp(),
+            the_beginning_of_time(),
             std::chrono::system_clock::now(),
             statistic),
         BadParameter);
@@ -579,8 +579,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -648,8 +648,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -730,8 +730,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -797,8 +797,8 @@ TEST_P(get_data_with_data_tests, get_sum_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -912,8 +912,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -980,8 +980,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1062,8 +1062,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1129,8 +1129,8 @@ TEST_P(get_data_with_data_tests, get_min_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1244,8 +1244,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -1312,8 +1312,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1394,8 +1394,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1461,8 +1461,8 @@ TEST_P(get_data_with_data_tests, get_max_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -1576,8 +1576,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1642,8 +1642,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1724,8 +1724,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1791,8 +1791,8 @@ TEST_P(get_data_with_data_tests, get_count_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1, true);
@@ -1906,8 +1906,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -1974,8 +1974,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2056,8 +2056,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2123,8 +2123,8 @@ TEST_P(get_data_with_data_tests, get_mean_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2239,8 +2239,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -2307,8 +2307,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2389,8 +2389,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2456,8 +2456,8 @@ TEST_P(get_data_with_data_tests, get_none_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2569,8 +2569,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -2637,8 +2637,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2719,8 +2719,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2786,8 +2786,8 @@ TEST_P(get_data_with_data_tests, get_median_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -2899,8 +2899,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::DISCOVERY_TIME:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             double multiplier = (DataKind::DISCOVERY_TIME == data_type) ? 1000.0 : 1.0;
 
@@ -2967,8 +2967,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                     expected), BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3049,8 +3049,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
         case DataKind::FASTDDS_LATENCY:
         {
             /************* Time span smaller than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(4000);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(9000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(4000);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(9000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3116,8 +3116,8 @@ TEST_P(get_data_with_data_tests, get_stdev_data)
                 BadParameter);
 
             /************* Time span larger than available data ******************/
-            start = Timestamp() + nanoseconds_to_systemclock_duration(0);
-            finish = Timestamp() + nanoseconds_to_systemclock_duration(20000);
+            start = the_beginning_of_time() + nanoseconds_to_systemclock_duration(0);
+            finish = the_beginning_of_time() + nanoseconds_to_systemclock_duration(20000);
 
             // Testing with a single bin
             fill_expected_result(expected, start, finish, 1);
@@ -3299,7 +3299,7 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
                 std::vector<EntityId>(1, entity1),
                 std::vector<EntityId>(1, entity2),
                 0,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -3310,7 +3310,7 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
                 std::vector<EntityId>(1, entity1),
                 std::vector<EntityId>(1, entity2),
                 10,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -3322,7 +3322,7 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
                 data_type,
                 std::vector<EntityId>(1, entity1),
                 0,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
@@ -3332,7 +3332,7 @@ TEST_P(get_data_unsupported_entities_tests, unsupported_entity_kind)
                 data_type,
                 std::vector<EntityId>(1, entity1),
                 10,
-                Timestamp(),
+                the_beginning_of_time(),
                 std::chrono::system_clock::now(),
                 statistic),
             BadParameter);
