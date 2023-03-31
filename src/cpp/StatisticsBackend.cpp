@@ -670,7 +670,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
                 for (auto& it = *iterators.first; it != *iterators.second; ++it)
                 {
-                    ret_val.emplace_back(it.get_the_beginning_of_time(), it.get_value());
+                    ret_val.emplace_back(it.get_timestamp(), it.get_value());
                 }
             }
         }
@@ -732,7 +732,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 
             for (auto& it = *iterators.first; it != *iterators.second; ++it)
             {
-                ret_val.emplace_back(it.get_the_beginning_of_time(), it.get_value());
+                ret_val.emplace_back(it.get_timestamp(), it.get_value());
             }
         }
     }
@@ -763,7 +763,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         entity_ids_source,
         entity_ids_target,
         bins,
-        the_beginning_of_time(),
+        the_initial_time(),
         now(),
         statistic);
 }
@@ -778,7 +778,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         data_type,
         entity_ids,
         bins,
-        the_beginning_of_time(),
+        the_initial_time(),
         now(),
         statistic);
 }

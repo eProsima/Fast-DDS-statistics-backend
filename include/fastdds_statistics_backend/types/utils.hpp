@@ -22,6 +22,8 @@
 
 #include <chrono>
 
+#include <fastdds_statistics_backend/types/types.hpp>
+
 namespace eprosima {
 namespace statistics_backend {
 
@@ -30,6 +32,12 @@ namespace statistics_backend {
 constexpr const auto now = std::chrono::system_clock::now;
 constexpr const auto the_beginning_of_time = std::chrono::time_point<std::chrono::system_clock>::min;
 constexpr const auto the_end_of_time = std::chrono::time_point<std::chrono::system_clock>::max;
+
+// NOTE: it is not possible to alias a ctor
+inline Timestamp the_initial_time() noexcept
+{
+    return Timestamp();
+}
 
 } //namespace statistics_backend
 } //namespace eprosima

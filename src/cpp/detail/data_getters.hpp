@@ -54,7 +54,7 @@ struct GenericIterator : public base_iterator_type
      * @brief Get the timestamp of the sample currently pointed to by this iterator.
      * @return Timestamp of sample.
      */
-    Timestamp get_the_beginning_of_time() const noexcept
+    Timestamp get_timestamp() const noexcept
     {
         return (**this)->src_ts;
     }

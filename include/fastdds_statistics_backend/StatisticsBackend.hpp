@@ -304,7 +304,7 @@ public:
             const std::vector<EntityId>& entity_ids_source,
             const std::vector<EntityId>& entity_ids_target,
             uint16_t bins = 0,
-            Timestamp t_from = the_beginning_of_time(),
+            Timestamp t_from = the_initial_time(),
             Timestamp t_to = now(),
             StatisticKind statistic = StatisticKind::NONE);
 
@@ -348,7 +348,7 @@ public:
             DataKind data_type,
             const std::vector<EntityId>& entity_ids,
             uint16_t bins = 0,
-            Timestamp t_from = the_beginning_of_time(),
+            Timestamp t_from = the_initial_time(),
             Timestamp t_to = now(),
             StatisticKind statistic = StatisticKind::NONE);
 
