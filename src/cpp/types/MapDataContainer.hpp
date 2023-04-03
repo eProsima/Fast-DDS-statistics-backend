@@ -31,18 +31,32 @@ namespace statistics_backend {
 namespace details {
 
 /**
- * TODO
- * @todo comment
+ * Class that contains a map of \c DataContainer .
+ *
+ * This class is used along the RTPS entities to contain the data indexed by the Entity Id that has sent it.
+ *
+ * @tparam K type of the key of the map (usually EntityId).
+ * @tparam T type of the values inside the internal container (must inherit from \c StatisticsSample ).
+ *
  */
 template <typename K, typename T>
 class MapDataContainer : public std::map<K, DataContainer<T>>
 {
-    // This class only could be used with T types derived from \c StatisticsSample
+    // This class only could be used with T types derived from StatisticsSample
     static_assert(std::is_base_of<database::StatisticsSample, T>::value, "Type of MapDataContainer not derived from database::StatisticsSample");
 
 public:
 
+    //! Use map clear function if no arguments given
     using std::map<K, DataContainer<T>>::clear;
+
+    /**
+     * @brief Clear internal data that are previous to the time given.
+     *
+     * @param t_to Minimum time that will be kept in internal containers.
+     *
+     * @note use \c the_end_of_time as argument to efficiently erase all the internal data.
+     */
     void clear(
             const Timestamp& t_to)
     {
