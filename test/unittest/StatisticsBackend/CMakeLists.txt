@@ -706,6 +706,7 @@ get_win32_path_dependencies(clear_statistics_data_tests TEST_FRIENDLY_PATH)
 
 set(BACKEND_DUMP_TEST_LIST
         clear_statistics_data_simple
+        clear_statistics_data_time
     )
 
 foreach(test_name ${BACKEND_DUMP_TEST_LIST})
