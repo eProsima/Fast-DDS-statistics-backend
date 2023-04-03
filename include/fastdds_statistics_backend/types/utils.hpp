@@ -27,13 +27,25 @@
 namespace eprosima {
 namespace statistics_backend {
 
-// TODO comment & test
-
+//! Alias of \c now function. Returns a timestamp referring to the time the function is called.
 constexpr const auto now = std::chrono::system_clock::now;
+
+/**
+ * @brief Alias of \c time_point::min function. Returns the minimum timestamp possible.
+ *
+ * @warning This is a negative number. It is not the same as initial time. Use \c the_initial_time for time 0.
+ */
 constexpr const auto the_beginning_of_time = std::chrono::time_point<std::chrono::system_clock>::min;
+
+//! Alias of \c time_point::max function. Returns a timestamp referring to the maximum time.
 constexpr const auto the_end_of_time = std::chrono::time_point<std::chrono::system_clock>::max;
 
-// NOTE: it is not possible to alias a ctor
+/**
+ * @brief 0 time.
+ *
+ * @return Time 0
+ * @note: it is not possible to alias a ctor, thus it requires its own function.
+ */
 inline Timestamp the_initial_time() noexcept
 {
     return Timestamp();

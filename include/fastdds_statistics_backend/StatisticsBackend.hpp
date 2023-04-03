@@ -435,7 +435,7 @@ public:
             const std::string& filename);
 
     /**
-     * @brief Clear all statistics data of all entities received before a time given.
+     * @brief Clear statistics data of all entities received previous to the time given.
      *
      * @param t_to Timestamp regarding the maximum time to stop removing data.
      */

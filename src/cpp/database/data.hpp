@@ -40,32 +40,58 @@ namespace database {
  */
 using Qos = nlohmann::json;
 
+/**
+ * @brief Abstract common interface for all Statistical Data structures of every kind of entity.
+ *
+ * Every Statistical Data Structure must have a method to clear internal data depending on a Timestamp.
+ * This class implements the \c clear methods for default arguments.
+ */
 struct Data
 {
+
     /**
-     * Clear the vectors and maps, and set the counts to zero
+     * @brief Removes those internal data from the substructures that are previous to the time given.
+     *
+     * @param t_to last time to be removed from internal structures
+     * @param clear_last_reported whether to remove the last reported data for each internal structure.
+     *
+     * @note if \c t_to is \c the_end_of_time (max time point) the structures are cleared completely,
+     * making this call more efficient.
      */
     virtual void clear(
             const Timestamp& t_to,
             bool clear_last_reported) = 0;
 
+    /**
+     * @brief \c clear method with default parameter \c clear_last_reported to \c true .
+     *
+     * @param t_to last time to be removed from internal structures
+     *
+     * @note clear_last_reported is default to \c true to maintain old API.
+     * However I think this should not be the default value.
+     */
     virtual void clear(const Timestamp& t_to)
     {
         clear(t_to, true);
     }
 
+    /**
+     * @brief \c clear method with default parameter \c t_to to \c the_end_of_time .
+     */
     virtual void clear()
     {
-        clear(now());
+        clear(the_end_of_time());
     }
 };
 
-/*
- * Base struct for data related to RTPS
+/**
+ * Base struct for data related to Domain Participant
+ *
+ * @note I do not know why this struct exist, as it is only inherited by one class. ¯\_(ツ)_/¯
  */
 struct RTPSData : public Data
 {
-    // Implement Data::clear virtual methods
+    // Implement Data::clear virtual method
     using Data::clear;
     virtual void clear(
             const Timestamp& t_to,
@@ -137,7 +163,7 @@ struct RTPSData : public Data
  */
 struct DomainParticipantData : public RTPSData
 {
-    // Implement Data::clear virtual methods
+    // Implement Data::clear virtual method
     using RTPSData::clear;
     virtual void clear(
             const Timestamp& t_to,
@@ -195,7 +221,7 @@ struct DomainParticipantData : public RTPSData
  */
 struct DataReaderData : public Data
 {
-    // Implement Data::clear virtual methods
+    // Implement Data::clear virtual method
     using Data::clear;
     virtual void clear(
             const Timestamp& t_to,
@@ -240,7 +266,7 @@ struct DataReaderData : public Data
  */
 struct DataWriterData : public Data
 {
-    // Implement Data::clear virtual methods
+    // Implement Data::clear virtual method
     using Data::clear;
     virtual void clear(
             const Timestamp& t_to,

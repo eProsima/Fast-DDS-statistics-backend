@@ -1,5 +1,12 @@
 .. _release_notes:
 
+Forthcoming version
+===================
+
+This release includes the following **features**:
+
+#. Extend method :code:`clear_statistics_data` to remove internal statistical data previous to a time given.
+
 Version 0.9.0
 =============
 

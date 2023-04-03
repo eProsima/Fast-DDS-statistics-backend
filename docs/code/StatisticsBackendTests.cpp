@@ -143,6 +143,9 @@ void clear_examples()
         //CONF-CLEAR-EXAMPLE
         // Init a monitor in DDS domain 0 with no listener associated
         EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
+        // Clear statistics data previous to time given (in this case it removes everything older than 5 minutes)
+        StatisticsBackend::clear_statistics_data(
+            std::chrono::system_clock::now() - std::chrono::minutes(5));
         // Clear all statistics data
         StatisticsBackend::clear_statistics_data();
         // Clear inactive entities
