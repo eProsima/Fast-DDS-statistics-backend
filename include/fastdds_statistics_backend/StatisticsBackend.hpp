@@ -440,7 +440,7 @@ public:
      * @param t_to Timestamp regarding the maximum time to stop removing data.
      */
     static void clear_statistics_data(
-        const Timestamp& t_to = the_end_of_time());
+            const Timestamp& t_to = the_end_of_time());
 
     //! Remove all inactive entities from database.
     static void clear_inactive_entities();

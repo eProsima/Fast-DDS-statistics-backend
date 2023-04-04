@@ -70,7 +70,8 @@ struct Data
      * @note clear_last_reported is default to \c true to maintain old API.
      * However I think this should not be the default value.
      */
-    virtual void clear(const Timestamp& t_to)
+    virtual void clear(
+            const Timestamp& t_to)
     {
         clear(t_to, true);
     }
@@ -82,6 +83,7 @@ struct Data
     {
         clear(the_end_of_time());
     }
+
 };
 
 /**

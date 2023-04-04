@@ -365,7 +365,7 @@ public:
      * @param t_to Timestamp regarding the maximum time to stop removing data.
      */
     void clear_statistics_data(
-        const Timestamp& t_to);
+            const Timestamp& t_to);
 
     /**
      * @brief Remove all inactive entities of the database. This does not include domains.
@@ -704,7 +704,7 @@ protected:
      * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
     void clear_statistics_data_nts_(
-        const Timestamp& t_to);
+            const Timestamp& t_to);
 
     /**
      * @brief Remove all inactive entities of the database. This does not include domains.

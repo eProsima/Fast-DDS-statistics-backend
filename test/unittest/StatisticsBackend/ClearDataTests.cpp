@@ -81,7 +81,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_time)
     auto reader_id = reader_ids[0];
 
     auto data_before_clear = StatisticsBackend::get_data(
-            DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE);
+        DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE);
     ASSERT_GT(data_before_clear.size(), 1u);
     auto amount_of_data_before_clear = data_before_clear.size();
 
@@ -112,7 +112,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_time)
     ASSERT_EQ(reader_ids_after_reset[0], reader_id);
 
     auto data_after_clear = StatisticsBackend::get_data(
-            DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE);
+        DataKind::SUBSCRIPTION_THROUGHPUT, std::vector<EntityId>({reader_id}), 0, StatisticKind::NONE);
     ASSERT_GT(data_after_clear.size(), 0u);
     auto amount_of_data_after_clear = data_after_clear.size();
     ASSERT_GT(amount_of_data_before_clear, amount_of_data_after_clear);

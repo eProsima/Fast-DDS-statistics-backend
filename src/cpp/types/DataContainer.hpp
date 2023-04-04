@@ -50,7 +50,8 @@ template <typename T>
 class DataContainer : public std::list<T>
 {
     // This class only could be used with T types derived from \c StatisticsSample
-    static_assert(std::is_base_of<database::StatisticsSample, T>::value, "Type of DataContainer not derived from database::StatisticsSample");
+    static_assert(std::is_base_of<database::StatisticsSample, T>::value,
+            "Type of DataContainer not derived from database::StatisticsSample");
 
 public:
 
@@ -64,10 +65,12 @@ public:
      *
      * @note thanks to chat gpt
      */
-    T& operator[](std::size_t index)
+    T& operator [](
+            std::size_t index)
     {
         // Check if the index is valid
-        if (index >= this->size()) {
+        if (index >= this->size())
+        {
             throw std::out_of_range("Index out of range in DataContainer list.");
         }
 
@@ -89,10 +92,12 @@ public:
      *
      * @note thanks to chat gpt
      */
-    const T& operator[](std::size_t index) const
+    const T& operator [](
+            std::size_t index) const
     {
         // Check if the index is valid
-        if (index >= this->size()) {
+        if (index >= this->size())
+        {
             throw std::out_of_range("Index out of range in DataContainer list.");
         }
 
@@ -137,8 +142,8 @@ public:
      * @return Pair with first data inside the limit first, and second the first data higher to the limit.
      */
     std::pair<typename std::list<T>::iterator, typename std::list<T>::iterator> get_interval_limits(
-        const Timestamp& t_from,
-        const Timestamp& t_to)
+            const Timestamp& t_from,
+            const Timestamp& t_to)
     {
         return {find_by_timestamp_(t_from), find_by_timestamp_(t_to)};
     }
@@ -152,15 +157,18 @@ protected:
      * @return Iterator to the first data with timestamp equal or higher than \c value_to_find
      */
     typename std::list<T>::iterator find_by_timestamp_(
-        const Timestamp& value_to_find)
+            const Timestamp& value_to_find)
     {
         return std::find_if(
             this->begin(),
             this->end(),
             [&value_to_find](const T& value)
-                { return value.src_ts >= value_to_find; }
-        );
+            {
+                return value.src_ts >= value_to_find;
+            }
+            );
     }
+
 };
 
 } // namespace details

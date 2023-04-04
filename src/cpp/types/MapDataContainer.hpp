@@ -43,7 +43,8 @@ template <typename K, typename T>
 class MapDataContainer : public std::map<K, DataContainer<T>>
 {
     // This class only could be used with T types derived from StatisticsSample
-    static_assert(std::is_base_of<database::StatisticsSample, T>::value, "Type of MapDataContainer not derived from database::StatisticsSample");
+    static_assert(std::is_base_of<database::StatisticsSample, T>::value,
+            "Type of MapDataContainer not derived from database::StatisticsSample");
 
 public:
 
@@ -70,10 +71,10 @@ public:
             // Remove those internals lists that become empty
             // NOTE: unable to use remove_if
             auto end = this->end();
-            for(auto iter = this->begin(); iter != end;)
+            for (auto iter = this->begin(); iter != end;)
             {
                 iter->second.clear(t_to);
-                if(iter->second.empty())
+                if (iter->second.empty())
                 {
                     iter = this->erase(iter);
                 }
@@ -84,6 +85,7 @@ public:
             }
         }
     }
+
 };
 
 } // namespace details

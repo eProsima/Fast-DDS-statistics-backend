@@ -36,17 +36,20 @@ TYPED_TEST_SUITE_P(DataContainer_tests);
 // Auxiliary methods for test
 namespace test {
 
-Timestamp arbitrary_timestamp(unsigned int index = 0)
+Timestamp arbitrary_timestamp(
+        unsigned int index = 0)
 {
     return the_initial_time() + std::chrono::seconds(index);
 }
 
 //! Create a new value
 template <typename T>
-T arbitrary_value(unsigned int index = 0);
+T arbitrary_value(
+        unsigned int index = 0);
 
 template <>
-database::EntityCountSample arbitrary_value<database::EntityCountSample>(unsigned int index /* = 0 */)
+database::EntityCountSample arbitrary_value<database::EntityCountSample>(
+        unsigned int index /* = 0 */)
 {
     database::EntityCountSample d;
     d.kind = DataKind::INVALID;
@@ -56,7 +59,8 @@ database::EntityCountSample arbitrary_value<database::EntityCountSample>(unsigne
 }
 
 template <>
-database::EntityDataSample arbitrary_value<database::EntityDataSample>(unsigned int index /* = 0 */)
+database::EntityDataSample arbitrary_value<database::EntityDataSample>(
+        unsigned int index /* = 0 */)
 {
     database::EntityDataSample d;
     d.kind = DataKind::INVALID;
@@ -66,7 +70,8 @@ database::EntityDataSample arbitrary_value<database::EntityDataSample>(unsigned 
 }
 
 template <>
-database::ByteCountSample arbitrary_value<database::ByteCountSample>(unsigned int index /* = 0 */)
+database::ByteCountSample arbitrary_value<database::ByteCountSample>(
+        unsigned int index /* = 0 */)
 {
     database::ByteCountSample d;
     d.kind = DataKind::INVALID;
@@ -81,6 +86,7 @@ template<typename T>
 class DataContainerTest : public details::DataContainer<T>
 {
 public:
+
     using details::DataContainer<T>::find_by_timestamp_;
 };
 

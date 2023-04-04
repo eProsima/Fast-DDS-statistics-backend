@@ -38,22 +38,26 @@ namespace test {
 
 //! Create a new value
 template <typename T>
-T arbitrary_value(unsigned int index = 0);
+T arbitrary_value(
+        unsigned int index = 0);
 
 template <>
-int arbitrary_value<int>(unsigned int index /* = 0 */)
+int arbitrary_value<int>(
+        unsigned int index /* = 0 */)
 {
     return index;
 }
 
 template <>
-std::string arbitrary_value<std::string>(unsigned int index /* = 0 */)
+std::string arbitrary_value<std::string>(
+        unsigned int index /* = 0 */)
 {
     return std::to_string(index);
 }
 
 template <>
-EntityId arbitrary_value<EntityId>(unsigned int index /* = 0 */)
+EntityId arbitrary_value<EntityId>(
+        unsigned int index /* = 0 */)
 {
     return EntityId(index);
 }
@@ -63,12 +67,14 @@ constexpr const unsigned int N_KEY_TEST = 5;
 
 using Data = database::EntityDataSample;
 
-Timestamp arbitrary_timestamp(unsigned int index = 0)
+Timestamp arbitrary_timestamp(
+        unsigned int index = 0)
 {
     return the_initial_time() + std::chrono::seconds(index);
 }
 
-Data arbitrary_data(unsigned int index = 0)
+Data arbitrary_data(
+        unsigned int index = 0)
 {
     Data d;
     d.kind = DataKind::INVALID;
@@ -123,16 +129,16 @@ TYPED_TEST_P(MapDataContainer_tests, clear)
     details::MapDataContainer<TypeParam, test::Data> map;
 
     // Fill map with empty vectors
-    for (unsigned int i=0; i<test::N_KEY_TEST; ++i)
+    for (unsigned int i = 0; i < test::N_KEY_TEST; ++i)
     {
         map[test::arbitrary_value<TypeParam>(i)];
     }
     ASSERT_EQ(map.size(), test::N_KEY_TEST);
 
     // Fill data inside vectors
-    for (unsigned int i=0; i<test::N_KEY_TEST; ++i)
+    for (unsigned int i = 0; i < test::N_KEY_TEST; ++i)
     {
-        for (unsigned int j=0; j<test::N_DATA_TEST; ++j)
+        for (unsigned int j = 0; j < test::N_DATA_TEST; ++j)
         {
             map[test::arbitrary_value<TypeParam>(i)].push_back(
                 test::arbitrary_data(j));
@@ -145,11 +151,11 @@ TYPED_TEST_P(MapDataContainer_tests, clear)
     map[aux_key].push_back(test::arbitrary_data(test::N_DATA_TEST*3));
 
     // Clear only old data
-    auto cut_point = test::arbitrary_timestamp(test::N_DATA_TEST/2);
+    auto cut_point = test::arbitrary_timestamp(test::N_DATA_TEST / 2);
     map.clear(cut_point);
 
     // Check new data is still in vectors
-    for (unsigned int i=0; i<test::N_KEY_TEST; ++i)
+    for (unsigned int i = 0; i < test::N_KEY_TEST; ++i)
     {
         ASSERT_FALSE(map[test::arbitrary_value<TypeParam>(i)].empty());
         for (const auto& value : map[test::arbitrary_value<TypeParam>(i)])
@@ -159,7 +165,7 @@ TYPED_TEST_P(MapDataContainer_tests, clear)
     }
 
     // Clear a great time
-    auto future_cut_point = test::arbitrary_timestamp(test::N_DATA_TEST*2);
+    auto future_cut_point = test::arbitrary_timestamp(test::N_DATA_TEST * 2);
     map.clear(future_cut_point);
 
     // Check no data is in the vectors
