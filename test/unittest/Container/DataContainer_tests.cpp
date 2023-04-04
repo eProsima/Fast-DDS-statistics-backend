@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2023 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -185,12 +185,12 @@ TYPED_TEST_P(DataContainer_tests, clear)
  * Test DataContainer::operator [] method
  *
  * CASES:
- * - const
+ * - not const
  *   - first
  *   - last
  *   - middle
  *   - not in
- * - not const
+ * - const
  *   - first
  *   - last
  *   - middle
@@ -204,7 +204,7 @@ TYPED_TEST_P(DataContainer_tests, access_operator)
     container.push_back(test::arbitrary_value<TypeParam>(7));
     container.push_back(test::arbitrary_value<TypeParam>(3));
 
-    // const
+    // not const
     {
         // first
         {
@@ -227,7 +227,7 @@ TYPED_TEST_P(DataContainer_tests, access_operator)
         }
     }
 
-    // not const
+    // const
     {
         const auto const_container = container;
         // first

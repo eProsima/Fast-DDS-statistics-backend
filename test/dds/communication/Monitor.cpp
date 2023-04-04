@@ -553,7 +553,7 @@ int main(
         }
     }
 
-    /* This can be activated once the clear_monitor is in place */
+    /* TODO This can be activated once the clear_monitor is in place */
     // Test: Clearing the monitor empties the database except physical data
     // {
     //     try
@@ -586,8 +586,6 @@ int main(
     //         return 1;
     //     }
     // }
-
-    // int* x = new int;
 
     std::cerr << "Stop Monitor_" << seed << '\n';
     return 0;
