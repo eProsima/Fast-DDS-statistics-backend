@@ -31,6 +31,7 @@
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/utils.hpp>
 
 #include "Monitor.h"
 
@@ -180,7 +181,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
         helloworld_topic_id);
 
     /* Get the current time */
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    auto now_time = now();
 
     /*
      * Get the median of the FASTDDS_LATENCY of the last 10 minutes
@@ -191,8 +192,8 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
         topic_datawriters,                                           // Source entities
         topic_datareaders,                                           // Target entities
         n_bins_,                                                     // Number of bins
-        now - std::chrono::seconds(t_interval_),                     // t_from
-        now,                                                         // t_to
+        now_time - std::chrono::seconds(t_interval_),                     // t_from
+        now_time,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
     for (auto latency : latency_data)
@@ -233,7 +234,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
         participant_id);
 
     /* Get the current time */
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    auto now_time = now();
 
     /*
      *
@@ -242,8 +243,8 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
         DataKind::PUBLICATION_THROUGHPUT,                            // DataKind
         topic_datawriters,                                           // Source entities
         n_bins_,                                                     // Number of bins
-        now - std::chrono::seconds(t_interval_),                     // t_from
-        now,                                                         // t_to
+        now_time - std::chrono::seconds(t_interval_),                     // t_from
+        now_time,                                                         // t_to
         StatisticKind::MEAN);                                        // Statistic
 
     for (auto publication_throughput : publication_throughput_data)

@@ -25,8 +25,11 @@
 
 #include <fastdds_statistics_backend/nlohmann-json/json.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/utils.hpp>
 
-#include "samples.hpp"
+#include <types/DataContainer.hpp>
+#include <types/MapDataContainer.hpp>
+#include <database/samples.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -37,16 +40,64 @@ namespace database {
  */
 using Qos = nlohmann::json;
 
-/*
- * Base struct for data related to RTPS
+/**
+ * @brief Abstract common interface for all Statistical Data structures of every kind of entity.
+ *
+ * Every Statistical Data Structure must have a method to clear internal data depending on a Timestamp.
+ * This class implements the \c clear methods for default arguments.
  */
-struct RTPSData
+struct Data
 {
+
     /**
-     * Clear the vectors and maps, and set the counts to zero
+     * @brief Removes those internal data from the substructures that are previous to the time given.
+     *
+     * @param t_to last time to be removed from internal structures
+     * @param clear_last_reported whether to remove the last reported data for each internal structure.
+     *
+     * @note if \c t_to is \c the_end_of_time (max time point) the structures are cleared completely,
+     * making this call more efficient.
      */
     virtual void clear(
-            bool clear_last_reported = true) = 0;
+            const Timestamp& t_to,
+            bool clear_last_reported) = 0;
+
+    /**
+     * @brief \c clear method with default parameter \c clear_last_reported to \c true .
+     *
+     * @param t_to last time to be removed from internal structures
+     *
+     * @note clear_last_reported is default to \c true to maintain old API.
+     * However I think this should not be the default value.
+     */
+    virtual void clear(
+            const Timestamp& t_to)
+    {
+        clear(t_to, true);
+    }
+
+    /**
+     * @brief \c clear method with default parameter \c t_to to \c the_end_of_time .
+     */
+    virtual void clear()
+    {
+        clear(the_end_of_time());
+    }
+
+};
+
+/**
+ * Base struct for data related to Domain Participant
+ *
+ * @note I do not know why this struct exist, as it is only inherited by one class. ¯\_(ツ)_/¯
+ */
+struct RTPSData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
 
     /*
      * Packet count data reported by topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -54,7 +105,7 @@ struct RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_sent;
+    details::MapDataContainer<EntityId, EntityCountSample> rtps_packets_sent;
 
     /*
      * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -69,7 +120,7 @@ struct RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_sent;
+    details::MapDataContainer<EntityId, ByteCountSample> rtps_bytes_sent;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -84,7 +135,7 @@ struct RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::map<EntityId, std::vector<EntityCountSample>> rtps_packets_lost;
+    details::MapDataContainer<EntityId, EntityCountSample> rtps_packets_lost;
 
     /*
      * Store the last packet count reported form topic: eprosima::fastdds::statistics::RTPS_LOST_TOPIC
@@ -99,7 +150,7 @@ struct RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::map<EntityId, std::vector<ByteCountSample>> rtps_bytes_lost;
+    details::MapDataContainer<EntityId, ByteCountSample> rtps_bytes_lost;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RTPS_SENT_TOPIC
@@ -112,13 +163,13 @@ struct RTPSData
 /*
  * Data related to a DomainParticipant
  */
-struct DomainParticipantData : RTPSData
+struct DomainParticipantData : public RTPSData
 {
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    void clear(
-            bool clear_last_reported = true) final;
+    // Implement Data::clear virtual method
+    using RTPSData::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::DISCOVERY_TOPIC
@@ -128,7 +179,7 @@ struct DomainParticipantData : RTPSData
      * represents whether the timepoint corresponds to a discovery/update (represented as ALIVE
      * with value 1), or to a un-discovery (represented as DISPOSED with value 0).
      */
-    std::map<EntityId, std::vector<DiscoveryTimeSample>> discovered_entity;
+    details::MapDataContainer<EntityId, DiscoveryTimeSample> discovered_entity;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PDP_PACKETS_TOPIC
@@ -136,7 +187,7 @@ struct DomainParticipantData : RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> pdp_packets;
+    details::DataContainer<EntityCountSample> pdp_packets;
 
     /*
      * Store the last reported sample form topic: eprosima::fastdds::statistics::PDP_PACKETS_TOPIC
@@ -150,7 +201,7 @@ struct DomainParticipantData : RTPSData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> edp_packets;
+    details::DataContainer<EntityCountSample> edp_packets;
 
     /*
      * Store the last reported sample form topic: eprosima::fastdds::statistics::EDP_PACKETS_TOPIC
@@ -164,24 +215,24 @@ struct DomainParticipantData : RTPSData
      * Store the reported latencies between the participant and remote locator, identified by its
      * EntityId.
      */
-    std::map<EntityId, std::vector<EntityDataSample>> network_latency_per_locator;
+    details::MapDataContainer<EntityId, EntityDataSample> network_latency_per_locator;
 };
 
 /*
  * Data related to a DataReader
  */
-struct DataReaderData
+struct DataReaderData : public Data
 {
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    void clear(
-            bool clear_last_reported = true);
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::SUBSCRIPTION_THROUGHPUT_TOPIC
      */
-    std::vector<EntityDataSample> subscription_throughput;
+    details::DataContainer<EntityDataSample> subscription_throughput;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::ACKNACK_COUNT_TOPIC
@@ -189,7 +240,7 @@ struct DataReaderData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> acknack_count;
+    details::DataContainer<EntityCountSample> acknack_count;
 
     /*
      * Store the last reported sample form topic: eprosima::fastdds::statistics::ACKNACK_COUNT_TOPIC
@@ -203,7 +254,7 @@ struct DataReaderData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> nackfrag_count;
+    details::DataContainer<EntityCountSample> nackfrag_count;
 
     /*
      * Store the last reported sample form topic: eprosima::fastdds::statistics::NACKFRAG_COUNT_TOPIC
@@ -215,18 +266,18 @@ struct DataReaderData
 /*
  * Data related to a DataWriter
  */
-struct DataWriterData
+struct DataWriterData : public Data
 {
-    /**
-     * Clear the vectors and maps, and set the counts to zero
-     */
-    void clear(
-            bool clear_last_reported = true);
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::PUBLICATION_THROUGHPUT_TOPIC
      */
-    std::vector<EntityDataSample> publication_throughput;
+    details::DataContainer<EntityDataSample> publication_throughput;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::RESENT_DATAS_TOPIC
@@ -234,7 +285,7 @@ struct DataWriterData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> resent_datas;
+    details::DataContainer<EntityCountSample> resent_datas;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::RESENT_DATAS_TOPIC
@@ -248,7 +299,7 @@ struct DataWriterData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> heartbeat_count;
+    details::DataContainer<EntityCountSample> heartbeat_count;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::HEARTBEAT_COUNT_TOPIC
@@ -262,7 +313,7 @@ struct DataWriterData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> gap_count;
+    details::DataContainer<EntityCountSample> gap_count;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::GAP_COUNT_TOPIC
@@ -276,7 +327,7 @@ struct DataWriterData
      * Fast DDS reports the accumulated count. In opposition, the backend stores the count as the
      * difference between each accumulated report and the previous one.
      */
-    std::vector<EntityCountSample> data_count;
+    details::DataContainer<EntityCountSample> data_count;
 
     /*
      * Store the last byte count reported form topic: eprosima::fastdds::statistics::DATA_COUNT_TOPIC
@@ -290,7 +341,7 @@ struct DataWriterData
      * The key of the map corresponds to the sequence number of the change.
      * The second one is the number of DATA/DATAFRAG sub-messages sent for sending that change.
      */
-    std::map<uint64_t, std::vector<EntityCountSample>> sample_datas;
+    details::MapDataContainer<uint64_t, EntityCountSample> sample_datas;
 
     /*
      * Data reported by topic: eprosima::fastdds::statistics::HISTORY_LATENCY_TOPIC
@@ -298,7 +349,7 @@ struct DataWriterData
      * Store the reported latencies between the local and remote endpoint (identified by its
      * EntityId) histories.
      */
-    std::map<EntityId, std::vector<EntityDataSample>> history2history_latency;
+    details::MapDataContainer<EntityId, EntityDataSample> history2history_latency;
 };
 
 } //namespace database

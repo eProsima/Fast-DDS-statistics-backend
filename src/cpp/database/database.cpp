@@ -2772,7 +2772,8 @@ DatabaseDump Database::dump_database(
 
     if (clear)
     {
-        clear_statistics_data_nts_();
+        // Clear all
+        clear_statistics_data_nts_(the_end_of_time());
     }
 
     return dump;
@@ -3182,7 +3183,7 @@ DatabaseDump Database::dump_entity_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<ByteCountSample>>& data)
+        const std::map<EntityId, details::DataContainer<ByteCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -3207,7 +3208,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<EntityCountSample>>& data)
+        const std::map<EntityId, details::DataContainer<EntityCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -3231,7 +3232,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<EntityDataSample>>& data)
+        const std::map<EntityId, details::DataContainer<EntityDataSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -3255,7 +3256,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<EntityId, std::vector<DiscoveryTimeSample>>& data)
+        const std::map<EntityId, details::DataContainer<DiscoveryTimeSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -3281,7 +3282,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::map<uint64_t, std::vector<EntityCountSample>>& data)
+        const std::map<uint64_t, details::DataContainer<EntityCountSample>>& data)
 {
     DatabaseDump data_dump = DatabaseDump::object();
 
@@ -3305,7 +3306,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::vector<EntityCountSample>& data)
+        const details::DataContainer<EntityCountSample>& data)
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
@@ -3322,7 +3323,7 @@ DatabaseDump Database::dump_data_(
 }
 
 DatabaseDump Database::dump_data_(
-        const std::vector<EntityDataSample>& data)
+        const details::DataContainer<EntityDataSample>& data)
 {
     DatabaseDump data_dump = DatabaseDump::array();
 
@@ -3385,13 +3386,15 @@ DatabaseDump Database::dump_data_(
     return data_dump;
 }
 
-void Database::clear_statistics_data()
+void Database::clear_statistics_data(
+        const Timestamp& t_to)
 {
     std::lock_guard<std::shared_timed_mutex> guard (mutex_);
-    clear_statistics_data_nts_();
+    clear_statistics_data_nts_(t_to);
 }
 
-void Database::clear_statistics_data_nts_()
+void Database::clear_statistics_data_nts_(
+        const Timestamp& t_to)
 {
     // Participants
     for (const auto& super_it : participants_)
@@ -3399,7 +3402,7 @@ void Database::clear_statistics_data_nts_()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear(false);
+            it.second->data.clear(t_to, false);
         }
     }
     // Datawriters
@@ -3408,7 +3411,7 @@ void Database::clear_statistics_data_nts_()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear(false);
+            it.second->data.clear(t_to, false);
         }
     }
     // Datareaders
@@ -3417,7 +3420,7 @@ void Database::clear_statistics_data_nts_()
         // For each entity of this kind in the domain
         for (const auto& it : super_it.second)
         {
-            it.second->data.clear(false);
+            it.second->data.clear(t_to, false);
         }
     }
 }

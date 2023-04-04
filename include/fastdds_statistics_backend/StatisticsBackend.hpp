@@ -26,8 +26,9 @@
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
-#include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/utils.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -303,8 +304,8 @@ public:
             const std::vector<EntityId>& entity_ids_source,
             const std::vector<EntityId>& entity_ids_target,
             uint16_t bins = 0,
-            Timestamp t_from = Timestamp(),
-            Timestamp t_to = std::chrono::system_clock::now(),
+            Timestamp t_from = the_initial_time(),
+            Timestamp t_to = now(),
             StatisticKind statistic = StatisticKind::NONE);
 
     /**
@@ -347,8 +348,8 @@ public:
             DataKind data_type,
             const std::vector<EntityId>& entity_ids,
             uint16_t bins = 0,
-            Timestamp t_from = Timestamp(),
-            Timestamp t_to = std::chrono::system_clock::now(),
+            Timestamp t_from = the_initial_time(),
+            Timestamp t_to = now(),
             StatisticKind statistic = StatisticKind::NONE);
 
     /**
@@ -433,8 +434,13 @@ public:
     static void load_database(
             const std::string& filename);
 
-    //! Clear all statistics data of all entities.
-    static void clear_statistics_data();
+    /**
+     * @brief Clear statistics data of all entities received previous to the time given.
+     *
+     * @param t_to Timestamp regarding the maximum time to stop removing data.
+     */
+    static void clear_statistics_data(
+            const Timestamp& t_to = the_end_of_time());
 
     //! Remove all inactive entities from database.
     static void clear_inactive_entities();

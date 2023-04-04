@@ -763,8 +763,8 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         entity_ids_source,
         entity_ids_target,
         bins,
-        Timestamp(),
-        std::chrono::system_clock::now(),
+        the_initial_time(),
+        now(),
         statistic);
 }
 
@@ -778,8 +778,8 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         data_type,
         entity_ids,
         bins,
-        Timestamp(),
-        std::chrono::system_clock::now(),
+        the_initial_time(),
+        now(),
         statistic);
 }
 
@@ -809,9 +809,10 @@ void StatisticsBackend::dump_database(
     file << StatisticsBackend::dump_database(clear);
 }
 
-void StatisticsBackend::clear_statistics_data()
+void StatisticsBackend::clear_statistics_data(
+        const Timestamp& t_to /* = the_end_of_time() */)
 {
-    details::StatisticsBackendData::get_instance()->database_->clear_statistics_data();
+    details::StatisticsBackendData::get_instance()->database_->clear_statistics_data(t_to);
 }
 
 void StatisticsBackend::clear_inactive_entities()

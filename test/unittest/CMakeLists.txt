@@ -73,6 +73,7 @@ else(WIN32)
     endfunction(get_win32_path_dependencies)
 endif(WIN32)
 
+add_subdirectory(Container)
 add_subdirectory(Database)
 add_subdirectory(DatabaseQueue)
 add_subdirectory(EntityId)
@@ -84,4 +85,3 @@ add_subdirectory(StatisticsBackend)
 add_subdirectory(StatisticsParticipantListener)
 add_subdirectory(StatisticsReaderListener)
 add_subdirectory(TrafficInjector)
-
