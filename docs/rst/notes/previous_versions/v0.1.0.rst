@@ -1,5 +1,5 @@
 Version 0.1.0
--------------
+=============
 
 This first release includes the following features:
 

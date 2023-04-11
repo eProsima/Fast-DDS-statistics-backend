@@ -1,14 +1,18 @@
 .. _release_notes:
 
+#############
+Release Notes
+#############
+
 Version 0.10.0
-==============
+##############
 
 This release includes the following **feature**:
 
 * Extend method :code:`clear_statistics_data` to remove internal statistical data previous to a time given.
 
 Previous versions
-=================
+#################
 
 .. include:: previous_versions/v0.9.0.rst
 .. include:: previous_versions/v0.8.0.rst

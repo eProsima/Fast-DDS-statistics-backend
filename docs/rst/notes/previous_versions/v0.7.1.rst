@@ -1,5 +1,5 @@
 Version 0.7.1
--------------
+=============
 
 This release adds the following **improvements**:
 
