@@ -1,28 +1,20 @@
 .. _release_notes:
 
-Forthcoming version
-===================
+#############
+Release Notes
+#############
 
-This release includes the following **features**:
+Version 0.10.0
+##############
 
-#. Extend method :code:`clear_statistics_data` to remove internal statistical data previous to a time given.
+This release includes the following **feature**:
 
-Version 0.9.0
-=============
-
-This release includes the following **improvements**:
-
-1. Regenerate TypeSupport with Fast DDS-Gen v2.4.0.
-
-This release includes the following **bugfixes**:
-
-1. Fix documentation dependencies security vulnerabilities.
-2. Install fixed gcovr version.
-3. Fix build issues adding ignored Info statuses.
+* Extend method :code:`clear_statistics_data` to remove internal statistical data previous to a time given.
 
 Previous versions
-=================
+#################
 
+.. include:: previous_versions/v0.9.0.rst
 .. include:: previous_versions/v0.8.0.rst
 .. include:: previous_versions/v0.7.1.rst
 .. include:: previous_versions/v0.7.0.rst
