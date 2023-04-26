@@ -101,7 +101,7 @@ void erase_and_check(
     db.load_database(initial_dump);
 
     // Call erase monitor removing domain_1
-    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, domain);
+    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN_ENTITY, domain);
     EntityId domain_id = domains.begin()->first;
     // Save entities associated to the erased domain to check that the cross maps are correctly erased.
     std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
@@ -148,7 +148,7 @@ TEST(database_erase_tests, erase_domain_unlinked_participant_process)
             "120");
 }
 
-// This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the
+// This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN_ENTITY, kills the
 // thread with an assertion
 TEST(database_erase_tests, erase_wrong_kind)
 {

@@ -203,7 +203,7 @@ public:
     {
         // Precondition: The Domain 0 exists and has ID 0
         EXPECT_CALL(database,
-                get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+                get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
                 .Times(
             AnyNumber())
                 .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -238,7 +238,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -398,7 +398,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -544,7 +544,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -592,7 +592,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -704,7 +704,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -900,7 +900,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -1078,7 +1078,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -1237,7 +1237,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -1373,7 +1373,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -1557,7 +1557,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
 {
     // Precondition: The Domain 0 does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_)))
             .Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
@@ -1597,7 +1597,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -1703,7 +1703,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -1760,7 +1760,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -1870,7 +1870,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -1950,7 +1950,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2081,7 +2081,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2107,7 +2107,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     std::string another_domain_name = "another_domain";
     std::shared_ptr<Domain> another_domain = std::make_shared<Domain>(another_domain_name);
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, another_domain_name)).Times(AnyNumber())
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, another_domain_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(100), EntityId(100)))));
     EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
@@ -2220,7 +2220,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2432,7 +2432,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2635,7 +2635,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2700,7 +2700,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
 {
     // Precondition: The Domain 0 does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
@@ -2761,7 +2761,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2853,7 +2853,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -2947,7 +2947,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3057,7 +3057,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3137,7 +3137,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3272,7 +3272,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3484,7 +3484,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
 
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3683,7 +3683,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3749,7 +3749,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
 {
     // Precondition: The Domain 0 does not exist
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
     EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
@@ -3810,7 +3810,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));
@@ -3902,7 +3902,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
 {
     // Precondition: The Domain 0 exists and has ID 0
     EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
+            get_entities_by_name(EntityKind::DOMAIN_ENTITY, std::to_string(statistics_participant.domain_id_))).Times(
         AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(0)))));

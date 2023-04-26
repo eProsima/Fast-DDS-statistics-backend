@@ -1036,7 +1036,7 @@ TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
     // Expectation: The call asserts
     ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
                 EntityId(1),
-                EntityKind::DOMAIN,
+                EntityKind::DOMAIN_ENTITY,
                 details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
             ".*");
 

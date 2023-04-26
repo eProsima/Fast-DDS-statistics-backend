@@ -192,7 +192,7 @@ struct Domain : Entity
 {
     Domain(
             std::string domain_name) noexcept
-        : Entity(EntityKind::DOMAIN, domain_name)
+        : Entity(EntityKind::DOMAIN_ENTITY, domain_name)
     {
     }
 
