@@ -1,8 +1,16 @@
-Forthcoming
------------
+Version 0.11.0
+--------------
+
+This release includes the following **improvement**:
+
+* Regenerate TypeSupport with Fast DDS-Gen v2.5.1.
+
+This release includes the following **bugfix**:
+
+* Remove obsolete warning in documentation. Fast DDS v2.9.0 changed the default behavior by building with **FASTDDS_STATISTICS** enabled by default.
 
 Version 0.10.0
--------------
+--------------
 
 This release includes the following **feature**:
 
