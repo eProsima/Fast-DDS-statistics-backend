@@ -1,8 +1,26 @@
-Forthcoming
------------
+Version 0.11.0
+--------------
+
+This release includes the following **improvement**:
+
+* Regenerate TypeSupport with Fast DDS-Gen v2.5.1.
+
+This release includes the following **bugfix**:
+
+* Remove obsolete warning in documentation. Fast DDS v2.9.0 changed the default behavior by building with **FASTDDS_STATISTICS** enabled by default.
+
+This release includes the following **dependencies update**:
+
+|  | Repository | Old Version | New Version |
+|---|---|---|---|
+| Foonathan Memory Vendor | [eProsima/foonathan_memory_vendor](https://github.com/eProsima/foonathan_memory_vendor) | [v1.3.0](https://github.com/eProsima/foonathan_memory_vendor/releases/tag/v1.3.0) | [v1.3.1](https://github.com/eProsima/foonathan_memory_vendor/releases/tag/v1.3.1) |
+| Fast CDR | [eProsima/Fast-CDR](https://github.com/eProsima/Fast-CDR) | [v1.0.27](https://github.com/eProsima/Fast-CDR/releases/tag/v1.0.27) | [v1.1.0](https://github.com/eProsima/Fast-CDR/releases/tag/v1.1.0) |
+| Fast DDS | [eProsima/Fast-DDS](https://github.com/eProsima/Fast-DDS) | [v2.10.1](https://github.com/eProsima/Fast-DDS/releases/tag/v2.10.1) | [v2.11.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.11.0) |
+| Fast DDS Gen | [eProsima/Fast-DDS-Gen](https://github.com/eProsima/Fast-DDS-Gen) | [v2.4.0](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.4.0) | [v2.5.1](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.5.1) |
+| IDL Parser | [eProsima/IDL-Parser](https://github.com/eProsima/IDL-Parser) | [v1.5.0](https://github.com/eProsima/IDL-Parser/releases/tag/v1.5.0) | [v1.6.0](https://github.com/eProsima/IDL-Parser/releases/tag/v1.6.0) |
 
 Version 0.10.0
--------------
+--------------
 
 This release includes the following **feature**:
 
