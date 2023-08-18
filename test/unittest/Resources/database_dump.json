@@ -147,6 +147,7 @@
             "alias":"datareader_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participant":"15",
             "qos":{
                 "qos":"empty"
@@ -179,6 +180,7 @@
             "alias":"datareader_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participant":"24",
             "qos":{
                 "qos":"empty"
@@ -531,6 +533,7 @@
             "alias":"datawriter_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participant":"15",
             "qos":{
                 "qos":"empty"
@@ -579,6 +582,7 @@
             "alias":"datawriter_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participant":"24",
             "qos":{
                 "qos":"empty"
@@ -598,7 +602,8 @@
             "name":"locator_1",
             "alias":"locator_1",
             "metatraffic":false,
-            "alive":true
+            "alive":true,
+            "status": 0
         },
         "18":{
             "datareaders":[
@@ -610,7 +615,8 @@
             "name":"locator_2",
             "alias":"locator_2",
             "metatraffic":false,
-            "alive":true
+            "alive":true,
+            "status": 0
         }
     },
     "participants":{
@@ -1175,6 +1181,7 @@
             "alias":"participant_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "process":"12",
             "qos":{
                 "qos":"empty"
@@ -1245,6 +1252,7 @@
             "alias":"participant_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "process":"21",
             "qos":{
                 "qos":"empty"
@@ -1264,7 +1272,8 @@
             "name":"topic_1",
             "alias":"topic_1",
             "metatraffic":false,
-            "alive":true
+            "alive":true,
+            "status": 0
         },
         "23":{
             "data_type":"data_type",
@@ -1278,7 +1287,8 @@
             "name":"topic_2",
             "alias":"topic_2",
             "metatraffic":false,
-            "alive":true
+            "alive":true,
+            "status": 0
         }
     },
     "domains":{
@@ -1287,6 +1297,7 @@
             "alias":"domain_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participants":[
                 "15"
             ],
@@ -1299,6 +1310,7 @@
             "alias":"domain_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participants":[
                 "24"
             ],
@@ -1313,6 +1325,7 @@
             "alias":"host_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "users":[
                 "11"
             ]
@@ -1322,6 +1335,7 @@
             "alias":"host_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "users":[
                 "2000"
             ]
@@ -1334,6 +1348,7 @@
             "alias":"user_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "processes":[
                 "12"
             ]
@@ -1344,6 +1359,7 @@
             "alias":"user_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "processes":[
                 "21"
             ]
@@ -1355,6 +1371,7 @@
             "alias":"process_1",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participants":[
                 "15"
             ],
@@ -1366,6 +1383,7 @@
             "alias":"process_2",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "participants":[
                 "24"
             ],

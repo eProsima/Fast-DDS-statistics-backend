@@ -492,6 +492,12 @@ EntityKind StatisticsBackend::get_type(
     return StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
+EntityStatus StatisticsBackend::get_status(
+        EntityId entity_id)
+{
+    return StatisticsBackendData::get_instance()->database_->get_entity_status(entity_id);
+}
+
 Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
@@ -506,6 +512,7 @@ Info StatisticsBackend::get_info(
     info[ALIAS_INFO_TAG] = entity->alias;
     info[ALIVE_INFO_TAG] = entity->active;
     info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    info[STATUS_INFO_TAG] = entity->status;
 
     switch (entity->kind)
     {

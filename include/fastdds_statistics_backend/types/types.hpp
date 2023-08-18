@@ -141,6 +141,21 @@ enum class EntityKind
 };
 
 /**
+ * Indicates the Status of an Entity in Statistics Backend structure
+ */
+enum class EntityStatus
+{
+    /// Ok entity status
+    OK,
+
+    /// Warning entity status
+    WARNING,
+
+    /// Error entity status
+    ERROR,
+};
+
+/**
  * Indicates the Type of Data stored by the Backend
  *
  *     | Signature               | Entities source   | Entity target | No. entities |

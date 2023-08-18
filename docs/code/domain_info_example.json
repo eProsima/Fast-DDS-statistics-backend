@@ -3,5 +3,6 @@
     "kind": "domain",
     "name": "0",
     "alias": "domain_alias",
-    "alive": true
+    "alive": true,
+    "status": 0
 }

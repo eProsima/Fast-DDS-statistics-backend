@@ -369,6 +369,9 @@ struct EntityDiscoveryInfo
     std::string alias;
     bool is_virtual_metatraffic = false;
 
+    // Status
+    EntityStatus entity_status;
+
     EntityDiscoveryInfo(
             EntityKind kind)
         : entity_kind(kind)

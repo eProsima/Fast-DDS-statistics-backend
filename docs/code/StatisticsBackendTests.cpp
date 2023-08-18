@@ -566,6 +566,17 @@ void get_type_example()
     }
 }
 
+void get_status_example()
+{
+    {
+        EntityId entity_id;
+        //CONF-GET-STATUS-EXAMPLE
+        EntityStatus status = StatisticsBackend::get_status(entity_id);
+        //!--
+        static_cast<void>(status);
+    }
+}
+
 void set_alias_example()
 {
     {

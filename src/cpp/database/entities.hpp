@@ -54,12 +54,14 @@ struct Entity
             EntityKind entity_kind = EntityKind::INVALID,
             std::string entity_name = "INVALID",
             bool entity_metatraffic = false,
-            bool entity_active = true) noexcept
+            bool entity_active = true,
+            EntityStatus entity_status = EntityStatus::OK) noexcept
         : kind(entity_kind)
         , name(entity_name)
         , alias(entity_name)
         , metatraffic(entity_metatraffic)
         , active(entity_active)
+        , status(entity_status)
     {
     }
 
@@ -98,6 +100,9 @@ struct Entity
 
     //! Active means that there is statistical data being reported within the entity.
     bool active;
+
+    //! The status of entity
+    EntityStatus status;
 };
 
 /*
@@ -106,8 +111,9 @@ struct Entity
 struct Host : Entity
 {
     Host(
-            std::string host_name) noexcept
-        : Entity(EntityKind::HOST, host_name, false, false)
+            std::string host_name,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(EntityKind::HOST, host_name, false, false, status)
     {
     }
 
@@ -130,8 +136,9 @@ struct User : Entity
 {
     User(
             std::string user_name,
-            details::fragile_ptr<Host> user_host) noexcept
-        : Entity(EntityKind::USER, user_name, false, false)
+            details::fragile_ptr<Host> user_host,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(EntityKind::USER, user_name, false, false, status)
         , host(user_host)
     {
     }
@@ -159,8 +166,9 @@ struct Process : Entity
     Process(
             std::string process_name,
             std::string process_id,
-            details::fragile_ptr<User> process_user) noexcept
-        : Entity(EntityKind::PROCESS, process_name, false, false)
+            details::fragile_ptr<User> process_user,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(EntityKind::PROCESS, process_name, false, false, status)
         , pid(process_id)
         , user(process_user)
     {
@@ -191,8 +199,9 @@ struct Process : Entity
 struct Domain : Entity
 {
     Domain(
-            std::string domain_name) noexcept
-        : Entity(EntityKind::DOMAIN, domain_name)
+            std::string domain_name,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(EntityKind::DOMAIN, domain_name, false, true, status)
     {
     }
 
@@ -223,8 +232,9 @@ struct DDSEntity : Entity
             EntityKind entity_kind = EntityKind::INVALID,
             std::string dds_entity_name = "INVALID",
             Qos dds_entity_qos = {},
-            std::string dds_entity_guid = "|GUID UNKNOWN|") noexcept
-        : Entity(entity_kind, dds_entity_name)
+            std::string dds_entity_guid = "|GUID UNKNOWN|",
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(entity_kind, dds_entity_name, false, true, status)
         , qos(dds_entity_qos)
         , guid(dds_entity_guid)
     {
@@ -248,7 +258,8 @@ struct DDSEndpoint : DDSEntity
             Qos endpoint_qos = {},
             std::string endpoint_guid = "|GUID UNKNOWN|",
             details::fragile_ptr<DomainParticipant> endpoint_participant = nullptr,
-            details::fragile_ptr<Topic> endpoint_topic = nullptr) noexcept;
+            details::fragile_ptr<Topic> endpoint_topic = nullptr,
+            EntityStatus status = EntityStatus::OK) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     details::fragile_ptr<DomainParticipant> participant;
@@ -276,8 +287,9 @@ struct DomainParticipant : DDSEntity
             Qos participant_qos,
             std::string participant_guid,
             details::fragile_ptr<Process> participant_process,
-            details::fragile_ptr<Domain> participant_domain) noexcept
-        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid)
+            details::fragile_ptr<Domain> participant_domain,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status)
         , process(participant_process)
         , domain(participant_domain)
     {
@@ -325,8 +337,9 @@ struct Topic : Entity
     Topic(
             std::string topic_name,
             std::string topic_type,
-            details::fragile_ptr<Domain> topic_domain) noexcept
-        : Entity(EntityKind::TOPIC, topic_name, is_metatraffic_topic(topic_name))
+            details::fragile_ptr<Domain> topic_domain,
+            EntityStatus status = EntityStatus::OK) noexcept
+        : Entity(EntityKind::TOPIC, topic_name, is_metatraffic_topic(topic_name), true, status)
         , data_type(topic_type)
         , domain(topic_domain)
     {
@@ -369,9 +382,10 @@ struct DataReader : DDSEndpoint
             Qos datareader_qos,
             std::string datareader_guid,
             details::fragile_ptr<DomainParticipant> datareader_participant,
-            details::fragile_ptr<Topic> datareader_topic) noexcept
+            details::fragile_ptr<Topic> datareader_topic,
+            EntityStatus status = EntityStatus::OK) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
-                datareader_topic)
+                datareader_topic, status)
     {
     }
 
@@ -395,9 +409,10 @@ struct DataWriter : DDSEndpoint
             Qos datawriter_qos,
             std::string datawriter_guid,
             details::fragile_ptr<DomainParticipant> datawriter_participant,
-            details::fragile_ptr<Topic> datawriter_topic) noexcept
+            details::fragile_ptr<Topic> datawriter_topic,
+            EntityStatus status = EntityStatus::OK) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
-                datawriter_topic)
+                datawriter_topic, status)
     {
     }
 

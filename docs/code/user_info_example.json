@@ -3,5 +3,6 @@
     "kind": "user",
     "name": "user_name",
     "alias": "user_alias",
-    "alive": true
+    "alive": true,
+    "status": 0,
 }

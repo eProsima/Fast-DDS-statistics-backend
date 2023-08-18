@@ -2108,6 +2108,12 @@ EntityKind Database::get_entity_kind(
     return get_entity(entity_id)->kind;
 }
 
+EntityStatus Database::get_entity_status(
+        EntityId entity_id) const
+{
+    return get_entity(entity_id)->status;
+}
+
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
         const EntityId& entity_id) const
@@ -2785,6 +2791,7 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
@@ -2809,6 +2816,7 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[HOST_ENTITY_TAG] = id_to_string(entity->host->id);
 
@@ -2836,6 +2844,7 @@ DatabaseDump Database::dump_entity_(
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[PID_INFO_TAG] = entity->pid;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[USER_ENTITY_TAG] = id_to_string(entity->user->id);
 
@@ -2862,6 +2871,7 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
@@ -2897,6 +2907,7 @@ DatabaseDump Database::dump_entity_(
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[DATA_TYPE_INFO_TAG] = entity->data_type;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
@@ -2935,6 +2946,7 @@ DatabaseDump Database::dump_entity_(
     entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
@@ -3034,6 +3046,7 @@ DatabaseDump Database::dump_entity_(
     entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
@@ -3104,6 +3117,7 @@ DatabaseDump Database::dump_entity_(
     entity_info[ALIAS_INFO_TAG] = entity->alias;
     entity_info[GUID_INFO_TAG] = entity->guid;
     entity_info[QOS_INFO_TAG] = entity->qos;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
@@ -3154,6 +3168,7 @@ DatabaseDump Database::dump_entity_(
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_INFO_TAG] = entity->name;
     entity_info[ALIAS_INFO_TAG] = entity->alias;
+    entity_info[STATUS_INFO_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;

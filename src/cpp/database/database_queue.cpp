@@ -92,6 +92,8 @@ EntityId DatabaseEntityQueue::process_participant(
                 name = info.address + ":" + get_participant_id(info.guid);
             }
 
+            EntityStatus status = info.entity_status;
+
             // Create the participant and add it to the database
             GUID_t participant_guid = info.guid;
             auto participant = std::make_shared<database::DomainParticipant>(
@@ -99,7 +101,8 @@ EntityId DatabaseEntityQueue::process_participant(
                 info.qos,
                 to_string(participant_guid),
                 std::shared_ptr<database::Process>(),
-                domain);
+                domain,
+                status);
 
             participant_id = database_->insert(participant);
         }

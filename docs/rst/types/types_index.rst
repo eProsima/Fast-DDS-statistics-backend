@@ -11,5 +11,6 @@ Types
     /rst/types/statistic_kind
     /rst/types/entity_kind
     /rst/types/entity_id
+    /rst/types/entity_status
     /rst/types/json_tags
     /rst/types/database_dumps

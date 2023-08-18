@@ -89,6 +89,8 @@ constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 constexpr const char* ID_INFO_TAG                   = "id";
 //! Key tag for the EntityKind of an entity
 constexpr const char* KIND_INFO_TAG                 = "kind";
+//! Key tag for the EntityStatus of an entity
+constexpr const char* STATUS_INFO_TAG                 = "status";
 //! Key tag for name of an entity
 constexpr const char* NAME_INFO_TAG                 = "name";
 //! Key tag for alias of an entity

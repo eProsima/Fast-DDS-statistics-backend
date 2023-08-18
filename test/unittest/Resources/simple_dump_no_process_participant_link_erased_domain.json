@@ -11,6 +11,7 @@
             "alias": "host_0",
             "metatraffic":false,
             "alive":false,
+            "status": 0,
             "users": ["2"]
         }
     },
@@ -23,6 +24,7 @@
             "alias": "user_0",
             "metatraffic":false,
             "alive":false,
+            "status": 0,
             "host": "1",
             "processes": ["3"]
         }
@@ -36,6 +38,7 @@
             "alias": "process_0",
             "metatraffic":false,
             "alive":false,
+            "status": 0,
             "pid": "36000",
             "user": "2",
             "participants": []
@@ -70,6 +73,7 @@
             "alias": "locator_0",
             "metatraffic":false,
             "alive":true,
+            "status": 0,
             "datawriters": [],
             "datareaders": []
         }
