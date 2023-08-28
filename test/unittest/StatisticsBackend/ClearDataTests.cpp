@@ -35,7 +35,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_simple)
     StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
 
     // Check that there is at least a domain
-    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Check that there is data loaded
     // Get Reader id
@@ -72,7 +72,7 @@ TEST(clear_statistics_data_tests, clear_statistics_data_time)
     StatisticsBackend::load_database(COMPLEX_DUMP_FILE);
 
     // Check that there is at least a domain
-    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Check that there is data loaded
     // Get Reader id 17

@@ -188,7 +188,7 @@ int main(
             if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
+                    !StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
@@ -227,12 +227,12 @@ int main(
                     !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::DATAREADER).empty() ||
                     !StatisticsBackend::get_entities(EntityKind::LOCATOR).empty() ||
-                    (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1) ||
-                    (StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id))
+                    (StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).size() != 1) ||
+                    (StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).begin()->value() != monitor_id))
             {
                 throw Error("Error: database contains unexpected entities");
             }
-            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN, monitor_id))
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY, monitor_id))
             {
                 if (!StatisticsBackend::is_active(entity))
                 {
@@ -272,8 +272,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected entities");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
-                    StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).size() != 1 ||
+                    StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).begin()->value() != monitor_id)
             {
                 throw Error("Error: database contains unexpected DOMAIN");
             }
@@ -303,7 +303,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
-            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN, monitor_id))
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY, monitor_id))
             {
                 if (!StatisticsBackend::is_active(entity))
                 {
@@ -372,8 +372,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected entities");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
-                    StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).size() != 1 ||
+                    StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).begin()->value() != monitor_id)
             {
                 throw Error("Error: database contains unexpected DOMAIN");
             }
@@ -403,7 +403,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
-            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN, monitor_id))
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY, monitor_id))
             {
                 if (!StatisticsBackend::is_active(entity))
                 {
@@ -474,8 +474,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected entities");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
-                    StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
+            else if (StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).size() != 1 ||
+                    StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).begin()->value() != monitor_id)
             {
                 throw Error("Error: database contains unexpected DOMAIN");
             }
@@ -505,7 +505,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
-            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN, monitor_id))
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY, monitor_id))
             {
                 if (StatisticsBackend::is_active(entity))
                 {
@@ -564,7 +564,7 @@ int main(
     //         if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
     //                 !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
     //                 !StatisticsBackend::get_entities(EntityKind::PROCESS).empty() ||
-    //                 !StatisticsBackend::get_entities(EntityKind::DOMAIN).empty() ||
+    //                 !StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty() ||
     //                 !StatisticsBackend::get_entities(EntityKind::TOPIC).empty() ||
     //                 !StatisticsBackend::get_entities(EntityKind::PARTICIPANT).empty() ||
     //                 !StatisticsBackend::get_entities(EntityKind::DATAWRITER).empty() ||

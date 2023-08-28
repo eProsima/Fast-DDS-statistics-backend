@@ -186,7 +186,7 @@ TEST(database, clear_inactive_entities_database_simple)
             EntityKind::HOST,
             EntityKind::USER,
             EntityKind::PROCESS,
-            EntityKind::DOMAIN,
+            EntityKind::DOMAIN_ENTITY,
             EntityKind::TOPIC
         };
         for (const auto& kind : entities_kind_to_check)
@@ -242,7 +242,7 @@ TEST(database, clear_inactive_entities_database_simple)
         }
 
         // 2 entities remain: Domain and 1 locator
-        ASSERT_EQ(db.get_entity_ids(EntityKind::DOMAIN, EntityId::all()).size(), 1u);
+        ASSERT_EQ(db.get_entity_ids(EntityKind::DOMAIN_ENTITY, EntityId::all()).size(), 1u);
         ASSERT_EQ(db.get_entity_ids(EntityKind::LOCATOR, EntityId::all()).size(), 1u);
     }
 }

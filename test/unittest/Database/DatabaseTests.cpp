@@ -2555,7 +2555,7 @@ TEST_F(database_tests, get_entities_by_name_process_wrong_name)
 TEST_F(database_tests, get_entities_by_name_domain)
 {
     /* Check that the inserted entity is retrieved correctly */
-    auto domains = db.get_entities_by_name(EntityKind::DOMAIN, domain_name);
+    auto domains = db.get_entities_by_name(EntityKind::DOMAIN_ENTITY, domain_name);
     EXPECT_EQ(domains.size(), 1u);
     EXPECT_EQ(domains[0].first, domain_id);
     EXPECT_EQ(domains[0].second, domain_id);
@@ -2563,7 +2563,7 @@ TEST_F(database_tests, get_entities_by_name_domain)
 
 TEST_F(database_tests, get_entities_by_name_domain_wrong_name)
 {
-    auto domains = db.get_entities_by_name(EntityKind::DOMAIN, "wrong_name");
+    auto domains = db.get_entities_by_name(EntityKind::DOMAIN_ENTITY, "wrong_name");
     EXPECT_EQ(domains.size(), 0u);
 }
 
@@ -2713,7 +2713,7 @@ TEST_F(database_tests, get_entity_kind)
     EXPECT_EQ(EntityKind::HOST, db.get_entity_kind(host_id));
     EXPECT_EQ(EntityKind::USER, db.get_entity_kind(user_id));
     EXPECT_EQ(EntityKind::PROCESS, db.get_entity_kind(process_id));
-    EXPECT_EQ(EntityKind::DOMAIN, db.get_entity_kind(domain_id));
+    EXPECT_EQ(EntityKind::DOMAIN_ENTITY, db.get_entity_kind(domain_id));
     EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind(participant_id));
     EXPECT_EQ(EntityKind::DATAWRITER, db.get_entity_kind(writer_id));
     EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind(reader_id));
@@ -4144,7 +4144,7 @@ TEST_F(database_tests, get_entity_by_guid_process)
 
 TEST_F(database_tests, get_entity_by_guid_domain)
 {
-    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DOMAIN, "any_guid"), BadParameter);
+    EXPECT_THROW(db.get_entity_by_guid(EntityKind::DOMAIN_ENTITY, "any_guid"), BadParameter);
 }
 
 TEST_F(database_tests, get_entity_by_guid_participant)

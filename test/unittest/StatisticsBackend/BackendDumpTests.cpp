@@ -28,25 +28,25 @@ TEST(backend_dump_tests, reset)
 {
     // Load the dump to the database
     StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
-    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Resetting at this point should work and clear the database
     StatisticsBackend::reset();
-    ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Load the dump to the database again
     StatisticsBackend::load_database(SIMPLE_DUMP_FILE);
-    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Start a monitor and try resetting
     auto monitor = StatisticsBackend::init_monitor(100);
     EXPECT_THROW(StatisticsBackend::reset(), PreconditionNotMet);
-    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_FALSE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 
     // Stop the monitor and try again
     StatisticsBackend::stop_monitor(monitor);
     EXPECT_NO_THROW(StatisticsBackend::reset());
-    ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN).empty());
+    ASSERT_TRUE(StatisticsBackend::get_entities(EntityKind::DOMAIN_ENTITY).empty());
 }
 
 TEST(backend_dump_tests, database_dump_load)
