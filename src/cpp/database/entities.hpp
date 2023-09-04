@@ -300,6 +300,8 @@ struct DomainParticipant : DDSEntity
      */
     void clear() final;
 
+    std::string app_id;
+
     template<typename T>
     std::map<EntityId, details::fragile_ptr<T>>& ddsendpoints();
 

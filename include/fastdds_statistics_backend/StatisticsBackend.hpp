@@ -413,6 +413,16 @@ public:
     static Graph get_graph();
 
     /**
+     * @brief Get the domain view graph.
+     * 
+     * @param domain Domain from which graph is delivered.
+     *
+     * @return Graph object describing per domain topology of the entities.
+     */
+    static Graph get_domain_view_graph(
+            const std::string& domain_guid);
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, clear all the statistics data of all entities.

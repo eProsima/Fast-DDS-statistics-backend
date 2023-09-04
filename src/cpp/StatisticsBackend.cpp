@@ -795,6 +795,14 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
+Graph StatisticsBackend::get_domain_view_graph(const std::string& domain_guid)
+{
+    EntityId domain_id = StatisticsBackendData::get_instance()->database_->get_entity_by_guid(
+            EntityKind::DOMAIN, domain_guid)
+                        .second;
+    return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
+}
+
 DatabaseDump StatisticsBackend::dump_database(
         const bool clear)
 {

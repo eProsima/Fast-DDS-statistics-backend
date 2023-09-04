@@ -170,6 +170,28 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
     }
 
+    //Get physical data from participant discovery info
+    auto get_physical_property_value =
+            [](const fastdds::dds::ParameterPropertyList_t& properties, const std::string& property_name) -> std::string
+            {
+                auto property = std::find_if(
+                    properties.begin(),
+                    properties.end(),
+                    [&](const fastdds::dds::ParameterProperty_t& property)
+                    {
+                        return property.first() == property_name;
+                    });
+                if (property != properties.end())
+                {
+                    return property->second();
+                }
+                return std::string("");
+            };
+
+    discovery_info.host = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_host);
+    discovery_info.user = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_user);
+    discovery_info.process = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_process);
+
     entity_queue_->push(timestamp, discovery_info);
 
     // Create metatraffic entities
@@ -212,7 +234,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
-
+    
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();

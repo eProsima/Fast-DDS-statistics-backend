@@ -71,6 +71,64 @@ EntityId DatabaseEntityQueue::process_participant(
         database_->change_entity_status(participant_id,
                 info.discovery_status !=
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+        // Delete inactive entities from graph
+        // Get host entity
+        std::shared_ptr<Host> host;
+        auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
+        std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
+                                        hosts.front().second));
+        host = std::const_pointer_cast<Host>(const_host);
+        
+        // Get user entity
+        std::shared_ptr<User> user;
+        auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
+        for (const auto& it : users)
+        {
+            std::shared_ptr<const User> const_user =
+                    std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
+
+            // The user name is unique within the host
+            if (const_user->host == host)
+            {
+                user = std::const_pointer_cast<User>(const_user);
+                break;
+            }
+        }
+
+        // Get process entity
+        std::string process_name;
+        std::string process_pid;
+        size_t separator_pos = info.process.find_last_of(':');
+        if (separator_pos == std::string::npos)
+        {
+            logInfo(BACKEND_DATABASE,
+                    "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+            process_name = info.process;
+            process_pid = info.process;
+        }
+        else
+        {
+            process_name = info.process.substr(0, separator_pos);
+            process_pid = info.process.substr(separator_pos + 1);
+        }
+        std::shared_ptr<Process> process;
+        auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
+        for (const auto& it : processes)
+        {
+            std::shared_ptr<const Process> const_process =
+                    std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
+
+            // There is only one process with the same name for a given user
+            if (const_process->user == user)
+            {
+                process = std::const_pointer_cast<Process>(const_process);
+                break;
+            }
+        }
+
+        database_->delete_participant_from_graph(info.domain_id, host->id, user->id, process->id, participant_id);
+        
     }
     catch (BadParameter&)
     {
@@ -105,6 +163,95 @@ EntityId DatabaseEntityQueue::process_participant(
                 status);
 
             participant_id = database_->insert(participant);
+
+            try
+            {
+                // Parse the process name and PID
+                std::string process_name;
+                std::string process_pid;
+                size_t separator_pos = info.process.find_last_of(':');
+                if (separator_pos == std::string::npos)
+                {
+                    logInfo(BACKEND_DATABASE,
+                            "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+                    process_name = info.process;
+                    process_pid = info.process;
+                }
+                else
+                {
+                    process_name = info.process.substr(0, separator_pos);
+                    process_pid = info.process.substr(separator_pos + 1);
+                }
+
+                // Check the existence of the host
+                std::shared_ptr<Host> host;
+                auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
+                if (hosts.empty())
+                {
+                    host.reset(new Host(info.host));
+                    host->id = database_->insert(std::static_pointer_cast<Entity>(host));
+                }
+                else
+                {
+                    // Host name reported by Fast DDS are considered unique
+                    std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
+                                        hosts.front().second));
+                    host = std::const_pointer_cast<Host>(const_host);
+                }   
+
+                // Check the existence of the user in that host
+                std::shared_ptr<User> user;
+                auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
+                for (const auto& it : users)
+                {
+                    std::shared_ptr<const User> const_user =
+                            std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
+
+                    // The user name is unique within the host
+                    if (const_user->host == host)
+                    {
+                        user = std::const_pointer_cast<User>(const_user);
+                        break;
+                    }
+                }
+                if (!user)
+                {
+                    user.reset(new User(info.user, host));
+                    user->id = database_->insert(std::static_pointer_cast<Entity>(user));
+                }
+
+                // Check the existence of the process in that user
+                EntityId process_id;
+                std::shared_ptr<Process> process;
+                auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
+                for (const auto& it : processes)
+                {
+                    std::shared_ptr<const Process> const_process =
+                            std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
+
+                    // There is only one process with the same name for a given user
+                    if (const_process->user == user)
+                    {
+                        process = std::const_pointer_cast<Process>(const_process);
+                        process_id = const_process->id;
+                        break;
+                    }
+                }
+                if (!process)
+                {
+                    process.reset(new Process(process_name, process_pid, user));
+                    process_id = database_->insert(std::static_pointer_cast<Entity>(process));
+                }
+
+                database_->link_participant_with_process(participant_id, process_id);
+
+                database_->add_participant_to_graph(info.domain_id, host->id, user->id, process->id, participant_id);
+            }
+            catch (const std::exception& e)
+            {
+                logError(BACKEND_DATABASE_QUEUE, e.what());
+            }
+
         }
         else
         {
@@ -996,102 +1143,9 @@ void DatabaseDataQueue::process_sample()
             }
             break;
         }
+
         case StatisticsEventKind::PHYSICAL_DATA:
         {
-            StatisticsPhysicalData item = front().second->physical_data();
-
-            try
-            {
-                // Take the ID of the Participant from its GUID
-                std::string participant_guid = deserialize_guid(item.participant_guid());
-                auto participants = database_->get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid);
-                EntityId participant_id = participants.second;
-
-                // Parse the process name and PID
-                std::string process_name;
-                std::string process_pid;
-                size_t separator_pos = item.process().find_last_of(':');
-                if (separator_pos == std::string::npos)
-                {
-                    logInfo(BACKEND_DATABASE_QUEUE,
-                            "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
-                    process_name = item.process();
-                    process_pid = item.process();
-                }
-                else
-                {
-                    process_name = item.process().substr(0, separator_pos);
-                    process_pid = item.process().substr(separator_pos + 1);
-                }
-
-                // Check the existence of the host
-                std::shared_ptr<Host> host;
-                auto hosts = database_->get_entities_by_name(EntityKind::HOST, item.host());
-                if (hosts.empty())
-                {
-                    host.reset(new Host(item.host()));
-                    host->id = database_->insert(std::static_pointer_cast<Entity>(host));
-                }
-                else
-                {
-                    // Host name reported by Fast DDS are considered unique
-                    std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
-                                        hosts.front().second));
-                    host = std::const_pointer_cast<Host>(const_host);
-                }
-
-                // Check the existence of the user in that host
-                std::shared_ptr<User> user;
-                auto users = database_->get_entities_by_name(EntityKind::USER, item.user());
-                for (const auto& it : users)
-                {
-                    std::shared_ptr<const User> const_user =
-                            std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
-
-                    // The user name is unique within the host
-                    if (const_user->host == host)
-                    {
-                        user = std::const_pointer_cast<User>(const_user);
-                        break;
-                    }
-                }
-                if (!user)
-                {
-                    user.reset(new User(item.user(), host));
-                    user->id = database_->insert(std::static_pointer_cast<Entity>(user));
-                }
-
-                // Check the existence of the process in that user
-                EntityId process_id;
-                std::shared_ptr<Process> process;
-                auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
-                for (const auto& it : processes)
-                {
-                    std::shared_ptr<const Process> const_process =
-                            std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
-
-                    // There is only one process with the same name for a given user
-                    if (const_process->user == user)
-                    {
-                        process = std::const_pointer_cast<Process>(const_process);
-                        process_id = const_process->id;
-                        break;
-                    }
-                }
-                if (!process)
-                {
-                    process.reset(new Process(process_name, process_pid, user));
-                    process_id = database_->insert(std::static_pointer_cast<Entity>(process));
-                }
-
-                database_->link_participant_with_process(participant_id, process_id);
-            }
-            catch (const std::exception& e)
-            {
-                logError(BACKEND_DATABASE_QUEUE, e.what());
-                return;
-            }
-
             break;
         }
     }

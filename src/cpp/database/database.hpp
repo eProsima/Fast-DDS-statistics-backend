@@ -337,6 +337,50 @@ public:
             EntityId entity_id) const;
 
     /**
+     * @brief Get the specified domain view graph from database.
+     *
+     * @param domain Domain from which graph is delivered.
+     * 
+     * @return Graph object describing topology of the entities in the domain.
+     */
+    Graph get_domain_view_graph(
+            const EntityId& domain_guid) const;
+
+    /**
+     * @brief Add host-user-process-participant from domain view graph with participant entity discovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param host_entity_id The EntityId of the host.
+     * @param user_entity_id The EntityId of the user.
+     * @param process_entity_id The EntityId of the process.
+     * @param participant_entity_id The EntityId of the participant.
+     * 
+     */
+    void add_participant_to_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& host_entity_id,
+            const EntityId& user_entity_id,
+            const EntityId& process_entity_id,
+            const EntityId& participant_entity_id);   
+
+    /**
+     * @brief Delete host-user-process-participant from domain view graph with participant entity discovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param host_entity_id The EntityId of the host.
+     * @param user_entity_id The EntityId of the user.
+     * @param process_entity_id The EntityId of the process.
+     * @param participant_entity_id The EntityId of the participant.
+     * 
+     */
+    void delete_participant_from_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& host_entity_id,
+            const EntityId& user_entity_id,
+            const EntityId& process_entity_id,
+            const EntityId& participant_entity_id);   
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
@@ -920,6 +964,9 @@ protected:
      * Each value in the collection is in turn a map of the actual Topics sorted by EntityId
      */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
+
+    //! Graph map describing per domain complete topology of the entities.
+    std::map<EntityId, Graph> domain_view_graph;
 
     /**
      * The ID that will be assigned to the next entity.

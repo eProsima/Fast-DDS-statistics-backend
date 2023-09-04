@@ -360,6 +360,11 @@ struct EntityDiscoveryInfo
     std::string address;
     std::string participant_name;
 
+    //Physical data
+    std::string  host;
+    std::string  user;
+    std::string  process;
+
     // Enpoint data
     std::string topic_name;
     std::string type_name;
