@@ -146,6 +146,8 @@ void StatisticsParticipantListener::on_participant_discovery(
     discovery_info.address = get_address(info.info);
     discovery_info.participant_name = info.info.m_participantName.to_string();
 
+    discovery_info.entity_status = EntityStatus::OK;
+
     switch (info.status)
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
@@ -205,6 +207,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
+            datawriter_discovery_info.entity_status = EntityStatus::OK;
             datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
