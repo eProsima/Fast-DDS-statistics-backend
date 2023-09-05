@@ -1594,6 +1594,7 @@ void Database::erase(
     // Domain map element is kept
 
     // Regenerate domain_view_graph
+    regenerate_domain_graph(domain_id);
 }
 
 std::vector<const StatisticsSample*> Database::select(
@@ -2150,8 +2151,7 @@ void Database::add_participant_to_graph(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
     Graph* hosts_array = &(*domain_graph)["hosts"];
 
-    // Check if the correspondent host graph exists
-    std::shared_ptr<const database::Entity> host_entity = get_entity(host_entity_id);
+    // Check if the correspondent host subgraph exists
     int64_t host_entity_id_value = host_entity_id.value();
     bool host_exists = false;
     Graph* users_array = nullptr;
@@ -2166,18 +2166,13 @@ void Database::add_participant_to_graph(
     }
     if(!host_exists)
     {
-        Graph host_graph_aux;
-        host_graph_aux["id"] = host_entity_id_value;
-        host_graph_aux["kind"] = entity_kind_str[(int)host_entity->kind];
-        host_graph_aux["alias"] = host_entity->alias;
-        host_graph_aux["metatraffic"] = host_entity->metatraffic;
+        Graph host_graph_aux = get_entity_subgraph(host_entity_id);
         host_graph_aux["users"] = nlohmann::json::array();
         hosts_array->push_back(host_graph_aux);
         users_array = &hosts_array->back()["users"];
     }
 
-    // Check if the correspondent user graph exists
-    std::shared_ptr<const database::Entity> user_entity = get_entity(user_entity_id);
+    // Check if the correspondent user subgraph exists
     int64_t user_entity_id_value = user_entity_id.value();
     bool user_exists = false;
     Graph* processes_array = nullptr;
@@ -2192,18 +2187,13 @@ void Database::add_participant_to_graph(
     }
     if(!user_exists)
     {
-        Graph user_graph_aux;
-        user_graph_aux["id"] = user_entity_id_value;
-        user_graph_aux["kind"] = entity_kind_str[(int)user_entity->kind];
-        user_graph_aux["alias"] = user_entity->alias;
-        user_graph_aux["metatraffic"] = user_entity->metatraffic;
+        Graph user_graph_aux = get_entity_subgraph(user_entity_id);
         user_graph_aux["processes"] = nlohmann::json::array();
         users_array->push_back(user_graph_aux);
         processes_array = &users_array->back()["processes"];
     }
 
-    // Check if the correspondent process graph exists
-    std::shared_ptr<const database::Entity> process_entity = get_entity(process_entity_id);
+    // Check if the correspondent process subgraph exists
     int64_t process_entity_id_value = process_entity_id.value();
     bool process_exists = false;
     Graph* participants_array = nullptr;
@@ -2218,18 +2208,13 @@ void Database::add_participant_to_graph(
     }
     if(!process_exists)
     {
-        Graph process_graph_aux;
-        process_graph_aux["id"] = process_entity_id_value;
-        process_graph_aux["kind"] = entity_kind_str[(int)process_entity->kind];
-        process_graph_aux["alias"] = process_entity->alias;
-        process_graph_aux["metatraffic"] = process_entity->metatraffic;
+        Graph process_graph_aux = get_entity_subgraph(process_entity_id);
         process_graph_aux["participants"] = nlohmann::json::array();
         processes_array->push_back(process_graph_aux);
         participants_array = &processes_array->back()["participants"];
     }
 
-    // Check if the correspondent participant graph exists
-    std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
+    // Check if the correspondent participant subgraph exists
     int64_t participant_entity_id_value = participant_entity_id.value();
     bool participant_exists = false;
     for (auto& participant : *participants_array)
@@ -2242,16 +2227,10 @@ void Database::add_participant_to_graph(
     }
     if(!participant_exists)
     {
-        Graph participant_graph_aux;
-        participant_graph_aux["id"] = participant_entity_id_value;
-        participant_graph_aux["kind"] = entity_kind_str[(int)participant_entity->kind];
-        participant_graph_aux["alias"] = participant_entity->alias;
-        participant_graph_aux["metatraffic"] = participant_entity->metatraffic;
-        participant_graph_aux["participants"] = nlohmann::json::array();
+        Graph participant_graph_aux = get_entity_subgraph(participant_entity_id);
+        participant_graph_aux["endpoints"] = nlohmann::json::array();
         participants_array->push_back(participant_graph_aux);
     }
-
-    std::cout << domain_graph->dump(4) << std::endl;
 
 }
 
@@ -2266,7 +2245,7 @@ void Database::delete_participant_from_graph(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
     Graph* hosts_array = &(*domain_graph)["hosts"];
 
-    // Check if the host graph is active
+    // Check if the host is active
     std::shared_ptr<const database::Entity> host_entity = get_entity(host_entity_id);
     int64_t host_entity_id_value = host_entity_id.value();
     Graph* users_array = nullptr;
@@ -2278,7 +2257,6 @@ void Database::delete_participant_from_graph(
             if(host_entity->active == false)
             {
                 hosts_array->erase(hosts_array->begin() + i);
-                std::cout << domain_graph->dump(4) << std::endl;
                 return;
             }
             else{
@@ -2288,7 +2266,7 @@ void Database::delete_participant_from_graph(
 
     }
 
-    // Check if the user graph is active
+    // Check if the user is active
     std::shared_ptr<const database::Entity> user_entity = get_entity(user_entity_id);
     int64_t user_entity_id_value = user_entity_id.value();
     Graph* processes_array = nullptr;
@@ -2300,7 +2278,6 @@ void Database::delete_participant_from_graph(
             if(user_entity->active == false)
             {
                 users_array->erase(users_array->begin() + i);
-                std::cout << domain_graph->dump(4) << std::endl;
                 return;
             }
             else{
@@ -2310,7 +2287,7 @@ void Database::delete_participant_from_graph(
 
     }
 
-    // Check if the process graph is active
+    // Check if the process is active
     std::shared_ptr<const database::Entity> process_entity = get_entity(process_entity_id);
     int64_t process_entity_id_value = process_entity_id.value();
     Graph* participants_array = nullptr;
@@ -2322,7 +2299,6 @@ void Database::delete_participant_from_graph(
             if(process_entity->active == false)
             {
                 processes_array->erase(processes_array->begin() + i);
-                std::cout << domain_graph->dump(4) << std::endl;
                 return;
             }
             else{
@@ -2332,7 +2308,7 @@ void Database::delete_participant_from_graph(
 
     }
 
-    // Check if the participant graph is active
+    // Check if the participant is active
     std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
     int64_t participant_entity_id_value = participant_entity_id.value();
     for (size_t i=0; i<participants_array->size(); i++)
@@ -2343,13 +2319,244 @@ void Database::delete_participant_from_graph(
             if(participant_entity->active == false)
             {
                 participants_array->erase(participants_array->begin() + i);
-                std::cout << domain_graph->dump(4) << std::endl;
                 return;
             }
         }
 
     }
 
+}
+
+void Database::add_endpoint_to_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id)
+{
+    Graph* domain_graph = &domain_view_graph[domain_entity_id];
+
+    // Check if the correspondent topic graph exists
+    Graph* topics_array = &(*domain_graph)["topics"];
+    int64_t topic_entity_id_value = topic_entity_id.value();
+    bool topic_exists = false;
+    for (auto& topic : *topics_array)
+    {
+        if(topic_entity_id_value == topic["id"])
+        {
+            topic_exists = true;
+        }
+
+    }
+    if(!topic_exists)
+    {
+        topics_array->push_back(get_entity_subgraph(topic_entity_id));
+    }
+
+    // Check if the correspondent host-user-process-participant graph exists
+    int64_t participant_entity_id_value = participant_entity_id.value();
+    Graph* hosts_array = &(*domain_graph)["hosts"];
+    Graph* users_array = nullptr;
+    for (auto& host : *hosts_array)
+    {
+        users_array = &host["users"];
+        Graph* processes_array = nullptr;
+        for (auto& user : *users_array)
+        {
+            processes_array = &user["processes"];
+            Graph* participants_array = nullptr;
+            for (auto& process : *processes_array)
+            {
+                participants_array = &process["participants"];
+                Graph* endpoints_array = nullptr;
+                for (auto& participant : *participants_array)
+                {
+                    if(participant_entity_id_value == participant["id"])
+                    {
+                        // Check if the correspondent endpoint graph exists
+                        int64_t endpoint_entity_id_value = endpoint_entity_id.value();
+                        endpoints_array = &participant["endpoints"];
+                        bool endpoint_exists = false;
+                        for (auto& endpoint : *endpoints_array)
+                        {
+                            if(endpoint_entity_id_value == endpoint["id"])
+                            {
+                                endpoint_exists = true;
+                            }
+
+                        }
+                        if(!endpoint_exists)
+                        {
+                            endpoints_array->push_back(get_entity_subgraph(endpoint_entity_id));
+                        }
+                        //std::cout << domain_view_graph[domain_entity_id].dump(4) << std::endl;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Database::delete_endpoint_from_graph(
+        const EntityId& domain_entity_id,
+        const EntityId& participant_entity_id,
+        const EntityId& topic_entity_id,
+        const EntityId& endpoint_entity_id)
+{
+    Graph* domain_graph = &domain_view_graph[domain_entity_id];
+
+    // Check if the correspondent topic graph exists
+    Graph* topics_array = &(*domain_graph)["topics"];
+    std::shared_ptr<const database::Entity> topic_entity = get_entity(topic_entity_id);
+    int64_t topic_entity_id_value = topic_entity_id.value();
+    for (size_t i=0; i<topics_array->size(); i++)
+    {
+        Graph* topic = &(*topics_array)[i];
+        if(topic_entity_id_value == (*topic)["id"])
+        {
+            if(topic_entity->active == false)
+            {
+                topics_array->erase(topics_array->begin() + i);
+                return;
+            }
+        }  
+    }
+
+    // Check if the correspondent host-user-process-participant graph exists
+    std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
+    int64_t participant_entity_id_value = participant_entity_id.value();
+    Graph* hosts_array = &(*domain_graph)["hosts"];
+    Graph* users_array = nullptr;
+    for (auto& host : *hosts_array)
+    {
+        users_array = &host["users"];
+        Graph* processes_array = nullptr;
+        for (auto& user : *users_array)
+        {
+            processes_array = &user["processes"];
+            Graph* participants_array = nullptr;
+            for (auto& process : *processes_array)
+            {
+                participants_array = &process["participants"];
+                Graph* endpoints_array = nullptr;
+                for (auto& participant : *participants_array)
+                {
+                    if(participant_entity_id_value == participant["id"])
+                    {
+                        // Check if the correspondent endpoint graph exists
+                        std::shared_ptr<const database::Entity> endpoint_entity = get_entity(endpoint_entity_id);
+                        int64_t endpoint_entity_id_value = endpoint_entity_id.value();
+                        endpoints_array = &participant["endpoints"];
+                        for (size_t i=0; i<endpoints_array->size(); i++)
+                        {
+                            Graph* endpoint = &(*endpoints_array)[i];
+                            if(endpoint_entity_id_value == (*endpoint)["id"])
+                            {
+                                if(endpoint_entity->active == false)
+                                {
+                                    endpoints_array->erase(endpoints_array->begin() + i);
+                                    return;
+                                }
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Database::regenerate_domain_graph(
+        const EntityId& domain_entity_id)
+{
+    // Check if the correspondent domain graph exists
+    if(domain_view_graph.find(domain_entity_id) != domain_view_graph.end())
+    {
+        domain_view_graph.erase(domain_entity_id);
+    }
+
+    Graph domain_entity_graph;
+    domain_entity_graph["kind"] = "domain";
+    domain_entity_graph["domain"] = domain_entity_id.value();
+
+    domain_entity_graph["topics"] = nlohmann::json::array();
+    std::vector<EntityId> topics = StatisticsBackend::get_entities(EntityKind::TOPIC, domain_entity_id);
+    for (EntityId topic : topics)
+    {
+        domain_entity_graph["topics"].push_back(get_entity_subgraph(topic));
+    }
+
+    domain_entity_graph["hosts"] = nlohmann::json::array();
+    std::vector<EntityId> hosts = StatisticsBackend::get_entities(EntityKind::HOST, domain_entity_id);
+    for (EntityId host : hosts)
+    {
+        Graph host_graph = get_entity_subgraph(host);
+
+        host_graph["users"] = nlohmann::json::array();
+        std::vector<EntityId> users = StatisticsBackend::get_entities(EntityKind::USER, host);
+        for (EntityId user : users)
+        {
+            Graph user_graph = get_entity_subgraph(user);
+
+            user_graph["processes"] = nlohmann::json::array();
+            std::vector<EntityId> processes = StatisticsBackend::get_entities(EntityKind::PROCESS, user);
+            for (EntityId process : processes)
+            {
+                Graph process_graph = get_entity_subgraph(process);
+
+                process_graph["participants"] = nlohmann::json::array();
+                std::vector<EntityId> participants = StatisticsBackend::get_entities(EntityKind::PARTICIPANT, process);
+                for(EntityId participant : participants)
+                {
+                    Graph participant_graph = get_entity_subgraph(participant);
+
+                    participant_graph["endpoints"] = nlohmann::json::array();
+                    std::vector<EntityId> datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, participant);
+                    for(EntityId datareader : datareaders)
+                    {
+                        Graph datareader_graph = get_entity_subgraph(datareader);
+                        
+                        participant_graph["endpoints"].push_back(datareader_graph);
+                    }
+                    std::vector<EntityId> datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, participant);
+                    for(EntityId datawriter : datawriters)
+                    {
+                        Graph datawriter_graph = get_entity_subgraph(datawriter);
+
+                        participant_graph["endpoints"].push_back(datawriter_graph);
+                    }
+                    process_graph["participants"].push_back(participant_graph);
+                }
+                user_graph["processes"].push_back(process_graph);
+            }
+            host_graph["users"].push_back(user_graph);
+        }
+        domain_entity_graph["hosts"].push_back(host_graph);
+    }
+    domain_view_graph[domain_entity_id] = domain_entity_graph;
+}
+
+Graph Database::get_entity_subgraph(
+        const EntityId& entity_id)
+{
+        Graph entity_graph;
+
+        std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
+
+        entity_graph["id"] = entity_id.value();
+        entity_graph["kind"] = entity_kind_str[(int)entity->kind];
+        entity_graph["alias"] = entity->alias;
+        entity_graph["metatraffic"] = entity->metatraffic;
+        //if(entity->kind != EntityKind::TOPIC) entity_graph["status"] = entity_kind_str[(int)entity->status];
+        if(entity->kind != EntityKind::TOPIC) entity_graph["status"] = entity->status;
+        if(entity->kind == EntityKind::PROCESS) 
+        {
+            std::shared_ptr<const database::Process> process =
+                    std::dynamic_pointer_cast<const database::Process>(entity);
+            entity_graph["pid"] = process->pid;
+        }
+        return entity_graph;
 }
 
 
@@ -3706,6 +3913,10 @@ void Database::clear_inactive_entities_nts_()
     clear_internal_references_nts_();
 
     // Regenerate the entire graph
+    for (auto it = domains_.cbegin(); it != domains_.cend();++it)
+    {
+        regenerate_domain_graph(it->first);
+    }
 }
 
 /**

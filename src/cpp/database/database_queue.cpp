@@ -279,6 +279,52 @@ EntityId DatabaseEntityQueue::process_datareader(
         database_->change_entity_status(datareader_id,
                 info.discovery_status !=
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+        // Delete inactive entites
+        // Get the participant from the database
+        GUID_t endpoint_guid = info.guid;
+        GUID_t participant_guid(endpoint_guid.guidPrefix, c_EntityId_RTPSParticipant);
+        std::pair<EntityId, EntityId> participant_id;
+        try
+        {
+            participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+            assert(participant_id.first == info.domain_id);
+        }
+        catch (const Exception&)
+        {
+            throw BadParameter("endpoint " + to_string(endpoint_guid)
+                        +  " undiscovered on Participant " + to_string(participant_guid)
+                        + " but there is no such Participant in the database");
+        }
+
+        // Check whether the topic is already in the database
+        std::shared_ptr<database::Topic> topic;
+        auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
+
+        // Check if any of these topics is in the current domain AND shares the data type
+        EntityId topic_id;
+        for (const auto& topic_id_ : topic_ids)
+        {
+            if (topic_id_.first == info.domain_id)
+            {
+                topic = std::const_pointer_cast<database::Topic>(
+                    std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
+
+                if (topic->data_type == info.type_name)
+                {
+                    topic_id = topic_id_.second;
+                    //Found the correct topic
+                    break;
+                }
+                else
+                {
+                    // The data type is not the same, so it must be another topic
+                    topic.reset();
+                }
+            }
+        }
+
+        database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datareader_id);
     }
     catch (BadParameter&)
     {
@@ -315,6 +361,53 @@ EntityId DatabaseEntityQueue::process_datawriter(
         database_->change_entity_status(datawriter_id,
                 info.discovery_status !=
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+
+
+        // Delete inactive entites
+        // Get the participant from the database
+        GUID_t endpoint_guid = info.guid;
+        GUID_t participant_guid(endpoint_guid.guidPrefix, c_EntityId_RTPSParticipant);
+        std::pair<EntityId, EntityId> participant_id;
+        try
+        {
+            participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
+            assert(participant_id.first == info.domain_id);
+        }
+        catch (const Exception&)
+        {
+            throw BadParameter("endpoint " + to_string(endpoint_guid)
+                        +  " undiscovered on Participant " + to_string(participant_guid)
+                        + " but there is no such Participant in the database");
+        }
+
+        // Check whether the topic is already in the database
+        std::shared_ptr<database::Topic> topic;
+        auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
+
+        // Check if any of these topics is in the current domain AND shares the data type
+        EntityId topic_id;
+        for (const auto& topic_id_ : topic_ids)
+        {
+            if (topic_id_.first == info.domain_id)
+            {
+                topic = std::const_pointer_cast<database::Topic>(
+                    std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
+
+                if (topic->data_type == info.type_name)
+                {
+                    topic_id = topic_id_.second;
+                    //Found the correct topic
+                    break;
+                }
+                else
+                {
+                    // The data type is not the same, so it must be another topic
+                    topic.reset();
+                }
+            }
+        }
+
+        database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datawriter_id);
     }
     catch (BadParameter&)
     {
@@ -369,15 +462,17 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
 
     // Check if any of these topics is in the current domain AND shares the data type
-    for (const auto& topic_id : topic_ids)
+    EntityId topic_id;
+    for (const auto& topic_id_ : topic_ids)
     {
-        if (topic_id.first == info.domain_id)
+        if (topic_id_.first == info.domain_id)
         {
             topic = std::const_pointer_cast<database::Topic>(
-                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id.second)));
+                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
 
             if (topic->data_type == info.type_name)
             {
+                topic_id = topic_id_.second;
                 //Found the correct topic
                 break;
             }
@@ -402,7 +497,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
             topic->alias = info.alias;
         }
 
-        EntityId topic_id = database_->insert(topic);
+        topic_id = database_->insert(topic);
         details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
             info.domain_id,
             topic_id,
@@ -472,7 +567,9 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     }
 
     // insert the endpoint
-    return database_->insert(endpoint);
+    EntityId endpoint_entity = database_->insert(endpoint);
+    database_->add_endpoint_to_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity);
+    return endpoint_entity;
 }
 
 std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datawriter(

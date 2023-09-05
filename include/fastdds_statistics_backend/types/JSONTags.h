@@ -61,7 +61,7 @@ constexpr const char* DATAREADER_CONTAINER_TAG      = "datareaders";
 constexpr const char* LOCATOR_CONTAINER_TAG         = "locators";
 
 /////
-// Entity
+// Entity kind
 
 //! Key Tag for a single host entity
 constexpr const char* HOST_ENTITY_TAG               = "host";
@@ -81,6 +81,16 @@ constexpr const char* DATAWRITER_ENTITY_TAG         = "datawriter";
 constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 //! Key Tag for a single locator entity
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
+
+/////
+// Entity status
+
+//! Key Tag for an OK status of an entity
+constexpr const char* OK_TAG                        = "ok";
+//! Key Tag for a Warning status of an entity
+constexpr const char* WARNING_TAG                   = "warning";
+//! Key Tag for an Error status of an entity
+constexpr const char* ERROR_TAG                     = "error";
 
 /////
 // Internal info
@@ -113,6 +123,9 @@ constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
+ //! Conversion from EntityStatus to string
+constexpr const char* entity_status_str[] =
+{OK_TAG, WARNING_TAG, ERROR_TAG};
 
 /////
 // Data container

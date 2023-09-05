@@ -347,7 +347,7 @@ public:
             const EntityId& domain_guid) const;
 
     /**
-     * @brief Add host-user-process-participant from domain view graph with participant entity discovery.
+     * @brief Add host-user-process-participant to domain view graph after participant entity discovery.
      *
      * @param domain_entity_id The EntityId of the domain.
      * @param host_entity_id The EntityId of the host.
@@ -364,7 +364,7 @@ public:
             const EntityId& participant_entity_id);   
 
     /**
-     * @brief Delete host-user-process-participant from domain view graph with participant entity discovery.
+     * @brief Delete host-user-process-participant from domain view graph after participant entity undiscovery.
      *
      * @param domain_entity_id The EntityId of the domain.
      * @param host_entity_id The EntityId of the host.
@@ -379,6 +379,54 @@ public:
             const EntityId& user_entity_id,
             const EntityId& process_entity_id,
             const EntityId& participant_entity_id);   
+
+    /**
+     * @brief Add topic-endpoint to domain view graph after endpoint entity discovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param participant_entity_id The EntityId of the participant.
+     * @param topic_entity_id The EntityId of the topic.
+     * @param endpoint_entity_id The EntityId of the endpoint.
+     * 
+     */
+    void add_endpoint_to_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id); 
+
+    /**
+     * @brief Delete topic-endpoint from domain view graph after endpoint entity undiscovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param participant_entity_id The EntityId of the participant.
+     * @param topic_entity_id The EntityId of the topic.
+     * @param endpoint_entity_id The EntityId of the endpoint.
+     * 
+     */
+    void delete_endpoint_from_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id); 
+
+    /**
+     * @brief Regenerate graph from data stored in database.
+     * 
+     * @param domain_entity_id The EntityId of the domain.
+     * 
+     */
+    void regenerate_domain_graph(
+            const EntityId& domain_entity_id); 
+
+    /**
+     * @brief Get entity subgraph with id, kind, alias, metatraffic and status fields.
+     * 
+     * @param entity_id The EntityId of the domain.
+     * 
+     */
+    Graph get_entity_subgraph(
+            const EntityId& entity_id); 
 
     /**
      * @brief Get a dump of the database.
