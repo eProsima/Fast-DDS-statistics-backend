@@ -795,11 +795,11 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
-Graph StatisticsBackend::get_domain_view_graph(const std::string& domain_guid)
+Graph StatisticsBackend::get_domain_view_graph(
+    const uint32_t& domain)
 {
-    EntityId domain_id = StatisticsBackendData::get_instance()->database_->get_entity_by_guid(
-            EntityKind::DOMAIN, domain_guid)
-                        .second;
+    EntityId domain_id = StatisticsBackendData::get_instance()->database_->get_entities_by_name(
+            EntityKind::DOMAIN, std::to_string(domain)).front().second;
     return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
 }
 

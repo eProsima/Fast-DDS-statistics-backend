@@ -344,7 +344,7 @@ public:
      * @return Graph object describing topology of the entities in the domain.
      */
     Graph get_domain_view_graph(
-            const EntityId& domain_guid) const;
+            const EntityId& domain_id) const;
 
     /**
      * @brief Add host-user-process-participant to domain view graph after participant entity discovery.
@@ -420,9 +420,9 @@ public:
             const EntityId& domain_entity_id); 
 
     /**
-     * @brief Get entity subgraph with id, kind, alias, metatraffic and status fields.
+     * @brief Get entity subgraph.
      * 
-     * @param entity_id The EntityId of the domain.
+     * @param entity_id The EntityId from the entity which asks for its subgraph.
      * 
      */
     Graph get_entity_subgraph(

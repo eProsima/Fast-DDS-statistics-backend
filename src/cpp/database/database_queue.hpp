@@ -359,6 +359,8 @@ struct EntityDiscoveryInfo
     // Participant data
     std::string address;
     std::string participant_name;
+    std::string app_id;
+    std::string app_metadata;
 
     //Physical data
     std::string  host;

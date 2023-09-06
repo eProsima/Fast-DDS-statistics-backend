@@ -420,7 +420,7 @@ public:
      * @return Graph object describing per domain topology of the entities.
      */
     static Graph get_domain_view_graph(
-            const std::string& domain_guid);
+            const uint32_t& domain);
 
     /**
      * @brief Get a dump of the database.

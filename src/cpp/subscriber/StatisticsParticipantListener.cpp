@@ -145,6 +145,8 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     discovery_info.address = get_address(info.info);
     discovery_info.participant_name = info.info.m_participantName.to_string();
+    discovery_info.app_id = "APP_ID";
+    discovery_info.app_metadata = "metadata";
 
     discovery_info.entity_status = EntityStatus::OK;
 
