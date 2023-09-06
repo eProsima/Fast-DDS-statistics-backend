@@ -4,6 +4,9 @@
 Release Notes
 #############
 
+.. TODO uncomment when there are forthcoming notes
+.. include:: forthcoming_version.rst
+
 Version 0.11.0
 ##############
 

@@ -4,5 +4,6 @@
     "name": "topic_name",
     "alias": "topic_alias",
     "alive": true,
+    "status": 0,
     "data_type": "example_data_type"
 }

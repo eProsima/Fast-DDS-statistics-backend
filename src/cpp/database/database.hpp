@@ -327,6 +327,16 @@ public:
             EntityId entity_id) const;
 
     /**
+     * @brief Get EntityStatus given an EntityId.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return The EntityStatus of the given entity.
+     */
+    EntityStatus get_entity_status(
+            EntityId entity_id) const;
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.

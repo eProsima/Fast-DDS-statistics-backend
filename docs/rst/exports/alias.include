@@ -15,6 +15,7 @@
 .. |reset-api| replace:: :cpp:func:`reset()<eprosima::statistics_backend::StatisticsBackend::reset>`
 .. |set_domain_listener-api| replace:: :cpp:func:`set_domain_listener()<eprosima::statistics_backend::StatisticsBackend::set_domain_listener>`
 .. |get_type-api| replace:: :cpp:func:`get_type()<eprosima::statistics_backend::StatisticsBackend::get_type>`
+.. |get_status-api| replace:: :cpp:func:`get_status()<eprosima::statistics_backend::StatisticsBackend::get_status>`
 .. |set_alias-api| replace:: :cpp:func:`set_alias()<eprosima::statistics_backend::StatisticsBackend::set_alias>`
 .. |clear_statistics_data-api| replace:: :cpp:func:`clear_statistics_data()<eprosima::statistics_backend::StatisticsBackend::clear_statistics_data>`
 .. |clear_inactive_entities-api| replace:: :cpp:func:`clear_inactive_entities()<eprosima::statistics_backend::StatisticsBackend::clear_inactive_entities>`
@@ -81,6 +82,11 @@
 .. |DATAWRITER-api| replace:: :cpp:enumerator:`DATAWRITER<eprosima::statistics_backend::EntityKind::DATAWRITER>`
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
+
+.. |EntityStatus-api| replace:: :cpp:type:`EntityStatus<eprosima::statistics_backend::EntityStatus>`
+.. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::EntityStatus::OK>`
+.. |WARNING-api| replace:: :cpp:enumerator:`WARNING<eprosima::statistics_backend::EntityStatus::WARNING>`
+.. |ERROR-api| replace:: :cpp:enumerator:`ERROR<eprosima::statistics_backend::EntityStatus::ERROR>`
 
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`

@@ -253,6 +253,16 @@ public:
             EntityId entity_id);
 
     /**
+     * @brief Returns the entity status of a given id.
+     *
+     * @param entity_id The ID of the entity whose status is requested.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return EntityStatus of \c entity_id.
+     */
+    static EntityStatus get_status(
+            EntityId entity_id);
+
+    /**
      * @brief Get the meta information of a given entity.
      *
      * @param entity_id The entity for which the meta information is retrieved.

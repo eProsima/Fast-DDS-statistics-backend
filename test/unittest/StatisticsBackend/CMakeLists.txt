@@ -63,6 +63,7 @@ get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 set(BACKEND_TEST_LIST
     get_info
     get_entities
+    get_status
     get_type
     get_data_supported_entity_kinds
     set_alias

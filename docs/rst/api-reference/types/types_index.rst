@@ -11,6 +11,7 @@ Types
     /rst/api-reference/types/domainid
     /rst/api-reference/types/entityid
     /rst/api-reference/types/entitykind
+    /rst/api-reference/types/entitystatus
     /rst/api-reference/types/graph
     /rst/api-reference/types/info
     /rst/api-reference/types/statistickind

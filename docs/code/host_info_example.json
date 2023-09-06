@@ -3,5 +3,6 @@
     "kind": "host",
     "name": "host_name",
     "alias": "host_alias",
-    "alive": true
+    "alive": true,
+    "status": 0
 }

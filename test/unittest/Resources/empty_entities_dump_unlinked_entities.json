@@ -7,6 +7,7 @@
       "alias": "host_0",
       "metatraffic": false,
       "alive": false,
+      "status": 0,
       "users": [
         "2"
       ]
@@ -18,6 +19,7 @@
       "alias": "user_0",
       "metatraffic": false,
       "alive": false,
+      "status": 0,
       "host": "1",
       "processes": [
         "3"
@@ -30,6 +32,7 @@
       "alias": "process_0",
       "metatraffic": false,
       "alive": false,
+      "status": 0,
       "pid": "36000",
       "user": "2",
       "participants": []
@@ -41,6 +44,7 @@
       "alias": "domain_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "participants": [
         "6"
       ],
@@ -55,6 +59,7 @@
       "alias": "topic_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "data_type": "data_type",
       "domain": "4",
       "datawriters": [
@@ -71,6 +76,7 @@
       "alias": "participant_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.0",
       "qos": {
         "qos": "empty"
@@ -113,6 +119,7 @@
       "alias": "datawriter_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
       "qos": {
         "qos": "empty"
@@ -156,6 +163,7 @@
       "alias": "datareader_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.0",
       "qos": {
         "qos": "empty"
@@ -187,6 +195,7 @@
       "alias": "locator_0",
       "metatraffic": false,
       "alive": true,
+      "status": 0,
       "datawriters": [
         "7"
       ],

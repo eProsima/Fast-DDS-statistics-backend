@@ -108,6 +108,8 @@ TEST_F(statistics_backend_tests, get_info)
         info.erase(ALIVE_INFO_TAG);
         EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_INFO_TAG]);
         info.erase(METATRAFFIC_INFO_TAG);
+        EXPECT_EQ(entity->status, info[STATUS_INFO_TAG]);
+        info.erase(STATUS_INFO_TAG);
 
         // Check specific info
         switch (entity->kind)
@@ -218,6 +220,86 @@ TEST_P(statistics_backend_tests, get_entities)
     {
         EXPECT_EQ(expected[i], result[i]);
     }
+}
+
+// Check the get_status StatisticsBackend method
+TEST_F(statistics_backend_tests, get_status)
+{
+    StatisticsBackendTest::set_database(db);
+
+    for (auto pair : db->hosts())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+    }
+
+    for (auto pair : db->users())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+    }
+
+    for (auto pair : db->processes())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+    }
+
+    for (auto pair : db->domains())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+    }
+
+    for (auto domainPair : db->participants())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+        }
+    }
+
+    for (auto domainPair : db->topics())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+        }
+    }
+
+    for (auto domainPair : db->get_dds_endpoints<DataReader>())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+        }
+    }
+
+    for (auto domainPair : db->get_dds_endpoints<DataWriter>())
+    {
+        auto domainEntities = domainPair.second;
+        for (auto pair : domainEntities)
+        {
+            auto entity = pair.second;
+            ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+        }
+    }
+
+    for (auto pair : db->locators())
+    {
+        auto entity = pair.second;
+        ASSERT_EQ(StatisticsBackendTest::get_status(entity->id), entity->status);
+    }
+
+    ASSERT_THROW(StatisticsBackendTest::get_status(EntityId::all()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_status(EntityId::invalid()), BadParameter);
+    ASSERT_THROW(StatisticsBackendTest::get_status(EntityId(1234)), BadParameter);
 }
 
 // Check the get_type StatisticsBackend method

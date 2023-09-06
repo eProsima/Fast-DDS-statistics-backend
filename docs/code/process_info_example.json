@@ -4,5 +4,6 @@
     "name": "process_name",
     "alias": "process_alias",
     "alive": true,
+    "status": 0,
     "pid": "9564"
 }

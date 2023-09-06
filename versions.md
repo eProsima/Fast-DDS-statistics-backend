@@ -1,3 +1,9 @@
+Forthcoming
+-----------
+
+* `StatisticsBackend::get_status` returns the entity status of a given id.
+* Added status attribute for entities.
+
 Version 0.11.0
 --------------
 
