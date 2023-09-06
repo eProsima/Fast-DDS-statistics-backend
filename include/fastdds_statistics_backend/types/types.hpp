@@ -156,6 +156,39 @@ enum class EntityStatus
 };
 
 /**
+ * Indicates the AppId of a participant in Statistics Backend structure
+ */
+enum class AppId
+{
+    /// Unknown App
+    UNKNOWN,
+
+    /// Fast DDS Statistics Backend App
+    FASTDDS_MONITOR,
+
+    /// DDS Router App
+    DDS_ROUTER,
+
+    /// Shapes Demo App
+    SHAPES_DEMO,
+
+    /// Integration Service App
+    INTEGRATION_SERVICE,
+
+    /// Fast DDS Visualizer App
+    FASTDDS_VISUALIZER,
+
+    /// Fast DDS Spy App
+    FASTDDS_SPY,
+
+    /// DDS Recorder App
+    DDS_RECORDER,
+
+    /// DDS Replayer App
+    DDS_REPLAYER,
+};
+
+/**
  * Indicates the Type of Data stored by the Backend
  *
  *     | Signature               | Entities source   | Entity target | No. entities |

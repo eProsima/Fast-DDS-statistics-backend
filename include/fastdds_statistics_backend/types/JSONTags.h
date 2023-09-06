@@ -93,6 +93,26 @@ constexpr const char* WARNING_TAG                   = "warning";
 constexpr const char* ERROR_TAG                     = "error";
 
 /////
+// App id
+
+//! Key Tag for a Fast DDS Statistics Backend app
+constexpr const char* FASTDDS_MONITOR_TAG           = "fastdds_monitor";
+//! Key Tag for a DDS Router app
+constexpr const char* DDS_ROUTER_TAG                = "dds_router";
+//! Key Tag for a Shapes Demo app
+constexpr const char* SHAPES_DEMO_TAG               = "shapes_demo";
+//! Key Tag for a Integration Service app
+constexpr const char* INTEGRATION_SERVICE_TAG       = "integration_service";
+//! Key Tag for a Fast DDS Visualizer app
+constexpr const char* FASTDDS_VISUALIZER_TAG        = "fastdds_visualizer";
+//! Key Tag for a Fast DDS Spy app
+constexpr const char* FASTDDS_SPY_TAG               = "fastdds_spy";
+//! Key Tag for a DDS Recorder app
+constexpr const char* DDS_RECORDER_TAG              = "dds_recorder";
+//! Key Tag for a DDS Replayer app
+constexpr const char* DDS_REPLAYER_TAG              = "dds_replayer";
+
+/////
 // Internal info
 
 //! Key tag for the ID of an entity
@@ -126,6 +146,10 @@ constexpr const char* entity_kind_str[] =
  //! Conversion from EntityStatus to string
 constexpr const char* entity_status_str[] =
 {OK_TAG, WARNING_TAG, ERROR_TAG};
+//! Conversion from AppId to string
+constexpr const char* app_id_str[] =
+{"unknown", FASTDDS_MONITOR_TAG, DDS_ROUTER_TAG, SHAPES_DEMO_TAG, INTEGRATION_SERVICE_TAG, FASTDDS_VISUALIZER_TAG,
+ FASTDDS_SPY_TAG, DDS_RECORDER_TAG, DDS_REPLAYER_TAG};
 
 /////
 // Data container

@@ -160,7 +160,9 @@ EntityId DatabaseEntityQueue::process_participant(
                 to_string(participant_guid),
                 std::shared_ptr<database::Process>(),
                 domain,
-                status);
+                status,
+                info.app_id,
+                info.app_metadata);
 
             participant_id = database_->insert(participant);
 

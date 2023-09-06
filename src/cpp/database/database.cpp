@@ -2451,80 +2451,80 @@ void Database::regenerate_domain_graph(
 
     // Add topics
     (*domain_graph)["topics"] = nlohmann::json::object();
-    std::vector<EntityId> topics = StatisticsBackend::get_entities(EntityKind::TOPIC, domain_entity_id);
-    for (EntityId topic : topics)
+    auto topics = get_entities(EntityKind::TOPIC, domain_entity_id);
+    for (auto topic : topics)
     {
-        if(!get_entity(topic)->active) break;
+        if(!topic->active) break;
 
-        std::string topic_entity_id_value = std::to_string(topic.value());
-        (*domain_graph)["topics"][topic_entity_id_value]= get_entity_subgraph(topic);
+        std::string topic_entity_id_value = std::to_string(topic->id.value());
+        (*domain_graph)["topics"][topic_entity_id_value]= get_entity_subgraph(topic->id);
     }
 
     // Add hosts
     (*domain_graph)["hosts"] = nlohmann::json::object();
-    std::vector<EntityId> hosts = StatisticsBackend::get_entities(EntityKind::HOST, domain_entity_id);
-    for (EntityId host : hosts)
+    auto hosts = get_entities(EntityKind::HOST, domain_entity_id);
+    for (auto host : hosts)
     {
-        if(!get_entity(host)->active) break;
+        if(!host->active) break;
 
-        std::string host_entity_id_value = std::to_string(host.value());
-        (*domain_graph)["hosts"][host_entity_id_value]= get_entity_subgraph(host);
+        std::string host_entity_id_value = std::to_string(host->id.value());
+        (*domain_graph)["hosts"][host_entity_id_value]= get_entity_subgraph(host->id);
 
         Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
         (*host_graph)["users"] = nlohmann::json::object();
-        std::vector<EntityId> users = StatisticsBackend::get_entities(EntityKind::USER, host);
+        auto users = get_entities(EntityKind::USER, host);
 
         // Add users
-        for (EntityId user : users)
+        for (auto user : users)
         {
-            if(!get_entity(user)->active) break;
+            if(!user->active) break;
 
-            std::string user_entity_id_value = std::to_string(user.value());
-            (*host_graph)["users"][user_entity_id_value]= get_entity_subgraph(user);
+            std::string user_entity_id_value = std::to_string(user->id.value());
+            (*host_graph)["users"][user_entity_id_value]= get_entity_subgraph(user->id);
 
             Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
             (*user_graph)["processes"] = nlohmann::json::object();
-            std::vector<EntityId> processes = StatisticsBackend::get_entities(EntityKind::PROCESS, user);
+            auto processes = get_entities(EntityKind::PROCESS, user);
 
             //Add processes
-            for (EntityId process : processes)
+            for (auto process : processes)
             {
-                if(!get_entity(process)->active) break;
+                if(!process->active) break;
 
-                std::string process_entity_id_value = std::to_string(process.value());
-                (*user_graph)["processes"][process_entity_id_value]= get_entity_subgraph(process);
+                std::string process_entity_id_value = std::to_string(process->id.value());
+                (*user_graph)["processes"][process_entity_id_value]= get_entity_subgraph(process->id);
 
                 Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
                 (*process_graph)["participants"] = nlohmann::json::object();
-                std::vector<EntityId> participants = StatisticsBackend::get_entities(EntityKind::PARTICIPANT, process);
+                auto participants = get_entities(EntityKind::PARTICIPANT, process);
                 
                 //Add prticipants
-                for(EntityId participant : participants)
+                for(auto participant : participants)
                 {
-                    if(!get_entity(participant)->active) break;
+                    if(!participant->active) break;
 
-                    std::string participant_entity_id_value = std::to_string(participant.value());
-                    (*process_graph)["participants"][participant_entity_id_value]= get_entity_subgraph(participant);
+                    std::string participant_entity_id_value = std::to_string(participant->id.value());
+                    (*process_graph)["participants"][participant_entity_id_value]= get_entity_subgraph(participant->id);
 
                     Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
                     (*participant_graph)["endpoints"] = nlohmann::json::object();
-                    std::vector<EntityId> datareaders = StatisticsBackend::get_entities(EntityKind::DATAREADER, participant);
+                    auto datareaders = get_entities(EntityKind::DATAREADER, participant);
 
                     // Add endpoints
-                    for(EntityId datareader : datareaders)
+                    for(auto datareader : datareaders)
                     {
-                        if(!get_entity(datareader)->active) break;
+                        if(!datareader->active) break;
 
-                        std::string datareader_entity_id_value = std::to_string(datareader.value());
-                        (*participant_graph)["endpoints"][datareader_entity_id_value]= get_entity_subgraph(datareader);
+                        std::string datareader_entity_id_value = std::to_string(datareader->id.value());
+                        (*participant_graph)["endpoints"][datareader_entity_id_value]= get_entity_subgraph(datareader->id);
                     }
-                    std::vector<EntityId> datawriters = StatisticsBackend::get_entities(EntityKind::DATAWRITER, participant);
-                    for(EntityId datawriter : datawriters)
+                    auto datawriters = get_entities(EntityKind::DATAWRITER, participant);
+                    for(auto datawriter : datawriters)
                     {
-                        if(!get_entity(datawriter)->active) break;
+                        if(!datawriter->active) break;
 
-                        std::string datawriter_entity_id_value = std::to_string(datawriter.value());
-                        (*participant_graph)["endpoints"][datawriter_entity_id_value]= get_entity_subgraph(datawriter);
+                        std::string datawriter_entity_id_value = std::to_string(datawriter->id.value());
+                        (*participant_graph)["endpoints"][datawriter_entity_id_value]= get_entity_subgraph(datawriter->id);
                     }
                 }
             }
@@ -2541,13 +2541,19 @@ Graph Database::get_entity_subgraph(
         entity_subgraph["kind"] = entity_kind_str[(int)entity->kind];
         entity_subgraph["alias"] = entity->alias;
         entity_subgraph["metatraffic"] = entity->metatraffic;
-        //if(entity->kind != EntityKind::TOPIC) entity_subgraph["status"] = entity_kind_str[(int)entity->status];
-        if(entity->kind != EntityKind::TOPIC) entity_subgraph["status"] = entity->status;
+        if(entity->kind != EntityKind::TOPIC) entity_subgraph["status"] = entity_status_str[(int)entity->status];
         if(entity->kind == EntityKind::PROCESS) 
         {
             std::shared_ptr<const database::Process> process =
                     std::dynamic_pointer_cast<const database::Process>(entity);
             entity_subgraph["pid"] = process->pid;
+        }
+        if(entity->kind == EntityKind::PARTICIPANT) 
+        {
+            std::shared_ptr<const database::DomainParticipant> participant =
+                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+            entity_subgraph["app_id"] = app_id_str[(int)participant->app_id];
+            entity_subgraph["app_metadata"] = participant->app_metadata;
         }
         
         return entity_subgraph;

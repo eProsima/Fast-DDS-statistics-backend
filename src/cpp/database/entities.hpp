@@ -288,10 +288,14 @@ struct DomainParticipant : DDSEntity
             std::string participant_guid,
             details::fragile_ptr<Process> participant_process,
             details::fragile_ptr<Domain> participant_domain,
-            EntityStatus status = EntityStatus::OK) noexcept
+            EntityStatus status = EntityStatus::OK,
+            AppId participant_app_id = AppId::UNKNOWN,
+            std::string participant_app_metadata = "") noexcept
         : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status)
         , process(participant_process)
         , domain(participant_domain)
+        , app_id(participant_app_id)
+        , app_metadata(participant_app_metadata)
     {
     }
 
@@ -299,8 +303,6 @@ struct DomainParticipant : DDSEntity
      * Clear the maps and data
      */
     void clear() final;
-
-    std::string app_id;
 
     template<typename T>
     std::map<EntityId, details::fragile_ptr<T>>& ddsendpoints();
@@ -310,6 +312,10 @@ struct DomainParticipant : DDSEntity
 
     //! Reference to the Domain in which this DomainParticipant runs.
     details::fragile_ptr<Domain> domain;
+
+    //! Participant app properties.
+    AppId app_id;
+    std::string app_metadata;
 
     //! Reference to the meta traffic endpoint of this DomainParticipant.
     details::fragile_ptr<DDSEndpoint> meta_traffic_endpoint;
