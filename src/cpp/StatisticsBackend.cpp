@@ -796,10 +796,8 @@ Graph StatisticsBackend::get_graph()
 }
 
 Graph StatisticsBackend::get_domain_view_graph(
-    const uint32_t& domain)
+    const EntityId& domain_id)
 {
-    EntityId domain_id = StatisticsBackendData::get_instance()->database_->get_entities_by_name(
-            EntityKind::DOMAIN, std::to_string(domain)).front().second;
     return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
 }
 

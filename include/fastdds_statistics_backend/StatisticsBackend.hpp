@@ -415,12 +415,12 @@ public:
     /**
      * @brief Get the domain view graph.
      * 
-     * @param domain Domain from which graph is delivered.
+     * @param domain_id EntityId from domain whose graph is delivered.
      *
      * @return Graph object describing per domain topology of the entities.
      */
     static Graph get_domain_view_graph(
-            const uint32_t& domain);
+            const EntityId& domain_id);
 
     /**
      * @brief Get a dump of the database.

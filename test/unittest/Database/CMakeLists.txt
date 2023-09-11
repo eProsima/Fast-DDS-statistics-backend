@@ -704,3 +704,43 @@ foreach(test_name ${DATABASE_ERASE_TEST_LIST})
         set_tests_properties(database_erase_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 endforeach()
+
+###############################################################################
+# Database: database domain view graph tests
+###############################################################################
+
+add_executable(database_domain_view_graph_tests DatabaseDomainViewGraph.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_domain_view_graph_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(database_domain_view_graph_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${PROJECT_SOURCE_DIR}/test/TestUtils)
+
+target_link_libraries(database_domain_view_graph_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(database_domain_view_graph_tests TEST_FRIENDLY_PATH)
+
+set(DATABASEQUEUE_TEST_LIST
+    two_participants
+    )
+
+foreach(test_name ${DATABASEQUEUE_TEST_LIST})
+    add_test(NAME database_domain_view_graph_tests.${test_name}
+            COMMAND database_domain_view_graph_tests
+            --gtest_filter=database_domain_view_graph_tests.${test_name}:*/database_domain_view_graph_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_domain_view_graph_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()

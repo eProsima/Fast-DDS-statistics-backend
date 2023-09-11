@@ -59,6 +59,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/alternative_complex_dump_erased_domai
     ${CMAKE_CURRENT_BINARY_DIR}/alternative_complex_dump_erased_domain_2.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_participants.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_participants.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_empty_domain.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_empty_domain.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/old_complex_dump.json
     COPYONLY)

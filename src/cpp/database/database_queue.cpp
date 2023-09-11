@@ -58,6 +58,11 @@ EntityId DatabaseEntityQueue::process_participant(
         const EntityDiscoveryInfo& info)
 {
     EntityId participant_id;
+    
+    std::shared_ptr<Host> host;
+    std::shared_ptr<User> user;
+    std::shared_ptr<Process> process;
+    bool graph_updated = false;
 
     try
     {
@@ -73,61 +78,81 @@ EntityId DatabaseEntityQueue::process_participant(
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
         // Delete inactive entities from graph
-        // Get host entity
-        std::shared_ptr<Host> host;
-        auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
-        std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
-                                        hosts.front().second));
-        host = std::const_pointer_cast<Host>(const_host);
-        
-        // Get user entity
-        std::shared_ptr<User> user;
-        auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
-        for (const auto& it : users)
+        try
         {
-            std::shared_ptr<const User> const_user =
-                    std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
-
-            // The user name is unique within the host
-            if (const_user->host == host)
+            // Get host entity
+            auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
+            std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
+                                            hosts.front().second));
+            host = std::const_pointer_cast<Host>(const_host);
+            
+            // Get user entity
+            auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
+            for (const auto& it : users)
             {
-                user = std::const_pointer_cast<User>(const_user);
-                break;
+                std::shared_ptr<const User> const_user =
+                        std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
+
+                // The user name is unique within the host
+                if (const_user->host == host)
+                {
+                    user = std::const_pointer_cast<User>(const_user);
+                    break;
+                }
+            }
+
+            // Get process entity
+            std::string process_name;
+            std::string process_pid;
+            size_t separator_pos = info.process.find_last_of(':');
+            if (separator_pos == std::string::npos)
+            {
+                logInfo(BACKEND_DATABASE,
+                        "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
+                process_name = info.process;
+                process_pid = info.process;
+            }
+            else
+            {
+                process_name = info.process.substr(0, separator_pos);
+                process_pid = info.process.substr(separator_pos + 1);
+            }
+            auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
+            for (const auto& it : processes)
+            {
+                std::shared_ptr<const Process> const_process =
+                        std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
+
+                // There is only one process with the same name for a given user
+                if (const_process->user == user)
+                {
+                    process = std::const_pointer_cast<Process>(const_process);
+                    break;
+                }
+            }
+            graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, user->id, process->id, participant_id);
+        }
+        catch(const std::exception& e)
+        {
+            logError(BACKEND_DATABASE_QUEUE, e.what());
+            if(host == nullptr)
+            {
+                graph_updated = database_->delete_participant_from_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
+            }
+            else if(user == nullptr)
+            {
+                graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
+            }
+            else if(process == nullptr)
+            {
+                graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
             }
         }
 
-        // Get process entity
-        std::string process_name;
-        std::string process_pid;
-        size_t separator_pos = info.process.find_last_of(':');
-        if (separator_pos == std::string::npos)
+        if(graph_updated)
         {
-            logInfo(BACKEND_DATABASE,
-                    "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
-            process_name = info.process;
-            process_pid = info.process;
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
         }
-        else
-        {
-            process_name = info.process.substr(0, separator_pos);
-            process_pid = info.process.substr(separator_pos + 1);
-        }
-        std::shared_ptr<Process> process;
-        auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
-        for (const auto& it : processes)
-        {
-            std::shared_ptr<const Process> const_process =
-                    std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
-
-            // There is only one process with the same name for a given user
-            if (const_process->user == user)
-            {
-                process = std::const_pointer_cast<Process>(const_process);
-                break;
-            }
-        }
-
-        database_->delete_participant_from_graph(info.domain_id, host->id, user->id, process->id, participant_id);
         
     }
     catch (BadParameter&)
@@ -186,7 +211,6 @@ EntityId DatabaseEntityQueue::process_participant(
                 }
 
                 // Check the existence of the host
-                std::shared_ptr<Host> host;
                 auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
                 if (hosts.empty())
                 {
@@ -202,7 +226,6 @@ EntityId DatabaseEntityQueue::process_participant(
                 }   
 
                 // Check the existence of the user in that host
-                std::shared_ptr<User> user;
                 auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
                 for (const auto& it : users)
                 {
@@ -224,7 +247,6 @@ EntityId DatabaseEntityQueue::process_participant(
 
                 // Check the existence of the process in that user
                 EntityId process_id;
-                std::shared_ptr<Process> process;
                 auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
                 for (const auto& it : processes)
                 {
@@ -246,12 +268,30 @@ EntityId DatabaseEntityQueue::process_participant(
                 }
 
                 database_->link_participant_with_process(participant_id, process_id);
+                graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, user->id, process->id, participant_id);
 
-                database_->add_participant_to_graph(info.domain_id, host->id, user->id, process->id, participant_id);
             }
             catch (const std::exception& e)
             {
                 logError(BACKEND_DATABASE_QUEUE, e.what());
+                if(host == nullptr)
+                {
+                    graph_updated = database_->add_participant_to_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
+                }
+                else if(user == nullptr)
+                {
+                    graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
+                }
+                else if(process == nullptr)
+                {
+                    graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
+                }
+
+            }
+
+            if(graph_updated)
+            {
+                details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
             }
 
         }
@@ -326,7 +366,10 @@ EntityId DatabaseEntityQueue::process_datareader(
             }
         }
 
-        database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datareader_id);
+        if(database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        }
     }
     catch (BadParameter&)
     {
@@ -409,7 +452,10 @@ EntityId DatabaseEntityQueue::process_datawriter(
             }
         }
 
-        database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datawriter_id);
+        if(database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        }
     }
     catch (BadParameter&)
     {
@@ -570,7 +616,10 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     // insert the endpoint
     EntityId endpoint_entity = database_->insert(endpoint);
-    database_->add_endpoint_to_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity);
+    if(database_->add_endpoint_to_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
+    {
+        details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+    }
     return endpoint_entity;
 }
 

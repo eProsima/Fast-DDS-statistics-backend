@@ -355,8 +355,9 @@ public:
      * @param process_entity_id The EntityId of the process.
      * @param participant_entity_id The EntityId of the participant.
      * 
+     * @return True if graph has been updated
      */
-    void add_participant_to_graph(
+    bool add_participant_to_graph(
             const EntityId& domain_entity_id,
             const EntityId& host_entity_id,
             const EntityId& user_entity_id,
@@ -372,8 +373,9 @@ public:
      * @param process_entity_id The EntityId of the process.
      * @param participant_entity_id The EntityId of the participant.
      * 
+     * @return True if graph has been updated
      */
-    void delete_participant_from_graph(
+    bool delete_participant_from_graph(
             const EntityId& domain_entity_id,
             const EntityId& host_entity_id,
             const EntityId& user_entity_id,
@@ -388,8 +390,9 @@ public:
      * @param topic_entity_id The EntityId of the topic.
      * @param endpoint_entity_id The EntityId of the endpoint.
      * 
+     * @return True if graph has been updated
      */
-    void add_endpoint_to_graph(
+    bool add_endpoint_to_graph(
             const EntityId& domain_entity_id,
             const EntityId& participant_entity_id,
             const EntityId& topic_entity_id,
@@ -403,8 +406,9 @@ public:
      * @param topic_entity_id The EntityId of the topic.
      * @param endpoint_entity_id The EntityId of the endpoint.
      * 
+     * @return True if graph has been updated
      */
-    void delete_endpoint_from_graph(
+    bool delete_endpoint_from_graph(
             const EntityId& domain_entity_id,
             const EntityId& participant_entity_id,
             const EntityId& topic_entity_id,

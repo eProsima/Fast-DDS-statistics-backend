@@ -130,6 +130,38 @@ public:
     {
     }
 
+    MOCK_METHOD5(add_participant_to_graph, bool(            
+            const EntityId& domain_entity_id,            
+            const EntityId& host_entity_id,            
+            const EntityId& user_entity_id,            
+            const EntityId& process_entity_id,            
+            const EntityId& participant_entity_id));
+
+    MOCK_METHOD5(delete_participant_from_graph, bool(
+            const EntityId& domain_entity_id,
+            const EntityId& host_entity_id,
+            const EntityId& user_entity_id,
+            const EntityId& process_entity_id,
+            const EntityId& participant_entity_id));
+
+    MOCK_METHOD4(add_endpoint_to_graph, bool(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id));
+
+    MOCK_METHOD4(delete_endpoint_from_graph, bool(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id));
+
+    MOCK_METHOD1(regenerate_domain_graph, bool(
+            const EntityId& domain_entity_id));
+
+    MOCK_CONST_METHOD1(get_domain_view_graph, Graph(
+            const EntityId& domain_id));
+    
     int64_t next_id_{0};
 };
 
