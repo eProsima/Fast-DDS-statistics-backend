@@ -59,12 +59,32 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/alternative_complex_dump_erased_domai
     ${CMAKE_CURRENT_BINARY_DIR}/alternative_complex_dump_erased_domain_2.json
     COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_participants.json
-    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_participants.json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_two_participants.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_two_participants.json
     COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_empty_domain.json
-    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_empty_domain.json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_undiscover_participant.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_undiscover_participant.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_undiscover_endpoint.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_undiscover_endpoint.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_empty.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_empty.json
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_host_insert_failure.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_host_insert_failure.json
+    COPYONLY)
+    
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_user_insert_failure.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_user_insert_failure.json
+    COPYONLY)
+    
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_process_insert_failure.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_process_insert_failure.json
     COPYONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json

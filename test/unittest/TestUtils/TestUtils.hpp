@@ -17,11 +17,26 @@
 
 #include <fastdds_statistics_backend/nlohmann-json/json.hpp>
 
-constexpr const char* DOMAIN_VIEW_GRAPH_PARTICIPANTS_DUMP_FILE =
-        "../Resources/domain_view_graph_participants.json";
+constexpr const char* DOMAIN_VIEW_GRAPH_TWO_PARTICIPANTS_DUMP_FILE =
+        "../Resources/domain_view_graph_two_participants.json";
 
-constexpr const char* DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE =
-        "../Resources/domain_view_graph_empty_domain.json";
+constexpr const char* DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE =
+        "../Resources/domain_view_graph_undiscover_participant.json";
+
+constexpr const char* DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE =
+        "../Resources/domain_view_graph_undiscover_endpoint.json";
+
+constexpr const char* DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE =
+        "../Resources/domain_view_graph_empty.json";
+
+constexpr const char* DOMAIN_VIEW_GRAPH_HOST_INSERT_FAILURE_DUMP_FILE =
+        "../Resources/domain_view_graph_host_insert_failure.json";
+
+constexpr const char* DOMAIN_VIEW_GRAPH_USER_INSERT_FAILURE_DUMP_FILE =
+        "../Resources/domain_view_graph_user_insert_failure.json";
+
+constexpr const char* DOMAIN_VIEW_GRAPH_PROCESS_INSERT_FAILURE_DUMP_FILE =
+        "../Resources/domain_view_graph_process_insert_failure.json";
 
 constexpr const char* DESCRIPTION_TAG = "description";
 

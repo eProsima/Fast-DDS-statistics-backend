@@ -53,105 +53,407 @@ public:
  
     void SetUp()
     {
-        domain_value = 33;
-        domain_name = std::to_string(domain_value);
-        domain = std::make_shared<database::Domain>(domain_name);
-        database.insert(domain);
+        domain = std::make_shared<database::Domain>("33");
+
+        topic = std::make_shared<database::Topic>(
+            "HelloWorld",
+            "HelloWorld",
+            domain);
+
+        locator_1 = std::make_shared<database::Locator>("UDPv4:[127.0.0.1]:15662");
+        locator_2 = std::make_shared<database::Locator>("UDPv4:[127.0.0.1]:15663");
+
+        entity_qos["_"] = "";
+
+        host = std::make_shared<database::Host>("eprosima-host");
+
+        user = std::make_shared<database::User>("eprosima", host);
+
+        process_1 = std::make_shared<database::Process>("1234", "1234", user);
+
+        participant_1 = std::make_shared<database::DomainParticipant>(
+            "participant_1",
+            entity_qos,
+            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1",
+            std::shared_ptr<database::Process>(),
+            domain,
+            EntityStatus::OK,
+            AppId::UNKNOWN,
+            "");
+
+        datawriter_1 = std::make_shared<database::DataWriter>(
+                "publisher",
+                entity_qos,
+                "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2",
+                participant_1,
+                topic);
+
+        process_2 = std::make_shared<database::Process>("1235", "1235", user);
+
+        participant_2 = std::make_shared<database::DomainParticipant>(
+            "participant_2",
+            entity_qos,
+            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c3",
+            std::shared_ptr<database::Process>(),
+            domain,
+            EntityStatus::OK,
+            AppId::UNKNOWN,
+            "");
+
+        datareader_2 = std::make_shared<database::DataReader>(
+                "subscriber",
+                entity_qos,
+                "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c4",
+                participant_2,
+                topic);
+
+
     }
 
-    EntityId insert_participant(
-        const std::string& participant_name,
-        const std::string& participant_guid_str,
-        const details::fragile_ptr<Domain>& domain)
-    {
-        Qos participant_qos;
-        participant_qos["_"] = "";
-
-        auto participant = std::make_shared<database::DomainParticipant>(
-                participant_name,
-                participant_qos,
-                participant_guid_str,
-                std::shared_ptr<database::Process>(),
-                domain,
-                EntityStatus::OK,
-                AppId::UNKNOWN,
-                "");
-
-        EntityId participant_id = database.insert(participant);
-
-        return participant_id;
-    }
-
-    uint32_t domain_value;
-    std::string domain_name;
-
+    EntityId domain_id;
     std::shared_ptr<eprosima::statistics_backend::database::Domain> domain;
+
+    Qos entity_qos;
+
+    EntityId host_id;
+    std::shared_ptr<eprosima::statistics_backend::database::Host> host;
+    
+    EntityId user_id;
+    std::shared_ptr<eprosima::statistics_backend::database::User> user;
+
+    EntityId topic_id;
+    std::shared_ptr<eprosima::statistics_backend::database::Topic> topic;
+
+    EntityId process_id_1;
+    std::shared_ptr<eprosima::statistics_backend::database::Process> process_1;
+
+    EntityId participant_id_1;
+    std::shared_ptr<eprosima::statistics_backend::database::DomainParticipant> participant_1;
+
+    EntityId datawriter_id_1;
+    std::shared_ptr<eprosima::statistics_backend::database::DataWriter> datawriter_1;
+
+    EntityId process_id_2;
+    std::shared_ptr<eprosima::statistics_backend::database::Process> process_2;
+
+    EntityId participant_id_2;
+    std::shared_ptr<eprosima::statistics_backend::database::DomainParticipant> participant_2;
+
+    EntityId datareader_id_2;
+    std::shared_ptr<eprosima::statistics_backend::database::DataReader> datareader_2;
+
+    EntityId locator_id_1;
+    std::shared_ptr<database::Locator> locator_1;
+
+    EntityId locator_id_2;
+    std::shared_ptr<database::Locator> locator_2;
 
 };
 
-TEST_F(database_domain_view_graph_tests, two_participants)
+// Complete test with two participants (datawriter and datareader), testint add to grpah and delete from graph funcionalities
+TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
 {
-
-    EntityId host_id;
-    std::string host_name = "eprosima-host";
-    std::shared_ptr<eprosima::statistics_backend::database::Host> host = std::make_shared<database::Host>(host_name);
-
-    EntityId user_id;
-    std::string user_name = "eprosima";
-    std::shared_ptr<eprosima::statistics_backend::database::User> user = std::make_shared<database::User>(user_name, host);
-
-    EntityId process_id_1;
-    std::string process_name_1 = "1234";
-    std::shared_ptr<eprosima::statistics_backend::database::Process> process_1 = std::make_shared<database::Process>(process_name_1, process_name_1, user);
-
-    EntityId participant_id_1;
-    std::string participant_name_1 = "participant_1";
-    std::string participant_guid_str_1 = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-
-    EntityId process_id_2;
-    std::string process_name_2 = "1235";
-    std::shared_ptr<eprosima::statistics_backend::database::Process> process_2 = std::make_shared<database::Process>(process_name_2, process_name_2, user);
-
-    EntityId participant_id_2;
-    std::string participant_name_2 = "participant_2";
-    std::string participant_guid_str_2 = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2";
-
     nlohmann::json json_graph;
 
-    // Add host, user, processes and participants
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(_, _,_))
+                .Times(AnyNumber());
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(_, _, _, _))
+                .Times(AnyNumber());
+
+    // Add host, user, processes, participants, topic and endpoints. On each insertion add/delete elements.
     {
+        domain_id = database.insert(domain);
+
         // Insert host and user
         host_id = database.insert(host);
         user_id = database.insert(user);   
 
         // Insert participant_1 from process_1
         process_id_1 = database.insert(process_1);       
-        participant_id_1 = insert_participant(participant_name_1, participant_guid_str_1, domain);
+        participant_id_1 = database.insert(participant_1);
         database.link_participant_with_process(participant_id_1, process_id_1); 
-        database.add_participant_to_graph(domain->id, host_id, user_id, process_id_1, participant_id_1);
+        
+        // Add participant to graph
+        database.add_participant_to_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+        
+        // Insert topic
+        topic_id = database.insert(topic);
+
+        // Insert locator
+        locator_id_1 = database.insert(locator_1);
+        datawriter_1->locators[locator_id_1] = locator_1;
+
+        // Insert datawriter_1 from participant_1
+        datawriter_id_1 = database.insert(datawriter_1);
+
+        // Add endpoint and topic to graph
+        database.add_endpoint_to_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Insert participant_2 from process_2
         process_id_2 = database.insert(process_2);
-        participant_id_2 = insert_participant(participant_name_2, participant_guid_str_2, domain);
+        participant_id_2 = database.insert(participant_2);
         database.link_participant_with_process(participant_id_2, process_id_2);
-        database.add_participant_to_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
+        database.add_participant_to_graph(domain_id, host_id, user_id, process_id_2, participant_id_2);
+
+        // Insert locator
+        locator_id_2 = database.insert(locator_2);
+        datareader_2->locators[locator_id_2] = locator_2;
+        
+        //Insert datareader_2 from participant_2
+        datareader_id_2 = database.insert(datareader_2);
+
+        // Add endpoint and topic to graph
+        database.add_endpoint_to_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
         
         // Load reference graph
-        load_file(DOMAIN_VIEW_GRAPH_PARTICIPANTS_DUMP_FILE, json_graph);
+        load_file(DOMAIN_VIEW_GRAPH_TWO_PARTICIPANTS_DUMP_FILE, json_graph);
 
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     }
-
+    // Undiscovery one publisher
     {
-        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
+        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
+        database.change_entity_status(datawriter_id_1, false);
+        database.delete_endpoint_from_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+    }
+    // Undiscovery first participant
+    {
+        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE, json_graph);
         database.change_entity_status(participant_id_1, false);
         database.delete_participant_from_graph(domain->id, host_id, user_id, process_id_1, participant_id_1);
-        database.change_entity_status(participant_id_2, false);
-        database.delete_participant_from_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
 
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
+    // Undiscovery second participant
+    {
+        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+        database.change_entity_status(participant_id_2, false);
+        database.delete_endpoint_from_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
+        database.delete_participant_from_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+    }
+
+}
+
+// Test host database insert failure and endpoint undiscovery
+TEST_F(database_domain_view_graph_tests, host_insert_failure)
+{
+    nlohmann::json json_graph;
+
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(_, _,_))
+                .Times(AnyNumber());
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(_, _, _, _))
+                .Times(AnyNumber());
+
+    // Add participant, topic and endpoints. On each insertion add/delete elements.
+    {
+        domain_id = database.insert(domain);
+
+        // Insert participant_1 from process_1      
+        participant_id_1 = database.insert(participant_1);
+        
+        // Add participant to graph
+        database.add_participant_to_graph(domain_id, EntityId(), EntityId(), EntityId(), participant_id_1);
+        
+        // Insert topic
+        topic_id = database.insert(topic);
+
+        // Insert locator
+        locator_id_1 = database.insert(locator_1);
+        datawriter_1->locators[locator_id_1] = locator_1;
+
+        // Insert datawriter_1 from participant_1
+        datawriter_id_1 = database.insert(datawriter_1);
+
+        // Add endpoint and topic to graph
+        database.add_endpoint_to_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_HOST_INSERT_FAILURE_DUMP_FILE, json_graph);
+
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+
+    }
+    {
+        // Delete topic with no endpoint in the graph
+        database.change_entity_status(datawriter_id_1, false);
+        database.delete_endpoint_from_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+
+        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+    }
+
+}
+
+// Test user database insert failure
+TEST_F(database_domain_view_graph_tests, user_insert_failure)
+{
+    nlohmann::json json_graph;
+
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(_, _,_))
+                .Times(AnyNumber());
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(_, _, _, _))
+                .Times(AnyNumber());
+
+    // Add host, participants, topic and endpoints. On each insertion add/delete elements.
+    domain_id = database.insert(domain);
+
+    // Host insert
+    host_id = database.insert(host);
+
+    // Insert participant_1 from process_1      
+    participant_id_1 = database.insert(participant_1);
+    
+    // Add participant to graph
+    database.add_participant_to_graph(domain_id, host_id, EntityId(), EntityId(), participant_id_1);
+    
+    // Insert topic
+    topic_id = database.insert(topic);
+
+    // Insert locator
+    locator_id_1 = database.insert(locator_1);
+    datawriter_1->locators[locator_id_1] = locator_1;
+
+    // Insert datawriter_1 from participant_1
+    datawriter_id_1 = database.insert(datawriter_1);
+
+    // Add endpoint and topic to graph
+    database.add_endpoint_to_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+    
+    // Load reference graph
+    load_file(DOMAIN_VIEW_GRAPH_USER_INSERT_FAILURE_DUMP_FILE, json_graph);
+
+    ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+}
+
+// Test process database insert failure
+TEST_F(database_domain_view_graph_tests, process_insert_failure)
+{
+    nlohmann::json json_graph;
+
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(_, _,_))
+                .Times(AnyNumber());
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(_, _, _, _))
+                .Times(AnyNumber());
+
+    // Add host, user, processes, participants and endpoints. On each insertion add/delete elements.
+    domain_id = database.insert(domain);
+
+    // Host insert
+    host_id = database.insert(host);
+    user_id = database.insert(user);   
+
+    // Insert participant_1 from process_1      
+    participant_id_1 = database.insert(participant_1);
+    
+    // Add participant to graph
+    database.add_participant_to_graph(domain_id, host_id, user_id, EntityId(), participant_id_1);
+    
+    // Insert topic
+    topic_id = database.insert(topic);
+
+    // Insert locator
+    locator_id_1 = database.insert(locator_1);
+    datawriter_1->locators[locator_id_1] = locator_1;
+
+    // Insert datawriter_1 from participant_1
+    datawriter_id_1 = database.insert(datawriter_1);
+
+    // Add endpoint and topic to graph
+    database.add_endpoint_to_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+    
+    // Load reference graph
+    load_file(DOMAIN_VIEW_GRAPH_PROCESS_INSERT_FAILURE_DUMP_FILE, json_graph);
+
+    ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+}
+
+// Test regenerate graph functionality after some undiscoveries
+TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
+{
+    nlohmann::json json_graph;
+
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_physical_entity_discovery(_, _,_))
+                .Times(AnyNumber());
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(_, _, _, _))
+                .Times(AnyNumber());
+
+    // Add host, user, processes, participants, topic and endpoints. On each insertion add/delete elements.
+    domain_id = database.insert(domain);
+
+    // Insert host and user
+    host_id = database.insert(host);
+    user_id = database.insert(user);   
+
+    // Insert participant_1 from process_1
+    process_id_1 = database.insert(process_1);       
+    participant_id_1 = database.insert(participant_1);
+    database.link_participant_with_process(participant_id_1, process_id_1); 
+    
+    // Add participant to graph
+    database.add_participant_to_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+    
+    // Insert topic
+    topic_id = database.insert(topic);
+
+    // Insert locator
+    locator_id_1 = database.insert(locator_1);
+    datawriter_1->locators[locator_id_1] = locator_1;
+
+    // Insert datawriter_1 from participant_1
+    datawriter_id_1 = database.insert(datawriter_1);
+
+    // Add endpoint and topic to graph
+    database.add_endpoint_to_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+
+    // Insert participant_2 from process_2
+    process_id_2 = database.insert(process_2);
+    participant_id_2 = database.insert(participant_2);
+    database.link_participant_with_process(participant_id_2, process_id_2);
+    database.add_participant_to_graph(domain_id, host_id, user_id, process_id_2, participant_id_2);
+
+    // Insert locator
+    locator_id_2 = database.insert(locator_2);
+    datareader_2->locators[locator_id_2] = locator_2;
+    
+    //Insert datareader_2 from participant_2
+    datareader_id_2 = database.insert(datareader_2);
+
+    // Add endpoint and topic to graph
+    database.add_endpoint_to_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
+    
+    // Undiscovery datawriter publisher
+    load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
+    database.change_entity_status(datawriter_id_1, false);
+    database.regenerate_domain_graph(domain_id);
+
+    ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+    
+    // Undiscovery first participant
+    load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE, json_graph);
+    database.change_entity_status(participant_id_1, false);
+    database.regenerate_domain_graph(domain_id);
+
+    ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+
+    // Undiscovery second participant
+    load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+    database.change_entity_status(participant_id_2, false);
+    database.regenerate_domain_graph(domain_id);
+    ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 }
 
 int main(

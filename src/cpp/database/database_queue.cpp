@@ -407,7 +407,6 @@ EntityId DatabaseEntityQueue::process_datawriter(
                 info.discovery_status !=
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
-
         // Delete inactive entites
         // Get the participant from the database
         GUID_t endpoint_guid = info.guid;

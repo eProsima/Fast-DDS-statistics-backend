@@ -1,0 +1,25 @@
+{
+    "kind": "domain",
+    "domain": "33",
+    "topics":
+    {
+        "3":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
+    "hosts":
+    {
+        "1":
+        {
+            "kind": "host",
+            "metatraffic": false,
+            "alias": "eprosima-host",
+            "status": "ok",
+            "users":
+            {}
+        }
+    }
+}

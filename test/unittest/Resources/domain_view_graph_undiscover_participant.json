@@ -2,7 +2,14 @@
     "kind": "domain",
     "domain": "33",
     "topics":
-    {},
+    {
+        "5":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
     "hosts":
     {
         "1":
@@ -21,29 +28,7 @@
                     "status": "ok",
                     "processes":
                     {
-                        "3":
-                        {
-                            "kind": "process",
-                            "metatraffic": false,
-                            "alias": "1234",
-                            "pid": "1234",
-                            "status": "ok",
-                            "participants":
-                            {
-                                "4":
-                                {
-                                    "kind": "participant",
-                                    "metatraffic": false,
-                                    "alias": "participant_1",
-                                    "status": "ok",
-                                    "app_id": "unknown",
-                                    "app_metadata": "",
-                                    "endpoints":
-                                    {}
-                                }
-                            }
-                        },
-                        "5":
+                        "8":
                         {
                             "kind": "process",
                             "metatraffic": false,
@@ -52,7 +37,7 @@
                             "status": "ok",
                             "participants":
                             {
-                                "6":
+                                "9":
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
@@ -61,7 +46,16 @@
                                     "app_id": "unknown",
                                     "app_metadata": "",
                                     "endpoints":
-                                    {}
+                                    {
+                                        "11":
+                                        {
+                                            "kind": "datareader",
+                                            "metatraffic": false,
+                                            "alias": "subscriber",
+                                            "status": "ok",
+                                            "topic": "5"
+                                        }
+                                    }
                                 }
                             }
                         }
