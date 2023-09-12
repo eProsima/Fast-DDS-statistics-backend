@@ -357,7 +357,7 @@ public:
             const EntityId& domain_entity_id);
 
     /**
-     * @brief Add host-user-process-participant to domain view graph after participant entity discovery.
+     * @brief Update host-user-process-participant in domain view graph after participant entity discovery.
      *
      * @param domain_entity_id The EntityId of the domain.
      * @param host_entity_id The EntityId of the host.
@@ -367,33 +367,15 @@ public:
      * 
      * @return True if graph has been updated
      */
-    bool add_participant_to_graph(
+    bool update_participant_in_graph(
             const EntityId& domain_entity_id,
             const EntityId& host_entity_id,
             const EntityId& user_entity_id,
             const EntityId& process_entity_id,
-            const EntityId& participant_entity_id);   
+            const EntityId& participant_entity_id);      
 
     /**
-     * @brief Delete host-user-process-participant from domain view graph after participant entity undiscovery.
-     *
-     * @param domain_entity_id The EntityId of the domain.
-     * @param host_entity_id The EntityId of the host.
-     * @param user_entity_id The EntityId of the user.
-     * @param process_entity_id The EntityId of the process.
-     * @param participant_entity_id The EntityId of the participant.
-     * 
-     * @return True if graph has been updated
-     */
-    bool delete_participant_from_graph(
-            const EntityId& domain_entity_id,
-            const EntityId& host_entity_id,
-            const EntityId& user_entity_id,
-            const EntityId& process_entity_id,
-            const EntityId& participant_entity_id);   
-
-    /**
-     * @brief Add topic-endpoint to domain view graph after endpoint entity discovery.
+     * @brief Update topic-endpoint in domain view graph after endpoint entity discovery.
      *
      * @param domain_entity_id The EntityId of the domain.
      * @param participant_entity_id The EntityId of the participant.
@@ -402,23 +384,7 @@ public:
      * 
      * @return True if graph has been updated
      */
-    bool add_endpoint_to_graph(
-            const EntityId& domain_entity_id,
-            const EntityId& participant_entity_id,
-            const EntityId& topic_entity_id,
-            const EntityId& endpoint_entity_id); 
-
-    /**
-     * @brief Delete topic-endpoint from domain view graph after endpoint entity undiscovery.
-     *
-     * @param domain_entity_id The EntityId of the domain.
-     * @param participant_entity_id The EntityId of the participant.
-     * @param topic_entity_id The EntityId of the topic.
-     * @param endpoint_entity_id The EntityId of the endpoint.
-     * 
-     * @return True if graph has been updated
-     */
-    bool delete_endpoint_from_graph(
+    bool update_endpoint_in_graph(
             const EntityId& domain_entity_id,
             const EntityId& participant_entity_id,
             const EntityId& topic_entity_id,
@@ -437,10 +403,12 @@ public:
      * @brief Get entity subgraph.
      * 
      * @param entity_id The EntityId from the entity which asks for its subgraph.
+     * @param entity_graph Subgraph where to add entity data.
      * 
      */
     Graph get_entity_subgraph(
-            const EntityId& entity_id); 
+            const EntityId& entity_id,
+            Graph& entity_graph); 
 
     /**
      * @brief Get a dump of the database.

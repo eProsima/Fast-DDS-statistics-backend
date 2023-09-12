@@ -63,7 +63,6 @@ EntityId DatabaseEntityQueue::process_participant(
     std::shared_ptr<User> user;
     std::shared_ptr<Process> process;
     bool graph_updated = false;
-    bool participant_discovery = false;
 
     try
     {
@@ -84,8 +83,6 @@ EntityId DatabaseEntityQueue::process_participant(
         // The participant is not in the database
         if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
         {
-            participant_discovery = true;
-
             // Get the domain from the database
             // This may throw if the domain does not exist
             // The database MUST contain the domain, or something went wrong upstream
@@ -158,7 +155,7 @@ EntityId DatabaseEntityQueue::process_participant(
         }
         if (!user)
         {
-            user.reset(new User("", host));
+            user.reset(new User(info.user, host));
             user->id = database_->insert(std::static_pointer_cast<Entity>(user));
         }
 
@@ -195,52 +192,28 @@ EntityId DatabaseEntityQueue::process_participant(
         {
             process.reset(new Process(process_name, process_pid, user));
             database_->insert(std::static_pointer_cast<Entity>(process));
+            database_->link_participant_with_process(participant_id, process->id);
         }
 
-        database_->link_participant_with_process(participant_id, process->id);
 
-        if(participant_discovery)
-        {
-            graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, user->id, process->id, participant_id);
-        }
-        else
-        {
-            graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, user->id, process->id, participant_id);
-        }
+        graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, process->id, participant_id);
+
     }
     catch(const std::exception& e)
     {
         logError(BACKEND_DATABASE_QUEUE, e.what());
 
-        if(participant_discovery)
+        if(host == nullptr || host->id == EntityId::invalid())
         {
-            if(host == nullptr || host->id == EntityId::invalid())
-            {
-                graph_updated = database_->add_participant_to_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
-            }
-            else if(user == nullptr || user->id == EntityId::invalid())
-            {
-                graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
-            }
-            else if(process == nullptr || process->id == EntityId::invalid())
-            {
-                graph_updated = database_->add_participant_to_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
-            }
+            graph_updated = database_->update_participant_in_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
         }
-        else
+        else if(user == nullptr || user->id == EntityId::invalid())
         {
-            if(host == nullptr || host->id == EntityId::invalid())
-            {
-                graph_updated = database_->delete_participant_from_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
-            }
-            else if(user == nullptr || user->id == EntityId::invalid())
-            {
-                graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
-            }
-            else if(process == nullptr || process->id == EntityId::invalid())
-            {
-                graph_updated = database_->delete_participant_from_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
-            }
+            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
+        }
+        else if(process == nullptr || process->id == EntityId::invalid())
+        {
+            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
         }
     }
 
@@ -314,7 +287,7 @@ EntityId DatabaseEntityQueue::process_datareader(
             }
         }
 
-        if(database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
+        if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
         {
             details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
         }
@@ -399,7 +372,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
             }
         }
 
-        if(database_->delete_endpoint_from_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
+        if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
         {
             details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
         }
@@ -563,7 +536,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     // insert the endpoint
     EntityId endpoint_entity = database_->insert(endpoint);
-    if(database_->add_endpoint_to_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
+    if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
     {
         details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
     }

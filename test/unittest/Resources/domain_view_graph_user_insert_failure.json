@@ -11,15 +11,5 @@
         }
     },
     "hosts":
-    {
-        "1":
-        {
-            "kind": "host",
-            "metatraffic": false,
-            "alias": "eprosima-host",
-            "status": "ok",
-            "users":
-            {}
-        }
-    }
+    {}
 }

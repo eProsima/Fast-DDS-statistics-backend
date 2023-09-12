@@ -130,31 +130,18 @@ public:
     {
     }
 
-    MOCK_METHOD2(add_participant_to_graph, void(            
+    MOCK_METHOD2(init_domain_view_graph, void(            
             const std::string& domain_name,
             const EntityId& domain_entity_id));
 
-    MOCK_METHOD5(add_participant_to_graph, bool(            
+    MOCK_METHOD5(update_participant_in_graph, bool(            
             const EntityId& domain_entity_id,            
             const EntityId& host_entity_id,            
             const EntityId& user_entity_id,            
             const EntityId& process_entity_id,            
             const EntityId& participant_entity_id));
 
-    MOCK_METHOD5(delete_participant_from_graph, bool(
-            const EntityId& domain_entity_id,
-            const EntityId& host_entity_id,
-            const EntityId& user_entity_id,
-            const EntityId& process_entity_id,
-            const EntityId& participant_entity_id));
-
-    MOCK_METHOD4(add_endpoint_to_graph, bool(
-            const EntityId& domain_entity_id,
-            const EntityId& participant_entity_id,
-            const EntityId& topic_entity_id,
-            const EntityId& endpoint_entity_id));
-
-    MOCK_METHOD4(delete_endpoint_from_graph, bool(
+    MOCK_METHOD4(update_endpoint_in_graph, bool(
             const EntityId& domain_entity_id,
             const EntityId& participant_entity_id,
             const EntityId& topic_entity_id,
