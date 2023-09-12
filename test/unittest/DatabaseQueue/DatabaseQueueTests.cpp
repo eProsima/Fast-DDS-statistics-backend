@@ -306,6 +306,11 @@ TEST_F(database_queue_tests, push_participant)
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
+    std::string processname = "command";
+    std::string pid = "1234";
+    std::string username = "user";
+    std::string hostname = "host";
+
     EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
     info.domain_id = EntityId(0);
     std::stringstream(participant_guid_str) >> info.guid;
@@ -368,18 +373,48 @@ TEST_F(database_queue_tests, push_participant)
         InsertEntityArgs insert_args([&](
                     std::shared_ptr<Entity> entity)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                    EXPECT_EQ(entity->name, participant_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
-
-                    return EntityId(1);
+                    switch(entity->kind)
+                    {
+                        case EntityKind::PARTICIPANT:
+                        {
+                                EXPECT_EQ(entity->name, participant_name);
+                                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
+                                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
+                                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
+                                return EntityId(1);
+                        }
+                        case EntityKind::HOST:
+                        {
+                                return EntityId(2);
+                        }
+                        case EntityKind::USER:
+                        {
+                                return EntityId(3);
+                        }
+                        case EntityKind::PROCESS:
+                        {
+                                return EntityId(4);
+                        }
+                        default:
+                        {
+                                return EntityId();
+                                break;
+                        }
+                    }
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1)
-                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert(_)).Times(4)
+                .WillRepeatedly(Invoke(&insert_args, &InsertEntityArgs::insert));
+
+        // Expectation: Get host-user-process
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST,_)).Times(1);
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::USER,_)).Times(1);
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS,_)).Times(1);
+        EXPECT_CALL(database, link_participant_with_process(_,_)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_participant_to_graph(_,_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -402,6 +437,34 @@ TEST_F(database_queue_tests, push_participant)
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
 
+        // Expectation: Get host, user and process
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+        auto host = std::make_shared<Host>(hostname);
+        host->id = EntityId(2);
+        EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+        .WillOnce(Return(host));
+
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::USER,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+        auto user = std::make_shared<User>(username, host);
+        user->id = EntityId(3);
+        EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+        .WillOnce(Return(user));
+    
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+        auto process = std::make_shared<Process>(processname, pid, user);
+        process->id = EntityId(4);
+        EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
+        .WillOnce(Return(process));
+
+        EXPECT_CALL(database, link_participant_with_process(_,_)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_participant_from_graph(_,_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
@@ -423,6 +486,34 @@ TEST_F(database_queue_tests, push_participant)
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
 
+        // Expectation: Get host, user and process
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+        auto host = std::make_shared<Host>(hostname);
+        host->id = EntityId(2);
+        EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
+        .WillOnce(Return(host));
+
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::USER,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+        auto user = std::make_shared<User>(username, host);
+        user->id = EntityId(3);
+        EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
+        .WillOnce(Return(user));
+    
+        EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS,_)).Times(1)
+        .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
+        auto process = std::make_shared<Process>(processname, pid, user);
+        process->id = EntityId(4);
+        EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
+        .WillOnce(Return(process));
+
+        EXPECT_CALL(database, link_participant_with_process(_,_)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_participant_from_graph(_,_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(1), EntityKind::PARTICIPANT,
@@ -433,7 +524,6 @@ TEST_F(database_queue_tests, push_participant)
         entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
-
     // Participant discovery: THROWS
     {
         // Precondition: The participant does not exist
@@ -592,6 +682,10 @@ TEST_F(database_queue_tests, push_datawriter)
 
         EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
@@ -617,6 +711,10 @@ TEST_F(database_queue_tests, push_datawriter)
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_endpoint_from_graph(_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
@@ -637,6 +735,10 @@ TEST_F(database_queue_tests, push_datawriter)
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_endpoint_from_graph(_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -779,6 +881,10 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                 .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
                 .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
@@ -901,6 +1007,10 @@ TEST_F(database_queue_tests, push_datawriter_locator_does_not_exist)
                 .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
                 .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
@@ -999,6 +1109,10 @@ TEST_F(database_queue_tests, push_datareader)
 
         EXPECT_CALL(database, insert(_)).Times(0);
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
         // Expectations: No notification to user
@@ -1071,6 +1185,10 @@ TEST_F(database_queue_tests, push_datareader)
 
         EXPECT_CALL(database, insert(_)).Times(0);
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_endpoint_from_graph(_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
@@ -1091,6 +1209,10 @@ TEST_F(database_queue_tests, push_datareader)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
         EXPECT_CALL(database, insert(_)).Times(0);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, delete_endpoint_from_graph(_,_,_,_)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
@@ -1236,6 +1358,10 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                 .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
                 .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
 
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
 
@@ -1357,6 +1483,10 @@ TEST_F(database_queue_tests, push_datareader_locator_does_not_exist)
                 .WillOnce(Invoke(&unicast_insert_args, &InsertEntityArgs::insert))
                 .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
                 .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, add_endpoint_to_graph(_,_,_,_)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -3695,84 +3825,6 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_physical_data_process_exists)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
-
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
-
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
-
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
-            .WillOnce(Return(user));
-
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
-
-    auto process = std::make_shared<Process>(processname, pid, user);
-    process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
-            .WillOnce(Return(process));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
-
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);

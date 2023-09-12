@@ -708,7 +708,7 @@ endforeach()
 ###############################################################################
 # Database: database domain view graph tests
 ###############################################################################
-
+# Specific sources as it needs StatisticsBackendData mock
 add_executable(database_domain_view_graph_tests DatabaseDomainViewGraph.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
@@ -717,11 +717,9 @@ ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+)
 
 if(MSVC)
     target_compile_definitions(database_domain_view_graph_tests

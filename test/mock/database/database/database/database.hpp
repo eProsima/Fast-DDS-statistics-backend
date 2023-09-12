@@ -130,6 +130,10 @@ public:
     {
     }
 
+    MOCK_METHOD2(add_participant_to_graph, void(            
+            const std::string& domain_name,
+            const EntityId& domain_entity_id));
+
     MOCK_METHOD5(add_participant_to_graph, bool(            
             const EntityId& domain_entity_id,            
             const EntityId& host_entity_id,            

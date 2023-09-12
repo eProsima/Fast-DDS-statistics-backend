@@ -347,6 +347,16 @@ public:
             const EntityId& domain_id) const;
 
     /**
+     * @brief Init domain view graph with specified domain.
+     *
+     * @param domain_name Domain where monitoring.
+     * @param domain_entity_id The EntityId of the domain.
+     */
+    void init_domain_view_graph(
+            const std::string& domain_name,
+            const EntityId& domain_entity_id);
+
+    /**
      * @brief Add host-user-process-participant to domain view graph after participant entity discovery.
      *
      * @param domain_entity_id The EntityId of the domain.

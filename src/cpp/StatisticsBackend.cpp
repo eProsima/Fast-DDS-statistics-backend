@@ -195,6 +195,9 @@ EntityId create_and_register_monitor(
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
     domain->id = backend_data->database_->insert(domain);
 
+    // Init database graph
+    backend_data->database_->init_domain_view_graph(domain_name, domain->id);
+
     // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
     // Participant. There must exist a way in database to delete a domain, or to make a rollback.
 

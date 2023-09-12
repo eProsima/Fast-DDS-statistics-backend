@@ -53,7 +53,11 @@ public:
  
     void SetUp()
     {
-        domain = std::make_shared<database::Domain>("33");
+        std::string domain_name = "33";
+        domain = std::make_shared<database::Domain>(domain_name);
+
+        domain_id = database.insert(domain);
+        database.init_domain_view_graph(domain_name, domain_id);
 
         topic = std::make_shared<database::Topic>(
             "HelloWorld",
@@ -164,8 +168,6 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
 
     // Add host, user, processes, participants, topic and endpoints. On each insertion add/delete elements.
     {
-        domain_id = database.insert(domain);
-
         // Insert host and user
         host_id = database.insert(host);
         user_id = database.insert(user);   
@@ -254,8 +256,6 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
 
     // Add participant, topic and endpoints. On each insertion add/delete elements.
     {
-        domain_id = database.insert(domain);
-
         // Insert participant_1 from process_1      
         participant_id_1 = database.insert(participant_1);
         
@@ -305,7 +305,6 @@ TEST_F(database_domain_view_graph_tests, user_insert_failure)
                 .Times(AnyNumber());
 
     // Add host, participants, topic and endpoints. On each insertion add/delete elements.
-    domain_id = database.insert(domain);
 
     // Host insert
     host_id = database.insert(host);
@@ -348,7 +347,6 @@ TEST_F(database_domain_view_graph_tests, process_insert_failure)
                 .Times(AnyNumber());
 
     // Add host, user, processes, participants and endpoints. On each insertion add/delete elements.
-    domain_id = database.insert(domain);
 
     // Host insert
     host_id = database.insert(host);
@@ -392,7 +390,6 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
                 .Times(AnyNumber());
 
     // Add host, user, processes, participants, topic and endpoints. On each insertion add/delete elements.
-    domain_id = database.insert(domain);
 
     // Insert host and user
     host_id = database.insert(host);

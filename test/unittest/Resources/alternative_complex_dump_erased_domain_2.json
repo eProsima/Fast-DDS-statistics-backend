@@ -417,6 +417,15 @@
                 "14"
             ]
         },
+        "22": {
+            "name": "122",
+            "alias": "domain_2",
+            "metatraffic": false,
+            "alive": true,
+            "status": 0,
+            "participants": [],
+            "topics": []
+        },
         "4":{
             "name":"120",
             "alias":"domain_0",

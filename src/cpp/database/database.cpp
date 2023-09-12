@@ -1534,7 +1534,7 @@ void Database::erase(
     }
 
     // The mutex should be taken only once. get_entity_kind already locks.
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     for (auto& reader : datareaders_[domain_id])
     {
@@ -1591,9 +1591,12 @@ void Database::erase(
     // Erase participants map element
     participants_.erase(domain_id);
 
-    // Domain map element is kept
+    // Keep domain
+    domains_[domain_id]->topics.clear();
+    domains_[domain_id]->participants.clear();
 
     // Regenerate domain_view_graph
+    lock.unlock();
     regenerate_domain_graph(domain_id);
     details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
 }
@@ -2129,6 +2132,16 @@ Graph Database::get_domain_view_graph(
     }
 }
 
+void Database::init_domain_view_graph(
+        const std::string& domain_name,
+        const EntityId& domain_entity_id)
+{
+    domain_view_graph[domain_entity_id]["kind"] = "domain";
+    domain_view_graph[domain_entity_id]["domain"] = domain_name;
+    domain_view_graph[domain_entity_id]["topics"] = nlohmann::json::object();
+    domain_view_graph[domain_entity_id]["hosts"] = nlohmann::json::object();
+}
+
 bool Database::add_participant_to_graph(
         const EntityId& domain_entity_id,
         const EntityId& host_entity_id,
@@ -2142,20 +2155,13 @@ bool Database::add_participant_to_graph(
     // Check if the correspondent domain graph exists
     if(domain_view_graph.find(domain_entity_id) == domain_view_graph.end())
     {
-        std::shared_ptr<const database::Entity> domain_entity = get_entity(domain_entity_id);
-        Graph domain_entity_graph;
-        domain_entity_graph["kind"] = "domain";
-        domain_entity_graph["domain"] = domain_entity->name;
-        domain_entity_graph["topics"] = nlohmann::json::object();
-        domain_entity_graph["hosts"] = nlohmann::json::object();
-        domain_view_graph[domain_entity_id] = domain_entity_graph;
-        graph_updated = true;
+        graph_updated = false;
     }
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     // Check if the correspondent host subgraph exists
-    if(host_entity_id.value() == host_entity_id.invalid())
+    if(host_entity_id.value() == EntityId::invalid())
     {
         return graph_updated;
     }
@@ -2171,7 +2177,7 @@ bool Database::add_participant_to_graph(
     Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
 
     // Check if the correspondent user subgraph exists
-    if(user_entity_id.value() == user_entity_id.invalid())
+    if(user_entity_id.value() == EntityId::invalid())
     {
         return graph_updated;
     }
@@ -2187,7 +2193,7 @@ bool Database::add_participant_to_graph(
     Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
 
     // Check if the correspondent process subgraph exists
-    if(process_entity_id.value() == process_entity_id.invalid()) 
+    if(process_entity_id.value() == EntityId::invalid()) 
     {
         return graph_updated;
     }
@@ -2203,7 +2209,7 @@ bool Database::add_participant_to_graph(
     Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
 
     // Check if the correspondent participant subgraph exists
-    if(participant_entity_id.value() == participant_entity_id.invalid()) 
+    if(participant_entity_id.value() == EntityId::invalid()) 
     {
         return graph_updated;
     }
@@ -2234,7 +2240,7 @@ bool Database::delete_participant_from_graph(
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
     // Check if the host is active
-    if(host_entity_id.value() == host_entity_id.invalid()) 
+    if(host_entity_id.value() == EntityId::invalid()) 
     {
         return false;
     }
@@ -2254,7 +2260,7 @@ bool Database::delete_participant_from_graph(
     Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
 
     // Check if the user is active
-    if(user_entity_id.value() == user_entity_id.invalid()) 
+    if(user_entity_id.value() == EntityId::invalid()) 
     {
         return false;
     }
@@ -2274,7 +2280,7 @@ bool Database::delete_participant_from_graph(
     Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
 
     // Check if the process is active
-    if(process_entity_id.value() == process_entity_id.invalid()) 
+    if(process_entity_id.value() == EntityId::invalid()) 
     {
         return false;
     }
@@ -2294,7 +2300,7 @@ bool Database::delete_participant_from_graph(
     Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
 
     // Check if the participant is active
-    if(participant_entity_id.value() == participant_entity_id.invalid()) 
+    if(participant_entity_id.value() == EntityId::invalid()) 
     {
         return false;
     }
@@ -2536,24 +2542,25 @@ void Database::regenerate_domain_graph(
 
     // Add topics
     (*domain_graph)["topics"] = nlohmann::json::object();
+    (*domain_graph)["hosts"] = nlohmann::json::object();
+
     auto topics = get_entities(EntityKind::TOPIC, domain_entity_id);
     for (auto topic : topics)
     {
-        if(!topic->active) 
+        if(topic == nullptr || !topic->active) 
         {
             continue;
         }
-
         std::string topic_entity_id_value = std::to_string(topic->id.value());
         (*domain_graph)["topics"][topic_entity_id_value]= get_entity_subgraph(topic->id);
+
     }
 
     // Add hosts
-    (*domain_graph)["hosts"] = nlohmann::json::object();
     auto hosts = get_entities(EntityKind::HOST, domain_entity_id);
     for (auto host : hosts)
     {
-        if(!host->active) 
+        if(host == nullptr || !host->active) 
         {
             continue;
         }
@@ -2568,7 +2575,7 @@ void Database::regenerate_domain_graph(
         // Add users
         for (auto user : users)
         {
-            if(!user->active) 
+            if(user == nullptr || !user->active)  
             {
                 continue;
             }
@@ -2583,7 +2590,7 @@ void Database::regenerate_domain_graph(
             //Add processes
             for (auto process : processes)
             {
-                if(!process->active) 
+                if(process == nullptr || !process->active) 
                 {
                     continue;
                 }
@@ -2598,7 +2605,7 @@ void Database::regenerate_domain_graph(
                 //Add prticipants
                 for(auto participant : participants)
                 {
-                    if(!participant->active) 
+                    if(participant == nullptr || !participant->active) 
                     {
                         continue;
                     }
@@ -2613,7 +2620,7 @@ void Database::regenerate_domain_graph(
                     // Add endpoints
                     for(auto datareader : datareaders)
                     {
-                        if(!datareader->active) 
+                        if(datareader == nullptr || !datareader->active) 
                         {
                             continue;
                         }
@@ -2624,7 +2631,7 @@ void Database::regenerate_domain_graph(
                     auto datawriters = get_entities(EntityKind::DATAWRITER, participant);
                     for(auto datawriter : datawriters)
                     {
-                        if(!datawriter->active) 
+                        if(datawriter == nullptr || !datawriter->active)
                         {
                             continue;
                         }
@@ -4001,8 +4008,15 @@ void Database::clear_statistics_data_nts_(
 
 void Database::clear_inactive_entities()
 {
-    std::lock_guard<std::shared_timed_mutex> guard (mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
     clear_inactive_entities_nts_();
+    lock.unlock();
+    // Regenerate the entire graph
+    for (auto it = domains_.cbegin(); it != domains_.cend();++it)
+    {
+        regenerate_domain_graph(it->first);
+        details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
+    }
 }
 
 void Database::clear_inactive_entities_nts_()
@@ -4024,13 +4038,6 @@ void Database::clear_inactive_entities_nts_()
 
     // Remove internal references of entities to those that have been removed
     clear_internal_references_nts_();
-
-    // Regenerate the entire graph
-    for (auto it = domains_.cbegin(); it != domains_.cend();++it)
-    {
-        regenerate_domain_graph(it->first);
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
-    }
 }
 
 /**

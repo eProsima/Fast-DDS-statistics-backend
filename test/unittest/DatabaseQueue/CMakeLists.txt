@@ -95,7 +95,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_discovery_times_no_entity
         push_sample_datas
         push_sample_datas_no_writer
-        push_physical_data_process_exists
         push_physical_data_no_participant_exists
         push_physical_data_no_process_exists
         push_physical_data_no_process_exists_process_insert_throws
