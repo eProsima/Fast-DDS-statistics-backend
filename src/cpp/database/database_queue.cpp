@@ -63,7 +63,7 @@ EntityId DatabaseEntityQueue::process_participant(
     std::shared_ptr<User> user;
     std::shared_ptr<Process> process;
     bool graph_updated = false;
-    bool new_participant_inserted = false;
+    bool should_link_process_participant = false;
 
     try
     {
@@ -114,7 +114,7 @@ EntityId DatabaseEntityQueue::process_participant(
                 info.app_metadata);
 
             participant_id = database_->insert(participant);
-            new_participant_inserted = true;
+            should_link_process_participant = true;
 
         }
         else
@@ -193,9 +193,10 @@ EntityId DatabaseEntityQueue::process_participant(
         if (!process)
         {
             process.reset(new Process(process_name, process_pid, user));
-            database_->insert(std::static_pointer_cast<Entity>(process));
+            process->id = database_->insert(std::static_pointer_cast<Entity>(process));
+            should_link_process_participant = true;
         }
-        if (new_participant_inserted)
+        if (should_link_process_participant)
         {
             database_->link_participant_with_process(participant_id, process->id);
         }

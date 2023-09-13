@@ -51,6 +51,14 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     set(DATABASEQUEUE_TEST_LIST
         start_stop_flush
         push_participant
+        push_participant_participant_exists
+        push_participant_no_process_exists
+        push_participant_no_process_exists_process_insert_throws
+        push_participant_no_process_no_user_exists
+        push_participant_no_process_no_user_exists_user_insert_throws
+        push_participant_no_process_no_user_no_host_exists
+        push_participant_no_user_no_host_exists_host_insert_throws
+        push_participant_data_wrong_processname_format
         push_datawriter
         push_datawriter_topic_does_not_exist
         push_datawriter_locator_does_not_exist
@@ -95,14 +103,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_discovery_times_no_entity
         push_sample_datas
         push_sample_datas_no_writer
-        push_physical_data_no_participant_exists
-        push_physical_data_no_process_exists
-        push_physical_data_no_process_exists_process_insert_throws
-        push_physical_data_no_process_no_user_exists
-        push_physical_data_no_process_no_user_exists_user_insert_throws
-        push_physical_data_no_process_no_user_no_host_exists
-        push_physical_data_no_process_no_user_no_host_exists_host_insert_throws
-        push_physical_data_wrong_processname_format
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})
