@@ -7,7 +7,7 @@
         {
             "kind": "topic",
             "metatraffic": false,
-            "alias": "HelloWorld"
+            "alias": "HelloWorld_modified"
         }
     },
     "hosts":
@@ -16,7 +16,7 @@
         {
             "kind": "host",
             "metatraffic": false,
-            "alias": "eprosima-host",
+            "alias": "eprosima-host_modified",
             "status": "ok",
             "users":
             {
@@ -24,7 +24,7 @@
                 {
                     "kind": "user",
                     "metatraffic": false,
-                    "alias": "eprosima",
+                    "alias": "eprosima_modified",
                     "status": "ok",
                     "processes":
                     {
@@ -32,7 +32,7 @@
                         {
                             "kind": "process",
                             "metatraffic": false,
-                            "alias": "1234",
+                            "alias": "1234_modified",
                             "pid": "1234",
                             "status": "ok",
                             "participants":

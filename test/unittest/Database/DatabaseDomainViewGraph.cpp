@@ -226,17 +226,37 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     }
-    // Update publisher and participant alias
+    // Update entities alias
     {
         std::shared_ptr<const database::Entity> participant_const_entity_modified = database.get_entity(participant_id_1);
         std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(participant_const_entity_modified);
         participant_entity_modified->alias = "participant_1_modified";
+        database.update_graph_on_updated_entity(domain_id, participant_id_1);
+
+        std::shared_ptr<const database::Entity> host_const_entity_modified = database.get_entity(host_id);
+        std::shared_ptr<database::Entity> host_entity_modified = std::const_pointer_cast<database::Entity>(host_const_entity_modified);
+        host_entity_modified->alias = "eprosima-host_modified";
+        database.update_graph_on_updated_entity(domain_id, host_id);
+
+        std::shared_ptr<const database::Entity> user_const_entity_modified = database.get_entity(user_id);
+        std::shared_ptr<database::Entity> user_entity_modified = std::const_pointer_cast<database::Entity>(user_const_entity_modified);
+        user_entity_modified->alias = "eprosima_modified";
+        database.update_graph_on_updated_entity(domain_id, user_id);
+
+        std::shared_ptr<const database::Entity> process_const_entity_modified = database.get_entity(process_id_1);
+        std::shared_ptr<database::Entity> process_entity_modified = std::const_pointer_cast<database::Entity>(process_const_entity_modified);
+        process_entity_modified->alias = "1234_modified";
+        database.update_graph_on_updated_entity(domain_id, process_id_1);
+
+        std::shared_ptr<const database::Entity> topic_const_entity_modified = database.get_entity(topic_id);
+        std::shared_ptr<database::Entity> topic_entity_modified = std::const_pointer_cast<database::Entity>(topic_const_entity_modified);
+        topic_entity_modified->alias = "HelloWorld_modified";
+        database.update_graph_on_updated_entity(domain_id, topic_id);
+
         std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher_modified";
-
-        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
         
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_UPDATED_ENTITIES_DUMP_FILE, json_graph);
@@ -246,17 +266,38 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
     }
     // Undiscovery one publisher
     {
-        // Revert changes
+        // Revert changes alias update changes
         std::shared_ptr<const database::Entity> participant_const_entity_modified = database.get_entity(participant_id_1);
         std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(participant_const_entity_modified);
         participant_entity_modified->alias = "participant_1";
+        database.update_graph_on_updated_entity(domain_id, participant_id_1);
+
+        std::shared_ptr<const database::Entity> host_const_entity_modified = database.get_entity(host_id);
+        std::shared_ptr<database::Entity> host_entity_modified = std::const_pointer_cast<database::Entity>(host_const_entity_modified);
+        host_entity_modified->alias = "eprosima-host";
+        database.update_graph_on_updated_entity(domain_id, host_id);
+
+        std::shared_ptr<const database::Entity> user_const_entity_modified = database.get_entity(user_id);
+        std::shared_ptr<database::Entity> user_entity_modified = std::const_pointer_cast<database::Entity>(user_const_entity_modified);
+        user_entity_modified->alias = "eprosima";
+        database.update_graph_on_updated_entity(domain_id, user_id);
+
+        std::shared_ptr<const database::Entity> process_const_entity_modified = database.get_entity(process_id_1);
+        std::shared_ptr<database::Entity> process_entity_modified = std::const_pointer_cast<database::Entity>(process_const_entity_modified);
+        process_entity_modified->alias = "1234";
+        database.update_graph_on_updated_entity(domain_id, process_id_1);
+
+        std::shared_ptr<const database::Entity> topic_const_entity_modified = database.get_entity(topic_id);
+        std::shared_ptr<database::Entity> topic_entity_modified = std::const_pointer_cast<database::Entity>(topic_const_entity_modified);
+        topic_entity_modified->alias = "HelloWorld";
+        database.update_graph_on_updated_entity(domain_id, topic_id);
+        
         std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher";
+        database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
 
-        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
-
+        // Change status
         database.change_entity_status(datawriter_id_1, false);
         database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
 

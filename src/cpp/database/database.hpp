@@ -400,6 +400,17 @@ public:
             const EntityId& domain_entity_id); 
 
     /**
+     * @brief Update graph according to the updated entity.
+     * 
+     * @param domain_id The EntityId of the domain containing the entity.
+     * @param entity_id The EntityId of the entity updated.
+     * 
+     */
+    void update_graph_on_updated_entity(
+            const EntityId& domain_id, 
+            const EntityId& entity_id); 
+
+    /**
      * @brief Get entity subgraph.
      * 
      * @param entity_id The EntityId from the entity which asks for its subgraph.

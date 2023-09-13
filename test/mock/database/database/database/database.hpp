@@ -152,6 +152,10 @@ public:
 
     MOCK_CONST_METHOD1(get_domain_view_graph, Graph(
             const EntityId& domain_id));
+
+    MOCK_CONST_METHOD2(update_graph_on_updated_entity, void(
+            const EntityId& domain_id,
+            const EntityId& entity_id));
     
     int64_t next_id_{0};
 };

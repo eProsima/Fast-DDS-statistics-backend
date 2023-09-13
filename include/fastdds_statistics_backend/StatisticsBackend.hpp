@@ -423,6 +423,14 @@ public:
             const EntityId& domain_id);
 
     /**
+     * @brief Regenerate graph from data stored in database.
+     * 
+     * @param domain_id EntityId from domain whose graph is regenerated.
+     */
+    static void regenerate_domain_graph(
+            const EntityId& domain_id);
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, clear all the statistics data of all entities.

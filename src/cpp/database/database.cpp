@@ -2153,18 +2153,23 @@ bool Database::update_participant_in_graph(
     bool graph_updated = false;
 
     // Check if the correspondent domain graph exists
+    if(domain_entity_id.value() == EntityId::invalid() || domain_entity_id.value() == EntityId::all())
+    {
+        return graph_updated;
+    }
+
     if(domain_view_graph.find(domain_entity_id) == domain_view_graph.end())
     {
         return graph_updated;
     }
 
-    Graph* domain_graph = &domain_view_graph[domain_entity_id];
-
     // Check if the correspondent host subgraph exists
-    if(host_entity_id.value() == EntityId::invalid())
+    if(host_entity_id.value() == EntityId::invalid() || host_entity_id.value() == EntityId::all())
     {
         return graph_updated;
     }
+
+    Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     std::shared_ptr<const database::Entity> host_entity = get_entity(host_entity_id);
     std::string host_entity_id_value = std::to_string(host_entity_id.value());
@@ -2186,13 +2191,13 @@ bool Database::update_participant_in_graph(
         return graph_updated;
     }
 
-    Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
-
     // Check if the correspondent user subgraph exists
-    if(user_entity_id.value() == EntityId::invalid())
+    if(user_entity_id.value() == EntityId::invalid() || user_entity_id.value() == EntityId::all())
     {
         return graph_updated;
     }
+
+    Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
 
     std::shared_ptr<const database::Entity> user_entity = get_entity(user_entity_id);
     std::string user_entity_id_value = std::to_string(user_entity_id.value());
@@ -2214,13 +2219,13 @@ bool Database::update_participant_in_graph(
         return graph_updated;
     }
 
-    Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
-
     // Check if the correspondent process subgraph exists
-    if(process_entity_id.value() == EntityId::invalid()) 
+    if(process_entity_id.value() == EntityId::invalid() || process_entity_id.value() == EntityId::all()) 
     {
         return graph_updated;
     }
+
+    Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
 
     std::shared_ptr<const database::Entity> process_entity = get_entity(process_entity_id);
     std::string process_entity_id_value = std::to_string(process_entity_id.value());
@@ -2242,13 +2247,13 @@ bool Database::update_participant_in_graph(
         return graph_updated;
     }
 
-    Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
-
     // Check if the correspondent participant subgraph exists
-    if(participant_entity_id.value() == EntityId::invalid()) 
+    if(participant_entity_id.value() == EntityId::invalid()  || participant_entity_id.value() == EntityId::all()) 
     {
         return graph_updated;
     }
+
+    Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
 
     std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
     std::string participant_entity_id_value = std::to_string(participant_entity_id.value());
@@ -2283,6 +2288,11 @@ bool Database::update_endpoint_in_graph(
     bool graph_updated = false;
 
     // Check if the correspondent domain graph exists
+    if(domain_entity_id.value() == EntityId::invalid() || domain_entity_id.value() == EntityId::all())
+    {
+        return graph_updated;
+    }
+
     if(domain_view_graph.find(domain_entity_id) == domain_view_graph.end())
     {
         return graph_updated;
@@ -2291,53 +2301,55 @@ bool Database::update_endpoint_in_graph(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     // Check if the correspondent topic graph exists
-    std::shared_ptr<const database::Entity> topic_entity = get_entity(topic_entity_id);
-    std::string topic_entity_id_value = std::to_string(topic_entity_id.value());
-    if(topic_entity->active)
+    if(topic_entity_id.value() != EntityId::invalid() && topic_entity_id.value() != EntityId::all())
     {
-        graph_updated = get_entity_subgraph(topic_entity_id, (*domain_graph)["topics"][topic_entity_id_value]) || graph_updated;
-    }
-    else
-    {
-        if ((*domain_graph)["topics"].find(topic_entity_id_value) != (*domain_graph)["topics"].end())
+
+        std::shared_ptr<const database::Entity> topic_entity = get_entity(topic_entity_id);
+        std::string topic_entity_id_value = std::to_string(topic_entity_id.value());
+        if(topic_entity->active)
         {
-            (*domain_graph)["topics"].erase(topic_entity_id_value);
-            graph_updated = true;
+            graph_updated = get_entity_subgraph(topic_entity_id, (*domain_graph)["topics"][topic_entity_id_value]) || graph_updated;
+        }
+        else
+        {
+            if ((*domain_graph)["topics"].find(topic_entity_id_value) != (*domain_graph)["topics"].end())
+            {
+                (*domain_graph)["topics"].erase(topic_entity_id_value);
+                graph_updated = true;
+            }
         }
     }
 
-    // Get process->user->host ids
-    std::string participant_entity_id_value;
-    std::string process_entity_id_value;
-    std::string user_entity_id_value;
-    std::string host_entity_id_value;
+    // Check if participant entityid is valid and unique
+    if(participant_entity_id.value() == EntityId::invalid() || participant_entity_id.value() == EntityId::all()) 
+    {
+        return graph_updated;
+    }
 
-    std::shared_ptr<const database::Entity> participant_entity;
-    std::shared_ptr<const database::DomainParticipant> participant;
-    std::shared_ptr<const database::Process> process;
-    std::shared_ptr<const database::User> user;
-    std::shared_ptr<const database::Host> host;
-    participant_entity = get_entity(participant_entity_id);
-    participant = std::dynamic_pointer_cast<const database::DomainParticipant>(participant_entity);
+    // Get process->user->host ids
+    std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
+    std::shared_ptr<const database::DomainParticipant> participant = std::dynamic_pointer_cast<const database::DomainParticipant>(participant_entity);
+    
     if(participant->process == nullptr)
     {
         return graph_updated;
     }
-    process = participant->process;
+    std::shared_ptr<const database::Process> process = participant->process;
     if(process->user == nullptr)
     {
         return graph_updated;
     }
-    user = process->user;
+    std::shared_ptr<const database::User> user = process->user;
     if(user->host == nullptr)
     {
         return graph_updated;
     }
-    host = user->host;
-    participant_entity_id_value = std::to_string(participant_entity_id.value());
-    process_entity_id_value = std::to_string(process->id.value());
-    user_entity_id_value = std::to_string(user->id.value());
-    host_entity_id_value = std::to_string(host->id.value());
+    std::shared_ptr<const database::Host> host = user->host;
+
+    std::string participant_entity_id_value = std::to_string(participant_entity_id.value());
+    std::string process_entity_id_value = std::to_string(process->id.value());
+    std::string user_entity_id_value = std::to_string(user->id.value());
+    std::string host_entity_id_value = std::to_string(host->id.value());
 
     // Check if the correspondent host-user-process-participant graph exists
     if ((*domain_graph)["hosts"].find(host_entity_id_value) == (*domain_graph)["hosts"].end())
@@ -2366,9 +2378,14 @@ bool Database::update_endpoint_in_graph(
         return graph_updated;
     }
 
+    // Check if the correspondent endpoint subgraph exists
+    if(endpoint_entity_id.value() == EntityId::invalid() || endpoint_entity_id.value() == EntityId::all()) 
+    {
+        return graph_updated;
+    }
+
     Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
 
-    // Check if the correspondent endpoint subgraph exists
     std::shared_ptr<const database::Entity> endpoint_entity = get_entity(endpoint_entity_id);
     std::string endpoint_entity_id_value = std::to_string(endpoint_entity_id.value());
     if(endpoint_entity->active)
@@ -2378,8 +2395,12 @@ bool Database::update_endpoint_in_graph(
     }
     else
     {
-        (*participant_graph)["endpoints"].erase(endpoint_entity_id_value);
-        return true;
+        if ((*participant_graph)["endpoints"].find(endpoint_entity_id_value) != (*participant_graph)["endpoints"].end())
+        {
+            (*participant_graph)["endpoints"].erase(endpoint_entity_id_value);
+            return true;
+        }
+        return graph_updated;
     }
     return graph_updated;
 }
@@ -2505,65 +2526,154 @@ void Database::regenerate_domain_graph(
     }
 }
 
+void Database::update_graph_on_updated_entity(
+            const EntityId& domain_id,
+            const EntityId& entity_id)
+{
+    std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
+    bool graph_updated = false;
+    switch(entity->kind)
+    {
+        case EntityKind::HOST:
+        {
+            graph_updated = update_participant_in_graph(domain_id, entity_id, EntityId(), EntityId(), EntityId());
+            break;
+        }
+        case EntityKind::USER:
+        {
+            std::shared_ptr<const database::User> user = std::dynamic_pointer_cast<const database::User>(entity);
+            if(user->host == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::Host> host = user->host;
+            graph_updated = update_participant_in_graph(domain_id, host->id, entity_id, EntityId(), EntityId());
+            break;
+        }
+        case EntityKind::PROCESS:
+        {
+            std::shared_ptr<const database::Process> process = std::dynamic_pointer_cast<const database::Process>(entity);
+            if(process->user == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::User> user = process->user;
+            if(user->host == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::Host> host = user->host;
+            graph_updated = update_participant_in_graph(domain_id, host->id, user->id, entity_id, EntityId());
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const database::DomainParticipant> participant = std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+            if(participant->process == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::Process> process = participant->process;
+            if(process->user == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::User> user = process->user;
+            if(user->host == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::Host> host = user->host;
+            graph_updated = update_participant_in_graph(domain_id, host->id, user->id, process->id, entity_id);
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            update_endpoint_in_graph(domain_id, EntityId(), entity_id, EntityId());
+            break;
+        }
+        case EntityKind::DATAREADER:
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const database::DDSEndpoint> endpoint = std::dynamic_pointer_cast<const database::DDSEndpoint>(entity);
+            if(endpoint->participant == nullptr)
+            {
+                return;
+            }
+            std::shared_ptr<const database::DomainParticipant> participant = endpoint->participant;
+            update_endpoint_in_graph(domain_id, participant->id, EntityId(), entity_id);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+
+        if(graph_updated)
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+        }
+    }
+}
+
 Graph Database::get_entity_subgraph(
         const EntityId& entity_id,
         Graph& entity_graph)
 {
-        bool entity_graph_updated = false;
+    bool entity_graph_updated = false;
 
-        std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
+    std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
 
-        entity_graph["kind"] =  entity_kind_str[(int)entity->kind];
+    entity_graph["kind"] =  entity_kind_str[(int)entity->kind];
 
-        if(entity_graph["alias"] != entity->alias)
+    if(entity_graph["alias"] != entity->alias)
+    {
+        entity_graph["alias"] =  entity->alias;
+        entity_graph_updated = true;
+    }
+
+    entity_graph["metatraffic"] =  entity->metatraffic;
+
+    if(entity->kind != EntityKind::TOPIC && entity_graph["status"] != entity_status_str[(int)entity->status])
+    {
+        entity_graph["status"] = entity_status_str[(int)entity->status];
+        entity_graph_updated = true;
+    } 
+
+    if(entity->kind == EntityKind::PROCESS) 
+    {
+        std::shared_ptr<const database::Process> process =
+                std::dynamic_pointer_cast<const database::Process>(entity);
+        entity_graph["pid"] =  process->pid;
+    }
+
+    if(entity->kind == EntityKind::PARTICIPANT) 
+    {
+        std::shared_ptr<const database::DomainParticipant> participant =
+                std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+        if(entity_graph["app_id"] != app_id_str[(int)participant->app_id])
         {
-            entity_graph["alias"] =  entity->alias;
+            entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
             entity_graph_updated = true;
         }
-
-        entity_graph["metatraffic"] =  entity->metatraffic;
-
-        if(entity->kind != EntityKind::TOPIC && entity_graph["status"] != entity_status_str[(int)entity->status])
+        if(entity_graph["app_metadata"] != participant->app_metadata)
         {
-            entity_graph["status"] = entity_status_str[(int)entity->status];
+            entity_graph["app_metadata"] =  participant->app_metadata;
             entity_graph_updated = true;
-        } 
-
-        if(entity->kind == EntityKind::PROCESS) 
-        {
-            std::shared_ptr<const database::Process> process =
-                    std::dynamic_pointer_cast<const database::Process>(entity);
-            entity_graph["pid"] =  process->pid;
         }
+    }
 
-        if(entity->kind == EntityKind::PARTICIPANT) 
-        {
-            std::shared_ptr<const database::DomainParticipant> participant =
-                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
-            if(entity_graph["app_id"] != app_id_str[(int)participant->app_id])
-            {
-                entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
-                entity_graph_updated = true;
-            }
-            if(entity_graph["app_metadata"] != participant->app_metadata)
-            {
-                entity_graph["app_metadata"] =  participant->app_metadata;
-                entity_graph_updated = true;
-            }
-        }
+    if(entity->kind == EntityKind::DATAWRITER ||
+        entity->kind == EntityKind::DATAREADER) 
+    {
+        std::shared_ptr<const database::DDSEndpoint> endpoint =
+                std::dynamic_pointer_cast<const database::DDSEndpoint>(entity);
+        entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
+    }
 
-        if(entity->kind == EntityKind::DATAWRITER ||
-            entity->kind == EntityKind::DATAREADER) 
-        {
-            std::shared_ptr<const database::DDSEndpoint> endpoint =
-                    std::dynamic_pointer_cast<const database::DDSEndpoint>(entity);
-            entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
-        }
-
-        
-        return entity_graph_updated;
+    
+    return entity_graph_updated;
 }
-
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
         EntityKind entity_kind,
