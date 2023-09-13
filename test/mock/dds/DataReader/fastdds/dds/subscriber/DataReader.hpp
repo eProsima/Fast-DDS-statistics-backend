@@ -39,7 +39,7 @@ class DataReader
 {
 protected:
 
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKind;
+    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsData = eprosima::fastdds::statistics::Data;
     using Sample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
 

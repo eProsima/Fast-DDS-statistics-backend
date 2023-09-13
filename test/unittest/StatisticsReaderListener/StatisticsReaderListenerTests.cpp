@@ -310,7 +310,7 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 
     std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -378,7 +378,7 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKind::NETWORK_LATENCY);
+    data->_d(EventKindBits::NETWORK_LATENCY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -439,7 +439,7 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::PUBLICATION_THROUGHPUT);
+    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -495,7 +495,7 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -563,7 +563,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_SENT);
+    data->_d(EventKindBits::RTPS_SENT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -651,7 +651,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_LOST);
+    data->_d(EventKindBits::RTPS_LOST);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -727,7 +727,7 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::RESENT_DATAS);
+    data->_d(EventKindBits::RESENT_DATAS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -783,7 +783,7 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::HEARTBEAT_COUNT);
+    data->_d(EventKindBits::HEARTBEAT_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -839,7 +839,7 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::ACKNACK_COUNT);
+    data->_d(EventKindBits::ACKNACK_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -895,7 +895,7 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::NACKFRAG_COUNT);
+    data->_d(EventKindBits::NACKFRAG_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -951,7 +951,7 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::GAP_COUNT);
+    data->_d(EventKindBits::GAP_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1007,7 +1007,7 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::DATA_COUNT);
+    data->_d(EventKindBits::DATA_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1063,7 +1063,7 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::PDP_PACKETS);
+    data->_d(EventKindBits::PDP_PACKETS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1119,7 +1119,7 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::EDP_PACKETS);
+    data->_d(EventKindBits::EDP_PACKETS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1190,7 +1190,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKind::DISCOVERED_ENTITY);
+    data->_d(EventKindBits::DISCOVERED_ENTITY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1262,7 +1262,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKind::SAMPLE_DATAS);
+    data->_d(EventKindBits::SAMPLE_DATAS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1329,7 +1329,7 @@ TEST_F(statistics_reader_listener_tests, new_physical_data_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     add_sample_to_reader_history(data, get_default_info());
 

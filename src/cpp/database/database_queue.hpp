@@ -55,7 +55,7 @@ class DatabaseQueue
 public:
 
     using StatisticsData = eprosima::fastdds::statistics::Data;
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKind;
+    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
     using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
