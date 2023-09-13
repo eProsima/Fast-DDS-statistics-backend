@@ -63,6 +63,7 @@ EntityId DatabaseEntityQueue::process_participant(
     std::shared_ptr<User> user;
     std::shared_ptr<Process> process;
     bool graph_updated = false;
+    bool new_participant_inserted = false;
 
     try
     {
@@ -113,6 +114,7 @@ EntityId DatabaseEntityQueue::process_participant(
                 info.app_metadata);
 
             participant_id = database_->insert(participant);
+            new_participant_inserted = true;
 
         }
         else
@@ -192,9 +194,11 @@ EntityId DatabaseEntityQueue::process_participant(
         {
             process.reset(new Process(process_name, process_pid, user));
             database_->insert(std::static_pointer_cast<Entity>(process));
+        }
+        if (new_participant_inserted)
+        {
             database_->link_participant_with_process(participant_id, process->id);
         }
-
 
         graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, process->id, participant_id);
 
@@ -298,9 +302,6 @@ EntityId DatabaseEntityQueue::process_datareader(
         if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
         {
             datareader_id = process_endpoint_discovery(info);
-
-            // Force the refresh of the parent entities' status
-            database_->change_entity_status(datareader_id, true);
         }
         else
         {
@@ -383,9 +384,6 @@ EntityId DatabaseEntityQueue::process_datawriter(
         if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
         {
             datawriter_id = process_endpoint_discovery(info);
-
-            // Force the refresh of the parent entities' status
-            database_->change_entity_status(datawriter_id, true);
         }
         else
         {
@@ -536,6 +534,10 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     // insert the endpoint
     EntityId endpoint_entity = database_->insert(endpoint);
+
+    // Force the refresh of the parent entities' status
+    database_->change_entity_status(endpoint_entity, true);
+
     if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
     {
         details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);

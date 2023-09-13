@@ -742,12 +742,11 @@ target_link_libraries(database_domain_view_graph_tests PUBLIC
 get_win32_path_dependencies(database_domain_view_graph_tests TEST_FRIENDLY_PATH)
 
 set(DATABASEQUEUE_TEST_LIST
-    two_participants
+    complete_with_two_participants
     host_insert_failure
     user_insert_failure
     process_insert_failure
     regenerate_graph_functionality
-    add_endpoint_no_parent
     )
 
 foreach(test_name ${DATABASEQUEUE_TEST_LIST})

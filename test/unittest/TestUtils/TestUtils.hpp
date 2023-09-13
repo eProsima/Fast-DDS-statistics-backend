@@ -38,6 +38,9 @@ constexpr const char* DOMAIN_VIEW_GRAPH_USER_INSERT_FAILURE_DUMP_FILE =
 constexpr const char* DOMAIN_VIEW_GRAPH_PROCESS_INSERT_FAILURE_DUMP_FILE =
         "../Resources/domain_view_graph_process_insert_failure.json";
 
+constexpr const char* DOMAIN_VIEW_GRAPH_UPDATED_ENTITIES_DUMP_FILE =
+        "../Resources/domain_view_graph_updated_entites.json";
+
 constexpr const char* DESCRIPTION_TAG = "description";
 
 /**

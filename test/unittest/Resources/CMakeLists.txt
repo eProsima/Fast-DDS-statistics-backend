@@ -87,6 +87,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_process_insert_fail
     ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_process_insert_failure.json
     COPYONLY)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_updated_entites.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_updated_entites.json
+    COPYONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/old_complex_dump.json
     COPYONLY)

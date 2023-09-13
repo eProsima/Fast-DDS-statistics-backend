@@ -215,31 +215,78 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     }
+    // No Update
+    {
+        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_TWO_PARTICIPANTS_DUMP_FILE, json_graph);
+
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+
+    }
+    // Update publisher and participant alias
+    {
+        std::shared_ptr<const database::Entity> participant_const_entity_modified = database.get_entity(participant_id_1);
+        std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(participant_const_entity_modified);
+        participant_entity_modified->alias = "participant_1_modified";
+        std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
+        std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
+        datawriter_entity_modified->alias = "publisher_modified";
+
+        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_UPDATED_ENTITIES_DUMP_FILE, json_graph);
+
+        ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
+
+    }
     // Undiscovery one publisher
     {
-        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
+        // Revert changes
+        std::shared_ptr<const database::Entity> participant_const_entity_modified = database.get_entity(participant_id_1);
+        std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(participant_const_entity_modified);
+        participant_entity_modified->alias = "participant_1";
+        std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
+        std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
+        datawriter_entity_modified->alias = "publisher";
+
+        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+
         database.change_entity_status(datawriter_id_1, false);
         database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
 
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
     // Undiscovery first participant
     {
-        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE, json_graph);
+
         database.change_entity_status(participant_id_1, false);
         database.update_participant_in_graph(domain->id, host_id, user_id, process_id_1, participant_id_1);
 
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE, json_graph);
+        
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
     // Undiscovery second participant
     {
-        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
         database.change_entity_status(participant_id_2, false);
         database.update_endpoint_in_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
         database.update_participant_in_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
+
+        // Load reference graph
+        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
-
 }
 
 // Test host database insert failure and endpoint undiscovery
@@ -286,7 +333,9 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
         database.change_entity_status(datawriter_id_1, false);
         database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
 
+        // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+        
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
 
