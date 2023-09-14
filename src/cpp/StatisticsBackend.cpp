@@ -956,7 +956,10 @@ void StatisticsBackend::set_alias(
     {
         entity->alias = alias;
         std::vector<EntityId> domains = StatisticsBackend::get_entities(EntityKind::DOMAIN, entity_id);
-        StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
+        if(!domains.empty())
+        {
+            StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
+        }
     }
 }
 

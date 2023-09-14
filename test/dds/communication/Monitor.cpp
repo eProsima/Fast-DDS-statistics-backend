@@ -152,6 +152,9 @@ int main(
     int arg_count = 1;
     uint32_t seed = 7800;
     unsigned int num_participants = 2;
+    unsigned int num_hosts = 1;
+    unsigned int num_users = 1;
+    unsigned int num_processes = 2;
     unsigned int num_readers = 1;
     // Each participant creates a meta traffic endpoint
     unsigned int num_writers = num_participants + 1;
@@ -266,11 +269,20 @@ int main(
         // and check that all entities are active
         try
         {
-            if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+            if (StatisticsBackend::get_entities(EntityKind::HOST).size() != num_hosts ||
+                    StatisticsBackend::get_entities(EntityKind::HOST, monitor_id).size() != num_hosts)
             {
-                throw Error("Error: database contains unexpected entities");
+                throw Error("Error: database contains unexpected HOST");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::USER).size() != num_users ||
+                    StatisticsBackend::get_entities(EntityKind::USER, monitor_id).size() != num_users)
+            {
+                throw Error("Error: database contains unexpected USER");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::PROCESS).size() != num_processes ||
+                    StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id).size() != num_processes)
+            {
+                throw Error("Error: database contains unexpected PROCESS");
             }
             else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
                     StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
@@ -324,6 +336,30 @@ int main(
                 if (!StatisticsBackend::is_active(entity))
                 {
                     throw Error("Error: PARTICIPANT with id: " + std::to_string(
+                                      entity.value()) + " is inactive after discovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::HOST, monitor_id))
+            {
+                if (!StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: HOST with id: " + std::to_string(
+                                      entity.value()) + " is inactive after discovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::USER, monitor_id))
+            {
+                if (!StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: USER with id: " + std::to_string(
+                                      entity.value()) + " is inactive after discovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id))
+            {
+                if (!StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: PROCESS with id: " + std::to_string(
                                       entity.value()) + " is inactive after discovering participants");
                 }
             }
@@ -366,11 +402,20 @@ int main(
         // and check that all entities except the monitor are inactive
         try
         {
-            if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+            if (StatisticsBackend::get_entities(EntityKind::HOST).size() != num_hosts ||
+                    StatisticsBackend::get_entities(EntityKind::HOST, monitor_id).size() != num_hosts)
             {
-                throw Error("Error: database contains unexpected entities");
+                throw Error("Error: database contains unexpected HOST");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::USER).size() != num_users ||
+                    StatisticsBackend::get_entities(EntityKind::USER, monitor_id).size() != num_users)
+            {
+                throw Error("Error: database contains unexpected USER");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::PROCESS).size() != num_processes ||
+                    StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id).size() != num_processes)
+            {
+                throw Error("Error: database contains unexpected PROCESS");
             }
             else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
                     StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
@@ -408,7 +453,7 @@ int main(
                 if (!StatisticsBackend::is_active(entity))
                 {
                     throw Error("Error: DOMAIN with id: " + std::to_string(
-                                      entity.value()) + " is inactive after undiscovering participants");
+                                      entity.value()) + " is active after undiscovering participants");
                 }
             }
             for (auto entity : StatisticsBackend::get_entities(EntityKind::TOPIC, monitor_id))
@@ -424,6 +469,30 @@ int main(
                 if (StatisticsBackend::is_active(entity))
                 {
                     throw Error("Error: PARTICIPANT with id: " + std::to_string(
+                                      entity.value()) + " is active after undiscovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::HOST, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: HOST with id: " + std::to_string(
+                                      entity.value()) + " is active after undiscovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::USER, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: USER with id: " + std::to_string(
+                                      entity.value()) + " is active after undiscovering participants");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: PROCESS with id: " + std::to_string(
                                       entity.value()) + " is active after undiscovering participants");
                 }
             }
@@ -468,11 +537,20 @@ int main(
         // and check that all entities are inactive
         try
         {
-            if (!StatisticsBackend::get_entities(EntityKind::HOST).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::USER).empty() ||
-                    !StatisticsBackend::get_entities(EntityKind::PROCESS).empty())
+            if (StatisticsBackend::get_entities(EntityKind::HOST).size() != num_hosts ||
+                    StatisticsBackend::get_entities(EntityKind::HOST, monitor_id).size() != num_hosts)
             {
-                throw Error("Error: database contains unexpected entities");
+                throw Error("Error: database contains unexpected HOST");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::USER).size() != num_users ||
+                    StatisticsBackend::get_entities(EntityKind::USER, monitor_id).size() != num_users)
+            {
+                throw Error("Error: database contains unexpected USER");
+            }
+            else if (StatisticsBackend::get_entities(EntityKind::PROCESS).size() != num_processes ||
+                    StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id).size() != num_processes)
+            {
+                throw Error("Error: database contains unexpected PROCESS");
             }
             else if (StatisticsBackend::get_entities(EntityKind::DOMAIN).size() != 1 ||
                     StatisticsBackend::get_entities(EntityKind::DOMAIN).begin()->value() != monitor_id)
@@ -526,6 +604,30 @@ int main(
                 if (StatisticsBackend::is_active(entity))
                 {
                     throw Error("Error: PARTICIPANT with id: " + std::to_string(
+                                      entity.value()) + " is active after stopping monitor");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::HOST, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: HOST with id: " + std::to_string(
+                                      entity.value()) + " is active after stopping monitor");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::USER, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: USER with id: " + std::to_string(
+                                      entity.value()) + " is active after stopping monitor");
+                }
+            }
+            for (auto entity : StatisticsBackend::get_entities(EntityKind::PROCESS, monitor_id))
+            {
+                if (StatisticsBackend::is_active(entity))
+                {
+                    throw Error("Error: PROCESS with id: " + std::to_string(
                                       entity.value()) + " is active after stopping monitor");
                 }
             }

@@ -68,7 +68,6 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         new_edp_count_received
         new_discovery_times_received
         new_sample_datas_received
-        new_physical_data_received
         )
 
     foreach(test_name ${STATISTICSDATALISTENER_TEST_LIST})
