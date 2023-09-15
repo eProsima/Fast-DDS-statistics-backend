@@ -723,14 +723,14 @@ TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
 TEST_F(statistics_backend_tests, get_domain_view_graph)
 {
     StatisticsBackendTest::set_database(db);
-    
+
     // Get database graph
-    db->init_domain_view_graph("domain2",EntityId(7));
+    db->init_domain_view_graph("domain2", EntityId(7));
     StatisticsBackendTest::regenerate_domain_graph(EntityId(7));
     // Load reference graph
     Graph json_graph;
     load_file(DOMAIN_VIEW_GRAPH_BACKEND_GET_GRAPH_DUMP_FILE, json_graph);
-    ASSERT_EQ(StatisticsBackend::get_domain_view_graph(EntityId(7)),json_graph);
+    ASSERT_EQ(StatisticsBackend::get_domain_view_graph(EntityId(7)), json_graph);
 }
 
 // Check the get_domain_view_graph StatisticsBackend method with invalid domain_id

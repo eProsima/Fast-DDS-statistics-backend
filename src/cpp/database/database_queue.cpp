@@ -58,7 +58,7 @@ EntityId DatabaseEntityQueue::process_participant(
         const EntityDiscoveryInfo& info)
 {
     EntityId participant_id;
-    
+
     std::shared_ptr<Host> host;
     std::shared_ptr<User> user;
     std::shared_ptr<Process> process;
@@ -77,7 +77,7 @@ EntityId DatabaseEntityQueue::process_participant(
         database_->change_entity_status(participant_id,
                 info.discovery_status !=
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
-        
+
     }
     catch (BadParameter&)
     {
@@ -139,8 +139,8 @@ EntityId DatabaseEntityQueue::process_participant(
             std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
                                 hosts.front().second));
             host = std::const_pointer_cast<Host>(const_host);
-        }  
-        
+        }
+
         // Get user entity
         auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
         for (const auto& it : users)
@@ -201,28 +201,32 @@ EntityId DatabaseEntityQueue::process_participant(
             database_->link_participant_with_process(participant_id, process->id);
         }
 
-        graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, process->id, participant_id);
+        graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, process->id,
+                        participant_id);
 
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
         logError(BACKEND_DATABASE_QUEUE, e.what());
 
-        if(host == nullptr || host->id == EntityId::invalid())
+        if (host == nullptr || host->id == EntityId::invalid())
         {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, EntityId(), EntityId(), EntityId(), EntityId());
+            graph_updated = database_->update_participant_in_graph(info.domain_id, EntityId(), EntityId(),
+                            EntityId(), EntityId());
         }
-        else if(user == nullptr || user->id == EntityId::invalid())
+        else if (user == nullptr || user->id == EntityId::invalid())
         {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, EntityId(), EntityId(), EntityId());
+            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, EntityId(),
+                            EntityId(), EntityId());
         }
-        else if(process == nullptr || process->id == EntityId::invalid())
+        else if (process == nullptr || process->id == EntityId::invalid())
         {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, EntityId(), EntityId());
+            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id,
+                            EntityId(), EntityId());
         }
     }
 
-    if(graph_updated)
+    if (graph_updated)
     {
         details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
     }
@@ -261,8 +265,8 @@ EntityId DatabaseEntityQueue::process_datareader(
         catch (const Exception&)
         {
             throw BadParameter("endpoint " + to_string(endpoint_guid)
-                        +  " undiscovered on Participant " + to_string(participant_guid)
-                        + " but there is no such Participant in the database");
+                          +  " undiscovered on Participant " + to_string(participant_guid)
+                          + " but there is no such Participant in the database");
         }
 
         // Check whether the topic is already in the database
@@ -292,7 +296,7 @@ EntityId DatabaseEntityQueue::process_datareader(
             }
         }
 
-        if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
+        if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
         {
             details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
         }
@@ -343,8 +347,8 @@ EntityId DatabaseEntityQueue::process_datawriter(
         catch (const Exception&)
         {
             throw BadParameter("endpoint " + to_string(endpoint_guid)
-                        +  " undiscovered on Participant " + to_string(participant_guid)
-                        + " but there is no such Participant in the database");
+                          +  " undiscovered on Participant " + to_string(participant_guid)
+                          + " but there is no such Participant in the database");
         }
 
         // Check whether the topic is already in the database
@@ -374,7 +378,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
             }
         }
 
-        if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
+        if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
         {
             details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
         }
@@ -539,7 +543,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     // Force the refresh of the parent entities' status
     database_->change_entity_status(endpoint_entity, true);
 
-    if(database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
+    if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
     {
         details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
     }

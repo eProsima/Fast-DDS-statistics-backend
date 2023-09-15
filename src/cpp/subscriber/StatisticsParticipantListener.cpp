@@ -145,7 +145,7 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     discovery_info.address = get_address(info.info);
     discovery_info.participant_name = info.info.m_participantName.to_string();
-    
+
     discovery_info.app_id = AppId::UNKNOWN;
     discovery_info.app_metadata = "";
 
@@ -191,9 +191,12 @@ void StatisticsParticipantListener::on_participant_discovery(
                 return std::string("");
             };
 
-    discovery_info.host = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_host);
-    discovery_info.user = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_user);
-    discovery_info.process = get_physical_property_value(info.info.m_properties, eprosima::fastdds::dds::parameter_policy_physical_data_process);
+    discovery_info.host = get_physical_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_host);
+    discovery_info.user = get_physical_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_user);
+    discovery_info.process = get_physical_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_process);
 
     entity_queue_->push(timestamp, discovery_info);
 
@@ -237,7 +240,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
-    
+
     // Wait until the entity queue is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();

@@ -352,7 +352,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 void StatisticsBackendData::on_domain_graph_update(
         EntityId entity_id)
 {
-    if(physical_listener_ != nullptr)
+    if (physical_listener_ != nullptr)
     {
         physical_listener_->on_domain_view_graph_update(entity_id);
     }

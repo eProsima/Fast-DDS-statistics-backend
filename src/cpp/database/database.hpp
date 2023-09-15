@@ -340,7 +340,7 @@ public:
      * @brief Get the specified domain view graph from database.
      *
      * @param domain Domain from which graph is delivered.
-     * 
+     *
      * @return Graph object describing topology of the entities in the domain.
      */
     Graph get_domain_view_graph(
@@ -364,7 +364,7 @@ public:
      * @param user_entity_id The EntityId of the user.
      * @param process_entity_id The EntityId of the process.
      * @param participant_entity_id The EntityId of the participant.
-     * 
+     *
      * @return True if graph has been updated
      */
     bool update_participant_in_graph(
@@ -372,7 +372,7 @@ public:
             const EntityId& host_entity_id,
             const EntityId& user_entity_id,
             const EntityId& process_entity_id,
-            const EntityId& participant_entity_id);      
+            const EntityId& participant_entity_id);
 
     /**
      * @brief Update topic-endpoint in domain view graph after endpoint entity discovery.
@@ -381,45 +381,45 @@ public:
      * @param participant_entity_id The EntityId of the participant.
      * @param topic_entity_id The EntityId of the topic.
      * @param endpoint_entity_id The EntityId of the endpoint.
-     * 
+     *
      * @return True if graph has been updated
      */
     bool update_endpoint_in_graph(
             const EntityId& domain_entity_id,
             const EntityId& participant_entity_id,
             const EntityId& topic_entity_id,
-            const EntityId& endpoint_entity_id); 
+            const EntityId& endpoint_entity_id);
 
     /**
      * @brief Regenerate graph from data stored in database.
-     * 
+     *
      * @param domain_entity_id The EntityId of the domain.
-     * 
+     *
      */
     void regenerate_domain_graph(
-            const EntityId& domain_entity_id); 
+            const EntityId& domain_entity_id);
 
     /**
      * @brief Update graph according to the updated entity.
-     * 
+     *
      * @param domain_id The EntityId of the domain containing the entity.
      * @param entity_id The EntityId of the entity updated.
-     * 
+     *
      */
     void update_graph_on_updated_entity(
-            const EntityId& domain_id, 
-            const EntityId& entity_id); 
+            const EntityId& domain_id,
+            const EntityId& entity_id);
 
     /**
      * @brief Get entity subgraph.
-     * 
+     *
      * @param entity_id The EntityId from the entity which asks for its subgraph.
      * @param entity_graph Subgraph where to add entity data.
-     * 
+     *
      */
     Graph get_entity_subgraph(
             const EntityId& entity_id,
-            Graph& entity_graph); 
+            Graph& entity_graph);
 
     /**
      * @brief Get a dump of the database.

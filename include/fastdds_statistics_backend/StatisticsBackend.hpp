@@ -414,7 +414,7 @@ public:
 
     /**
      * @brief Get the domain view graph.
-     * 
+     *
      * @param domain_id EntityId from domain whose graph is delivered.
      *
      * @return Graph object describing per domain topology of the entities.
@@ -424,7 +424,7 @@ public:
 
     /**
      * @brief Regenerate graph from data stored in database.
-     * 
+     *
      * @param domain_id EntityId from domain whose graph is regenerated.
      */
     static void regenerate_domain_graph(

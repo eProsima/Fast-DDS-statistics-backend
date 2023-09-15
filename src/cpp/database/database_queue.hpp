@@ -363,9 +363,9 @@ struct EntityDiscoveryInfo
     std::string app_metadata;
 
     //Physical data
-    std::string  host;
-    std::string  user;
-    std::string  process;
+    std::string host;
+    std::string user;
+    std::string process;
 
     // Enpoint data
     std::string topic_name;

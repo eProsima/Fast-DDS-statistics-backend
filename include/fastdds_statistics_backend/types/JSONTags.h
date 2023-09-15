@@ -143,7 +143,7 @@ constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
- //! Conversion from EntityStatus to string
+//! Conversion from EntityStatus to string
 constexpr const char* entity_status_str[] =
 {OK_TAG, WARNING_TAG, ERROR_TAG};
 //! Conversion from AppId to string

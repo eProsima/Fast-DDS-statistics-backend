@@ -799,13 +799,13 @@ Graph StatisticsBackend::get_graph()
 }
 
 Graph StatisticsBackend::get_domain_view_graph(
-    const EntityId& domain_id)
+        const EntityId& domain_id)
 {
     return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
 }
 
 void StatisticsBackend::regenerate_domain_graph(
-    const EntityId& domain_id)
+        const EntityId& domain_id)
 {
     StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
     StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
@@ -952,11 +952,11 @@ void StatisticsBackend::set_alias(
     std::shared_ptr<const database::Entity> const_entity =
             StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
     std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
-    if(entity->alias != alias)
+    if (entity->alias != alias)
     {
         entity->alias = alias;
         std::vector<EntityId> domains = StatisticsBackend::get_entities(EntityKind::DOMAIN, entity_id);
-        if(!domains.empty())
+        if (!domains.empty())
         {
             StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
         }
