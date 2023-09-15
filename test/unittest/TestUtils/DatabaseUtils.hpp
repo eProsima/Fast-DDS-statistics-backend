@@ -44,6 +44,8 @@ constexpr const char* OLD_COMPLEX_DUMP_FILE = "../Resources/old_complex_dump.jso
 constexpr const char* COMPLEX_ERASED_DOMAIN_1_DUMP_FILE = "../Resources/complex_dump_erased_domain_1.json";
 constexpr const char* ALTERNATIVE_COMPLEX_ERASED_DOMAIN_2_DUMP_FILE =
         "../Resources/alternative_complex_dump_erased_domain_2.json";
+constexpr const char* DOMAIN_VIEW_GRAPH_BACKEND_GET_GRAPH_DUMP_FILE =
+        "../Resources/domain_view_graph_backend_get_graph.json";
 
 constexpr const char* DESCRIPTION_TAG = "description";
 

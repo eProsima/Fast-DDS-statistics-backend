@@ -154,7 +154,7 @@ public:
 
 };
 
-// Complete test with two participants (datawriter and datareader), testint add to grpah and delete from graph funcionalities
+// Complete test with two participants (datawriter and datareader), testing add to graph and delete from graph funcionalities
 TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
 {
     nlohmann::json json_graph;
@@ -257,6 +257,11 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher_modified";
         database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
+
+        std::shared_ptr<const database::Entity> datareader_const_entity_modified = database.get_entity(datareader_id_2);
+        std::shared_ptr<database::Entity> datareader_entity_modified = std::const_pointer_cast<database::Entity>(datareader_const_entity_modified);
+        datareader_entity_modified->alias = "subscriber_modified";
+        database.update_graph_on_updated_entity(domain_id, datareader_id_2);
         
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_UPDATED_ENTITIES_DUMP_FILE, json_graph);
@@ -296,6 +301,11 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher";
         database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
+
+        std::shared_ptr<const database::Entity> datareader_const_entity_modified = database.get_entity(datareader_id_2);
+        std::shared_ptr<database::Entity> datareader_entity_modified = std::const_pointer_cast<database::Entity>(datareader_const_entity_modified);
+        datareader_entity_modified->alias = "subscriber";
+        database.update_graph_on_updated_entity(domain_id, datareader_id_2);
 
         // Change status
         database.change_entity_status(datawriter_id_1, false);

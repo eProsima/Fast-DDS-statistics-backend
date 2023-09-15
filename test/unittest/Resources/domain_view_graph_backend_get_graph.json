@@ -1,0 +1,91 @@
+{
+    "domain": "domain2",
+    "hosts": {
+        "1": {
+            "alias": "host2",
+            "kind": "host",
+            "metatraffic": false,
+            "status": "ok",
+            "users": {
+                "3": {
+                    "alias": "user2",
+                    "kind": "user",
+                    "metatraffic": false,
+                    "processes": {
+                        "5": {
+                            "alias": "process2",
+                            "kind": "process",
+                            "metatraffic": false,
+                            "participants": {
+                                "8": {
+                                    "alias": "participant1",
+                                    "app_id": "unknown",
+                                    "app_metadata": "",
+                                    "endpoints": {},
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "status": "ok"
+                                },
+                                "9": {
+                                    "alias": "participant2",
+                                    "app_id": "unknown",
+                                    "app_metadata": "",
+                                    "endpoints": {
+                                        "13": {
+                                            "alias": "datareader1",
+                                            "kind": "datareader",
+                                            "metatraffic": false,
+                                            "status": "ok",
+                                            "topic": "11"
+                                        },
+                                        "15": {
+                                            "alias": "datareader2",
+                                            "kind": "datareader",
+                                            "metatraffic": false,
+                                            "status": "ok",
+                                            "topic": "11"
+                                        },
+                                        "17": {
+                                            "alias": "datawriter1",
+                                            "kind": "datawriter",
+                                            "metatraffic": false,
+                                            "status": "ok",
+                                            "topic": "11"
+                                        },
+                                        "19": {
+                                            "alias": "datawriter2",
+                                            "kind": "datawriter",
+                                            "metatraffic": false,
+                                            "status": "ok",
+                                            "topic": "11"
+                                        }
+                                    },
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "status": "ok"
+                                }
+                            },
+                            "pid": "345",
+                            "status": "ok"
+                        }
+                    },
+                    "status": "ok"
+                }
+            }
+        }
+    },
+    "kind": "domain",
+    "topics": {
+        "10": {
+            "alias": "topic1",
+            "kind": "topic",
+            "metatraffic": false
+        },
+        "11": {
+            "alias": "topic2",
+            "kind": "topic",
+            "metatraffic": false
+        }
+    }
+}
+    

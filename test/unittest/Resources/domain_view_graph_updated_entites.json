@@ -82,7 +82,7 @@
                                         {
                                             "kind": "datareader",
                                             "metatraffic": false,
-                                            "alias": "subscriber",
+                                            "alias": "subscriber_modified",
                                             "status": "ok",
                                             "topic": "5"
                                         }

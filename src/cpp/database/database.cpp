@@ -2153,11 +2153,6 @@ bool Database::update_participant_in_graph(
     bool graph_updated = false;
 
     // Check if the correspondent domain graph exists
-    if(domain_entity_id.value() == EntityId::invalid() || domain_entity_id.value() == EntityId::all())
-    {
-        return graph_updated;
-    }
-
     if(domain_view_graph.find(domain_entity_id) == domain_view_graph.end())
     {
         return graph_updated;
@@ -2288,11 +2283,6 @@ bool Database::update_endpoint_in_graph(
     bool graph_updated = false;
 
     // Check if the correspondent domain graph exists
-    if(domain_entity_id.value() == EntityId::invalid() || domain_entity_id.value() == EntityId::all())
-    {
-        return graph_updated;
-    }
-
     if(domain_view_graph.find(domain_entity_id) == domain_view_graph.end())
     {
         return graph_updated;
@@ -2414,21 +2404,24 @@ void Database::regenerate_domain_graph(
     {
         domain_view_graph.erase(domain_entity_id);
     }
+    else
+    {
+        return;
+    }
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     std::shared_ptr<const database::Entity> domain_entity = get_entity(domain_entity_id);
     (*domain_graph)["kind"] = "domain";
     (*domain_graph)["domain"] = domain_entity->name;
-
-    // Add topics
     (*domain_graph)["topics"] = nlohmann::json::object();
     (*domain_graph)["hosts"] = nlohmann::json::object();
 
+    // Add topics
     auto topics = get_entities(EntityKind::TOPIC, domain_entity_id);
     for (auto topic : topics)
     {
-        if(topic == nullptr || !topic->active) 
+        if(!topic->active) 
         {
             continue;
         }
@@ -2440,7 +2433,7 @@ void Database::regenerate_domain_graph(
     auto hosts = get_entities(EntityKind::HOST, domain_entity_id);
     for (auto host : hosts)
     {
-        if(host == nullptr || !host->active) 
+        if(!host->active) 
         {
             continue;
         }
@@ -2455,7 +2448,7 @@ void Database::regenerate_domain_graph(
         // Add users
         for (auto user : users)
         {
-            if(user == nullptr || !user->active)  
+            if(!user->active)  
             {
                 continue;
             }
@@ -2470,7 +2463,7 @@ void Database::regenerate_domain_graph(
             //Add processes
             for (auto process : processes)
             {
-                if(process == nullptr || !process->active) 
+                if(!process->active) 
                 {
                     continue;
                 }
@@ -2485,7 +2478,7 @@ void Database::regenerate_domain_graph(
                 //Add prticipants
                 for(auto participant : participants)
                 {
-                    if(participant == nullptr || !participant->active) 
+                    if(!participant->active) 
                     {
                         continue;
                     }
@@ -2500,7 +2493,7 @@ void Database::regenerate_domain_graph(
                     // Add endpoints
                     for(auto datareader : datareaders)
                     {
-                        if(datareader == nullptr || !datareader->active) 
+                        if(!datareader->active) 
                         {
                             continue;
                         }
@@ -2512,7 +2505,7 @@ void Database::regenerate_domain_graph(
                     auto datawriters = get_entities(EntityKind::DATAWRITER, participant);
                     for(auto datawriter : datawriters)
                     {
-                        if(datawriter == nullptr || !datawriter->active)
+                        if(!datawriter->active)
                         {
                             continue;
                         }
