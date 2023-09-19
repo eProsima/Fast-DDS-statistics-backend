@@ -60,12 +60,14 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         EntityId domain_id,
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
-        database::DatabaseDataQueue* data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
     , database_(database)
     , entity_queue_(entity_queue)
     , data_queue_(data_queue)
+    , monitor_service_data_queue_(monitor_service_data_queue)
 {
 }
 
@@ -127,8 +129,9 @@ void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryInfo&& info)
 {
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -241,9 +244,10 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
     }
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queues is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_data_queue_->start_consumer();
 }
 
 void StatisticsParticipantListener::on_subscriber_discovery(
@@ -256,8 +260,9 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         return;
     }
 
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -294,9 +299,10 @@ void StatisticsParticipantListener::on_subscriber_discovery(
 
     entity_queue_->push(timestamp, discovery_info);
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queue is processed and restart the data queues
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_data_queue_->start_consumer();
 }
 
 void StatisticsParticipantListener::on_publisher_discovery(
@@ -307,8 +313,9 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
 
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -345,9 +352,10 @@ void StatisticsParticipantListener::on_publisher_discovery(
 
     entity_queue_->push(timestamp, discovery_info);
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queue is processed and restart the data queues
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_data_queue_->start_consumer();
 }
 
 } //namespace database

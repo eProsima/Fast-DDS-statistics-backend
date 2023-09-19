@@ -27,12 +27,14 @@
 
 #include <database/entities.hpp>
 
+#include <topic_types/monitorservice_types.h>
 
 namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
 class Database;
+template <typename T>
 class DatabaseDataQueue;
 class DatabaseEntityQueue;
 
@@ -55,7 +57,8 @@ public:
             EntityId domain_id,
             database::Database* database,
             database::DatabaseEntityQueue* entity_queue,
-            database::DatabaseDataQueue* data_queue) noexcept;
+            database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
+            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept;
 
     /*!
      * This method is called when a new Participant is discovered, or a previously discovered participant changes
@@ -89,10 +92,11 @@ public:
 
 protected:
 
-    EntityId domain_id_;                            ///< The DomainId this listener is monitoring
-    database::Database* database_;                  ///< Reference to the statistics database. Injected on construction
-    database::DatabaseEntityQueue* entity_queue_;   ///< Reference to the statistics entity queue. Injected on construction
-    database::DatabaseDataQueue* data_queue_;       ///< Reference to the statistics data queue. Injected on construction
+    EntityId domain_id_;                                                                                                ///< The DomainId this listener is monitoring
+    database::Database* database_;                                                                                      ///< Reference to the statistics database. Injected on construction
+    database::DatabaseEntityQueue* entity_queue_;                                                                       ///< Reference to the statistics entity queue. Injected on construction
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;                                      ///< Reference to the statistics data queue. Injected on construction
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue_;        ///< Reference to the monitor service status data queue. Injected on construction
 };
 
 

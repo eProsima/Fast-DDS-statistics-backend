@@ -274,6 +274,42 @@ enum class DataKind : int32_t
 };
 
 /**
+ * Indicates the Type of Monitor Service Status Data stored by the Backend
+ */
+enum class StatusKind : int32_t
+{
+    /// Represents no valid status data kind
+    INVALID                     = 0,
+
+    /// Collection of Parameters describing the Proxy Data of that entity.
+    PROXY                       = 1 << 0,
+
+    /// List of connections that this entity is using. Described here in more detail
+    CONNECTION_LIST             = 1 << 1,
+
+    /// Status of the Incompatible QoS of that entity.
+    INCOMPATIBLE_QOS            = 1 << 2,
+
+    /// Status of Inconsistent topics of the topic of that entity.
+    INCONSISTENT_TOPIC          = 1 << 3,
+
+    /// Tracks the status of the number of times that liveliness was lost (writer side).
+    LIVELINESS_LOST             = 1 << 4,
+
+    /// Tracks the status of the number of times that liveliness status changed (reader side).
+    LIVELINESS_CHANGED          = 1 << 5,
+
+    /// The Status of the number of deadlines missed that were registered in that entity.
+    DEADLINE_MISSED             = 1 << 6,
+
+    /// Tracks the number of times that this entity lost samples.
+    SAMPLE_LOST                 = 1 << 7,
+
+    /// 
+    STATUSES_SIZE               = 1 << 8,
+};
+
+/**
  * @brief Bitmask of data kinds
  *
  * values of DataKind can be combined with the '|' operator to build the mask:

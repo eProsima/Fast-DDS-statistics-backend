@@ -584,7 +584,8 @@ std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datareader(
         topic);
 }
 
-EntityId DatabaseDataQueue::get_or_create_locator(
+template <typename T>
+EntityId DatabaseDataQueue<T>::get_or_create_locator(
         const std::string& locator_name) const
 {
     auto found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, locator_name);
@@ -603,7 +604,8 @@ EntityId DatabaseDataQueue::get_or_create_locator(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -636,7 +638,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -656,7 +659,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -679,7 +683,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -704,7 +709,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -730,7 +736,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -753,7 +760,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -786,7 +794,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -809,7 +818,20 @@ void DatabaseDataQueue::process_sample_type(
     }
 }
 
-void DatabaseDataQueue::process_sample()
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        IncompatibleQosSample& sample,
+        const DatabaseQueue::StatisticsIncompatibleQoSStatus& item) const
+{
+    
+}
+
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 {
     switch (front().second->_d())
     {
@@ -1220,6 +1242,41 @@ void DatabaseDataQueue::process_sample()
         }
 
         case StatisticsEventKind::PHYSICAL_DATA:
+        {
+            break;
+        }
+    }
+}
+
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>::process_sample()
+{
+    switch (front().second->_d())
+    {
+        case StatisticsStatusKind::INCOMPATIBLE_QOS:
+        {
+            IncompatibleQosSample sample;
+            EntityId domain;
+            EntityId entity;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->incompatible_qos_status());
+                //database_->insert(domain, entity, sample);
+                //details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                //        StatusKind::INCOMPATIBLE_QOS);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        default:
         {
             break;
         }

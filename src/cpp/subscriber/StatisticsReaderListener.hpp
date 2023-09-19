@@ -23,6 +23,8 @@
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
 
+#include <topic_types/monitorservice_types.h>
+
 #include <types/types.hpp>
 
 namespace eprosima {
@@ -30,6 +32,7 @@ namespace statistics_backend {
 
 namespace database {
 
+template <typename T>
 class DatabaseDataQueue;
 class DatabaseEntityQueue;
 
@@ -55,7 +58,8 @@ public:
      * @brief Constructor
      */
     StatisticsReaderListener(
-            database::DatabaseDataQueue* data_queue) noexcept;
+            database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
+            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept;
 
     /**
      * @brief Actions to be performed when a new Data Message is received.
@@ -73,7 +77,8 @@ protected:
             std::chrono::system_clock::time_point& timestamp);
 
     //! Reference to the database queues
-    database::DatabaseDataQueue* data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue_;
 
 };
 

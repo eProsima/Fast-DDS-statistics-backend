@@ -33,6 +33,8 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
+#include <topic_types/monitorservice_types.h>
+
 #include <database/database.hpp>
 #include "Monitor.hpp"
 
@@ -42,6 +44,7 @@ namespace statistics_backend {
 namespace database {
 
 class DatabaseEntityQueue;
+template <typename T>
 class DatabaseDataQueue;
 
 } // namespace database
@@ -85,7 +88,8 @@ public:
     database::DatabaseEntityQueue* entity_queue_;
 
     //! Reference to the Database data queue
-    database::DatabaseDataQueue* data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue_;
 
     /**
      * @brief Collection of active monitors

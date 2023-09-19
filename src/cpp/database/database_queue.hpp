@@ -35,7 +35,7 @@
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
-#include <topic_types/types.h>
+#include <topic_types/monitorservice_types.h>
 #include <exception/Exception.hpp>
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
@@ -56,6 +56,7 @@ public:
 
     using StatisticsData = eprosima::fastdds::statistics::Data;
     using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
+    using StatisticsStatusKind = eprosima::fastdds::statistics::StatusKind;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
     using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
@@ -65,6 +66,7 @@ public:
     using StatisticsDiscoveryTime = eprosima::fastdds::statistics::DiscoveryTime;
     using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
     using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
+    using StatisticsIncompatibleQoSStatus = eprosima::fastdds::statistics::IncompatibleQoSStatus_s;
     using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
     using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
     using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
@@ -483,24 +485,33 @@ protected:
 
 };
 
-class DatabaseDataQueue : public DatabaseQueue<std::shared_ptr<eprosima::fastdds::statistics::Data>>
+template <typename T>
+class DatabaseDataQueue : public DatabaseQueue<std::shared_ptr<T>>
 {
 
 public:
 
     DatabaseDataQueue(
             database::Database* database)
-        : DatabaseQueue<std::shared_ptr<eprosima::fastdds::statistics::Data>>()
+        : DatabaseQueue<std::shared_ptr<T>>()
         , database_(database)
     {
     }
 
+    using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
+    using StatisticsLocator = eprosima::fastdds::statistics::detail::Locator_s;
+    using StatisticsSequenceNumber = eprosima::fastdds::statistics::detail::SequenceNumber_s;
+    using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
+
     virtual ~DatabaseDataQueue()
     {
-        stop_consumer();
+        DatabaseQueue<std::shared_ptr<T>>::stop_consumer();
     }
 
-    virtual void process_sample() override;
+    virtual void process_sample() override
+    {
+        throw BadParameter("Unsupported DatabaseDataQueue data type");
+    };
 
     /**
      * @brief subroutine to build a StatisticsSample from a StatisticsData
@@ -517,13 +528,13 @@ public:
      * @param[out] sample Buffer to receive the constructed sample
      * @param[in]  item The StatisticsData we want to process
      */
-    template<typename T, typename Q>
+    template<typename Q, typename R>
     void process_sample_type(
             EntityId& domain,
             EntityId& entity,
             EntityKind entity_kind,
-            T& sample,
-            const Q& item) const
+            Q& sample,
+            const R& item) const
     {
         static_cast<void>(domain);
         static_cast<void>(entity);
@@ -604,7 +615,14 @@ protected:
 };
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample();
+
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>::process_sample();
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -612,7 +630,8 @@ void DatabaseDataQueue::process_sample_type(
         const DatabaseQueue::StatisticsWriterReaderData& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -620,7 +639,8 @@ void DatabaseDataQueue::process_sample_type(
         const StatisticsLocator2LocatorData& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -628,7 +648,8 @@ void DatabaseDataQueue::process_sample_type(
         const StatisticsEntityData& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -636,7 +657,8 @@ void DatabaseDataQueue::process_sample_type(
         const StatisticsEntity2LocatorTraffic& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -645,7 +667,8 @@ void DatabaseDataQueue::process_sample_type(
 
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -653,7 +676,8 @@ void DatabaseDataQueue::process_sample_type(
         const StatisticsEntityCount& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -661,12 +685,23 @@ void DatabaseDataQueue::process_sample_type(
         const StatisticsDiscoveryTime& item) const;
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
         SampleDatasCountSample& sample,
         const StatisticsSampleIdentityCount& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        IncompatibleQosSample& sample,
+        const DatabaseQueue::StatisticsIncompatibleQoSStatus& item) const;
+
 
 } //namespace database
 } //namespace statistics_backend

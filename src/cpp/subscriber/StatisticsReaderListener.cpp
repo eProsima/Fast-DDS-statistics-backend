@@ -23,10 +23,11 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
+#include <fastdds/src/cpp/statistics/rtps/monitor-service/MonitorService.hpp>
 #include <fastrtps/types/TypesBase.h>
 
 #include <database/database_queue.hpp>
-#include <topic_types/types.h>
+#include <topic_types/monitorservice_types.h>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -35,9 +36,10 @@ namespace subscriber {
 using namespace eprosima::fastrtps::types;
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::statistics::rtps;
 
 
-static const std::map<std::string, EventKind> topics =
+static const std::map<std::string, EventKind> statistics_topics =
 {
     {HISTORY_LATENCY_TOPIC,         HISTORY2HISTORY_LATENCY},
     {NETWORK_LATENCY_TOPIC,         NETWORK_LATENCY},
@@ -58,10 +60,17 @@ static const std::map<std::string, EventKind> topics =
     {PHYSICAL_DATA_TOPIC,           PHYSICAL_DATA}
 };
 
+static const std::map<std::string, EventKind> monitor_service_topics =
+{
+    {MonitorService::MONITOR_SRV_TOPIC_NAME,         INCOMPATIBLE_QOS},
+};
+
 StatisticsReaderListener::StatisticsReaderListener(
-        database::DatabaseDataQueue* data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept
     : DataReaderListener()
     , data_queue_(data_queue)
+    , monitor_service_data_queue_(monitor_service_data_queue)
 {
 }
 
@@ -88,95 +97,116 @@ bool StatisticsReaderListener::get_available_data(
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
-    std::shared_ptr<Data> data = std::make_shared<Data>();
     std::chrono::system_clock::time_point timestamp;
 
     const std::string& topic_name = reader->get_topicdescription()->get_name();
 
     bool enqueue = false;
-    if (HISTORY_LATENCY_TOPIC == topic_name)
-    {
-        WriterReaderData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->writer_reader_data(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (NETWORK_LATENCY_TOPIC == topic_name)
-    {
-        Locator2LocatorData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->locator2locator_data(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name || SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
-    {
-        EntityData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->entity_data(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (RTPS_SENT_TOPIC == topic_name || RTPS_LOST_TOPIC == topic_name)
-    {
-        Entity2LocatorTraffic inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->entity2locator_traffic(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (RESENT_DATAS_TOPIC == topic_name || HEARTBEAT_COUNT_TOPIC == topic_name ||
-            ACKNACK_COUNT_TOPIC == topic_name || NACKFRAG_COUNT_TOPIC == topic_name || GAP_COUNT_TOPIC == topic_name ||
-            DATA_COUNT_TOPIC == topic_name || PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
-    {
-        EntityCount inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->entity_count(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (DISCOVERY_TOPIC == topic_name)
-    {
-        DiscoveryTime inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->discovery_time(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (SAMPLE_DATAS_TOPIC == topic_name)
-    {
-        SampleIdentityCount inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->sample_identity_count(inner_data);
-            enqueue = true;
-        }
-    }
-    else if (PHYSICAL_DATA_TOPIC == topic_name)
-    {
-        PhysicalData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
-        {
-            data->physical_data(inner_data);
-            enqueue = true;
-        }
-    }
 
-    if (!enqueue)
+    if (MonitorService::MONITOR_SRV_TOPIC_NAME == topic_name)
     {
-        // Nothing to push to queue
-        return;
+        std::shared_ptr<MonitorServiceStatusData> monitor_service_data = std::make_shared<MonitorServiceStatusData>();
+        MonitorServiceData inner_data;
+        if (get_available_data(reader, inner_data, timestamp))
+        {
+            monitor_service_data->value(inner_data);
+            enqueue = true;
+        }
+        if (!enqueue)
+        {
+            // Nothing to push to queue
+            return;
+        }
+        monitor_service_data->_d(monitor_service_topics.at(topic_name));
+        monitor_service_data_queue_->push(timestamp, monitor_service_data);
     }
+    else
+    {
+        std::shared_ptr<Data> data = std::make_shared<Data>();
+        if (HISTORY_LATENCY_TOPIC == topic_name)
+        {
+            std::shared_ptr<Data> data = std::make_shared<Data>();
+            WriterReaderData inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->writer_reader_data(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (NETWORK_LATENCY_TOPIC == topic_name)
+        {
+            Locator2LocatorData inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->locator2locator_data(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name || SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
+        {
+            EntityData inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->entity_data(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (RTPS_SENT_TOPIC == topic_name || RTPS_LOST_TOPIC == topic_name)
+        {
+            Entity2LocatorTraffic inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->entity2locator_traffic(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (RESENT_DATAS_TOPIC == topic_name || HEARTBEAT_COUNT_TOPIC == topic_name ||
+                ACKNACK_COUNT_TOPIC == topic_name || NACKFRAG_COUNT_TOPIC == topic_name || GAP_COUNT_TOPIC == topic_name ||
+                DATA_COUNT_TOPIC == topic_name || PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
+        {
+            EntityCount inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->entity_count(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (DISCOVERY_TOPIC == topic_name)
+        {
+            DiscoveryTime inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->discovery_time(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (SAMPLE_DATAS_TOPIC == topic_name)
+        {
+            SampleIdentityCount inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->sample_identity_count(inner_data);
+                enqueue = true;
+            }
+        }
+        else if (PHYSICAL_DATA_TOPIC == topic_name)
+        {
+            PhysicalData inner_data;
+            if (get_available_data(reader, inner_data, timestamp))
+            {
+                data->physical_data(inner_data);
+                enqueue = true;
+            }
+        }
+        if (!enqueue)
+        {
+            // Nothing to push to queue
+            return;
+        }
 
-    data->_d(topics.at(topic_name));
-    data_queue_->push(timestamp, data);
+        data->_d(statistics_topics.at(topic_name));
+        data_queue_->push(timestamp, data);
+    }
 }
 
 } //namespace database

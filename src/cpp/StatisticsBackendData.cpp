@@ -46,7 +46,8 @@ SingletonType StatisticsBackendData::instance_;
 StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
     , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
-    , data_queue_(new database::DatabaseDataQueue(database_.get()))
+    , data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>(database_.get()))
+    , monitor_service_data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>(database_.get()))
     , physical_listener_(nullptr)
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
@@ -73,9 +74,14 @@ StatisticsBackendData::~StatisticsBackendData()
     {
         data_queue_->stop_consumer();
     }
+    if (monitor_service_data_queue_)
+    {
+        monitor_service_data_queue_->stop_consumer();
+    }
 
     delete entity_queue_;
     delete data_queue_;
+    delete monitor_service_data_queue_;
 }
 
 const SingletonType& StatisticsBackendData::get_instance()

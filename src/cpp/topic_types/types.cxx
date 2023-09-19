@@ -41,7 +41,8 @@ using namespace eprosima::fastcdr::exception;
 
 namespace eprosima {
 
-namespace fastdds {
+
+}
 
 namespace statistics {
 
@@ -137,6 +138,8 @@ std::array<uint8_t, 4>& EntityId_s::value()
 
 
 
+
+}
 
 GuidPrefix_s::GuidPrefix_s()
 {
@@ -605,6 +608,8 @@ eprosima::fastdds::statistics::detail::SequenceNumber_s& SampleIdentity_s::seque
 
 
 
+
+}
 
 Locator_s::Locator_s()
 {
