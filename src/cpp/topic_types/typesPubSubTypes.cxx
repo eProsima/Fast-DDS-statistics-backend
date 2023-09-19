@@ -72,7 +72,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -224,7 +224,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -376,7 +376,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -528,7 +528,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -680,7 +680,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -832,7 +832,7 @@ namespace eprosima {
                     ser.set_encoding_flag(
                         data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                         eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                        eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                        eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                     try
                     {
@@ -987,7 +987,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1139,7 +1139,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1291,7 +1291,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1443,7 +1443,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1595,7 +1595,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1747,7 +1747,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -1899,7 +1899,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {
@@ -2051,7 +2051,7 @@ namespace eprosima {
                 ser.set_encoding_flag(
                     data_representation == DataRepresentationId_t::XCDR_DATA_REPRESENTATION ?
                     eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR  :
-                    eprosima::fastcdr::EncodingAlgorithmFlag::DELIMIT_CDR2);
+                    eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
 
                 try
                 {

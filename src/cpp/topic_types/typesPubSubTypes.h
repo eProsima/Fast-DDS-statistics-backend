@@ -140,7 +140,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -160,9 +173,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 8ULL ==
+                        return 4ULL ==
+                               (detail::EntityId_s_offset_of<EntityId_s, detail::EntityId_s_f>() +
+                               sizeof(std::array<uint8_t, 4>));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 4ULL ==
                                (detail::EntityId_s_offset_of<EntityId_s, detail::EntityId_s_f>() +
                                sizeof(std::array<uint8_t, 4>));
                     }
@@ -263,7 +283,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -283,9 +316,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 16ULL ==
+                        return 12ULL ==
+                               (detail::GuidPrefix_s_offset_of<GuidPrefix_s, detail::GuidPrefix_s_f>() +
+                               sizeof(std::array<uint8_t, 12>));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 12ULL ==
                                (detail::GuidPrefix_s_offset_of<GuidPrefix_s, detail::GuidPrefix_s_f>() +
                                sizeof(std::array<uint8_t, 12>));
                     }
@@ -386,7 +426,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -406,9 +459,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 28ULL ==
+                        return 16ULL ==
+                               (detail::GUID_s_offset_of<GUID_s, detail::GUID_s_f>() +
+                               sizeof(eprosima::fastdds::statistics::detail::EntityId_s));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 16ULL ==
                                (detail::GUID_s_offset_of<GUID_s, detail::GUID_s_f>() +
                                sizeof(eprosima::fastdds::statistics::detail::EntityId_s));
                     }
@@ -509,7 +569,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -529,9 +602,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 12ULL ==
+                        return 8ULL ==
+                               (detail::SequenceNumber_s_offset_of<SequenceNumber_s, detail::SequenceNumber_s_f>() +
+                               sizeof(uint32_t));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 8ULL ==
                                (detail::SequenceNumber_s_offset_of<SequenceNumber_s, detail::SequenceNumber_s_f>() +
                                sizeof(uint32_t));
                     }
@@ -632,7 +712,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -652,9 +745,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 44ULL ==
+                        return 24ULL ==
+                               (detail::SampleIdentity_s_offset_of<SampleIdentity_s, detail::SampleIdentity_s_f>() +
+                               sizeof(eprosima::fastdds::statistics::detail::SequenceNumber_s));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 24ULL ==
                                (detail::SampleIdentity_s_offset_of<SampleIdentity_s, detail::SampleIdentity_s_f>() +
                                sizeof(eprosima::fastdds::statistics::detail::SequenceNumber_s));
                     }
@@ -755,7 +855,20 @@ namespace eprosima
                 #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                     eProsima_user_DllExport inline bool is_plain() const override
                     {
-                        return is_plain_impl();
+                        return is_plain_xcdrv1_impl();
+                    }
+
+                    eProsima_user_DllExport inline bool is_plain(
+                        eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                    {
+                        if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                        {
+                            return is_plain_xcdrv2_impl();
+                        }
+                        else
+                        {
+                            return is_plain_xcdrv1_impl();
+                        }
                     }
 
                 #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -775,9 +888,16 @@ namespace eprosima
 
                 private:
 
-                    static constexpr bool is_plain_impl()
+                    static constexpr bool is_plain_xcdrv1_impl()
                     {
-                        return 28ULL ==
+                        return 24ULL ==
+                               (detail::Locator_s_offset_of<Locator_s, detail::Locator_s_f>() +
+                               sizeof(std::array<uint8_t, 16>));
+                    }
+
+                    static constexpr bool is_plain_xcdrv2_impl()
+                    {
+                        return 24ULL ==
                                (detail::Locator_s_offset_of<Locator_s, detail::Locator_s_f>() +
                                sizeof(std::array<uint8_t, 16>));
                     }
@@ -846,6 +966,13 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
+                    return false;
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    static_cast<void>(data_representation);
                     return false;
                 }
 
@@ -960,7 +1087,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -980,9 +1120,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 40ULL ==
+                    return 24ULL ==
+                           (detail::EntityCount_offset_of<EntityCount, detail::EntityCount_f>() +
+                           sizeof(uint64_t));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 24ULL ==
                            (detail::EntityCount_offset_of<EntityCount, detail::EntityCount_f>() +
                            sizeof(uint64_t));
                 }
@@ -1083,7 +1230,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -1103,9 +1263,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 56ULL ==
+                    return 32ULL ==
+                           (detail::SampleIdentityCount_offset_of<SampleIdentityCount, detail::SampleIdentityCount_f>() +
+                           sizeof(uint64_t));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 32ULL ==
                            (detail::SampleIdentityCount_offset_of<SampleIdentityCount, detail::SampleIdentityCount_f>() +
                            sizeof(uint64_t));
                 }
@@ -1206,7 +1373,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -1226,9 +1406,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 82ULL ==
+                    return 58ULL ==
+                           (detail::Entity2LocatorTraffic_offset_of<Entity2LocatorTraffic, detail::Entity2LocatorTraffic_f>() +
+                           sizeof(int16_t));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 58ULL ==
                            (detail::Entity2LocatorTraffic_offset_of<Entity2LocatorTraffic, detail::Entity2LocatorTraffic_f>() +
                            sizeof(int16_t));
                 }
@@ -1329,7 +1516,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -1349,9 +1549,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 64ULL ==
+                    return 36ULL ==
+                           (detail::WriterReaderData_offset_of<WriterReaderData, detail::WriterReaderData_f>() +
+                           sizeof(float));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 36ULL ==
                            (detail::WriterReaderData_offset_of<WriterReaderData, detail::WriterReaderData_f>() +
                            sizeof(float));
                 }
@@ -1452,7 +1659,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -1472,9 +1692,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 64ULL ==
+                    return 52ULL ==
+                           (detail::Locator2LocatorData_offset_of<Locator2LocatorData, detail::Locator2LocatorData_f>() +
+                           sizeof(float));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 52ULL ==
                            (detail::Locator2LocatorData_offset_of<Locator2LocatorData, detail::Locator2LocatorData_f>() +
                            sizeof(float));
                 }
@@ -1575,7 +1802,20 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
-                    return is_plain_impl();
+                    return is_plain_xcdrv1_impl();
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    if(data_representation == eprosima::fastdds::dds::DataRepresentationId_t::XCDR2_DATA_REPRESENTATION)
+                    {
+                        return is_plain_xcdrv2_impl();
+                    }
+                    else
+                    {
+                        return is_plain_xcdrv1_impl();
+                    }
                 }
 
             #endif  // TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
@@ -1595,9 +1835,16 @@ namespace eprosima
 
             private:
 
-                static constexpr bool is_plain_impl()
+                static constexpr bool is_plain_xcdrv1_impl()
                 {
-                    return 36ULL ==
+                    return 20ULL ==
+                           (detail::EntityData_offset_of<EntityData, detail::EntityData_f>() +
+                           sizeof(float));
+                }
+
+                static constexpr bool is_plain_xcdrv2_impl()
+                {
+                    return 20ULL ==
                            (detail::EntityData_offset_of<EntityData, detail::EntityData_f>() +
                            sizeof(float));
                 }
@@ -1665,6 +1912,13 @@ namespace eprosima
             #ifdef TOPIC_DATA_TYPE_API_HAS_IS_PLAIN
                 eProsima_user_DllExport inline bool is_plain() const override
                 {
+                    return false;
+                }
+
+                eProsima_user_DllExport inline bool is_plain(
+                    eprosima::fastdds::dds::DataRepresentationId_t data_representation) const override
+                {
+                    static_cast<void>(data_representation);
                     return false;
                 }
 
