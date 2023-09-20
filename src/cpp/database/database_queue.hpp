@@ -545,6 +545,39 @@ public:
         throw BadParameter("Unsupported Sample type and Data type combination");
     }
 
+    /**
+     * @brief subroutine to build a MonitorServiceSample from a MonitorServiceData
+     *
+     * The consumer takes the @ref MonitorServiceData pushed to the queue and delegates to specializations of this subroutine
+     * the task of creating the corresponding @ref MonitorServiceSample that will be added to the database.
+     *
+     * @tparam T The Sample type. It should be a type extending \ref MonitorServiceSample.
+     * @tparam Q The type of the inner data contained in the \ref MonitorServiceData in the queue.
+     *
+     * @param[out] domain Buffer to receive the ID of the domain to which the \p entity belongs
+     * @param[out] entity Buffer to receive the ID of the entity to which the sample refers
+     * @param[out] entity_kind Buffer to receive the entity_kind of the entity to which the sample refers
+     * @param[in]  local_entity_guid The GUID of the entity reporting status data
+     * @param[out] sample Buffer to receive the constructed sample
+     * @param[in]  item The MonitorServiceData we want to process
+     */
+    template<typename Q, typename R>
+    void process_sample_type(
+            EntityId& domain,
+            EntityId& entity,
+            EntityKind& entity_kind,
+            const StatisticsGuid& local_entity_guid,
+            Q& sample,
+            const R& item) const
+    {
+        static_cast<void>(domain);
+        static_cast<void>(entity);
+        static_cast<void>(local_entity_guid);
+        static_cast<void>(sample);
+        static_cast<void>(item);
+
+        throw BadParameter("Unsupported Sample type and Data type combination");
+    }
 protected:
 
     std::string deserialize_guid(
@@ -618,7 +651,7 @@ template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample();
 
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>::process_sample();
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample();
 
 template<>
 template<>
@@ -698,10 +731,10 @@ template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
-        EntityKind entity_kind,
+        EntityKind& entity_kind,
+        const StatisticsGuid& local_entity_guid,
         IncompatibleQosSample& sample,
         const DatabaseQueue::StatisticsIncompatibleQoSStatus& item) const;
-
 
 } //namespace database
 } //namespace statistics_backend

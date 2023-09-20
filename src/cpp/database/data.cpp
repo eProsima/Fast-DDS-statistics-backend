@@ -86,6 +86,30 @@ void DataWriterData::clear(
     }
 }
 
+void DataReaderMonitorServiceData::clear(
+        const Timestamp& t_to,
+        bool clear_last_reported)
+{
+    incompatible_qos.clear(t_to);
+    static_cast<void>(clear_last_reported);
+}
+
+void DataWriterMonitorServiceData::clear(
+        const Timestamp& t_to,
+        bool clear_last_reported)
+{
+    incompatible_qos.clear(t_to);
+    static_cast<void>(clear_last_reported);
+}
+
+void DomainParticipantMonitorServiceData::clear(
+        const Timestamp& t_to,
+        bool clear_last_reported)
+{
+    incompatible_qos.clear(t_to);
+    static_cast<void>(clear_last_reported);
+}
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima

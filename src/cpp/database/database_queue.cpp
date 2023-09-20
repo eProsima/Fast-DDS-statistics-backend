@@ -823,11 +823,33 @@ template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
-        EntityKind entity_kind,
+        EntityKind& entity_kind,
+        const StatisticsGuid& local_entity_guid,
         IncompatibleQosSample& sample,
-        const DatabaseQueue::StatisticsIncompatibleQoSStatus& item) const
+        const StatisticsIncompatibleQoSStatus& item) const
 {
-    
+    sample.incompatible_qos_status = item;
+    sample.kind = StatusKind::INCOMPATIBLE_QOS;
+    if(item.total_count())
+    {
+        sample.status = EntityStatus::ERROR;
+    }
+    else
+    {
+        sample.status = EntityStatus::OK;
+    }
+    entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+    std::string guid = deserialize_guid(local_entity_guid);
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
 }
 
 template<>
@@ -1249,23 +1271,32 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 }
 
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>::process_sample()
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample()
 {
-    switch (front().second->_d())
+
+    switch (front().second->status_kind())
     {
         case StatisticsStatusKind::INCOMPATIBLE_QOS:
         {
             IncompatibleQosSample sample;
             EntityId domain;
             EntityId entity;
+            EntityKind entity_kind;
             queue_item_type item = front();
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, item.second->incompatible_qos_status());
-                //database_->insert(domain, entity, sample);
-                //details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
-                //        StatusKind::INCOMPATIBLE_QOS);
+                process_sample_type(domain, entity, entity_kind, item.second->local_entity(), sample, item.second->value().incompatible_qos_status());
+                database_->insert(domain, entity, entity_kind, sample);
+                
+                bool updated_entity = database_->update_entity_status(entity, entity_kind);
+                
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::INCOMPATIBLE_QOS);
+                
+                if(updated_entity)
+                {       
+                    database_->update_graph_on_updated_entity(domain, entity);
+                }       
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1281,6 +1312,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>::proce
             break;
         }
     }
+
+
 }
 
 } //namespace database

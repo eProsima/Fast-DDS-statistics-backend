@@ -60,7 +60,13 @@ enum class CallbackKind : int32_t
     ON_LOCATOR_DISCOVERY        = 1 << 7,
 
     /// Represents the on_data_available() callback
-    ON_DATA_AVAILABLE           = 1 << 8
+    ON_DATA_AVAILABLE           = 1 << 8,
+
+    /// Represents the on_domain_graph_update() callback
+    ON_DOMAIN_GRAPH_UPDATE      = 1 << 9,
+
+    /// Represents the on_problem_reported() callback
+    ON_PROBLEM_REPORTED         = 1 << 10
 };
 
 /**

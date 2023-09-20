@@ -23,7 +23,6 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastdds/src/cpp/statistics/rtps/monitor-service/MonitorService.hpp>
 #include <fastrtps/types/TypesBase.h>
 
 #include <database/database_queue.hpp>
@@ -36,7 +35,6 @@ namespace subscriber {
 using namespace eprosima::fastrtps::types;
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastdds::statistics::rtps;
 
 
 static const std::map<std::string, EventKind> statistics_topics =
@@ -60,17 +58,12 @@ static const std::map<std::string, EventKind> statistics_topics =
     {PHYSICAL_DATA_TOPIC,           PHYSICAL_DATA}
 };
 
-static const std::map<std::string, EventKind> monitor_service_topics =
-{
-    {MonitorService::MONITOR_SRV_TOPIC_NAME,         INCOMPATIBLE_QOS},
-};
-
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue) noexcept
     : DataReaderListener()
     , data_queue_(data_queue)
-    , monitor_service_data_queue_(monitor_service_data_queue)
+    , monitor_service_status_data_queue_(monitor_service_data_queue)
 {
 }
 
@@ -103,13 +96,11 @@ void StatisticsReaderListener::on_data_available(
 
     bool enqueue = false;
 
-    if (MonitorService::MONITOR_SRV_TOPIC_NAME == topic_name)
+    if (MONITOR_SERVICE_TOPIC == topic_name)
     {
-        std::shared_ptr<MonitorServiceStatusData> monitor_service_data = std::make_shared<MonitorServiceStatusData>();
-        MonitorServiceData inner_data;
+        MonitorServiceStatusData inner_data;
         if (get_available_data(reader, inner_data, timestamp))
         {
-            monitor_service_data->value(inner_data);
             enqueue = true;
         }
         if (!enqueue)
@@ -117,8 +108,10 @@ void StatisticsReaderListener::on_data_available(
             // Nothing to push to queue
             return;
         }
-        monitor_service_data->_d(monitor_service_topics.at(topic_name));
-        monitor_service_data_queue_->push(timestamp, monitor_service_data);
+
+        std::shared_ptr<MonitorServiceStatusData> monitor_service_status_data = std::make_shared<MonitorServiceStatusData>(inner_data);
+
+        monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
     else
     {

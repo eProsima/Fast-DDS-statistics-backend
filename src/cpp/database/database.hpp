@@ -121,6 +121,23 @@ public:
             const StatisticsSample& sample);
 
     /**
+     * @brief Insert a new monitor service sample into the database.
+     * @param domain_id The EntityId of the domain that contains the entity.
+     * @param entity_id The EntityId to which the sample relates.
+     * @param entity_kind The EntityKind of the entity to which the sample relates.
+     * @param sample The sample to be inserted.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the \c domain_id does not refer to a known domain.
+     *             * If the \c entity_id does not refer to a known entity.
+     *             * If the \c sample kind is StatusKind::INVALID.
+     */
+    void insert(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const EntityKind& entity_kind,
+            const MonitorServiceSample& sample);
+
+    /**
      * @brief Create the link between a participant and a process.
      *
      * This operation entails:
@@ -317,6 +334,17 @@ public:
             const std::string& guid) const;
 
     /**
+     * @brief Get the entity kind of an entity that matches with the requested GUID.
+     *
+     * @param guid The GUID of the entities to search for.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * if there is no entity with the given parameters.
+     * @return The EntityKind of the matching entity.
+     */
+    EntityKind get_entity_kind_by_guid(
+            const eprosima::fastdds::statistics::detail::GUID_s& guid) const;
+
+    /**
      * @brief Get EntityKind given an EntityId.
      *
      * @param entity_id The EntityId of the entity.
@@ -420,6 +448,19 @@ public:
     Graph get_entity_subgraph(
             const EntityId& entity_id,
             Graph& entity_graph);
+
+    /**
+     * @brief Check if the entity status should be updated depending on its monitor service status data
+     *
+     * @param entity_id The EntityId of the entity.
+     * @param entity_kind The EntityKind of the entity.
+     * @param status_kind The EntityId of the topic.
+     *
+     * @return True if entity has been updated
+     */
+    bool update_entity_status(
+            const EntityId& entity_id,
+            const EntityKind& entity_kind);
 
     /**
      * @brief Get a dump of the database.
@@ -867,6 +908,24 @@ protected:
             const StatisticsSample& sample,
             const bool loading = false,
             const bool last_reported = false);
+
+    /**
+     * @brief Insert a new monitor service sample into the database. This method is not thread safe.
+     *
+     * @param domain_id The EntityId of the domain that contains the entity.
+     * @param entity_id The EntityId to which the sample relates.
+     * @param entity_kind The EntityKind of the entity to which the sample relates.
+     * @param sample The sample to be inserted.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * If the \c domain_id does not refer to a known domain.
+     *             * If the \c entity_id does not refer to a known entity.
+     *             * If the \c sample kind is StatusKind::INVALID.
+     */
+    void insert_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const EntityKind& entity_kind,
+            const MonitorServiceSample& sample);
 
     /**
      * Get an entity given its EntityId. This method is not thread safe.

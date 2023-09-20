@@ -47,7 +47,7 @@ StatisticsBackendData::StatisticsBackendData()
     : database_(new database::Database)
     , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
     , data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>(database_.get()))
-    , monitor_service_data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>(database_.get()))
+    , monitor_service_status_data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(database_.get()))
     , physical_listener_(nullptr)
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
@@ -74,14 +74,14 @@ StatisticsBackendData::~StatisticsBackendData()
     {
         data_queue_->stop_consumer();
     }
-    if (monitor_service_data_queue_)
+    if (monitor_service_status_data_queue_)
     {
-        monitor_service_data_queue_->stop_consumer();
+        monitor_service_status_data_queue_->stop_consumer();
     }
 
     delete entity_queue_;
     delete data_queue_;
-    delete monitor_service_data_queue_;
+    delete monitor_service_status_data_queue_;
 }
 
 const SingletonType& StatisticsBackendData::get_instance()
@@ -129,6 +129,24 @@ void StatisticsBackendData::on_data_available(
     else if (should_call_physical_listener(CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
         physical_listener_->on_data_available(domain_id, entity_id, data_kind);
+    }
+}
+
+void StatisticsBackendData::on_problem_reported(
+        EntityId domain_id,
+        EntityId entity_id,
+        StatusKind status_kind)
+{
+    auto monitor = monitors_by_entity_.find(domain_id);
+    assert(monitor != monitors_by_entity_.end());
+
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_PROBLEM_REPORTED))
+    {
+        monitor->second->domain_listener->on_problem_reported(domain_id, entity_id, status_kind);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_PROBLEM_REPORTED))
+    {
+        physical_listener_->on_problem_reported(domain_id, entity_id, status_kind);
     }
 }
 
@@ -358,7 +376,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
 void StatisticsBackendData::on_domain_graph_update(
         EntityId entity_id)
 {
-    if (physical_listener_ != nullptr)
+    if (should_call_physical_listener(CallbackKind::ON_DOMAIN_GRAPH_UPDATE))
     {
         physical_listener_->on_domain_view_graph_update(entity_id);
     }

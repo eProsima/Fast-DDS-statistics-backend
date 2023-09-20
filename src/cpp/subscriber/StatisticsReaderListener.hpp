@@ -59,7 +59,7 @@ public:
      */
     StatisticsReaderListener(
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue) noexcept;
+            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_) noexcept;
 
     /**
      * @brief Actions to be performed when a new Data Message is received.
@@ -78,7 +78,7 @@ protected:
 
     //! Reference to the database queues
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
-    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_;
 
 };
 

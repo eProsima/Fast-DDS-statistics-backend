@@ -49,7 +49,7 @@
 #include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
-#include <topic_types/typesPubSubTypes.h>
+#include <topic_types/monitorservice_typesPubSubTypes.h>
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
 #include "detail/data_getters.hpp"
@@ -83,7 +83,8 @@ static const char* topics[] =
     EDP_PACKETS_TOPIC,
     DISCOVERY_TOPIC,
     SAMPLE_DATAS_TOPIC,
-    PHYSICAL_DATA_TOPIC
+    PHYSICAL_DATA_TOPIC,
+    MONITOR_SERVICE_TOPIC
 };
 
 void find_or_create_topic_and_type(
@@ -171,6 +172,11 @@ void register_statistics_type_and_topic(
         TypeSupport physical_data_type(new PhysicalDataPubSubType);
         find_or_create_topic_and_type(monitor, topic_name, physical_data_type);
     }
+    else if (MONITOR_SERVICE_TOPIC == topic_name)
+    {
+        TypeSupport monitor_service_status_data_type(new MonitorServiceStatusDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, monitor_service_status_data_type);
+    }
 }
 
 EntityId create_and_register_monitor(
@@ -219,12 +225,12 @@ EntityId create_and_register_monitor(
         backend_data->database_.get(),
         backend_data->entity_queue_,
         backend_data->data_queue_,
-        backend_data->monitor_service_data_queue_);
+        backend_data->monitor_service_status_data_queue_);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         backend_data->data_queue_,
-        backend_data->monitor_service_data_queue_);
+        backend_data->monitor_service_status_data_queue_);
     auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */

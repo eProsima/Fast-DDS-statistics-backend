@@ -538,6 +538,17 @@ void Database::insert(
     insert_nts(domain_id, entity_id, sample);
 }
 
+void Database::insert(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const EntityKind& entity_kind,
+        const MonitorServiceSample& sample)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+    insert_nts(domain_id, entity_id, entity_kind, sample);
+}
+
 std::shared_ptr<Locator> Database::get_locator_nts(
         EntityId const& entity_id)
 {
@@ -1236,6 +1247,100 @@ void Database::insert_nts(
         }
     }
     static_cast<void>(entity_id);
+    static_cast<void>(sample);
+}
+
+void Database::insert_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const EntityKind& entity_kind,
+        const MonitorServiceSample& sample)
+{
+
+    /* Check that domain_id refers to a known domain */
+    if (domains_.find(domain_id) == domains_.end())
+    {
+        throw BadParameter(std::to_string(domain_id.value()) + " does not refer to a known domain");
+    }
+
+    switch (sample.kind)
+    {
+        case StatusKind::INCOMPATIBLE_QOS:
+        {
+            switch (entity_kind)
+            {
+                case EntityKind::PARTICIPANT:
+                {
+                    /* Check that the entity is a known reader */
+                    auto domain_participants = participants_.find(domain_id);
+                    if (domain_participants != participants_.end())
+                    {
+                        auto participant = domain_participants->second.find(entity_id);
+                        if (participant != domain_participants->second.end())
+                        {
+                            const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
+                            participant->second->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
+                            break;
+                        }
+                    }
+                    throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
+                              domain_id.value()));
+                }
+                case EntityKind::DATAREADER:
+                {
+                    /* Check that the entity is a known reader */
+                    auto domain_readers = datareaders_.find(domain_id);
+                    if (domain_readers != datareaders_.end())
+                    {
+                        auto reader = domain_readers->second.find(entity_id);
+                        if (reader != domain_readers->second.end())
+                        {
+                            const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
+                            reader->second->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
+                            break;
+                        }
+                    }
+                    throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datareader in domain " + std::to_string(
+                              domain_id.value()));
+                }
+                case EntityKind::DATAWRITER:
+                {
+                    /* Check that the entity is a known writer */
+                    auto domain_writers = datawriters_.find(domain_id);
+                    if (domain_writers != datawriters_.end())
+                    {
+                        auto writer = domain_writers->second.find(entity_id);
+                        if (writer != domain_writers->second.end())
+                        {
+                            const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
+                            writer->second->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
+                            break;
+                        }
+                    }
+                    throw BadParameter(std::to_string(
+                              entity_id.value()) + " does not refer to a known datawriter in domain " + std::to_string(
+                              domain_id.value()));
+                }
+                default:
+                {
+                    throw BadParameter("Invalid EntityKind");
+                }
+            }
+            break;
+        }
+        case StatusKind::INVALID:
+        {
+            throw BadParameter("Invalid DataKind");
+        }
+        default:
+        {
+            break;
+        }
+    }
+    static_cast<void>(entity_id);
+    static_cast<void>(entity_kind);
     static_cast<void>(sample);
 }
 
@@ -2108,6 +2213,35 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid(
                       static_cast<int>(entity_kind)) + " and GUID " + guid + " exists");
 }
 
+EntityKind Database::get_entity_kind_by_guid(
+            const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
+{
+
+    eprosima::fastrtps::rtps::EntityId_t entity_id_t;
+    for (size_t i = 0; i < entity_id_t.size; ++i) {
+        entity_id_t.value[i] = guid_s.entityId().value()[i];
+    }
+
+    if(entity_id_t == eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant)
+    {
+        return EntityKind::PARTICIPANT;
+    }
+    else if(entity_id_t.is_reader())
+    {
+        return EntityKind::DATAREADER;
+
+    }
+    else if(entity_id_t.is_writer())
+    {
+        return EntityKind::DATAWRITER;
+
+    }
+    else
+    {
+        throw BadParameter("No Participant, Datawriter or Datareader with provided GUID exists");
+    }
+}
+
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
@@ -2625,10 +2759,10 @@ void Database::update_graph_on_updated_entity(
             break;
         }
 
-            if (graph_updated)
-            {
-                details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
-            }
+        if (graph_updated)
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+        }
     }
 }
 
@@ -2689,6 +2823,92 @@ Graph Database::get_entity_subgraph(
 
 
     return entity_graph_updated;
+}
+
+bool Database::update_entity_status(
+    const EntityId& entity_id,
+    const EntityKind& entity_kind)
+{
+    bool entity_no_error = true;
+    bool entity_no_warning = true;
+
+    std::shared_ptr<const database::Entity> const_entity = get_entity(entity_id);
+
+    switch(entity_kind)
+    {
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const database::DomainParticipant> participant =
+                std::dynamic_pointer_cast<const database::DomainParticipant>(const_entity);
+            
+            if(participant->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
+            {
+                entity_no_error = false;
+            }
+
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const database::DataReader> datareader =
+                std::dynamic_pointer_cast<const database::DataReader>(const_entity);
+            
+            if(datareader->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
+            {
+                entity_no_error = false;
+            }
+
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const database::DataWriter> datawriter =
+                std::dynamic_pointer_cast<const database::DataWriter>(const_entity);
+            
+            if(datawriter->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
+            {
+                entity_no_error = false;
+            }
+
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Invalid EntityKind");
+        }
+
+    }
+
+    std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
+
+    if(!entity_no_error)
+    {
+        if(entity->status != EntityStatus::ERROR)
+        {
+            entity->status = EntityStatus::ERROR;
+            return true;
+        }
+        return false;
+    }
+    else if(!entity_no_warning)
+    {
+        if(entity->status != EntityStatus::WARNING)
+        {
+            entity->status = EntityStatus::WARNING;
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if(entity->status != EntityStatus::OK)
+        {
+            entity->status = EntityStatus::OK;
+            return true;
+        }
+        return false;
+    }
+
 }
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities(

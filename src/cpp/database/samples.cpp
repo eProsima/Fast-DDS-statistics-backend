@@ -25,6 +25,13 @@ void StatisticsSample::clear()
     src_ts = {};
 }
 
+void MonitorServiceSample::clear()
+{
+    kind = StatusKind::INVALID;
+    status = EntityStatus::OK;
+    src_ts = {};
+}
+
 void EntityDataSample::clear()
 {
     StatisticsSample::clear();
@@ -42,6 +49,14 @@ void ByteCountSample::clear()
     StatisticsSample::clear();
     count = 0;
     magnitude_order = 0;
+}
+
+void IncompatibleQosSample::clear()
+{
+    MonitorServiceSample::clear();
+    incompatible_qos_status.total_count(0);
+    incompatible_qos_status.last_policy_id(0);
+    incompatible_qos_status.policies(std::vector<eprosima::fastdds::statistics::QosPolicyCount_s>());
 }
 
 } //namespace database

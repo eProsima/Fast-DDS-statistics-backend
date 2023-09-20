@@ -352,6 +352,48 @@ struct DataWriterData : public Data
     details::MapDataContainer<EntityId, EntityDataSample> history2history_latency;
 };
 
+struct DataWriterMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+};
+
+struct DataReaderMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+};
+
+struct DomainParticipantMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+};
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima

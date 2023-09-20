@@ -81,7 +81,7 @@ struct MonitorServiceSample
     inline bool operator ==(
             const MonitorServiceSample& other) const noexcept
     {
-        return (kind == other.kind && src_ts == other.src_ts);
+        return (kind == other.kind && status == other.status && src_ts == other.src_ts);
     }
 
     inline bool operator !=(
@@ -809,6 +809,10 @@ struct SampleDatasCountSample : EntityCountSample
 //    {
 //    }
 //
+//    virtual ~ProxySample() = default;
+//
+//    void clear() final;
+//  
 //    inline bool operator ==(
 //            const ProxySample& other) const noexcept
 //    {
@@ -832,6 +836,10 @@ struct SampleDatasCountSample : EntityCountSample
 //    {
 //    }
 //
+//    virtual ~ConnectionListSample() = default;
+//
+//    void clear() final;
+//    
 //    inline bool operator ==(
 //            const ConnectionListSample& other) const noexcept
 //    {
@@ -855,6 +863,10 @@ struct IncompatibleQosSample : MonitorServiceSample
     IncompatibleQosSample(): MonitorServiceSample(StatusKind::INCOMPATIBLE_QOS)
     {
     }
+
+    virtual ~IncompatibleQosSample() = default;
+
+    void clear() final;
 
     inline bool operator ==(
             const IncompatibleQosSample& other) const noexcept
@@ -880,6 +892,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    {
 //    }
 //
+//    virtual ~InconsistentTopicSample() = default;
+//
+//    void clear() final;
+//
 //    inline bool operator ==(
 //            const InconsistentTopicSample& other) const noexcept
 //    {
@@ -903,6 +919,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    LivelinessLostSample(): MonitorServiceSample(StatusKind::LIVELINESS_LOST)
 //    {
 //    }
+//
+//    virtual ~LivelinessLostSample() = default;
+//
+//    void clear() final;
 //
 //    inline bool operator ==(
 //            const LivelinessLostSample& other) const noexcept
@@ -928,6 +948,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    {
 //    }
 //
+//    virtual ~LivelinessChangedSample() = default;
+//
+//    void clear() final;
+//
 //    inline bool operator ==(
 //            const LivelinessChangedSample& other) const noexcept
 //    {
@@ -951,6 +975,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    DeadlineMissedSample(): MonitorServiceSample(StatusKind::DEADLINE_MISSED)
 //    {
 //    }
+//
+//    virtual ~DeadlineMissedSample() = default;
+//
+//    void clear() final;
 //
 //    inline bool operator ==(
 //            const DeadlineMissedSample& other) const noexcept
@@ -976,6 +1004,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    {
 //    }
 //
+//    virtual ~SampleLostSample() = default;
+//
+//    void clear() final;
+//
 //    inline bool operator ==(
 //            const SampleLostSample& other) const noexcept
 //    {
@@ -999,6 +1031,10 @@ struct IncompatibleQosSample : MonitorServiceSample
 //    StatusesSizeSample(): MonitorServiceSample(StatusKind::STATUSES_SIZE)
 //    {
 //    }
+//
+//    virtual ~StatusesSizeSample() = default;
+//
+//    void clear() final;
 //
 //    inline bool operator ==(
 //            const StatusesSizeSample& other) const noexcept

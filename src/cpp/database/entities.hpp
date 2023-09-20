@@ -334,6 +334,9 @@ struct DomainParticipant : DDSEntity
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantData data;
+
+    //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DomainParticipant.
+    DomainParticipantMonitorServiceData monitor_service_data;
 };
 
 
@@ -405,6 +408,9 @@ struct DataReader : DDSEndpoint
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderData data;
+
+    //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DataReader.
+    DataReaderMonitorServiceData monitor_service_data;
 };
 
 /*
@@ -432,6 +438,9 @@ struct DataWriter : DDSEndpoint
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterData data;
+
+    //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DataWriter.
+    DataWriterMonitorServiceData monitor_service_data;
 };
 
 /*

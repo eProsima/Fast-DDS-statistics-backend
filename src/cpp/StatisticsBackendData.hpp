@@ -89,7 +89,7 @@ public:
 
     //! Reference to the Database data queue
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
-    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceData>* monitor_service_data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_;
 
     /**
      * @brief Collection of active monitors
@@ -217,6 +217,18 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             DataKind data_kind);
+
+    /**
+     * @brief Notify the user about a new monitor service data
+     *
+     * @param domain_id The domain where the data is available
+     * @param entity_id The entity for which the new data is available
+     * @param status_kind The StatusKind of the new available data
+     */
+    void on_problem_reported(
+            EntityId domain_id,
+            EntityId entity_id,
+            StatusKind status_kind);
 
 
     //////////////////////////////
