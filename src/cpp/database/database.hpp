@@ -124,14 +124,15 @@ public:
      * @brief Insert a new monitor service sample into the database.
      * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
-     * @param entity_kind The EntityKind of the entity to which the sample relates.
+     * @param entities_ptr_ Pointer to the entities of the same kind.
      * @param sample The sample to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
      *             * If the \c domain_id does not refer to a known domain.
      *             * If the \c entity_id does not refer to a known entity.
      *             * If the \c sample kind is StatusKind::INVALID.
+     * @return True if the entity status has been updated.
      */
-    void insert(
+    bool insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
             const EntityKind& entity_kind,
@@ -448,19 +449,6 @@ public:
     Graph get_entity_subgraph(
             const EntityId& entity_id,
             Graph& entity_graph);
-
-    /**
-     * @brief Check if the entity status should be updated depending on its monitor service status data
-     *
-     * @param entity_id The EntityId of the entity.
-     * @param entity_kind The EntityKind of the entity.
-     * @param status_kind The EntityId of the topic.
-     *
-     * @return True if entity has been updated
-     */
-    bool update_entity_status(
-            const EntityId& entity_id,
-            const EntityKind& entity_kind);
 
     /**
      * @brief Get a dump of the database.
@@ -914,19 +902,32 @@ protected:
      *
      * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
-     * @param entity_kind The EntityKind of the entity to which the sample relates.
+     * @param entities_ptr_ Pointer to the entities of the same kind.
      * @param sample The sample to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
      *             * If the \c domain_id does not refer to a known domain.
      *             * If the \c entity_id does not refer to a known entity.
      *             * If the \c sample kind is StatusKind::INVALID.
+     * @return True if the entity status has been modified.
      */
-    void insert_nts(
+    template <typename T>
+    bool insert_nts(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            const EntityKind& entity_kind,
+            const std::shared_ptr<std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>>& entities_ptr_,
             const MonitorServiceSample& sample);
 
+    /**
+     * @brief Check if the entity status should be updated depending on its monitor service status data
+     *
+     * @param entity The Entity that might be updated.
+     *
+     * @return True if entity has been updated
+     */
+    template <typename T>
+    bool update_entity_status_nts(
+    std::shared_ptr<T>& entity);
+    
     /**
      * Get an entity given its EntityId. This method is not thread safe.
      *

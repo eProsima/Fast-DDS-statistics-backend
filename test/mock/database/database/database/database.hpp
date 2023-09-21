@@ -52,6 +52,7 @@ inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(
 
 namespace database {
 
+template <typename T>
 class Database
 {
 public:
