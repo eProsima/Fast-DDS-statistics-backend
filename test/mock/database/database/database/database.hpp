@@ -166,6 +166,10 @@ public:
                 const EntityId& domain_id,
                 const EntityId& entity_id));
 
+    MOCK_CONST_METHOD2(update_entity_status, bool(
+                const EntityId& entity_id,
+                const EntityKind& entity_kind));
+
     int64_t next_id_{0};
 };
 

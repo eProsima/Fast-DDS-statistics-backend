@@ -2738,7 +2738,7 @@ void Database::update_graph_on_updated_entity(
         }
         case EntityKind::TOPIC:
         {
-            update_endpoint_in_graph(domain_id, EntityId(), entity_id, EntityId());
+            graph_updated = update_endpoint_in_graph(domain_id, EntityId(), entity_id, EntityId());
             break;
         }
         case EntityKind::DATAREADER:
@@ -2751,18 +2751,17 @@ void Database::update_graph_on_updated_entity(
                 return;
             }
             std::shared_ptr<const database::DomainParticipant> participant = endpoint->participant;
-            update_endpoint_in_graph(domain_id, participant->id, EntityId(), entity_id);
+            graph_updated = update_endpoint_in_graph(domain_id, participant->id, EntityId(), entity_id);
             break;
         }
         default:
         {
             break;
         }
-
-        if (graph_updated)
-        {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
-        }
+    }
+    if (graph_updated)
+    {
+        details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
     }
 }
 
@@ -2829,8 +2828,8 @@ bool Database::update_entity_status(
     const EntityId& entity_id,
     const EntityKind& entity_kind)
 {
-    bool entity_no_error = true;
-    bool entity_no_warning = true;
+    bool entity_error = false;
+    bool entity_warning = false;
 
     std::shared_ptr<const database::Entity> const_entity = get_entity(entity_id);
 
@@ -2843,7 +2842,7 @@ bool Database::update_entity_status(
             
             if(participant->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
             {
-                entity_no_error = false;
+                entity_error = true;
             }
 
             break;
@@ -2855,7 +2854,7 @@ bool Database::update_entity_status(
             
             if(datareader->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
             {
-                entity_no_error = false;
+                entity_error = true;
             }
 
             break;
@@ -2867,7 +2866,7 @@ bool Database::update_entity_status(
             
             if(datawriter->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
             {
-                entity_no_error = false;
+                entity_error = true;
             }
 
             break;
@@ -2881,7 +2880,7 @@ bool Database::update_entity_status(
 
     std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
 
-    if(!entity_no_error)
+    if(entity_error)
     {
         if(entity->status != EntityStatus::ERROR)
         {
@@ -2890,7 +2889,7 @@ bool Database::update_entity_status(
         }
         return false;
     }
-    else if(!entity_no_warning)
+    else if(entity_warning)
     {
         if(entity->status != EntityStatus::WARNING)
         {
