@@ -488,13 +488,13 @@ std::vector<EntityId> StatisticsBackend::get_entities(
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
+    return StatisticsBackendData::get_instance()->database_->is_active(entity_id);
 }
 
 bool StatisticsBackend::is_metatraffic(
         EntityId entity_id)
 {
-    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+    return StatisticsBackendData::get_instance()->database_->is_metatraffic(entity_id);
 }
 
 EntityKind StatisticsBackend::get_type(
@@ -512,121 +512,7 @@ EntityStatus StatisticsBackend::get_status(
 Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
-    Info info = Info::object();
-
-    std::shared_ptr<const database::Entity> entity =
-            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
-
-    info[ID_INFO_TAG] = entity_id.value();
-    info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
-    info[NAME_INFO_TAG] = entity->name;
-    info[ALIAS_INFO_TAG] = entity->alias;
-    info[ALIVE_INFO_TAG] = entity->active;
-    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    info[STATUS_INFO_TAG] = entity->status;
-
-    switch (entity->kind)
-    {
-        case EntityKind::PROCESS:
-        {
-            std::shared_ptr<const database::Process> process =
-                    std::dynamic_pointer_cast<const database::Process>(entity);
-            info[PID_INFO_TAG] = process->pid;
-            break;
-        }
-        case EntityKind::TOPIC:
-        {
-            std::shared_ptr<const database::Topic> topic =
-                    std::dynamic_pointer_cast<const database::Topic>(entity);
-            info[DATA_TYPE_INFO_TAG] = topic->data_type;
-            break;
-        }
-        case EntityKind::PARTICIPANT:
-        {
-            std::shared_ptr<const database::DomainParticipant> participant =
-                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
-            info[GUID_INFO_TAG] = participant->guid;
-            info[QOS_INFO_TAG] = participant->qos;
-
-            // Locators associated to endpoints
-            std::set<std::string> locator_set;
-
-            // Writers registered in the participant
-            for (const auto& writer : participant->data_writers)
-            {
-                // Locators associated to each writer
-                for (const auto& locator : writer.second.get()->locators)
-                {
-                    locator_set.insert(locator.second.get()->name);
-                }
-            }
-
-            // Readers registered in the participant
-            for (const auto& reader : participant->data_readers)
-            {
-                // Locators associated to each reader
-                for (const auto& locator : reader.second.get()->locators)
-                {
-                    locator_set.insert(locator.second.get()->name);
-                }
-            }
-
-            DatabaseDump locators = DatabaseDump::array();
-            for (const auto& locator : locator_set)
-            {
-                locators.push_back(locator);
-            }
-            info[LOCATOR_CONTAINER_TAG] = locators;
-            break;
-        }
-        case EntityKind::DATAWRITER:
-        case EntityKind::DATAREADER:
-        {
-            std::shared_ptr<const database::DDSEntity> dds_entity =
-                    std::dynamic_pointer_cast<const database::DDSEntity>(entity);
-            info[GUID_INFO_TAG] = dds_entity->guid;
-            info[QOS_INFO_TAG] = dds_entity->qos;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
-    return info;
-}
-
-static inline void check_entity_kinds(
-        EntityKind kind,
-        const std::vector<EntityId>& entity_ids,
-        database::Database* db,
-        const char* message)
-{
-    for (EntityId id : entity_ids)
-    {
-        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
-        if (!entity || kind != entity->kind)
-        {
-            throw BadParameter(message);
-        }
-    }
-}
-
-static inline void check_entity_kinds(
-        EntityKind kinds[3],
-        const std::vector<EntityId>& entity_ids,
-        database::Database* db,
-        const char* message)
-{
-    for (EntityId id : entity_ids)
-    {
-        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
-        if (!entity || (kinds[0] != entity->kind && kinds[1] != entity->kind && kinds[2] != entity->kind))
-        {
-            throw BadParameter(message);
-        }
-    }
+    return StatisticsBackendData::get_instance()->database_->get_info(entity_id);
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
@@ -655,13 +541,13 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     // Validate entity_ids_source. Note that the only case with more than one pair always has the same source kind.
     EntityKind source_kind = allowed_kinds[0].first;
     database::Database* db = StatisticsBackendData::get_instance()->database_.get();
-    check_entity_kinds(source_kind, entity_ids_source, db, "Wrong entity id passed in entity_ids_source");
+    db->check_entity_kinds(source_kind, entity_ids_source, "Wrong entity id passed in entity_ids_source");
 
     // Validate entity_ids_target.
     if (1 == allowed_kinds.size())
     {
         EntityKind target_kind = allowed_kinds[0].second;
-        check_entity_kinds(target_kind, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+        db->check_entity_kinds(target_kind, entity_ids_target, "Wrong entity id passed in entity_ids_target");
     }
     else
     {
@@ -671,7 +557,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         target_kinds[0] = allowed_kinds[0].second;
         target_kinds[1] = allowed_kinds[1].second;
         target_kinds[2] = allowed_kinds[2].second;
-        check_entity_kinds(target_kinds, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+        db->check_entity_kinds(target_kinds, entity_ids_target, "Wrong entity id passed in entity_ids_target");
     }
 
     std::vector<StatisticsData> ret_val;
@@ -736,7 +622,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     // Validate entity_ids
     EntityKind allowed_kind = allowed_kinds[0].first;
     database::Database* db = StatisticsBackendData::get_instance()->database_.get();
-    check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
+    db->check_entity_kinds(allowed_kind, entity_ids, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
     auto t_to_select = t_to - Timestamp::duration(1);
@@ -957,18 +843,7 @@ void StatisticsBackend::set_alias(
         EntityId entity_id,
         const std::string& alias)
 {
-    std::shared_ptr<const database::Entity> const_entity =
-            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
-    std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
-    if (entity->alias != alias)
-    {
-        entity->alias = alias;
-        std::vector<EntityId> domains = StatisticsBackend::get_entities(EntityKind::DOMAIN, entity_id);
-        if (!domains.empty())
-        {
-            StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
-        }
-    }
+    StatisticsBackendData::get_instance()->database_->set_alias(entity_id, alias);
 }
 
 } // namespace statistics_backend

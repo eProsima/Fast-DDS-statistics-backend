@@ -35,6 +35,15 @@ namespace eprosima {
 namespace statistics_backend {
 namespace database {
 
+template<typename T>
+std::string to_string(
+        T data)
+{
+    std::stringstream ss;
+    ss << data;
+    return ss.str();
+}
+
 template<typename E>
 void clear_inactive_entities_from_map_(
         std::map<EntityId, std::shared_ptr<E>>& map)
@@ -87,6 +96,296 @@ void clear_inactive_entities_from_map_(
             ++it;
         }
     }
+}
+
+EntityId Database::insert_new_participant(
+        const std::string& name,
+        const Qos& qos,
+        const std::string& guid,
+        const EntityId& domain_id,
+        const EntityStatus& status,
+        const AppId& app_id,
+        const std::string& app_metadata)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+    // Get the domain from the database
+    // This may throw if the domain does not exist
+    // The database MUST contain the domain, or something went wrong upstream
+    std::shared_ptr<Domain> domain = std::const_pointer_cast<Domain>(
+        std::static_pointer_cast<const Domain>(get_entity_nts(domain_id)));
+
+    auto participant = std::make_shared<DomainParticipant>(
+        name,
+        qos,
+        guid,
+        std::shared_ptr<Process>(),
+        domain,
+        status,
+        app_id,
+        app_metadata);
+
+    EntityId entity_id;
+    insert_nts(participant, entity_id);
+    return entity_id;
+}
+
+void Database::insert_new_physical_entities(
+    const std::string& host_name,
+    const std::string& user_name,
+    const std::string& process_name,
+    const std::string& process_pid,
+    bool& should_link_process_participant,
+    const EntityId& participant_id,
+    std::map<std::string, EntityId>& physical_entities_ids)
+{
+    std::shared_ptr<Host> host;
+    std::shared_ptr<User> user;
+    std::shared_ptr<Process> process;
+
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+    // Get host entity
+    auto hosts = get_entities_by_name_nts(EntityKind::HOST, host_name);
+    if (hosts.empty())
+    {
+        host.reset(new Host(host_name));
+        EntityId entity_id;
+        insert_nts(host, entity_id);
+        host->id = entity_id;
+    }
+    else
+    {
+        // Host name reported by Fast DDS are considered unique
+        std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(get_entity_nts(
+                            hosts.front().second));
+        host = std::const_pointer_cast<Host>(const_host);
+    }
+
+    physical_entities_ids["host"] = host->id;
+
+    // Get user entity
+    auto users = get_entities_by_name_nts(EntityKind::USER, user_name);
+    for (const auto& it : users)
+    {
+        std::shared_ptr<const User> const_user =
+                std::dynamic_pointer_cast<const User>(get_entity_nts(it.second));
+
+        // The user name is unique within the host
+        if (const_user->host == host)
+        {
+            user = std::const_pointer_cast<User>(const_user);
+            break;
+        }
+    }
+    if (!user)
+    {
+        user.reset(new User(user_name, host));
+        EntityId entity_id;
+        insert_nts(user, entity_id);
+        user->id = entity_id;
+    }
+
+    physical_entities_ids["user"] = user->id;
+
+    auto processes = get_entities_by_name_nts(EntityKind::PROCESS, process_name);
+    for (const auto& it : processes)
+    {
+        std::shared_ptr<const Process> const_process =
+                std::dynamic_pointer_cast<const Process>(get_entity_nts(it.second));
+
+        // There is only one process with the same name for a given user
+        if (const_process->user == user)
+        {
+            process = std::const_pointer_cast<Process>(const_process);
+            break;
+        }
+    }
+    if (!process)
+    {
+        process.reset(new Process(process_name, process_pid, user));
+        EntityId entity_id;
+        insert_nts(process, entity_id);
+        process->id = entity_id;
+        should_link_process_participant = true;
+    }
+
+    physical_entities_ids["process"] = process->id;
+
+    if (should_link_process_participant && participant_id != EntityId::invalid())
+    {
+        link_participant_with_process_nts(participant_id, process->id);
+    }
+
+}
+
+bool Database::is_topic_in_database(
+    const std::string& topic_type,
+    const EntityId& topic_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    // Check whether the topic is already in the database
+    std::shared_ptr<Topic> topic;
+
+    topic = std::const_pointer_cast<Topic>(
+                std::static_pointer_cast<const Topic>(get_entity_nts(topic_id)));
+
+    if (topic->data_type == topic_type)
+    {
+        //Found the correct topic
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+EntityId Database::insert_new_topic(
+        const std::string& name,
+        const std::string& type_name,
+        const std::string& alias,
+        const EntityId& domain_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+    // Get the domain from the database
+    // This may throw if the domain does not exist
+    // The database MUST contain the domain, or something went wrong upstream
+    std::shared_ptr<Domain> domain = std::const_pointer_cast<Domain>(
+        std::static_pointer_cast<const Domain>(get_entity_nts(domain_id)));
+
+    auto topic = std::make_shared<Topic>(
+        name,
+        type_name,
+        domain);
+
+    if (!alias.empty())
+    {
+        topic->alias = alias;
+    }
+
+    EntityId entity_id;
+    insert_nts(topic, entity_id);
+    return entity_id;
+}
+
+EntityId Database::insert_new_endpoint(
+        const std::string& endpoint_guid,
+        const std::string& name,
+        const std::string& alias,
+        const Qos& qos,
+        const bool& is_virtual_metatraffic,
+        const fastrtps::rtps::RemoteLocatorList& locators,
+        const EntityKind& kind,
+        const EntityId& participant_id,
+        const EntityId& topic_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+
+    std::shared_ptr<DomainParticipant> participant =
+            std::const_pointer_cast<DomainParticipant>(
+        std::static_pointer_cast<const DomainParticipant>(get_entity_nts(
+            participant_id)));
+
+    std::shared_ptr<Topic> topic =
+            std::const_pointer_cast<Topic>(
+        std::static_pointer_cast<const Topic>(get_entity_nts(
+            topic_id)));
+
+    std::shared_ptr<DDSEndpoint> endpoint;
+
+    if (kind == EntityKind::DATAREADER)
+    {
+        endpoint = create_endpoint_nts<DataReader>(
+            endpoint_guid,
+            name,
+            qos,
+            participant,
+            topic);
+    }
+    else
+    {
+        endpoint = create_endpoint_nts<DataWriter>(
+            endpoint_guid,
+            name,
+            qos,
+            participant,
+            topic);
+    }
+
+
+    // Mark it as the meta traffic one
+    endpoint->is_virtual_metatraffic = is_virtual_metatraffic;
+    if (!alias.empty())
+    {
+        endpoint->alias = alias;
+    }
+
+    /* Start processing the locator info */
+
+    // Routine to process one locator from the locator list of the endpoint
+    auto process_locators = [&](const eprosima::fastrtps::rtps::Locator_t& dds_locator)
+            {
+                std::shared_ptr<Locator> locator;
+
+                // Look for an existing locator
+                // There can only be one
+                auto locator_ids = get_entities_by_name_nts(EntityKind::LOCATOR, to_string(dds_locator));
+                assert(locator_ids.empty() || locator_ids.size() == 1);
+
+                if (!locator_ids.empty())
+                {
+                    // The locator exists. Add the existing one.
+                    locator = std::const_pointer_cast<Locator>(
+                        std::static_pointer_cast<const Locator>(get_entity_nts(locator_ids.front().
+                                second)));
+                }
+                else
+                {
+                    // The locator is not in the database. Add the new one.
+                    locator = std::make_shared<Locator>(to_string(dds_locator));
+                    insert_nts(locator, locator->id);
+                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
+                        locator->id,
+                        EntityKind::LOCATOR,
+                        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+                }
+
+                endpoint->locators[locator->id] = locator;
+            };
+
+    for (const auto& dds_locator : locators.unicast)
+    {
+        process_locators(dds_locator);
+    }
+    for (const auto& dds_locator : locators.multicast)
+    {
+        process_locators(dds_locator);
+    }
+
+    // insert the endpoint
+    EntityId entity_id;
+    insert_nts(endpoint, entity_id);
+    return entity_id; 
+}
+
+template <typename T>
+std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
+        const std::string& endpoint_guid,
+        const std::string& name,
+        const Qos& qos,
+        const std::shared_ptr<DomainParticipant>& participant,
+        const std::shared_ptr<Topic>& topic)
+{
+    return std::make_shared<T>(
+        name,
+        qos,
+        endpoint_guid,
+        participant,
+        topic);
 }
 
 EntityId Database::insert(
@@ -474,13 +773,13 @@ void Database::insert_nts(
         case EntityKind::DATAREADER:
         {
             auto data_reader = std::static_pointer_cast<DataReader>(entity);
-            insert_ddsendpoint<DataReader>(data_reader, entity_id);
+            insert_ddsendpoint_nts<DataReader>(data_reader, entity_id);
             break;
         }
         case EntityKind::DATAWRITER:
         {
             auto data_writer = std::static_pointer_cast<DataWriter>(entity);
-            insert_ddsendpoint<DataWriter>(data_writer, entity_id);
+            insert_ddsendpoint_nts<DataWriter>(data_writer, entity_id);
             break;
         }
         case EntityKind::LOCATOR:
@@ -536,8 +835,6 @@ void Database::insert(
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     insert_nts(domain_id, entity_id, sample);
-    
-    update_graph_on_updated_entity(domain_id, entity_id);
 }
 
 bool Database::insert(
@@ -1388,13 +1685,6 @@ void Database::link_participant_with_process_nts(
     }
 }
 
-const std::shared_ptr<const Entity> Database::get_entity(
-        const EntityId& entity_id) const
-{
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    return get_entity_nts(entity_id);
-}
-
 const std::shared_ptr<const Entity> Database::get_entity_nts(
         const EntityId& entity_id) const
 {
@@ -1479,6 +1769,13 @@ const std::shared_ptr<const Entity> Database::get_entity_nts(
 }
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
+        EntityKind entity_kind,
+        const std::string& name) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entities_by_name_nts(entity_kind, name);
+}
+std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
         EntityKind entity_kind,
         const std::string& name) const
 {
@@ -1616,7 +1913,7 @@ void Database::erase(
     }
 
     // The mutex should be taken only once. get_entity_kind already locks.
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     for (auto& reader : datareaders_[domain_id])
     {
@@ -1678,9 +1975,15 @@ void Database::erase(
     domains_[domain_id]->participants.clear();
 
     // Regenerate domain_view_graph
-    lock.unlock();
-    regenerate_domain_graph(domain_id);
-    details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+    regenerate_domain_graph_nts(domain_id);
+
+    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+    // this function would be required.
+    execute_without_lock([&]()
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+        });
 }
 
 std::vector<const StatisticsSample*> Database::select(
@@ -1696,10 +1999,11 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    auto source_entity = get_entity(entity_id_source);
-    auto target_entity = get_entity(entity_id_target);
-
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    auto source_entity = get_entity_nts(entity_id_source);
+    auto target_entity = get_entity_nts(entity_id_target);
+
     std::vector<const StatisticsSample*> samples;
     switch (data_type)
     {
@@ -1895,9 +2199,10 @@ std::vector<const StatisticsSample*> Database::select(
         throw BadParameter("Final timestamp must be strictly greater than the origin timestamp");
     }
 
-    auto entity = get_entity(entity_id);
-
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    auto entity = get_entity_nts(entity_id);
+
     std::vector<const StatisticsSample*> samples;
     switch (data_type)
     {
@@ -2123,7 +2428,8 @@ bool Database::is_entity_present(
     try
     {
         // Use get_entity search
-        auto result = get_entity(entity_id);
+        std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+        auto result = get_entity_nts(entity_id);
         return result.operator bool();
     }
     catch (const BadParameter&)
@@ -2133,6 +2439,14 @@ bool Database::is_entity_present(
 }
 
 std::pair<EntityId, EntityId> Database::get_entity_by_guid(
+        EntityKind entity_kind,
+        const std::string& guid) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_by_guid_nts(entity_kind, guid);
+}
+
+std::pair<EntityId, EntityId> Database::get_entity_by_guid_nts(
         EntityKind entity_kind,
         const std::string& guid) const
 {
@@ -2222,16 +2536,25 @@ EntityKind Database::get_entity_kind_by_guid(
 EntityKind Database::get_entity_kind(
         EntityId entity_id) const
 {
-    return get_entity(entity_id)->kind;
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id)->kind;
 }
 
 EntityStatus Database::get_entity_status(
         EntityId entity_id) const
 {
-    return get_entity(entity_id)->status;
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id)->status;
 }
 
 Graph Database::get_domain_view_graph(
+        const EntityId& domain_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_domain_view_graph_nts(domain_id);
+}
+
+Graph Database::get_domain_view_graph_nts(
         const EntityId& domain_id) const
 {
     try
@@ -2248,6 +2571,14 @@ void Database::init_domain_view_graph(
         const std::string& domain_name,
         const EntityId& domain_entity_id)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    init_domain_view_graph_nts(domain_name, domain_entity_id);
+}
+
+void Database::init_domain_view_graph_nts(
+        const std::string& domain_name,
+        const EntityId& domain_entity_id)
+{
     domain_view_graph[domain_entity_id]["kind"] = "domain";
     domain_view_graph[domain_entity_id]["domain"] = domain_name;
     domain_view_graph[domain_entity_id]["topics"] = nlohmann::json::object();
@@ -2255,6 +2586,18 @@ void Database::init_domain_view_graph(
 }
 
 bool Database::update_participant_in_graph(
+        const EntityId& domain_entity_id,
+        const EntityId& host_entity_id,
+        const EntityId& user_entity_id,
+        const EntityId& process_entity_id,
+        const EntityId& participant_entity_id)
+
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_participant_in_graph_nts(domain_entity_id, host_entity_id, user_entity_id, process_entity_id, participant_entity_id);
+}
+
+bool Database::update_participant_in_graph_nts(
         const EntityId& domain_entity_id,
         const EntityId& host_entity_id,
         const EntityId& user_entity_id,
@@ -2278,7 +2621,7 @@ bool Database::update_participant_in_graph(
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
-    std::shared_ptr<const database::Entity> host_entity = get_entity(host_entity_id);
+    std::shared_ptr<const Entity> host_entity = get_entity_nts(host_entity_id);
     std::string host_entity_id_value = std::to_string(host_entity_id.value());
     if (host_entity->active)
     {
@@ -2287,7 +2630,7 @@ bool Database::update_participant_in_graph(
             (*domain_graph)["hosts"][host_entity_id_value]["users"] = nlohmann::json::object();
         }
         graph_updated =
-                get_entity_subgraph(host_entity_id,
+                get_entity_subgraph_nts(host_entity_id,
                         (*domain_graph)["hosts"][host_entity_id_value]) || graph_updated;
     }
     else
@@ -2308,7 +2651,7 @@ bool Database::update_participant_in_graph(
 
     Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
 
-    std::shared_ptr<const database::Entity> user_entity = get_entity(user_entity_id);
+    std::shared_ptr<const Entity> user_entity = get_entity_nts(user_entity_id);
     std::string user_entity_id_value = std::to_string(user_entity_id.value());
     if (user_entity->active)
     {
@@ -2317,7 +2660,7 @@ bool Database::update_participant_in_graph(
             (*host_graph)["users"][user_entity_id_value]["processes"] = nlohmann::json::object();
         }
         graph_updated =
-                get_entity_subgraph(user_entity_id,
+                get_entity_subgraph_nts(user_entity_id,
                         (*host_graph)["users"][user_entity_id_value]) || graph_updated;
     }
     else
@@ -2338,7 +2681,7 @@ bool Database::update_participant_in_graph(
 
     Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
 
-    std::shared_ptr<const database::Entity> process_entity = get_entity(process_entity_id);
+    std::shared_ptr<const Entity> process_entity = get_entity_nts(process_entity_id);
     std::string process_entity_id_value = std::to_string(process_entity_id.value());
     if (process_entity->active)
     {
@@ -2347,7 +2690,7 @@ bool Database::update_participant_in_graph(
             (*user_graph)["processes"][process_entity_id_value]["participants"] = nlohmann::json::object();
         }
         graph_updated =
-                get_entity_subgraph(process_entity_id,
+                get_entity_subgraph_nts(process_entity_id,
                         (*user_graph)["processes"][process_entity_id_value]) || graph_updated;
     }
     else
@@ -2368,7 +2711,7 @@ bool Database::update_participant_in_graph(
 
     Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
 
-    std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
+    std::shared_ptr<const Entity> participant_entity = get_entity_nts(participant_entity_id);
     std::string participant_entity_id_value = std::to_string(participant_entity_id.value());
     if (participant_entity->active)
     {
@@ -2377,7 +2720,7 @@ bool Database::update_participant_in_graph(
             (*process_graph)["participants"][participant_entity_id_value]["endpoints"] = nlohmann::json::object();
         }
         graph_updated =
-                get_entity_subgraph(participant_entity_id,
+                get_entity_subgraph_nts(participant_entity_id,
                         (*process_graph)["participants"][participant_entity_id_value]) ||
                 graph_updated;
     }
@@ -2401,7 +2744,16 @@ bool Database::update_endpoint_in_graph(
         const EntityId& topic_entity_id,
         const EntityId& endpoint_entity_id)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_endpoint_in_graph_nts(domain_entity_id, participant_entity_id, topic_entity_id, endpoint_entity_id);
+}
 
+bool Database::update_endpoint_in_graph_nts(
+        const EntityId& domain_entity_id,
+        const EntityId& participant_entity_id,
+        const EntityId& topic_entity_id,
+        const EntityId& endpoint_entity_id)
+{
     bool graph_updated = false;
 
     // Check if the correspondent domain graph exists
@@ -2416,12 +2768,12 @@ bool Database::update_endpoint_in_graph(
     if (topic_entity_id.value() != EntityId::invalid() && topic_entity_id.value() != EntityId::all())
     {
 
-        std::shared_ptr<const database::Entity> topic_entity = get_entity(topic_entity_id);
+        std::shared_ptr<const Entity> topic_entity = get_entity_nts(topic_entity_id);
         std::string topic_entity_id_value = std::to_string(topic_entity_id.value());
         if (topic_entity->active)
         {
             graph_updated =
-                    get_entity_subgraph(topic_entity_id,
+                    get_entity_subgraph_nts(topic_entity_id,
                             (*domain_graph)["topics"][topic_entity_id_value]) || graph_updated;
         }
         else
@@ -2441,25 +2793,25 @@ bool Database::update_endpoint_in_graph(
     }
 
     // Get process->user->host ids
-    std::shared_ptr<const database::Entity> participant_entity = get_entity(participant_entity_id);
-    std::shared_ptr<const database::DomainParticipant> participant =
-            std::dynamic_pointer_cast<const database::DomainParticipant>(participant_entity);
+    std::shared_ptr<const Entity> participant_entity = get_entity_nts(participant_entity_id);
+    std::shared_ptr<const DomainParticipant> participant =
+            std::dynamic_pointer_cast<const DomainParticipant>(participant_entity);
 
     if (participant->process == nullptr)
     {
         return graph_updated;
     }
-    std::shared_ptr<const database::Process> process = participant->process;
+    std::shared_ptr<const Process> process = participant->process;
     if (process->user == nullptr)
     {
         return graph_updated;
     }
-    std::shared_ptr<const database::User> user = process->user;
+    std::shared_ptr<const User> user = process->user;
     if (user->host == nullptr)
     {
         return graph_updated;
     }
-    std::shared_ptr<const database::Host> host = user->host;
+    std::shared_ptr<const Host> host = user->host;
 
     std::string participant_entity_id_value = std::to_string(participant_entity_id.value());
     std::string process_entity_id_value = std::to_string(process->id.value());
@@ -2501,12 +2853,12 @@ bool Database::update_endpoint_in_graph(
 
     Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
 
-    std::shared_ptr<const database::Entity> endpoint_entity = get_entity(endpoint_entity_id);
+    std::shared_ptr<const Entity> endpoint_entity = get_entity_nts(endpoint_entity_id);
     std::string endpoint_entity_id_value = std::to_string(endpoint_entity_id.value());
     if (endpoint_entity->active)
     {
         graph_updated =
-                get_entity_subgraph(endpoint_entity_id,
+                get_entity_subgraph_nts(endpoint_entity_id,
                         (*participant_graph)["endpoints"][endpoint_entity_id_value]) ||
                 graph_updated;
         return graph_updated;
@@ -2526,7 +2878,13 @@ bool Database::update_endpoint_in_graph(
 void Database::regenerate_domain_graph(
         const EntityId& domain_entity_id)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    regenerate_domain_graph_nts(domain_entity_id);
+}
 
+void Database::regenerate_domain_graph_nts(
+        const EntityId& domain_entity_id)
+{
     // Check if the correspondent domain graph exists
     if (domain_view_graph.find(domain_entity_id) != domain_view_graph.end())
     {
@@ -2539,14 +2897,14 @@ void Database::regenerate_domain_graph(
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
-    std::shared_ptr<const database::Entity> domain_entity = get_entity(domain_entity_id);
+    std::shared_ptr<const Entity> domain_entity = get_entity_nts(domain_entity_id);
     (*domain_graph)["kind"] = "domain";
     (*domain_graph)["domain"] = domain_entity->name;
     (*domain_graph)["topics"] = nlohmann::json::object();
     (*domain_graph)["hosts"] = nlohmann::json::object();
 
     // Add topics
-    auto topics = get_entities(EntityKind::TOPIC, domain_entity_id);
+    auto topics = get_entities_nts(EntityKind::TOPIC, domain_entity_id);
     for (auto topic : topics)
     {
         if (!topic->active)
@@ -2554,11 +2912,11 @@ void Database::regenerate_domain_graph(
             continue;
         }
         std::string topic_entity_id_value = std::to_string(topic->id.value());
-        get_entity_subgraph(topic->id.value(), (*domain_graph)["topics"][topic_entity_id_value]);
+        get_entity_subgraph_nts(topic->id.value(), (*domain_graph)["topics"][topic_entity_id_value]);
     }
 
     // Add hosts
-    auto hosts = get_entities(EntityKind::HOST, domain_entity_id);
+    auto hosts = get_entities_nts(EntityKind::HOST, domain_entity_id);
     for (auto host : hosts)
     {
         if (!host->active)
@@ -2567,11 +2925,11 @@ void Database::regenerate_domain_graph(
         }
 
         std::string host_entity_id_value = std::to_string(host->id.value());
-        get_entity_subgraph(host->id.value(), (*domain_graph)["hosts"][host_entity_id_value]);
+        get_entity_subgraph_nts(host->id.value(), (*domain_graph)["hosts"][host_entity_id_value]);
 
         Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
         (*host_graph)["users"] = nlohmann::json::object();
-        auto users = get_entities(EntityKind::USER, host);
+        auto users = get_entities_nts(EntityKind::USER, host);
 
         // Add users
         for (auto user : users)
@@ -2582,11 +2940,11 @@ void Database::regenerate_domain_graph(
             }
 
             std::string user_entity_id_value = std::to_string(user->id.value());
-            get_entity_subgraph(user->id.value(), (*host_graph)["users"][user_entity_id_value]);
+            get_entity_subgraph_nts(user->id.value(), (*host_graph)["users"][user_entity_id_value]);
 
             Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
             (*user_graph)["processes"] = nlohmann::json::object();
-            auto processes = get_entities(EntityKind::PROCESS, user);
+            auto processes = get_entities_nts(EntityKind::PROCESS, user);
 
             //Add processes
             for (auto process : processes)
@@ -2597,11 +2955,11 @@ void Database::regenerate_domain_graph(
                 }
 
                 std::string process_entity_id_value = std::to_string(process->id.value());
-                get_entity_subgraph(process->id.value(), (*user_graph)["processes"][process_entity_id_value]);
+                get_entity_subgraph_nts(process->id.value(), (*user_graph)["processes"][process_entity_id_value]);
 
                 Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
                 (*process_graph)["participants"] = nlohmann::json::object();
-                auto participants = get_entities(EntityKind::PARTICIPANT, process);
+                auto participants = get_entities_nts(EntityKind::PARTICIPANT, process);
 
                 //Add prticipants
                 for (auto participant : participants)
@@ -2612,12 +2970,12 @@ void Database::regenerate_domain_graph(
                     }
 
                     std::string participant_entity_id_value = std::to_string(participant->id.value());
-                    get_entity_subgraph(participant->id.value(),
+                    get_entity_subgraph_nts(participant->id.value(),
                             (*process_graph)["participants"][participant_entity_id_value]);
 
                     Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
                     (*participant_graph)["endpoints"] = nlohmann::json::object();
-                    auto datareaders = get_entities(EntityKind::DATAREADER, participant);
+                    auto datareaders = get_entities_nts(EntityKind::DATAREADER, participant);
 
                     // Add endpoints
                     for (auto datareader : datareaders)
@@ -2628,11 +2986,11 @@ void Database::regenerate_domain_graph(
                         }
 
                         std::string datareader_entity_id_value = std::to_string(datareader->id.value());
-                        get_entity_subgraph(datareader->id.value(),
+                        get_entity_subgraph_nts(datareader->id.value(),
                                 (*participant_graph)["endpoints"][datareader_entity_id_value]);
 
                     }
-                    auto datawriters = get_entities(EntityKind::DATAWRITER, participant);
+                    auto datawriters = get_entities_nts(EntityKind::DATAWRITER, participant);
                     for (auto datawriter : datawriters)
                     {
                         if (!datawriter->active)
@@ -2641,7 +2999,7 @@ void Database::regenerate_domain_graph(
                         }
 
                         std::string datawriter_entity_id_value = std::to_string(datawriter->id.value());
-                        get_entity_subgraph(datawriter->id.value(),
+                        get_entity_subgraph_nts(datawriter->id.value(),
                                 (*participant_graph)["endpoints"][datawriter_entity_id_value]);
                     }
                 }
@@ -2650,85 +3008,94 @@ void Database::regenerate_domain_graph(
     }
 }
 
-void Database::update_graph_on_updated_entity(
+bool Database::update_graph_on_updated_entity(
+        const EntityId& domain_id,
+        const EntityId& entity_id)
+
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_graph_on_updated_entity_nts(domain_id, entity_id);
+}
+
+bool Database::update_graph_on_updated_entity_nts(
         const EntityId& domain_id,
         const EntityId& entity_id)
 {
-    std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
     bool graph_updated = false;
     switch (entity->kind)
     {
         case EntityKind::HOST:
         {
-            graph_updated = update_participant_in_graph(domain_id, entity_id, EntityId(), EntityId(), EntityId());
+            graph_updated = update_participant_in_graph_nts(domain_id, entity_id, EntityId(), EntityId(), EntityId());
             break;
         }
         case EntityKind::USER:
         {
-            std::shared_ptr<const database::User> user = std::dynamic_pointer_cast<const database::User>(entity);
+            std::shared_ptr<const User> user = std::dynamic_pointer_cast<const User>(entity);
             if (user->host == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::Host> host = user->host;
-            graph_updated = update_participant_in_graph(domain_id, host->id, entity_id, EntityId(), EntityId());
+            std::shared_ptr<const Host> host = user->host;
+            graph_updated = update_participant_in_graph_nts(domain_id, host->id, entity_id, EntityId(), EntityId());
             break;
         }
         case EntityKind::PROCESS:
         {
-            std::shared_ptr<const database::Process> process =
-                    std::dynamic_pointer_cast<const database::Process>(entity);
+            std::shared_ptr<const Process> process =
+                    std::dynamic_pointer_cast<const Process>(entity);
             if (process->user == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::User> user = process->user;
+            std::shared_ptr<const User> user = process->user;
             if (user->host == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::Host> host = user->host;
-            graph_updated = update_participant_in_graph(domain_id, host->id, user->id, entity_id, EntityId());
+            std::shared_ptr<const Host> host = user->host;
+            graph_updated = update_participant_in_graph_nts(domain_id, host->id, user->id, entity_id, EntityId());
             break;
         }
         case EntityKind::PARTICIPANT:
         {
-            std::shared_ptr<const database::DomainParticipant> participant =
-                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+            std::shared_ptr<const DomainParticipant> participant =
+                    std::dynamic_pointer_cast<const DomainParticipant>(entity);
             if (participant->process == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::Process> process = participant->process;
+            std::shared_ptr<const Process> process = participant->process;
             if (process->user == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::User> user = process->user;
+            std::shared_ptr<const User> user = process->user;
             if (user->host == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::Host> host = user->host;
-            graph_updated = update_participant_in_graph(domain_id, host->id, user->id, process->id, entity_id);
+            std::shared_ptr<const Host> host = user->host;
+            graph_updated = update_participant_in_graph_nts(domain_id, host->id, user->id, process->id, entity_id);
             break;
         }
         case EntityKind::TOPIC:
         {
-            graph_updated = update_endpoint_in_graph(domain_id, EntityId(), entity_id, EntityId());
+            graph_updated = update_endpoint_in_graph_nts(domain_id, EntityId(), entity_id, EntityId());
             break;
         }
         case EntityKind::DATAREADER:
         case EntityKind::DATAWRITER:
         {
-            std::shared_ptr<const database::DDSEndpoint> endpoint =
-                    std::dynamic_pointer_cast<const database::DDSEndpoint>(entity);
+            std::shared_ptr<const DDSEndpoint> endpoint =
+                    std::dynamic_pointer_cast<const DDSEndpoint>(entity);
             if (endpoint->participant == nullptr)
             {
-                return;
+                return false;
             }
-            std::shared_ptr<const database::DomainParticipant> participant = endpoint->participant;
-            graph_updated = update_endpoint_in_graph(domain_id, participant->id, EntityId(), entity_id);
+            std::shared_ptr<const DomainParticipant> participant = endpoint->participant;
+            graph_updated = update_endpoint_in_graph_nts(domain_id, participant->id, EntityId(), entity_id);
             break;
         }
         default:
@@ -2736,19 +3103,16 @@ void Database::update_graph_on_updated_entity(
             break;
         }
     }
-    if (graph_updated)
-    {
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
-    }
+    return graph_updated;
 }
 
-Graph Database::get_entity_subgraph(
+Graph Database::get_entity_subgraph_nts(
         const EntityId& entity_id,
         Graph& entity_graph)
 {
     bool entity_graph_updated = false;
 
-    std::shared_ptr<const database::Entity> entity = get_entity(entity_id);
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
     entity_graph["kind"] =  entity_kind_str[(int)entity->kind];
 
@@ -2768,15 +3132,15 @@ Graph Database::get_entity_subgraph(
 
     if (entity->kind == EntityKind::PROCESS)
     {
-        std::shared_ptr<const database::Process> process =
-                std::dynamic_pointer_cast<const database::Process>(entity);
+        std::shared_ptr<const Process> process =
+                std::dynamic_pointer_cast<const Process>(entity);
         entity_graph["pid"] =  process->pid;
     }
 
     if (entity->kind == EntityKind::PARTICIPANT)
     {
-        std::shared_ptr<const database::DomainParticipant> participant =
-                std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
+        std::shared_ptr<const DomainParticipant> participant =
+                std::dynamic_pointer_cast<const DomainParticipant>(entity);
         if (entity_graph["app_id"] != app_id_str[(int)participant->app_id])
         {
             entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
@@ -2792,8 +3156,8 @@ Graph Database::get_entity_subgraph(
     if (entity->kind == EntityKind::DATAWRITER ||
             entity->kind == EntityKind::DATAREADER)
     {
-        std::shared_ptr<const database::DDSEndpoint> endpoint =
-                std::dynamic_pointer_cast<const database::DDSEndpoint>(entity);
+        std::shared_ptr<const DDSEndpoint> endpoint =
+                std::dynamic_pointer_cast<const DDSEndpoint>(entity);
         entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
     }
 
@@ -2845,7 +3209,41 @@ bool Database::update_entity_status_nts(
 
 }
 
-const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
+void Database::set_alias(
+            const EntityId& entity_id,
+            const std::string& alias)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    set_alias_nts(entity_id, alias);   
+}
+
+void Database::set_alias_nts(
+            const EntityId& entity_id,
+            const std::string& alias)
+{
+    std::shared_ptr<const Entity> const_entity = get_entity_nts(entity_id);
+    std::shared_ptr<Entity> entity = std::const_pointer_cast<Entity>(const_entity);
+    if (entity->alias != alias)
+    {
+        auto domains = get_entities_nts(EntityKind::DOMAIN, entity_id);
+        if (!domains.empty())
+        {
+            entity->alias = alias;
+            if(update_graph_on_updated_entity_nts(domains[0]->id, entity_id))
+            {
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                    {
+                        details::StatisticsBackendData::get_instance()->on_domain_graph_update(domains[0]->id);
+                    });
+            }
+        }
+    }
+}
+
+const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
         EntityKind entity_kind,
         const EntityId& entity_id) const
 {
@@ -2856,11 +3254,11 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
     {
         // This call will throw BadParameter if there is no such entity.
         // We let this exception through, as it meets expectations
-        origin = get_entity(entity_id);
+        origin = get_entity_nts(entity_id);
         assert(origin->kind != EntityKind::INVALID);
     }
 
-    auto entities = get_entities(entity_kind, origin);
+    auto entities = get_entities_nts(entity_kind, origin);
 
     // Remove duplicates by sorting and unique-ing
     std::sort(entities.begin(), entities.end(), [](
@@ -2885,7 +3283,10 @@ std::vector<EntityId> Database::get_entity_ids(
         const EntityId& entity_id) const
 {
     std::vector<EntityId> entitiesIds;
-    for (const auto& entity : get_entities(entity_kind, entity_id))
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    for (const auto& entity : get_entities_nts(entity_kind, entity_id))
     {
         entitiesIds.push_back(entity->id);
     }
@@ -2917,7 +3318,7 @@ void map_of_maps_to_vector(
     }
 }
 
-const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
+const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
         EntityKind entity_kind,
         const std::shared_ptr<const Entity>& origin) const
 {
@@ -2986,7 +3387,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& user : host->users)
                         {
-                            auto sub_entities = get_entities(entity_kind, user.second);
+                            auto sub_entities = get_entities_nts(entity_kind, user.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3020,7 +3421,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& process : user->processes)
                         {
-                            auto sub_entities = get_entities(entity_kind, process.second);
+                            auto sub_entities = get_entities_nts(entity_kind, process.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3036,7 +3437,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                 {
                     case EntityKind::HOST:
                     {
-                        auto sub_entities = get_entities(entity_kind, process->user);
+                        auto sub_entities = get_entities_nts(entity_kind, process->user);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -3059,7 +3460,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& participant : process->participants)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            auto sub_entities = get_entities_nts(entity_kind, participant.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3096,7 +3497,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& participant : domain->participants)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant.second);
+                            auto sub_entities = get_entities_nts(entity_kind, participant.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3117,7 +3518,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         // May not have the relation process - participant yet
                         if (participant->process)
                         {
-                            auto sub_entities = get_entities(entity_kind, participant->process);
+                            auto sub_entities = get_entities_nts(entity_kind, participant->process);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                     }
@@ -3151,12 +3552,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& writer : participant->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities_nts(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : participant->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities_nts(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3195,12 +3596,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::LOCATOR:
                         for (const auto& writer : topic->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities_nts(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : topic->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities_nts(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3231,7 +3632,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         break;
                     case EntityKind::DATAREADER:
                     {
-                        auto sub_entities = get_entities(entity_kind, writer->topic);
+                        auto sub_entities = get_entities_nts(entity_kind, writer->topic);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -3240,7 +3641,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                     case EntityKind::DOMAIN:
                     {
-                        auto sub_entities = get_entities(entity_kind, writer->participant);
+                        auto sub_entities = get_entities_nts(entity_kind, writer->participant);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -3271,7 +3672,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                         break;
                     case EntityKind::DATAWRITER:
                     {
-                        auto sub_entities = get_entities(entity_kind, reader->topic);
+                        auto sub_entities = get_entities_nts(entity_kind, reader->topic);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -3280,7 +3681,7 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::PROCESS:
                     case EntityKind::DOMAIN:
                     {
-                        auto sub_entities = get_entities(entity_kind, reader->participant);
+                        auto sub_entities = get_entities_nts(entity_kind, reader->participant);
                         entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                     }
                     break;
@@ -3317,12 +3718,12 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
                     case EntityKind::DOMAIN:
                         for (const auto& writer : locator->data_writers)
                         {
-                            auto sub_entities = get_entities(entity_kind, writer.second);
+                            auto sub_entities = get_entities_nts(entity_kind, writer.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         for (const auto& reader : locator->data_readers)
                         {
-                            auto sub_entities = get_entities(entity_kind, reader.second);
+                            auto sub_entities = get_entities_nts(entity_kind, reader.second);
                             entities.insert(entities.end(), sub_entities.begin(), sub_entities.end());
                         }
                         break;
@@ -3345,19 +3746,34 @@ EntityId Database::generate_entity_id() noexcept
 }
 
 template<>
-std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::dds_endpoints<DataReader>()
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::dds_endpoints_nts<DataReader>()
 {
     return datareaders_;
 }
 
 template<>
-std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::dds_endpoints<DataReader>()
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return dds_endpoints_nts<DataReader>();
+}
+
+
+template<>
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints_nts<DataWriter>()
 {
     return datawriters_;
 }
 
 template<>
-void Database::insert_ddsendpoint_to_locator(
+std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints<DataWriter>()
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return dds_endpoints_nts<DataWriter>();
+}
+
+template<>
+void Database::insert_ddsendpoint_to_locator_nts(
         std::shared_ptr<DataWriter>& endpoint,
         std::shared_ptr<Locator>& locator)
 {
@@ -3365,7 +3781,7 @@ void Database::insert_ddsendpoint_to_locator(
 }
 
 template<>
-void Database::insert_ddsendpoint_to_locator(
+void Database::insert_ddsendpoint_to_locator_nts(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator)
 {
@@ -4173,14 +4589,19 @@ void Database::clear_statistics_data_nts_(
 
 void Database::clear_inactive_entities()
 {
-    std::unique_lock<std::shared_timed_mutex> lock (mutex_);
+    std::lock_guard<std::shared_timed_mutex> guard (mutex_);
     clear_inactive_entities_nts_();
-    lock.unlock();
     // Regenerate the entire graph
     for (auto it = domains_.cbegin(); it != domains_.cend(); ++it)
     {
-        regenerate_domain_graph(it->first);
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
+        regenerate_domain_graph_nts(it->first);
+        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+        // this function would be required.
+        execute_without_lock([&]()
+            {
+                details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
+            });
     }
 }
 
@@ -4203,6 +4624,141 @@ void Database::clear_inactive_entities_nts_()
 
     // Remove internal references of entities to those that have been removed
     clear_internal_references_nts_();
+}
+
+bool Database::is_active(
+    const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id)->active;
+}
+
+bool Database::is_metatraffic(
+    const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id)->metatraffic;
+}
+
+Info Database::get_info(
+    const EntityId& entity_id)
+{
+    Info info = Info::object();
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    info[ID_INFO_TAG] = entity_id.value();
+    info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
+    info[NAME_INFO_TAG] = entity->name;
+    info[ALIAS_INFO_TAG] = entity->alias;
+    info[ALIVE_INFO_TAG] = entity->active;
+    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
+    info[STATUS_INFO_TAG] = entity->status;
+
+    switch (entity->kind)
+    {
+        case EntityKind::PROCESS:
+        {
+            std::shared_ptr<const Process> process =
+                    std::dynamic_pointer_cast<const Process>(entity);
+            info[PID_INFO_TAG] = process->pid;
+            break;
+        }
+        case EntityKind::TOPIC:
+        {
+            std::shared_ptr<const Topic> topic =
+                    std::dynamic_pointer_cast<const Topic>(entity);
+            info[DATA_TYPE_INFO_TAG] = topic->data_type;
+            break;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const DomainParticipant> participant =
+                    std::dynamic_pointer_cast<const DomainParticipant>(entity);
+            info[GUID_INFO_TAG] = participant->guid;
+            info[QOS_INFO_TAG] = participant->qos;
+
+            // Locators associated to endpoints
+            std::set<std::string> locator_set;
+
+            // Writers registered in the participant
+            for (const auto& writer : participant->data_writers)
+            {
+                // Locators associated to each writer
+                for (const auto& locator : writer.second.get()->locators)
+                {
+                    locator_set.insert(locator.second.get()->name);
+                }
+            }
+
+            // Readers registered in the participant
+            for (const auto& reader : participant->data_readers)
+            {
+                // Locators associated to each reader
+                for (const auto& locator : reader.second.get()->locators)
+                {
+                    locator_set.insert(locator.second.get()->name);
+                }
+            }
+
+            DatabaseDump locators = DatabaseDump::array();
+            for (const auto& locator : locator_set)
+            {
+                locators.push_back(locator);
+            }
+            info[LOCATOR_CONTAINER_TAG] = locators;
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DDSEntity> dds_entity =
+                    std::dynamic_pointer_cast<const DDSEntity>(entity);
+            info[GUID_INFO_TAG] = dds_entity->guid;
+            info[QOS_INFO_TAG] = dds_entity->qos;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return info;
+}
+
+void Database::check_entity_kinds(
+        EntityKind kind,
+        const std::vector<EntityId>& entity_ids,
+        const char* message)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    for (EntityId id : entity_ids)
+    {
+        std::shared_ptr<const Entity> entity = get_entity_nts(id);
+        if (!entity || kind != entity->kind)
+        {
+            throw BadParameter(message);
+        }
+    }
+}
+
+void Database::check_entity_kinds(
+        EntityKind kinds[3],
+        const std::vector<EntityId>& entity_ids,
+        const char* message)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    for (EntityId id : entity_ids)
+    {
+        std::shared_ptr<const Entity> entity = get_entity_nts(id);
+        if (!entity || (kinds[0] != entity->kind && kinds[1] != entity->kind && kinds[2] != entity->kind))
+        {
+            throw BadParameter(message);
+        }
+    }
 }
 
 /**

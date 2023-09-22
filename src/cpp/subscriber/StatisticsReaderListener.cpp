@@ -118,7 +118,6 @@ void StatisticsReaderListener::on_data_available(
         std::shared_ptr<Data> data = std::make_shared<Data>();
         if (HISTORY_LATENCY_TOPIC == topic_name)
         {
-            std::shared_ptr<Data> data = std::make_shared<Data>();
             WriterReaderData inner_data;
             if (get_available_data(reader, inner_data, timestamp))
             {

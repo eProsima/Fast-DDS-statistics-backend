@@ -468,18 +468,6 @@ protected:
     EntityId process_endpoint_discovery(
             const T& info);
 
-    std::shared_ptr<database::DDSEndpoint> create_datareader(
-            const eprosima::fastrtps::rtps::GUID_t& guid,
-            const EntityDiscoveryInfo& info,
-            std::shared_ptr<database::DomainParticipant> participant,
-            std::shared_ptr<database::Topic> topic);
-
-    std::shared_ptr<database::DDSEndpoint> create_datawriter(
-            const eprosima::fastrtps::rtps::GUID_t& guid,
-            const EntityDiscoveryInfo& info,
-            std::shared_ptr<database::DomainParticipant> participant,
-            std::shared_ptr<database::Topic> topic);
-
     // Database
     Database* database_;
 
@@ -572,6 +560,7 @@ public:
     {
         static_cast<void>(domain);
         static_cast<void>(entity);
+        static_cast<void>(entity_kind);
         static_cast<void>(local_entity_guid);
         static_cast<void>(sample);
         static_cast<void>(item);

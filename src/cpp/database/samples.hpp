@@ -262,37 +262,6 @@ struct TimepointSample : StatisticsSample
 };
 
 /*
- * Status data of an entity
- */
-struct EntityStatusSample : StatisticsSample
-{
-    EntityStatusSample(
-            DataKind sample_kind = DataKind::INVALID)
-        : StatisticsSample(sample_kind)
-        , status(EntityStatus::OK)
-    {
-    }
-
-    virtual ~EntityStatusSample() = default;
-
-    void clear() final;
-
-    inline bool operator ==(
-            const EntityStatusSample& other) const noexcept
-    {
-        return (StatisticsSample::operator ==(other) && status == other.status);
-    }
-
-    inline bool operator !=(
-            const EntityStatusSample& other) const noexcept
-    {
-        return !(*this == other);
-    }
-
-    EntityStatus status;
-};
-
-/*
  * Count reported by an entity towards a Locator
  */
 struct EntityToLocatorCountSample : EntityCountSample

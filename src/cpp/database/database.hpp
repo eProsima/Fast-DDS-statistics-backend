@@ -31,6 +31,9 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
+#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/RemoteLocators.hpp>
+
 #include <database/entities.hpp>
 #include <types/DataContainer.hpp>
 
@@ -86,6 +89,98 @@ public:
      * @note It requires a virtual dtor for test sake.
      */
     virtual ~Database() = default;
+
+    /**
+     * @brief Create new DomainParticipant and insert it in database.
+     * @param name The name of the DomainParticipant.
+     * @param qos The QoS of the DomainParticipant.
+     * @param guid The GUID of the DomainParticipant.
+     * @param domain_id The EntityId of the domain to which the DomainParticipant corresponds.
+     * @param status The status of the DomainParticipant.
+     * @param app_id The AppId of the DomainParticipant.
+     * @param app_metadata The App metadata of the DomainParticipant.
+     * 
+     * @return EntityId of the DomainParticipant once inserted.
+     */
+    EntityId insert_new_participant(
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const EntityStatus& status,
+            const AppId& app_id,
+            const std::string& app_metadata);
+
+    /**
+     * @brief Create new Host-User-Process entities and insert them in database.
+     * @param host_name The name of the host.
+     * @param user_name The name of the user.
+     * @param process_name The name of the process.
+     * @param process_pid The pid of the process.
+     * @param should_link_process_participant If true, try to link process to participant.
+     * @param participant_id The EntityId of the participant that the process might be linked to.
+     * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
+     */
+    void insert_new_physical_entities(
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids);
+
+    /**
+     * @brief Check if the topic is already in the database. Topic type must match.
+     * @param topic_type The type of the topic.
+     * @param topic_id The EntityId of the topic.
+     * 
+     * @return True if the topic is in the database.
+     */
+    bool is_topic_in_database(
+            const std::string& topic_type,
+            const EntityId& topic_id);
+
+    /**
+     * @brief Create new Topic and insert it in database.
+     * @param name The name of the Topic.
+     * @param type_name The type name of the Topic.
+     * @param alias The alias of the Topic.
+     * @param domain_id The EntityId of the domain to which the Topic corresponds.
+     * 
+     * @return EntityId of the Topic once inserted.
+     */
+    EntityId insert_new_topic(
+            const std::string& name,
+            const std::string& type_name,
+            const std::string& alias,
+            const EntityId& domain_id);
+
+    /**
+     * @brief Create new Endpoint and corresponding Locator, and insert them in database.
+     * @param endpoint_guid The GUID of the Endpoint.
+     * @param name The name of the Endpoint.
+     * @param alias The alias of the Endpoint.
+     * @param qos The QoS of the Endpoint.
+     * @param is_virtual_metatraffic Flag for metatraffic endpoints.
+     * @param locators Locators related to endpoint.
+     * @param kind EntityKind of the endpoint.
+     * @param participant_id The EntityId of the Participant related to the Endpoint.
+     * @param topic_id The EntityId of the Topic related to the Endpoint.
+     * 
+     * @return EntityId of the Endpoint once inserted.
+     */
+
+    EntityId insert_new_endpoint(
+             const std::string& endpoint_guid,
+             const std::string& name,
+             const std::string& alias,
+             const Qos& qos,
+             const bool& is_virtual_metatraffic,
+             const fastrtps::rtps::RemoteLocatorList& locators,
+             const EntityKind& kind,
+             const EntityId& participant_id,
+             const EntityId& topic_id);
 
     /**
      * @brief Insert a new entity into the database.
@@ -252,32 +347,14 @@ public:
             const EntityId& entity_id) const noexcept;
 
     /**
-     * Get an entity given its EntityId
+     * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
+     * a.k.a DataReader or DataWriter.
      *
-     * @param entity_id constant reference to the EntityId of the retrieved entity.
-     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
-     * @return A constant shared pointer to the Entity.
+     * @tparam T The DDSEndpoint-derived class name. Only DataReader and DataWriter are allowed.
+     * @return The corresponding internal collection, a.k.a datareaders_ or datawriters_.
      */
-    const std::shared_ptr<const Entity> get_entity(
-            const EntityId& entity_id) const;
-
-    /**
-     * Get all entities of a given EntityKind related to another entity.
-     *
-     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned.
-     *
-     * @param entity_id constant reference to the EntityId of the entity to which the returned
-     *                  entities are related.
-     * @param entity_kind The EntityKind of the fetched entities.
-     * @throws eprosima::statistics_backend::BadParameter in the following case:
-     *            * if the \c entity_kind is \c INVALID.
-     *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
-     *            * if the EntityKind of the Entity with \c entity_id is \c INVALID.
-     * @return A constant vector of shared pointers to the entities
-     */
-    const std::vector<std::shared_ptr<const Entity>> get_entities(
-            EntityKind entity_kind,
-            const EntityId& entity_id) const;
+    template<typename T>
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
 
     /**
      * Get all EntityIds of a given EntityKind related to another entity.
@@ -434,21 +511,23 @@ public:
      * @param domain_id The EntityId of the domain containing the entity.
      * @param entity_id The EntityId of the entity updated.
      *
+     * @return True if the graph has been updated
      */
-    void update_graph_on_updated_entity(
+    bool update_graph_on_updated_entity(
             const EntityId& domain_id,
             const EntityId& entity_id);
 
     /**
-     * @brief Get entity subgraph.
+     * @brief Setter for entity alias.
      *
-     * @param entity_id The EntityId from the entity which asks for its subgraph.
-     * @param entity_graph Subgraph where to add entity data.
+     * @param entity_id The EntityId of the entity updated.
+     * @param alias The new alias of the entity.
      *
      */
-    Graph get_entity_subgraph(
+    void set_alias(
             const EntityId& entity_id,
-            Graph& entity_graph);
+            const std::string& alias);
+            
 
     /**
      * @brief Get a dump of the database.
@@ -496,6 +575,64 @@ public:
      */
     void clear_inactive_entities();
 
+    /**
+     * @brief Returns whether the entity is active.
+     *
+     * @param entity_id The ID of the entity whose active attribute is requested.
+     * 
+     * @return True if active, false otherwise.
+     */
+    bool is_active(
+            const EntityId& entity_id);
+
+    /**
+     * @brief Returns whether the entity is metatraffic.
+     *
+     * @param entity_id The ID of the entity whose metatraffic attribute is requested.
+     * 
+     * @return True if metatraffic, false otherwise.
+     */
+    bool is_metatraffic(
+            const EntityId& entity_id);
+
+    /**
+     * @brief Get the meta information of a given entity.
+     *
+     * @param entity_id The entity for which the meta information is retrieved.
+     * 
+     * @return Info object describing the entity's meta information.
+     */
+    Info get_info(
+            const EntityId& entity_id);
+
+    /**
+     * @brief Check if the entities passed correspond to the specified entity kind.
+     *
+     * @param kind The expected EntityKind of the entities provided.
+     * @param entity_ids Vector of entities whose kind is going to be checked
+     * @param message Message to throw if the Entity does not exist in the database or if the kind does not correspond.
+     * 
+     * @throws eprosima::statistics_backend::BadParameter If the Entity does not exist in the database or if the kind does not correspond.
+     */
+    void check_entity_kinds(
+            EntityKind kind,
+            const std::vector<EntityId>& entity_ids,
+            const char* message);
+
+    /**
+     * @brief Check if the entities passed correspond to the specified entity kind (DISCOVERY_TIME case).
+     *
+     * @param kind The expected EntityKind of the entities provided.
+     * @param entity_ids Vector of entities whose kind is going to be checked
+     * @param message Message to throw if the Entity does not exist in the database or if the kind does not correspond.
+     * 
+     * @throws eprosima::statistics_backend::BadParameter If the Entity does not exist in the database or if the kind does not correspond.
+     */
+    void check_entity_kinds(
+            EntityKind kinds[3],
+            const std::vector<EntityId>& entity_ids,
+            const char* message);
+
 protected:
 
     inline std::string id_to_string(
@@ -534,16 +671,34 @@ protected:
 
     /**
      * @brief Auxiliar function to get the internal collection of DDSEndpoints of a specific type,
-     * a.k.a DataReader or DataWriter.
+     * a.k.a DataReader or DataWriter.  This method is not thread safe.
      *
      * @tparam T The DDSEndpoint-derived class name. Only DataReader and DataWriter are allowed.
      * @return The corresponding internal collection, a.k.a datareaders_ or datawriters_.
      */
     template<typename T>
-    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
+    std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints_nts();
 
     /**
-     * Get all entities of a given EntityKind related to another entity.
+     * Get all entities of a given EntityKind related to another entity. This method is not thread safe.
+     *
+     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned.
+     *
+     * @param entity_id constant reference to the EntityId of the entity to which the returned
+     *                  entities are related.
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *            * if the \c entity_kind is \c INVALID.
+     *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *            * if the EntityKind of the Entity with \c entity_id is \c INVALID.
+     * @return A constant vector of shared pointers to the entities
+     */
+    const std::vector<std::shared_ptr<const Entity>> get_entities_nts(
+            EntityKind entity_kind,
+            const EntityId& entity_id) const;
+
+    /**
+     * Get all entities of a given EntityKind related to another entity. This method is not thread safe.
      *
      * In case the \c entity is nullptr, all EntityIds of type \c entity_type are returned.
      *
@@ -555,12 +710,12 @@ protected:
      *             * if the kind of the \c entity is \c INVALID.
      * @return A constant vector of shared pointers to the entities.
      */
-    const std::vector<std::shared_ptr<const Entity>> get_entities(
+    const std::vector<std::shared_ptr<const Entity>> get_entities_nts(
             EntityKind entity_kind,
             const std::shared_ptr<const Entity>& entity) const;
 
     /**
-     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it.
+     * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it. This method is not thread safe.
      *
      * @tparam T The DDSEndpoint to add to the Locator list. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint The endpoint of type T to add to the list of the locator.
@@ -568,12 +723,12 @@ protected:
      * @return The EntityId of the inserted DDSEndpoint.
      */
     template<typename T>
-    void insert_ddsendpoint_to_locator(
+    void insert_ddsendpoint_to_locator_nts(
             std::shared_ptr<T>& endpoint,
             std::shared_ptr<Locator>& locator);
 
     /**
-     * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter.
+     * @brief Auxiliar function for boilerplate code to insert either a DataReader or a DataWriter. This method is not thread safe.
      *
      * @tparam T The DDSEndpoint to insert. Only DDSEndpoint and its derived classes are allowed.
      * @param endpoint The endpoint of type T to add to the database.
@@ -584,7 +739,7 @@ protected:
      *             * if an endpoint with the same name and/or GUID already exists.
      */
     template<typename T>
-    void insert_ddsendpoint(
+    void insert_ddsendpoint_nts(
             std::shared_ptr<T>& endpoint,
             EntityId& entity_id)
     {
@@ -653,7 +808,7 @@ protected:
         }
 
         /* Check that this is indeed a new endpoint and that its GUID is unique */
-        for (const auto& endpoints_it: dds_endpoints<T>())
+        for (const auto& endpoints_it: dds_endpoints_nts<T>())
         {
             for (const auto& endpoint_it : endpoints_it.second)
             {
@@ -699,7 +854,7 @@ protected:
         for (auto& locator_it : endpoint->locators)
         {
             // See if we already know the locator
-            auto locators_with_same_name = get_entities_by_name(EntityKind::LOCATOR, locator_it.second->name);
+            auto locators_with_same_name = get_entities_by_name_nts(EntityKind::LOCATOR, locator_it.second->name);
             if (!locators_with_same_name.empty())
             {
                 // It could be only one in the database with the same name
@@ -745,7 +900,7 @@ protected:
             }
 
             // Add endpoint to locator's collection
-            insert_ddsendpoint_to_locator(endpoint, locator_it.second);
+            insert_ddsendpoint_to_locator_nts(endpoint, locator_it.second);
 
             // Add this locator to the locators map
             endpoint->locators[locator_it.first] = locator_it.second;
@@ -755,7 +910,7 @@ protected:
         (*(endpoint->topic)).template ddsendpoints<T>()[endpoint->id] = endpoint;
 
         /* Insert endpoint in the database */
-        dds_endpoints<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
+        dds_endpoints_nts<T>()[endpoint->participant->domain->id][endpoint->id] = endpoint;
     }
 
     /**
@@ -821,7 +976,7 @@ protected:
             const std::map<EntityId, ByteCountSample>& data);
 
     /**
-     * @brief Remove the statistics data of the database. This not include the info or discovery data.
+     * @brief Remove the statistics data of the database. This not include the info or discovery data. This method is not thread safe.
      *
      * @param t_to Timestamp regarding the maximum time to stop removing data.
      *
@@ -857,6 +1012,24 @@ protected:
     void insert_nts(
             const std::shared_ptr<Entity>& entity,
             EntityId& entity_id);
+
+    /**
+     * @brief Create new Endpoint. This method is not thread safe.
+     * @param endpoint_guid The GUID of the Endpoint.
+     * @param name The name of the Endpoint.
+     * @param qos The QoS of the Endpoint.
+     * @param participant The DomainParticipant related to the Endpoint.
+     * @param topic The Topic related to the Endpoint.
+     * 
+     * @return EntityId of the Endpoint once inserted.
+     */
+    template <typename T>
+    std::shared_ptr<database::DDSEndpoint> create_endpoint_nts(
+        const std::string& endpoint_guid,
+        const std::string& name,
+        const Qos& qos,
+        const std::shared_ptr<DomainParticipant>& participant,
+        const std::shared_ptr<Topic>& topic);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.
@@ -918,6 +1091,36 @@ protected:
             const MonitorServiceSample& sample);
 
     /**
+     * @brief Get all entities of a given EntityKind that match with the requested name. This method is not thread safe.
+     *
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @param name The name of the entities for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c entity_kind is not valid.
+     * @return A vector of pairs, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entities. For physical entities (Host, User, Process,
+     *         Locator) the returned Domain EntityId is EntityId::INVALID, as it has no meaning since these entities
+     *         do not belong to a Domain.
+     */
+    std::vector<std::pair<EntityId, EntityId>> get_entities_by_name_nts(
+            EntityKind entity_kind,
+            const std::string& name) const;
+
+    /**
+     * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
+     *
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @param guid The GUID of the entities to search for.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *             * if the given EntityKind does not contain a GUID.
+     *             * if there is no entity with the given parameters.
+     * @return A pair, where the first field is the EntityId of the Domain of the matching entities,
+     *         and the second is the EntityId of the matching entity.
+     */
+    std::pair<EntityId, EntityId> get_entity_by_guid_nts(
+            EntityKind entity_kind,
+            const std::string& guid) const;
+
+    /**
      * @brief Check if the entity status should be updated depending on its monitor service status data
      *
      * @param entity The Entity that might be updated.
@@ -937,6 +1140,103 @@ protected:
      */
     const std::shared_ptr<const Entity> get_entity_nts(
             const EntityId& entity_id) const;
+
+    /**
+     * @brief Get the specified domain view graph from database. This method is not thread safe.
+     *
+     * @param domain Domain from which graph is delivered.
+     *
+     * @return Graph object describing topology of the entities in the domain.
+     */
+    Graph get_domain_view_graph_nts(
+            const EntityId& domain_id) const;
+
+    /**
+     * @brief Init domain view graph with specified domain. This method is not thread safe.
+     *
+     * @param domain_name Domain where monitoring.
+     * @param domain_entity_id The EntityId of the domain.
+     */
+    void init_domain_view_graph_nts(
+            const std::string& domain_name,
+            const EntityId& domain_entity_id);
+
+    /**
+     * @brief Update host-user-process-participant in domain view graph after participant entity discovery. This method is not thread safe.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param host_entity_id The EntityId of the host.
+     * @param user_entity_id The EntityId of the user.
+     * @param process_entity_id The EntityId of the process.
+     * @param participant_entity_id The EntityId of the participant.
+     *
+     * @return True if graph has been updated
+     */
+    bool update_participant_in_graph_nts(
+            const EntityId& domain_entity_id,
+            const EntityId& host_entity_id,
+            const EntityId& user_entity_id,
+            const EntityId& process_entity_id,
+            const EntityId& participant_entity_id);
+
+    /**
+     * @brief Update topic-endpoint in domain view graph after endpoint entity discovery. This method is not thread safe.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param participant_entity_id The EntityId of the participant.
+     * @param topic_entity_id The EntityId of the topic.
+     * @param endpoint_entity_id The EntityId of the endpoint.
+     *
+     * @return True if graph has been updated
+     */
+    bool update_endpoint_in_graph_nts(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id);
+
+    /**
+     * @brief Regenerate graph from data stored in database. This method is not thread safe.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     *
+     */
+    void regenerate_domain_graph_nts(
+            const EntityId& domain_entity_id);
+
+    /**
+     * @brief Update graph according to the updated entity.This method is not thread safe.
+     *
+     * @param domain_id The EntityId of the domain containing the entity.
+     * @param entity_id The EntityId of the entity updated.
+     *
+     * @return True if the graph has been updated
+     */
+    bool update_graph_on_updated_entity_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id);
+
+    /**
+     * @brief Get entity subgraph. This method is not thread safe.
+     *
+     * @param entity_id The EntityId from the entity which asks for its subgraph.
+     * @param entity_graph Subgraph where to add entity data.
+     *
+     */
+    Graph get_entity_subgraph_nts(
+            const EntityId& entity_id,
+            Graph& entity_graph);
+
+    /**
+     * @brief Setter for entity alias. This method is not thread safe.
+     *
+     * @param entity_id The EntityId of the entity updated.
+     * @param alias The new alias of the entity.
+     * 
+     */
+    void set_alias_nts(
+            const EntityId& entity_id,
+            const std::string& alias);
 
     /**
      * @brief Create the link between a participant and a process. This method is not thread safe.
@@ -1080,12 +1380,12 @@ protected:
 };
 
 template<>
-void Database::insert_ddsendpoint_to_locator(
+void Database::insert_ddsendpoint_to_locator_nts(
         std::shared_ptr<DataWriter>& endpoint,
         std::shared_ptr<Locator>& locator);
 
 template<>
-void Database::insert_ddsendpoint_to_locator(
+void Database::insert_ddsendpoint_to_locator_nts(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator);
 
