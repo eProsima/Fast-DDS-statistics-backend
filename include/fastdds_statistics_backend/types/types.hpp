@@ -389,61 +389,61 @@ struct MonitorServiceSample
 };
 
 
-///*
-// * Proxy data of the status data
-// */
-//struct ProxySample : MonitorServiceSample
-//{
-//    ProxySample(): MonitorServiceSample(StatusKind::PROXY)
-//    {
-//    }
-//
-//    virtual ~ProxySample() = default;
-//
-//    void clear() final;
-//  
-//    inline bool operator ==(
-//            const ProxySample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && entity_proxy == other.entity_proxy);
-//    }
-//
-//    inline bool operator !=(
-//            const ProxySample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    std::vector<uint8_t> entity_proxy;
-//};
-///*
-// * Connection list status data
-// */
-//struct ConnectionListSample : MonitorServiceSample
-//{
-//    ConnectionListSample(): MonitorServiceSample(StatusKind::CONNECTION_LIST)
-//    {
-//    }
-//
-//    virtual ~ConnectionListSample() = default;
-//
-//    void clear() final;
-//    
-//    inline bool operator ==(
-//            const ConnectionListSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && connection_list == other.connection_list);
-//    }
-//
-//    inline bool operator !=(
-//            const ConnectionListSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    std::vector<Connection> connection_list;
-//};
-//
+/*
+* Proxy data of the status data
+*/
+struct ProxySample : MonitorServiceSample
+{
+   ProxySample(): MonitorServiceSample(StatusKind::PROXY)
+   {
+   }
+
+   virtual ~ProxySample() = default;
+
+   void clear() final;
+ 
+   inline bool operator ==(
+           const ProxySample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && entity_proxy == other.entity_proxy);
+   }
+
+   inline bool operator !=(
+           const ProxySample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   std::vector<uint8_t> entity_proxy;
+};
+/*
+* Connection list status data
+*/
+struct ConnectionListSample : MonitorServiceSample
+{
+   ConnectionListSample(): MonitorServiceSample(StatusKind::CONNECTION_LIST)
+   {
+   }
+
+   virtual ~ConnectionListSample() = default;
+
+   void clear() final;
+   
+   inline bool operator ==(
+           const ConnectionListSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && connection_list == other.connection_list);
+   }
+
+   inline bool operator !=(
+           const ConnectionListSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   std::vector<eprosima::fastdds::statistics::Connection> connection_list;
+};
+
 /*
  * Incompatible Qos status data
  */
@@ -471,174 +471,174 @@ struct IncompatibleQosSample : MonitorServiceSample
 
     eprosima::fastdds::statistics::IncompatibleQoSStatus_s incompatible_qos_status;
 };
-//
-///*
-// * Inconsistent topic status data
-// */
-//struct InconsistentTopicSample : MonitorServiceSample
-//{
-//    InconsistentTopicSample(): MonitorServiceSample(StatusKind::INCONSISTENT_TOPIC)
-//    {
-//    }
-//
-//    virtual ~InconsistentTopicSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const InconsistentTopicSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && inconsistent_topic_status == other.inconsistent_topic_status);
-//    }
-//
-//    inline bool operator !=(
-//            const InconsistentTopicSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    InconsistentTopicStatus_s inconsistent_topic_status;
-//};
-//
-///*
-// * Liveliness lost status data
-// */
-//struct LivelinessLostSample : MonitorServiceSample
-//{
-//    LivelinessLostSample(): MonitorServiceSample(StatusKind::LIVELINESS_LOST)
-//    {
-//    }
-//
-//    virtual ~LivelinessLostSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const LivelinessLostSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && liveliness_lost_status == other.liveliness_lost_status);
-//    }
-//
-//    inline bool operator !=(
-//            const LivelinessLostSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    LivelinessLostStatus_s liveliness_lost_status;
-//};
-//
-///*
-// * Liveliness changed status data
-// */
-//struct LivelinessChangedSample : MonitorServiceSample
-//{
-//    LivelinessChangedSample(): MonitorServiceSample(StatusKind::LIVELINESS_CHANGED)
-//    {
-//    }
-//
-//    virtual ~LivelinessChangedSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const LivelinessChangedSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && liveliness_lost_status == other.liveliness_lost_status);
-//    }
-//
-//    inline bool operator !=(
-//            const LivelinessChangedSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    LivelinessChangedStatus_s liveliness_changed_status;
-//};
-//
-///*
-// * Deadline missed status data
-// */
-//struct DeadlineMissedSample : MonitorServiceSample
-//{
-//    DeadlineMissedSample(): MonitorServiceSample(StatusKind::DEADLINE_MISSED)
-//    {
-//    }
-//
-//    virtual ~DeadlineMissedSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const DeadlineMissedSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && deadline_missed_status == other.deadline_missed_status);
-//    }
-//
-//    inline bool operator !=(
-//            const DeadlineMissedSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    DeadlineMissedStatus_s deadline_missed_status;
-//};
-//
-///*
-// * Sample lost status data
-// */
-//struct SampleLostSample : MonitorServiceSample
-//{
-//    SampleLostSample(): MonitorServiceSample(StatusKind::SAMPLE_LOST)
-//    {
-//    }
-//
-//    virtual ~SampleLostSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const SampleLostSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && sample_lost_status == other.sample_lost_status);
-//    }
-//
-//    inline bool operator !=(
-//            const SampleLostSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    SampleLostStatus_s sample_lost_status;
-//};
-//
-///*
-// * Statuses size status data
-// */
-//struct StatusesSizeSample : MonitorServiceSample
-//{
-//    StatusesSizeSample(): MonitorServiceSample(StatusKind::STATUSES_SIZE)
-//    {
-//    }
-//
-//    virtual ~StatusesSizeSample() = default;
-//
-//    void clear() final;
-//
-//    inline bool operator ==(
-//            const StatusesSizeSample& other) const noexcept
-//    {
-//        return (MonitorServiceSample::operator ==(other) && statuses_size == other.statuses_size);
-//    }
-//
-//    inline bool operator !=(
-//            const StatusesSizeSample& other) const noexcept
-//    {
-//        return !(*this == other);
-//    }
-//
-//    octet statuses_size;
-//};
+
+/*
+* Inconsistent topic status data
+*/
+struct InconsistentTopicSample : MonitorServiceSample
+{
+   InconsistentTopicSample(): MonitorServiceSample(StatusKind::INCONSISTENT_TOPIC)
+   {
+   }
+
+   virtual ~InconsistentTopicSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const InconsistentTopicSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && inconsistent_topic_status == other.inconsistent_topic_status);
+   }
+
+   inline bool operator !=(
+           const InconsistentTopicSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   eprosima::fastdds::statistics::InconsistentTopicStatus_s inconsistent_topic_status;
+};
+
+/*
+* Liveliness lost status data
+*/
+struct LivelinessLostSample : MonitorServiceSample
+{
+   LivelinessLostSample(): MonitorServiceSample(StatusKind::LIVELINESS_LOST)
+   {
+   }
+
+   virtual ~LivelinessLostSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const LivelinessLostSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && liveliness_lost_status == other.liveliness_lost_status);
+   }
+
+   inline bool operator !=(
+           const LivelinessLostSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   eprosima::fastdds::statistics::LivelinessLostStatus_s liveliness_lost_status;
+};
+
+/*
+* Liveliness changed status data
+*/
+struct LivelinessChangedSample : MonitorServiceSample
+{
+   LivelinessChangedSample(): MonitorServiceSample(StatusKind::LIVELINESS_CHANGED)
+   {
+   }
+
+   virtual ~LivelinessChangedSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const LivelinessChangedSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && liveliness_changed_status == other.liveliness_changed_status);
+   }
+
+   inline bool operator !=(
+           const LivelinessChangedSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   eprosima::fastdds::statistics::LivelinessChangedStatus_s liveliness_changed_status;
+};
+
+/*
+* Deadline missed status data
+*/
+struct DeadlineMissedSample : MonitorServiceSample
+{
+   DeadlineMissedSample(): MonitorServiceSample(StatusKind::DEADLINE_MISSED)
+   {
+   }
+
+   virtual ~DeadlineMissedSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const DeadlineMissedSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && deadline_missed_status == other.deadline_missed_status);
+   }
+
+   inline bool operator !=(
+           const DeadlineMissedSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   eprosima::fastdds::statistics::DeadlineMissedStatus_s deadline_missed_status;
+};
+
+/*
+* Sample lost status data
+*/
+struct SampleLostSample : MonitorServiceSample
+{
+   SampleLostSample(): MonitorServiceSample(StatusKind::SAMPLE_LOST)
+   {
+   }
+
+   virtual ~SampleLostSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const SampleLostSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && sample_lost_status == other.sample_lost_status);
+   }
+
+   inline bool operator !=(
+           const SampleLostSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   eprosima::fastdds::statistics::SampleLostStatus_s sample_lost_status;
+};
+
+/*
+* Statuses size status data
+*/
+struct StatusesSizeSample : MonitorServiceSample
+{
+   StatusesSizeSample(): MonitorServiceSample(StatusKind::STATUSES_SIZE)
+   {
+   }
+
+   virtual ~StatusesSizeSample() = default;
+
+   void clear() final;
+
+   inline bool operator ==(
+           const StatusesSizeSample& other) const noexcept
+   {
+       return (MonitorServiceSample::operator ==(other) && statuses_size == other.statuses_size);
+   }
+
+   inline bool operator !=(
+           const StatusesSizeSample& other) const noexcept
+   {
+       return !(*this == other);
+   }
+
+   uint8_t statuses_size;
+};
 
 } //namespace statistics_backend
 } //namespace eprosima

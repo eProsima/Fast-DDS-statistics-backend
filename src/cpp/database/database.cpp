@@ -2421,6 +2421,36 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        IncompatibleQosSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch(entity->kind)
+    {
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+            status_data = datareader->monitor_service_data.incompatible_qos.back();
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+            status_data = datawriter->monitor_service_data.incompatible_qos.back();
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Unsupported IncompatibleQoS Status type and EntityKind combination");
+        }
+    }
+}
+
 bool Database::is_entity_present(
         const EntityId& entity_id) const noexcept
 {

@@ -24,12 +24,63 @@ void MonitorServiceSample::clear()
     src_ts = {};
 }
 
+void ProxySample::clear()
+{
+    MonitorServiceSample::clear();
+    entity_proxy.clear();
+}
+
+void ConnectionListSample::clear()
+{
+    MonitorServiceSample::clear();
+    connection_list.clear();
+}
+
 void IncompatibleQosSample::clear()
 {
     MonitorServiceSample::clear();
     incompatible_qos_status.total_count(0);
     incompatible_qos_status.last_policy_id(0);
-    incompatible_qos_status.policies(std::vector<eprosima::fastdds::statistics::QosPolicyCount_s>());
+    incompatible_qos_status.policies();
+}
+
+void InconsistentTopicSample::clear()
+{
+    MonitorServiceSample::clear();
+    inconsistent_topic_status.total_count(0);
+}
+
+void LivelinessLostSample::clear()
+{
+    MonitorServiceSample::clear();
+    liveliness_lost_status.total_count(0);
+}
+
+void LivelinessChangedSample::clear()
+{
+    MonitorServiceSample::clear();
+    liveliness_changed_status.alive_count(0);
+    liveliness_changed_status.not_alive_count(0);
+    liveliness_changed_status.last_publication_handle();
+}
+
+void DeadlineMissedSample::clear()
+{
+    MonitorServiceSample::clear();
+    deadline_missed_status.total_count(0);
+    deadline_missed_status.last_instance_handle();
+}
+
+void SampleLostSample::clear()
+{
+    MonitorServiceSample::clear();
+    sample_lost_status.total_count(0);
+}
+
+void StatusesSizeSample::clear()
+{
+    MonitorServiceSample::clear();
+    statuses_size = 0;
 }
 
 } // namespace statistics_backend

@@ -640,8 +640,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
         IncompatibleQosSample& sample,
         const StatisticsIncompatibleQoSStatus& item) const
 {
+    entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
     sample.incompatible_qos_status = item;
     sample.kind = StatusKind::INCOMPATIBLE_QOS;
+
     if(item.total_count())
     {
         sample.status = EntityStatus::ERROR;
@@ -650,8 +653,9 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     {
         sample.status = EntityStatus::OK;
     }
+
     std::string guid = deserialize_guid(local_entity_guid);
-    entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
     try
     {
         auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
@@ -1100,6 +1104,12 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             try
             {
                 process_sample_type(domain, entity, entity_kind, item.second->local_entity(), sample, item.second->value().incompatible_qos_status());
+
+                if(entity_kind!=EntityKind::DATAREADER && entity_kind!=EntityKind::DATAWRITER)
+                {
+                    throw BadParameter("Unsupported IncompatibleQoS Status type and EntityKind combination");
+                }
+
                 updated_entity = database_->insert(domain, entity, entity_kind, sample); 
                 details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::INCOMPATIBLE_QOS);
             }

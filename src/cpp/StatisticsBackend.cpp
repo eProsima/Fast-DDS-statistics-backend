@@ -687,6 +687,14 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         statistic);
 }
 
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        IncompatibleQosSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<IncompatibleQosSample>(entity_id, status_data);
+}
+
 Graph StatisticsBackend::get_graph()
 {
     return Graph();

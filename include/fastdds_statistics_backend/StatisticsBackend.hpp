@@ -406,6 +406,21 @@ public:
             StatisticKind statistic);
 
     /**
+     * @brief Get monitor service status data.
+     *
+     * Default method is called if StatusKind is invalid.
+     * 
+     * @param entity_id The id of the Entity whose status info is requested.
+     * @param status_data Status data to be filled.
+     * 
+     * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested StatusKind.
+     */
+    template <typename T>
+    static void get_status_data(
+            const EntityId& entity_id,
+            T& status_data);
+
+    /**
      * @brief Get the topology graph.
      *
      * @return Graph object describing the complete topology of the entities.

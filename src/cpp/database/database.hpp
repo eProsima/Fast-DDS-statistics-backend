@@ -332,6 +332,27 @@ public:
             Timestamp t_to);
 
     /**
+     * @brief Get service status data.
+     *
+     * Default method is called if StatusKind is invalid.
+     * 
+     * @param entity_id The id of the Entity whose status info is requested.
+     * @param status_data Status data to be filled.
+     * 
+     * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested StatusKind.
+     */
+    template <typename T>
+    void get_status_data(
+            const EntityId& entity_id,
+            T& status_data)
+    {
+        static_cast<void>(entity_id);
+        static_cast<void>(status_data);
+
+        throw BadParameter("Unsupported StatusKind");
+    }
+
+    /**
      * @brief Whether an entity id is present/exists in the database.
      *
      * \c entity_kind is accelerates the search, but it is not mandatory.
