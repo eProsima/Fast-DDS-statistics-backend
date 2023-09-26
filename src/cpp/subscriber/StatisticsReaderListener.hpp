@@ -23,9 +23,8 @@
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
 
-#include <topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
-#include <types/types.hpp>
 
 namespace eprosima {
 namespace statistics_backend {

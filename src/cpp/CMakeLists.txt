@@ -34,10 +34,8 @@ set(${PROJECT_NAME}_SOURCES
     subscriber/QosSerializer.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
-    topic_types/types.cxx
-    topic_types/typesv1.cxx
-    topic_types/typesPubSubTypes.cxx
     types/EntityId.cpp
+    types/types.cpp
     )
 
 # Configure config file

@@ -35,7 +35,6 @@
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
-#include <topic_types/monitorservice_types.h>
 #include <exception/Exception.hpp>
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
@@ -54,7 +53,6 @@ class DatabaseQueue
 
 public:
 
-    using StatisticsData = eprosima::fastdds::statistics::Data;
     using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsStatusKind = eprosima::fastdds::statistics::StatusKind;
 
