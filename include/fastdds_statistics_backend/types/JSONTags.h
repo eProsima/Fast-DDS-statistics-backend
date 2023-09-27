@@ -111,6 +111,8 @@ constexpr const char* FASTDDS_SPY_APP               = "FASTDDS SPY";
 constexpr const char* DDS_RECORDER_APP              = "DDS RECORDER";
 //! Identificator for a DDS Replayer app
 constexpr const char* DDS_REPLAYER_APP              = "DDS REPLAYER";
+//! Identificator for a AML-IP app
+constexpr const char* AML_IP_APP                    = "AML-IP";
 
 /////
 // Internal info
@@ -150,7 +152,7 @@ constexpr const char* entity_status_str[] =
 //! Conversion from AppId to string
 constexpr const char* app_id_str[] =
 {"unknown", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
- FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP};
+ FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP};
 
 /////
 // Data container

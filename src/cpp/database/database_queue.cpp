@@ -337,13 +337,13 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     // Check if any of these topics is in the current domain AND shares the data type
     EntityId topic_id;
-    for (const auto& topic_id_ : topic_ids)
+    for (const auto& topic_pair : topic_ids)
     {
-        if (topic_id_.first == info.domain_id)
+        if (topic_pair.first == info.domain_id)
         {
-            if(database_->is_topic_in_database(info.type_name, topic_id_.second))
+            if(database_->is_topic_in_database(info.type_name, topic_pair.second))
             {
-                topic_id = topic_id_.second;
+                topic_id = topic_pair.second;
                 //Found the correct topic
                 break;
             }

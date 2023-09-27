@@ -187,6 +187,9 @@ enum class AppId
 
     /// DDS Replayer App
     DDS_REPLAYER,
+
+    /// AML-IP App
+    AML_IP,
 };
 
 /**

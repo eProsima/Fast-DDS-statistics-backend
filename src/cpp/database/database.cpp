@@ -3547,37 +3547,44 @@ Graph Database::get_entity_subgraph_nts(
         entity_graph_updated = true;
     }
 
-    if (entity->kind == EntityKind::PROCESS)
+    switch(entity->kind)
     {
-        std::shared_ptr<const Process> process =
-                std::dynamic_pointer_cast<const Process>(entity);
-        entity_graph["pid"] =  process->pid;
-    }
-
-    if (entity->kind == EntityKind::PARTICIPANT)
-    {
-        std::shared_ptr<const DomainParticipant> participant =
-                std::dynamic_pointer_cast<const DomainParticipant>(entity);
-        if (entity_graph["app_id"] != app_id_str[(int)participant->app_id])
+        case(EntityKind::PROCESS):
         {
-            entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
-            entity_graph_updated = true;
+            std::shared_ptr<const Process> process =
+                    std::dynamic_pointer_cast<const Process>(entity);
+            entity_graph["pid"] =  process->pid;
+            break;
         }
-        if (entity_graph["app_metadata"] != participant->app_metadata)
+        case(EntityKind::PARTICIPANT):
         {
-            entity_graph["app_metadata"] =  participant->app_metadata;
-            entity_graph_updated = true;
+            std::shared_ptr<const DomainParticipant> participant =
+                    std::dynamic_pointer_cast<const DomainParticipant>(entity);
+            if (entity_graph["app_id"] != app_id_str[(int)participant->app_id])
+            {
+                entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
+                entity_graph_updated = true;
+            }
+            if (entity_graph["app_metadata"] != participant->app_metadata)
+            {
+                entity_graph["app_metadata"] =  participant->app_metadata;
+                entity_graph_updated = true;
+            }
+            break;
+        }
+        case(EntityKind::DATAWRITER):
+        case(EntityKind::DATAREADER):
+        {
+            std::shared_ptr<const DDSEndpoint> endpoint =
+                    std::dynamic_pointer_cast<const DDSEndpoint>(entity);
+            entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
+            break;
+        }
+        default:
+        {
+            break;
         }
     }
-
-    if (entity->kind == EntityKind::DATAWRITER ||
-            entity->kind == EntityKind::DATAREADER)
-    {
-        std::shared_ptr<const DDSEndpoint> endpoint =
-                std::dynamic_pointer_cast<const DDSEndpoint>(entity);
-        entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
-    }
-
 
     return entity_graph_updated;
 }
