@@ -635,15 +635,247 @@ template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
-        EntityKind& entity_kind,
+        const StatisticsGuid& local_entity_guid,
+        ProxySample& sample,
+        const std::vector<uint8_t>& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.entity_proxy = item;
+    sample.kind = StatusKind::PROXY;
+    sample.status = EntityStatus::OK;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ConnectionListSample& sample,
+        const std::vector<StatisticsConnection>& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.connection_list = item;
+    sample.kind = StatusKind::CONNECTION_LIST;
+    sample.status = EntityStatus::OK;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
         const StatisticsGuid& local_entity_guid,
         IncompatibleQosSample& sample,
         const StatisticsIncompatibleQoSStatus& item) const
 {
-    entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
 
     sample.incompatible_qos_status = item;
     sample.kind = StatusKind::INCOMPATIBLE_QOS;
+
+    if(item.total_count())
+    {
+        sample.status = EntityStatus::ERROR;
+    }
+    else
+    {
+        sample.status = EntityStatus::OK;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        InconsistentTopicSample& sample,
+        const StatisticsInconsistentTopicStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.inconsistent_topic_status = item;
+    sample.kind = StatusKind::INCONSISTENT_TOPIC;
+
+    // Appropriate behavior not yet implemented
+    logWarning(BACKEND_DATABASE_QUEUE,
+            "Warning processing INCONSISTENT_TOPIC status data. Status behavior not yet defined");
+    sample.status = EntityStatus::OK;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessLostSample& sample,
+        const StatisticsLivelinessLostStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.liveliness_lost_status = item;
+    sample.kind = StatusKind::LIVELINESS_LOST;
+
+    if(item.total_count())
+    {
+        sample.status = EntityStatus::WARNING;
+    }
+    else
+    {
+        sample.status = EntityStatus::OK;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessChangedSample& sample,
+        const StatisticsLivelinessChangedStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.liveliness_changed_status = item;
+    sample.kind = StatusKind::LIVELINESS_CHANGED;
+    sample.status = EntityStatus::OK;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        DeadlineMissedSample& sample,
+        const StatisticsDeadlineMissedStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.deadline_missed_status = item;
+    sample.kind = StatusKind::DEADLINE_MISSED;
+
+
+    if(item.total_count())
+    {
+        sample.status = EntityStatus::ERROR;
+    }
+    else
+    {
+        sample.status = EntityStatus::OK;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        SampleLostSample& sample,
+        const StatisticsSampleLostStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.sample_lost_status = item;
+    sample.kind = StatusKind::SAMPLE_LOST;
+
 
     if(item.total_count())
     {
@@ -1095,22 +1327,58 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     
     switch (front().second->status_kind())
     {
+        case StatisticsStatusKind::PROXY:
+        {
+            ProxySample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().entity_proxy());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::PROXY);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing PROXY status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::CONNECTION_LIST:
+        {
+            ConnectionListSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().connection_list());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::CONNECTION_LIST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing CONNECTION_LIST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
         case StatisticsStatusKind::INCOMPATIBLE_QOS:
         {
-            EntityKind entity_kind;
             IncompatibleQosSample sample;
             queue_item_type item = front();
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, entity_kind, item.second->local_entity(), sample, item.second->value().incompatible_qos_status());
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().incompatible_qos_status());
 
-                if(entity_kind!=EntityKind::DATAREADER && entity_kind!=EntityKind::DATAWRITER)
-                {
-                    throw BadParameter("Unsupported IncompatibleQoS Status type and EntityKind combination");
-                }
-
-                updated_entity = database_->insert(domain, entity, entity_kind, sample); 
+                updated_entity = database_->insert(domain, entity, sample); 
                 details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::INCOMPATIBLE_QOS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
@@ -1120,6 +1388,118 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
                         + std::string(
                             e.what()));
             }
+            break;
+        }
+        case StatisticsStatusKind::INCONSISTENT_TOPIC:
+        {
+            InconsistentTopicSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().inconsistent_topic_status());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::INCONSISTENT_TOPIC);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing INCONSISTENT_TOPIC status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::LIVELINESS_LOST:
+        {
+            LivelinessLostSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().liveliness_lost_status());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::LIVELINESS_LOST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing LIVELINESS_LOST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::LIVELINESS_CHANGED:
+        {
+            LivelinessChangedSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().liveliness_changed_status());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::LIVELINESS_CHANGED);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing LIVELINESS_CHANGED status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::DEADLINE_MISSED:
+        {
+            DeadlineMissedSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().deadline_missed_status());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::DEADLINE_MISSED);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing DEADLINE_MISSED status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::SAMPLE_LOST:
+        {
+            SampleLostSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample, item.second->value().sample_lost_status());
+
+                updated_entity = database_->insert(domain, entity, sample); 
+                details::StatisticsBackendData::get_instance()->on_problem_reported(domain, entity, StatusKind::SAMPLE_LOST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing SAMPLE_LOST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::STATUSES_SIZE:
+        {
+            //Not yet implemented
+            logWarning(BACKEND_DATABASE_QUEUE,
+                        "Warning processing STATUSES_SIZE status data. Not yet implemented");
             break;
         }
         default:

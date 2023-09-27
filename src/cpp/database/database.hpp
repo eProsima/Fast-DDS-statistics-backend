@@ -219,7 +219,6 @@ public:
      * @brief Insert a new monitor service sample into the database.
      * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
-     * @param entities_ptr_ Pointer to the entities of the same kind.
      * @param sample The sample to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
      *             * If the \c domain_id does not refer to a known domain.
@@ -230,7 +229,6 @@ public:
     bool insert(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            const EntityKind& entity_kind,
             const MonitorServiceSample& sample);
 
     /**
@@ -1104,11 +1102,9 @@ protected:
      *             * If the \c sample kind is StatusKind::INVALID.
      * @return True if the entity status has been modified.
      */
-    template <typename T>
     bool insert_nts(
             const EntityId& domain_id,
             const EntityId& entity_id,
-            const std::shared_ptr<std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>>& entities_ptr_,
             const MonitorServiceSample& sample);
 
     /**
@@ -1150,7 +1146,11 @@ protected:
      */
     template <typename T>
     bool update_entity_status_nts(
-    std::shared_ptr<T>& entity);
+    std::shared_ptr<T>& entity)
+    {
+        static_cast<void>(entity);
+        throw BadParameter("Unsupported EntityKind");
+    }
     
     /**
      * Get an entity given its EntityId. This method is not thread safe.
@@ -1409,6 +1409,18 @@ template<>
 void Database::insert_ddsendpoint_to_locator_nts(
         std::shared_ptr<DataReader>& endpoint,
         std::shared_ptr<Locator>& locator);
+
+template <>
+bool Database::update_entity_status_nts(
+        std::shared_ptr<DomainParticipant>& entity);
+
+template <>
+bool Database::update_entity_status_nts(
+        std::shared_ptr<DataReader>& entity);
+
+template <>
+bool Database::update_entity_status_nts(
+        std::shared_ptr<DataWriter>& entity);
 
 } //namespace database
 } //namespace statistics_backend

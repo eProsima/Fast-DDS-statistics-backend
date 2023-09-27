@@ -44,6 +44,41 @@ std::string to_string(
     return ss.str();
 }
 
+bool status_logic_nts(
+        const bool& entity_error,
+        const bool& entity_warning,
+        EntityStatus& entity_status)
+{
+    // Set entity status
+    if(entity_error)
+    {
+        if(entity_status != EntityStatus::ERROR)
+        {
+            entity_status = EntityStatus::ERROR;
+            return true;
+        }
+        return false;
+    }
+    else if(entity_warning)
+    {
+        if(entity_status != EntityStatus::WARNING)
+        {
+            entity_status = EntityStatus::WARNING;
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if(entity_status != EntityStatus::OK)
+        {
+            entity_status = EntityStatus::OK;
+            return true;
+        }
+        return false;
+    }
+}
+
 template<typename E>
 void clear_inactive_entities_from_map_(
         std::map<EntityId, std::shared_ptr<E>>& map)
@@ -840,33 +875,11 @@ void Database::insert(
 bool Database::insert(
         const EntityId& domain_id,
         const EntityId& entity_id,
-        const EntityKind& entity_kind,
         const MonitorServiceSample& sample)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
-    switch(entity_kind)
-    {
-        case(EntityKind::PARTICIPANT):
-        {
-            return insert_nts(domain_id, entity_id, std::make_shared<std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>>>(participants_), sample);
-            break;
-        }
-        case(EntityKind::DATAREADER):
-        {
-            return insert_nts(domain_id, entity_id, std::make_shared<std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>>(datareaders_), sample);
-            break;
-        }
-        case(EntityKind::DATAWRITER):
-        {
-            return insert_nts(domain_id, entity_id, std::make_shared<std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>>(datawriters_), sample);
-            break;
-        }
-        default:
-        {
-            return false;
-        }
-    }
+    return insert_nts(domain_id, entity_id, sample);
 }
 
 std::shared_ptr<Locator> Database::get_locator_nts(
@@ -1570,11 +1583,9 @@ void Database::insert_nts(
     static_cast<void>(sample);
 }
 
-template <typename T>
 bool Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
-        const std::shared_ptr<std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>>& entities_ptr_,
         const MonitorServiceSample& sample)
 {
     bool entity_updated = false;
@@ -1586,33 +1597,217 @@ bool Database::insert_nts(
 
     switch (sample.kind)
     {
-        case StatusKind::INCOMPATIBLE_QOS:
+        case StatusKind::PROXY:
         {
-            /* Check that the entity is a known reader */
-            auto domain_entities = (*entities_ptr_).find(domain_id);
-            if (domain_entities != (*entities_ptr_).end())
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const ProxySample& proxy = dynamic_cast<const ProxySample&>(sample);
+            switch(entity->kind)
             {
-                auto entity = domain_entities->second.find(entity_id);
-                if (entity != domain_entities->second.end())
+                case(EntityKind::PARTICIPANT):
                 {
-                    const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
-                    entity->second->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
-                    entity_updated = update_entity_status_nts<T>(entity->second);
+                    std::shared_ptr<const DomainParticipant> const_participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(const_participant);
+                    participant->monitor_service_data.proxy.push_back(proxy);
                     break;
                 }
+                case(EntityKind::DATAREADER):
+                {
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                    datareader->monitor_service_data.proxy.push_back(proxy);
+                    break;
+                }
+                case(EntityKind::DATAWRITER):
+                {
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                    datawriter->monitor_service_data.proxy.push_back(proxy);
+                    break;
+                }
+                default:
+                {
+                    throw BadParameter("Unsupported PROXY Status type and EntityKind combination");
+                }
             }
-            throw BadParameter(std::to_string(
-                        entity_id.value()) + " does not refer to a known participant in domain " + std::to_string(
-                        domain_id.value()));
             break;
         }
-        case StatusKind::INVALID:
+        case StatusKind::CONNECTION_LIST:
         {
-            throw BadParameter("Invalid DataKind");
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const ConnectionListSample& connection_list = dynamic_cast<const ConnectionListSample&>(sample);
+            switch(entity->kind)
+            {
+                case(EntityKind::PARTICIPANT):
+                {
+                    std::shared_ptr<const DomainParticipant> const_participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(const_participant);
+                    participant->monitor_service_data.connection_list.push_back(connection_list);
+                    break;
+                }
+                case(EntityKind::DATAREADER):
+                {
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                    datareader->monitor_service_data.connection_list.push_back(connection_list);
+                    break;
+                }
+                case(EntityKind::DATAWRITER):
+                {
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                    datawriter->monitor_service_data.connection_list.push_back(connection_list);
+                    break;
+                }
+                default:
+                {
+                    throw BadParameter("Unsupported CONNECTION_LIST Status type and EntityKind combination");
+                }
+            }
+            break;
+        }
+        case StatusKind::INCOMPATIBLE_QOS:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
+            switch(entity->kind)
+            {
+                case(EntityKind::DATAREADER):
+                {
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                    datareader->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
+                    entity_updated = update_entity_status_nts<DataReader>(datareader);
+                    break;
+                }
+                case(EntityKind::DATAWRITER):
+                {
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                    datawriter->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
+                    entity_updated = update_entity_status_nts<DataWriter>(datawriter);
+                    break;
+                }
+                default:
+                {
+                    throw BadParameter("Unsupported INCOMPATIBLE_QOS Status type and EntityKind combination");
+                }
+            }
+            break;
+        }
+        case StatusKind::INCONSISTENT_TOPIC:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const InconsistentTopicSample& inconsistent_topic = dynamic_cast<const InconsistentTopicSample&>(sample);
+            switch(entity->kind)
+            {
+                case(EntityKind::DATAREADER):
+                {
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                    datareader->monitor_service_data.inconsistent_topic.push_back(inconsistent_topic);
+                    entity_updated = update_entity_status_nts<DataReader>(datareader);
+                    break;
+                }
+                case(EntityKind::DATAWRITER):
+                {
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                    datawriter->monitor_service_data.inconsistent_topic.push_back(inconsistent_topic);
+                    entity_updated = update_entity_status_nts<DataWriter>(datawriter);
+                    break;
+                }
+                default:
+                {
+                    throw BadParameter("Unsupported INCONSISTENT_TOPIC Status type and EntityKind combination");
+                }
+            }
+            break;
+        }
+        case StatusKind::LIVELINESS_LOST:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const LivelinessLostSample& liveliness_lost = dynamic_cast<const LivelinessLostSample&>(sample);
+            if(entity->kind == EntityKind::DATAWRITER)
+            {
+                std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                datawriter->monitor_service_data.liveliness_lost.push_back(liveliness_lost);
+                entity_updated = update_entity_status_nts<DataWriter>(datawriter);
+                break;
+            }
+            else
+            {
+                throw BadParameter("Unsupported LIVELINESS_LOST Status type and EntityKind combination");
+            }
+            break;
+        }
+        case StatusKind::LIVELINESS_CHANGED:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const LivelinessChangedSample& liveliness_changed = dynamic_cast<const LivelinessChangedSample&>(sample);
+            if(entity->kind == EntityKind::DATAREADER)
+            {
+                std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                datareader->monitor_service_data.liveliness_changed.push_back(liveliness_changed);
+                break;
+            }
+            else
+            {
+                throw BadParameter("Unsupported LIVELINESS_CHANGED Status type and EntityKind combination");
+            }
+            break;
+        }
+        case StatusKind::DEADLINE_MISSED:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const DeadlineMissedSample& deadline_missed = dynamic_cast<const DeadlineMissedSample&>(sample);
+            switch(entity->kind)
+            {
+                case(EntityKind::DATAREADER):
+                {
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                    datareader->monitor_service_data.deadline_missed.push_back(deadline_missed);
+                    entity_updated = update_entity_status_nts<DataReader>(datareader);
+                    break;
+                }
+                case(EntityKind::DATAWRITER):
+                {
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+                    datawriter->monitor_service_data.deadline_missed.push_back(deadline_missed);
+                    entity_updated = update_entity_status_nts<DataWriter>(datawriter);
+                    break;
+                }
+                default:
+                {
+                    throw BadParameter("Unsupported DEADLINE_MISSED Status type and EntityKind combination");
+                }
+            }
+            break;
+        }
+        case StatusKind::SAMPLE_LOST:
+        {
+            std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+            const SampleLostSample& sample_lost = dynamic_cast<const SampleLostSample&>(sample);
+            if(entity->kind == EntityKind::DATAREADER)
+            {
+                std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+                datareader->monitor_service_data.sample_lost.push_back(sample_lost);
+                entity_updated = update_entity_status_nts<DataReader>(datareader);
+                break;
+            }
+            else
+            {
+                throw BadParameter("Unsupported SAMPLE_LOST Status type and EntityKind combination");
+            }
+            break;
         }
         default:
         {
-            break;
+            throw BadParameter("Unsupported StatusKind");
         }
     }
     return entity_updated;
@@ -2424,6 +2619,78 @@ std::vector<const StatisticsSample*> Database::select(
 template <>
 void Database::get_status_data(
         const EntityId& entity_id,
+        ProxySample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch(entity->kind)
+    {
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+            status_data = participant->monitor_service_data.proxy.back();
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+            status_data = datareader->monitor_service_data.proxy.back();
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+            status_data = datawriter->monitor_service_data.proxy.back();
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Unsupported PROXY Status type and EntityKind combination");
+        }
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        ConnectionListSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch(entity->kind)
+    {
+        case EntityKind::PARTICIPANT:
+        {
+            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
+            status_data = participant->monitor_service_data.connection_list.back();
+            break;
+        }
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+            status_data = datareader->monitor_service_data.connection_list.back();
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+            status_data = datawriter->monitor_service_data.connection_list.back();
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Unsupported CONNECTION_LIST Status type and EntityKind combination");
+        }
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
         IncompatibleQosSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
@@ -2446,8 +2713,128 @@ void Database::get_status_data(
         }
         default:
         {
-            throw BadParameter("Unsupported IncompatibleQoS Status type and EntityKind combination");
+            throw BadParameter("Unsupported INCOMPATIBLE_QOS Status type and EntityKind combination");
         }
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        InconsistentTopicSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch(entity->kind)
+    {
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+            status_data = datareader->monitor_service_data.inconsistent_topic.back();
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+            status_data = datawriter->monitor_service_data.inconsistent_topic.back();
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Unsupported INCONSISTENT_TOPIC Status type and EntityKind combination");
+        }
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        LivelinessLostSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    if(entity->kind == EntityKind::DATAWRITER)
+    {
+        std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+        status_data = datawriter->monitor_service_data.liveliness_lost.back();
+    }
+    else
+    {
+        throw BadParameter("Unsupported LIVELINES_LOST Status type and EntityKind combination");
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        LivelinessChangedSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    if(entity->kind == EntityKind::DATAREADER)
+    {
+        std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+        status_data = datareader->monitor_service_data.liveliness_changed.back();
+    }
+    else
+    {
+        throw BadParameter("Unsupported LIVELINESS_CHANGED Status type and EntityKind combination");
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        DeadlineMissedSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch(entity->kind)
+    {
+        case EntityKind::DATAREADER:
+        {
+            std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+            status_data = datareader->monitor_service_data.deadline_missed.back();
+            break;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+            status_data = datawriter->monitor_service_data.deadline_missed.back();
+            break;
+        }
+        default:
+        {
+            throw BadParameter("Unsupported DEADLINE_MISSED Status type and EntityKind combination");
+        }
+    }
+}
+
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        SampleLostSample& status_data)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    if(entity->kind == EntityKind::DATAREADER)
+    {
+        std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+        status_data = datareader->monitor_service_data.sample_lost.back();
+    }
+    else
+    {
+        throw BadParameter("Unsupported SAMPLE_LOST Status type and EntityKind combination");
     }
 }
 
@@ -3195,48 +3582,58 @@ Graph Database::get_entity_subgraph_nts(
     return entity_graph_updated;
 }
 
-template <typename T>
+template <>
 bool Database::update_entity_status_nts(
-    std::shared_ptr<T>& entity)
+    std::shared_ptr<DataReader>& entity)
 {
     bool entity_error = false;
     bool entity_warning = false;
     
     // Check IncompatibleQoS Status
-    if(entity->monitor_service_data.incompatible_qos[0].status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.incompatible_qos.back().status == EntityStatus::ERROR)
     {
         entity_error = true;
     }
+    // Check DeadlineMissed Status (error does not mean entity error but warning)
+    if(entity->monitor_service_data.deadline_missed.back().status == EntityStatus::ERROR)
+    {
+        entity_warning = true;
+    }
+    // Check SampleLost Status (error does not mean entity error but warning)
+    if(entity->monitor_service_data.sample_lost.back().status == EntityStatus::ERROR)
+    {
+        entity_warning = true;
+    }
 
     // Set entity status
-    if(entity_error)
+    return status_logic_nts(entity_error, entity_warning, entity->status);
+}
+
+template <>
+bool Database::update_entity_status_nts(
+    std::shared_ptr<DataWriter>& entity)
+{
+    bool entity_error = false;
+    bool entity_warning = false;
+    
+    // Check IncompatibleQoS Status
+    if(entity->monitor_service_data.incompatible_qos.back().status == EntityStatus::ERROR)
     {
-        if(entity->status != EntityStatus::ERROR)
-        {
-            entity->status = EntityStatus::ERROR;
-            return true;
-        }
-        return false;
+        entity_error = true;
     }
-    else if(entity_warning)
+    // Check LivelinessLost Status
+    if(entity->monitor_service_data.liveliness_lost.back().status == EntityStatus::WARNING)
     {
-        if(entity->status != EntityStatus::WARNING)
-        {
-            entity->status = EntityStatus::WARNING;
-            return true;
-        }
-        return false;
+        entity_warning = true;
     }
-    else
+    // Check DeadlineMissed Status (error does not mean entity error but warning)
+    if(entity->monitor_service_data.deadline_missed.back().status == EntityStatus::ERROR)
     {
-        if(entity->status != EntityStatus::OK)
-        {
-            entity->status = EntityStatus::OK;
-            return true;
-        }
-        return false;
+        entity_warning = true;
     }
 
+    // Set entity status
+    return status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
 void Database::set_alias(

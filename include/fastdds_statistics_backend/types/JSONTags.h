@@ -85,32 +85,32 @@ constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 /////
 // Entity status
 
-//! Key Tag for an OK status of an entity
-constexpr const char* OK_TAG                        = "ok";
-//! Key Tag for a Warning status of an entity
-constexpr const char* WARNING_TAG                   = "warning";
-//! Key Tag for an Error status of an entity
-constexpr const char* ERROR_TAG                     = "error";
+//! OK status of an entity
+constexpr const char* OK_STATUS                        = "OK";
+//! arning status of an entity
+constexpr const char* WARNING_STATUS                   = "WARNING";
+//! Error status of an entity
+constexpr const char* ERROR_STATUS                     = "ERROR";
 
 /////
 // App id
 
-//! Key Tag for a Fast DDS Statistics Backend app
-constexpr const char* FASTDDS_MONITOR_TAG           = "fastdds_monitor";
-//! Key Tag for a DDS Router app
-constexpr const char* DDS_ROUTER_TAG                = "dds_router";
-//! Key Tag for a Shapes Demo app
-constexpr const char* SHAPES_DEMO_TAG               = "shapes_demo";
-//! Key Tag for a Integration Service app
-constexpr const char* INTEGRATION_SERVICE_TAG       = "integration_service";
-//! Key Tag for a Fast DDS Visualizer app
-constexpr const char* FASTDDS_VISUALIZER_TAG        = "fastdds_visualizer";
-//! Key Tag for a Fast DDS Spy app
-constexpr const char* FASTDDS_SPY_TAG               = "fastdds_spy";
-//! Key Tag for a DDS Recorder app
-constexpr const char* DDS_RECORDER_TAG              = "dds_recorder";
-//! Key Tag for a DDS Replayer app
-constexpr const char* DDS_REPLAYER_TAG              = "dds_replayer";
+//! Identificator for a Fast DDS Statistics Backend app
+constexpr const char* FASTDDS_MONITOR_APP           = "FASTDDS MONITOR";
+//! Identificator for a DDS Router app
+constexpr const char* DDS_ROUTER_APP                = "DDS ROUTER";
+//! Identificator for a Shapes Demo app
+constexpr const char* SHAPES_DEMO_APP               = "SHAPES DEMO";
+//! Identificator for a Integration Service app
+constexpr const char* INTEGRATION_SERVICE_APP       = "INTEGRATION SERVICE";
+//! Identificator for a Fast DDS Visualizer app
+constexpr const char* FASTDDS_VISUALIZER_APP        = "FASTDDS VISUALIZER";
+//! Identificator for a Fast DDS Spy app
+constexpr const char* FASTDDS_SPY_APP               = "FASTDDS SPY";
+//! Identificator for a DDS Recorder app
+constexpr const char* DDS_RECORDER_APP              = "DDS RECORDER";
+//! Identificator for a DDS Replayer app
+constexpr const char* DDS_REPLAYER_APP              = "DDS REPLAYER";
 
 /////
 // Internal info
@@ -146,11 +146,11 @@ constexpr const char* entity_kind_str[] =
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
 //! Conversion from EntityStatus to string
 constexpr const char* entity_status_str[] =
-{OK_TAG, WARNING_TAG, ERROR_TAG};
+{OK_STATUS, WARNING_STATUS, ERROR_STATUS};
 //! Conversion from AppId to string
 constexpr const char* app_id_str[] =
-{"unknown", FASTDDS_MONITOR_TAG, DDS_ROUTER_TAG, SHAPES_DEMO_TAG, INTEGRATION_SERVICE_TAG, FASTDDS_VISUALIZER_TAG,
- FASTDDS_SPY_TAG, DDS_RECORDER_TAG, DDS_REPLAYER_TAG};
+{"unknown", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
+ FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP};
 
 /////
 // Data container

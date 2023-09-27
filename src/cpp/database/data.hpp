@@ -361,9 +361,29 @@ struct DataWriterMonitorServiceData : public Data
             bool clear_last_reported) override;
 
     /*
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+    /*
      * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
      */
     details::DataContainer<IncompatibleQosSample> incompatible_qos;
+    /*
+     * Inconsistent Topic Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<InconsistentTopicSample> inconsistent_topic;
+    /*
+     * Liveliness Lost Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<LivelinessLostSample> liveliness_lost;
+    /*
+     * Deadline Missed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<DeadlineMissedSample> deadline_missed;
 };
 
 struct DataReaderMonitorServiceData : public Data
@@ -375,9 +395,33 @@ struct DataReaderMonitorServiceData : public Data
             bool clear_last_reported) override;
 
     /*
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+    /*
      * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
      */
     details::DataContainer<IncompatibleQosSample> incompatible_qos;
+    /*
+     * Inconsistent Topic Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<InconsistentTopicSample> inconsistent_topic;
+    /*
+     * Liveliness Changed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<LivelinessChangedSample> liveliness_changed;
+    /*
+     * Deadline Missed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<DeadlineMissedSample> deadline_missed;
+    /*
+     * Sample Lost Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<SampleLostSample> sample_lost;
 };
 
 struct DomainParticipantMonitorServiceData : public Data
@@ -389,9 +433,14 @@ struct DomainParticipantMonitorServiceData : public Data
             bool clear_last_reported) override;
 
     /*
-     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
      */
-    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+
 };
 
 } //namespace database

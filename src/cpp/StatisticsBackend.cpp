@@ -690,9 +690,65 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
 template <>
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
+        ProxySample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<ProxySample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        ConnectionListSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<ConnectionListSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
         IncompatibleQosSample& status_data)
 {
     StatisticsBackendData::get_instance()->database_->get_status_data<IncompatibleQosSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        InconsistentTopicSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<InconsistentTopicSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        LivelinessLostSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessLostSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        LivelinessChangedSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessChangedSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        DeadlineMissedSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<DeadlineMissedSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        SampleLostSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<SampleLostSample>(entity_id, status_data);
 }
 
 Graph StatisticsBackend::get_graph()

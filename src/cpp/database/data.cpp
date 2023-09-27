@@ -90,7 +90,13 @@ void DataReaderMonitorServiceData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {
+    proxy.clear(t_to);
+    connection_list.clear(t_to);
     incompatible_qos.clear(t_to);
+    liveliness_changed.clear(t_to);
+    inconsistent_topic.clear(t_to);
+    deadline_missed.clear(t_to);
+    sample_lost.clear(t_to);
     static_cast<void>(clear_last_reported);
 }
 
@@ -98,7 +104,12 @@ void DataWriterMonitorServiceData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {
+    proxy.clear(t_to);
+    connection_list.clear(t_to);
     incompatible_qos.clear(t_to);
+    liveliness_lost.clear(t_to);
+    inconsistent_topic.clear(t_to);
+    deadline_missed.clear(t_to);
     static_cast<void>(clear_last_reported);
 }
 
@@ -106,7 +117,8 @@ void DomainParticipantMonitorServiceData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {
-    incompatible_qos.clear(t_to);
+    proxy.clear(t_to);
+    connection_list.clear(t_to);
     static_cast<void>(clear_last_reported);
 }
 

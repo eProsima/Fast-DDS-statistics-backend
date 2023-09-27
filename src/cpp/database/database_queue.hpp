@@ -65,6 +65,12 @@ public:
     using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
     using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
     using StatisticsIncompatibleQoSStatus = eprosima::fastdds::statistics::IncompatibleQoSStatus_s;
+    using StatisticsInconsistentTopicStatus = eprosima::fastdds::statistics::InconsistentTopicStatus_s;
+    using StatisticsConnection = eprosima::fastdds::statistics::Connection;
+    using StatisticsLivelinessLostStatus = eprosima::fastdds::statistics::LivelinessLostStatus_s;
+    using StatisticsLivelinessChangedStatus = eprosima::fastdds::statistics::LivelinessChangedStatus_s;
+    using StatisticsDeadlineMissedStatus = eprosima::fastdds::statistics::DeadlineMissedStatus_s;
+    using StatisticsSampleLostStatus = eprosima::fastdds::statistics::SampleLostStatus_s;
     using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
     using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
     using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
@@ -542,7 +548,6 @@ public:
      *
      * @param[out] domain Buffer to receive the ID of the domain to which the \p entity belongs
      * @param[out] entity Buffer to receive the ID of the entity to which the sample refers
-     * @param[out] entity_kind Buffer to receive the entity_kind of the entity to which the sample refers
      * @param[in]  local_entity_guid The GUID of the entity reporting status data
      * @param[out] sample Buffer to receive the constructed sample
      * @param[in]  item The MonitorServiceData we want to process
@@ -551,19 +556,17 @@ public:
     void process_sample_type(
             EntityId& domain,
             EntityId& entity,
-            EntityKind& entity_kind,
             const StatisticsGuid& local_entity_guid,
             Q& sample,
             const R& item) const
     {
         static_cast<void>(domain);
         static_cast<void>(entity);
-        static_cast<void>(entity_kind);
         static_cast<void>(local_entity_guid);
         static_cast<void>(sample);
         static_cast<void>(item);
 
-        throw BadParameter("Unsupported Sample type and Data type combination");
+        throw BadParameter("Unsupported Sample type and MonitorServiceStatus type combination");
     }
 protected:
 
@@ -718,10 +721,72 @@ template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
-        EntityKind& entity_kind,
         const StatisticsGuid& local_entity_guid,
         IncompatibleQosSample& sample,
         const DatabaseQueue::StatisticsIncompatibleQoSStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        InconsistentTopicSample& sample,
+        const DatabaseQueue::StatisticsInconsistentTopicStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ProxySample& sample,
+        const std::vector<uint8_t>& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ConnectionListSample& sample,
+        const std::vector<StatisticsConnection>& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessLostSample& sample,
+        const StatisticsLivelinessLostStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessChangedSample& sample,
+        const StatisticsLivelinessChangedStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        DeadlineMissedSample& sample,
+        const StatisticsDeadlineMissedStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        SampleLostSample& sample,
+        const StatisticsSampleLostStatus& item) const;
 
 } //namespace database
 } //namespace statistics_backend
