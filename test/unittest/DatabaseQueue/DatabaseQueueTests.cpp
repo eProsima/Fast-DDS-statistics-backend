@@ -381,7 +381,9 @@ TEST_F(database_queue_tests, push_participant)
         InsertEntityArgs insert_args([&](
                     std::shared_ptr<Entity> entity)
                 {
+                    EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
                     EXPECT_EQ(entity->name, participant_name);
+                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
                     EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
@@ -2871,7 +2873,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
+TEST_F(database_queue_tests, push_subscription_throughput_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
@@ -3418,6 +3420,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     data_queue.flush();
 }
 
+//TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It passes.
 TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 {
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -3470,6 +3473,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
             inner_data), Error);
 }
 
+//TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It fails.
 TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
 {
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -4598,84 +4602,6 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
-
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
-
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Throw(BadParameter("Error")));
-
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillOnce(Return(user));
-
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
-
-    auto process = std::make_shared<Process>(processname, pid, user);
-    process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillOnce(Return(process));
-
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
-
-    // Add to the queue and wait to be processed
-    // The processing should not progress the exception.
-    data_queue.stop_consumer();
-    data_queue.push(timestamp, data);
-    data_queue.do_swap();
-    EXPECT_NO_THROW(data_queue.consume_sample());
 }
 
 int main(

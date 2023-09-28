@@ -356,7 +356,6 @@ void StatisticsBackendData::on_domain_graph_update(
     {
         physical_listener_->on_domain_view_graph_update(entity_id);
     }
-    return;
 }
 
 void StatisticsBackendData::stop_monitor(

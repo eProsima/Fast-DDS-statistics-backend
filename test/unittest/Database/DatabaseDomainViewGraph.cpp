@@ -350,7 +350,7 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         database.update_participant_in_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
 
         // Load reference graph
-        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
 
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
@@ -401,7 +401,7 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
         database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Load reference graph
-        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+        load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
 
         ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
     }
@@ -563,7 +563,7 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     // Undiscovery second participant
-    load_file(DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE, json_graph);
+    load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
     database.change_entity_status(participant_id_2, false);
     database.regenerate_domain_graph(domain_id);
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));

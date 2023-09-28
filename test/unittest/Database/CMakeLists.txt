@@ -741,7 +741,7 @@ target_link_libraries(database_domain_view_graph_tests PUBLIC
 
 get_win32_path_dependencies(database_domain_view_graph_tests TEST_FRIENDLY_PATH)
 
-set(DATABASEQUEUE_TEST_LIST
+set(DATABASE_DOMAIN_VIEW_GRAPH_TEST_LIST
     complete_with_two_participants
     host_insert_failure
     user_insert_failure
@@ -749,7 +749,7 @@ set(DATABASEQUEUE_TEST_LIST
     regenerate_graph_functionality
     )
 
-foreach(test_name ${DATABASEQUEUE_TEST_LIST})
+foreach(test_name ${DATABASE_DOMAIN_VIEW_GRAPH_TEST_LIST})
     add_test(NAME database_domain_view_graph_tests.${test_name}
             COMMAND database_domain_view_graph_tests
             --gtest_filter=database_domain_view_graph_tests.${test_name}:*/database_domain_view_graph_tests.${test_name}/*)

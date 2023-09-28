@@ -26,8 +26,8 @@ constexpr const char* DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE =
 constexpr const char* DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE =
         "../Resources/domain_view_graph_undiscover_endpoint.json";
 
-constexpr const char* DOMAIN_VIEW_GRAPH_EMPTY_DUMP_FILE =
-        "../Resources/domain_view_graph_empty.json";
+constexpr const char* DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE =
+        "../Resources/domain_view_graph_empty_domain.json";
 
 constexpr const char* DOMAIN_VIEW_GRAPH_HOST_INSERT_FAILURE_DUMP_FILE =
         "../Resources/domain_view_graph_host_insert_failure.json";

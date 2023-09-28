@@ -71,10 +71,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_undiscover_endpoint
     ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_undiscover_endpoint.json
     COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_empty.json
-    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_empty.json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_empty_domain.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_empty_domain.json
     COPYONLY)
-
+    
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_host_insert_failure.json
     ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_host_insert_failure.json
     COPYONLY)
@@ -98,3 +98,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_backend_get_graph.j
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json
     ${CMAKE_CURRENT_BINARY_DIR}/old_complex_dump.json
     COPYONLY)
+    

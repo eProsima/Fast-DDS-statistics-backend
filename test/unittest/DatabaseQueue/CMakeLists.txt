@@ -75,7 +75,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_publication_throughput
         push_publication_throughput_no_writer
         push_subscription_throughput
-        push_subscription_throughput_no_reder
+        push_subscription_throughput_no_reader
         push_rtps_sent
         push_rtps_sent_no_writer
         push_rtps_sent_no_locator
