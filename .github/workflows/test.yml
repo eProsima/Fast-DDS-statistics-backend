@@ -58,7 +58,7 @@ jobs:
       - name: Install Fast-CDR
         shell: pwsh
         run: >
-          git clone https://github.com/eProsima/Fast-CDR.git --branch 1.1.x;
+          git clone https://github.com/eProsima/Fast-CDR.git --branch master;
           cmake -Ax64 -T host=x64 -B build\fastcdr Fast-CDR;
           cmake --build build\fastcdr --config ${{ matrix.cmake-config }} --target install;
 
