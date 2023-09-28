@@ -1880,6 +1880,13 @@ void Database::link_participant_with_process_nts(
     }
 }
 
+const std::shared_ptr<const Entity> Database::get_entity(
+        const EntityId& entity_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_nts(entity_id);
+}
+
 const std::shared_ptr<const Entity> Database::get_entity_nts(
         const EntityId& entity_id) const
 {
@@ -3675,6 +3682,14 @@ void Database::set_alias_nts(
             }
         }
     }
+}
+
+const std::vector<std::shared_ptr<const Entity>> Database::get_entities(
+        EntityKind entity_kind,
+        const EntityId& entity_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entities_nts(entity_kind, entity_id);
 }
 
 const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(

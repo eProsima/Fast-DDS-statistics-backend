@@ -412,7 +412,6 @@ public:
      * 
      * @param entity_id The id of the Entity whose status info is requested.
      * @param status_data Status data to be filled.
-     * 
      * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested StatusKind.
      */
     template <typename T>
@@ -431,7 +430,7 @@ public:
      * @brief Get the domain view graph.
      *
      * @param domain_id EntityId from domain whose graph is delivered.
-     *
+     * @throws eprosima::statistics_backend::BadParameter if there is no graph for the specified domain id.
      * @return Graph object describing per domain topology of the entities.
      */
     static Graph get_domain_view_graph(

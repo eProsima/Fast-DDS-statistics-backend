@@ -41,7 +41,6 @@ using namespace eprosima::fastcdr::exception;
 
 namespace eprosima {
 
-
 }
 
 namespace statistics {
@@ -135,7 +134,6 @@ std::array<uint8_t, 4>& EntityId_s::value()
 {
     return m_value;
 }
-
 
 
 
@@ -605,7 +603,6 @@ eprosima::fastdds::statistics::detail::SequenceNumber_s& SampleIdentity_s::seque
 {
     return m_sequence_number;
 }
-
 
 
 

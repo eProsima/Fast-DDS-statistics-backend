@@ -38,8 +38,8 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -99,8 +99,8 @@ add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 target_include_directories(calling_user_listeners_tests PRIVATE
@@ -283,8 +283,8 @@ add_executable(init_monitor_tests InitMonitorTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -344,8 +344,8 @@ add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -422,8 +422,8 @@ add_executable(get_data_tests GetDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -513,8 +513,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
     if(MSVC)
@@ -575,8 +575,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
     if(MSVC)
@@ -631,8 +631,8 @@ add_executable(backend_dump_tests BackendDumpTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -685,8 +685,8 @@ add_executable(clear_statistics_data_tests ClearDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
 if(MSVC)
@@ -740,8 +740,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
 
     if(MSVC)

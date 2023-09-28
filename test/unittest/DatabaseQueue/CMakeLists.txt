@@ -21,7 +21,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp

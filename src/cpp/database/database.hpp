@@ -376,6 +376,34 @@ public:
     std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& dds_endpoints();
 
     /**
+     * Get an entity given its EntityId.
+     *
+     * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return A constant shared pointer to the Entity.
+     */
+    const std::shared_ptr<const Entity> get_entity(
+            const EntityId& entity_id) const;
+
+    /**
+     * Get all entities of a given EntityKind related to another entity.
+     *
+     * In case the \c entity_id is EntityId::all(), all entities of type \c entity_type are returned.
+     *
+     * @param entity_id constant reference to the EntityId of the entity to which the returned
+     *                  entities are related.
+     * @param entity_kind The EntityKind of the fetched entities.
+     * @throws eprosima::statistics_backend::BadParameter in the following case:
+     *            * if the \c entity_kind is \c INVALID.
+     *            * if the \c entity_id does not reference a entity contained in the database or is not EntityId::all().
+     *            * if the EntityKind of the Entity with \c entity_id is \c INVALID.
+     * @return A constant vector of shared pointers to the entities
+     */
+    const std::vector<std::shared_ptr<const Entity>> get_entities(
+            EntityKind entity_kind,
+            const EntityId& entity_id) const;
+
+    /**
      * Get all EntityIds of a given EntityKind related to another entity.
      *
      * In case the \c entity_id is EntityId::all(), all EntityIds of type \c entity_type are returned.
@@ -434,8 +462,7 @@ public:
      * @brief Get the entity kind of an entity that matches with the requested GUID.
      *
      * @param guid The GUID of the entities to search for.
-     * @throws eprosima::statistics_backend::BadParameter in the following cases:
-     *             * if there is no entity with the given parameters.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given parameters.
      * @return The EntityKind of the matching entity.
      */
     EntityKind get_entity_kind_by_guid(
@@ -465,7 +492,7 @@ public:
      * @brief Get the specified domain view graph from database.
      *
      * @param domain Domain from which graph is delivered.
-     *
+     * @throws eprosima::statistics_backend::BadParameter if there is no graph for the specified domain id.
      * @return Graph object describing topology of the entities in the domain.
      */
     Graph get_domain_view_graph(
@@ -1094,7 +1121,6 @@ protected:
      *
      * @param domain_id The EntityId of the domain that contains the entity.
      * @param entity_id The EntityId to which the sample relates.
-     * @param entities_ptr_ Pointer to the entities of the same kind.
      * @param sample The sample to be inserted.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
      *             * If the \c domain_id does not refer to a known domain.
@@ -1141,7 +1167,7 @@ protected:
      * @brief Check if the entity status should be updated depending on its monitor service status data
      *
      * @param entity The Entity that might be updated.
-     *
+     * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested EntityKind.
      * @return True if entity has been updated
      */
     template <typename T>
@@ -1166,7 +1192,7 @@ protected:
      * @brief Get the specified domain view graph from database. This method is not thread safe.
      *
      * @param domain Domain from which graph is delivered.
-     *
+     * @throws eprosima::statistics_backend::BadParameter if there is no graph for the specified domain id.
      * @return Graph object describing topology of the entities in the domain.
      */
     Graph get_domain_view_graph_nts(
