@@ -138,7 +138,7 @@ EntityId DatabaseEntityQueue::process_participant(
             process_pid = info.process.substr(separator_pos + 1);
         }
 
-        database_->insert_new_physical_entities(
+        database_->process_physical_entities(
             info.host,
             info.user,
             process_name,

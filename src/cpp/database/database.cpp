@@ -165,7 +165,7 @@ EntityId Database::insert_new_participant(
     return entity_id;
 }
 
-void Database::insert_new_physical_entities(
+void Database::process_physical_entities(
     const std::string& host_name,
     const std::string& user_name,
     const std::string& process_name,
@@ -3666,10 +3666,10 @@ void Database::set_alias_nts(
     std::shared_ptr<Entity> entity = std::const_pointer_cast<Entity>(const_entity);
     if (entity->alias != alias)
     {
+        entity->alias = alias;
         auto domains = get_entities_nts(EntityKind::DOMAIN, entity_id);
         if (!domains.empty())
         {
-            entity->alias = alias;
             if(update_graph_on_updated_entity_nts(domains[0]->id, entity_id))
             {
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database

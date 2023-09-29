@@ -21,6 +21,7 @@
 
 #include "fastdds/rtps/common/Guid.h"
 #include "fastdds/rtps/common/Locator.h"
+#include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include "database/entities.hpp"
 
@@ -52,10 +53,48 @@ inline std::chrono::system_clock::time_point nanoseconds_to_systemclock(
 
 namespace database {
 
-template <typename T>
 class Database
 {
 public:
+
+    MOCK_METHOD7(insert_new_participant, EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata));
+
+    MOCK_METHOD7(process_physical_entities, void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids));
+
+    MOCK_METHOD2(is_topic_in_database, bool(
+                const std::string& topic_type,
+                const EntityId& topic_id));
+
+    MOCK_METHOD4(insert_new_topic, EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id));
+
+    MOCK_METHOD9(insert_new_endpoint, EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id));
 
     MOCK_METHOD1(insert, EntityId(
                 std::shared_ptr<Entity> entity));
@@ -65,10 +104,9 @@ public:
                 const EntityId& entity_id,
                 const StatisticsSample& sample));
 
-    MOCK_METHOD4(insert, void(
+    MOCK_METHOD3(insert, bool(
                 const EntityId& domain_id,
                 const EntityId& entity_id,
-                const EntityKind& entity_kind,
                 const MonitorServiceSample& sample));
 
     MOCK_METHOD1(erase, void(
@@ -163,7 +201,7 @@ public:
     MOCK_CONST_METHOD1(get_domain_view_graph, Graph(
                 const EntityId& domain_id));
 
-    MOCK_CONST_METHOD2(update_graph_on_updated_entity, void(
+    MOCK_CONST_METHOD2(update_graph_on_updated_entity, bool(
                 const EntityId& domain_id,
                 const EntityId& entity_id));
 

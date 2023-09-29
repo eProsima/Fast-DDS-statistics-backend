@@ -28,7 +28,7 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    )
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 ###############################################################################
 # Sample tests
@@ -443,7 +443,7 @@ set(LIBRARY_SOURCES_CLEAR_TEST
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    )
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 add_executable(database_clear_tests DatabaseClearTests.cpp ${LIBRARY_SOURCES_CLEAR_TEST})
 
@@ -709,7 +709,7 @@ endforeach()
 # Database: database domain view graph tests
 ###############################################################################
 # Specific sources as it needs StatisticsBackendData mock
-add_executable(database_domain_view_graph_tests DatabaseDomainViewGraph.cpp
+add_executable(database_domain_view_graph_tests DatabaseDomainViewGraphTests.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
@@ -719,7 +719,7 @@ ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
 ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
 ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-)
+${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(database_domain_view_graph_tests

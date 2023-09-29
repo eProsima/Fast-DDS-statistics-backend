@@ -28,7 +28,7 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    )
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 add_executable(entitymetatraffic_tests EntityMetatrafficTests.cpp ${LIBRARY_SOURCES})
 

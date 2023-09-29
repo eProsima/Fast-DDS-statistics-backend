@@ -5,7 +5,7 @@
             "alias": "host2",
             "kind": "host",
             "metatraffic": false,
-            "status": "ok",
+            "status": "OK",
             "users": {
                 "3": {
                     "alias": "user2",
@@ -19,57 +19,57 @@
                             "participants": {
                                 "8": {
                                     "alias": "participant1",
-                                    "app_id": "unknown",
+                                    "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
                                     "endpoints": {},
                                     "kind": "participant",
                                     "metatraffic": false,
-                                    "status": "ok"
+                                    "status": "OK"
                                 },
                                 "9": {
                                     "alias": "participant2",
-                                    "app_id": "unknown",
+                                    "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
                                     "endpoints": {
                                         "13": {
                                             "alias": "datareader1",
                                             "kind": "datareader",
                                             "metatraffic": false,
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "11"
                                         },
                                         "15": {
                                             "alias": "datareader2",
                                             "kind": "datareader",
                                             "metatraffic": false,
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "11"
                                         },
                                         "17": {
                                             "alias": "datawriter1",
                                             "kind": "datawriter",
                                             "metatraffic": false,
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "11"
                                         },
                                         "19": {
                                             "alias": "datawriter2",
                                             "kind": "datawriter",
                                             "metatraffic": false,
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "11"
                                         }
                                     },
                                     "kind": "participant",
                                     "metatraffic": false,
-                                    "status": "ok"
+                                    "status": "OK"
                                 }
                             },
                             "pid": "345",
-                            "status": "ok"
+                            "status": "OK"
                         }
                     },
-                    "status": "ok"
+                    "status": "OK"
                 }
             }
         }

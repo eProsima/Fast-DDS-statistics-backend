@@ -18,7 +18,9 @@
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds/rtps/common/RemoteLocators.hpp>
+#include "fastdds/rtps/common/Locator.h"
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
@@ -33,29 +35,214 @@ using ::testing::StrictMock;
 using ::testing::Throw;
 
 using namespace eprosima::fastdds::statistics;
+using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::statistics_backend::subscriber;
 
 using EntityId = eprosima::statistics_backend::EntityId;
 using EntityKind = eprosima::statistics_backend::EntityKind;
 
-struct InsertEntityArgs
+struct InsertParticipantArgs
 {
-    InsertEntityArgs (
-            std::function<EntityId(std::shared_ptr<Entity>)> func)
+    InsertParticipantArgs (
+            std::function<EntityId(                
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const EntityStatus& status,
+            const AppId& app_id,
+            const std::string& app_metadata)> func)
         : callback_(func)
     {
     }
 
     EntityId insert(
-            std::shared_ptr<Entity> entity)
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const EntityStatus& status,
+            const AppId& app_id,
+            const std::string& app_metadata)
     {
-        entity_ = entity;
-        return callback_(entity);
+        name_ = name;
+        qos_ = qos;
+        guid_ = guid;
+        domain_id_ = domain_id;
+        status_ = status;
+        app_id_ = app_id;
+        app_metadata_ = app_metadata;
+        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata);
     }
 
-    std::function<EntityId(std::shared_ptr<Entity> entity)> callback_;
-    std::shared_ptr<Entity> entity_;
+    std::function<EntityId(                
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const EntityStatus& status,
+            const AppId& app_id,
+            const std::string& app_metadata)> callback_;
+
+    std::string name_;
+    Qos qos_;
+    std::string guid_;
+    EntityId domain_id_;
+    EntityStatus status_;
+    AppId app_id_;
+    std::string app_metadata_;
+};
+
+struct ProcessPhysicalArgs
+{
+    ProcessPhysicalArgs (
+            std::function<void(                
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids)> func)
+        : callback_(func)
+    {
+    }
+
+    void process(
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids)
+    {
+        host_name_ = host_name;
+        user_name_ = user_name;
+        process_name_ = process_name;
+        process_pid_ = process_pid;
+        should_link_process_participant_ = should_link_process_participant;
+        participant_id_ = participant_id;
+        physical_entities_ids_ = physical_entities_ids;
+        callback_(host_name, user_name, process_name, process_pid, should_link_process_participant, participant_id, physical_entities_ids);
+    }
+
+    std::function<void(                
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids)> callback_;
+
+    std::string host_name_;
+    std::string user_name_;
+    std::string process_name_;
+    std::string process_pid_;
+    bool should_link_process_participant_;
+    EntityId participant_id_;
+    std::map<std::string, EntityId> physical_entities_ids_;
+};
+struct InsertTopicArgs
+{
+    InsertTopicArgs (
+            std::function<EntityId(                
+            const std::string& name,
+            const std::string& type_name,
+            const std::string& alias,
+            const EntityId& domain_id)> func)
+        : callback_(func)
+    {
+    }
+
+    EntityId insert(
+            const std::string& name,
+            const std::string& type_name,
+            const std::string& alias,
+            const EntityId& domain_id)
+    {
+        name_ = name;
+        type_name_ = type_name;
+        alias_ = alias;
+        domain_id_ = domain_id;
+        return callback_(name, type_name, alias, domain_id);
+    }
+
+    std::function<EntityId(                
+            const std::string& name,
+            const std::string& type_name,
+            const std::string& alias,
+            const EntityId& domain_id)> callback_;
+
+    std::string name_;
+    std::string type_name_;
+    std::string alias_;
+    EntityId domain_id_;
+
+};
+
+struct InsertEndpointArgs
+{
+    InsertEndpointArgs (
+            std::function<EntityId(                
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const std::string& alias,
+            const Qos& qos,
+            const bool& is_virtual_metatraffic,
+            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+            const EntityKind& kind,
+            const EntityId& participant_id,
+            const EntityId& topic_id)> func)
+        : callback_(func)
+    {
+    }
+
+    EntityId insert(
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const std::string& alias,
+            const Qos& qos,
+            const bool& is_virtual_metatraffic,
+            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+            const EntityKind& kind,
+            const EntityId& participant_id,
+            const EntityId& topic_id)
+    {
+        endpoint_guid_ = endpoint_guid;
+        name_ = name;
+        alias_ = alias;
+        qos_ = qos;
+        is_virtual_metatraffic_ = is_virtual_metatraffic;
+        locators_ = locators;
+        kind_ = kind;
+        participant_id_ = participant_id;
+        topic_id_ = topic_id;
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id);
+    }
+
+    std::function<EntityId(                
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const std::string& alias,
+            const Qos& qos,
+            const bool& is_virtual_metatraffic,
+            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+            const EntityKind& kind,
+            const EntityId& participant_id,
+            const EntityId& topic_id)> callback_;
+
+    std::string endpoint_guid_;
+    std::string name_;
+    std::string alias_;
+    Qos qos_;
+    bool is_virtual_metatraffic_;
+    eprosima::fastrtps::rtps::RemoteLocatorList locators_;
+    EntityKind kind_;
+    EntityId participant_id_;
+    EntityId topic_id_;
 };
 
 template<typename T>
@@ -79,7 +266,10 @@ public:
     DatabaseEntityQueue entity_queue;
 
     // Data queue, attached to the mocked database
-    DatabaseDataQueue data_queue;
+    DatabaseDataQueue<eprosima::fastdds::statistics::Data> data_queue;
+
+    // Data queue, attached to the mocked database
+    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData> monitor_service_data_queue;
 
     // Mocked statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
@@ -160,7 +350,8 @@ public:
     statistics_participant_listener_tests()
         : entity_queue(&database)
         , data_queue(&database)
-        , participant_listener(0, &database, &entity_queue, &data_queue)
+        , monitor_service_data_queue(&database)
+        , participant_listener(0, &database, &entity_queue, &data_queue, &monitor_service_data_queue)
     {
         //statistics_participant.domain_id_ = 0;
 
@@ -225,26 +416,6 @@ public:
         default_multicast_locator = std::make_shared<Locator>("UDPv4:[0.0.0.0]:4");
     }
 
-    // The domain exists and the participant does not exist
-    void new_participant_discovered_precondition()
-    {
-        // Precondition: The Domain 0 exists and has ID 0
-        EXPECT_CALL(database,
-                get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-                .Times(
-            AnyNumber())
-                .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-                std::make_pair(EntityId(0), EntityId(0)))));
-        EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
-        // Precondition: The Participant does not exist
-        EXPECT_CALL(database,
-                get_entity_by_guid(EntityKind::PARTICIPANT,
-                participant_guid_str_)).Times(AnyNumber()).WillRepeatedly(Throw(eprosima::statistics_backend::
-                        BadParameter(
-                    "Error")));
-    }
-
     // Build the participant discovered info with participant_guid_ and participant_name_
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo build_participant_discovered_info(
             eprosima::fastrtps::rtps::ParticipantProxyData& data)
@@ -263,39 +434,11 @@ public:
 #if !defined(_WIN32)
 TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -306,39 +449,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
-    // Precondition: There are unicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:1"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_unicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:3"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(default_unicast_locator));
-
-    // Precondition: There are not multicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:2"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_multicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:4"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(default_multicast_locator));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -362,87 +472,104 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, participant_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, participant_name_);
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
     // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+                EXPECT_EQ(locators.unicast[0], data.metatraffic_locators.unicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.default_locators.unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[1], data.default_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -498,110 +625,33 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             std::make_shared<DomainParticipant>(participant_2_name, participant_2_qos, participant_2_guid_str,
                     std::shared_ptr<Process>(), domain_);
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: Participant_5 exists and has ID 5
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(5))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::PARTICIPANT, EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, participant_)));
-
-    // Precondition: The Host exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(13)))));
-    host_->id = EntityId(13);
-    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
-            .WillRepeatedly(Return(host_));
-
-    // Precondition: The User exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(14)))));
-    user_->id = EntityId(14);
-    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
-            .WillRepeatedly(Return(user_));
-
-    // Precondition: The Process exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(15)))));
-    process_->id = EntityId(15);
-    participant_->process = process_;
-    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
-            .WillRepeatedly(Return(process_));
 
     // Precondition: The Metatrafic Topic exists and has ID 6
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(metatraffic_topic_));
+
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(6))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Participant_1 Metatrafic Endpoint exists and has ID 7
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(7))));
-    EXPECT_CALL(database, get_entity(EntityId(7))).Times(AnyNumber())
-            .WillRepeatedly(Return(metatraffic_endpoint_));
 
     // Precondition: The new Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_2_guid_str)).Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Metatrafic Endpoint does not exist
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::DATAWRITER, participant_2_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
-    // Precondition: There are unicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:1"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_unicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:3"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(default_unicast_locator));
-
-    // Precondition: There are not multicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:2"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_multicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:4"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(default_multicast_locator));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -625,36 +675,87 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant_2 is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, participant_2_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_2_guid_str);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, participant_2_name);
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_2_guid_str);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
+        
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
+
+    // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_2_guid_str);
+                EXPECT_EQ(endpoint_guid, participant_2_guid_str);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.unicast[0], data.metatraffic_locators.unicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.default_locators.unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[1], data.default_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(6));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(2)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));            
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -691,15 +792,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
 TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -720,7 +812,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant is not added to the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
 
     // Precondition: The Participant does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -739,39 +831,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -799,87 +864,101 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "localhost:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "localhost:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+                EXPECT_TRUE(locators.unicast.empty());
+                EXPECT_TRUE(locators.multicast.empty());
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -926,39 +1005,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -995,11 +1046,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber()).WillRepeatedly(Return(
-                std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(
-                    EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(existing_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
@@ -1014,11 +1060,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_unicast_locator =
             std::make_shared<Locator>(existing_metatraffic_unicast_locator_name);
     existing_metatraffic_unicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_unicast_locator_name)).Times(
-        AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -1033,11 +1074,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 5;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
@@ -1052,105 +1088,110 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_multicast_locator =
             std::make_shared<Locator>(existing_metatraffic_multicast_locator_name);
     existing_metatraffic_multicast_locator->id = 6;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_multicast_locator_name)).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
-    // Precondition: There are 4 locators
-    EXPECT_CALL(database,
-            get_entities(EntityKind::LOCATOR,
-            EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({
-        existing_unicast_locator, existing_metatraffic_unicast_locator, existing_multicast_locator,
-        existing_metatraffic_multicast_locator})));
-
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.unicast[0], data.metatraffic_locators.unicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.default_locators.unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[1], data.default_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph and notify user
     EXPECT_CALL(database,
@@ -1196,39 +1237,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1265,11 +1278,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_unicast_locator =
             std::make_shared<Locator>(existing_metatraffic_unicast_locator_name);
     existing_metatraffic_unicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_unicast_locator_name)).Times(
-        AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -1284,11 +1292,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 5;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
@@ -1303,106 +1306,109 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_multicast_locator =
             std::make_shared<Locator>(existing_metatraffic_multicast_locator_name);
     existing_metatraffic_multicast_locator->id = 6;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_multicast_locator_name)).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
-    // Precondition: There are 3 locators
-    EXPECT_CALL(database,
-            get_entities(EntityKind::LOCATOR,
-            EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({
-        existing_metatraffic_unicast_locator, existing_multicast_locator,
-        existing_metatraffic_multicast_locator})));
-
-
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.unicast[0], data.metatraffic_locators.unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[1], data.default_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1449,22 +1455,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
     // Precondition: The Host does not exist
     EXPECT_CALL(database,
@@ -1518,11 +1513,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 5;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
@@ -1537,105 +1527,108 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_multicast_locator =
             std::make_shared<Locator>(existing_metatraffic_multicast_locator_name);
     existing_metatraffic_multicast_locator->id = 6;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_multicast_locator_name)).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
-    // Precondition: There are 2 locators
-    EXPECT_CALL(database,
-            get_entities(EntityKind::LOCATOR,
-            EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({
-        existing_multicast_locator,
-        existing_metatraffic_multicast_locator})));
-
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[1], data.default_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1682,39 +1675,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1751,102 +1716,107 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_multicast_locator =
             std::make_shared<Locator>(existing_metatraffic_multicast_locator_name);
     existing_metatraffic_multicast_locator->id = 6;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_multicast_locator_name)).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
-    // Precondition: There are 1 locator
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({existing_metatraffic_multicast_locator})));
-
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1893,39 +1863,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 {
     participant_name_ = "";
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber()).WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_))
             .Times(AnyNumber())
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")))
             .WillRepeatedly(Return(std::pair<EntityId, EntityId>(0, 10)));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
-
-    // Precondition: The Host does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The User does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
-
-    // Precondition: The Process does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
 
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
@@ -1960,11 +1902,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber()).WillRepeatedly(Return(
-                std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(
-                    EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(existing_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
@@ -1977,11 +1914,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_unicast_locator =
             std::make_shared<Locator>(existing_metatraffic_unicast_locator_name);
     existing_metatraffic_unicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_unicast_locator_name)).Times(
-        AnyNumber()).WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(existing_metatraffic_unicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
@@ -1994,11 +1926,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 5;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(5)))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
@@ -2011,105 +1938,110 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     std::shared_ptr<Locator> existing_metatraffic_multicast_locator =
             std::make_shared<Locator>(existing_metatraffic_multicast_locator_name);
     existing_metatraffic_multicast_locator->id = 6;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_metatraffic_multicast_locator_name)).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_metatraffic_multicast_locator));
 
     // Precondition: The discovered reader contains the locator
     data.metatraffic_locators.add_multicast_locator(dds_existing_metatraffic_multicast_locator);
 
-    // Precondition: There are 4 locators
-    EXPECT_CALL(database,
-            get_entities(EntityKind::LOCATOR,
-            EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>({
-        existing_unicast_locator, existing_metatraffic_unicast_locator, existing_multicast_locator,
-        existing_metatraffic_multicast_locator})));
-
     // Expectation: The Participant is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertParticipantArgs insert_args([&](
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const EntityStatus& status,
+                const AppId& app_id,
+                const std::string& app_metadata)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                EXPECT_EQ(entity->name, "localhost:09.0a.0b.0c");
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->guid, participant_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos,
-                participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(name, "localhost:09.0a.0b.0c");
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(guid, participant_guid_str_);
+                EXPECT_EQ(domain_id, EntityId(0));
+                EXPECT_EQ(status, EntityStatus::OK);
+                EXPECT_EQ(app_id, AppId::UNKNOWN);
+                EXPECT_EQ(app_metadata, "");
 
                 return EntityId(10);
             });
 
-    // Expectation: The host is created and given ID 13
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, host_name_);
-                EXPECT_EQ(entity->alias, host_name_);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
-                return EntityId(13);
+    // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, true);
+                EXPECT_EQ(participant_id, EntityId(10));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
             });
 
-    // Expectation: The user is created and given ID 14
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, user_name_);
-                EXPECT_EQ(entity->alias, user_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(14);
-            });
-
-    // Expectation: The process is created and given ID 15
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, process_name_);
-                EXPECT_EQ(entity->alias, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(15);
-            });
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, metatraffic_prefix + "TOPIC");
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC");
+                EXPECT_EQ(type_name, metatraffic_prefix + "TYPE");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(11);
             });
 
-    // Expectation: The Metatraffic endpoint is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_datawriter_args([&](
-                std::shared_ptr<Entity> entity)
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
+    // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, metatraffic_qos_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, participant_guid_str_);
+                EXPECT_EQ(endpoint_guid, participant_guid_str_);
+                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(alias, "_metatraffic_");
+                EXPECT_EQ(qos, metatraffic_qos_);
+                EXPECT_EQ(is_virtual_metatraffic, true);
+
+                EXPECT_EQ(locators.unicast[0], data.default_locators.unicast[0]);
+                EXPECT_EQ(locators.unicast[0], data.metatraffic_locators.unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.default_locators.multicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.metatraffic_locators.multicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(10));
+                EXPECT_EQ(topic_id, EntityId(11));
 
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(6)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -2152,14 +2084,6 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
 TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
 {
-    // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_)))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -2183,105 +2107,33 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
-
+    
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     participant_listener.on_participant_discovery(&statistics_participant, std::move(info));
 }
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 5
     participant_->id = EntityId(5);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(5))));
-    EXPECT_CALL(database, get_entity(EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::PARTICIPANT, EntityId(5))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(5, participant_)));
-
-    // Precondition: The Host exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(13)))));
-    host_->id = EntityId(13);
-    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
-            .WillRepeatedly(Return(host_));
-
-    // Precondition: The User exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(14)))));
-    user_->id = EntityId(14);
-    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
-            .WillRepeatedly(Return(user_));
-
-    // Precondition: The Process exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(15)))));
-    process_->id = EntityId(15);
-    participant_->process = process_;
-    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
-            .WillRepeatedly(Return(process_));
 
     // Precondition: The Metatrafic Topic exists and has ID 6
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(6)))));
-    EXPECT_CALL(database, get_entity(EntityId(6))).Times(AnyNumber())
-            .WillRepeatedly(Return(metatraffic_topic_));
 
     // Precondition: The Metatrafic Endpoint exists and has ID 7
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(7))));
-
-    // Precondition: There are unicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:1"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(1)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(1))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_unicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:3"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber()).WillRepeatedly(Return(default_unicast_locator));
-
-    // Precondition: There are multicast locators in database
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:2"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database,
-            get_entity(EntityId(2))).Times(AnyNumber()).WillRepeatedly(Return(metatraffic_multicast_locator));
-
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::LOCATOR, "UDPv4:[0.0.0.0]:4"))
-            .Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber()).WillRepeatedly(Return(default_multicast_locator));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(6))).Times(1)
+            .WillOnce(Return(true));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -2304,7 +2156,33 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
-    EXPECT_CALL(database, insert(_)).Times(0);
+
+    // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(5));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
+            });
+    
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
 
     // Expectation: The Participant status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(7), true)).Times(1);
@@ -2339,53 +2217,14 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
 
 TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_participant_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     participant_->id = EntityId(1);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Metatraffic endpoint
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
-    // Precondition: The Host exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(13)))));
-    host_->id = EntityId(13);
-    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
-            .WillRepeatedly(Return(host_));
-
-    // Precondition: The User exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(14)))));
-    user_->id = EntityId(14);
-    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
-            .WillRepeatedly(Return(user_));
-
-    // Precondition: The Process exists
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(15)))));
-    process_->id = EntityId(15);
-    participant_->process = process_;
-    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
-            .WillRepeatedly(Return(process_));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
@@ -2403,7 +2242,33 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant is not inserted in the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, host_name_);
+                EXPECT_EQ(user_name, user_name_);
+                EXPECT_EQ(process_name, process_name_);
+                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                physical_entities_ids["host"] = EntityId(13);
+                physical_entities_ids["user"] = EntityId(14);
+                physical_entities_ids["process"] = EntityId(15);
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(2)
+            .WillRepeatedly(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: The Participant status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(2);
@@ -2437,27 +2302,16 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2467,13 +2321,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -2496,32 +2343,33 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataReader is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datareader_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
-                reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(endpoint_guid, reader_guid_str_);
+                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
+                EXPECT_EQ(kind, EntityKind::DATAREADER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -2545,27 +2393,14 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 
 TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2575,13 +2410,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -2604,7 +2432,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Datareader is not added to the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Precondition: The Datareader does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -2616,20 +2444,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
 
 TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -2643,13 +2460,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -2672,51 +2482,53 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, topic_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name_);
+                EXPECT_EQ(name, topic_name_);
+                EXPECT_EQ(type_name, type_name_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(10);
             });
 
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
     // Expectation: The DataReader is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_reader_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datareader_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(endpoint_guid, reader_guid_str_);
+                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
-                reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
 
-                // We cannot check the Topic pointer as the queue will create a new one.
-                // We check the topic_ data instead
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic->name, topic_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic->domain, domain_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic->data_type, type_name_);
-
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
+                EXPECT_EQ(kind, EntityKind::DATAREADER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(10));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(2)
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
+
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -2745,20 +2557,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 
 TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: Another domain with ID 100 exists
     std::string another_domain_name = "another_domain";
@@ -2767,31 +2568,27 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             get_entities_by_name(EntityKind::DOMAIN, another_domain_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(100), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
-            .WillRepeatedly(Return(another_domain));
 
     // Precondition: Another topic with the same name and type exists in domain 100
     // and has ID 101
     std::shared_ptr<Topic> topic_another_domain = std::make_shared<Topic>(topic_name_, type_name_, another_domain);
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_another_domain));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(101))).Times(0);
 
     // Precondition: Another topic with the same name but different type exists in the initial domain 0
     // and has ID 102
     std::string another_type_name = "another_type";
     std::shared_ptr<Topic> topic_another_type = std::make_shared<Topic>(topic_name_, another_type_name, domain_);
-    EXPECT_CALL(database, get_entity(EntityId(102))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_another_type));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(102))).Times(1)
+            .WillOnce(Return(false));
 
     // Precondition: The Topic exists and has ID 2
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
-
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>
             { { EntityId(100), EntityId(101) },
                 { EntityId(0), EntityId(102) },
                 { EntityId(0), EntityId(2) }}));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2801,13 +2598,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -2828,34 +2618,36 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     // Precondition: The Reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
+  
     // Expectation: The DataReader is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datareader_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
-                reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(endpoint_guid, reader_guid_str_);
+                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
+
+                EXPECT_EQ(kind, EntityKind::DATAREADER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -2882,27 +2674,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     std::vector<std::shared_ptr<const Entity>> existing_locators;
     int64_t next_entity_id = 100;
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2912,12 +2693,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    existing_locators.push_back(existing_unicast_locator);
 
     // Precondition: One multicast Locator exists and has ID 4
     eprosima::fastrtps::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2927,12 +2702,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
-    existing_locators.push_back(existing_multicast_locator);
 
     // Precondition: One unicast Locator does not exist
     eprosima::fastrtps::rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2941,8 +2710,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -2951,12 +2718,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
@@ -2988,73 +2749,38 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
-    // Expectation: The new unicast locator is added to the database and given ID 100
-    InsertEntityArgs insert_unicast_args([&](
-                std::shared_ptr<Entity> entity)
+    // Expectation: The DataReader is added to the database and given ID 11.
+    InsertEndpointArgs insert_datareader_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_unicast_locator_name);
+                EXPECT_EQ(endpoint_guid, reader_guid_str_);
+                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                return EntityId(100);
-            });
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.remote_locators().multicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.remote_locators().unicast[1]);
+                EXPECT_EQ(locators.multicast[1], data.remote_locators().multicast[1]);
 
-    // Expectation: The new multicast locator is added to the database and given ID 101
-    InsertEntityArgs insert_multicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_multicast_locator_name);
-
-                return EntityId(101);
-            });
-
-    // Expectation: The DataWriter is added to the database and given ID 11
-    InsertEntityArgs insert_reader_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
-                reader_proxy_data_to_backend_qos(info.info));
-
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                expected_locator_names.push_back(existing_multicast_locator_name);
-                expected_locator_names.push_back(new_unicast_locator_name);
-                expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    if (loc.second->name == existing_unicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                    }
-                    if (loc.second->name == existing_multicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_multicast_locator->id);
-                    }
-                    if (loc.second->name == new_unicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                    if (loc.second->name == new_multicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                }
+                EXPECT_EQ(kind, EntityKind::DATAREADER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
-            .WillOnce(Invoke(&insert_unicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_multicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -3067,16 +2793,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             on_domain_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::DATAREADER,
@@ -3092,30 +2808,17 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     std::vector<std::shared_ptr<const Entity>> existing_locators;
     int64_t next_entity_id = 100;
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3125,11 +2828,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
     // Precondition: One multicast Locator exists and has ID 4
@@ -3140,11 +2838,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
     // Precondition: One unicast Locator does not exist
@@ -3154,8 +2847,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3164,12 +2855,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
@@ -3201,73 +2886,38 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
-    // Expectation: The new unicast locator is added to the database and given ID 100
-    InsertEntityArgs insert_unicast_args([&](
-                std::shared_ptr<Entity> entity)
+    // Expectation: The DataReader is added to the database and given ID 11.
+    InsertEndpointArgs insert_datareader_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_unicast_locator_name);
+                EXPECT_EQ(endpoint_guid, reader_guid_str_);
+                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                return EntityId(100);
-            });
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.remote_locators().multicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.remote_locators().unicast[1]);
+                EXPECT_EQ(locators.multicast[1], data.remote_locators().multicast[1]);
 
-    // Expectation: The new multicast locator is added to the database and given ID 101
-    InsertEntityArgs insert_multicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_multicast_locator_name);
-
-                return EntityId(101);
-            });
-
-    // Expectation: The DataWriter is added to the database and given ID 11
-    InsertEntityArgs insert_reader_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                EXPECT_EQ(entity->name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, reader_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos,
-                reader_proxy_data_to_backend_qos(info.info));
-
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                expected_locator_names.push_back(existing_multicast_locator_name);
-                expected_locator_names.push_back(new_unicast_locator_name);
-                expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataReader>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    if (loc.second->name == existing_unicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                    }
-                    if (loc.second->name == existing_multicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_multicast_locator->id);
-                    }
-                    if (loc.second->name == new_unicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                    if (loc.second->name == new_multicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                }
+                EXPECT_EQ(kind, EntityKind::DATAREADER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
-            .WillOnce(Invoke(&insert_unicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_multicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_reader_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -3282,16 +2932,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::DATAREADER,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
@@ -3302,15 +2942,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
 
 TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -3319,8 +2950,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3330,13 +2959,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -3359,7 +2981,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3367,14 +2989,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
 
 TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
 {
-    // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -3391,13 +3005,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -3420,7 +3027,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3428,28 +3035,17 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
 
 TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
-
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
+            
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
@@ -3458,13 +3054,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -3489,11 +3078,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     reader->id = 10;
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(reader));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3516,27 +3103,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 
 TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3546,13 +3122,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
@@ -3577,11 +3146,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     reader->id = 10;
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(reader));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);
@@ -3606,27 +3173,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3636,13 +3192,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -3665,32 +3214,33 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The DataWriter is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
-                writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(endpoint_guid, writer_guid_str_);
+                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3714,27 +3264,14 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 
 TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3744,13 +3281,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -3773,7 +3303,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The writer is not added to the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Precondition: The writer does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -3785,20 +3315,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
 
 TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3812,13 +3331,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -3841,51 +3353,52 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Topic is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_topic_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertTopicArgs insert_topic_args([&](
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                EXPECT_EQ(entity->name, topic_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->domain, domain_);
-                EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name_);
+                EXPECT_EQ(name, topic_name_);
+                EXPECT_EQ(type_name, type_name_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(domain_id, EntityId(0));
 
                 return EntityId(10);
             });
 
+    EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
     // Expectation: The DataWriter is added to the database. We do not care about the given ID
-    InsertEntityArgs insert_writer_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(endpoint_guid, writer_guid_str_);
+                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
-                writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
 
-                // We cannot check the Topic pointer as the queue will create a new one.
-                // We check the topic_ data instead
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic->name, topic_name_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic->domain, domain_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic->data_type, type_name_);
-
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                }
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(10));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(2)
-            .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -3917,27 +3430,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     std::vector<std::shared_ptr<const Entity>> existing_locators;
     int64_t next_entity_id = 100;
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3947,11 +3449,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
     // Precondition: One multicast Locator exists and has ID 4
@@ -3962,11 +3459,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
     // Precondition: One unicast Locator does not exist
@@ -3976,8 +3468,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -3986,12 +3476,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
@@ -4023,73 +3507,39 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
-    // Expectation: The new unicast locator is added to the database and given ID 100
-    InsertEntityArgs insert_unicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_unicast_locator_name);
-
-                return EntityId(100);
-            });
-
-    // Expectation: The new multicast locator is added to the database and given ID 101
-    InsertEntityArgs insert_multicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_multicast_locator_name);
-
-                return EntityId(101);
-            });
 
     // Expectation: The DataWriter is added to the database and given ID 11
-    InsertEntityArgs insert_writer_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
-                writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(endpoint_guid, writer_guid_str_);
+                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                expected_locator_names.push_back(existing_multicast_locator_name);
-                expected_locator_names.push_back(new_unicast_locator_name);
-                expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    if (loc.second->name == existing_unicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                    }
-                    if (loc.second->name == existing_multicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_multicast_locator->id);
-                    }
-                    if (loc.second->name == new_unicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                    if (loc.second->name == new_multicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                }
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.remote_locators().multicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.remote_locators().unicast[1]);
+                EXPECT_EQ(locators.multicast[1], data.remote_locators().multicast[1]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
-            .WillOnce(Invoke(&insert_unicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_multicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -4102,16 +3552,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
             on_domain_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery( EntityId(100), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::DATAWRITER,
@@ -4127,30 +3567,17 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     std::vector<std::shared_ptr<const Entity>> existing_locators;
     int64_t next_entity_id = 100;
 
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     // Precondition: The Participant is NOT linked to any host
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>()));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -4160,11 +3587,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
     existing_locators.push_back(existing_unicast_locator);
 
     // Precondition: One multicast Locator exists and has ID 4
@@ -4175,11 +3597,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     std::shared_ptr<Locator> existing_multicast_locator =
             std::make_shared<Locator>(existing_multicast_locator_name);
     existing_multicast_locator->id = 4;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(4)))));
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_multicast_locator));
     existing_locators.push_back(existing_multicast_locator);
 
     // Precondition: One unicast Locator does not exist
@@ -4189,8 +3606,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
     std::shared_ptr<Locator> new_unicast_locator =
             std::make_shared<Locator>(new_unicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastrtps::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -4199,12 +3614,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
     std::shared_ptr<Locator> new_multicast_locator =
             std::make_shared<Locator>(new_multicast_locator_name);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, new_multicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: Looking for the entities from the locator returns existing locators
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_locators));
 
     // Precondition: The database returns EntityIDs that are not used before
     database.set_next_entity_id(next_entity_id);
@@ -4232,73 +3641,39 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
-    // Expectation: The new unicast locator is added to the database and given ID 100
-    InsertEntityArgs insert_unicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_unicast_locator_name);
-
-                return EntityId(100);
-            });
-
-    // Expectation: The new multicast locator is added to the database and given ID 101
-    InsertEntityArgs insert_multicast_args([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                EXPECT_EQ(entity->name, new_multicast_locator_name);
-
-                return EntityId(101);
-            });
-
     // Expectation: The DataWriter is added to the database and given ID 11
-    InsertEntityArgs insert_writer_args([&](
-                std::shared_ptr<Entity> entity)
+    InsertEndpointArgs insert_datawriter_args([&](
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id)
             {
-                EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                EXPECT_EQ(entity->name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->topic, topic_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->participant, participant_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, writer_guid_str_);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos,
-                writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(endpoint_guid, writer_guid_str_);
+                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(alias, "");
+                EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(is_virtual_metatraffic, false);
 
-                std::vector<std::string> expected_locator_names;
-                expected_locator_names.push_back(existing_unicast_locator_name);
-                expected_locator_names.push_back(existing_multicast_locator_name);
-                expected_locator_names.push_back(new_unicast_locator_name);
-                expected_locator_names.push_back(new_multicast_locator_name);
-                EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->locators.size(),
-                expected_locator_names.size());
-                for (auto loc :  std::dynamic_pointer_cast<DataWriter>(entity)->locators)
-                {
-                    EXPECT_THAT(expected_locator_names, Contains(loc.second->name));
-                    if (loc.second->name == existing_unicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_unicast_locator->id);
-                    }
-                    if (loc.second->name == existing_multicast_locator->name)
-                    {
-                        EXPECT_EQ(loc.second->id, existing_multicast_locator->id);
-                    }
-                    if (loc.second->name == new_unicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                    if (loc.second->name == new_multicast_locator->name)
-                    {
-                        EXPECT_GE(loc.second->id, next_entity_id);
-                    }
-                }
+                EXPECT_EQ(locators.unicast[0], data.remote_locators().unicast[0]);
+                EXPECT_EQ(locators.multicast[0], data.remote_locators().multicast[0]);
+                EXPECT_EQ(locators.unicast[1], data.remote_locators().unicast[1]);
+                EXPECT_EQ(locators.multicast[1], data.remote_locators().multicast[1]);
+
+                EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                EXPECT_EQ(participant_id, EntityId(1));
+                EXPECT_EQ(topic_id, EntityId(2));
 
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
-            .WillOnce(Invoke(&insert_unicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_multicast_args, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_writer_args, &InsertEntityArgs::insert));
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -4313,16 +3688,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-        on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
-        eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(
-        *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::DATAWRITER,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
@@ -4333,15 +3698,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
 
 TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -4350,8 +3706,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -4361,13 +3715,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -4390,7 +3737,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -4399,14 +3746,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
 
 TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
 {
-    // Precondition: The Domain 0 does not exist
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-
     // Precondition: The Participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -4423,13 +3762,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -4452,7 +3784,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -4460,27 +3792,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
 
 TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -4490,13 +3811,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -4521,11 +3835,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     writer->id = EntityId(10);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(writer));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -4548,27 +3860,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
 
 TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_already_exists)
 {
-    // Precondition: The Domain 0 exists and has ID 0
-    EXPECT_CALL(database,
-            get_entities_by_name(EntityKind::DOMAIN, std::to_string(statistics_participant.domain_id_))).Times(
-        AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(0)))));
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain_));
-
     // Precondition: The Participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant_));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic_));
+    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+            .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
@@ -4578,13 +3879,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
     std::shared_ptr<Locator> existing_unicast_locator =
             std::make_shared<Locator>(existing_unicast_locator_name);
     existing_unicast_locator->id = 3;
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, existing_unicast_locator_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(), EntityId(3)))));
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillRepeatedly(Return(existing_unicast_locator));
-    EXPECT_CALL(database, get_entities(EntityKind::LOCATOR, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, existing_unicast_locator)));
 
     // Start building the discovered writer info
     eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
@@ -4609,11 +3903,9 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
     writer->id = EntityId(10);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
-    EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
-            .WillRepeatedly(Return(writer));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert(_)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);

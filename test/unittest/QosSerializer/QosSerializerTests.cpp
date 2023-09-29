@@ -20,7 +20,7 @@
 #include <database/data.hpp>
 #include <subscriber/QosSerializer.hpp>
 #include <subscriber/QosSerializerTags.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::statistics_backend::subscriber;

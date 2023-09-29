@@ -19,7 +19,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 #include <nlohmann-json/json.hpp>
 
@@ -49,6 +49,13 @@ protected:
     using StatisticsDiscoveryTime = eprosima::fastdds::statistics::DiscoveryTime;
     using StatisticsSampleIdentityCount = eprosima::fastdds::statistics::SampleIdentityCount;
     using StatisticsPhysicalData = eprosima::fastdds::statistics::PhysicalData;
+    using StatisticsIncompatibleQoSStatus = eprosima::fastdds::statistics::IncompatibleQoSStatus_s;
+    using StatisticsInconsistentTopicStatus = eprosima::fastdds::statistics::InconsistentTopicStatus_s;
+    using StatisticsConnection = eprosima::fastdds::statistics::Connection;
+    using StatisticsLivelinessLostStatus = eprosima::fastdds::statistics::LivelinessLostStatus_s;
+    using StatisticsLivelinessChangedStatus = eprosima::fastdds::statistics::LivelinessChangedStatus_s;
+    using StatisticsDeadlineMissedStatus = eprosima::fastdds::statistics::DeadlineMissedStatus_s;
+    using StatisticsSampleLostStatus = eprosima::fastdds::statistics::SampleLostStatus_s;    
     using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
     using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
     using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;

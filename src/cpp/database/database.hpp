@@ -112,7 +112,7 @@ public:
             const std::string& app_metadata);
 
     /**
-     * @brief Create new Host-User-Process entities and insert them in database.
+     * @brief Process Host-User-Process entities and insert them in database.
      * @param host_name The name of the host.
      * @param user_name The name of the user.
      * @param process_name The name of the process.
@@ -121,7 +121,7 @@ public:
      * @param participant_id The EntityId of the participant that the process might be linked to.
      * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
      */
-    void insert_new_physical_entities(
+    void process_physical_entities(
             const std::string& host_name,
             const std::string& user_name,
             const std::string& process_name,

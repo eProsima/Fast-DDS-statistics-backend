@@ -23,6 +23,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
@@ -52,19 +53,15 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         start_stop_flush
         push_participant
         push_participant_participant_exists
-        push_participant_no_process_exists
-        push_participant_no_process_exists_process_insert_throws
-        push_participant_no_process_no_user_exists
-        push_participant_no_process_no_user_exists_user_insert_throws
-        push_participant_no_process_no_user_no_host_exists
-        push_participant_no_user_no_host_exists_host_insert_throws
+        push_participant_missing_physical_entity
+        push_participant_process_insert_throws
+        push_participant_user_insert_throws
+        push_participant_host_insert_throws
         push_participant_data_wrong_processname_format
         push_datawriter
         push_datawriter_topic_does_not_exist
-        push_datawriter_locator_does_not_exist
         push_datareader
         push_datareader_topic_does_not_exist
-        push_datareader_locator_does_not_exist
         push_history_latency
         push_history_latency_no_reader
         push_history_latency_no_writer

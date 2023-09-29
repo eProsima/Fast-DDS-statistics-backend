@@ -21,15 +21,13 @@
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 #include <TestUtils.hpp>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::fastrtps::rtps;
-
-using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
 using ::testing::Invoke;

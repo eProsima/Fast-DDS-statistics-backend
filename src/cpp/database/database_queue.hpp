@@ -495,6 +495,8 @@ public:
     using StatisticsSequenceNumber = eprosima::fastdds::statistics::detail::SequenceNumber_s;
     using StatisticsSampleIdentity = eprosima::fastdds::statistics::detail::SampleIdentity_s;
 
+    using queue_item_type = std::pair<std::chrono::system_clock::time_point, std::shared_ptr<T>>;
+
     virtual ~DatabaseDataQueue()
     {
         DatabaseQueue<std::shared_ptr<T>>::stop_consumer();
