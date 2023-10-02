@@ -1420,7 +1420,7 @@ TEST_F(database_queue_tests, push_history_latency)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -1492,7 +1492,7 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -1549,7 +1549,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -1601,7 +1601,7 @@ TEST_F(database_queue_tests, push_network_latency)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKind::NETWORK_LATENCY);
+    data->_d(EventKindBits::NETWORK_LATENCY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(1)
@@ -1667,7 +1667,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKind::NETWORK_LATENCY);
+    data->_d(EventKindBits::NETWORK_LATENCY);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
@@ -1719,7 +1719,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKind::NETWORK_LATENCY);
+    data->_d(EventKindBits::NETWORK_LATENCY);
 
     // Precondition: The participant is not searched
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(0);
@@ -1770,7 +1770,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKind::NETWORK_LATENCY);
+    data->_d(EventKindBits::NETWORK_LATENCY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
@@ -1845,7 +1845,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::PUBLICATION_THROUGHPUT);
+    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -1900,7 +1900,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::PUBLICATION_THROUGHPUT);
+    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -1941,7 +1941,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -1996,7 +1996,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -2049,7 +2049,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_SENT);
+    data->_d(EventKindBits::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
@@ -2139,7 +2139,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_SENT);
+    data->_d(EventKindBits::RTPS_SENT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2197,7 +2197,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_SENT);
+    data->_d(EventKindBits::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2302,7 +2302,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_LOST);
+    data->_d(EventKindBits::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
@@ -2392,7 +2392,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_LOST);
+    data->_d(EventKindBits::RTPS_LOST);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2450,7 +2450,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKind::RTPS_LOST);
+    data->_d(EventKindBits::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2646,7 +2646,7 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::RESENT_DATAS);
+    data->_d(EventKindBits::RESENT_DATAS);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -2701,7 +2701,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::RESENT_DATAS);
+    data->_d(EventKindBits::RESENT_DATAS);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2742,7 +2742,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::HEARTBEAT_COUNT);
+    data->_d(EventKindBits::HEARTBEAT_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -2797,7 +2797,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::HEARTBEAT_COUNT);
+    data->_d(EventKindBits::HEARTBEAT_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2838,7 +2838,7 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::ACKNACK_COUNT);
+    data->_d(EventKindBits::ACKNACK_COUNT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -2893,7 +2893,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::ACKNACK_COUNT);
+    data->_d(EventKindBits::ACKNACK_COUNT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -2934,7 +2934,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::NACKFRAG_COUNT);
+    data->_d(EventKindBits::NACKFRAG_COUNT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -2989,7 +2989,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::NACKFRAG_COUNT);
+    data->_d(EventKindBits::NACKFRAG_COUNT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -3030,7 +3030,7 @@ TEST_F(database_queue_tests, push_gap_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::GAP_COUNT);
+    data->_d(EventKindBits::GAP_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3085,7 +3085,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::GAP_COUNT);
+    data->_d(EventKindBits::GAP_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3126,7 +3126,7 @@ TEST_F(database_queue_tests, push_data_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::DATA_COUNT);
+    data->_d(EventKindBits::DATA_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3181,7 +3181,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::DATA_COUNT);
+    data->_d(EventKindBits::DATA_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3222,7 +3222,7 @@ TEST_F(database_queue_tests, push_pdp_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::PDP_PACKETS);
+    data->_d(EventKindBits::PDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3277,7 +3277,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::PDP_PACKETS);
+    data->_d(EventKindBits::PDP_PACKETS);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -3318,7 +3318,7 @@ TEST_F(database_queue_tests, push_edp_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::EDP_PACKETS);
+    data->_d(EventKindBits::EDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3373,7 +3373,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKind::EDP_PACKETS);
+    data->_d(EventKindBits::EDP_PACKETS);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -3431,7 +3431,7 @@ TEST_F(database_queue_tests, push_discovery_times)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKind::DISCOVERED_ENTITY);
+    data->_d(EventKindBits::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3504,7 +3504,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKind::DISCOVERED_ENTITY);
+    data->_d(EventKindBits::DISCOVERED_ENTITY);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -3562,7 +3562,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKind::DISCOVERED_ENTITY);
+    data->_d(EventKindBits::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -3618,7 +3618,7 @@ TEST_F(database_queue_tests, push_sample_datas)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKind::SAMPLE_DATAS);
+    data->_d(EventKindBits::SAMPLE_DATAS);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3684,7 +3684,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKind::SAMPLE_DATAS);
+    data->_d(EventKindBits::SAMPLE_DATAS);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3735,7 +3735,7 @@ TEST_F(database_queue_tests, push_physical_data_process_exists)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3813,7 +3813,7 @@ TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3891,7 +3891,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -3982,7 +3982,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4077,7 +4077,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4181,7 +4181,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_i
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4268,7 +4268,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4384,7 +4384,7 @@ TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exist
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4464,7 +4464,7 @@ TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->physical_data(inner_data);
-    data->_d(EventKind::PHYSICAL_DATA);
+    data->_d(EventKindBits::PHYSICAL_DATA);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
