@@ -47,7 +47,7 @@ using Traffic = nlohmann::ordered_json;
 class TrafficInjector
 {
 
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKind;
+    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsData = eprosima::fastdds::statistics::Data;
 
     class StatisticsWriterListener : public eprosima::fastdds::dds::DataWriterListener

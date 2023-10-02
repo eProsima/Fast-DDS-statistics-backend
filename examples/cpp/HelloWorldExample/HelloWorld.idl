@@ -1,3 +1,4 @@
+@final
 struct HelloWorld
 {
 	unsigned long index;
