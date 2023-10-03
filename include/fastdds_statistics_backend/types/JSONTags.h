@@ -61,7 +61,7 @@ constexpr const char* DATAREADER_CONTAINER_TAG      = "datareaders";
 constexpr const char* LOCATOR_CONTAINER_TAG         = "locators";
 
 /////
-// Entity
+// Entity kind
 
 //! Key Tag for a single host entity
 constexpr const char* HOST_ENTITY_TAG               = "host";
@@ -81,6 +81,36 @@ constexpr const char* DATAWRITER_ENTITY_TAG         = "datawriter";
 constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 //! Key Tag for a single locator entity
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
+
+/////
+// Entity status
+
+//! Key Tag for an OK status of an entity
+constexpr const char* OK_TAG                        = "ok";
+//! Key Tag for a Warning status of an entity
+constexpr const char* WARNING_TAG                   = "warning";
+//! Key Tag for an Error status of an entity
+constexpr const char* ERROR_TAG                     = "error";
+
+/////
+// App id
+
+//! Key Tag for a Fast DDS Statistics Backend app
+constexpr const char* FASTDDS_MONITOR_TAG           = "fastdds_monitor";
+//! Key Tag for a DDS Router app
+constexpr const char* DDS_ROUTER_TAG                = "dds_router";
+//! Key Tag for a Shapes Demo app
+constexpr const char* SHAPES_DEMO_TAG               = "shapes_demo";
+//! Key Tag for a Integration Service app
+constexpr const char* INTEGRATION_SERVICE_TAG       = "integration_service";
+//! Key Tag for a Fast DDS Visualizer app
+constexpr const char* FASTDDS_VISUALIZER_TAG        = "fastdds_visualizer";
+//! Key Tag for a Fast DDS Spy app
+constexpr const char* FASTDDS_SPY_TAG               = "fastdds_spy";
+//! Key Tag for a DDS Recorder app
+constexpr const char* DDS_RECORDER_TAG              = "dds_recorder";
+//! Key Tag for a DDS Replayer app
+constexpr const char* DDS_REPLAYER_TAG              = "dds_replayer";
 
 /////
 // Internal info
@@ -113,6 +143,13 @@ constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
+//! Conversion from EntityStatus to string
+constexpr const char* entity_status_str[] =
+{OK_TAG, WARNING_TAG, ERROR_TAG};
+//! Conversion from AppId to string
+constexpr const char* app_id_str[] =
+{"unknown", FASTDDS_MONITOR_TAG, DDS_ROUTER_TAG, SHAPES_DEMO_TAG, INTEGRATION_SERVICE_TAG, FASTDDS_VISUALIZER_TAG,
+ FASTDDS_SPY_TAG, DDS_RECORDER_TAG, DDS_REPLAYER_TAG};
 
 /////
 // Data container

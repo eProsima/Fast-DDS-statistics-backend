@@ -195,6 +195,9 @@ EntityId create_and_register_monitor(
     std::shared_ptr<database::Domain> domain = std::make_shared<database::Domain>(domain_name);
     domain->id = backend_data->database_->insert(domain);
 
+    // Init database graph
+    backend_data->database_->init_domain_view_graph(domain_name, domain->id);
+
     // TODO: in case this function fails afterwards, the domain will be kept in the database without associated
     // Participant. There must exist a way in database to delete a domain, or to make a rollback.
 
@@ -795,6 +798,19 @@ Graph StatisticsBackend::get_graph()
     return Graph();
 }
 
+Graph StatisticsBackend::get_domain_view_graph(
+        const EntityId& domain_id)
+{
+    return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
+}
+
+void StatisticsBackend::regenerate_domain_graph(
+        const EntityId& domain_id)
+{
+    StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
+    StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+}
+
 DatabaseDump StatisticsBackend::dump_database(
         const bool clear)
 {
@@ -936,7 +952,15 @@ void StatisticsBackend::set_alias(
     std::shared_ptr<const database::Entity> const_entity =
             StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
     std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
-    entity->alias = alias;
+    if (entity->alias != alias)
+    {
+        entity->alias = alias;
+        std::vector<EntityId> domains = StatisticsBackend::get_entities(EntityKind::DOMAIN, entity_id);
+        if (!domains.empty())
+        {
+            StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
+        }
+    }
 }
 
 } // namespace statistics_backend

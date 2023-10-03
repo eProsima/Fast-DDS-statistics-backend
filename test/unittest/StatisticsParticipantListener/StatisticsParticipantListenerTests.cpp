@@ -99,6 +99,21 @@ public:
     std::string domain_name_;
     std::shared_ptr<Domain> domain_;
 
+    // Entity Qos
+    Qos entity_qos;
+
+    // Host entity
+    std::string host_name_;
+    std::shared_ptr<Host> host_;
+
+    // User entity
+    std::string user_name_;
+    std::shared_ptr<User> user_;
+
+    // Process entity
+    std::string process_name_;
+    std::shared_ptr<Process> process_;
+
     // Participant entity
     std::string participant_name_;
     Qos participant_qos_;
@@ -153,6 +168,18 @@ public:
         domain_name_ = std::to_string(statistics_participant.domain_id_);
         domain_ = std::make_shared<Domain>(domain_name_);
         domain_->id = 0;
+
+        // Host entity
+        host_name_ = "host_name";
+        host_ = std::make_shared<Host>(host_name_);
+
+        // User entity
+        user_name_ = "user_name";
+        user_ = std::make_shared<User>(user_name_, host_);
+
+        // Process entity
+        process_name_ = "process_name";
+        process_ = std::make_shared<Process>(process_name_, process_name_, user_);
 
         // Participant entity
         participant_name_ = "participant_ name";
@@ -253,6 +280,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -304,6 +348,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
 
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
@@ -324,6 +372,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 participant_proxy_data_to_backend_qos(info.info));
 
                 return EntityId(10);
+            });
+
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
             });
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
@@ -349,10 +433,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -362,6 +457,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -412,6 +514,34 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             .WillRepeatedly(Return(participant_));
     EXPECT_CALL(database, get_entities(EntityKind::PARTICIPANT, EntityId(0))).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, participant_)));
+
+    // Precondition: The Host exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(13)))));
+    host_->id = EntityId(13);
+    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
+            .WillRepeatedly(Return(host_));
+
+    // Precondition: The User exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(14)))));
+    user_->id = EntityId(14);
+    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
+            .WillRepeatedly(Return(user_));
+
+    // Precondition: The Process exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(15)))));
+    process_->id = EntityId(15);
+    participant_->process = process_;
+    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
+            .WillRepeatedly(Return(process_));
 
     // Precondition: The Metatrafic Topic exists and has ID 6
     EXPECT_CALL(database,
@@ -481,6 +611,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     data.m_guid = participant_2_guid;
     data.m_participantName = participant_2_name;
 
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
@@ -519,6 +653,14 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
 
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
+
     // Expectation: The Participant is discovered
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -527,6 +669,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(6),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -607,6 +756,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -625,6 +791,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
 
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
 
@@ -639,6 +809,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 participant_proxy_data_to_backend_qos(info.info));
 
                 return EntityId(10);
+            });
+
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
             });
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
@@ -664,10 +870,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -677,6 +894,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -719,6 +943,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -736,6 +977,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -837,6 +1082,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(10);
             });
 
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
+            });
+
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
                 std::shared_ptr<Entity> entity)
@@ -860,10 +1141,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -873,6 +1165,12 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -915,6 +1213,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -932,6 +1247,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1015,6 +1334,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(10);
             });
 
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
+            });
+
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
                 std::shared_ptr<Entity> entity)
@@ -1038,10 +1393,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1051,6 +1417,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1093,6 +1466,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -1110,6 +1500,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1173,6 +1567,41 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(10);
             });
 
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
+            });
 
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
@@ -1197,10 +1626,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1210,6 +1650,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1252,6 +1699,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -1269,6 +1733,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1310,6 +1778,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(10);
             });
 
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
+            });
+
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
                 std::shared_ptr<Entity> entity)
@@ -1333,10 +1837,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1346,6 +1861,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1388,6 +1910,23 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, get_entity(EntityId(10))).Times(AnyNumber())
             .WillRepeatedly(Return(std::shared_ptr<const Entity>()));
 
+    // Precondition: The Host does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The User does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_))
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
+    // Precondition: The Process does not exist
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(0)));
+
     // Precondition: The Metatrafic Topic does not exist
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -1405,6 +1944,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1498,6 +2041,42 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(10);
             });
 
+    // Expectation: The host is created and given ID 13
+    InsertEntityArgs insert_args_host([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::HOST);
+                EXPECT_EQ(entity->name, host_name_);
+                EXPECT_EQ(entity->alias, host_name_);
+
+                return EntityId(13);
+            });
+
+    // Expectation: The user is created and given ID 14
+    InsertEntityArgs insert_args_user([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::USER);
+                EXPECT_EQ(entity->name, user_name_);
+                EXPECT_EQ(entity->alias, user_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
+
+                return EntityId(14);
+            });
+
+    // Expectation: The process is created and given ID 15
+    InsertEntityArgs insert_args_process([&](
+                std::shared_ptr<Entity> entity)
+            {
+                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
+                EXPECT_EQ(entity->name, process_name_);
+                EXPECT_EQ(entity->alias, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, process_name_);
+                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
+
+                return EntityId(15);
+            });
+
     // Expectation: The Metatraffic topic is added to the database. We do not care about the given ID
     InsertEntityArgs insert_topic_args([&](
                 std::shared_ptr<Entity> entity)
@@ -1521,10 +2100,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert(_)).Times(3)
+    EXPECT_CALL(database, insert(_)).Times(6)
             .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
+            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_topic_args, &InsertEntityArgs::insert))
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEntityArgs::insert));
+
+    // Expectation: The link method is called with appropriate arguments
+    EXPECT_CALL(database, link_participant_with_process(EntityId(10), EntityId(15))).Times(1);
+
+    // Expectation: Modify graph
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
+            EntityId(10))).Times(1).WillOnce(Return(true));
 
     // Expectation: The Participant is discovered
     EXPECT_CALL(
@@ -1534,6 +2124,13 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Expectation: The metatraffic endpoint change it status
     EXPECT_CALL(database, change_entity_status(EntityId(12), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
+            EntityId(12))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1613,6 +2210,34 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     EXPECT_CALL(database, get_entities(EntityKind::PARTICIPANT, EntityId(5))).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(5, participant_)));
 
+    // Precondition: The Host exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(13)))));
+    host_->id = EntityId(13);
+    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
+            .WillRepeatedly(Return(host_));
+
+    // Precondition: The User exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(14)))));
+    user_->id = EntityId(14);
+    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
+            .WillRepeatedly(Return(user_));
+
+    // Precondition: The Process exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(15)))));
+    process_->id = EntityId(15);
+    participant_->process = process_;
+    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
+            .WillRepeatedly(Return(process_));
+
     // Precondition: The Metatrafic Topic exists and has ID 6
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::TOPIC, metatraffic_prefix + "TOPIC")).Times(AnyNumber())
@@ -1666,6 +2291,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
 
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
@@ -1681,11 +2310,20 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     EXPECT_CALL(database, change_entity_status(EntityId(7), true)).Times(1);
     EXPECT_CALL(database, change_entity_status(EntityId(5), true)).Times(1);
 
+    // Expectation: Modify graph
+    EXPECT_CALL(database, update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15), EntityId(
+                5))).Times(1).WillOnce(Return(true));
+
     // Expectation: The Participant is discovered
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
         on_domain_entity_discovery(EntityId(0), EntityId(5), EntityKind::PARTICIPANT,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(5), EntityId(6), EntityId(7))).Times(1).WillOnce(Return(
+                false));
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1721,6 +2359,34 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
+    // Precondition: The Host exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::HOST, host_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(13)))));
+    host_->id = EntityId(13);
+    EXPECT_CALL(database, get_entity(EntityId(13))).Times(AnyNumber())
+            .WillRepeatedly(Return(host_));
+
+    // Precondition: The User exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::USER, user_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(14)))));
+    user_->id = EntityId(14);
+    EXPECT_CALL(database, get_entity(EntityId(14))).Times(AnyNumber())
+            .WillRepeatedly(Return(user_));
+
+    // Precondition: The Process exists
+    EXPECT_CALL(database,
+            get_entities_by_name(EntityKind::PROCESS, process_name_)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
+            std::make_pair(EntityId(0), EntityId(15)))));
+    process_->id = EntityId(15);
+    participant_->process = process_;
+    EXPECT_CALL(database, get_entity(EntityId(15))).Times(AnyNumber())
+            .WillRepeatedly(Return(process_));
+
     // Start building the discovered reader info
     eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
     eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
@@ -1728,6 +2394,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
     // Precondition: The discovered participant has the given GUID and name
     data.m_guid = participant_guid_;
     data.m_participantName = participant_name_;
+
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1737,6 +2407,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
 
     // Expectation: The Participant status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(2);
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database, update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15), EntityId(
+                1))).Times(2)
+            .WillOnce(Return(true))
+            .WillOnce(Return(false));
+
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -1772,15 +2451,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -1856,6 +2526,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -1882,15 +2559,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -1962,15 +2630,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -2062,6 +2721,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
+            EntityId(11))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2093,15 +2759,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: Another domain with ID 100 exists
     std::string another_domain_name = "another_domain";
@@ -2203,6 +2860,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2232,15 +2896,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -2403,6 +3058,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2610,6 +3272,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2774,15 +3443,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
-
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -2838,6 +3498,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     // Expectation: The DataReader status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2),
+            EntityId(10))).Times(1).WillOnce(Return(false));
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2865,15 +3530,6 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -2930,6 +3586,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     // Expectation: The DataReader status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2),
+            EntityId(10))).Times(1).WillOnce(Return(false));
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2959,15 +3620,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3043,6 +3695,13 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -3069,15 +3728,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3149,15 +3799,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3249,6 +3890,13 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
+            EntityId(11))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -3264,8 +3912,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
 }
 
-TEST_F(statistics_participant_listener_tests, new_writer_several_locators
-        )
+TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
 {
     std::vector<std::shared_ptr<const Entity>> existing_locators;
     int64_t next_entity_id = 100;
@@ -3284,15 +3931,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3455,6 +4093,13 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -3658,6 +4303,13 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
+                true));
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_domain_graph_update(EntityId(0))).Times(1);
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -3823,15 +4475,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
 
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
-
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
@@ -3887,6 +4530,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2),
+            EntityId(10))).Times(1).WillOnce(Return(false));
+
     // Expectation: The user listener is called
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -3914,15 +4562,6 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
             .WillRepeatedly(Return(participant_));
-
-    // Precondition: The Participant is linked to a host with ID 50
-    std::string host_name = "hostname";
-    std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
-
-    EXPECT_CALL(database, get_entities(EntityKind::HOST, EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::shared_ptr<const Entity>>(1, host)));
-    EXPECT_CALL(database, get_entity(EntityId(50))).Times(AnyNumber())
-            .WillRepeatedly(Return(host));
 
     // Precondition: The Topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
@@ -3978,6 +4617,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);
+
+    // Expectation: Modify graph and notify user (twice, also from participant update)
+    EXPECT_CALL(database,
+            update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2),
+            EntityId(10))).Times(1).WillOnce(Return(false));
 
     // Expectation: The user listener is called
     EXPECT_CALL(

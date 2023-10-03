@@ -130,6 +130,33 @@ public:
     {
     }
 
+    MOCK_METHOD2(init_domain_view_graph, void(
+                const std::string& domain_name,
+                const EntityId& domain_entity_id));
+
+    MOCK_METHOD5(update_participant_in_graph, bool(
+                const EntityId& domain_entity_id,
+                const EntityId& host_entity_id,
+                const EntityId& user_entity_id,
+                const EntityId& process_entity_id,
+                const EntityId& participant_entity_id));
+
+    MOCK_METHOD4(update_endpoint_in_graph, bool(
+                const EntityId& domain_entity_id,
+                const EntityId& participant_entity_id,
+                const EntityId& topic_entity_id,
+                const EntityId& endpoint_entity_id));
+
+    MOCK_METHOD1(regenerate_domain_graph, void(
+                const EntityId& domain_entity_id));
+
+    MOCK_CONST_METHOD1(get_domain_view_graph, Graph(
+                const EntityId& domain_id));
+
+    MOCK_CONST_METHOD2(update_graph_on_updated_entity, void(
+                const EntityId& domain_id,
+                const EntityId& entity_id));
+
     int64_t next_id_{0};
 };
 

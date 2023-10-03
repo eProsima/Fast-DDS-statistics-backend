@@ -195,6 +195,14 @@ public:
             DiscoveryStatus discovery_status);
 
     /**
+     * @brief Notify the user about a new updated graph
+     *
+     * @param entity_id The entity_id of the domain whose graph has been updated.
+     */
+    void on_domain_graph_update(
+            EntityId entity_id);
+
+    /**
      * @brief Notify the user about a new available data
      *
      * @param domain_id The domain where the data is available

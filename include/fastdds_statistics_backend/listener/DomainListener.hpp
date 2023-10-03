@@ -182,6 +182,17 @@ public:
         static_cast<void>(data_kind);
     }
 
+    /*!
+     * This function is called when the database domain view graph is updated.
+     *
+     * @param domain_id EntityId of the domain whose graph has been updated.
+     */
+    virtual void on_domain_view_graph_update(
+            const EntityId& domain_id)
+    {
+        static_cast<void>(domain_id);
+    }
+
 };
 
 } // namespace statistics_backend

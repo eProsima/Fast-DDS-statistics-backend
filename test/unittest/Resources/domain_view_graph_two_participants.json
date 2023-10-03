@@ -1,0 +1,98 @@
+{
+    "kind": "domain",
+    "domain": "33",
+    "topics":
+    {
+        "5":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
+    "hosts":
+    {
+        "1":
+        {
+            "kind": "host",
+            "metatraffic": false,
+            "alias": "eprosima-host",
+            "status": "ok",
+            "users":
+            {
+                "2":
+                {
+                    "kind": "user",
+                    "metatraffic": false,
+                    "alias": "eprosima",
+                    "status": "ok",
+                    "processes":
+                    {
+                        "3":
+                        {
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "1234",
+                            "pid": "1234",
+                            "status": "ok",
+                            "participants":
+                            {
+                                "4":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "participant_1",
+                                    "status": "ok",
+                                    "app_id": "unknown",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "7":
+                                        {
+                                            "kind": "datawriter",
+                                            "metatraffic": false,
+                                            "alias": "publisher",
+                                            "status": "ok",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "8":
+                        {
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "1235",
+                            "pid": "1235",
+                            "status": "ok",
+                            "participants":
+                            {
+                                "9":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "participant_2",
+                                    "status": "ok",
+                                    "app_id": "unknown",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "11":
+                                        {
+                                            "kind": "datareader",
+                                            "metatraffic": false,
+                                            "alias": "subscriber",
+                                            "status": "ok",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -45,8 +45,16 @@
         }
     },
 
-    "domains":
-    {
+    "domains": {
+        "4": {
+          "name": "120",
+          "alias": "domain_0",
+          "participants": [],
+          "metatraffic": false,
+          "alive": true,
+          "status": 0,
+          "topics": []
+        }
     },
 
     "topics":

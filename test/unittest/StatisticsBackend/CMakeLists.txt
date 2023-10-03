@@ -69,6 +69,8 @@ set(BACKEND_TEST_LIST
     set_alias
     internal_callbacks_negative_cases
     set_listener_non_existent_monitor
+    get_domain_view_graph
+    get_domain_view_graph_invalid_domain
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})

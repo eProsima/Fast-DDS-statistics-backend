@@ -337,6 +337,91 @@ public:
             EntityId entity_id) const;
 
     /**
+     * @brief Get the specified domain view graph from database.
+     *
+     * @param domain Domain from which graph is delivered.
+     *
+     * @return Graph object describing topology of the entities in the domain.
+     */
+    Graph get_domain_view_graph(
+            const EntityId& domain_id) const;
+
+    /**
+     * @brief Init domain view graph with specified domain.
+     *
+     * @param domain_name Domain where monitoring.
+     * @param domain_entity_id The EntityId of the domain.
+     */
+    void init_domain_view_graph(
+            const std::string& domain_name,
+            const EntityId& domain_entity_id);
+
+    /**
+     * @brief Update host-user-process-participant in domain view graph after participant entity discovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param host_entity_id The EntityId of the host.
+     * @param user_entity_id The EntityId of the user.
+     * @param process_entity_id The EntityId of the process.
+     * @param participant_entity_id The EntityId of the participant.
+     *
+     * @return True if graph has been updated
+     */
+    bool update_participant_in_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& host_entity_id,
+            const EntityId& user_entity_id,
+            const EntityId& process_entity_id,
+            const EntityId& participant_entity_id);
+
+    /**
+     * @brief Update topic-endpoint in domain view graph after endpoint entity discovery.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     * @param participant_entity_id The EntityId of the participant.
+     * @param topic_entity_id The EntityId of the topic.
+     * @param endpoint_entity_id The EntityId of the endpoint.
+     *
+     * @return True if graph has been updated
+     */
+    bool update_endpoint_in_graph(
+            const EntityId& domain_entity_id,
+            const EntityId& participant_entity_id,
+            const EntityId& topic_entity_id,
+            const EntityId& endpoint_entity_id);
+
+    /**
+     * @brief Regenerate graph from data stored in database.
+     *
+     * @param domain_entity_id The EntityId of the domain.
+     *
+     */
+    void regenerate_domain_graph(
+            const EntityId& domain_entity_id);
+
+    /**
+     * @brief Update graph according to the updated entity.
+     *
+     * @param domain_id The EntityId of the domain containing the entity.
+     * @param entity_id The EntityId of the entity updated.
+     *
+     */
+    void update_graph_on_updated_entity(
+            const EntityId& domain_id,
+            const EntityId& entity_id);
+
+    /**
+     * @brief Get entity subgraph.
+     *
+     * @param entity_id The EntityId from the entity which asks for its subgraph.
+     * @param entity_graph Subgraph where to add entity data.
+     *
+     */
+    Graph get_entity_subgraph(
+            const EntityId& entity_id,
+            Graph& entity_graph);
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
@@ -920,6 +1005,9 @@ protected:
      * Each value in the collection is in turn a map of the actual Topics sorted by EntityId
      */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
+
+    //! Graph map describing per domain complete topology of the entities.
+    std::map<EntityId, Graph> domain_view_graph;
 
     /**
      * The ID that will be assigned to the next entity.

@@ -129,8 +129,9 @@ TEST(database_load_tests, load_and_dump_complex_erased_database)
 
     // Check that the next_id_ is the expected
     EXPECT_EQ(db.next_id(), 27);
-    // Check that EntityId 13 (domain_1) does not exist in the database
-    EXPECT_THROW(db.get_entity(13), BadParameter);
+    // Check that EntityId 13 (domain_1) does not contain participants nor topics
+    EXPECT_TRUE(std::dynamic_pointer_cast<const database::Domain>(db.get_entity(13))->participants.empty());
+    EXPECT_TRUE(std::dynamic_pointer_cast<const database::Domain>(db.get_entity(13))->topics.empty());
 
     // Compare the dumps to ensure that the entities have been created with the same ids.
     ASSERT_EQ(dump, loadedDump);
