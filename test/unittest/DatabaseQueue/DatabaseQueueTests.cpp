@@ -146,6 +146,55 @@ public:
 
 };
 
+// Wrapper class to expose the internal attributes of the queue
+class DatabaseMonitorDataQueueWrapper : public DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>
+{
+
+public:
+
+    DatabaseMonitorDataQueueWrapper(
+            Database* database)
+        : DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(database)
+    {
+    }
+
+    const std::queue<queue_item_type> get_foreground_queue()
+    {
+        return *foreground_queue_;
+    }
+
+    const std::queue<queue_item_type> get_background_queue()
+    {
+        return *background_queue_;
+    }
+
+    void do_swap()
+    {
+        swap();
+    }
+
+    /**
+     * @brief Processes one sample and removes it from the front queue
+     *
+     * This is necessary to check exception handling on the consumer
+     * Consumers must be stopped and the queues swapped manually
+     *
+     * @return true if anything was consumed
+     */
+    bool consume_sample()
+    {
+        if (empty())
+        {
+            return false;
+        }
+
+        process_sample();
+        pop();
+        return true;
+    }
+
+};
+
 struct InsertDataArgs
 {
     InsertDataArgs (
@@ -169,6 +218,31 @@ struct InsertDataArgs
                 const EntityId&,
                 const EntityId&,
                 const StatisticsSample&)> callback_;
+};
+
+struct InsertMonitorServiceDataArgs
+{
+    InsertMonitorServiceDataArgs (
+            std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> func)
+        : callback_(func)
+    {
+    }
+
+    bool insert(
+            const EntityId& domain_id,
+            const EntityId& id,
+            const eprosima::statistics_backend::MonitorServiceSample& sample)
+    {
+        return callback_(domain_id, id, sample);
+    }
+
+    std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> callback_;
 };
 
 struct InsertEntityArgs
@@ -401,10 +475,12 @@ public:
     StrictMock<Database> database;
     DatabaseEntityQueueWrapper entity_queue;
     DatabaseDataQueueWrapper data_queue;
+    DatabaseMonitorDataQueueWrapper monitor_data_queue;
 
     database_queue_tests()
         : entity_queue(&database)
         , data_queue(&database)
+        , monitor_data_queue(&database)
     {
     }
 
@@ -1122,7 +1198,7 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     std::string username = "user";
     std::string hostname = "host";
 
-    // Build the wrong process name
+    // Build the process name
     std::stringstream ss;
     ss << processname << ":" << pid;
     std::string processname_pid = ss.str();
@@ -4374,6 +4450,978 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     // Add to the queue and wait to be processed
     data_queue.push(timestamp, data);
     data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_proxy)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const ProxySample&>(sample).entity_proxy, entity_proxy);
+
+                return true;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
+
+    // Update graph
+    EXPECT_CALL(database, update_graph_on_updated_entity(EntityId(0), EntityId(1))).Times(1)
+            .WillOnce(Return(true));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_connection_list)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build connection list sequence
+    std::vector<Connection> connection_list;
+    Connection connection;
+    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
+    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
+    entity_id.value(other_entity_id);
+    DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
+    entity_guid.guidPrefix(participant_prefix);
+    entity_guid.entityId(entity_id);
+    connection.guid(entity_guid);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    connection.announced_locators({locator});
+    connection.used_locators({locator});
+    connection_list = {connection, connection};
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    MonitorServiceData value;
+    value.connection_list(connection_list);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::CONNECTION_LIST);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const ConnectionListSample&>(sample).connection_list, connection_list);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::CONNECTION_LIST)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the participant GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
+    participant_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
+    participant_entity_id.value(participant_id);
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
+    participant_guid.guidPrefix(participant_prefix);
+    participant_guid.entityId(participant_entity_id);
+
+    // Build connection list sequence
+    std::vector<Connection> connection_list;
+    Connection connection;
+    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
+    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
+    entity_id.value(other_entity_id);
+    DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
+    entity_guid.guidPrefix(participant_prefix);
+    entity_guid.entityId(entity_id);
+    connection.guid(entity_guid);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    connection.announced_locators({locator});
+    connection.used_locators({locator});
+    connection_list = {connection, connection};
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    MonitorServiceData value;
+    value.connection_list(connection_list);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_incompatible_qos)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build incompatible qos status
+    IncompatibleQoSStatus_s incompatible_qos_status;
+    incompatible_qos_status.total_count(0);
+    incompatible_qos_status.last_policy_id(0);
+    QosPolicyCountSeq_s qos_policy_count_seq;
+    QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    incompatible_qos_status.policies(qos_policy_count_seq);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.incompatible_qos_status(incompatible_qos_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const IncompatibleQosSample&>(sample).incompatible_qos_status, incompatible_qos_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build incompatible qos status
+    IncompatibleQoSStatus_s incompatible_qos_status;
+    incompatible_qos_status.total_count(1);
+    incompatible_qos_status.last_policy_id(0);
+    QosPolicyCountSeq_s qos_policy_count_seq;
+    QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    incompatible_qos_status.policies(qos_policy_count_seq);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.incompatible_qos_status(incompatible_qos_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build inconsistent topic status
+    InconsistentTopicStatus_s inconsistent_topic_status;
+    inconsistent_topic_status.total_count(0);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    MonitorServiceData value;
+    value.inconsistent_topic_status(inconsistent_topic_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const InconsistentTopicSample&>(sample).inconsistent_topic_status, inconsistent_topic_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build inconsistent topic status
+    InconsistentTopicStatus_s inconsistent_topic_status;
+    inconsistent_topic_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    MonitorServiceData value;
+    value.inconsistent_topic_status(inconsistent_topic_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_lost)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build liveliness lost status
+    LivelinessLostStatus_s liveliness_lost_status;
+    liveliness_lost_status.total_count(0);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    MonitorServiceData value;
+    value.liveliness_lost_status(liveliness_lost_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_LOST);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const LivelinessLostSample&>(sample).liveliness_lost_status, liveliness_lost_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_LOST)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build liveliness lost status
+    LivelinessLostStatus_s liveliness_lost_status;
+    liveliness_lost_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    MonitorServiceData value;
+    value.liveliness_lost_status(liveliness_lost_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_changed)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build liveliness changed status
+    LivelinessChangedStatus_s liveliness_changed_status;
+    liveliness_changed_status.alive_count(0);
+    liveliness_changed_status.not_alive_count(0);
+    liveliness_changed_status.last_publication_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    MonitorServiceData value;
+    value.liveliness_changed_status(liveliness_changed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const LivelinessChangedSample&>(sample).liveliness_changed_status, liveliness_changed_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build liveliness changed status
+    LivelinessChangedStatus_s liveliness_changed_status;
+    liveliness_changed_status.alive_count(0);
+    liveliness_changed_status.not_alive_count(0);
+    liveliness_changed_status.last_publication_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    MonitorServiceData value;
+    value.liveliness_changed_status(liveliness_changed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+
+TEST_F(database_queue_tests, push_monitor_deadline_missed)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build deadeline missed status
+    DeadlineMissedStatus_s deadline_missed_status;
+    deadline_missed_status.total_count(0);
+    deadline_missed_status.last_instance_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    MonitorServiceData value;
+    value.deadline_missed_status(deadline_missed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::DEADLINE_MISSED);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const DeadlineMissedSample&>(sample).deadline_missed_status, deadline_missed_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::DEADLINE_MISSED)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build deadeline missed status
+    DeadlineMissedStatus_s deadline_missed_status;
+    deadline_missed_status.total_count(1);
+    deadline_missed_status.last_instance_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    MonitorServiceData value;
+    value.deadline_missed_status(deadline_missed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_sample_lost)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build sample lost status
+    SampleLostStatus_s sample_lost_status;
+    sample_lost_status.total_count(0);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    MonitorServiceData value;
+    value.sample_lost_status(sample_lost_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::SAMPLE_LOST);
+                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const SampleLostSample&>(sample).sample_lost_status, sample_lost_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::SAMPLE_LOST)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build sample lost status
+    SampleLostStatus_s sample_lost_status;
+    sample_lost_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    MonitorServiceData value;
+    value.sample_lost_status(sample_lost_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_statuses_size)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
+    MonitorServiceData value;
+    uint8_t octet = 1;
+    value.statuses_size(octet);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_problem_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
 int main(

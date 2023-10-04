@@ -43,7 +43,6 @@ using EntityId = eprosima::statistics_backend::EntityId;
 using EntityKind = eprosima::statistics_backend::EntityKind;
 using DataKind = eprosima::statistics_backend::DataKind;
 
-
 struct InsertDataArgs
 {
     InsertDataArgs (
@@ -67,6 +66,31 @@ struct InsertDataArgs
                 const EntityId&,
                 const EntityId&,
                 const StatisticsSample&)> callback_;
+};
+
+struct InsertMonitorServiceDataArgs
+{
+    InsertMonitorServiceDataArgs (
+            std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> func)
+        : callback_(func)
+    {
+    }
+
+    bool insert(
+            const EntityId& domain_id,
+            const EntityId& id,
+            const eprosima::statistics_backend::MonitorServiceSample& sample)
+    {
+        return callback_(domain_id, id, sample);
+    }
+
+    std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> callback_;
 };
 
 class statistics_reader_listener_tests : public ::testing::Test
@@ -95,6 +119,13 @@ public:
             std::shared_ptr<SampleInfo> info)
     {
         datareader_.add_sample(data, info);
+    }
+
+    void add_monitor_sample_to_reader_history(
+            std::shared_ptr<MonitorServiceStatusData> data,
+            std::shared_ptr<SampleInfo> info)
+    {
+        datareader_.add_monitor_sample(data, info);
     }
 
     std::shared_ptr<SampleInfo> get_default_info()
@@ -1324,6 +1355,74 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
+}
+
+TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
+{
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+
+    // Build the writer GUID
+    DatabaseDataQueue<MonitorServiceData>::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue<MonitorServiceData>::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue<MonitorServiceData>::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+    StatusKind kind = StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    add_monitor_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database_, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const eprosima::statistics_backend::MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
+                EXPECT_EQ(sample.status, eprosima::statistics_backend::EntityStatus::OK);
+                EXPECT_EQ(dynamic_cast<const eprosima::statistics_backend::ProxySample&>(sample).entity_proxy, entity_proxy);
+
+                return false;
+            });
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+    
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
+
+    // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(MONITOR_SERVICE_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    monitor_service_data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(0);
+    reader_listener_.on_data_available(&datareader_);
+    monitor_service_data_queue_.flush();
 }
 
 int main(

@@ -180,15 +180,6 @@ void StatisticsReaderListener::on_data_available(
                 enqueue = true;
             }
         }
-        else if (PHYSICAL_DATA_TOPIC == topic_name)
-        {
-            PhysicalData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
-            {
-                data->physical_data(inner_data);
-                enqueue = true;
-            }
-        }
         if (!enqueue)
         {
             // Nothing to push to queue

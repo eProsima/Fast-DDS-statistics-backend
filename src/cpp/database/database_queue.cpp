@@ -1311,7 +1311,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             break;
         }
 
-        case StatisticsEventKind::PHYSICAL_DATA:
+        default:
         {
             break;
         }

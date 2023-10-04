@@ -100,6 +100,23 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_discovery_times_no_entity
         push_sample_datas
         push_sample_datas_no_writer
+        push_monitor_proxy
+        push_monitor_proxy_no_entity
+        push_monitor_connection_list
+        push_monitor_connection_list_no_entity
+        push_monitor_incompatible_qos
+        push_monitor_incompatible_qos_no_entity
+        push_monitor_inconsistent_topic
+        push_monitor_inconsistent_topic_no_entity
+        push_monitor_liveliness_lost
+        push_monitor_liveliness_lost_no_entity
+        push_monitor_liveliness_changed
+        push_monitor_liveliness_changed_no_entity
+        push_monitor_deadline_missed
+        push_monitor_deadline_missed_no_entity
+        push_monitor_sample_lost
+        push_monitor_sample_lost_no_entity
+        push_monitor_statuses_size
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})

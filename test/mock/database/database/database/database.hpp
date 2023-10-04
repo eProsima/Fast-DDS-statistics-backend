@@ -195,7 +195,7 @@ public:
                 const EntityId& topic_entity_id,
                 const EntityId& endpoint_entity_id));
 
-    MOCK_METHOD1(regenerate_domain_graph, void(
+    MOCK_METHOD1(regenerate_domain_graph, bool(
                 const EntityId& domain_entity_id));
 
     MOCK_CONST_METHOD1(get_domain_view_graph, Graph(

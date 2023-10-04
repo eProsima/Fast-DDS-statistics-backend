@@ -782,11 +782,15 @@ Graph StatisticsBackend::get_domain_view_graph(
     return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
 }
 
-void StatisticsBackend::regenerate_domain_graph(
+bool StatisticsBackend::regenerate_domain_graph(
         const EntityId& domain_id)
 {
-    StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
-    StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+    bool regenerated_graph = StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
+    if(regenerated_graph)
+    {
+        StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+    }
+    return regenerated_graph;
 }
 
 DatabaseDump StatisticsBackend::dump_database(

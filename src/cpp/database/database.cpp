@@ -263,15 +263,21 @@ bool Database::is_topic_in_database(
     // Check whether the topic is already in the database
     std::shared_ptr<Topic> topic;
 
-    topic = std::const_pointer_cast<Topic>(
-                std::static_pointer_cast<const Topic>(get_entity_nts(topic_id)));
+    try{
+        topic = std::const_pointer_cast<Topic>(
+                    std::static_pointer_cast<const Topic>(get_entity_nts(topic_id)));
 
-    if (topic->data_type == topic_type)
-    {
-        //Found the correct topic
-        return true;
+        if (topic->data_type == topic_type)
+        {
+            //Found the correct topic
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
+    catch (BadParameter&)
     {
         return false;
     }
@@ -2177,15 +2183,16 @@ void Database::erase(
     domains_[domain_id]->participants.clear();
 
     // Regenerate domain_view_graph
-    regenerate_domain_graph_nts(domain_id);
-
-    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
-    // this function would be required.
-    execute_without_lock([&]()
-        {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
-        });
+    if(regenerate_domain_graph_nts(domain_id))
+    {
+        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+        // this function would be required.
+        execute_without_lock([&]()
+            {
+                details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+            });
+    }
 }
 
 std::vector<const StatisticsSample*> Database::select(
@@ -2637,19 +2644,28 @@ void Database::get_status_data(
         case EntityKind::PARTICIPANT:
         {
             std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            status_data = participant->monitor_service_data.proxy.back();
+            if(!participant->monitor_service_data.proxy.empty())
+            {
+                status_data = participant->monitor_service_data.proxy.back();
+            }
             break;
         }
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            status_data = datareader->monitor_service_data.proxy.back();
+            if(!datareader->monitor_service_data.proxy.empty())
+            {
+                status_data = datareader->monitor_service_data.proxy.back();
+            }
             break;
         }
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            status_data = datawriter->monitor_service_data.proxy.back();
+            if(!datawriter->monitor_service_data.proxy.empty())
+            {
+                status_data = datawriter->monitor_service_data.proxy.back();
+            }
             break;
         }
         default:
@@ -2673,19 +2689,28 @@ void Database::get_status_data(
         case EntityKind::PARTICIPANT:
         {
             std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            status_data = participant->monitor_service_data.connection_list.back();
+            if(!participant->monitor_service_data.connection_list.empty())
+            {
+                status_data = participant->monitor_service_data.connection_list.back();
+            }
             break;
         }
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            status_data = datareader->monitor_service_data.connection_list.back();
+            if(!datareader->monitor_service_data.connection_list.empty())
+            {
+                status_data = datareader->monitor_service_data.connection_list.back();
+            }
             break;
         }
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            status_data = datawriter->monitor_service_data.connection_list.back();
+            if(!datawriter->monitor_service_data.connection_list.empty())
+            {
+                status_data = datawriter->monitor_service_data.connection_list.back();
+            }
             break;
         }
         default:
@@ -2709,13 +2734,19 @@ void Database::get_status_data(
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            status_data = datareader->monitor_service_data.incompatible_qos.back();
+            if(!datareader->monitor_service_data.incompatible_qos.empty())
+            {
+                status_data = datareader->monitor_service_data.incompatible_qos.back();
+            }
             break;
         }
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            status_data = datawriter->monitor_service_data.incompatible_qos.back();
+            if(!datawriter->monitor_service_data.incompatible_qos.empty())
+            {
+                status_data = datawriter->monitor_service_data.incompatible_qos.back();
+            }
             break;
         }
         default:
@@ -2739,13 +2770,19 @@ void Database::get_status_data(
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            status_data = datareader->monitor_service_data.inconsistent_topic.back();
+            if(!datareader->monitor_service_data.inconsistent_topic.empty())
+            {
+                status_data = datareader->monitor_service_data.inconsistent_topic.back();
+            }
             break;
         }
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            status_data = datawriter->monitor_service_data.inconsistent_topic.back();
+            if(!datawriter->monitor_service_data.inconsistent_topic.empty())
+            {
+                status_data = datawriter->monitor_service_data.inconsistent_topic.back();
+            }
             break;
         }
         default:
@@ -2767,7 +2804,10 @@ void Database::get_status_data(
     if(entity->kind == EntityKind::DATAWRITER)
     {
         std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-        status_data = datawriter->monitor_service_data.liveliness_lost.back();
+        if(!datawriter->monitor_service_data.liveliness_lost.empty())
+        {
+            status_data = datawriter->monitor_service_data.liveliness_lost.back();
+        }
     }
     else
     {
@@ -2787,7 +2827,10 @@ void Database::get_status_data(
     if(entity->kind == EntityKind::DATAREADER)
     {
         std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-        status_data = datareader->monitor_service_data.liveliness_changed.back();
+        if(!datareader->monitor_service_data.liveliness_changed.empty())
+        {
+            status_data = datareader->monitor_service_data.liveliness_changed.back();
+        }
     }
     else
     {
@@ -2809,13 +2852,19 @@ void Database::get_status_data(
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            status_data = datareader->monitor_service_data.deadline_missed.back();
+            if(!datareader->monitor_service_data.deadline_missed.empty())
+            {
+                status_data = datareader->monitor_service_data.deadline_missed.back();
+            }
             break;
         }
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            status_data = datawriter->monitor_service_data.deadline_missed.back();
+            if(!datawriter->monitor_service_data.deadline_missed.empty())
+            {
+                status_data = datawriter->monitor_service_data.deadline_missed.back();
+            }
             break;
         }
         default:
@@ -2837,7 +2886,10 @@ void Database::get_status_data(
     if(entity->kind == EntityKind::DATAREADER)
     {
         std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-        status_data = datareader->monitor_service_data.sample_lost.back();
+        if(!datareader->monitor_service_data.sample_lost.empty())
+        {
+            status_data = datareader->monitor_service_data.sample_lost.back();
+        }
     }
     else
     {
@@ -3299,14 +3351,14 @@ bool Database::update_endpoint_in_graph_nts(
     return graph_updated;
 }
 
-void Database::regenerate_domain_graph(
+bool Database::regenerate_domain_graph(
         const EntityId& domain_entity_id)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    regenerate_domain_graph_nts(domain_entity_id);
+    return regenerate_domain_graph_nts(domain_entity_id);
 }
 
-void Database::regenerate_domain_graph_nts(
+bool Database::regenerate_domain_graph_nts(
         const EntityId& domain_entity_id)
 {
     // Check if the correspondent domain graph exists
@@ -3316,7 +3368,9 @@ void Database::regenerate_domain_graph_nts(
     }
     else
     {
-        return;
+        logWarning(BACKEND_DATABASE,
+        "Error regenerating graph. No previous graph was found");
+        return false;
     }
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
@@ -3430,6 +3484,7 @@ void Database::regenerate_domain_graph_nts(
             }
         }
     }
+    return true;
 }
 
 bool Database::update_graph_on_updated_entity(
@@ -5014,6 +5069,7 @@ void Database::clear_statistics_data_nts_(
         for (const auto& it : super_it.second)
         {
             it.second->data.clear(t_to, false);
+            it.second->monitor_service_data.clear(t_to, false);
         }
     }
     // Datawriters
@@ -5023,6 +5079,7 @@ void Database::clear_statistics_data_nts_(
         for (const auto& it : super_it.second)
         {
             it.second->data.clear(t_to, false);
+            it.second->monitor_service_data.clear(t_to, false);
         }
     }
     // Datareaders
@@ -5032,6 +5089,7 @@ void Database::clear_statistics_data_nts_(
         for (const auto& it : super_it.second)
         {
             it.second->data.clear(t_to, false);
+            it.second->monitor_service_data.clear(t_to, false);
         }
     }
 }
@@ -5043,14 +5101,16 @@ void Database::clear_inactive_entities()
     // Regenerate the entire graph
     for (auto it = domains_.cbegin(); it != domains_.cend(); ++it)
     {
-        regenerate_domain_graph_nts(it->first);
-        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
-        // this function would be required.
-        execute_without_lock([&]()
-            {
-                details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
-            });
+        if(regenerate_domain_graph_nts(it->first))
+        {
+            // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+            // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+            // this function would be required.
+            execute_without_lock([&]()
+                {
+                    details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
+                });
+        }
     }
 }
 

@@ -615,34 +615,6 @@ struct SampleLostSample : MonitorServiceSample
    eprosima::fastdds::statistics::SampleLostStatus_s sample_lost_status;
 };
 
-/*
-* Statuses size status data
-*/
-struct StatusesSizeSample : MonitorServiceSample
-{
-   StatusesSizeSample(): MonitorServiceSample(StatusKind::STATUSES_SIZE)
-   {
-   }
-
-   virtual ~StatusesSizeSample() = default;
-
-   void clear() final;
-
-   inline bool operator ==(
-           const StatusesSizeSample& other) const noexcept
-   {
-       return (MonitorServiceSample::operator ==(other) && statuses_size == other.statuses_size);
-   }
-
-   inline bool operator !=(
-           const StatusesSizeSample& other) const noexcept
-   {
-       return !(*this == other);
-   }
-
-   uint8_t statuses_size;
-};
-
 } //namespace statistics_backend
 } //namespace eprosima
 

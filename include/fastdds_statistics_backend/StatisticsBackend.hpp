@@ -440,8 +440,10 @@ public:
      * @brief Regenerate graph from data stored in database.
      *
      * @param domain_id EntityId from domain whose graph is regenerated.
+     * 
+     * @return True if the graph has been regenerated
      */
-    static void regenerate_domain_graph(
+    static bool regenerate_domain_graph(
             const EntityId& domain_id);
 
     /**

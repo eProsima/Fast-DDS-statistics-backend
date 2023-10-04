@@ -547,8 +547,9 @@ public:
      *
      * @param domain_entity_id The EntityId of the domain.
      *
+     * @return True if the graph has been regenerated
      */
-    void regenerate_domain_graph(
+    bool regenerate_domain_graph(
             const EntityId& domain_entity_id);
 
     /**
@@ -1247,8 +1248,9 @@ protected:
      *
      * @param domain_entity_id The EntityId of the domain.
      *
+     * @return True if the graph has been regenerated
      */
-    void regenerate_domain_graph_nts(
+    bool regenerate_domain_graph_nts(
             const EntityId& domain_entity_id);
 
     /**

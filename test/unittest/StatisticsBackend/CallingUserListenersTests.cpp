@@ -154,6 +154,11 @@ public:
                 EntityId entity_id,
                 DataKind data_kind));
 
+    MOCK_METHOD3(on_problem_reported, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                StatusKind status_kind));
+
 };
 
 class MockedDomainListener : public DomainListener
@@ -184,6 +189,11 @@ public:
                 EntityId domain_id,
                 EntityId entity_id,
                 DataKind data_kind));
+
+    MOCK_METHOD3(on_problem_reported, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                StatusKind status_kind));
 };
 
 class calling_user_listeners_tests_physical_entities : public ::testing::TestWithParam<std::tuple<EntityKind,
@@ -1455,6 +1465,221 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::EDP_PACKETS),
         std::make_tuple(DataKind::DISCOVERY_TIME),
         std::make_tuple(DataKind::SAMPLE_DATAS)
+        ));
+
+class calling_user_listeners_tests_monitor_datas : public ::testing::TestWithParam<std::tuple<StatusKind>>
+{
+public:
+
+    calling_user_listeners_tests_monitor_datas()
+        : status_kind_(std::get<0>(GetParam()))
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+        monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+    }
+
+    ~calling_user_listeners_tests_monitor_datas()
+    {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
+        StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
+    }
+
+    StatusKind status_kind_;
+    CallbackKind callback_kind_;
+    MockedPhysicalListener physical_listener_;
+    MockedDomainListener domain_listener_;
+    EntityId monitor_id_;
+
+    enum ListenerKind
+    {
+        NONE,
+        PHYSICAL,
+        DOMAIN
+    };
+
+    void test_data_availability(
+            ListenerKind listener_kind)
+    {
+
+        if (listener_kind == PHYSICAL)
+        {
+            EXPECT_CALL(physical_listener_, on_problem_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+            EXPECT_CALL(domain_listener_, on_problem_reported(_, _, _)).Times(0);
+
+        }
+        else if (listener_kind == DOMAIN)
+        {
+            EXPECT_CALL(physical_listener_, on_problem_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_problem_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+        }
+        else
+        {
+            EXPECT_CALL(physical_listener_, on_problem_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_problem_reported(_, _, _)).Times(0);
+        }
+
+        // Execution
+        details::StatisticsBackendData::get_instance()->on_problem_reported(
+            monitor_id_,
+            EntityId(1),
+            status_kind_);
+    }
+
+    /*
+     * This method extends the tests for the testcases where there is no callback triggered
+     * in the starting configuration.
+     *
+     * First it sets the appropriate physical listener and retests.
+     * Then sets the domain listener and retests.
+     */
+    void extend_no_callback_tests()
+    {
+        // Set the physical listener and test
+        CallbackMask callback_mask = CallbackMask::none();
+        callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+        DataKindMask data_mask = DataKindMask::all();
+
+        StatisticsBackend::set_physical_listener(
+            &physical_listener_,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the physical listener is called
+        test_data_availability(PHYSICAL);
+
+        // Set the domain listener and retest
+        StatisticsBackend::set_domain_listener(
+            monitor_id_,
+            &domain_listener_,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the domain listener is called
+        test_data_availability(DOMAIN);
+    }
+
+};
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available)
+{
+    CallbackMask callback_mask = CallbackMask::none();
+    callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        &domain_listener_,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        CallbackMask::all(),
+        DataKindMask::all());
+
+    // Expectation: Only the domain listener is called
+    test_data_availability(DOMAIN);
+
+    // Expectation: The domain listener is called again
+    test_data_availability(DOMAIN);
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_callback_not_in_mask)
+{
+    CallbackMask callback_mask = CallbackMask::all();
+    callback_mask ^= CallbackKind::ON_PROBLEM_REPORTED;
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        &domain_listener_,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener)
+{
+    CallbackMask callback_mask = CallbackMask::none();
+    callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener_callback_not_in_mask)
+{
+    CallbackMask callback_mask = CallbackMask::all();
+    callback_mask ^= CallbackKind::ON_PROBLEM_REPORTED;
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+#ifdef INSTANTIATE_TEST_SUITE_P
+#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
+#else
+#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_CASE_P(x, y, z)
+#endif // ifdef INSTANTIATE_TEST_SUITE_P
+
+GTEST_INSTANTIATE_TEST_MACRO(
+    calling_user_listeners_tests_monitor_datas,
+    calling_user_listeners_tests_monitor_datas,
+    ::testing::Values(
+        std::make_tuple(StatusKind::PROXY),
+        std::make_tuple(StatusKind::CONNECTION_LIST),
+        std::make_tuple(StatusKind::INCOMPATIBLE_QOS),
+        std::make_tuple(StatusKind::INCONSISTENT_TOPIC),
+        std::make_tuple(StatusKind::LIVELINESS_LOST),
+        std::make_tuple(StatusKind::LIVELINESS_CHANGED),
+        std::make_tuple(StatusKind::DEADLINE_MISSED),
+        std::make_tuple(StatusKind::SAMPLE_LOST),
+        std::make_tuple(StatusKind::STATUSES_SIZE)
         ));
 
 using ::testing::StrictMock;

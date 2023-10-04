@@ -20,7 +20,7 @@ namespace statistics_backend {
 void MonitorServiceSample::clear()
 {
     kind = StatusKind::INVALID;
-    status = EntityStatus::OK;
+    status = EntityStatus::ERROR;
     src_ts = {};
 }
 
@@ -41,7 +41,7 @@ void IncompatibleQosSample::clear()
     MonitorServiceSample::clear();
     incompatible_qos_status.total_count(0);
     incompatible_qos_status.last_policy_id(0);
-    incompatible_qos_status.policies();
+    incompatible_qos_status.policies(std::vector<eprosima::fastdds::statistics::QosPolicyCount_s>());
 }
 
 void InconsistentTopicSample::clear()
@@ -61,26 +61,20 @@ void LivelinessChangedSample::clear()
     MonitorServiceSample::clear();
     liveliness_changed_status.alive_count(0);
     liveliness_changed_status.not_alive_count(0);
-    liveliness_changed_status.last_publication_handle();
+    liveliness_changed_status.last_publication_handle(std::array<uint8_t, 16UL>());
 }
 
 void DeadlineMissedSample::clear()
 {
     MonitorServiceSample::clear();
     deadline_missed_status.total_count(0);
-    deadline_missed_status.last_instance_handle();
+    deadline_missed_status.last_instance_handle(std::array<uint8_t, 16UL>());
 }
 
 void SampleLostSample::clear()
 {
     MonitorServiceSample::clear();
     sample_lost_status.total_count(0);
-}
-
-void StatusesSizeSample::clear()
-{
-    MonitorServiceSample::clear();
-    statuses_size = 0;
 }
 
 } // namespace statistics_backend
