@@ -296,11 +296,31 @@ EntityId create_and_register_monitor(
         }
 
         /* Create DataReaders */
-        monitor->readers[topic] = monitor->subscriber->create_datareader(
-            monitor->topics[topic],
-            eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
-            monitor->reader_listener,
-            StatusMask::all());
+        if(topic == MONITOR_SERVICE_TOPIC)
+        {
+            DataReaderQos monitor_service_datareader_qos = eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS;
+            /* Specific implementation for recommended MonitorServiceDataReaderQos */
+            monitor_service_datareader_qos.history().depth = 1;
+            // Setting resource limits for a maximum assumption of up to forty participants with up to four 
+            // endpoins each. 
+            monitor_service_datareader_qos.resource_limits().max_samples = 1600;
+            monitor_service_datareader_qos.resource_limits().max_instances = 1600;
+            monitor_service_datareader_qos.resource_limits().max_samples_per_instance = 1;
+
+            monitor->readers[topic] = monitor->subscriber->create_datareader(
+                monitor->topics[topic],
+                monitor_service_datareader_qos,
+                monitor->reader_listener,
+                StatusMask::all());
+        }
+        else
+        {
+            monitor->readers[topic] = monitor->subscriber->create_datareader(
+                monitor->topics[topic],
+                eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
+                monitor->reader_listener,
+                StatusMask::all());
+        }
 
         if (monitor->readers[topic] == nullptr)
         {
