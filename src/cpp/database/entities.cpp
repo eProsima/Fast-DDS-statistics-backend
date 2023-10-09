@@ -36,7 +36,8 @@ bool Entity::is_metatraffic_topic(
         "set_parameters_atomically",
         "describe_parameters",
         "list_parameters",
-        "_fastdds_statistics_"};
+        "_fastdds_statistics_",
+        "_fastdds_monitor_service_"};
 
     std::set<std::string>::iterator it = metatraffic_topics_keywords.begin();
     size_t found;
