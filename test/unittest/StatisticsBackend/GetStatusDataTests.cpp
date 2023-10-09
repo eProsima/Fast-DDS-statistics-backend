@@ -41,6 +41,7 @@ public:
         participant_ = db_->participants().begin()->second.begin()->second;
         datawriter_ = db_->get_dds_endpoints<DataWriter>().begin()->second.begin()->second;
         datareader_ = db_->get_dds_endpoints<DataReader>().begin()->second.begin()->second;
+        domain_id = domain_->id;
         participant_id = participant_->id;
         reader_id = datareader_->id;
         writer_id = datawriter_->id;
@@ -145,6 +146,7 @@ void load_monitor_data()
     std::shared_ptr<DomainParticipant> participant_;
     std::shared_ptr<DataWriter> datawriter_;
     std::shared_ptr<DataReader> datareader_;
+    EntityId domain_id;
     EntityId participant_id;
     EntityId reader_id;
     EntityId writer_id;
@@ -176,6 +178,12 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
     }
 
     load_monitor_data();
+
+    // Wrong entity
+    {
+        ProxySample proxy_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id,proxy_sample), BadParameter);
+    }
 
     // Check that there is data loaded
     {
@@ -216,7 +224,6 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
         EXPECT_NE(proxy_sample_w, proxy_sample_);
         EXPECT_EQ(proxy_sample_w, ProxySample());
     }
-
 }
 
 TEST_F(get_status_data_tests, get_status_data_connection_list)
@@ -235,6 +242,12 @@ TEST_F(get_status_data_tests, get_status_data_connection_list)
     }
 
     load_monitor_data();
+
+    // Wrong entity
+    {
+        ConnectionListSample connection_list_sample_p;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id,connection_list_sample_p), BadParameter);
+    }
 
     // Check that there is data loaded
     {
@@ -291,6 +304,12 @@ TEST_F(get_status_data_tests, get_status_data_incompatible_qos)
 
     load_monitor_data();
 
+    // Wrong entity
+    {
+        IncompatibleQosSample incompatible_qos_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,incompatible_qos_sample), BadParameter);
+    }
+
     // Check that there is data loaded
     {
         IncompatibleQosSample incompatible_qos_sample_r;
@@ -338,6 +357,12 @@ TEST_F(get_status_data_tests, get_status_data_inconsistent_topic)
 
     load_monitor_data();
 
+    // Wrong entity
+    {
+        InconsistentTopicSample inconsistent_topic_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,inconsistent_topic_sample), BadParameter);
+    }
+
     // Check that there is data loaded
     {
         InconsistentTopicSample inconsistent_topic_sample_r;
@@ -383,6 +408,12 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_lost)
 
     load_monitor_data();
 
+    // Wrong entity
+    {
+        LivelinessLostSample liveliness_lost_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(reader_id,liveliness_lost_sample), BadParameter);
+    }
+
     // Check that there is data loaded
     {
         LivelinessLostSample liveliness_lost_sample_w;
@@ -418,6 +449,12 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_changed)
     }
 
     load_monitor_data();
+
+    // Wrong entity
+    {
+        LivelinessChangedSample liveliness_changed_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(writer_id,liveliness_changed_sample), BadParameter);
+    }
 
     // Check that there is data loaded
     {
@@ -457,6 +494,12 @@ TEST_F(get_status_data_tests, get_status_data_deadline_missed)
     }
 
     load_monitor_data();
+
+    // Wrong entity
+    {
+        DeadlineMissedSample deadline_missed_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,deadline_missed_sample), BadParameter);
+    }
 
     // Check that there is data loaded
     {
@@ -501,6 +544,12 @@ TEST_F(get_status_data_tests, get_status_data_sample_lost)
     }
 
     load_monitor_data();
+
+    // Wrong entity
+    {
+        SampleLostSample sample_lost_sample;
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,sample_lost_sample), BadParameter);
+    }
 
     // Check that there is data loaded
     {

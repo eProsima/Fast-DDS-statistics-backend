@@ -489,6 +489,19 @@ public:
             EntityId entity_id) const;
 
     /**
+     * Update entity status according to warnings and errors.
+     *
+     * @param entity_error Flag showing if there is any error status data in the entity.
+     * @param entity_warning Flag showing if there is any warning status data in the entity.
+     * @param entity_status Reference to the status of the entity.
+     * @return True if the status has changed.
+     */
+    bool status_logic(
+        const bool& entity_error,
+        const bool& entity_warning,
+        EntityStatus& entity_status);
+
+    /**
      * @brief Get the specified domain view graph from database.
      *
      * @param domain Domain from which graph is delivered.
@@ -1178,6 +1191,19 @@ protected:
         static_cast<void>(entity);
         throw BadParameter("Unsupported EntityKind");
     }
+
+    /**
+     * Update entity status according to warnings and errors. This method is not thread safe.
+     *
+     * @param entity_error Flag showing if there is any error status data in the entity.
+     * @param entity_warning Flag showing if there is any warning status data in the entity.
+     * @param entity_status Reference to the status of the entity.
+     * @return True if the status has changed.
+     */
+    bool status_logic_nts(
+        const bool& entity_error,
+        const bool& entity_warning,
+        EntityStatus& entity_status);
     
     /**
      * Get an entity given its EntityId. This method is not thread safe.

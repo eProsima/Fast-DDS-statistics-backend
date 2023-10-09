@@ -2802,6 +2802,44 @@ TEST_F(database_tests, get_monitor_service_sample_invalid)
     ASSERT_THROW(db.get_status_data(reader_id, sample), BadParameter);
 }
 
+TEST_F(database_tests, status_logic)
+{
+    //Entity OK
+    bool entity_error = false;
+    bool entity_warning = false;
+    EntityStatus entity_status = EntityStatus::OK;
+    EXPECT_FALSE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::OK);
+
+    //Entity OK->WARNING
+    entity_error = false;
+    entity_warning = true;
+    EXPECT_TRUE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::WARNING);
+    //Entity WARNING
+    EXPECT_FALSE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::WARNING);
+
+    //Entity WARNING->ERROR
+    entity_error = true;
+    entity_warning = true;
+    EXPECT_TRUE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::ERROR);
+    //Entity ERROR
+    EXPECT_FALSE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::ERROR);
+
+    //Entity ERROR->OK
+    entity_error = false;
+    entity_warning = false;
+    EXPECT_TRUE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::OK);
+    //Entity OK
+    EXPECT_FALSE(db.status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, EntityStatus::OK);
+
+}
+
 TEST_F(database_tests, get_entity_host)
 {
     auto local_host = db.get_entity(host_id);

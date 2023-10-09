@@ -309,6 +309,8 @@ set(DATABASE_TEST_LIST
     insert_monitor_service_sample_sample_lost_wrong_entity
     # get_invalid_status_data
     get_monitor_service_sample_invalid
+    # status_logic
+    status_logic
     # get_entity
     get_entity_host
     get_entity_process

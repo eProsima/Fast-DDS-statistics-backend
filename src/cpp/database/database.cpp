@@ -44,41 +44,6 @@ std::string to_string(
     return ss.str();
 }
 
-bool status_logic_nts(
-        const bool& entity_error,
-        const bool& entity_warning,
-        EntityStatus& entity_status)
-{
-    // Set entity status
-    if(entity_error)
-    {
-        if(entity_status != EntityStatus::ERROR)
-        {
-            entity_status = EntityStatus::ERROR;
-            return true;
-        }
-        return false;
-    }
-    else if(entity_warning)
-    {
-        if(entity_status != EntityStatus::WARNING)
-        {
-            entity_status = EntityStatus::WARNING;
-            return true;
-        }
-        return false;
-    }
-    else
-    {
-        if(entity_status != EntityStatus::OK)
-        {
-            entity_status = EntityStatus::OK;
-            return true;
-        }
-        return false;
-    }
-}
-
 template<typename E>
 void clear_inactive_entities_from_map_(
         std::map<EntityId, std::shared_ptr<E>>& map)
@@ -3703,6 +3668,50 @@ bool Database::update_entity_status_nts(
 
     // Set entity status
     return status_logic_nts(entity_error, entity_warning, entity->status);
+}
+
+bool Database::status_logic(
+        const bool& entity_error,
+        const bool& entity_warning,
+        EntityStatus& entity_status)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return status_logic_nts(entity_error, entity_warning, entity_status);
+}
+
+bool Database::status_logic_nts(
+        const bool& entity_error,
+        const bool& entity_warning,
+        EntityStatus& entity_status)
+{
+    // Set entity status
+    if(entity_error)
+    {
+        if(entity_status != EntityStatus::ERROR)
+        {
+            entity_status = EntityStatus::ERROR;
+            return true;
+        }
+        return false;
+    }
+    else if(entity_warning)
+    {
+        if(entity_status != EntityStatus::WARNING)
+        {
+            entity_status = EntityStatus::WARNING;
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if(entity_status != EntityStatus::OK)
+        {
+            entity_status = EntityStatus::OK;
+            return true;
+        }
+        return false;
+    }
 }
 
 void Database::set_alias(
