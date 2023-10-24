@@ -18,6 +18,7 @@
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
+#include <fastdds_statistics_backend/topic_types/types.h>
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 #include "fastdds/rtps/common/Locator.h"

@@ -23,6 +23,7 @@
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
 
+#include <fastdds_statistics_backend/topic_types/types.h>
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 
