@@ -36,7 +36,7 @@ void RTPSData::clear(
     }
 }
 
-void DomainParticipantData::clear(
+void DomainParticipantStatisticsData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {
@@ -52,7 +52,7 @@ void DomainParticipantData::clear(
     }
 }
 
-void DataReaderData::clear(
+void DataReaderStatisticsData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {
@@ -66,7 +66,7 @@ void DataReaderData::clear(
     }
 }
 
-void DataWriterData::clear(
+void DataWriterStatisticsData::clear(
         const Timestamp& t_to,
         bool clear_last_reported)
 {

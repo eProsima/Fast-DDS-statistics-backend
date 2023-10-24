@@ -545,8 +545,8 @@ public:
      * The consumer takes the @ref MonitorServiceData pushed to the queue and delegates to specializations of this subroutine
      * the task of creating the corresponding @ref MonitorServiceSample that will be added to the database.
      *
-     * @tparam T The Sample type. It should be a type extending \ref MonitorServiceSample.
-     * @tparam Q The type of the inner data contained in the \ref MonitorServiceData in the queue.
+     * @tparam Q The Sample type. It should be a type extending \ref MonitorServiceSample.
+     * @tparam R The type of the inner data contained in the \ref MonitorServiceData in the queue.
      *
      * @param[out] domain Buffer to receive the ID of the domain to which the \p entity belongs
      * @param[out] entity Buffer to receive the ID of the entity to which the sample refers

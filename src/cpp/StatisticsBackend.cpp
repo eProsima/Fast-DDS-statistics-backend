@@ -49,6 +49,7 @@
 #include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
+#include <topic_types/typesPubSubTypes.h>
 #include <topic_types/monitorservice_typesPubSubTypes.h>
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
@@ -788,7 +789,7 @@ bool StatisticsBackend::regenerate_domain_graph(
     bool regenerated_graph = StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
     if(regenerated_graph)
     {
-        StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+        StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
     }
     return regenerated_graph;
 }

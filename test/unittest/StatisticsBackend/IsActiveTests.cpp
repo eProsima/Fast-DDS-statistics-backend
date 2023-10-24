@@ -131,7 +131,7 @@ public:
 
     // Entity queue, attached to the database
     DatabaseEntityQueue* entity_queue = nullptr;
-    // Data queue, attached to the database
+    // Statistics Data queue, attached to the database
     DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue = nullptr;
     // Monitor Service Data queue, attached to the database
     DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue = nullptr;

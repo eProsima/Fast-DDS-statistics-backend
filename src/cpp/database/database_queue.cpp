@@ -159,7 +159,7 @@ EntityId DatabaseEntityQueue::process_participant(
 
     if (graph_updated)
     {
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
     }
 
     return participant_id;
@@ -220,7 +220,7 @@ EntityId DatabaseEntityQueue::process_datareader(
 
         if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
         {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
         }
     }
     catch (BadParameter&)
@@ -293,7 +293,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
 
         if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
         {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
         }
     }
     catch (BadParameter&)
@@ -391,7 +391,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_id))
     {
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
     }
     return endpoint_id;
 }
@@ -1512,7 +1512,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     {       
         if(database_->update_graph_on_updated_entity(domain, entity))
         {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain);
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain);
         }
     }
 }

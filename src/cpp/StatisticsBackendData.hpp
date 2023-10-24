@@ -87,6 +87,7 @@ public:
 
     //! Reference to the Database data queue
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
+    //! Reference to the Database monitor service status data queue
     database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_;
 
     /**
@@ -201,7 +202,7 @@ public:
      *
      * @param entity_id The entity_id of the domain whose graph has been updated.
      */
-    void on_domain_graph_update(
+    void on_domain_view_graph_update(
             EntityId entity_id);
 
     /**

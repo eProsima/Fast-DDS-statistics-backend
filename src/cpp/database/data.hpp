@@ -163,7 +163,7 @@ struct RTPSData : public Data
 /*
  * Data related to a DomainParticipant
  */
-struct DomainParticipantData : public RTPSData
+struct DomainParticipantStatisticsData : public RTPSData
 {
     // Implement Data::clear virtual method
     using RTPSData::clear;
@@ -221,7 +221,7 @@ struct DomainParticipantData : public RTPSData
 /*
  * Data related to a DataReader
  */
-struct DataReaderData : public Data
+struct DataReaderStatisticsData : public Data
 {
     // Implement Data::clear virtual method
     using Data::clear;
@@ -266,7 +266,7 @@ struct DataReaderData : public Data
 /*
  * Data related to a DataWriter
  */
-struct DataWriterData : public Data
+struct DataWriterStatisticsData : public Data
 {
     // Implement Data::clear virtual method
     using Data::clear;

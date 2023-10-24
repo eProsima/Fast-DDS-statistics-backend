@@ -373,10 +373,10 @@ void StatisticsBackendData::on_physical_entity_discovery(
     }
 }
 
-void StatisticsBackendData::on_domain_graph_update(
+void StatisticsBackendData::on_domain_view_graph_update(
         EntityId entity_id)
 {
-    if (should_call_physical_listener(CallbackKind::ON_DOMAIN_GRAPH_UPDATE))
+    if (should_call_physical_listener(CallbackKind::ON_DOMAIN_VIEW_GRAPH_UPDATE))
     {
         physical_listener_->on_domain_view_graph_update(entity_id);
     }

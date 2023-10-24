@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file include/fastdds/statistics/monitorservice_types.idl
+ * @file monitorservice_types.idl
  */
 
 #include "types.idl"
@@ -119,4 +119,3 @@ module statistics {
 }; // namespace statisitcs
 }; // namespace fastdds
 }; // namespace eprosima
-

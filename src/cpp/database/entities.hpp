@@ -333,7 +333,7 @@ struct DomainParticipant : DDSEntity
     std::map<EntityId, details::fragile_ptr<DataWriter>> data_writers;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DomainParticipant.
-    DomainParticipantData data;
+    DomainParticipantStatisticsData data;
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantMonitorServiceData monitor_service_data;
@@ -407,7 +407,7 @@ struct DataReader : DDSEndpoint
     void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataReader.
-    DataReaderData data;
+    DataReaderStatisticsData data;
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DataReader.
     DataReaderMonitorServiceData monitor_service_data;
@@ -437,7 +437,7 @@ struct DataWriter : DDSEndpoint
     void clear() final;
 
     //! Actual statistical data reported by Fast DDS Statistics Module regarding this DataWriter.
-    DataWriterData data;
+    DataWriterStatisticsData data;
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DataWriter.
     DataWriterMonitorServiceData monitor_service_data;

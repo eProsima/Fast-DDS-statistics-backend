@@ -707,7 +707,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database,
                 update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
                 EntityId(1))).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -760,7 +760,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database,
                 update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
                 EntityId(1))).Times(1).WillOnce(Return(false));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(0);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -813,7 +813,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database,
                 update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
                 EntityId(1))).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -931,7 +931,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
         EXPECT_CALL(database,
                 update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
                 EntityId(1))).Times(1).WillOnce(Return(false));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(0);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1011,7 +1011,7 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
             EntityId(1))).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectations: Request the backend to notify user (if needed)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1091,7 +1091,7 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(),
             EntityId(1))).Times(1).WillOnce(Return(false));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
     // Expectations: Request the backend to notify user (if needed)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1170,7 +1170,7 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(2), EntityId(), EntityId(),
             EntityId(1))).Times(1).WillOnce(Return(false));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
     // Expectations: Request the backend to notify user (if needed)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1250,7 +1250,7 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(), EntityId(), EntityId(),
             EntityId(1))).Times(1).WillOnce(Return(false));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
     // Expectations: Request the backend to notify user (if needed)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1327,7 +1327,7 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
             EntityId(1))).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectations: Request the backend to notify user (if needed)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1453,7 +1453,7 @@ TEST_F(database_queue_tests, push_datawriter)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1482,7 +1482,7 @@ TEST_F(database_queue_tests, push_datawriter)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(false));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1507,7 +1507,7 @@ TEST_F(database_queue_tests, push_datawriter)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1661,7 +1661,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1798,7 +1798,7 @@ TEST_F(database_queue_tests, push_datareader)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1827,7 +1827,7 @@ TEST_F(database_queue_tests, push_datareader)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(false));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(0);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1852,7 +1852,7 @@ TEST_F(database_queue_tests, push_datareader)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -2006,7 +2006,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(_)).Times(1);
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -4508,7 +4508,7 @@ TEST_F(database_queue_tests, push_monitor_proxy)
     // Update graph
     EXPECT_CALL(database, update_graph_on_updated_entity(EntityId(0), EntityId(1))).Times(1)
             .WillOnce(Return(true));
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_graph_update(EntityId(0))).Times(1);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);

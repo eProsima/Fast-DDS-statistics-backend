@@ -41,6 +41,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <Monitor.hpp>
+#include <topic_types/typesPubSubTypes.h>
 #include <topic_types/monitorservice_typesPubSubTypes.h>
 
 using namespace eprosima::statistics_backend;

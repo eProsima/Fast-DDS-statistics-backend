@@ -590,7 +590,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -776,7 +776,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(6),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -979,7 +979,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1211,7 +1211,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1429,7 +1429,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1649,7 +1649,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -1837,7 +1837,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -2062,7 +2062,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             update_endpoint_in_graph(EntityId(0), EntityId(10), EntityId(11),
             EntityId(12))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(2);
+            on_domain_view_graph_update(EntityId(0))).Times(2);
 
     // Expectation: The metatraffic endpoint is discovered
     EXPECT_CALL(
@@ -2280,7 +2280,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
             .WillOnce(Return(false));
 
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2379,7 +2379,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2538,7 +2538,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
             EntityId(11))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2657,7 +2657,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2790,7 +2790,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -2927,7 +2927,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -3250,7 +3250,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -3408,7 +3408,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
             EntityId(11))).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -3549,7 +3549,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(
@@ -3683,7 +3683,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
                 true));
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_domain_graph_update(EntityId(0))).Times(1);
+            on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Expectation: The user listener is called
     EXPECT_CALL(

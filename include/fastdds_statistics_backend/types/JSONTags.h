@@ -87,32 +87,10 @@ constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 
 //! OK status of an entity
 constexpr const char* OK_STATUS                        = "OK";
-//! arning status of an entity
+//! Warning status of an entity
 constexpr const char* WARNING_STATUS                   = "WARNING";
 //! Error status of an entity
 constexpr const char* ERROR_STATUS                     = "ERROR";
-
-/////
-// App id
-
-//! Identificator for a Fast DDS Statistics Backend app
-constexpr const char* FASTDDS_MONITOR_APP           = "FASTDDS MONITOR";
-//! Identificator for a DDS Router app
-constexpr const char* DDS_ROUTER_APP                = "DDS ROUTER";
-//! Identificator for a Shapes Demo app
-constexpr const char* SHAPES_DEMO_APP               = "SHAPES DEMO";
-//! Identificator for a Integration Service app
-constexpr const char* INTEGRATION_SERVICE_APP       = "INTEGRATION SERVICE";
-//! Identificator for a Fast DDS Visualizer app
-constexpr const char* FASTDDS_VISUALIZER_APP        = "FASTDDS VISUALIZER";
-//! Identificator for a Fast DDS Spy app
-constexpr const char* FASTDDS_SPY_APP               = "FASTDDS SPY";
-//! Identificator for a DDS Recorder app
-constexpr const char* DDS_RECORDER_APP              = "DDS RECORDER";
-//! Identificator for a DDS Replayer app
-constexpr const char* DDS_REPLAYER_APP              = "DDS REPLAYER";
-//! Identificator for a AML-IP app
-constexpr const char* AML_IP_APP                    = "AML-IP";
 
 /////
 // Internal info
@@ -149,10 +127,6 @@ constexpr const char* entity_kind_str[] =
 //! Conversion from EntityStatus to string
 constexpr const char* entity_status_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
-//! Conversion from AppId to string
-constexpr const char* app_id_str[] =
-{"UNKNOWN_APP", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
- FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP};
 
 /////
 // Data container

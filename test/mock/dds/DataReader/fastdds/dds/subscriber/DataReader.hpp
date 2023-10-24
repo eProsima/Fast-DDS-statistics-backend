@@ -26,6 +26,7 @@
 #include <fastdds/rtps/common/Guid.h>
 #include <fastrtps/types/TypesBase.h>
 
+#include <fastdds_statistics_backend/topic_types/types.h>
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 using eprosima::fastrtps::types::ReturnCode_t;
@@ -42,7 +43,7 @@ protected:
     using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsData = eprosima::fastdds::statistics::Data;
     using MonitorData = eprosima::fastdds::statistics::MonitorServiceStatusData;
-    using Sample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
+    using StatisticsSample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
     using MonitorSample = std::pair<std::shared_ptr<MonitorData>, std::shared_ptr<SampleInfo>>;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
@@ -182,7 +183,7 @@ public:
 protected:
 
     fastrtps::rtps::GUID_t guid_;
-    std::queue<Sample> history_;
+    std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
     TopicDescription topic_description_;
 

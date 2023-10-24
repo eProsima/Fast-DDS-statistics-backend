@@ -26,6 +26,7 @@
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
+#include <fastdds_statistics_backend/types/app_names.h>
 #include <StatisticsBackendData.hpp>
 
 #include "database_queue.hpp"
@@ -2151,11 +2152,11 @@ void Database::erase(
     if(regenerate_domain_graph_nts(domain_id))
     {
         // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
         // this function would be required.
         execute_without_lock([&]()
             {
-                details::StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+                details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
             });
     }
 }
@@ -3737,11 +3738,11 @@ void Database::set_alias_nts(
             if(update_graph_on_updated_entity_nts(domains[0]->id, entity_id))
             {
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
                 // this function would be required.
                 execute_without_lock([&]()
                     {
-                        details::StatisticsBackendData::get_instance()->on_domain_graph_update(domains[0]->id);
+                        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domains[0]->id);
                     });
             }
         }
@@ -5113,11 +5114,11 @@ void Database::clear_inactive_entities()
         if(regenerate_domain_graph_nts(it->first))
         {
             // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-            // mutex (e.g. by calling get_info). A refactor for not calling on_domain_graph_update from within
+            // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
             // this function would be required.
             execute_without_lock([&]()
                 {
-                    details::StatisticsBackendData::get_instance()->on_domain_graph_update(it->first);
+                    details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(it->first);
                 });
         }
     }
