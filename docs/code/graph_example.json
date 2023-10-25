@@ -1,168 +1,98 @@
 {
+    "kind": "domain",
+    "domain": "0",
+    "topics":
+    {
+        "5":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
     "hosts":
-    [
+    {
+        "2":
         {
-            "entity_id": "1",
-            "name": "example_host",
+            "kind": "host",
+            "metatraffic": false,
             "alias": "example_host_alias",
-            "alive": true,
-            "status": 0,
+            "status": "OK",
             "users":
-            [
+            {
+                "3":
                 {
-                    "entity_id": "2",
-                    "name": "example_user",
+                    "kind": "user",
+                    "metatraffic": false,
                     "alias": "example_user_alias",
-                    "alive": true,
-                    "status": 0,
+                    "status": "OK",
                     "processes":
-                    [
+                    {
+                        "4":
                         {
-                            "entity_id": "3",
-                            "name": "example_process_1",
-                            "alias": "example_process_1_alias",
-                            "alive": true,
-                            "status": 0,
-                            "pid": "9564",
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "example_process1_alias",
+                            "pid": "1234",
+                            "status": "OK",
                             "participants":
-                            [
-                                "4"
-                            ]
+                            {
+                                "1":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "example_participant1_alias",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "6":
+                                        {
+                                            "kind": "datawriter",
+                                            "metatraffic": false,
+                                            "alias": "example_publisher_alias",
+                                            "status": "OK",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
                         },
+                        "8":
                         {
-                            "entity_id": "8",
-                            "name": "example_process_2",
-                            "alias": "example_process_2_alias",
-                            "alive": true,
-                            "status": 0,
-                            "pid": "9565",
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "example_process2_alias",
+                            "pid": "1235",
+                            "status": "OK",
                             "participants":
-                            [
-                                "9"
-                            ]
+                            {
+                                "7":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "example_participant2_alias",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "9":
+                                        {
+                                            "kind": "datareader",
+                                            "metatraffic": false,
+                                            "alias": "example_subscriber_alias",
+                                            "status": "OK",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    ]
+                    }
                 }
-            ]
+            }
         }
-    ],
-    "locators":
-    [
-        {
-            "entity_id": "7",
-            "name": "127.0.0.1:7412",
-            "alias": "localhost_1",
-            "alive": true,
-            "status": 0,
-            "datareaders":
-            [
-            ],
-            "datawriters":
-            [
-                "6"
-            ]
-        },
-        {
-            "entity_id": "11",
-            "name": "127.0.0.1:7414",
-            "alias": "localhost_2",
-            "alive": true,
-            "status": 0,
-            "datareaders":
-            [
-                "10"
-            ],
-            "datawriters":
-            [
-            ]
-        }
-    ],
-    "domains":
-    [
-        {
-            "entity_id": "0",
-            "name": "0",
-            "alias": "domain_0_alias",
-            "alive": true,
-            "status": 0,
-            "participants":
-            [
-                {
-                    "entity_id": "4",
-                    "name": "participant_1",
-                    "alias": "participant_1_alias",
-                    "alive": true,
-                    "status": 0,
-                    "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.c1",
-                    "process": "3",
-                    "datareaders":
-                    [
-                    ],
-                    "datawriters":
-                    [
-                        {
-                            "entity_id": "6",
-                            "name": "datawriter_1",
-                            "alias": "datawriter_1_alias",
-                            "alive": true,
-                            "status": 0,
-                            "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03",
-                            "topic": "5",
-                            "locators":
-                            [
-                                "7"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "entity_id": "9",
-                    "name": "participant_2",
-                    "alias": "participant_2_alias",
-                    "alive": false,
-                    "status": 0,
-                    "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
-                    "process": "8",
-                    "datareaders":
-                    [
-                        {
-                            "entity_id": "10",
-                            "name": "datareader_1",
-                            "alias": "datareader_1_alias",
-                            "alive": false,
-                            "status": 0,
-                            "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04",
-                            "topic": "5",
-                            "locators":
-                            [
-                                "11"
-                            ]
-                        }
-                    ],
-                    "datawriters":
-                    [
-                    ]
-                }
-            ],
-            "topics":
-            [
-                {
-                    "entity_id": "5",
-                    "name": "example_topic",
-                    "alias": "example_topic_alias",
-                    "alive": true,
-                    "status": 0,
-                    "data_type": "example_data_type",
-                    "datareaders":
-                    [
-                        "10"
-                    ],
-                    "datawriters":
-                    [
-                        "6"
-                    ]
-                }
-            ]
-        }
-    ]
+    }
 }

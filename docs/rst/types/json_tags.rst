@@ -6,7 +6,7 @@ JSON Tags
 =========
 
 The |StatisticsBackend-api| uses JSON format to retrieve information in many methods as |get_info-api|,
-|get_graph-api| or |dump_database-api|.
+|get_domain_view_graph-api| or |dump_database-api|.
 
 .. todo::
 

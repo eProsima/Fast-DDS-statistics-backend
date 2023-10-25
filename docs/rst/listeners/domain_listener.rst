@@ -50,3 +50,6 @@ DomainListener defines the following callbacks:
   The arguments in the callback specifies the ID of the data writer and the domain
   to which it belongs.
 
+* |DomainListener::on_domain_view_graph_update-api|:
+  A domain view graph has been updated.
+  The arguments in the callback specifies the ID of the domain whose graph has been updated.
