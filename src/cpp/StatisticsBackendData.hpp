@@ -224,7 +224,7 @@ public:
      * @param entity_id The entity for which the new data is available
      * @param status_kind The StatusKind of the new available data
      */
-    void on_problem_reported(
+    void on_status_reported(
             EntityId domain_id,
             EntityId entity_id,
             StatusKind status_kind);

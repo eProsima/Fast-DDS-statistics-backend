@@ -154,7 +154,7 @@ public:
                 EntityId entity_id,
                 DataKind data_kind));
 
-    MOCK_METHOD3(on_problem_reported, void(
+    MOCK_METHOD3(on_status_reported, void(
                 EntityId domain_id,
                 EntityId entity_id,
                 StatusKind status_kind));
@@ -190,7 +190,7 @@ public:
                 EntityId entity_id,
                 DataKind data_kind));
 
-    MOCK_METHOD3(on_problem_reported, void(
+    MOCK_METHOD3(on_status_reported, void(
                 EntityId domain_id,
                 EntityId entity_id,
                 StatusKind status_kind));
@@ -1511,23 +1511,23 @@ public:
 
         if (listener_kind == PHYSICAL)
         {
-            EXPECT_CALL(physical_listener_, on_problem_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
-            EXPECT_CALL(domain_listener_, on_problem_reported(_, _, _)).Times(0);
+            EXPECT_CALL(physical_listener_, on_status_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+            EXPECT_CALL(domain_listener_, on_status_reported(_, _, _)).Times(0);
 
         }
         else if (listener_kind == DOMAIN)
         {
-            EXPECT_CALL(physical_listener_, on_problem_reported(_, _, _)).Times(0);
-            EXPECT_CALL(domain_listener_, on_problem_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+            EXPECT_CALL(physical_listener_, on_status_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_status_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
         }
         else
         {
-            EXPECT_CALL(physical_listener_, on_problem_reported(_, _, _)).Times(0);
-            EXPECT_CALL(domain_listener_, on_problem_reported(_, _, _)).Times(0);
+            EXPECT_CALL(physical_listener_, on_status_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_status_reported(_, _, _)).Times(0);
         }
 
         // Execution
-        details::StatisticsBackendData::get_instance()->on_problem_reported(
+        details::StatisticsBackendData::get_instance()->on_status_reported(
             monitor_id_,
             EntityId(1),
             status_kind_);
@@ -1544,7 +1544,7 @@ public:
     {
         // Set the physical listener and test
         CallbackMask callback_mask = CallbackMask::none();
-        callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+        callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
         DataKindMask data_mask = DataKindMask::all();
 
         StatisticsBackend::set_physical_listener(
@@ -1571,7 +1571,7 @@ public:
 TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available)
 {
     CallbackMask callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+    callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
     DataKindMask data_mask = DataKindMask::all();
 
     StatisticsBackend::set_domain_listener(
@@ -1595,7 +1595,7 @@ TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available)
 TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_callback_not_in_mask)
 {
     CallbackMask callback_mask = CallbackMask::all();
-    callback_mask ^= CallbackKind::ON_PROBLEM_REPORTED;
+    callback_mask ^= CallbackKind::ON_STATUS_REPORTED;
     DataKindMask data_mask = DataKindMask::all();
 
     StatisticsBackend::set_domain_listener(
@@ -1618,7 +1618,7 @@ TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_callba
 TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener)
 {
     CallbackMask callback_mask = CallbackMask::none();
-    callback_mask.set(CallbackKind::ON_PROBLEM_REPORTED);
+    callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
     DataKindMask data_mask = DataKindMask::all();
 
     StatisticsBackend::set_domain_listener(
@@ -1641,7 +1641,7 @@ TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_lis
 TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener_callback_not_in_mask)
 {
     CallbackMask callback_mask = CallbackMask::all();
-    callback_mask ^= CallbackKind::ON_PROBLEM_REPORTED;
+    callback_mask ^= CallbackKind::ON_STATUS_REPORTED;
     DataKindMask data_mask = DataKindMask::all();
 
     StatisticsBackend::set_domain_listener(

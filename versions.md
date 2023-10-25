@@ -1,8 +1,23 @@
 Forthcoming
 -----------
 
+This release includes the following **improvement**:
+
+* Regenerate types with Fast DDS-Gen v3.0.0.
+
+This release includes the following **dependencie update**:
+
+* Fast-CDR v2.0.0.
+
+This release includes the following **features**:
+* Added status, app id and app metadata attributes for entities.
+* Added database domain view graph.
+* Added monitor service topic data storaging and processing.
 * `StatisticsBackend::get_status` returns the entity status of a given id.
-* Added status attribute for entities.
+* `StatisticsBackend::get_domain_view_graph` returns the domain view graph of a given domain.
+* `StatisticsBackend::regenerate_domain_graph` regenerates the domain view graph of a given domain.
+* `StatisticsBackend::get_status_data` returns an specific status data of a given id.
+* Get physical information from discovery packets.
 
 Version 0.11.0
 --------------

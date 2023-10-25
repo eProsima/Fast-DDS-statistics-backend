@@ -1413,7 +1413,7 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
             .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
     
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
     // Insert the data on the queue and wait until processed
     datareader_.set_topic_name(MONITOR_SERVICE_TOPIC);

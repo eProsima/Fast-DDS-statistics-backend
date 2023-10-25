@@ -132,7 +132,7 @@ void StatisticsBackendData::on_data_available(
     }
 }
 
-void StatisticsBackendData::on_problem_reported(
+void StatisticsBackendData::on_status_reported(
         EntityId domain_id,
         EntityId entity_id,
         StatusKind status_kind)
@@ -140,13 +140,13 @@ void StatisticsBackendData::on_problem_reported(
     auto monitor = monitors_by_entity_.find(domain_id);
     assert(monitor != monitors_by_entity_.end());
 
-    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_PROBLEM_REPORTED))
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_STATUS_REPORTED))
     {
-        monitor->second->domain_listener->on_problem_reported(domain_id, entity_id, status_kind);
+        monitor->second->domain_listener->on_status_reported(domain_id, entity_id, status_kind);
     }
-    else if (should_call_physical_listener(CallbackKind::ON_PROBLEM_REPORTED))
+    else if (should_call_physical_listener(CallbackKind::ON_STATUS_REPORTED))
     {
-        physical_listener_->on_problem_reported(domain_id, entity_id, status_kind);
+        physical_listener_->on_status_reported(domain_id, entity_id, status_kind);
     }
 }
 

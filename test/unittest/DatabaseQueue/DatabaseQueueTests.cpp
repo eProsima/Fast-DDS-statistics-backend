@@ -4504,7 +4504,7 @@ TEST_F(database_queue_tests, push_monitor_proxy)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
     // Update graph
     EXPECT_CALL(database, update_graph_on_updated_entity(EntityId(0), EntityId(1))).Times(1)
@@ -4553,7 +4553,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4630,7 +4630,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::CONNECTION_LIST)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::CONNECTION_LIST)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4693,7 +4693,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4764,7 +4764,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4821,7 +4821,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4885,7 +4885,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4935,7 +4935,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -4999,7 +4999,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_LOST)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_LOST)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5049,7 +5049,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5112,7 +5112,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5161,7 +5161,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5224,7 +5224,7 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::DEADLINE_MISSED)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::DEADLINE_MISSED)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5272,7 +5272,7 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5333,7 +5333,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
 
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::SAMPLE_LOST)).Times(1);
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::SAMPLE_LOST)).Times(1);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5380,7 +5380,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);
@@ -5418,7 +5418,7 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_problem_reported(_, _, _)).Times(0);
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
     monitor_data_queue.push(timestamp, data);

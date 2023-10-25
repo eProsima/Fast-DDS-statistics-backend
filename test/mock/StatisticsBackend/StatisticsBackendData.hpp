@@ -64,7 +64,7 @@ public:
                 EntityId entity_id,
                 DataKind data_kind));
 
-    MOCK_METHOD3(on_problem_reported, void(
+    MOCK_METHOD3(on_status_reported, void(
                 EntityId domain_id,
                 EntityId entity_id,
                 StatusKind status_kind));

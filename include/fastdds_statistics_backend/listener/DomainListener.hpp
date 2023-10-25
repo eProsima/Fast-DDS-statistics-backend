@@ -200,7 +200,7 @@ public:
      * @param entity_id Entity ID of the entity to which the data refers.
      * @param status_kind Status kind of the received data.
      */
-    virtual void on_problem_reported(
+    virtual void on_status_reported(
             EntityId domain_id,
             EntityId entity_id,
             StatusKind status_kind)
