@@ -2,8 +2,8 @@
 
 .. _types_data_kind:
 
-DataKind
-========
+StatisticsData
+==============
 
 The *eProsima Fast DDS Statistics Backend* records statistics data of different
 nature, as provided by *eProsima Fast DDS Statistics Module*, e.g., latency or message count.
@@ -48,7 +48,7 @@ We refer to the nature of these data values as their |DataKind-api|.
 - |SAMPLE_DATAS-api|: Amount of DATA/DATAFRAGs needed to send a single sample.
 
 
-Each data kind may relate to one or two :ref:`entities<types_entity_kind>` where they are measured.
+Each statistics data kind may relate to one or two :ref:`entities<types_entity_kind>` where they are measured.
 For example, a `FASTDDS_LATENCY` is always measured between a data data writer
 and a data reader, whereas `PDP_PACKETS` is always measured in a participant,
 with no other entity involved in the measurement.
@@ -62,9 +62,9 @@ measurement of each data kind:
 +-------------------------------+-------------------+---------------+
 | |NETWORK_LATENCY-api|         | Locator           | Locator       |
 +-------------------------------+-------------------+---------------+
-| |PUBLICATION_THROUGHPUT-api|  | DataWriter        | -             |
+| |PUBLICATION_THROUGHPUT-api|  | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-| |SUBSCRIPTION_THROUGHPUT-api| | DataReader        | -             |
+| |SUBSCRIPTION_THROUGHPUT-api| | DataReader        | \-            |
 +-------------------------------+-------------------+---------------+
 | |RTPS_PACKETS_SENT-api|       | DomainParticipant | Locator       |
 +-------------------------------+-------------------+---------------+
@@ -74,24 +74,23 @@ measurement of each data kind:
 +-------------------------------+-------------------+---------------+
 | |RTPS_BYTES_LOST-api|         | DomainParticipant | Locator       |
 +-------------------------------+-------------------+---------------+
-| |RESENT_DATA-api|             | DataWriter        | -             |
+| |RESENT_DATA-api|             | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-| |HEARTBEAT_COUNT-api|         | DataWriter        | -             |
+| |HEARTBEAT_COUNT-api|         | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-| |ACKNACK_COUNT-api|           | DataReader        | -             |
+| |ACKNACK_COUNT-api|           | DataReader        | \-            |
 +-------------------------------+-------------------+---------------+
-| |NACKFRAG_COUNT-api|          | DataReader        | -             |
+| |NACKFRAG_COUNT-api|          | DataReader        | \-            |
 +-------------------------------+-------------------+---------------+
-| |GAP_COUNT-api|               | DataWriter        | -             |
+| |GAP_COUNT-api|               | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-| |DATA_COUNT-api|              | DataWriter        | -             |
+| |DATA_COUNT-api|              | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-| |PDP_PACKETS-api|             | DomainParticipant | -             |
+| |PDP_PACKETS-api|             | DomainParticipant | \-            |
 +-------------------------------+-------------------+---------------+
-| |EDP_PACKETS-api|             | DomainParticipant | -             |
+| |EDP_PACKETS-api|             | DomainParticipant | \-            |
 +-------------------------------+-------------------+---------------+
 | |DISCOVERY_TIME-api|          | DomainParticipant | DDSEntity     |
 +-------------------------------+-------------------+---------------+
-| |SAMPLE_DATAS-api|            | DataWriter        | -             |
+| |SAMPLE_DATAS-api|            | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
-

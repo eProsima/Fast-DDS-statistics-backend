@@ -142,9 +142,9 @@ enum class EntityKind
 };
 
 /**
- * Indicates the Status of an Entity in Statistics Backend structure
+ * Indicates the Status level in Statistics Backend structure
  */
-enum class EntityStatus
+enum class StatusLevel
 {
     /// Ok entity status
     OK_STATUS,
@@ -358,14 +358,16 @@ enum class StatisticKind
 };
 
 
-/*
- * Base class for all monitor service samples. It adds the timepoint for the sample
+/** @struct MonitorServiceSample
+ * Base class for all monitor service status samples. It adds the timepoint and status level to the sample
+ * 
+ * \sa get_status_data()
  */
 struct MonitorServiceSample
 {
     MonitorServiceSample(
             StatusKind sample_kind = StatusKind::INVALID,
-            EntityStatus sample_status = EntityStatus::OK)
+            StatusLevel sample_status = StatusLevel::OK)
         : kind(sample_kind), status(sample_status)
     {
     }
@@ -387,14 +389,14 @@ struct MonitorServiceSample
     }
 
     StatusKind kind;
-    EntityStatus status;
+    StatusLevel status;
     std::chrono::system_clock::time_point src_ts;
 };
 
 
-/*
-* Proxy data of the status data
-*/
+/** @struct ProxySample
+ * @brief Proxy data sample of an entity.
+ */
 struct ProxySample : MonitorServiceSample
 {
    ProxySample(): MonitorServiceSample(StatusKind::PROXY)
@@ -419,9 +421,10 @@ struct ProxySample : MonitorServiceSample
 
    std::vector<uint8_t> entity_proxy;
 };
-/*
-* Connection list status data
-*/
+
+/** @struct ConnectionListSample
+ * Connection list sample of an entity. Each of the elements is a Connection in which the possible values for the ConnectionMode are: intraprocess, datasharing, transport.
+ */
 struct ConnectionListSample : MonitorServiceSample
 {
    ConnectionListSample(): MonitorServiceSample(StatusKind::CONNECTION_LIST)
@@ -447,8 +450,10 @@ struct ConnectionListSample : MonitorServiceSample
    std::vector<eprosima::fastdds::statistics::Connection> connection_list;
 };
 
-/*
- * Incompatible Qos status data
+/** @struct IncompatibleQosSample
+ * Incompatible Qos sample of an entity:
+ *  - DataWriter Incompatible QoS Offered
+ *  - DataReader Incompatible QoS Requested.
  */
 struct IncompatibleQosSample : MonitorServiceSample
 {
@@ -475,9 +480,9 @@ struct IncompatibleQosSample : MonitorServiceSample
     eprosima::fastdds::statistics::IncompatibleQoSStatus_s incompatible_qos_status;
 };
 
-/*
-* Inconsistent topic status data
-*/
+/** @struct InconsistentTopicSample
+ * Inconsistent topic sample of the topic of that entity. Asked to the topic of the requested entity.
+ */
 struct InconsistentTopicSample : MonitorServiceSample
 {
    InconsistentTopicSample(): MonitorServiceSample(StatusKind::INCONSISTENT_TOPIC)
@@ -503,9 +508,9 @@ struct InconsistentTopicSample : MonitorServiceSample
    eprosima::fastdds::statistics::InconsistentTopicStatus_s inconsistent_topic_status;
 };
 
-/*
-* Liveliness lost status data
-*/
+/** @struct LivelinessLostSample
+ * Liveliness lost sample containing the number of times that liveliness was lost by a DataWriter.
+ */
 struct LivelinessLostSample : MonitorServiceSample
 {
    LivelinessLostSample(): MonitorServiceSample(StatusKind::LIVELINESS_LOST)
@@ -531,9 +536,9 @@ struct LivelinessLostSample : MonitorServiceSample
    eprosima::fastdds::statistics::LivelinessLostStatus_s liveliness_lost_status;
 };
 
-/*
-* Liveliness changed status data
-*/
+/** @struct LivelinessChangedSample
+ * Liveliness changed sample containing the number of times that liveliness status changed in a DataReader.
+ */
 struct LivelinessChangedSample : MonitorServiceSample
 {
    LivelinessChangedSample(): MonitorServiceSample(StatusKind::LIVELINESS_CHANGED)
@@ -559,9 +564,9 @@ struct LivelinessChangedSample : MonitorServiceSample
    eprosima::fastdds::statistics::LivelinessChangedStatus_s liveliness_changed_status;
 };
 
-/*
-* Deadline missed status data
-*/
+/** @struct DeadlineMissedSample
+ * Deadline missed sample containing the number of deadlines missed that were registered in that entity.
+ */
 struct DeadlineMissedSample : MonitorServiceSample
 {
    DeadlineMissedSample(): MonitorServiceSample(StatusKind::DEADLINE_MISSED)
@@ -587,9 +592,9 @@ struct DeadlineMissedSample : MonitorServiceSample
    eprosima::fastdds::statistics::DeadlineMissedStatus_s deadline_missed_status;
 };
 
-/*
-* Sample lost status data
-*/
+/** @struct SampleLostSample
+ * Sample lost sample containing the number of times that this entity lost samples.
+ */
 struct SampleLostSample : MonitorServiceSample
 {
    SampleLostSample(): MonitorServiceSample(StatusKind::SAMPLE_LOST)

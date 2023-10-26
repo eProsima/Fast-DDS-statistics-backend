@@ -383,7 +383,7 @@ struct EntityDiscoveryInfo
     bool is_virtual_metatraffic = false;
 
     // Status
-    EntityStatus entity_status;
+    StatusLevel entity_status;
 
     EntityDiscoveryInfo(
             EntityKind kind)

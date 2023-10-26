@@ -61,7 +61,7 @@ DDSEndpoint::DDSEndpoint(
         std::string endpoint_guid, /* "|GUID UNKNOWN|" */
         details::fragile_ptr<DomainParticipant> endpoint_participant, /* nullptr */
         details::fragile_ptr<Topic> endpoint_topic, /* nullptr */
-        EntityStatus status /* EntityStatus::OK_STATUS */) noexcept
+        StatusLevel status /* StatusLevel::OK_STATUS */) noexcept
     : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid, status)
     , participant(endpoint_participant)
     , topic(endpoint_topic)

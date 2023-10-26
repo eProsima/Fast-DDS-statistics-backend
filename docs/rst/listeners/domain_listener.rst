@@ -53,3 +53,8 @@ DomainListener defines the following callbacks:
 * |DomainListener::on_domain_view_graph_update-api|:
   A domain view graph has been updated.
   The arguments in the callback specifies the ID of the domain whose graph has been updated.
+
+* |DomainListener::on_status_reported-api|:
+  New status data has been received by the backend.
+  The arguments in the callback specifies the status kind of the received data
+  and the entity to which this data refers.

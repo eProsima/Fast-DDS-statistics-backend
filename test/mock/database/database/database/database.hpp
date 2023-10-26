@@ -62,7 +62,7 @@ public:
                 const Qos& qos,
                 const std::string& guid,
                 const EntityId& domain_id,
-                const EntityStatus& status,
+                const StatusLevel& status,
                 const AppId& app_id,
                 const std::string& app_metadata));
 

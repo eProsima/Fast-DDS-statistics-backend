@@ -4,6 +4,7 @@
 .. |restart_monitor-api| replace:: :cpp:func:`restart_monitor()<eprosima::statistics_backend::StatisticsBackend::restart_monitor>`
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`
 .. |get_data-api| replace:: :cpp:func:`get_data()<eprosima::statistics_backend::StatisticsBackend::get_data>`
+.. |get_status_data-api| replace:: :cpp:func:`get_status_data()<eprosima::statistics_backend::StatisticsBackend::get_status_data>`
 .. |get_data_supported_entity_kinds-api| replace:: :cpp:func:`get_data_supported_entity_kinds()<eprosima::statistics_backend::StatisticsBackend::get_data_supported_entity_kinds>`
 .. |get_entities-api| replace:: :cpp:func:`get_entities()<eprosima::statistics_backend::StatisticsBackend::get_entities>`
 .. |get_info-api| replace:: :cpp:func:`get_info()<eprosima::statistics_backend::StatisticsBackend::get_info>`
@@ -28,6 +29,7 @@
 .. |DomainListener::on_datareader_discovery-api| replace:: :cpp:func:`on_datareader_discovery()<eprosima::statistics_backend::DomainListener::on_datareader_discovery>`
 .. |DomainListener::on_datawriter_discovery-api| replace:: :cpp:func:`on_datawriter_discovery()<eprosima::statistics_backend::DomainListener::on_datawriter_discovery>`
 .. |DomainListener::on_domain_view_graph_update-api| replace:: :cpp:func:`on_domain_view_graph_update()<eprosima::statistics_backend::DomainListener::on_domain_view_graph_update>`
+.. |DomainListener::on_status_reported-api| replace:: :cpp:func:`on_status_reported()<eprosima::statistics_backend::DomainListener::on_status_reported>`
 .. |PhysicalListener-api| replace:: :cpp:class:`PhysicalListener<eprosima::statistics_backend::PhysicalListener>`
 .. |PhysicalListener::on_host_discovery-api| replace:: :cpp:func:`on_host_discovery()<eprosima::statistics_backend::PhysicalListener::on_host_discovery>`
 .. |PhysicalListener::on_user_discovery-api| replace:: :cpp:func:`on_user_discovery()<eprosima::statistics_backend::PhysicalListener::on_user_discovery>`
@@ -55,6 +57,16 @@
 .. |EDP_PACKETS-api| replace:: :cpp:enumerator:`EDP_PACKETS<eprosima::statistics_backend::DataKind::EDP_PACKETS>`
 .. |DISCOVERY_TIME-api| replace:: :cpp:enumerator:`DISCOVERY_TIME<eprosima::statistics_backend::DataKind::DISCOVERY_TIME>`
 .. |SAMPLE_DATAS-api| replace:: :cpp:enumerator:`SAMPLE_DATAS<eprosima::statistics_backend::DataKind::SAMPLE_DATAS>`
+
+.. |StatusKind-api| replace:: :cpp:type:`StatusKind<eprosima::statistics_backend::StatusKind>`
+.. |PROXY-api| replace:: :cpp:enumerator:`PROXY<eprosima::statistics_backend::StatusKind::PROXY>`
+.. |CONNECTION_LIST-api| replace:: :cpp:enumerator:`CONNECTION_LIST<eprosima::statistics_backend::StatusKind::CONNECTION_LIST>`
+.. |INCOMPATIBLE_QOS-api| replace:: :cpp:enumerator:`INCOMPATIBLE_QOS<eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS>`
+.. |INCONSISTENT_TOPIC-api| replace:: :cpp:enumerator:`INCONSISTENT_TOPIC<eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC>`
+.. |LIVELINESS_LOST-api| replace:: :cpp:enumerator:`LIVELINESS_LOST<eprosima::statistics_backend::StatusKind::LIVELINESS_LOST>`
+.. |LIVELINESS_CHANGED-api| replace:: :cpp:enumerator:`LIVELINESS_CHANGED<eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED>`
+.. |DEADLINE_MISSED-api| replace:: :cpp:enumerator:`DEADLINE_MISSED<eprosima::statistics_backend::StatusKind::DEADLINE_MISSED>`
+.. |SAMPLE_LOST-api| replace:: :cpp:enumerator:`SAMPLE_LOST<eprosima::statistics_backend::StatusKind::SAMPLE_LOST>`
 
 .. |StatisticsData-api| replace:: :cpp:type:`StatisticsData<eprosima::statistics_backend::StatisticsData>`
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
@@ -85,10 +97,10 @@
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
 
-.. |EntityStatus-api| replace:: :cpp:type:`EntityStatus<eprosima::statistics_backend::EntityStatus>`
-.. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::EntityStatus::OK_STATUS>`
-.. |WARNING-api| replace:: :cpp:enumerator:`WARNING<eprosima::statistics_backend::EntityStatus::WARNING_STATUS>`
-.. |ERROR-api| replace:: :cpp:enumerator:`ERROR<eprosima::statistics_backend::EntityStatus::ERROR_STATUS>`
+.. |StatusLevel-api| replace:: :cpp:type:`StatusLevel<eprosima::statistics_backend::StatusLevel>`
+.. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::StatusLevel::OK_STATUS>`
+.. |WARNING-api| replace:: :cpp:enumerator:`WARNING<eprosima::statistics_backend::StatusLevel::WARNING_STATUS>`
+.. |ERROR-api| replace:: :cpp:enumerator:`ERROR<eprosima::statistics_backend::StatusLevel::ERROR_STATUS>`
 
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`

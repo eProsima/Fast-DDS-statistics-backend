@@ -20,7 +20,7 @@ namespace statistics_backend {
 void MonitorServiceSample::clear()
 {
     kind = StatusKind::INVALID;
-    status = EntityStatus::ERROR;
+    status = StatusLevel::ERROR;
     src_ts = {};
 }
 

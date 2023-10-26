@@ -273,7 +273,7 @@ struct InsertParticipantArgs
             const Qos& qos,
             const std::string& guid,
             const EntityId& domain_id,
-            const EntityStatus& status,
+            const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata)> func)
         : callback_(func)
@@ -285,7 +285,7 @@ struct InsertParticipantArgs
             const Qos& qos,
             const std::string& guid,
             const EntityId& domain_id,
-            const EntityStatus& status,
+            const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata)
     {
@@ -304,7 +304,7 @@ struct InsertParticipantArgs
             const Qos& qos,
             const std::string& guid,
             const EntityId& domain_id,
-            const EntityStatus& status,
+            const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata)> callback_;
 
@@ -312,7 +312,7 @@ struct InsertParticipantArgs
     Qos qos_;
     std::string guid_;
     EntityId domain_id_;
-    EntityStatus status_;
+    StatusLevel status_;
     AppId app_id_;
     std::string app_metadata_;
 };
@@ -606,7 +606,7 @@ TEST_F(database_queue_tests, push_participant)
     info.user = username;
     info.process = processname_pid;
     info.app_id = AppId::UNKNOWN;
-    info.entity_status = EntityStatus::OK;
+    info.entity_status = StatusLevel::OK;
 
     // Participant undiscovery: FAILURE
     {
@@ -660,7 +660,7 @@ TEST_F(database_queue_tests, push_participant)
                     const Qos& qos,
                     const std::string& guid,
                     const EntityId& domain_id,
-                    const EntityStatus& status,
+                    const StatusLevel& status,
                     const AppId& app_id,
                     const std::string& app_metadata)
                 {
@@ -668,7 +668,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(qos, participant_qos);
                     EXPECT_EQ(guid, participant_guid_str);
                     EXPECT_EQ(domain_id, EntityId(0));
-                    EXPECT_EQ(status, EntityStatus::OK);
+                    EXPECT_EQ(status, StatusLevel::OK);
                     EXPECT_EQ(app_id, AppId::UNKNOWN);
                     EXPECT_EQ(app_metadata, "");
 
@@ -838,7 +838,7 @@ TEST_F(database_queue_tests, push_participant)
                     const Qos& qos,
                     const std::string& guid,
                     const EntityId& domain_id,
-                    const EntityStatus& status,
+                    const StatusLevel& status,
                     const AppId& app_id,
                     const std::string& app_metadata) -> EntityId
                 {
@@ -846,7 +846,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(qos, participant_qos);
                     EXPECT_EQ(guid, participant_guid_str);
                     EXPECT_EQ(domain_id, EntityId(0));
-                    EXPECT_EQ(status, EntityStatus::OK);
+                    EXPECT_EQ(status, StatusLevel::OK);
                     EXPECT_EQ(app_id, AppId::UNKNOWN);
                     EXPECT_EQ(app_metadata, "");
 
@@ -4494,7 +4494,7 @@ TEST_F(database_queue_tests, push_monitor_proxy)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const ProxySample&>(sample).entity_proxy, entity_proxy);
 
                 return true;
@@ -4620,7 +4620,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::CONNECTION_LIST);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const ConnectionListSample&>(sample).connection_list, connection_list);
 
                 return false;
@@ -4754,7 +4754,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const IncompatibleQosSample&>(sample).incompatible_qos_status, incompatible_qos_status);
 
                 return false;
@@ -4875,7 +4875,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const InconsistentTopicSample&>(sample).inconsistent_topic_status, inconsistent_topic_status);
 
                 return false;
@@ -4989,7 +4989,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_LOST);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const LivelinessLostSample&>(sample).liveliness_lost_status, liveliness_lost_status);
 
                 return false;
@@ -5102,7 +5102,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const LivelinessChangedSample&>(sample).liveliness_changed_status, liveliness_changed_status);
 
                 return false;
@@ -5214,7 +5214,7 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::DEADLINE_MISSED);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const DeadlineMissedSample&>(sample).deadline_missed_status, deadline_missed_status);
 
                 return false;
@@ -5323,7 +5323,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::SAMPLE_LOST);
-                EXPECT_EQ(sample.status, EntityStatus::OK);
+                EXPECT_EQ(sample.status, StatusLevel::OK);
                 EXPECT_EQ(dynamic_cast<const SampleLostSample&>(sample).sample_lost_status, sample_lost_status);
 
                 return false;

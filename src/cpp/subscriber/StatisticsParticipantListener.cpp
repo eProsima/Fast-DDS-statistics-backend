@@ -152,7 +152,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     discovery_info.app_id = AppId::UNKNOWN;
     discovery_info.app_metadata = "";
 
-    discovery_info.entity_status = EntityStatus::OK_STATUS;
+    discovery_info.entity_status = StatusLevel::OK_STATUS;
 
     switch (info.status)
     {
@@ -238,7 +238,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
-            datawriter_discovery_info.entity_status = EntityStatus::OK_STATUS;
+            datawriter_discovery_info.entity_status = StatusLevel::OK_STATUS;
             datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }

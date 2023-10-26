@@ -104,7 +104,7 @@ EntityId Database::insert_new_participant(
         const Qos& qos,
         const std::string& guid,
         const EntityId& domain_id,
-        const EntityStatus& status,
+        const StatusLevel& status,
         const AppId& app_id,
         const std::string& app_metadata)
 {
@@ -2982,7 +2982,7 @@ EntityKind Database::get_entity_kind(
     return get_entity_nts(entity_id)->kind;
 }
 
-EntityStatus Database::get_entity_status(
+StatusLevel Database::get_entity_status(
         EntityId entity_id) const
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
@@ -3569,9 +3569,9 @@ Graph Database::get_entity_subgraph_nts(
 
     entity_graph[METATRAFFIC_TAG] =  entity->metatraffic;
 
-    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != entity_status_str[(int)entity->status])
+    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != status_level_str[(int)entity->status])
     {
-        entity_graph[STATUS_TAG] = entity_status_str[(int)entity->status];
+        entity_graph[STATUS_TAG] = status_level_str[(int)entity->status];
         entity_graph_updated = true;
     }
 
@@ -3625,23 +3625,23 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
     
     // Check IncompatibleQoS Status
-    if(entity->monitor_service_data.incompatible_qos.back().status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
     {
         entity_error = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.deadline_missed.back().status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
     // Check SampleLost Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.sample_lost.back().status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
 
     // Set entity status
-    return status_logic_nts(entity_error, entity_warning, entity->status);
+    return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
 template <>
@@ -3652,63 +3652,63 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
     
     // Check IncompatibleQoS Status
-    if(entity->monitor_service_data.incompatible_qos.back().status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
     {
         entity_error = true;
     }
     // Check LivelinessLost Status
-    if(entity->monitor_service_data.liveliness_lost.back().status == EntityStatus::WARNING)
+    if(entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING)
     {
         entity_warning = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.deadline_missed.back().status == EntityStatus::ERROR)
+    if(entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
 
     // Set entity status
-    return status_logic_nts(entity_error, entity_warning, entity->status);
+    return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
-bool Database::status_logic(
+bool Database::entity_status_logic(
         const bool& entity_error,
         const bool& entity_warning,
-        EntityStatus& entity_status)
+        StatusLevel& entity_status)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    return status_logic_nts(entity_error, entity_warning, entity_status);
+    return entity_status_logic_nts(entity_error, entity_warning, entity_status);
 }
 
-bool Database::status_logic_nts(
+bool Database::entity_status_logic_nts(
         const bool& entity_error,
         const bool& entity_warning,
-        EntityStatus& entity_status)
+        StatusLevel& entity_status)
 {
     // Set entity status
     if(entity_error)
     {
-        if(entity_status != EntityStatus::ERROR)
+        if(entity_status != StatusLevel::ERROR)
         {
-            entity_status = EntityStatus::ERROR;
+            entity_status = StatusLevel::ERROR;
             return true;
         }
         return false;
     }
     else if(entity_warning)
     {
-        if(entity_status != EntityStatus::WARNING)
+        if(entity_status != StatusLevel::WARNING)
         {
-            entity_status = EntityStatus::WARNING;
+            entity_status = StatusLevel::WARNING;
             return true;
         }
         return false;
     }
     else
     {
-        if(entity_status != EntityStatus::OK)
+        if(entity_status != StatusLevel::OK)
         {
-            entity_status = EntityStatus::OK;
+            entity_status = StatusLevel::OK;
             return true;
         }
         return false;

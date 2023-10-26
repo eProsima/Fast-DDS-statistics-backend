@@ -95,7 +95,7 @@ EntityId DatabaseEntityQueue::process_participant(
                 name = info.address + ":" + get_participant_id(info.guid);
             }
 
-            EntityStatus status = info.entity_status;
+            StatusLevel status = info.entity_status;
 
             // Create the participant and add it to the database
             GUID_t participant_guid = info.guid;
@@ -643,7 +643,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.entity_proxy = item;
     sample.kind = StatusKind::PROXY;
-    sample.status = EntityStatus::OK;
+    sample.status = StatusLevel::OK;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -672,7 +672,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.connection_list = item;
     sample.kind = StatusKind::CONNECTION_LIST;
-    sample.status = EntityStatus::OK;
+    sample.status = StatusLevel::OK;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -704,11 +704,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if(item.total_count())
     {
-        sample.status = EntityStatus::ERROR;
+        sample.status = StatusLevel::ERROR;
     }
     else
     {
-        sample.status = EntityStatus::OK;
+        sample.status = StatusLevel::OK;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -742,7 +742,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     // Appropriate behavior not yet implemented
     logWarning(BACKEND_DATABASE_QUEUE,
             "Warning processing INCONSISTENT_TOPIC status data. Status behavior not yet defined");
-    sample.status = EntityStatus::OK;
+    sample.status = StatusLevel::OK;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -774,11 +774,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if(item.total_count())
     {
-        sample.status = EntityStatus::WARNING;
+        sample.status = StatusLevel::WARNING;
     }
     else
     {
-        sample.status = EntityStatus::OK;
+        sample.status = StatusLevel::OK;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -808,7 +808,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.liveliness_changed_status = item;
     sample.kind = StatusKind::LIVELINESS_CHANGED;
-    sample.status = EntityStatus::OK;
+    sample.status = StatusLevel::OK;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -841,11 +841,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if(item.total_count())
     {
-        sample.status = EntityStatus::ERROR;
+        sample.status = StatusLevel::ERROR;
     }
     else
     {
-        sample.status = EntityStatus::OK;
+        sample.status = StatusLevel::OK;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -879,11 +879,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if(item.total_count())
     {
-        sample.status = EntityStatus::ERROR;
+        sample.status = StatusLevel::ERROR;
     }
     else
     {
-        sample.status = EntityStatus::OK;
+        sample.status = StatusLevel::OK;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);

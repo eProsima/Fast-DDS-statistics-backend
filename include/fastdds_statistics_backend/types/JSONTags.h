@@ -85,13 +85,13 @@ constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 
 /////
-// Entity status
+// Status Level
 
-//! OK status of an entity
+//! OK status
 constexpr const char* OK_STATUS                        = "OK";
-//! Warning status of an entity
+//! Warning status
 constexpr const char* WARNING_STATUS                   = "WARNING";
-//! Error status of an entity
+//! Error status
 constexpr const char* ERROR_STATUS                     = "ERROR";
 
 /////
@@ -101,7 +101,7 @@ constexpr const char* ERROR_STATUS                     = "ERROR";
 constexpr const char* ID_TAG                   = "id";
 //! Key tag for the EntityKind of an entity
 constexpr const char* KIND_TAG                 = "kind";
-//! Key tag for the EntityStatus of an entity
+//! Key tag for the StatusLevel of an entity
 constexpr const char* STATUS_TAG                 = "status";
 //! Key tag for name of an entity
 constexpr const char* NAME_TAG                 = "name";
@@ -130,8 +130,8 @@ constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
-//! Conversion from EntityStatus to string
-constexpr const char* entity_status_str[] =
+//! Conversion from StatusLevel to string
+constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
 
 /////

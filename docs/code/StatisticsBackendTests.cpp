@@ -300,6 +300,99 @@ void get_data_examples()
     }
 }
 
+void get_status_data_examples()
+{
+    EntityId entity_id;
+    {
+        //CONF-GET-STATUS-DATA-PROXY
+        /*
+         * Get the proxy info associated to an entity.
+         */
+        ProxySample proxy_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DomainParticipant, DataWriter or DataReader)
+            proxy_sample);                                               // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-CONNECTION-LIST
+        /*
+         * Get the connection list sample associated to an entity.
+         */
+        ConnectionListSample connection_list_sample_;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DomainParticipant, DataWriter or DataReader)
+            connection_list_sample_);                                    // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-INCOMPATIBLE-QOS
+        /*
+         * Get the incompatible qos info associated to an entity.
+         */
+        IncompatibleQosSample incompatible_qos_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            incompatible_qos_sample);                                    // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-INCONSISTENT-TOPIC
+        /*
+         * Get the inonsistent topic info associated to an entity.
+         */
+        InconsistentTopicSample inconsistent_topic_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            inconsistent_topic_sample);                                  // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-LIVELINESS-LOST
+        /*
+         * Get the liveliness lost info associated to an entity.
+         */
+        LivelinessLostSample liveliness_lost_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter)
+            liveliness_lost_sample);                                     // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-LIVELINESS-CHANGED
+        /*
+         * Get the liveliness changed info associated to an entity.
+         */
+        LivelinessChangedSample liveliness_changed_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataReader)
+            liveliness_changed_sample);                                  // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-DEADLINE-MISSED
+        /*
+         * Get the deadline missed info associated to an entity.
+         */
+        DeadlineMissedSample deadline_missed_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            deadline_missed_sample);                                     // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-SAMPLE-LOST
+        /*
+         * Get the sample lost info associated to an entity.
+         */
+        SampleLostSample sample_lost_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            sample_lost_sample);                                         // Sample to be populated
+        //!--
+    }
+}
+
 void get_data_supported_entity_kinds_examples()
 {
     {
@@ -482,7 +575,7 @@ void get_status_example()
     {
         EntityId entity_id;
         //CONF-GET-STATUS-EXAMPLE
-        EntityStatus status = StatisticsBackend::get_status(entity_id);
+        StatusLevel status = StatisticsBackend::get_status(entity_id);
         //!--
         static_cast<void>(status);
     }

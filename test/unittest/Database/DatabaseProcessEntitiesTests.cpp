@@ -103,7 +103,7 @@ TEST_F(database_process_entities_tests, insert_new_participant)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
 
@@ -114,7 +114,7 @@ TEST_F(database_process_entities_tests, insert_new_participant)
     ASSERT_EQ(participant_name, participants[domain_id][participant_id]->name);
     ASSERT_EQ(EntityKind::PARTICIPANT, participants[domain_id][participant_id]->kind);
     ASSERT_EQ(participant_name, participants[domain_id][participant_id]->alias);
-    ASSERT_EQ(EntityStatus::OK, participants[domain_id][participant_id]->status);
+    ASSERT_EQ(StatusLevel::OK, participants[domain_id][participant_id]->status);
     
     ASSERT_EQ(entity_qos, participants[domain_id][participant_id]->qos);
     ASSERT_EQ(participant_guid, participants[domain_id][participant_id]->guid);
@@ -138,7 +138,7 @@ TEST_F(database_process_entities_tests, insert_new_participant_already_exists)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     db.insert(participant);
@@ -149,7 +149,7 @@ TEST_F(database_process_entities_tests, insert_new_participant_already_exists)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 ""), BadParameter);
 }
@@ -162,7 +162,7 @@ TEST_F(database_process_entities_tests, insert_new_participant_no_domain)
                 entity_qos,
                 participant_guid,
                 EntityId(),
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 ""), BadParameter);
 }
@@ -179,7 +179,7 @@ TEST_F(database_process_entities_tests, process_physical_entities)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -244,7 +244,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -310,7 +310,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -357,7 +357,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
     ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
 
     ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
     ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
@@ -380,7 +380,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -418,7 +418,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
     ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
 
     ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
 
@@ -429,7 +429,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
     ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
 
     ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
     ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
@@ -452,7 +452,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -482,7 +482,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
     ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
 
     /* Check that the user is inserted correctly */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
@@ -491,7 +491,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
     ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
 
     ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
 
@@ -502,7 +502,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
     ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
     ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
 
     ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
     ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
@@ -525,7 +525,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -554,7 +554,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
     ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
 
     /* Check that the user is inserted correctly */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
@@ -563,7 +563,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
     ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
     ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
 
     ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
 
@@ -588,7 +588,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -617,7 +617,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
     ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
     ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(EntityStatus::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
 
     /* Check that the user hasn't been inserted */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
@@ -645,7 +645,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
                 entity_qos,
                 participant_guid,
                 domain_id,
-                EntityStatus::OK,
+                StatusLevel::OK,
                 AppId::UNKNOWN,
                 "");
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -723,7 +723,7 @@ TEST_F(database_process_entities_tests, insert_new_topic)
     ASSERT_EQ(topic_name, topics[domain_id][topic_id]->name);
     ASSERT_EQ(EntityKind::TOPIC, topics[domain_id][topic_id]->kind);
     ASSERT_EQ(topic_alias, topics[domain_id][topic_id]->alias);
-    ASSERT_EQ(EntityStatus::OK, topics[domain_id][topic_id]->status);
+    ASSERT_EQ(StatusLevel::OK, topics[domain_id][topic_id]->status);
     
     ASSERT_EQ(topic_type, topics[domain_id][topic_id]->data_type);
     ASSERT_EQ(domain->topics[topic_id].get(), topics[domain_id][topic_id].get());
@@ -742,7 +742,7 @@ TEST_F(database_process_entities_tests, insert_new_topic_already_exists)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     db.insert(participant);
@@ -775,7 +775,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     EntityId participant_id = db.insert(participant);
@@ -822,7 +822,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
     ASSERT_EQ(writer_name, datawriters[domain_id][endpoint_id]->name);
     ASSERT_EQ(EntityKind::DATAWRITER, datawriters[domain_id][endpoint_id]->kind);
     ASSERT_EQ(writer_alias, datawriters[domain_id][endpoint_id]->alias);
-    ASSERT_EQ(EntityStatus::OK, datawriters[domain_id][endpoint_id]->status);
+    ASSERT_EQ(StatusLevel::OK, datawriters[domain_id][endpoint_id]->status);
     
     ASSERT_EQ(entity_qos, datawriters[domain_id][endpoint_id]->qos);
     ASSERT_EQ(writer_guid, datawriters[domain_id][endpoint_id]->guid);
@@ -857,7 +857,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     EntityId participant_id = db.insert(participant);
@@ -904,7 +904,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
     ASSERT_EQ(reader_name, datareaders[domain_id][endpoint_id]->name);
     ASSERT_EQ(EntityKind::DATAREADER, datareaders[domain_id][endpoint_id]->kind);
     ASSERT_EQ(reader_alias, datareaders[domain_id][endpoint_id]->alias);
-    ASSERT_EQ(EntityStatus::OK, datareaders[domain_id][endpoint_id]->status);
+    ASSERT_EQ(StatusLevel::OK, datareaders[domain_id][endpoint_id]->status);
     
     ASSERT_EQ(entity_qos, datareaders[domain_id][endpoint_id]->qos);
     ASSERT_EQ(reader_guid, datareaders[domain_id][endpoint_id]->guid);
@@ -939,7 +939,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     EntityId participant_id = db.insert(participant);
@@ -1003,7 +1003,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     EntityId participant_id = db.insert(participant);
@@ -1094,7 +1094,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
         participant_guid,
         std::shared_ptr<Process>(),
         domain,
-        EntityStatus::OK,
+        StatusLevel::OK,
         AppId::UNKNOWN,
         "");
     EntityId participant_id = db.insert(participant);
@@ -1137,7 +1137,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
     ASSERT_EQ(reader_name, datareaders[domain_id][endpoint_id]->name);
     ASSERT_EQ(EntityKind::DATAREADER, datareaders[domain_id][endpoint_id]->kind);
     ASSERT_EQ(reader_alias, datareaders[domain_id][endpoint_id]->alias);
-    ASSERT_EQ(EntityStatus::OK, datareaders[domain_id][endpoint_id]->status);
+    ASSERT_EQ(StatusLevel::OK, datareaders[domain_id][endpoint_id]->status);
     
     ASSERT_EQ(entity_qos, datareaders[domain_id][endpoint_id]->qos);
     ASSERT_EQ(reader_guid, datareaders[domain_id][endpoint_id]->guid);

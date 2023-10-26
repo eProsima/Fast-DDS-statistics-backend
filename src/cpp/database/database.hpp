@@ -107,7 +107,7 @@ public:
             const Qos& qos,
             const std::string& guid,
             const EntityId& domain_id,
-            const EntityStatus& status,
+            const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata);
 
@@ -479,13 +479,13 @@ public:
             EntityId entity_id) const;
 
     /**
-     * @brief Get EntityStatus given an EntityId.
+     * @brief Get StatusLevel given an EntityId.
      *
      * @param entity_id The EntityId of the entity.
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
-     * @return The EntityStatus of the given entity.
+     * @return The StatusLevel of the given entity.
      */
-    EntityStatus get_entity_status(
+    StatusLevel get_entity_status(
             EntityId entity_id) const;
 
     /**
@@ -496,10 +496,10 @@ public:
      * @param entity_status Reference to the status of the entity.
      * @return True if the status has changed.
      */
-    bool status_logic(
+    bool entity_status_logic(
         const bool& entity_error,
         const bool& entity_warning,
-        EntityStatus& entity_status);
+        StatusLevel& entity_status);
 
     /**
      * @brief Get the specified domain view graph from database.
@@ -615,7 +615,7 @@ public:
      * Also check if the references of the entity must also be changed and change the status in that case.
      * A call to the user listener will be performed if the status of the entity changes.
      * @param entity_id The EntityId of the entity
-     * @param active The entity status value to set
+     * @param active The active/inactive value to set
      * @throws eprosima::statistics_backend::BadParameter if entity_kind is not valid.
      */
     void change_entity_status(
@@ -1200,10 +1200,10 @@ protected:
      * @param entity_status Reference to the status of the entity.
      * @return True if the status has changed.
      */
-    bool status_logic_nts(
+    bool entity_status_logic_nts(
         const bool& entity_error,
         const bool& entity_warning,
-        EntityStatus& entity_status);
+        StatusLevel& entity_status);
     
     /**
      * Get an entity given its EntityId. This method is not thread safe.
