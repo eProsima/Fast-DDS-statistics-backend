@@ -27,6 +27,7 @@
 #include <StatisticsBackendData.hpp>
 #include <Monitor.hpp>
 #include <types/JSONTags.h>
+#include <types/app_names.h>
 #include <types/types.hpp>
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
@@ -74,8 +75,8 @@ void check_dds_entity(
         std::shared_ptr<const DDSEntity> const& entity,
         Info const& info)
 {
-    ASSERT_EQ(entity->guid, info[GUID_INFO_TAG]);
-    ASSERT_EQ(entity->qos, info[QOS_INFO_TAG]);
+    ASSERT_EQ(entity->guid, info[GUID_TAG]);
+    ASSERT_EQ(entity->qos, info[QOS_TAG]);
 }
 
 // Check the get_info StatisticsBackend method
@@ -96,20 +97,20 @@ TEST_F(statistics_backend_tests, get_info)
         // Check generic info
         // Once the info is checked, it is erased so the final check is confirm that the info is empty (there is no
         // more information than the expected)
-        EXPECT_EQ(entity->id, EntityId(info[ID_INFO_TAG]));
-        info.erase(ID_INFO_TAG);
-        EXPECT_EQ(entity_kind_str[(int)entity->kind], info[KIND_INFO_TAG]);
-        info.erase(KIND_INFO_TAG);
-        EXPECT_EQ(entity->name, info[NAME_INFO_TAG]);
-        info.erase(NAME_INFO_TAG);
-        EXPECT_EQ(entity->alias, info[ALIAS_INFO_TAG]);
-        info.erase(ALIAS_INFO_TAG);
-        EXPECT_EQ(entity->active, info[ALIVE_INFO_TAG]);
-        info.erase(ALIVE_INFO_TAG);
-        EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_INFO_TAG]);
-        info.erase(METATRAFFIC_INFO_TAG);
-        EXPECT_EQ(entity->status, info[STATUS_INFO_TAG]);
-        info.erase(STATUS_INFO_TAG);
+        EXPECT_EQ(entity->id, EntityId(info[ID_TAG]));
+        info.erase(ID_TAG);
+        EXPECT_EQ(entity_kind_str[(int)entity->kind], info[KIND_TAG]);
+        info.erase(KIND_TAG);
+        EXPECT_EQ(entity->name, info[NAME_TAG]);
+        info.erase(NAME_TAG);
+        EXPECT_EQ(entity->alias, info[ALIAS_TAG]);
+        info.erase(ALIAS_TAG);
+        EXPECT_EQ(entity->active, info[ALIVE_TAG]);
+        info.erase(ALIVE_TAG);
+        EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_TAG]);
+        info.erase(METATRAFFIC_TAG);
+        EXPECT_EQ(entity->status, info[STATUS_TAG]);
+        info.erase(STATUS_TAG);
 
         // Check specific info
         switch (entity->kind)
@@ -118,26 +119,30 @@ TEST_F(statistics_backend_tests, get_info)
             {
                 std::shared_ptr<const Process> process =
                         std::dynamic_pointer_cast<const Process>(entity);
-                EXPECT_EQ(process->pid, info[PID_INFO_TAG]);
-                info.erase(PID_INFO_TAG);
+                EXPECT_EQ(process->pid, info[PID_TAG]);
+                info.erase(PID_TAG);
                 break;
             }
             case EntityKind::TOPIC:
             {
                 std::shared_ptr<const Topic> topic =
                         std::dynamic_pointer_cast<const Topic>(entity);
-                EXPECT_EQ(topic->data_type, info[DATA_TYPE_INFO_TAG]);
-                info.erase(DATA_TYPE_INFO_TAG);
+                EXPECT_EQ(topic->data_type, info[DATA_TYPE_TAG]);
+                info.erase(DATA_TYPE_TAG);
                 break;
             }
             case EntityKind::PARTICIPANT:
             {
                 std::shared_ptr<const DomainParticipant> participant =
                         std::dynamic_pointer_cast<const DomainParticipant>(entity);
-                EXPECT_EQ(participant->guid, info[GUID_INFO_TAG]);
-                info.erase(GUID_INFO_TAG);
-                EXPECT_EQ(participant->qos, info[QOS_INFO_TAG]);
-                info.erase(QOS_INFO_TAG);
+                EXPECT_EQ(participant->guid, info[GUID_TAG]);
+                info.erase(GUID_TAG);
+                EXPECT_EQ(participant->qos, info[QOS_TAG]);
+                info.erase(QOS_TAG);
+                EXPECT_EQ(app_id_str[(int)participant->app_id], info[APP_ID_TAG]);
+                info.erase(APP_ID_TAG);
+                EXPECT_EQ(participant->app_metadata, info[APP_METADATA_TAG]);
+                info.erase(APP_METADATA_TAG);
 
                 // Obtain the locators list associated to the participant's endpoints
                 std::vector<std::string> locators;
@@ -181,10 +186,10 @@ TEST_F(statistics_backend_tests, get_info)
             {
                 std::shared_ptr<const DDSEntity> dds_entity =
                         std::dynamic_pointer_cast<const DDSEntity>(entity);
-                EXPECT_EQ(dds_entity->guid, info[GUID_INFO_TAG]);
-                info.erase(GUID_INFO_TAG);
-                EXPECT_EQ(dds_entity->qos, info[QOS_INFO_TAG]);
-                info.erase(QOS_INFO_TAG);
+                EXPECT_EQ(dds_entity->guid, info[GUID_TAG]);
+                info.erase(GUID_TAG);
+                EXPECT_EQ(dds_entity->qos, info[QOS_TAG]);
+                info.erase(QOS_TAG);
                 break;
             }
             default:
@@ -732,7 +737,7 @@ TEST_F(statistics_backend_tests, get_domain_view_graph)
     StatisticsBackendTest::regenerate_domain_graph(EntityId(7));
     // Load reference graph
     Graph json_graph;
-    load_file(DOMAIN_VIEW_GRAPH_BACKEND_GET_GRAPH_DUMP_FILE, json_graph);
+    load_file(DOMAIN_VIEW_GRAPH_BACKEND_GET_DOMAIN_VIEW_GRAPH_DUMP_FILE, json_graph);
     ASSERT_EQ(StatisticsBackend::get_domain_view_graph(EntityId(7)), json_graph);
 }
 

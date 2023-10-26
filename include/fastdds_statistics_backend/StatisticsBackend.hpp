@@ -420,13 +420,6 @@ public:
             T& status_data);
 
     /**
-     * @brief Get the topology graph.
-     *
-     * @return Graph object describing the complete topology of the entities.
-     */
-    static Graph get_graph();
-
-    /**
      * @brief Get the domain view graph.
      *
      * @param domain_id EntityId from domain whose graph is delivered.

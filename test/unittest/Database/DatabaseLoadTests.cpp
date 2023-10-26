@@ -190,7 +190,7 @@ void check_entity_no_generic_keys(
     // No entity name key
     {
         DatabaseDump dump_copy = dump;
-        check_no_key(dump_copy, dump_copy[key][dump_copy[key].begin().key()], NAME_INFO_TAG);
+        check_no_key(dump_copy, dump_copy[key][dump_copy[key].begin().key()], NAME_TAG);
     }
 }
 
@@ -302,7 +302,7 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_generic_keys(dump, PROCESS_CONTAINER_TAG);
 
-    check_entity_no_key(dump, PROCESS_CONTAINER_TAG, PID_INFO_TAG);
+    check_entity_no_key(dump, PROCESS_CONTAINER_TAG, PID_TAG);
     check_entity_no_key(dump, PROCESS_CONTAINER_TAG, USER_ENTITY_TAG);
     check_entity_no_key(dump, PROCESS_CONTAINER_TAG, PARTICIPANT_CONTAINER_TAG);
 
@@ -317,7 +317,7 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_generic_keys(dump, TOPIC_CONTAINER_TAG);
 
-    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATA_TYPE_INFO_TAG);
+    check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATA_TYPE_TAG);
     check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
     check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
     check_entity_no_key(dump, TOPIC_CONTAINER_TAG, DATAREADER_CONTAINER_TAG);
@@ -326,8 +326,8 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_generic_keys(dump, PARTICIPANT_CONTAINER_TAG);
 
-    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, GUID_TAG);
+    check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, QOS_TAG);
     check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, PROCESS_ENTITY_TAG);
     check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DOMAIN_ENTITY_TAG);
     check_entity_no_key(dump, PARTICIPANT_CONTAINER_TAG, DATAWRITER_CONTAINER_TAG);
@@ -345,8 +345,8 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_generic_keys(dump, DATAWRITER_CONTAINER_TAG);
 
-    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, GUID_TAG);
+    check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, QOS_TAG);
     check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
     check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
     check_entity_no_key(dump, DATAWRITER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
@@ -356,8 +356,8 @@ TEST(database_load_tests, load_erased_keys)
 
     check_entity_no_generic_keys(dump, DATAREADER_CONTAINER_TAG);
 
-    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, GUID_INFO_TAG);
-    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, QOS_INFO_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, GUID_TAG);
+    check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, QOS_TAG);
     check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, PARTICIPANT_ENTITY_TAG);
     check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, TOPIC_ENTITY_TAG);
     check_entity_no_key(dump, DATAREADER_CONTAINER_TAG, LOCATOR_CONTAINER_TAG);
@@ -685,41 +685,41 @@ TEST(database_load_tests, load_wrong_values)
     // Host
     check_is_id(dump, dump[HOST_CONTAINER_TAG]);
     check_is_id(dump, dump[HOST_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[HOST_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[HOST_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
+    check_is_string(dump, dump[HOST_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[HOST_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
     check_is_id(dump, dump[HOST_CONTAINER_TAG].begin().value()[USER_CONTAINER_TAG]);
 
     // User
     check_is_id(dump, dump[USER_CONTAINER_TAG]);
     check_is_id(dump, dump[USER_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[USER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[USER_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
+    check_is_string(dump, dump[USER_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[USER_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
     check_is_id(dump, dump[USER_CONTAINER_TAG].begin().value()[HOST_ENTITY_TAG]);
     check_is_id(dump, dump[USER_CONTAINER_TAG].begin().value()[PROCESS_CONTAINER_TAG]);
 
     // Process
     check_is_id(dump, dump[PROCESS_CONTAINER_TAG]);
     check_is_id(dump, dump[PROCESS_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
-    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[PID_INFO_TAG]);
+    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
+    check_is_string(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[PID_TAG]);
     check_is_id(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[USER_ENTITY_TAG]);
     check_is_id(dump, dump[PROCESS_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG]);
 
     // Domain
     check_is_id(dump, dump[DOMAIN_CONTAINER_TAG]);
     check_is_id(dump, dump[DOMAIN_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
+    check_is_string(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
     check_is_id(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[PARTICIPANT_CONTAINER_TAG]);
     check_is_id(dump, dump[DOMAIN_CONTAINER_TAG].begin().value()[TOPIC_CONTAINER_TAG]);
 
     // Topic
     check_is_id(dump, dump[TOPIC_CONTAINER_TAG]);
     check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
-    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATA_TYPE_INFO_TAG]);
+    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
+    check_is_string(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATA_TYPE_TAG]);
     check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DOMAIN_ENTITY_TAG]);
     check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
     check_is_id(dump, dump[TOPIC_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
@@ -727,10 +727,10 @@ TEST(database_load_tests, load_wrong_values)
     // Participant
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG]);
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
-    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
-    check_is_object(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
+    check_is_string(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[GUID_TAG]);
+    check_is_object(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[QOS_TAG]);
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[PROCESS_ENTITY_TAG]);
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DOMAIN_ENTITY_TAG]);
     check_is_id(dump, dump[PARTICIPANT_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
@@ -740,18 +740,18 @@ TEST(database_load_tests, load_wrong_values)
     // Locator
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG]);
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
+    check_is_string(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAWRITER_CONTAINER_TAG]);
     check_is_id(dump, dump[LOCATOR_CONTAINER_TAG].begin().value()[DATAREADER_CONTAINER_TAG]);
 
     // Datawriter
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG]);
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
-    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
-    check_is_object(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
+    check_is_string(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[GUID_TAG]);
+    check_is_object(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[QOS_TAG]);
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[PARTICIPANT_ENTITY_TAG]);
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[TOPIC_ENTITY_TAG]);
     check_is_id(dump, dump[DATAWRITER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG]);
@@ -760,10 +760,10 @@ TEST(database_load_tests, load_wrong_values)
     // Datareader
     check_is_id(dump, dump[DATAREADER_CONTAINER_TAG]);
     check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value());
-    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[NAME_INFO_TAG]);
-    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[ALIAS_INFO_TAG]);
-    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[GUID_INFO_TAG]);
-    check_is_object(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[QOS_INFO_TAG]);
+    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[NAME_TAG]);
+    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[ALIAS_TAG]);
+    check_is_string(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[GUID_TAG]);
+    check_is_object(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[QOS_TAG]);
     check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[PARTICIPANT_ENTITY_TAG]);
     check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[TOPIC_ENTITY_TAG]);
     check_is_id(dump, dump[DATAREADER_CONTAINER_TAG].begin().value()[LOCATOR_CONTAINER_TAG]);

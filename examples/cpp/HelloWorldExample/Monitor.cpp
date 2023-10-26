@@ -161,7 +161,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
     for (auto topic_id : topics)
     {
         topic_info = StatisticsBackend::get_info(topic_id);
-        if (topic_info["name"] == "HelloWorldTopic" && topic_info["data_type"] == "HelloWorld")
+        if (topic_info[NAME_TAG] == "HelloWorldTopic" && topic_info[DATA_TYPE_TAG] == "HelloWorld")
         {
             helloworld_topic_id = topic_id;
         }
@@ -216,7 +216,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     for (auto participant : participants)
     {
         participant_info = StatisticsBackend::get_info(participant);
-        if (participant_info["name"] == "Participant_pub" && participant_info["alive"])
+        if (participant_info[NAME_TAG] == "Participant_pub" && participant_info[ALIVE_TAG])
         {
             participant_id = participant;
             break;
@@ -250,7 +250,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     for (auto publication_throughput : publication_throughput_data)
     {
 
-        std::cout << "Publication throughput of Participant " << std::string(participant_info["name"]) << ": ["
+        std::cout << "Publication throughput of Participant " << std::string(participant_info[NAME_TAG]) << ": ["
                   << timestamp_to_string(publication_throughput.first) << ", "
                   << publication_throughput.second << " B/s]" << std::endl;
     }
@@ -271,11 +271,11 @@ void Monitor::Listener::on_participant_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " discovered." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -287,15 +287,15 @@ void Monitor::Listener::on_datareader_discovery(
     static_cast<void>(domain_id);
     Info datareader_info = StatisticsBackend::get_info(datareader_id);
 
-    if (!datareader_info["metatraffic"])
+    if (!datareader_info[METATRAFFIC_TAG])
     {
         if (status.current_count_change == 1)
         {
-            std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
+            std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " discovered." << std::endl;
         }
         else
         {
-            std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." <<
+            std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " update info." <<
                 std::endl;
         }
     }
@@ -309,15 +309,15 @@ void Monitor::Listener::on_datawriter_discovery(
     static_cast<void>(domain_id);
     Info datawriter_info = StatisticsBackend::get_info(datawriter_id);
 
-    if (!datawriter_info["metatraffic"])
+    if (!datawriter_info[METATRAFFIC_TAG])
     {
         if (status.current_count_change == 1)
         {
-            std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
+            std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " discovered." << std::endl;
         }
         else
         {
-            std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." <<
+            std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " update info." <<
                 std::endl;
         }
     }
@@ -331,11 +331,11 @@ void Monitor::Listener::on_host_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
+        std::cout << "Host " << std::string(host_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
+        std::cout << "Host " << std::string(host_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -347,11 +347,11 @@ void Monitor::Listener::on_user_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
+        std::cout << "User " << std::string(user_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
+        std::cout << "User " << std::string(user_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -363,11 +363,11 @@ void Monitor::Listener::on_process_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
+        std::cout << "Process " << std::string(process_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
+        std::cout << "Process " << std::string(process_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -379,15 +379,15 @@ void Monitor::Listener::on_topic_discovery(
     static_cast<void>(domain_id);
     Info topic_info = StatisticsBackend::get_info(topic_id);
 
-    if (!topic_info["metatraffic"])
+    if (!topic_info[METATRAFFIC_TAG])
     {
         if (status.current_count_change == 1)
         {
-            std::cout << "Topic " << std::string(topic_info["name"]) << " discovered." << std::endl;
+            std::cout << "Topic " << std::string(topic_info[NAME_TAG]) << " discovered." << std::endl;
         }
         else
         {
-            std::cout << "Topic " << std::string(topic_info["name"]) << " update info." << std::endl;
+            std::cout << "Topic " << std::string(topic_info[NAME_TAG]) << " update info." << std::endl;
         }
     }
 }

@@ -19,6 +19,7 @@
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <iostream>
 #include <fstream>
@@ -326,7 +327,7 @@ void get_data_supported_entity_kinds_examples()
     }
 }
 
-int get_graph_examples(
+int get_domain_view_graph_examples(
         uint8_t test)
 {
     if (test == 1)
@@ -346,40 +347,40 @@ int get_graph_examples(
         domain_view_graph = Graph::parse(file_example);
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
-        std::cout << "Domain: " << domain_view_graph["domain"] << std::endl;
+        std::cout << "Domain: " << domain_view_graph[DOMAIN_ENTITY_TAG] << std::endl;
         // Iterate
-        for (const auto& host : domain_view_graph["hosts"])
+        for (const auto& host : domain_view_graph[HOST_CONTAINER_TAG])
         {
-            std::cout << "\tHost alias: " << host["alias"] << std::endl;
-            std::cout << "\tHost status: " << host["status"] << std::endl;
-            for (const auto& user : host["users"])
+            std::cout << "\tHost alias: " << host[ALIAS_TAG] << std::endl;
+            std::cout << "\tHost status: " << host[STATUS_TAG] << std::endl;
+            for (const auto& user : host[USER_CONTAINER_TAG])
             {
-                std::cout << "\t\tUser alias: " << user["alias"] << std::endl;
-                std::cout << "\t\tUser status: " << user["status"] << std::endl;
-                for (const auto& process : user["processes"])
+                std::cout << "\t\tUser alias: " << user[ALIAS_TAG] << std::endl;
+                std::cout << "\t\tUser status: " << user[STATUS_TAG] << std::endl;
+                for (const auto& process : user[PROCESS_CONTAINER_TAG])
                 {
-                    std::cout << "\t\t\tProcess alias: " << process["alias"] << std::endl;
-                    std::cout << "\t\t\tProcess PID:  " << process["pid"] << std::endl;
-                    std::cout << "\t\t\tProcess status: " << process["status"] << std::endl;
-                    for (const auto& participant : process["participants"])
+                    std::cout << "\t\t\tProcess alias: " << process[ALIAS_TAG] << std::endl;
+                    std::cout << "\t\t\tProcess PID:  " << process[PID_TAG] << std::endl;
+                    std::cout << "\t\t\tProcess status: " << process[STATUS_TAG] << std::endl;
+                    for (const auto& participant : process[PARTICIPANT_CONTAINER_TAG])
                     {
-                        std::cout << "\t\t\t\tParticipant alias: " << participant["alias"] << std::endl;
-                        std::cout << "\t\t\t\tParticipant app_id:  " << participant["app_id"] << std::endl;
-                        std::cout << "\t\t\t\tParticipant status: " << participant["status"] << std::endl;
-                        for (const auto& endpoint : participant["endpoints"])
+                        std::cout << "\t\t\t\tParticipant alias: " << participant[ALIAS_TAG] << std::endl;
+                        std::cout << "\t\t\t\tParticipant app_id:  " << participant[APP_ID_TAG] << std::endl;
+                        std::cout << "\t\t\t\tParticipant status: " << participant[STATUS_TAG] << std::endl;
+                        for (const auto& endpoint : participant[ENDPOINT_CONTAINER_TAG])
                         {
-                            std::cout << "\t\t\t\t\tEndpoint alias: " << endpoint["alias"] << std::endl;
-                            std::cout << "\t\t\t\t\tEndpoint kind:  " << endpoint["kind"] << std::endl;
-                            std::cout << "\t\t\t\t\tEndpoint status: " << endpoint["status"] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint alias: " << endpoint[ALIAS_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint kind:  " << endpoint[KIND_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint status: " << endpoint[STATUS_TAG] << std::endl;
                         }
                     }
                 }
             }
         }
-        for (const auto& topic : domain_view_graph["topics"])
+        for (const auto& topic : domain_view_graph[TOPIC_CONTAINER_TAG])
         {
-            std::cout << "\tTopic alias: " << topic["alias"] << std::endl;
-            std::cout << "\tTopic metatraffic: " << topic["metatraffic"] << std::endl;
+            std::cout << "\tTopic alias: " << topic[ALIAS_TAG] << std::endl;
+            std::cout << "\tTopic metatraffic: " << topic[METATRAFFIC_TAG] << std::endl;
         }
         //!--
         return 0;
@@ -603,9 +604,9 @@ int main(
         return 1;
     }
 
-    if (strncmp(argv[1], "get_graph_parse", 15) == 0)
+    if (strncmp(argv[1], "get_domain_view_graph_parse", 15) == 0)
     {
-        return get_graph_examples(1);
+        return get_domain_view_graph_examples(1);
     }
     return 0;
 }

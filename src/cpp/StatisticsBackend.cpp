@@ -772,11 +772,6 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<SampleLostSample>(entity_id, status_data);
 }
 
-Graph StatisticsBackend::get_graph()
-{
-    return Graph();
-}
-
 Graph StatisticsBackend::get_domain_view_graph(
         const EntityId& domain_id)
 {

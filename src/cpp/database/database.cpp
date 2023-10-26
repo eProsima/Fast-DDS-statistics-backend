@@ -3021,10 +3021,10 @@ void Database::init_domain_view_graph_nts(
         const std::string& domain_name,
         const EntityId& domain_entity_id)
 {
-    domain_view_graph[domain_entity_id]["kind"] = "domain";
-    domain_view_graph[domain_entity_id]["domain"] = domain_name;
-    domain_view_graph[domain_entity_id]["topics"] = nlohmann::json::object();
-    domain_view_graph[domain_entity_id]["hosts"] = nlohmann::json::object();
+    domain_view_graph[domain_entity_id][KIND_TAG] = DOMAIN_ENTITY_TAG;
+    domain_view_graph[domain_entity_id][DOMAIN_ENTITY_TAG] = domain_name;
+    domain_view_graph[domain_entity_id][TOPIC_CONTAINER_TAG] = nlohmann::json::object();
+    domain_view_graph[domain_entity_id][HOST_CONTAINER_TAG] = nlohmann::json::object();
 }
 
 bool Database::update_participant_in_graph(
@@ -3067,19 +3067,19 @@ bool Database::update_participant_in_graph_nts(
     std::string host_entity_id_value = std::to_string(host_entity_id.value());
     if (host_entity->active)
     {
-        if ((*domain_graph)["hosts"][host_entity_id_value].empty())
+        if ((*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value].empty())
         {
-            (*domain_graph)["hosts"][host_entity_id_value]["users"] = nlohmann::json::object();
+            (*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value][USER_CONTAINER_TAG] = nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(host_entity_id,
-                        (*domain_graph)["hosts"][host_entity_id_value]) || graph_updated;
+                        (*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value]) || graph_updated;
     }
     else
     {
-        if ((*domain_graph)["hosts"].find(host_entity_id_value) != (*domain_graph)["hosts"].end())
+        if ((*domain_graph)[HOST_CONTAINER_TAG].find(host_entity_id_value) != (*domain_graph)[HOST_CONTAINER_TAG].end())
         {
-            (*domain_graph)["hosts"].erase(host_entity_id_value);
+            (*domain_graph)[HOST_CONTAINER_TAG].erase(host_entity_id_value);
             return true;
         }
         return graph_updated;
@@ -3091,25 +3091,25 @@ bool Database::update_participant_in_graph_nts(
         return graph_updated;
     }
 
-    Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
+    Graph* host_graph = &(*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value];
 
     std::shared_ptr<const Entity> user_entity = get_entity_nts(user_entity_id);
     std::string user_entity_id_value = std::to_string(user_entity_id.value());
     if (user_entity->active)
     {
-        if ((*host_graph)["users"][user_entity_id_value].empty())
+        if ((*host_graph)[USER_CONTAINER_TAG][user_entity_id_value].empty())
         {
-            (*host_graph)["users"][user_entity_id_value]["processes"] = nlohmann::json::object();
+            (*host_graph)[USER_CONTAINER_TAG][user_entity_id_value][PROCESS_CONTAINER_TAG] = nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(user_entity_id,
-                        (*host_graph)["users"][user_entity_id_value]) || graph_updated;
+                        (*host_graph)[USER_CONTAINER_TAG][user_entity_id_value]) || graph_updated;
     }
     else
     {
-        if ((*host_graph)["users"].find(user_entity_id_value) != (*host_graph)["users"].end())
+        if ((*host_graph)[USER_CONTAINER_TAG].find(user_entity_id_value) != (*host_graph)[USER_CONTAINER_TAG].end())
         {
-            (*host_graph)["users"].erase(user_entity_id_value);
+            (*host_graph)[USER_CONTAINER_TAG].erase(user_entity_id_value);
             return true;
         }
         return graph_updated;
@@ -3121,25 +3121,25 @@ bool Database::update_participant_in_graph_nts(
         return graph_updated;
     }
 
-    Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
+    Graph* user_graph = &(*host_graph)[USER_CONTAINER_TAG][user_entity_id_value];
 
     std::shared_ptr<const Entity> process_entity = get_entity_nts(process_entity_id);
     std::string process_entity_id_value = std::to_string(process_entity_id.value());
     if (process_entity->active)
     {
-        if ((*user_graph)["processes"][process_entity_id_value].empty())
+        if ((*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value].empty())
         {
-            (*user_graph)["processes"][process_entity_id_value]["participants"] = nlohmann::json::object();
+            (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value][PARTICIPANT_CONTAINER_TAG] = nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(process_entity_id,
-                        (*user_graph)["processes"][process_entity_id_value]) || graph_updated;
+                        (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value]) || graph_updated;
     }
     else
     {
-        if ((*user_graph)["processes"].find(process_entity_id_value) != (*user_graph)["processes"].end())
+        if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) != (*user_graph)[PROCESS_CONTAINER_TAG].end())
         {
-            (*user_graph)["processes"].erase(process_entity_id_value);
+            (*user_graph)[PROCESS_CONTAINER_TAG].erase(process_entity_id_value);
             return true;
         }
         return graph_updated;
@@ -3151,27 +3151,27 @@ bool Database::update_participant_in_graph_nts(
         return graph_updated;
     }
 
-    Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
+    Graph* process_graph = &(*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value];
 
     std::shared_ptr<const Entity> participant_entity = get_entity_nts(participant_entity_id);
     std::string participant_entity_id_value = std::to_string(participant_entity_id.value());
     if (participant_entity->active)
     {
-        if ((*process_graph)["participants"][participant_entity_id_value].empty())
+        if ((*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value].empty())
         {
-            (*process_graph)["participants"][participant_entity_id_value]["endpoints"] = nlohmann::json::object();
+            (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value][ENDPOINT_CONTAINER_TAG] = nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(participant_entity_id,
-                        (*process_graph)["participants"][participant_entity_id_value]) ||
+                        (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value]) ||
                 graph_updated;
     }
     else
     {
-        if ((*process_graph)["participants"].find(participant_entity_id_value) !=
-                (*process_graph)["participants"].end())
+        if ((*process_graph)[PARTICIPANT_CONTAINER_TAG].find(participant_entity_id_value) !=
+                (*process_graph)[PARTICIPANT_CONTAINER_TAG].end())
         {
-            (*process_graph)["participants"].erase(participant_entity_id_value);
+            (*process_graph)[PARTICIPANT_CONTAINER_TAG].erase(participant_entity_id_value);
             return true;
         }
         return graph_updated;
@@ -3216,13 +3216,13 @@ bool Database::update_endpoint_in_graph_nts(
         {
             graph_updated =
                     get_entity_subgraph_nts(topic_entity_id,
-                            (*domain_graph)["topics"][topic_entity_id_value]) || graph_updated;
+                            (*domain_graph)[TOPIC_CONTAINER_TAG][topic_entity_id_value]) || graph_updated;
         }
         else
         {
-            if ((*domain_graph)["topics"].find(topic_entity_id_value) != (*domain_graph)["topics"].end())
+            if ((*domain_graph)[TOPIC_CONTAINER_TAG].find(topic_entity_id_value) != (*domain_graph)[TOPIC_CONTAINER_TAG].end())
             {
-                (*domain_graph)["topics"].erase(topic_entity_id_value);
+                (*domain_graph)[TOPIC_CONTAINER_TAG].erase(topic_entity_id_value);
                 graph_updated = true;
             }
         }
@@ -3261,28 +3261,28 @@ bool Database::update_endpoint_in_graph_nts(
     std::string host_entity_id_value = std::to_string(host->id.value());
 
     // Check if the correspondent host-user-process-participant graph exists
-    if ((*domain_graph)["hosts"].find(host_entity_id_value) == (*domain_graph)["hosts"].end())
+    if ((*domain_graph)[HOST_CONTAINER_TAG].find(host_entity_id_value) == (*domain_graph)[HOST_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
 
-    Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
+    Graph* host_graph = &(*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value];
 
-    if ((*host_graph)["users"].find(user_entity_id_value) == (*host_graph)["users"].end())
+    if ((*host_graph)[USER_CONTAINER_TAG].find(user_entity_id_value) == (*host_graph)[USER_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
 
-    Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
+    Graph* user_graph = &(*host_graph)[USER_CONTAINER_TAG][user_entity_id_value];
 
-    if ((*user_graph)["processes"].find(process_entity_id_value) == (*user_graph)["processes"].end())
+    if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) == (*user_graph)[PROCESS_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
 
-    Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
+    Graph* process_graph = &(*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value];
 
-    if ((*process_graph)["participants"].find(participant_entity_id_value) == (*process_graph)["participants"].end())
+    if ((*process_graph)[PARTICIPANT_CONTAINER_TAG].find(participant_entity_id_value) == (*process_graph)[PARTICIPANT_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
@@ -3293,7 +3293,7 @@ bool Database::update_endpoint_in_graph_nts(
         return graph_updated;
     }
 
-    Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
+    Graph* participant_graph = &(*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value];
 
     std::shared_ptr<const Entity> endpoint_entity = get_entity_nts(endpoint_entity_id);
     std::string endpoint_entity_id_value = std::to_string(endpoint_entity_id.value());
@@ -3301,15 +3301,15 @@ bool Database::update_endpoint_in_graph_nts(
     {
         graph_updated =
                 get_entity_subgraph_nts(endpoint_entity_id,
-                        (*participant_graph)["endpoints"][endpoint_entity_id_value]) ||
+                        (*participant_graph)[ENDPOINT_CONTAINER_TAG][endpoint_entity_id_value]) ||
                 graph_updated;
         return graph_updated;
     }
     else
     {
-        if ((*participant_graph)["endpoints"].find(endpoint_entity_id_value) != (*participant_graph)["endpoints"].end())
+        if ((*participant_graph)[ENDPOINT_CONTAINER_TAG].find(endpoint_entity_id_value) != (*participant_graph)[ENDPOINT_CONTAINER_TAG].end())
         {
-            (*participant_graph)["endpoints"].erase(endpoint_entity_id_value);
+            (*participant_graph)[ENDPOINT_CONTAINER_TAG].erase(endpoint_entity_id_value);
             return true;
         }
         return graph_updated;
@@ -3342,10 +3342,10 @@ bool Database::regenerate_domain_graph_nts(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     std::shared_ptr<const Entity> domain_entity = get_entity_nts(domain_entity_id);
-    (*domain_graph)["kind"] = "domain";
-    (*domain_graph)["domain"] = domain_entity->name;
-    (*domain_graph)["topics"] = nlohmann::json::object();
-    (*domain_graph)["hosts"] = nlohmann::json::object();
+    (*domain_graph)["kind"] = DOMAIN_ENTITY_TAG;
+    (*domain_graph)[DOMAIN_ENTITY_TAG] = domain_entity->name;
+    (*domain_graph)[TOPIC_CONTAINER_TAG] = nlohmann::json::object();
+    (*domain_graph)[HOST_CONTAINER_TAG] = nlohmann::json::object();
 
     // Add topics
     auto topics = get_entities_nts(EntityKind::TOPIC, domain_entity_id);
@@ -3356,7 +3356,7 @@ bool Database::regenerate_domain_graph_nts(
             continue;
         }
         std::string topic_entity_id_value = std::to_string(topic->id.value());
-        get_entity_subgraph_nts(topic->id.value(), (*domain_graph)["topics"][topic_entity_id_value]);
+        get_entity_subgraph_nts(topic->id.value(), (*domain_graph)[TOPIC_CONTAINER_TAG][topic_entity_id_value]);
     }
 
     // Add hosts
@@ -3369,10 +3369,10 @@ bool Database::regenerate_domain_graph_nts(
         }
 
         std::string host_entity_id_value = std::to_string(host->id.value());
-        get_entity_subgraph_nts(host->id.value(), (*domain_graph)["hosts"][host_entity_id_value]);
+        get_entity_subgraph_nts(host->id.value(), (*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value]);
 
-        Graph* host_graph = &(*domain_graph)["hosts"][host_entity_id_value];
-        (*host_graph)["users"] = nlohmann::json::object();
+        Graph* host_graph = &(*domain_graph)[HOST_CONTAINER_TAG][host_entity_id_value];
+        (*host_graph)[USER_CONTAINER_TAG] = nlohmann::json::object();
         auto users = get_entities_nts(EntityKind::USER, host);
 
         // Add users
@@ -3384,10 +3384,10 @@ bool Database::regenerate_domain_graph_nts(
             }
 
             std::string user_entity_id_value = std::to_string(user->id.value());
-            get_entity_subgraph_nts(user->id.value(), (*host_graph)["users"][user_entity_id_value]);
+            get_entity_subgraph_nts(user->id.value(), (*host_graph)[USER_CONTAINER_TAG][user_entity_id_value]);
 
-            Graph* user_graph = &(*host_graph)["users"][user_entity_id_value];
-            (*user_graph)["processes"] = nlohmann::json::object();
+            Graph* user_graph = &(*host_graph)[USER_CONTAINER_TAG][user_entity_id_value];
+            (*user_graph)[PROCESS_CONTAINER_TAG] = nlohmann::json::object();
             auto processes = get_entities_nts(EntityKind::PROCESS, user);
 
             //Add processes
@@ -3399,10 +3399,10 @@ bool Database::regenerate_domain_graph_nts(
                 }
 
                 std::string process_entity_id_value = std::to_string(process->id.value());
-                get_entity_subgraph_nts(process->id.value(), (*user_graph)["processes"][process_entity_id_value]);
+                get_entity_subgraph_nts(process->id.value(), (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value]);
 
-                Graph* process_graph = &(*user_graph)["processes"][process_entity_id_value];
-                (*process_graph)["participants"] = nlohmann::json::object();
+                Graph* process_graph = &(*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value];
+                (*process_graph)[PARTICIPANT_CONTAINER_TAG] = nlohmann::json::object();
                 auto participants = get_entities_nts(EntityKind::PARTICIPANT, process);
 
                 //Add prticipants
@@ -3415,10 +3415,10 @@ bool Database::regenerate_domain_graph_nts(
 
                     std::string participant_entity_id_value = std::to_string(participant->id.value());
                     get_entity_subgraph_nts(participant->id.value(),
-                            (*process_graph)["participants"][participant_entity_id_value]);
+                            (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value]);
 
-                    Graph* participant_graph = &(*process_graph)["participants"][participant_entity_id_value];
-                    (*participant_graph)["endpoints"] = nlohmann::json::object();
+                    Graph* participant_graph = &(*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value];
+                    (*participant_graph)[ENDPOINT_CONTAINER_TAG] = nlohmann::json::object();
                     auto datareaders = get_entities_nts(EntityKind::DATAREADER, participant);
 
                     // Add endpoints
@@ -3431,7 +3431,7 @@ bool Database::regenerate_domain_graph_nts(
 
                         std::string datareader_entity_id_value = std::to_string(datareader->id.value());
                         get_entity_subgraph_nts(datareader->id.value(),
-                                (*participant_graph)["endpoints"][datareader_entity_id_value]);
+                                (*participant_graph)[ENDPOINT_CONTAINER_TAG][datareader_entity_id_value]);
 
                     }
                     auto datawriters = get_entities_nts(EntityKind::DATAWRITER, participant);
@@ -3444,7 +3444,7 @@ bool Database::regenerate_domain_graph_nts(
 
                         std::string datawriter_entity_id_value = std::to_string(datawriter->id.value());
                         get_entity_subgraph_nts(datawriter->id.value(),
-                                (*participant_graph)["endpoints"][datawriter_entity_id_value]);
+                                (*participant_graph)[ENDPOINT_CONTAINER_TAG][datawriter_entity_id_value]);
                     }
                 }
             }
@@ -3559,19 +3559,19 @@ Graph Database::get_entity_subgraph_nts(
 
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    entity_graph["kind"] =  entity_kind_str[(int)entity->kind];
+    entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
 
-    if (entity_graph["alias"] != entity->alias)
+    if (entity_graph[ALIAS_TAG] != entity->alias)
     {
-        entity_graph["alias"] =  entity->alias;
+        entity_graph[ALIAS_TAG] =  entity->alias;
         entity_graph_updated = true;
     }
 
-    entity_graph["metatraffic"] =  entity->metatraffic;
+    entity_graph[METATRAFFIC_TAG] =  entity->metatraffic;
 
-    if (entity->kind != EntityKind::TOPIC && entity_graph["status"] != entity_status_str[(int)entity->status])
+    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != entity_status_str[(int)entity->status])
     {
-        entity_graph["status"] = entity_status_str[(int)entity->status];
+        entity_graph[STATUS_TAG] = entity_status_str[(int)entity->status];
         entity_graph_updated = true;
     }
 
@@ -3581,21 +3581,21 @@ Graph Database::get_entity_subgraph_nts(
         {
             std::shared_ptr<const Process> process =
                     std::dynamic_pointer_cast<const Process>(entity);
-            entity_graph["pid"] =  process->pid;
+            entity_graph[PID_TAG] =  process->pid;
             break;
         }
         case(EntityKind::PARTICIPANT):
         {
             std::shared_ptr<const DomainParticipant> participant =
                     std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            if (entity_graph["app_id"] != app_id_str[(int)participant->app_id])
+            if (entity_graph[APP_ID_TAG] != app_id_str[(int)participant->app_id])
             {
-                entity_graph["app_id"] =  app_id_str[(int)participant->app_id];
+                entity_graph[APP_ID_TAG] =  app_id_str[(int)participant->app_id];
                 entity_graph_updated = true;
             }
-            if (entity_graph["app_metadata"] != participant->app_metadata)
+            if (entity_graph[APP_METADATA_TAG] != participant->app_metadata)
             {
-                entity_graph["app_metadata"] =  participant->app_metadata;
+                entity_graph[APP_METADATA_TAG] =  participant->app_metadata;
                 entity_graph_updated = true;
             }
             break;
@@ -4450,13 +4450,13 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Host>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[STATUS_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array
     {
@@ -4475,15 +4475,15 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<User>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[HOST_ENTITY_TAG] = id_to_string(entity->host->id);
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array
     {
@@ -4502,16 +4502,16 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Process>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[PID_INFO_TAG] = entity->pid;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[PID_TAG] = entity->pid;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[USER_ENTITY_TAG] = id_to_string(entity->user->id);
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array
     {
@@ -4530,13 +4530,13 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Domain>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[STATUS_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array for Topics
     {
@@ -4565,16 +4565,16 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Topic>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[DATA_TYPE_INFO_TAG] = entity->data_type;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[DATA_TYPE_TAG] = entity->data_type;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array for DataWriters
     {
@@ -4603,17 +4603,17 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DomainParticipant>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[GUID_INFO_TAG] = entity->guid;
-    entity_info[QOS_INFO_TAG] = entity->qos;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[GUID_TAG] = entity->guid;
+    entity_info[QOS_TAG] = entity->qos;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     if (entity->process)
     {
@@ -4703,19 +4703,19 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DataWriter>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[GUID_INFO_TAG] = entity->guid;
-    entity_info[QOS_INFO_TAG] = entity->qos;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[GUID_TAG] = entity->guid;
+    entity_info[QOS_TAG] = entity->qos;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
     entity_info[VIRTUAL_METATRAFFIC_TAG] = entity->is_virtual_metatraffic;
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array for Locators
     {
@@ -4774,19 +4774,19 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<DataReader>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[GUID_INFO_TAG] = entity->guid;
-    entity_info[QOS_INFO_TAG] = entity->qos;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[GUID_TAG] = entity->guid;
+    entity_info[QOS_TAG] = entity->qos;
+    entity_info[STATUS_TAG] = entity->status;
 
     entity_info[PARTICIPANT_ENTITY_TAG] = id_to_string(entity->participant->id);
     entity_info[TOPIC_ENTITY_TAG] = id_to_string(entity->topic->id);
     entity_info[VIRTUAL_METATRAFFIC_TAG] = entity->is_virtual_metatraffic;
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array for Locators
     {
@@ -4827,13 +4827,13 @@ DatabaseDump Database::dump_entity_(
         const std::shared_ptr<Locator>& entity)
 {
     DatabaseDump entity_info = DatabaseDump::object();
-    entity_info[NAME_INFO_TAG] = entity->name;
-    entity_info[ALIAS_INFO_TAG] = entity->alias;
-    entity_info[STATUS_INFO_TAG] = entity->status;
+    entity_info[NAME_TAG] = entity->name;
+    entity_info[ALIAS_TAG] = entity->alias;
+    entity_info[STATUS_TAG] = entity->status;
 
     // metatraffic and active attributes are stored but ignored when loading
-    entity_info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    entity_info[ALIVE_INFO_TAG] = entity->active;
+    entity_info[METATRAFFIC_TAG] = entity->metatraffic;
+    entity_info[ALIVE_TAG] = entity->active;
 
     // Populate subentity array for DataWriters
     {
@@ -5168,13 +5168,13 @@ Info Database::get_info(
 
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    info[ID_INFO_TAG] = entity_id.value();
-    info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
-    info[NAME_INFO_TAG] = entity->name;
-    info[ALIAS_INFO_TAG] = entity->alias;
-    info[ALIVE_INFO_TAG] = entity->active;
-    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    info[STATUS_INFO_TAG] = entity->status;
+    info[ID_TAG] = entity_id.value();
+    info[KIND_TAG] = entity_kind_str[(int)entity->kind];
+    info[NAME_TAG] = entity->name;
+    info[ALIAS_TAG] = entity->alias;
+    info[ALIVE_TAG] = entity->active;
+    info[METATRAFFIC_TAG] = entity->metatraffic;
+    info[STATUS_TAG] = entity->status;
 
     switch (entity->kind)
     {
@@ -5182,22 +5182,24 @@ Info Database::get_info(
         {
             std::shared_ptr<const Process> process =
                     std::dynamic_pointer_cast<const Process>(entity);
-            info[PID_INFO_TAG] = process->pid;
+            info[PID_TAG] = process->pid;
             break;
         }
         case EntityKind::TOPIC:
         {
             std::shared_ptr<const Topic> topic =
                     std::dynamic_pointer_cast<const Topic>(entity);
-            info[DATA_TYPE_INFO_TAG] = topic->data_type;
+            info[DATA_TYPE_TAG] = topic->data_type;
             break;
         }
         case EntityKind::PARTICIPANT:
         {
             std::shared_ptr<const DomainParticipant> participant =
                     std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            info[GUID_INFO_TAG] = participant->guid;
-            info[QOS_INFO_TAG] = participant->qos;
+            info[GUID_TAG] = participant->guid;
+            info[QOS_TAG] = participant->qos;
+            info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
+            info[APP_METADATA_TAG] = participant->app_metadata;
 
             // Locators associated to endpoints
             std::set<std::string> locator_set;
@@ -5235,8 +5237,8 @@ Info Database::get_info(
         {
             std::shared_ptr<const DDSEntity> dds_entity =
                     std::dynamic_pointer_cast<const DDSEntity>(entity);
-            info[GUID_INFO_TAG] = dds_entity->guid;
-            info[QOS_INFO_TAG] = dds_entity->qos;
+            info[GUID_TAG] = dds_entity->guid;
+            info[QOS_TAG] = dds_entity->qos;
             break;
         }
         default:
@@ -5377,8 +5379,8 @@ void Database::load_database(
                     DATAREADER_CONTAINER_TAG);
 
             // Create entity
-            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_INFO_TAG));
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            std::shared_ptr<Locator> entity = std::make_shared<Locator>((*it).at(NAME_TAG));
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5397,8 +5399,8 @@ void Database::load_database(
             check_entity_contains_all_references(dump, it, HOST_ENTITY_TAG, USER_CONTAINER_TAG, USER_CONTAINER_TAG);
 
             // Create entity
-            std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_INFO_TAG));
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            std::shared_ptr<Host> entity = std::make_shared<Host>((*it).at(NAME_TAG));
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5419,9 +5421,9 @@ void Database::load_database(
                     PROCESS_CONTAINER_TAG);
 
             // Create entity
-            std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_INFO_TAG),
+            std::shared_ptr<User> entity = std::make_shared<User>((*it).at(NAME_TAG),
                             hosts_[string_to_int((*it).at(HOST_ENTITY_TAG))]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5443,9 +5445,9 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<Process> entity =
-                    std::make_shared<Process>((*it).at(NAME_INFO_TAG), (*it).at(PID_INFO_TAG),
+                    std::make_shared<Process>((*it).at(NAME_TAG), (*it).at(PID_TAG),
                             users_[EntityId(string_to_int((*it).at(USER_ENTITY_TAG)))]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5466,8 +5468,8 @@ void Database::load_database(
             check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
 
             // Create entity
-            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_INFO_TAG));
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_TAG));
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5492,9 +5494,9 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<Topic> entity =
-                    std::make_shared<Topic>((*it).at(NAME_INFO_TAG), (*it).at(DATA_TYPE_INFO_TAG),
+                    std::make_shared<Topic>((*it).at(NAME_TAG), (*it).at(DATA_TYPE_TAG),
                             domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5519,9 +5521,9 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<DomainParticipant> entity = std::make_shared<DomainParticipant>(
-                (*it).at(NAME_INFO_TAG), (*it).at(QOS_INFO_TAG), (*it).at(GUID_INFO_TAG), nullptr,
+                (*it).at(NAME_TAG), (*it).at(QOS_TAG), (*it).at(GUID_TAG), nullptr,
                 domains_[EntityId(string_to_int((*it).at(DOMAIN_ENTITY_TAG)))]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
             EntityId entity_id = EntityId(string_to_int(it.key()));
@@ -5572,12 +5574,12 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<DataWriter> entity = std::make_shared<DataWriter>(
-                (*it).at(NAME_INFO_TAG),
-                (*it).at(QOS_INFO_TAG),
-                (*it).at(GUID_INFO_TAG),
+                (*it).at(NAME_TAG),
+                (*it).at(QOS_TAG),
+                (*it).at(GUID_TAG),
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
             entity->is_virtual_metatraffic = (*it).at(VIRTUAL_METATRAFFIC_TAG).get<bool>();
 
             /* Add reference to locator to the endpoint */
@@ -5626,12 +5628,12 @@ void Database::load_database(
 
             // Create entity
             std::shared_ptr<DataReader> entity = std::make_shared<DataReader>(
-                (*it).at(NAME_INFO_TAG),
-                (*it).at(QOS_INFO_TAG),
-                (*it).at(GUID_INFO_TAG),
+                (*it).at(NAME_TAG),
+                (*it).at(QOS_TAG),
+                (*it).at(GUID_TAG),
                 participants_[participant_domain_id][participant_id],
                 topics_[topic_domain_id][topic_id]);
-            entity->alias = (*it).at(ALIAS_INFO_TAG);
+            entity->alias = (*it).at(ALIAS_TAG);
             entity->is_virtual_metatraffic = (*it).at(VIRTUAL_METATRAFFIC_TAG).get<bool>();
 
             /* Add reference to locator to the endpoint */
