@@ -5,8 +5,8 @@
 Get entities' domain view graph
 -------------------------------
 
-*Fast DDS Statistics Backend* allows to retrieve the entire graph of active entities for which the singleton holds statistics
-data.
+*Fast DDS Statistics Backend* allows to retrieve the entire graph of active entities for which the singleton holds
+statistics data.
 The result of this query is a |Graph-api| tree structure that contains the info of each entity.
 To be able to understand and interpret this tree, it is required to know about all the available entities and the inner
 relations between them.
@@ -19,8 +19,8 @@ For more information about the different |EntityKind-api| please refer to :ref:`
 
     *Fast DDS Statistics Backend* entity relations and their division into physical and domain related.
 
-The |DomainListener::on_domain_view_graph_update-api| |DomainListener-api| callback notifies when a domain has updated its graph. Alternatively, the graph
-can be regenerated manually by calling |regenerate_domain_graph-api|:
+The |DomainListener::on_domain_view_graph_update-api| |DomainListener-api| callback notifies when a domain has updated
+its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++

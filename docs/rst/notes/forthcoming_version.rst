@@ -14,5 +14,5 @@ Next release will include the following **API extensions**:
 * `StatisticsBackend::get_status_data` returns an specific status data of a given id.
 * Added `status` attribute for entities.
 * Added database `domain_view_graph` map.
-* Added monitor service topic status data storaging and processing.
+* Added monitor service topic status data storing and processing.
 * Get physical information from discovery packets.

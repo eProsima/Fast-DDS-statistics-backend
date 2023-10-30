@@ -12,7 +12,7 @@ This release includes the following **dependencie update**:
 This release includes the following **features**:
 * Added status, app id and app metadata attributes for entities.
 * Added database domain view graph.
-* Added monitor service topic status data storaging and processing.
+* Added monitor service topic status data storing and processing.
 * `StatisticsBackend::get_status` returns the entity status level of a given id.
 * `StatisticsBackend::get_domain_view_graph` returns the domain view graph of a given domain.
 * `StatisticsBackend::regenerate_domain_graph` regenerates the domain view graph of a given domain.

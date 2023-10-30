@@ -68,4 +68,5 @@ add_test(NAME documentation.spell_check
     ${PROJECT_SOURCE_DOCS_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/spelling)
 
-add_test(NAME documentation.get_domain_view_graph_parse COMMAND ${PROJECT_NAME}-documentation-test get_domain_view_graph_parse)
+add_test(NAME documentation.get_domain_view_graph_parse
+    COMMAND ${PROJECT_NAME}-documentation-test get_domain_view_graph_parse)

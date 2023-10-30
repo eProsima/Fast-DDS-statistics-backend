@@ -423,7 +423,7 @@ struct ProxySample : MonitorServiceSample
 };
 
 /** @struct ConnectionListSample
- * Connection list sample of an entity. Each of the elements is a Connection in which the possible values for the ConnectionMode are: intraprocess, datasharing, transport.
+ * Connection list sample of an entity. Each of the elements is a Connection in which the possible values for the ConnectionMode are: intraprocess, data sharing, transport.
  */
 struct ConnectionListSample : MonitorServiceSample
 {

@@ -5,14 +5,15 @@
 Get status data
 ---------------
 
-*Fast DDS Statistics Backend* provides a template of |get_status_data-api| to retrieve monitor  service status data sample of a given 
-|StatusKind-api| (for more information about all the reported |StatusKind-api|, please refer to :ref:`types_status_kind`).
+*Fast DDS Statistics Backend* provides a template of |get_status_data-api| to retrieve monitor service status data
+sample of a given |StatusKind-api| (for more information about all the reported |StatusKind-api|, please refer to
+:ref:`types_status_kind`).
 
-The sample is passed as an argument to the function  along with the |EntityId-api| of the entity whose status is to be known. This sample 
-is populated with the most recent status data of that kind.
+The sample is passed as an argument to the function  along with the |EntityId-api| of the entity whose status is to
+be known. This sample is populated with the most recent status data of that kind.
 
-Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table describes which |StatusKind-api| 
-each of these :ref:`entities<types_entity_kind>` has:
+Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table
+describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
 
 +-------------------------------+-----------------+----------------+----------------+
 | Signature                     ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
@@ -36,7 +37,8 @@ each of these :ref:`entities<types_entity_kind>` has:
 
 .. note::
 
-  For entity transitions, |WARNING-api| status level takes precedence over |OK-api| level, and |ERROR-api| does over |WARNING-api| and |OK-api| levels.
+  For entity transitions, |WARNING-api| status level takes precedence over |OK-api| level, and |ERROR-api| does over
+  |WARNING-api| and |OK-api| levels.
 
 
 |get_status_data-api| throws |BadParameter-api| in the following cases:
@@ -45,8 +47,9 @@ each of these :ref:`entities<types_entity_kind>` has:
 - If there is no specialization template for the requested |StatusKind-api|.
 - If the |EntityKind-api| of the Entity doesn't have the associated |StatusKind-api|.
 
-Every time new status data is available there will be a callback to Domain Listener's |DomainListener::on_status_reported-api| (for more information 
-about |DomainListener-api| callbacks, please refer to :ref:`listeners_domain_listener`).
+Every time new status data is available there will be a callback to Domain Listener's
+|DomainListener::on_status_reported-api| (for more information about |DomainListener-api| callbacks, please refer to
+:ref:`listeners_domain_listener`).
 
 .. _statistics_backend_get_status_data_examples:
 

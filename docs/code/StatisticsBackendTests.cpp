@@ -420,10 +420,8 @@ void get_data_supported_entity_kinds_examples()
     }
 }
 
-int get_domain_view_graph_examples(
-        uint8_t test)
+void get_domain_view_graph()
 {
-    if (test == 1)
     {
         EntityId domain_id;
 
@@ -434,10 +432,17 @@ int get_domain_view_graph_examples(
         //CONF-GET-GRAPH-EXAMPLE
         Graph domain_view_graph = StatisticsBackend::get_domain_view_graph(domain_id);
         //!--
+    }
+}
 
+int get_domain_view_graph_examples(
+        uint8_t test)
+{
+    if (test == 1)
+    {
         // Load the file to test whether the snippet works on the example
         std::ifstream file_example("graph_example.json");
-        domain_view_graph = Graph::parse(file_example);
+        Graph domain_view_graph = Graph::parse(file_example);
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
         std::cout << "Domain: " << domain_view_graph[DOMAIN_ENTITY_TAG] << std::endl;
