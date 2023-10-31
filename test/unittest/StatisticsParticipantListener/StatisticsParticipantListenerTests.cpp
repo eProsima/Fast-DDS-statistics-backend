@@ -513,9 +513,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -716,9 +716,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -905,9 +905,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -1134,9 +1134,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -1352,9 +1352,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -1573,9 +1573,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -1762,9 +1762,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -1984,9 +1984,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 
@@ -2175,9 +2175,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(5));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
     
@@ -2262,9 +2262,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
-                physical_entities_ids["host"] = EntityId(13);
-                physical_entities_ids["user"] = EntityId(14);
-                physical_entities_ids["process"] = EntityId(15);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(13);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
 

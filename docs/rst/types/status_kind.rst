@@ -5,21 +5,28 @@
 StatusData
 ==========
 
-The *eProsima Fast DDS Statistics Backend* records entities' status data of different nature, as provided by the
+The *eProsima Fast DDS Statistics Backend* records entities status data of different nature, as provided by the
 Monitor Service from *eProsima Fast DDS Statistics Module*, e.g., incompatible QoS or the number of lost samples. We
 refer to the nature of these status data values as their |StatusKind-api|.
 
-- |PROXY-api|: Collection of Parameters describing the Proxy Data of that entity.
+- |PROXY-api|: Collection of parameters describing the proxy data of that entity.
 
-- |CONNECTION_LIST-api|: List of connections that this entity is using. Each of the elements is a Connection in which
-  the possible values for the ConnectionMode are: intraprocess, data sharing, transport. In addition, information
-  comprising the announced locators and locator in use with each one of the matched entities is also included.
+- |CONNECTION_LIST-api|: List of connections used by this entity. Each of the elements is a connection where
+  the possible values for the connection mode are:
 
-- |INCOMPATIBLE_QOS-api|: Status of the Incompatible QoS of that entity.
+  - Intraprocess
+  - Data sharing
+  - Transport
+
+  In addition, information comprising the announced locators and locator in use with each one of the matched entities
+  is also included.
+
+- |INCOMPATIBLE_QOS-api|: Status of the incompatible QoS of that entity.
+
   - |DATAWRITER-api| Incompatible QoS Offered.
   - |DATAREADER-api| Incompatible QoS Requested.
 
-- |INCONSISTENT_TOPIC-api|: Status of Inconsistent topics of the topic of that entity. Asked to the topic of the
+- |INCONSISTENT_TOPIC-api|: Status of inconsistent topics of the topic of that entity. Asked to the topic of the
   requested entity.
 
 - |LIVELINESS_LOST-api|: Tracks the status of the number of times that liveliness was lost by a |DATAWRITER-api|.
@@ -27,7 +34,7 @@ refer to the nature of these status data values as their |StatusKind-api|.
 - |LIVELINESS_CHANGED-api|: Tracks the status of the number of times that liveliness status changed in a
   |DATAREADER-api|.
 
-- |DEADLINE_MISSED-api|: The Status of the number of deadlines missed that were registered in that entity.
+- |DEADLINE_MISSED-api|: The status of the number of missed deadlines registered in that entity.
 
 - |SAMPLE_LOST-api|: Tracks the number of times that this entity lost samples.
 
@@ -38,7 +45,7 @@ Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated st
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
 
 +-------------------------------+-----------------+----------------+----------------+
-| Signature                     ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
+| |StatusKind-api|              ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
 +===============================+=================+================+================+
 | |PROXY-api|                   | Yes             | Yes            | Yes            |
 +-------------------------------+-----------------+----------------+----------------+
@@ -58,29 +65,30 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 +-------------------------------+-----------------+----------------+----------------+
 
 Each |StatusKind-api| has an associated |StatusLevel-api|. |OK-api| status is obtained when the monitor service message
-reports no issue.
-Entity's associated |StatusLevel-api| is obtained from  all status data. The following table describes which status
-levels are associated with each |StatusKind-api|, and to which |StatusLevel-api| they can take an entity:
+reports no problem.
+Entity's associated |StatusLevel-api| is obtained from all status data. The following table describes which
+|StatusLevel-api|'s are associated with each |StatusKind-api|, and which |StatusLevel-api|'s are associated with each
+DDS Entity in relation to the |StatusKind-api|:
 
-+-------------------------------+------------------------+-------------------------+
-| Signature                     |Associated status levels|Entity status transitions|
-+===============================+========================+=========================+
-| |PROXY-api|                   | |OK-api|               | |OK-api|                |
-+-------------------------------+------------------------+-------------------------+
-| |CONNECTION_LIST-api|         | |OK-api|               | |OK-api|                |
-+-------------------------------+------------------------+-------------------------+
-| |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|   | |OK-api|/|ERROR-api|    |
-+-------------------------------+------------------------+-------------------------+
-| |INCONSISTENT_TOPIC-api|      | \-                     | \-                      |
-+-------------------------------+------------------------+-------------------------+
-| |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api| | |OK-api|/|WARNING-api|  |
-+-------------------------------+------------------------+-------------------------+
-| |LIVELINESS_CHANGED-api|      | |OK-api|               | |OK-api|                |
-+-------------------------------+------------------------+-------------------------+
-| |DEADLINE_MISSED-api|         | |OK-api|/|ERROR-api|   | |OK-api|/|WARNING-api|  |
-+-------------------------------+------------------------+-------------------------+
-| |SAMPLE_LOST-api|             | |OK-api|/|ERROR-api|   | |OK-api|/|WARNING-api|  |
-+-------------------------------+------------------------+-------------------------+
++-------------------------------+-----------------------+------------------------------+
+| |StatusKind-api|              ||StatusLevel-api|'s    |DDS Entity |StatusLevel-api|'s|
++===============================+=======================+==============================+
+| |PROXY-api|                   | |OK-api|              | |OK-api|                     |
++-------------------------------+-----------------------+------------------------------+
+| |CONNECTION_LIST-api|         | |OK-api|              | |OK-api|                     |
++-------------------------------+-----------------------+------------------------------+
+| |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|  | |OK-api|/|ERROR-api|         |
++-------------------------------+-----------------------+------------------------------+
+| |INCONSISTENT_TOPIC-api|      | \-                    | \-                           |
++-------------------------------+-----------------------+------------------------------+
+| |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api|| |OK-api|/|WARNING-api|       |
++-------------------------------+-----------------------+------------------------------+
+| |LIVELINESS_CHANGED-api|      | |OK-api|              | |OK-api|                     |
++-------------------------------+-----------------------+------------------------------+
+| |DEADLINE_MISSED-api|         | |OK-api|/|ERROR-api|  | |OK-api|/|WARNING-api|       |
++-------------------------------+-----------------------+------------------------------+
+| |SAMPLE_LOST-api|             | |OK-api|/|ERROR-api|  | |OK-api|/|WARNING-api|       |
++-------------------------------+-----------------------+------------------------------+
 
 .. note::
 

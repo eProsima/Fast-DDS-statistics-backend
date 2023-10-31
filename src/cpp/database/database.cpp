@@ -163,7 +163,7 @@ void Database::process_physical_entities(
         host = std::const_pointer_cast<Host>(const_host);
     }
 
-    physical_entities_ids["host"] = host->id;
+    physical_entities_ids[HOST_ENTITY_TAG] = host->id;
 
     // Get user entity
     auto users = get_entities_by_name_nts(EntityKind::USER, user_name);
@@ -187,7 +187,7 @@ void Database::process_physical_entities(
         user->id = entity_id;
     }
 
-    physical_entities_ids["user"] = user->id;
+    physical_entities_ids[USER_ENTITY_TAG] = user->id;
 
     auto processes = get_entities_by_name_nts(EntityKind::PROCESS, process_name);
     for (const auto& it : processes)
@@ -211,7 +211,7 @@ void Database::process_physical_entities(
         should_link_process_participant = true;
     }
 
-    physical_entities_ids["process"] = process->id;
+    physical_entities_ids[PROCESS_ENTITY_TAG] = process->id;
 
     if (should_link_process_participant && participant_id != EntityId::invalid())
     {
@@ -3342,7 +3342,7 @@ bool Database::regenerate_domain_graph_nts(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     std::shared_ptr<const Entity> domain_entity = get_entity_nts(domain_entity_id);
-    (*domain_graph)["kind"] = DOMAIN_ENTITY_TAG;
+    (*domain_graph)[KIND_TAG] = DOMAIN_ENTITY_TAG;
     (*domain_graph)[DOMAIN_ENTITY_TAG] = domain_entity->name;
     (*domain_graph)[TOPIC_CONTAINER_TAG] = nlohmann::json::object();
     (*domain_graph)[HOST_CONTAINER_TAG] = nlohmann::json::object();
@@ -3605,7 +3605,7 @@ Graph Database::get_entity_subgraph_nts(
         {
             std::shared_ptr<const DDSEndpoint> endpoint =
                     std::dynamic_pointer_cast<const DDSEndpoint>(entity);
-            entity_graph["topic"] =  std::to_string(endpoint->topic->id.value());
+            entity_graph[TOPIC_ENTITY_TAG] =  std::to_string(endpoint->topic->id.value());
             break;
         }
         default:

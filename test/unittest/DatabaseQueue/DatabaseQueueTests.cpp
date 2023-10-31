@@ -695,9 +695,9 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(should_link_process_participant, true);
                     EXPECT_EQ(participant_id, EntityId(1));
 
-                    physical_entities_ids["host"] = EntityId(2);
-                    physical_entities_ids["user"] = EntityId(3);
-                    physical_entities_ids["process"] = EntityId(4);
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
                 });
 
@@ -748,9 +748,9 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
-                    physical_entities_ids["host"] = EntityId(2);
-                    physical_entities_ids["user"] = EntityId(3);
-                    physical_entities_ids["process"] = EntityId(4);
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
                 });
 
@@ -801,9 +801,9 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
-                    physical_entities_ids["host"] = EntityId(2);
-                    physical_entities_ids["user"] = EntityId(3);
-                    physical_entities_ids["process"] = EntityId(4);
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
                 });
 
@@ -919,9 +919,9 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
-                    physical_entities_ids["host"] = EntityId(2);
-                    physical_entities_ids["user"] = EntityId(3);
-                    physical_entities_ids["process"] = EntityId(4);
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
                 });
 
@@ -999,9 +999,9 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
-                physical_entities_ids["host"] = EntityId(2);
-                physical_entities_ids["user"] = EntityId(3);
-                physical_entities_ids["process"] = EntityId(4);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
             });
 
@@ -1078,8 +1078,8 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
-                physical_entities_ids["host"] = EntityId(2);
-                physical_entities_ids["user"] = EntityId(3);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
 
                 throw BadParameter("Error");
 
@@ -1158,7 +1158,7 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
-                physical_entities_ids["host"] = EntityId(2);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
 
                 throw BadParameter("Error");
 
@@ -1315,9 +1315,9 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
-                physical_entities_ids["host"] = EntityId(2);
-                physical_entities_ids["user"] = EntityId(3);
-                physical_entities_ids["process"] = EntityId(4);
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
 
             });
 

@@ -16,7 +16,7 @@ Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated st
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
 
 +-------------------------------+-----------------+----------------+----------------+
-| Signature                     ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
+||StatusKind-api|               ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
 +===============================+=================+================+================+
 | |PROXY-api|                   | Yes             | Yes            | Yes            |
 +-------------------------------+-----------------+----------------+----------------+

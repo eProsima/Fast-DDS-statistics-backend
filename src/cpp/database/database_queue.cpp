@@ -60,9 +60,9 @@ EntityId DatabaseEntityQueue::process_participant(
     EntityId participant_id = EntityId::invalid();
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     bool graph_updated = false;
     bool should_link_process_participant = false;
@@ -154,8 +154,8 @@ EntityId DatabaseEntityQueue::process_participant(
     }
 
     graph_updated = database_->update_participant_in_graph(
-        info.domain_id, physical_entities_ids["host"], physical_entities_ids["user"],
-        physical_entities_ids["process"], participant_id);
+        info.domain_id, physical_entities_ids[HOST_ENTITY_TAG], physical_entities_ids[USER_ENTITY_TAG],
+        physical_entities_ids[PROCESS_ENTITY_TAG], participant_id);
 
     if (graph_updated)
     {

@@ -62,7 +62,7 @@
             "name": "participant_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
-            "app_id": "UNKNOWN",
+            "app_id": "UNKNOWN_APP",
             "app_metadata": "",
 
             "process": "3",

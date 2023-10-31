@@ -33,6 +33,8 @@
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 #include <fastdds/dds/log/Log.hpp>
 
+#include <fastdds_statistics_backend/types/JSONTags.h>
+
 #include <database/database.hpp>
 #include <database/entities.hpp>
 #include <exception/Exception.hpp>

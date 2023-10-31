@@ -2,7 +2,7 @@
 
 .. _statistics_backend_get_domain_view_graph:
 
-Get entities' domain view graph
+Get entities domain view graph
 -------------------------------
 
 *Fast DDS Statistics Backend* allows to retrieve the entire graph of active entities for which the singleton holds
@@ -18,6 +18,11 @@ For more information about the different |EntityKind-api| please refer to :ref:`
     :align: center
 
     *Fast DDS Statistics Backend* entity relations and their division into physical and domain related.
+
+.. _statistics_backend_get_domain_view_graph_example:
+
+Example
+^^^^^^^
 
 The |DomainListener::on_domain_view_graph_update-api| |DomainListener-api| callback notifies when a domain has updated
 its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|:

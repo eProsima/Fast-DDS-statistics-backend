@@ -15,4 +15,4 @@ Next release will include the following **API extensions**:
 * Added `status` attribute for entities.
 * Added database `domain_view_graph` map.
 * Added monitor service topic status data storing and processing.
-* Get physical information from discovery packets.
+* Retrieve physical information from discovery packets.

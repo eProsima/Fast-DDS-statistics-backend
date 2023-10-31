@@ -47,14 +47,13 @@ DomainListener defines the following callbacks:
   A new data writer has been discovered in the monitored domain,
   or an already known data writer has been updated with a new QoS value,
   or an already known data writer has been removed from the network.
-  The arguments in the callback specifies the ID of the data writer and the domain
+  The arguments in the callback specify the ID of the data writer and the domain
   to which it belongs.
 
 * |DomainListener::on_domain_view_graph_update-api|:
   A domain view graph has been updated.
-  The arguments in the callback specifies the ID of the domain whose graph has been updated.
+  The arguments in the callback specify the ID of the domain whose graph has been updated.
 
 * |DomainListener::on_status_reported-api|:
-  New status data has been received by the backend.
-  The arguments in the callback specifies the status kind of the received data
-  and the entity to which this data refers.
+  New status data has been received from the backend.
+  The arguments in the callback specify the status kind of the received data and the entity to which this data refers.

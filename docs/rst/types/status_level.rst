@@ -5,7 +5,7 @@
 StatusLevel
 ===========
 
-The *eProsima Fast DDS Statistics Backend* keeps track of some of its database members status.
+The *eProsima Fast DDS Statistics Backend* keeps track of the status of some of its database members.
 The following list shows the possible status values along with their corresponding descriptions.
 
 - |OK-api|: There are no issues to report.

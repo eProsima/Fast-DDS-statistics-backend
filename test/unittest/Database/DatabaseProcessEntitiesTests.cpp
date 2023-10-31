@@ -24,6 +24,7 @@
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
@@ -200,9 +201,9 @@ TEST_F(database_process_entities_tests, process_physical_entities)
     process->id = process_id;
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     bool should_link_process_participant = true;
 
@@ -217,19 +218,19 @@ TEST_F(database_process_entities_tests, process_physical_entities)
         physical_entities_ids);
 
     /* Check that the host was found correctly */
-    ASSERT_EQ(host_id, physical_entities_ids["host"]);
+    ASSERT_EQ(host_id, physical_entities_ids[HOST_ENTITY_TAG]);
 
     /* Check that the user was found correctly */
-    ASSERT_EQ(user_id, physical_entities_ids["user"]);
+    ASSERT_EQ(user_id, physical_entities_ids[USER_ENTITY_TAG]);
 
     /* Check that the user was found correctly */
-    ASSERT_EQ(process_id, physical_entities_ids["process"]);
+    ASSERT_EQ(process_id, physical_entities_ids[PROCESS_ENTITY_TAG]);
 
     /* Check that the process has linked correctly */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
-    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids["process"]]->participants[participant_id].get());
+    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->participants[participant_id].get());
 
-    ASSERT_EQ(processes[physical_entities_ids["process"]].get(), participants[domain_id][participant_id]->process.get());
+    ASSERT_EQ(processes[physical_entities_ids[PROCESS_ENTITY_TAG]].get(), participants[domain_id][participant_id]->process.get());
 }
 
 TEST_F(database_process_entities_tests, process_physical_entities_no_link)
@@ -265,9 +266,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
     process->id = process_id;
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     //Force not to link
     bool should_link_process_participant = false;
@@ -283,17 +284,17 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
         physical_entities_ids);
 
     /* Check that the host was found correctly */
-    ASSERT_EQ(host_id, physical_entities_ids["host"]);
+    ASSERT_EQ(host_id, physical_entities_ids[HOST_ENTITY_TAG]);
 
     /* Check that the user was found correctly */
-    ASSERT_EQ(user_id, physical_entities_ids["user"]);
+    ASSERT_EQ(user_id, physical_entities_ids[USER_ENTITY_TAG]);
 
     /* Check that the user was found correctly */
-    ASSERT_EQ(process_id, physical_entities_ids["process"]);
+    ASSERT_EQ(process_id, physical_entities_ids[PROCESS_ENTITY_TAG]);
 
     /* Check that the process hasn't linked */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
-    ASSERT_EQ(nullptr, processes[physical_entities_ids["process"]]->participants[participant_id].get());
+    ASSERT_EQ(nullptr, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->participants[participant_id].get());
 
     ASSERT_EQ(nullptr, participants[domain_id][participant_id]->process.get());
 }
@@ -326,9 +327,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
     user->id = user_id;
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     // The new process should link automatically
     bool should_link_process_participant = false;
@@ -344,28 +345,28 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
         physical_entities_ids);
 
     /* Check that the host was found correctly */
-    ASSERT_EQ(host_id, physical_entities_ids["host"]);
+    ASSERT_EQ(host_id, physical_entities_ids[HOST_ENTITY_TAG]);
 
     /* Check that the user was found correctly */
-    ASSERT_EQ(user_id, physical_entities_ids["user"]);
+    ASSERT_EQ(user_id, physical_entities_ids[USER_ENTITY_TAG]);
 
     /* Check that the process is inserted correctly */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 1u);
-    ASSERT_NE(processes.find(physical_entities_ids["process"]), processes.end());
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
-    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_NE(processes.find(physical_entities_ids[PROCESS_ENTITY_TAG]), processes.end());
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->kind);
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
-    ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
+    ASSERT_EQ(process_pid, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->pid);
+    ASSERT_EQ(users[physical_entities_ids[USER_ENTITY_TAG]].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->user.get());
 
     /* Check that the process has linked correctly */
-    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids["process"]]->participants[participant_id].get());
+    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->participants[participant_id].get());
 
-    ASSERT_EQ(processes[physical_entities_ids["process"]].get(), participants[domain_id][participant_id]->process.get());
+    ASSERT_EQ(processes[physical_entities_ids[PROCESS_ENTITY_TAG]].get(), participants[domain_id][participant_id]->process.get());
 }
 
 TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_user)
@@ -390,9 +391,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     host->id = host_id;
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     // The new process should link automatically
     bool should_link_process_participant = false;
@@ -408,36 +409,36 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
         physical_entities_ids);
 
     /* Check that the host was found correctly */
-    ASSERT_EQ(host_id, physical_entities_ids["host"]);
+    ASSERT_EQ(host_id, physical_entities_ids[HOST_ENTITY_TAG]);
 
     /* Check that the user is inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     ASSERT_EQ(users.size(), 1u);
-    ASSERT_NE(users.find(physical_entities_ids["user"]), users.end());
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
-    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_NE(users.find(physical_entities_ids[USER_ENTITY_TAG]), users.end());
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids[USER_ENTITY_TAG]]->kind);
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids[USER_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
+    ASSERT_EQ(hosts[physical_entities_ids[HOST_ENTITY_TAG]].get(), users[physical_entities_ids[USER_ENTITY_TAG]]->host.get());
 
     /* Check that the process is inserted correctly */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 1u);
-    ASSERT_NE(processes.find(physical_entities_ids["process"]), processes.end());
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
-    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_NE(processes.find(physical_entities_ids[PROCESS_ENTITY_TAG]), processes.end());
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->kind);
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
-    ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
+    ASSERT_EQ(process_pid, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->pid);
+    ASSERT_EQ(users[physical_entities_ids[USER_ENTITY_TAG]].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->user.get());
 
     /* Check that the process has linked correctly */
-    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids["process"]]->participants[participant_id].get());
+    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->participants[participant_id].get());
 
-    ASSERT_EQ(processes[physical_entities_ids["process"]].get(), participants[domain_id][participant_id]->process.get());
+    ASSERT_EQ(processes[physical_entities_ids[PROCESS_ENTITY_TAG]].get(), participants[domain_id][participant_id]->process.get());
 }
 
 TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_user_no_host)
@@ -458,9 +459,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     // The new process should link automatically
     bool should_link_process_participant = false;
@@ -478,39 +479,39 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
     /* Check that the host is inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
     ASSERT_EQ(hosts.size(), 1u);
-    ASSERT_NE(hosts.find(physical_entities_ids["host"]), hosts.end());
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
-    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_NE(hosts.find(physical_entities_ids[HOST_ENTITY_TAG]), hosts.end());
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->kind);
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->status);
 
     /* Check that the user is inserted correctly */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     ASSERT_EQ(users.size(), 1u);
-    ASSERT_NE(users.find(physical_entities_ids["user"]), users.end());
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
-    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_NE(users.find(physical_entities_ids[USER_ENTITY_TAG]), users.end());
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids[USER_ENTITY_TAG]]->kind);
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids[USER_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
+    ASSERT_EQ(hosts[physical_entities_ids[HOST_ENTITY_TAG]].get(), users[physical_entities_ids[USER_ENTITY_TAG]]->host.get());
 
     /* Check that the process is inserted correctly */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 1u);
-    ASSERT_NE(processes.find(physical_entities_ids["process"]), processes.end());
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->name);
-    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids["process"]]->kind);
-    ASSERT_EQ(process_name, processes[physical_entities_ids["process"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids["process"]]->status);
+    ASSERT_NE(processes.find(physical_entities_ids[PROCESS_ENTITY_TAG]), processes.end());
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::PROCESS, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->kind);
+    ASSERT_EQ(process_name, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(process_pid, processes[physical_entities_ids["process"]]->pid);
-    ASSERT_EQ(users[physical_entities_ids["user"]].get(), processes[physical_entities_ids["process"]]->user.get());
+    ASSERT_EQ(process_pid, processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->pid);
+    ASSERT_EQ(users[physical_entities_ids[USER_ENTITY_TAG]].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->user.get());
 
     /* Check that the process has linked correctly */
-    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids["process"]]->participants[participant_id].get());
+    ASSERT_EQ(participants[domain_id][participant_id].get(), processes[physical_entities_ids[PROCESS_ENTITY_TAG]]->participants[participant_id].get());
 
-    ASSERT_EQ(processes[physical_entities_ids["process"]].get(), participants[domain_id][participant_id]->process.get());
+    ASSERT_EQ(processes[physical_entities_ids[PROCESS_ENTITY_TAG]].get(), participants[domain_id][participant_id]->process.get());
 }
 
 TEST_F(database_process_entities_tests, process_physical_entities_process_throws)
@@ -531,9 +532,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     bool should_link_process_participant = true;
 
@@ -550,27 +551,27 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
     /* Check that the host is inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
     ASSERT_EQ(hosts.size(), 1u);
-    ASSERT_NE(hosts.find(physical_entities_ids["host"]), hosts.end());
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
-    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_NE(hosts.find(physical_entities_ids[HOST_ENTITY_TAG]), hosts.end());
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->kind);
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->status);
 
     /* Check that the user is inserted correctly */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     ASSERT_EQ(users.size(), 1u);
-    ASSERT_NE(users.find(physical_entities_ids["user"]), users.end());
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->name);
-    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids["user"]]->kind);
-    ASSERT_EQ(user_name, users[physical_entities_ids["user"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids["user"]]->status);
+    ASSERT_NE(users.find(physical_entities_ids[USER_ENTITY_TAG]), users.end());
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::USER, users[physical_entities_ids[USER_ENTITY_TAG]]->kind);
+    ASSERT_EQ(user_name, users[physical_entities_ids[USER_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, users[physical_entities_ids[USER_ENTITY_TAG]]->status);
 
-    ASSERT_EQ(hosts[physical_entities_ids["host"]].get(), users[physical_entities_ids["user"]]->host.get());
+    ASSERT_EQ(hosts[physical_entities_ids[HOST_ENTITY_TAG]].get(), users[physical_entities_ids[USER_ENTITY_TAG]]->host.get());
 
     /* Check that the process hasn't been inserted */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["process"], EntityId());
+    ASSERT_EQ(physical_entities_ids[PROCESS_ENTITY_TAG], EntityId());
 
     /* Check that the process hasn't linked */
     ASSERT_EQ(participants[domain_id][participant_id]->process.get(), nullptr);
@@ -594,9 +595,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     bool should_link_process_participant = true;
 
@@ -613,21 +614,21 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
     /* Check that the host is inserted correctly */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
     ASSERT_EQ(hosts.size(), 1u);
-    ASSERT_NE(hosts.find(physical_entities_ids["host"]), hosts.end());
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->name);
-    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids["host"]]->kind);
-    ASSERT_EQ(host_name, hosts[physical_entities_ids["host"]]->alias);
-    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids["host"]]->status);
+    ASSERT_NE(hosts.find(physical_entities_ids[HOST_ENTITY_TAG]), hosts.end());
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->name);
+    ASSERT_EQ(EntityKind::HOST, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->kind);
+    ASSERT_EQ(host_name, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->alias);
+    ASSERT_EQ(StatusLevel::OK, hosts[physical_entities_ids[HOST_ENTITY_TAG]]->status);
 
     /* Check that the user hasn't been inserted */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     ASSERT_EQ(users.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["user"], EntityId());
+    ASSERT_EQ(physical_entities_ids[USER_ENTITY_TAG], EntityId());
 
     /* Check that the process hasn't been inserted */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["process"], EntityId());
+    ASSERT_EQ(physical_entities_ids[PROCESS_ENTITY_TAG], EntityId());
 
     /* Check that the process hasn't linked */
     ASSERT_EQ(participants[domain_id][participant_id]->process.get(), nullptr);
@@ -651,9 +652,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
-    physical_entities_ids["host"] = EntityId::invalid();
-    physical_entities_ids["user"] = EntityId::invalid();
-    physical_entities_ids["process"] = EntityId::invalid();
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
 
     bool should_link_process_participant = true;
 
@@ -670,17 +671,17 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
     /* Check that the host hasn't been inserted */
     std::map<EntityId, std::shared_ptr<Host>> hosts = db.hosts();
     ASSERT_EQ(hosts.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["host"], EntityId());
+    ASSERT_EQ(physical_entities_ids[HOST_ENTITY_TAG], EntityId());
 
     /* Check that the user hasn't been inserted */
     std::map<EntityId, std::shared_ptr<User>> users = db.users();
     ASSERT_EQ(users.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["user"], EntityId());
+    ASSERT_EQ(physical_entities_ids[USER_ENTITY_TAG], EntityId());
 
     /* Check that the process hasn't been inserted */
     std::map<EntityId, std::shared_ptr<Process>> processes = db.processes();
     ASSERT_EQ(processes.size(), 0u);
-    ASSERT_EQ(physical_entities_ids["process"], EntityId());
+    ASSERT_EQ(physical_entities_ids[PROCESS_ENTITY_TAG], EntityId());
 
     /* Check that the process hasn't linked */
     ASSERT_EQ(participants[domain_id][participant_id]->process.get(), nullptr);
