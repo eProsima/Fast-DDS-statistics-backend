@@ -19,6 +19,8 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
 
+#include <types/types.hpp>
+
 namespace eprosima {
 namespace statistics_backend {
 
@@ -52,6 +54,19 @@ constexpr const char* AML_IP_APP                    = "AML-IP";
 constexpr const char* app_id_str[] =
 {"UNKNOWN_APP", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
  FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP};
+
+//! Conversion from string to AppId
+const std::map<std::string, AppId> app_id_enum = {
+    {FASTDDS_MONITOR_APP, AppId::FASTDDS_MONITOR},
+    {DDS_ROUTER_APP, AppId::DDS_ROUTER},
+    {SHAPES_DEMO_APP, AppId::SHAPES_DEMO},
+    {INTEGRATION_SERVICE_APP, AppId::INTEGRATION_SERVICE},
+    {FASTDDS_VISUALIZER_APP, AppId::FASTDDS_VISUALIZER},
+    {FASTDDS_SPY_APP, AppId::FASTDDS_SPY},
+    {DDS_RECORDER_APP, AppId::DDS_RECORDER},
+    {DDS_REPLAYER_APP, AppId::DDS_REPLAYER},
+    {AML_IP_APP, AppId::AML_IP}
+};
 
 } //namespace statistics_backend
 } //namespace eprosima

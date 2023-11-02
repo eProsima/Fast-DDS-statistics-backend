@@ -449,6 +449,10 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name;
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
@@ -537,6 +541,10 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name + "_1";
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
@@ -548,7 +556,6 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
     // Link participant - process
     auto participant_id =
             db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
-    db->link_participant_with_process(participant_id, process1->id);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -621,6 +628,10 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         std::stringstream(participant->guid) >> participant_guid_;
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name;
+        
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
 
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -709,6 +720,10 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name + "_1";
+        
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
 
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -721,7 +736,6 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
     // Link participant - process
     auto participant_id =
             db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
-    db->link_participant_with_process(participant_id, process1->id);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));

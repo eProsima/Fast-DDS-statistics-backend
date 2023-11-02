@@ -1823,7 +1823,7 @@ void Database::link_participant_with_process_nts(
     else if (participant_it->second->process)
     {
         throw BadParameter("Participant with ID " + std::to_string(
-                          participant_id.value()) + " in already linked with a process");
+                          participant_id.value()) + " is already linked with a process");
     }
 
     /* Get the process */

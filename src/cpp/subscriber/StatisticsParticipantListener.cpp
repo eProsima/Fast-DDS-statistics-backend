@@ -149,9 +149,6 @@ void StatisticsParticipantListener::on_participant_discovery(
     discovery_info.address = get_address(info.info);
     discovery_info.participant_name = info.info.m_participantName.to_string();
 
-    discovery_info.app_id = AppId::UNKNOWN;
-    discovery_info.app_metadata = "";
-
     discovery_info.entity_status = StatusLevel::OK_STATUS;
 
     switch (info.status)
@@ -176,8 +173,8 @@ void StatisticsParticipantListener::on_participant_discovery(
         }
     }
 
-    //Get physical data from participant discovery info
-    auto get_physical_property_value =
+    //Get data from participant discovery info
+    auto get_property_value =
             [](const fastdds::dds::ParameterPropertyList_t& properties, const std::string& property_name) -> std::string
             {
                 auto property = std::find_if(
@@ -194,12 +191,23 @@ void StatisticsParticipantListener::on_participant_discovery(
                 return std::string("");
             };
 
-    discovery_info.host = get_physical_property_value(info.info.m_properties,
+    discovery_info.host = get_property_value(info.info.m_properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_host);
-    discovery_info.user = get_physical_property_value(info.info.m_properties,
+    discovery_info.host = discovery_info.host.empty()? "Unknown" : discovery_info.host;
+
+    discovery_info.user = get_property_value(info.info.m_properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_user);
-    discovery_info.process = get_physical_property_value(info.info.m_properties,
+    discovery_info.user = discovery_info.user.empty()? "Unknown" : discovery_info.user;
+
+    discovery_info.process = get_property_value(info.info.m_properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_process);
+    discovery_info.process = discovery_info.process.empty()? "Unknown" : discovery_info.process;
+    
+    std::string app_id = get_property_value(info.info.m_properties, "fastdds.application.id");
+    auto it = app_id_enum.find(app_id);
+    discovery_info.app_id = it != app_id_enum.end()? it->second : AppId::UNKNOWN;
+
+    discovery_info.app_metadata = get_property_value(info.info.m_properties, "fastdds.application.metadata");
 
     entity_queue_->push(timestamp, discovery_info);
 

@@ -28,6 +28,7 @@
 #include <database/entities.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
 namespace statistics_backend {

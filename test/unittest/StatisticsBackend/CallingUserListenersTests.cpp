@@ -1827,6 +1827,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     participant_data.m_guid = participant_guid_;
     participant_data.m_participantName = participant_name_;
 
+    participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, "host_name");
+    participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, "user_name");
+    participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process_name");
+
     // The participant locator
     eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
     participant_locator.address[12] = 127;
@@ -1851,7 +1855,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(monitor_id_, participant->domain->id);
     EXPECT_EQ(participant_guid_str_, participant->guid);
     EXPECT_EQ(participant_name_, participant->name);
-    EXPECT_EQ(nullptr, participant->process);
+    EXPECT_NE(nullptr, participant->process);
+    EXPECT_NE(nullptr, participant->process->user);
+    EXPECT_NE(nullptr, participant->process->user->host);
     EXPECT_TRUE(participant->data_readers.empty());
     ASSERT_EQ(1u, participant->data_writers.size()); // There is the metatraffic endpoint
 
