@@ -16,3 +16,4 @@ Next release will include the following **API extensions**:
 * Added database `domain_view_graph` map.
 * Added monitor service topic status data storing and processing.
 * Retrieve physical information from discovery packets.
+* Physical related entities with an empty name are given the name `Unknown` by default.

@@ -274,6 +274,7 @@ endforeach()
 
 set(USER_LISTENERS_TEST_END_TO_END
     entity_discovery_end_to_end
+    participant_proxy_data_end_to_end
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_END_TO_END})
