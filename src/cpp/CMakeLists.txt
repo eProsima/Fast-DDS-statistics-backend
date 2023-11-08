@@ -35,6 +35,7 @@ set(${PROJECT_NAME}_SOURCES
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
     topic_types/types.cxx
+    topic_types/typesv1.cxx
     topic_types/typesPubSubTypes.cxx
     types/EntityId.cpp
     )
@@ -58,9 +59,9 @@ if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         INTERFACE
             _CRT_DECLARE_NONSTDC_NAMES=0
-        PRIVATE 
+        PRIVATE
             EPROSIMA_USER_DLL_EXPORT
-            WIN32_WINNT=0x0603 
+            WIN32_WINNT=0x0603
             _CRT_DECLARE_NONSTDC_NAMES=0
         )
 endif(MSVC)
