@@ -196,7 +196,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)> func)
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)> func)
         : callback_(func)
     {
     }
@@ -210,7 +211,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)
     {
         endpoint_guid_ = endpoint_guid;
         name_ = name;
@@ -221,7 +223,8 @@ struct InsertEndpointArgs
         kind_ = kind;
         participant_id_ = participant_id;
         topic_id_ = topic_id;
-        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id);
+        app_data_ = app_data;
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id, app_data);
     }
 
     std::function<EntityId(                
@@ -233,7 +236,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)> callback_;
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)> callback_;
 
     std::string endpoint_guid_;
     std::string name_;
@@ -244,6 +248,7 @@ struct InsertEndpointArgs
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
+    std::pair<AppId, std::string> app_data_;
 };
 
 template<typename T>
@@ -550,7 +555,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -566,11 +572,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -735,7 +745,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_2_guid_str);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -752,11 +763,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(6));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));            
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -942,7 +957,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -955,11 +971,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1171,7 +1191,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1188,11 +1209,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph and notify user
     EXPECT_CALL(database,
@@ -1389,7 +1414,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1405,11 +1431,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1610,7 +1640,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1625,11 +1656,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -1799,7 +1834,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1813,11 +1849,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
@@ -2021,7 +2061,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -2038,17 +2079,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(participant_id, EntityId(10));
                 EXPECT_EQ(topic_id, EntityId(11));
 
+                static_cast<void>(app_data);
+
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
     EXPECT_CALL(database,
             update_participant_in_graph(EntityId(0), EntityId(13), EntityId(14), EntityId(15),
             EntityId(10))).Times(1).WillOnce(Return(true));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Expectation: The Participant is discovered
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2353,7 +2398,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
@@ -2366,12 +2412,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -2433,7 +2483,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Datareader is not added to the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Precondition: The Datareader does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -2510,7 +2560,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
@@ -2524,12 +2575,15 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(10));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -2630,7 +2684,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
@@ -2644,12 +2699,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -2760,7 +2819,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
@@ -2777,12 +2837,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -2897,7 +2961,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
@@ -2914,12 +2979,16 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -2982,7 +3051,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3028,7 +3097,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3081,7 +3150,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3149,7 +3218,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);
@@ -3224,7 +3293,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
@@ -3237,12 +3307,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -3304,7 +3378,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The writer is not added to the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Precondition: The writer does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -3381,7 +3455,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
@@ -3395,12 +3470,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(10));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -3519,7 +3598,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
@@ -3536,12 +3616,16 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
+    
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -3652,7 +3736,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id)
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
@@ -3669,12 +3754,15 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 EXPECT_EQ(participant_id, EntityId(1));
                 EXPECT_EQ(topic_id, EntityId(2));
 
+                static_cast<void>(app_data);
+
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
-
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
@@ -3738,7 +3826,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -3785,7 +3873,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -3838,7 +3926,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3906,7 +3994,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);

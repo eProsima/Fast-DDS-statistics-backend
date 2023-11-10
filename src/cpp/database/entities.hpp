@@ -233,10 +233,14 @@ struct DDSEntity : Entity
             std::string dds_entity_name = "INVALID",
             Qos dds_entity_qos = {},
             std::string dds_entity_guid = "|GUID UNKNOWN|",
-            StatusLevel status = StatusLevel::OK_STATUS) noexcept
+            StatusLevel status = StatusLevel::OK_STATUS,
+            AppId dds_entity_app_id = AppId::UNKNOWN,
+            std::string dds_entity_app_metadata = "") noexcept
         : Entity(entity_kind, dds_entity_name, false, true, status)
         , qos(dds_entity_qos)
         , guid(dds_entity_guid)
+        , app_id(dds_entity_app_id)
+        , app_metadata(dds_entity_app_metadata)
     {
     }
 
@@ -245,6 +249,10 @@ struct DDSEntity : Entity
 
     //! The DDS GUID of the entity
     std::string guid;
+
+    //! DDS entity app properties.
+    AppId app_id;
+    std::string app_metadata;
 };
 
 /*
@@ -259,7 +267,9 @@ struct DDSEndpoint : DDSEntity
             std::string endpoint_guid = "|GUID UNKNOWN|",
             details::fragile_ptr<DomainParticipant> endpoint_participant = nullptr,
             details::fragile_ptr<Topic> endpoint_topic = nullptr,
-            StatusLevel status = StatusLevel::OK_STATUS) noexcept;
+            StatusLevel status = StatusLevel::OK_STATUS,
+            AppId endpoint_app_id = AppId::UNKNOWN,
+            std::string endpoint_app_metadata = "") noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     details::fragile_ptr<DomainParticipant> participant;
@@ -291,11 +301,9 @@ struct DomainParticipant : DDSEntity
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId participant_app_id = AppId::UNKNOWN,
             std::string participant_app_metadata = "") noexcept
-        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status)
+        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status, participant_app_id, participant_app_metadata)
         , process(participant_process)
         , domain(participant_domain)
-        , app_id(participant_app_id)
-        , app_metadata(participant_app_metadata)
     {
     }
 
@@ -312,10 +320,6 @@ struct DomainParticipant : DDSEntity
 
     //! Reference to the Domain in which this DomainParticipant runs.
     details::fragile_ptr<Domain> domain;
-
-    //! Participant app properties.
-    AppId app_id;
-    std::string app_metadata;
 
     //! Reference to the meta traffic endpoint of this DomainParticipant.
     details::fragile_ptr<DDSEndpoint> meta_traffic_endpoint;
@@ -394,9 +398,11 @@ struct DataReader : DDSEndpoint
             std::string datareader_guid,
             details::fragile_ptr<DomainParticipant> datareader_participant,
             details::fragile_ptr<Topic> datareader_topic,
-            StatusLevel status = StatusLevel::OK_STATUS) noexcept
+            StatusLevel status = StatusLevel::OK_STATUS,
+            AppId datareader_app_id = AppId::UNKNOWN,
+            std::string datareader_app_metadata = "") noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
-                datareader_topic, status)
+                datareader_topic, status, datareader_app_id, datareader_app_metadata)
     {
     }
 
@@ -424,9 +430,11 @@ struct DataWriter : DDSEndpoint
             std::string datawriter_guid,
             details::fragile_ptr<DomainParticipant> datawriter_participant,
             details::fragile_ptr<Topic> datawriter_topic,
-            StatusLevel status = StatusLevel::OK_STATUS) noexcept
+            StatusLevel status = StatusLevel::OK_STATUS,
+            AppId datawriter_app_id = AppId::UNKNOWN,
+            std::string datawriter_app_metadata = "") noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
-                datawriter_topic, status)
+                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata)
     {
     }
 

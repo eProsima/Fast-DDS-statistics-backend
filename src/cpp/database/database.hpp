@@ -167,10 +167,10 @@ public:
      * @param kind EntityKind of the endpoint.
      * @param participant_id The EntityId of the Participant related to the Endpoint.
      * @param topic_id The EntityId of the Topic related to the Endpoint.
+     * @param app_data The AppId and app metadata related to the Endpoint.
      * 
      * @return EntityId of the Endpoint once inserted.
      */
-
     EntityId insert_new_endpoint(
              const std::string& endpoint_guid,
              const std::string& name,
@@ -180,7 +180,8 @@ public:
              const fastrtps::rtps::RemoteLocatorList& locators,
              const EntityKind& kind,
              const EntityId& participant_id,
-             const EntityId& topic_id);
+             const EntityId& topic_id,
+             const std::pair<AppId, std::string>& app_data);
 
     /**
      * @brief Insert a new entity into the database.
@@ -1080,6 +1081,8 @@ protected:
      * @param qos The QoS of the Endpoint.
      * @param participant The DomainParticipant related to the Endpoint.
      * @param topic The Topic related to the Endpoint.
+     * @param app_id The AppId related to the Endpoint.
+     * @param app_metadata The app metadata related to the Endpoint.
      * 
      * @return EntityId of the Endpoint once inserted.
      */
@@ -1089,7 +1092,9 @@ protected:
         const std::string& name,
         const Qos& qos,
         const std::shared_ptr<DomainParticipant>& participant,
-        const std::shared_ptr<Topic>& topic);
+        const std::shared_ptr<Topic>& topic,
+        const AppId& app_id,
+        const std::string& app_metadata);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.

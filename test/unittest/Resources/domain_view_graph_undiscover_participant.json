@@ -50,6 +50,8 @@
                                         "11":
                                         {
                                             "kind": "datareader",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "metatraffic": false,
                                             "alias": "subscriber",
                                             "status": "OK",

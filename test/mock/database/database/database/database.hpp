@@ -85,7 +85,7 @@ public:
                 const std::string& alias,
                 const EntityId& domain_id));
 
-    MOCK_METHOD9(insert_new_endpoint, EntityId(
+    MOCK_METHOD10(insert_new_endpoint, EntityId(
                 const std::string& endpoint_guid,
                 const std::string& name,
                 const std::string& alias,
@@ -94,7 +94,8 @@ public:
                 const fastrtps::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
-                const EntityId& topic_id));
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string>& app_data));
 
     MOCK_METHOD1(insert, EntityId(
                 std::shared_ptr<Entity> entity));

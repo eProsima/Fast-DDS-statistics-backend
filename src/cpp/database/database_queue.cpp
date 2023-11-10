@@ -375,6 +375,20 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
         name << "DataWriter_" << info.topic_name << "_" << info.guid.entityId;
     }
 
+    // Endpoint AppId and metadata
+    // TODO: get app data from info (parameters), not from participant
+    std::pair<AppId, std::string> app_data;
+    auto participant = std::static_pointer_cast<const DomainParticipant>(database_->get_entity(participant_id.second));
+    if(participant != nullptr)
+    {
+        app_data.first = participant->app_id;
+    }
+    else
+    {
+        app_data.first = AppId::UNKNOWN;
+    }
+    app_data.second = "";
+
     endpoint_id = database_->insert_new_endpoint(
         to_string(endpoint_guid),
         name.str(),
@@ -384,7 +398,8 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
         info.locators,
         info.kind(),
         participant_id.second,
-        topic_id);
+        topic_id,
+        app_data);
 
     // Force the refresh of the parent entities' status
     database_->change_entity_status(endpoint_id, true);

@@ -190,6 +190,10 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(GUID_TAG);
                 EXPECT_EQ(dds_entity->qos, info[QOS_TAG]);
                 info.erase(QOS_TAG);
+                EXPECT_EQ(app_id_str[(int)dds_entity->app_id], info[APP_ID_TAG]);
+                info.erase(APP_ID_TAG);
+                EXPECT_EQ(dds_entity->app_metadata, info[APP_METADATA_TAG]);
+                info.erase(APP_METADATA_TAG);
                 break;
             }
             default:

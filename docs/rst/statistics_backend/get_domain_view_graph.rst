@@ -74,6 +74,7 @@ Running the previous snippet on the given example should output:
                     Participant status: "OK"
                         Endpoint alias: "example_publisher_alias"
                         Endpoint kind:  "datawriter"
+                        Endpoint app_id:  "UNKNOWN_APP"
                         Endpoint status: "OK"
                 Process alias: "example_process2_alias"
                 Process PID:  "1235"
@@ -83,6 +84,7 @@ Running the previous snippet on the given example should output:
                     Participant status: "OK"
                         Endpoint alias: "example_subscriber_alias"
                         Endpoint kind:  "datareader"
+                        Endpoint app_id:  "UNKNOWN_APP"
                         Endpoint status: "OK"
         Topic alias: "HelloWorld"
         Topic metatraffic: false

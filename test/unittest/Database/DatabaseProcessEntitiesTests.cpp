@@ -814,7 +814,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
         locators,
         EntityKind::DATAWRITER,
         participant_id,
-        topic_id);
+        topic_id,
+        std::pair<AppId,std::string>(AppId::UNKNOWN,""));
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>> datawriters = db.datawriters();
@@ -896,7 +897,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
         locators,
         EntityKind::DATAREADER,
         participant_id,
-        topic_id);
+        topic_id,
+        std::pair<AppId,std::string>(AppId::UNKNOWN,""));
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>> datareaders = db.datareaders();
@@ -988,7 +990,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
                 locators,
                 EntityKind::DATAREADER,
                 participant_id,
-                topic_id), BadParameter);
+                topic_id,
+                std::pair<AppId,std::string>(AppId::UNKNOWN,"")), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
@@ -1036,7 +1039,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
                 locators,
                 EntityKind::DATAREADER,
                 participant_id,
-                EntityId()), BadParameter);
+                EntityId(),
+                std::pair<AppId,std::string>(AppId::UNKNOWN,"")), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
@@ -1079,7 +1083,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
                 locators,
                 EntityKind::DATAREADER,
                 EntityId(),
-                topic_id), BadParameter);
+                topic_id,
+                std::pair<AppId,std::string>(AppId::UNKNOWN,"")), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
@@ -1129,7 +1134,8 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
         locators,
         EntityKind::DATAREADER,
         participant_id,
-        topic_id);
+        topic_id,
+        std::pair<AppId,std::string>(AppId::UNKNOWN,""));
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>> datareaders = db.datareaders();

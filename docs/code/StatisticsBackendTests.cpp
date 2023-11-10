@@ -469,6 +469,7 @@ int get_domain_view_graph_examples(
                         {
                             std::cout << "\t\t\t\t\tEndpoint alias: " << endpoint[ALIAS_TAG] << std::endl;
                             std::cout << "\t\t\t\t\tEndpoint kind:  " << endpoint[KIND_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint app_id:  " << endpoint[APP_ID_TAG] << std::endl;
                             std::cout << "\t\t\t\t\tEndpoint status: " << endpoint[STATUS_TAG] << std::endl;
                         }
                     }

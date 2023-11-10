@@ -418,7 +418,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)> func)
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)> func)
         : callback_(func)
     {
     }
@@ -432,7 +433,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)
     {
         endpoint_guid_ = endpoint_guid;
         name_ = name;
@@ -443,7 +445,8 @@ struct InsertEndpointArgs
         kind_ = kind;
         participant_id_ = participant_id;
         topic_id_ = topic_id;
-        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id);
+        app_data_ = app_data;
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id, app_data);
     }
 
     std::function<EntityId(                
@@ -455,7 +458,8 @@ struct InsertEndpointArgs
             const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
-            const EntityId& topic_id)> callback_;
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)> callback_;
 
     std::string endpoint_guid_;
     std::string name_;
@@ -466,6 +470,7 @@ struct InsertEndpointArgs
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
+    std::pair<AppId, std::string> app_data_;
 };
 
 class database_queue_tests : public ::testing::Test
@@ -1372,6 +1377,8 @@ TEST_F(database_queue_tests, push_datawriter)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(2);
 
     // Precondition: The topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
@@ -1386,7 +1393,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -1404,7 +1411,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
 
@@ -1432,7 +1439,8 @@ TEST_F(database_queue_tests, push_datawriter)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id)
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1446,10 +1454,12 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user
@@ -1476,7 +1486,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1501,7 +1511,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
@@ -1536,7 +1546,8 @@ TEST_F(database_queue_tests, push_datawriter)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id) -> EntityId
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data) -> EntityId
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1550,10 +1561,12 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
@@ -1601,6 +1614,8 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
@@ -1640,7 +1655,8 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id)
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1654,10 +1670,12 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user
@@ -1716,6 +1734,8 @@ TEST_F(database_queue_tests, push_datareader)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(2);
 
     // Precondition: The topic exists and has ID 2
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
@@ -1730,7 +1750,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -1748,7 +1768,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the datareader is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
@@ -1777,7 +1797,8 @@ TEST_F(database_queue_tests, push_datareader)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id)
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -1791,10 +1812,12 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user
@@ -1821,7 +1844,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1846,7 +1869,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
@@ -1881,7 +1904,8 @@ TEST_F(database_queue_tests, push_datareader)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id) -> EntityId
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data) -> EntityId
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -1895,10 +1919,12 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
@@ -1946,6 +1972,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
@@ -1985,7 +2013,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
-                    const EntityId& topic_id)
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -1999,10 +2028,12 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
 
+                    static_cast<void>(app_data);
+
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user

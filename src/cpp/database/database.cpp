@@ -287,10 +287,10 @@ EntityId Database::insert_new_endpoint(
         const fastrtps::rtps::RemoteLocatorList& locators,
         const EntityKind& kind,
         const EntityId& participant_id,
-        const EntityId& topic_id)
+        const EntityId& topic_id,
+        const std::pair<AppId, std::string>& app_data)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-
 
     std::shared_ptr<DomainParticipant> participant =
             std::const_pointer_cast<DomainParticipant>(
@@ -311,7 +311,9 @@ EntityId Database::insert_new_endpoint(
             name,
             qos,
             participant,
-            topic);
+            topic,
+            app_data.first,
+            app_data.second);
     }
     else
     {
@@ -320,7 +322,9 @@ EntityId Database::insert_new_endpoint(
             name,
             qos,
             participant,
-            topic);
+            topic,
+            app_data.first,
+            app_data.second);
     }
 
 
@@ -385,14 +389,19 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::string& name,
         const Qos& qos,
         const std::shared_ptr<DomainParticipant>& participant,
-        const std::shared_ptr<Topic>& topic)
+        const std::shared_ptr<Topic>& topic,
+        const AppId& app_id,
+        const std::string& app_metadata)
 {
     return std::make_shared<T>(
         name,
         qos,
         endpoint_guid,
         participant,
-        topic);
+        topic,
+        StatusLevel::OK,
+        app_id,
+        app_metadata);
 }
 
 EntityId Database::insert(
@@ -3606,6 +3615,16 @@ Graph Database::get_entity_subgraph_nts(
             std::shared_ptr<const DDSEndpoint> endpoint =
                     std::dynamic_pointer_cast<const DDSEndpoint>(entity);
             entity_graph[TOPIC_ENTITY_TAG] =  std::to_string(endpoint->topic->id.value());
+            if (entity_graph[APP_ID_TAG] != app_id_str[(int)endpoint->app_id])
+            {
+                entity_graph[APP_ID_TAG] =  app_id_str[(int)endpoint->app_id];
+                entity_graph_updated = true;
+            }
+            if (entity_graph[APP_METADATA_TAG] != endpoint->app_metadata)
+            {
+                entity_graph[APP_METADATA_TAG] =  endpoint->app_metadata;
+                entity_graph_updated = true;
+            }
             break;
         }
         default:
@@ -5239,6 +5258,8 @@ Info Database::get_info(
                     std::dynamic_pointer_cast<const DDSEntity>(entity);
             info[GUID_TAG] = dds_entity->guid;
             info[QOS_TAG] = dds_entity->qos;
+            info[APP_ID_TAG] = app_id_str[(int)dds_entity->app_id];
+            info[APP_METADATA_TAG] = dds_entity->app_metadata;
             break;
         }
         default:

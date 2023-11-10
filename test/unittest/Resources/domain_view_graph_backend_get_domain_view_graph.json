@@ -33,6 +33,8 @@
                                     "endpoints": {
                                         "13": {
                                             "alias": "datareader1",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "kind": "datareader",
                                             "metatraffic": false,
                                             "status": "OK",
@@ -40,6 +42,8 @@
                                         },
                                         "15": {
                                             "alias": "datareader2",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "kind": "datareader",
                                             "metatraffic": false,
                                             "status": "OK",
@@ -47,6 +51,8 @@
                                         },
                                         "17": {
                                             "alias": "datawriter1",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "kind": "datawriter",
                                             "metatraffic": false,
                                             "status": "OK",
@@ -54,6 +60,8 @@
                                         },
                                         "19": {
                                             "alias": "datawriter2",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "kind": "datawriter",
                                             "metatraffic": false,
                                             "status": "OK",

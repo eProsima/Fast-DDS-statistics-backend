@@ -50,6 +50,8 @@
                                         "7":
                                         {
                                             "kind": "datawriter",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "metatraffic": false,
                                             "alias": "publisher",
                                             "status": "OK",
@@ -81,6 +83,8 @@
                                         "11":
                                         {
                                             "kind": "datareader",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "metatraffic": false,
                                             "alias": "subscriber",
                                             "status": "OK",
