@@ -109,7 +109,7 @@ TEST_F(statistics_backend_tests, get_info)
         info.erase(ALIVE_TAG);
         EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_TAG]);
         info.erase(METATRAFFIC_TAG);
-        EXPECT_EQ(entity->status, info[STATUS_TAG]);
+        EXPECT_EQ(status_level_str[(int)entity->status], info[STATUS_TAG]);
         info.erase(STATUS_TAG);
 
         // Check specific info

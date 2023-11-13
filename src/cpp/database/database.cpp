@@ -5193,7 +5193,7 @@ Info Database::get_info(
     info[ALIAS_TAG] = entity->alias;
     info[ALIVE_TAG] = entity->active;
     info[METATRAFFIC_TAG] = entity->metatraffic;
-    info[STATUS_TAG] = entity->status;
+    info[STATUS_TAG] = status_level_str[(int)entity->status];
 
     switch (entity->kind)
     {

@@ -4,5 +4,6 @@
     "name": "host_name",
     "alias": "host_alias",
     "alive": true,
-    "status": 0
+    "metatraffic": false,
+    "status": "OK"
 }
