@@ -187,7 +187,8 @@
             "name": "datawriter_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
-
+            "app_id": "UNKNOWN_APP",
+            "app_metadata": "",
             "participant": "6",
             "topic": "5",
             "locators": ["0"],
@@ -277,7 +278,8 @@
             "name": "datareader_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
             "qos": {"qos": "empty"},
-
+            "app_id": "UNKNOWN_APP",
+            "app_metadata": "",
             "participant": "6",
             "topic": "5",
             "locators": ["0"],

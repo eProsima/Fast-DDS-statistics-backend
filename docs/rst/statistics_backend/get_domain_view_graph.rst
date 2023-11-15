@@ -46,6 +46,10 @@ The application can retrieve the network graph by:
 
 In this example, the previous call would return a |Graph-api| object similar to the following:
 
+.. todo::
+
+    Provide the `app_data` and `app_metadata` fields of a known app.
+
 .. literalinclude:: /code/graph_example.json
     :language: JSON
 

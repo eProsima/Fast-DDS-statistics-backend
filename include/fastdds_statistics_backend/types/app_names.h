@@ -32,23 +32,23 @@ namespace statistics_backend {
 // App id
 
 //! Identificator for a Fast DDS Statistics Backend app
-constexpr const char* FASTDDS_MONITOR_APP           = "FASTDDS MONITOR";
+constexpr const char* FASTDDS_MONITOR_APP           = "FASTDDS_MONITOR";
 //! Identificator for a DDS Router app
-constexpr const char* DDS_ROUTER_APP                = "DDS ROUTER";
+constexpr const char* DDS_ROUTER_APP                = "DDS_ROUTER";
 //! Identificator for a Shapes Demo app
-constexpr const char* SHAPES_DEMO_APP               = "SHAPES DEMO";
+constexpr const char* SHAPES_DEMO_APP               = "SHAPES_DEMO";
 //! Identificator for a Integration Service app
-constexpr const char* INTEGRATION_SERVICE_APP       = "INTEGRATION SERVICE";
+constexpr const char* INTEGRATION_SERVICE_APP       = "INTEGRATION_SERVICE";
 //! Identificator for a Fast DDS Visualizer app
-constexpr const char* FASTDDS_VISUALIZER_APP        = "FASTDDS VISUALIZER";
+constexpr const char* FASTDDS_VISUALIZER_APP        = "FASTDDS_VISUALIZER";
 //! Identificator for a Fast DDS Spy app
-constexpr const char* FASTDDS_SPY_APP               = "FASTDDS SPY";
+constexpr const char* FASTDDS_SPY_APP               = "FASTDDS_SPY";
 //! Identificator for a DDS Recorder app
-constexpr const char* DDS_RECORDER_APP              = "DDS RECORDER";
+constexpr const char* DDS_RECORDER_APP              = "DDS_RECORDER";
 //! Identificator for a DDS Replayer app
-constexpr const char* DDS_REPLAYER_APP              = "DDS REPLAYER";
+constexpr const char* DDS_REPLAYER_APP              = "DDS_REPLAYER";
 //! Identificator for a AML-IP app
-constexpr const char* AML_IP_APP                    = "AML-IP";
+constexpr const char* AML_IP_APP                    = "AML_IP";
 
 //! Conversion from AppId to string
 constexpr const char* app_id_str[] =

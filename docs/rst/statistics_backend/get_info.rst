@@ -64,6 +64,10 @@ Domain Info example
 Participant Info example
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. todo::
+
+    Provide the `app_data` and `app_metadata` fields of a known app.
+
 .. literalinclude:: /code/participant_info_example.json
     :language: JSON
 
@@ -72,6 +76,10 @@ Participant Info example
 DataReader Info example
 ^^^^^^^^^^^^^^^^^^^^^^^
 
+.. todo::
+
+    Provide the `app_data` and `app_metadata` fields of a known app.
+
 .. literalinclude:: /code/datareader_info_example.json
     :language: JSON
 
@@ -79,6 +87,10 @@ DataReader Info example
 
 DataWriter Info example
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+.. todo::
+
+    Provide the `app_data` and `app_metadata` fields of a known app.
 
 .. literalinclude:: /code/datawriter_info_example.json
     :language: JSON

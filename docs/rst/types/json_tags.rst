@@ -20,5 +20,9 @@ Dump Tags Example
 The following snippet shows an example of a database dump, result of calling |dump_database-api| in a database
 with one entity of each |EntityKind-api|, and one data of each |DataKind-api|:
 
+.. todo::
+
+    Provide the `app_data` and `app_metadata` fields of a known app.
+
 .. literalinclude:: /code/dump_example.json
    :language: JSON
