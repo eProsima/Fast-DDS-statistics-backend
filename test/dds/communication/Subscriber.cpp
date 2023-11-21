@@ -35,6 +35,7 @@
 #include <condition_variable>
 #include <fstream>
 #include <string>
+#include <thread>
 
 #include <Host.hpp>
 
