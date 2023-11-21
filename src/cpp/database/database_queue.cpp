@@ -930,7 +930,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::ERROR_STATUS;
+        sample.status = StatusLevel::WARNING_STATUS;
     }
     else
     {
@@ -968,7 +968,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::ERROR_STATUS;
+        sample.status = StatusLevel::WARNING_STATUS;
     }
     else
     {
