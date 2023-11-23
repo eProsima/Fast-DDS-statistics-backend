@@ -42,14 +42,14 @@ constexpr uint32_t eprosima_fastdds_statistics_QosPolicyCount_s_max_key_cdr_type
 
 
 
-constexpr uint32_t eprosima_fastdds_statistics_MonitorServiceStatusData_max_cdr_typesize {565252UL};
-constexpr uint32_t eprosima_fastdds_statistics_MonitorServiceStatusData_max_key_cdr_typesize {32UL};
+constexpr uint32_t eprosima_fastdds_statistics_MonitorServiceStatusData_max_cdr_typesize {484040UL};
+constexpr uint32_t eprosima_fastdds_statistics_MonitorServiceStatusData_max_key_cdr_typesize {20UL};
 
 
 
 
 
-constexpr uint32_t eprosima_fastdds_statistics_Connection_max_cdr_typesize {5652UL};
+constexpr uint32_t eprosima_fastdds_statistics_Connection_max_cdr_typesize {4840UL};
 constexpr uint32_t eprosima_fastdds_statistics_Connection_max_key_cdr_typesize {0UL};
 
 
@@ -73,30 +73,55 @@ namespace fastcdr {
 class Cdr;
 class CdrSizeCalculator;
 
+
+
+
+
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::Connection& data);
 
+
+
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::QosPolicyCount_s& data);
+
+
 
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::BaseStatus_s& data);
 
 
+
+
+
+
+
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::IncompatibleQoSStatus_s& data);
+
+
 
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::LivelinessChangedStatus_s& data);
 
+
+
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::DeadlineMissedStatus_s& data);
+
+
+
+
+
+
+
+
 
 
 
@@ -115,3 +140,4 @@ eProsima_user_DllExport void serialize_key(
 } // namespace eprosima
 
 #endif // _FAST_DDS_GENERATED_EPROSIMA_FASTDDS_STATISTICS_MONITORSERVICE_TYPESCDRAUX_HPP_
+
