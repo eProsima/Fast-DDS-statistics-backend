@@ -19,7 +19,7 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
 
-#include <types/types.hpp>
+#include <fastdds_statistics_backend/types/types.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
