@@ -99,7 +99,7 @@ public:
      * @param status The status of the DomainParticipant.
      * @param app_id The AppId of the DomainParticipant.
      * @param app_metadata The App metadata of the DomainParticipant.
-     * 
+     *
      * @return EntityId of the DomainParticipant once inserted.
      */
     EntityId insert_new_participant(
@@ -134,7 +134,7 @@ public:
      * @brief Check if the topic is already in the database. Topic type must match.
      * @param topic_type The type of the topic.
      * @param topic_id The EntityId of the topic.
-     * 
+     *
      * @return True if the topic is in the database.
      */
     bool is_topic_in_database(
@@ -147,7 +147,7 @@ public:
      * @param type_name The type name of the Topic.
      * @param alias The alias of the Topic.
      * @param domain_id The EntityId of the domain to which the Topic corresponds.
-     * 
+     *
      * @return EntityId of the Topic once inserted.
      */
     EntityId insert_new_topic(
@@ -168,20 +168,20 @@ public:
      * @param participant_id The EntityId of the Participant related to the Endpoint.
      * @param topic_id The EntityId of the Topic related to the Endpoint.
      * @param app_data The AppId and app metadata related to the Endpoint.
-     * 
+     *
      * @return EntityId of the Endpoint once inserted.
      */
     EntityId insert_new_endpoint(
-             const std::string& endpoint_guid,
-             const std::string& name,
-             const std::string& alias,
-             const Qos& qos,
-             const bool& is_virtual_metatraffic,
-             const fastrtps::rtps::RemoteLocatorList& locators,
-             const EntityKind& kind,
-             const EntityId& participant_id,
-             const EntityId& topic_id,
-             const std::pair<AppId, std::string>& app_data);
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const std::string& alias,
+            const Qos& qos,
+            const bool& is_virtual_metatraffic,
+            const fastrtps::rtps::RemoteLocatorList& locators,
+            const EntityKind& kind,
+            const EntityId& participant_id,
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string>& app_data);
 
     /**
      * @brief Insert a new entity into the database.
@@ -334,10 +334,10 @@ public:
      * @brief Get service status data.
      *
      * Default method is called if StatusKind is invalid.
-     * 
+     *
      * @param entity_id The id of the Entity whose status info is requested.
      * @param status_data Status data to be filled.
-     * 
+     *
      * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested StatusKind.
      */
     template <typename T>
@@ -498,9 +498,9 @@ public:
      * @return True if the status has changed.
      */
     bool entity_status_logic(
-        const bool& entity_error,
-        const bool& entity_warning,
-        StatusLevel& entity_status);
+            const bool& entity_error,
+            const bool& entity_warning,
+            StatusLevel& entity_status);
 
     /**
      * @brief Get the specified domain view graph from database.
@@ -588,7 +588,7 @@ public:
     void set_alias(
             const EntityId& entity_id,
             const std::string& alias);
-            
+
 
     /**
      * @brief Get a dump of the database.
@@ -640,7 +640,7 @@ public:
      * @brief Returns whether the entity is active.
      *
      * @param entity_id The ID of the entity whose active attribute is requested.
-     * 
+     *
      * @return True if active, false otherwise.
      */
     bool is_active(
@@ -650,7 +650,7 @@ public:
      * @brief Returns whether the entity is metatraffic.
      *
      * @param entity_id The ID of the entity whose metatraffic attribute is requested.
-     * 
+     *
      * @return True if metatraffic, false otherwise.
      */
     bool is_metatraffic(
@@ -660,7 +660,7 @@ public:
      * @brief Get the meta information of a given entity.
      *
      * @param entity_id The entity for which the meta information is retrieved.
-     * 
+     *
      * @return Info object describing the entity's meta information.
      */
     Info get_info(
@@ -672,7 +672,7 @@ public:
      * @param kind The expected EntityKind of the entities provided.
      * @param entity_ids Vector of entities whose kind is going to be checked
      * @param message Message to throw if the Entity does not exist in the database or if the kind does not correspond.
-     * 
+     *
      * @throws eprosima::statistics_backend::BadParameter If the Entity does not exist in the database or if the kind does not correspond.
      */
     void check_entity_kinds(
@@ -686,7 +686,7 @@ public:
      * @param kind The expected EntityKind of the entities provided.
      * @param entity_ids Vector of entities whose kind is going to be checked
      * @param message Message to throw if the Entity does not exist in the database or if the kind does not correspond.
-     * 
+     *
      * @throws eprosima::statistics_backend::BadParameter If the Entity does not exist in the database or if the kind does not correspond.
      */
     void check_entity_kinds(
@@ -1083,18 +1083,18 @@ protected:
      * @param topic The Topic related to the Endpoint.
      * @param app_id The AppId related to the Endpoint.
      * @param app_metadata The app metadata related to the Endpoint.
-     * 
+     *
      * @return EntityId of the Endpoint once inserted.
      */
     template <typename T>
     std::shared_ptr<database::DDSEndpoint> create_endpoint_nts(
-        const std::string& endpoint_guid,
-        const std::string& name,
-        const Qos& qos,
-        const std::shared_ptr<DomainParticipant>& participant,
-        const std::shared_ptr<Topic>& topic,
-        const AppId& app_id,
-        const std::string& app_metadata);
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const Qos& qos,
+            const std::shared_ptr<DomainParticipant>& participant,
+            const std::shared_ptr<Topic>& topic,
+            const AppId& app_id,
+            const std::string& app_metadata);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.
@@ -1191,7 +1191,7 @@ protected:
      */
     template <typename T>
     bool update_entity_status_nts(
-    std::shared_ptr<T>& entity)
+            std::shared_ptr<T>& entity)
     {
         static_cast<void>(entity);
         throw BadParameter("Unsupported EntityKind");
@@ -1206,10 +1206,10 @@ protected:
      * @return True if the status has changed.
      */
     bool entity_status_logic_nts(
-        const bool& entity_error,
-        const bool& entity_warning,
-        StatusLevel& entity_status);
-    
+            const bool& entity_error,
+            const bool& entity_warning,
+            StatusLevel& entity_status);
+
     /**
      * Get an entity given its EntityId. This method is not thread safe.
      *
@@ -1312,7 +1312,7 @@ protected:
      *
      * @param entity_id The EntityId of the entity updated.
      * @param alias The new alias of the entity.
-     * 
+     *
      */
     void set_alias_nts(
             const EntityId& entity_id,

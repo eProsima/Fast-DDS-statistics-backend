@@ -208,7 +208,7 @@ public:
         static_cast<void>(domain_id);
         static_cast<void>(entity_id);
         static_cast<void>(status_kind);
-        
+
     }
 
 };

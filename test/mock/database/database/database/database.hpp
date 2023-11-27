@@ -140,7 +140,7 @@ public:
     MOCK_CONST_METHOD2(get_entity_by_guid, std::pair<EntityId, EntityId>(
                 EntityKind entity_kind,
                 const std::string& guid));
-    
+
     MOCK_CONST_METHOD1(get_entity_kind_by_guid, EntityKind(
                 const eprosima::fastdds::statistics::detail::GUID_s& guid));
 

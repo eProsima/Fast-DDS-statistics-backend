@@ -1405,13 +1405,15 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
                 EXPECT_EQ(sample.status, eprosima::statistics_backend::StatusLevel::OK);
-                EXPECT_EQ(dynamic_cast<const eprosima::statistics_backend::ProxySample&>(sample).entity_proxy, entity_proxy);
+                EXPECT_EQ(dynamic_cast<const eprosima::statistics_backend::ProxySample&>(sample).entity_proxy,
+                entity_proxy);
 
                 return false;
             });
-    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(1)
+    EXPECT_CALL(database_,
+            insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
-    
+
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
             on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
@@ -1421,7 +1423,8 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
     monitor_service_data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(0);
+    EXPECT_CALL(database_,
+            insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     monitor_service_data_queue_.flush();
 }

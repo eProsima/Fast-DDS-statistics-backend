@@ -81,7 +81,7 @@ public:
             void* data,
             SampleInfo* info)
     {
-        if(!history_.empty())
+        if (!history_.empty())
         {
             switch (history_.front().first.get()->_d())
             {
@@ -97,7 +97,8 @@ public:
                     break;
                 case StatisticsEventKind::RTPS_SENT:
                 case StatisticsEventKind::RTPS_LOST:
-                    *static_cast<StatisticsEntity2LocatorTraffic*>(data) = history_.front().first->entity2locator_traffic();
+                    *static_cast<StatisticsEntity2LocatorTraffic*>(data) =
+                            history_.front().first->entity2locator_traffic();
                     break;
                 case StatisticsEventKind::RESENT_DATAS:
                 case StatisticsEventKind::HEARTBEAT_COUNT:
@@ -113,7 +114,8 @@ public:
                     *static_cast<StatisticsDiscoveryTime*>(data) = history_.front().first->discovery_time();
                     break;
                 case StatisticsEventKind::SAMPLE_DATAS:
-                    *static_cast<StatisticsSampleIdentityCount*>(data) = history_.front().first->sample_identity_count();
+                    *static_cast<StatisticsSampleIdentityCount*>(data) =
+                            history_.front().first->sample_identity_count();
                     break;
                 case StatisticsEventKind::PHYSICAL_DATA:
                     *static_cast<StatisticsPhysicalData*>(data) = history_.front().first->physical_data();
@@ -123,7 +125,7 @@ public:
             *info = *(history_.front().second.get());
             history_.pop();
         }
-        else if(!monitor_history_.empty())
+        else if (!monitor_history_.empty())
         {
             *static_cast<MonitorData*>(data) = *monitor_history_.front().first;
             *info = *(monitor_history_.front().second.get());
@@ -133,7 +135,7 @@ public:
         {
             return ReturnCode_t::RETCODE_NO_DATA;
         }
-        
+
         return ReturnCode_t::RETCODE_OK;
     }
 

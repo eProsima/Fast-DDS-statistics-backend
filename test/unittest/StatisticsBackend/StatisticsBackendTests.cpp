@@ -487,8 +487,8 @@ TEST_F(statistics_backend_tests, get_data_supported_entity_kinds)
 TEST_F(statistics_backend_tests, set_alias)
 {
     StatisticsBackendTest::set_database(db);
-    auto domains = db->get_entities_by_name(EntityKind::DOMAIN,"domain2");
-    db->init_domain_view_graph("domain2",domains[0].second);
+    auto domains = db->get_entities_by_name(EntityKind::DOMAIN, "domain2");
+    db->init_domain_view_graph("domain2", domains[0].second);
     StatisticsBackendTest::regenerate_domain_graph(domains[0].second);
 
     for (auto entity : entities)

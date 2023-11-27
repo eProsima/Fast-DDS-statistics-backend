@@ -132,13 +132,13 @@ EntityId Database::insert_new_participant(
 }
 
 void Database::process_physical_entities(
-    const std::string& host_name,
-    const std::string& user_name,
-    const std::string& process_name,
-    const std::string& process_pid,
-    bool& should_link_process_participant,
-    const EntityId& participant_id,
-    std::map<std::string, EntityId>& physical_entities_ids)
+        const std::string& host_name,
+        const std::string& user_name,
+        const std::string& process_name,
+        const std::string& process_pid,
+        bool& should_link_process_participant,
+        const EntityId& participant_id,
+        std::map<std::string, EntityId>& physical_entities_ids)
 {
     std::shared_ptr<Host> host;
     std::shared_ptr<User> user;
@@ -221,17 +221,18 @@ void Database::process_physical_entities(
 }
 
 bool Database::is_topic_in_database(
-    const std::string& topic_type,
-    const EntityId& topic_id)
+        const std::string& topic_type,
+        const EntityId& topic_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
     // Check whether the topic is already in the database
     std::shared_ptr<Topic> topic;
 
-    try{
+    try
+    {
         topic = std::const_pointer_cast<Topic>(
-                    std::static_pointer_cast<const Topic>(get_entity_nts(topic_id)));
+            std::static_pointer_cast<const Topic>(get_entity_nts(topic_id)));
 
         if (topic->data_type == topic_type)
         {
@@ -380,7 +381,7 @@ EntityId Database::insert_new_endpoint(
     // insert the endpoint
     EntityId entity_id;
     insert_nts(endpoint, entity_id);
-    return entity_id; 
+    return entity_id;
 }
 
 template <typename T>
@@ -1582,25 +1583,29 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const ProxySample& proxy = dynamic_cast<const ProxySample&>(sample);
-            switch(entity->kind)
+            switch (entity->kind)
             {
-                case(EntityKind::PARTICIPANT):
+                case (EntityKind::PARTICIPANT):
                 {
-                    std::shared_ptr<const DomainParticipant> const_participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(const_participant);
+                    std::shared_ptr<const DomainParticipant> const_participant =
+                            std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(
+                        const_participant);
                     participant->monitor_service_data.proxy.push_back(proxy);
                     break;
                 }
-                case(EntityKind::DATAREADER):
+                case (EntityKind::DATAREADER):
                 {
-                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
+                        entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                     datareader->monitor_service_data.proxy.push_back(proxy);
                     break;
                 }
-                case(EntityKind::DATAWRITER):
+                case (EntityKind::DATAWRITER):
                 {
-                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
+                        entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                     datawriter->monitor_service_data.proxy.push_back(proxy);
                     break;
@@ -1616,25 +1621,29 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const ConnectionListSample& connection_list = dynamic_cast<const ConnectionListSample&>(sample);
-            switch(entity->kind)
+            switch (entity->kind)
             {
-                case(EntityKind::PARTICIPANT):
+                case (EntityKind::PARTICIPANT):
                 {
-                    std::shared_ptr<const DomainParticipant> const_participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(const_participant);
+                    std::shared_ptr<const DomainParticipant> const_participant =
+                            std::dynamic_pointer_cast<const DomainParticipant>(entity);
+                    std::shared_ptr<DomainParticipant> participant = std::const_pointer_cast<DomainParticipant>(
+                        const_participant);
                     participant->monitor_service_data.connection_list.push_back(connection_list);
                     break;
                 }
-                case(EntityKind::DATAREADER):
+                case (EntityKind::DATAREADER):
                 {
-                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
+                        entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                     datareader->monitor_service_data.connection_list.push_back(connection_list);
                     break;
                 }
-                case(EntityKind::DATAWRITER):
+                case (EntityKind::DATAWRITER):
                 {
-                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
+                        entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                     datawriter->monitor_service_data.connection_list.push_back(connection_list);
                     break;
@@ -1650,19 +1659,21 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const IncompatibleQosSample& incompatible_qos = dynamic_cast<const IncompatibleQosSample&>(sample);
-            switch(entity->kind)
+            switch (entity->kind)
             {
-                case(EntityKind::DATAREADER):
+                case (EntityKind::DATAREADER):
                 {
-                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
+                        entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                     datareader->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
                     entity_updated = update_entity_status_nts<DataReader>(datareader);
                     break;
                 }
-                case(EntityKind::DATAWRITER):
+                case (EntityKind::DATAWRITER):
                 {
-                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
+                        entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                     datawriter->monitor_service_data.incompatible_qos.push_back(incompatible_qos);
                     entity_updated = update_entity_status_nts<DataWriter>(datawriter);
@@ -1679,19 +1690,21 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const InconsistentTopicSample& inconsistent_topic = dynamic_cast<const InconsistentTopicSample&>(sample);
-            switch(entity->kind)
+            switch (entity->kind)
             {
-                case(EntityKind::DATAREADER):
+                case (EntityKind::DATAREADER):
                 {
-                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
+                        entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                     datareader->monitor_service_data.inconsistent_topic.push_back(inconsistent_topic);
                     entity_updated = update_entity_status_nts<DataReader>(datareader);
                     break;
                 }
-                case(EntityKind::DATAWRITER):
+                case (EntityKind::DATAWRITER):
                 {
-                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
+                        entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                     datawriter->monitor_service_data.inconsistent_topic.push_back(inconsistent_topic);
                     entity_updated = update_entity_status_nts<DataWriter>(datawriter);
@@ -1708,9 +1721,10 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const LivelinessLostSample& liveliness_lost = dynamic_cast<const LivelinessLostSample&>(sample);
-            if(entity->kind == EntityKind::DATAWRITER)
+            if (entity->kind == EntityKind::DATAWRITER)
             {
-                std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                std::shared_ptr<const DataWriter> const_datawriter =
+                        std::dynamic_pointer_cast<const DataWriter>(entity);
                 std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                 datawriter->monitor_service_data.liveliness_lost.push_back(liveliness_lost);
                 entity_updated = update_entity_status_nts<DataWriter>(datawriter);
@@ -1726,9 +1740,10 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const LivelinessChangedSample& liveliness_changed = dynamic_cast<const LivelinessChangedSample&>(sample);
-            if(entity->kind == EntityKind::DATAREADER)
+            if (entity->kind == EntityKind::DATAREADER)
             {
-                std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                std::shared_ptr<const DataReader> const_datareader =
+                        std::dynamic_pointer_cast<const DataReader>(entity);
                 std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                 datareader->monitor_service_data.liveliness_changed.push_back(liveliness_changed);
                 break;
@@ -1743,19 +1758,21 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const DeadlineMissedSample& deadline_missed = dynamic_cast<const DeadlineMissedSample&>(sample);
-            switch(entity->kind)
+            switch (entity->kind)
             {
-                case(EntityKind::DATAREADER):
+                case (EntityKind::DATAREADER):
                 {
-                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                    std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
+                        entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                     datareader->monitor_service_data.deadline_missed.push_back(deadline_missed);
                     entity_updated = update_entity_status_nts<DataReader>(datareader);
                     break;
                 }
-                case(EntityKind::DATAWRITER):
+                case (EntityKind::DATAWRITER):
                 {
-                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
+                    std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
+                        entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
                     datawriter->monitor_service_data.deadline_missed.push_back(deadline_missed);
                     entity_updated = update_entity_status_nts<DataWriter>(datawriter);
@@ -1772,9 +1789,10 @@ bool Database::insert_nts(
         {
             std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
             const SampleLostSample& sample_lost = dynamic_cast<const SampleLostSample&>(sample);
-            if(entity->kind == EntityKind::DATAREADER)
+            if (entity->kind == EntityKind::DATAREADER)
             {
-                std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(entity);
+                std::shared_ptr<const DataReader> const_datareader =
+                        std::dynamic_pointer_cast<const DataReader>(entity);
                 std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
                 datareader->monitor_service_data.sample_lost.push_back(sample_lost);
                 entity_updated = update_entity_status_nts<DataReader>(datareader);
@@ -1958,6 +1976,7 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return get_entities_by_name_nts(entity_kind, name);
 }
+
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
         EntityKind entity_kind,
         const std::string& name) const
@@ -2158,15 +2177,15 @@ void Database::erase(
     domains_[domain_id]->participants.clear();
 
     // Regenerate domain_view_graph
-    if(regenerate_domain_graph_nts(domain_id))
+    if (regenerate_domain_graph_nts(domain_id))
     {
         // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
         // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
         // this function would be required.
         execute_without_lock([&]()
-            {
-                details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
-            });
+                {
+                    details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
+                });
     }
 }
 
@@ -2611,15 +2630,16 @@ void Database::get_status_data(
         ProxySample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::PARTICIPANT:
         {
-            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            if(!participant->monitor_service_data.proxy.empty())
+            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(
+                entity);
+            if (!participant->monitor_service_data.proxy.empty())
             {
                 status_data = participant->monitor_service_data.proxy.back();
             }
@@ -2628,7 +2648,7 @@ void Database::get_status_data(
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            if(!datareader->monitor_service_data.proxy.empty())
+            if (!datareader->monitor_service_data.proxy.empty())
             {
                 status_data = datareader->monitor_service_data.proxy.back();
             }
@@ -2637,7 +2657,7 @@ void Database::get_status_data(
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            if(!datawriter->monitor_service_data.proxy.empty())
+            if (!datawriter->monitor_service_data.proxy.empty())
             {
                 status_data = datawriter->monitor_service_data.proxy.back();
             }
@@ -2656,15 +2676,16 @@ void Database::get_status_data(
         ConnectionListSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::PARTICIPANT:
         {
-            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            if(!participant->monitor_service_data.connection_list.empty())
+            std::shared_ptr<const DomainParticipant> participant = std::dynamic_pointer_cast<const DomainParticipant>(
+                entity);
+            if (!participant->monitor_service_data.connection_list.empty())
             {
                 status_data = participant->monitor_service_data.connection_list.back();
             }
@@ -2673,7 +2694,7 @@ void Database::get_status_data(
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            if(!datareader->monitor_service_data.connection_list.empty())
+            if (!datareader->monitor_service_data.connection_list.empty())
             {
                 status_data = datareader->monitor_service_data.connection_list.back();
             }
@@ -2682,7 +2703,7 @@ void Database::get_status_data(
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            if(!datawriter->monitor_service_data.connection_list.empty())
+            if (!datawriter->monitor_service_data.connection_list.empty())
             {
                 status_data = datawriter->monitor_service_data.connection_list.back();
             }
@@ -2701,15 +2722,15 @@ void Database::get_status_data(
         IncompatibleQosSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            if(!datareader->monitor_service_data.incompatible_qos.empty())
+            if (!datareader->monitor_service_data.incompatible_qos.empty())
             {
                 status_data = datareader->monitor_service_data.incompatible_qos.back();
             }
@@ -2718,7 +2739,7 @@ void Database::get_status_data(
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            if(!datawriter->monitor_service_data.incompatible_qos.empty())
+            if (!datawriter->monitor_service_data.incompatible_qos.empty())
             {
                 status_data = datawriter->monitor_service_data.incompatible_qos.back();
             }
@@ -2737,15 +2758,15 @@ void Database::get_status_data(
         InconsistentTopicSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            if(!datareader->monitor_service_data.inconsistent_topic.empty())
+            if (!datareader->monitor_service_data.inconsistent_topic.empty())
             {
                 status_data = datareader->monitor_service_data.inconsistent_topic.back();
             }
@@ -2754,7 +2775,7 @@ void Database::get_status_data(
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            if(!datawriter->monitor_service_data.inconsistent_topic.empty())
+            if (!datawriter->monitor_service_data.inconsistent_topic.empty())
             {
                 status_data = datawriter->monitor_service_data.inconsistent_topic.back();
             }
@@ -2773,13 +2794,13 @@ void Database::get_status_data(
         LivelinessLostSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    if(entity->kind == EntityKind::DATAWRITER)
+    if (entity->kind == EntityKind::DATAWRITER)
     {
         std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-        if(!datawriter->monitor_service_data.liveliness_lost.empty())
+        if (!datawriter->monitor_service_data.liveliness_lost.empty())
         {
             status_data = datawriter->monitor_service_data.liveliness_lost.back();
         }
@@ -2796,13 +2817,13 @@ void Database::get_status_data(
         LivelinessChangedSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    if(entity->kind == EntityKind::DATAREADER)
+    if (entity->kind == EntityKind::DATAREADER)
     {
         std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-        if(!datareader->monitor_service_data.liveliness_changed.empty())
+        if (!datareader->monitor_service_data.liveliness_changed.empty())
         {
             status_data = datareader->monitor_service_data.liveliness_changed.back();
         }
@@ -2819,15 +2840,15 @@ void Database::get_status_data(
         DeadlineMissedSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::DATAREADER:
         {
             std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-            if(!datareader->monitor_service_data.deadline_missed.empty())
+            if (!datareader->monitor_service_data.deadline_missed.empty())
             {
                 status_data = datareader->monitor_service_data.deadline_missed.back();
             }
@@ -2836,7 +2857,7 @@ void Database::get_status_data(
         case EntityKind::DATAWRITER:
         {
             std::shared_ptr<const DataWriter> datawriter = std::dynamic_pointer_cast<const DataWriter>(entity);
-            if(!datawriter->monitor_service_data.deadline_missed.empty())
+            if (!datawriter->monitor_service_data.deadline_missed.empty())
             {
                 status_data = datawriter->monitor_service_data.deadline_missed.back();
             }
@@ -2855,13 +2876,13 @@ void Database::get_status_data(
         SampleLostSample& status_data)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    
+
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    if(entity->kind == EntityKind::DATAREADER)
+    if (entity->kind == EntityKind::DATAREADER)
     {
         std::shared_ptr<const DataReader> datareader = std::dynamic_pointer_cast<const DataReader>(entity);
-        if(!datareader->monitor_service_data.sample_lost.empty())
+        if (!datareader->monitor_service_data.sample_lost.empty())
         {
             status_data = datareader->monitor_service_data.sample_lost.back();
         }
@@ -2956,24 +2977,25 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid_nts(
 }
 
 EntityKind Database::get_entity_kind_by_guid(
-            const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
+        const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
 {
 
     eprosima::fastrtps::rtps::EntityId_t entity_id_t;
-    for (size_t i = 0; i < entity_id_t.size; ++i) {
+    for (size_t i = 0; i < entity_id_t.size; ++i)
+    {
         entity_id_t.value[i] = guid_s.entityId().value()[i];
     }
 
-    if(entity_id_t == eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant)
+    if (entity_id_t == eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant)
     {
         return EntityKind::PARTICIPANT;
     }
-    else if(entity_id_t.is_reader())
+    else if (entity_id_t.is_reader())
     {
         return EntityKind::DATAREADER;
 
     }
-    else if(entity_id_t.is_writer())
+    else if (entity_id_t.is_writer())
     {
         return EntityKind::DATAWRITER;
 
@@ -3045,7 +3067,8 @@ bool Database::update_participant_in_graph(
 
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    return update_participant_in_graph_nts(domain_entity_id, host_entity_id, user_entity_id, process_entity_id, participant_entity_id);
+    return update_participant_in_graph_nts(domain_entity_id, host_entity_id, user_entity_id, process_entity_id,
+                   participant_entity_id);
 }
 
 bool Database::update_participant_in_graph_nts(
@@ -3138,7 +3161,8 @@ bool Database::update_participant_in_graph_nts(
     {
         if ((*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value].empty())
         {
-            (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value][PARTICIPANT_CONTAINER_TAG] = nlohmann::json::object();
+            (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value][PARTICIPANT_CONTAINER_TAG] =
+                    nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(process_entity_id,
@@ -3146,7 +3170,8 @@ bool Database::update_participant_in_graph_nts(
     }
     else
     {
-        if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) != (*user_graph)[PROCESS_CONTAINER_TAG].end())
+        if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) !=
+                (*user_graph)[PROCESS_CONTAINER_TAG].end())
         {
             (*user_graph)[PROCESS_CONTAINER_TAG].erase(process_entity_id_value);
             return true;
@@ -3168,7 +3193,8 @@ bool Database::update_participant_in_graph_nts(
     {
         if ((*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value].empty())
         {
-            (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value][ENDPOINT_CONTAINER_TAG] = nlohmann::json::object();
+            (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value][ENDPOINT_CONTAINER_TAG] =
+                    nlohmann::json::object();
         }
         graph_updated =
                 get_entity_subgraph_nts(participant_entity_id,
@@ -3229,7 +3255,8 @@ bool Database::update_endpoint_in_graph_nts(
         }
         else
         {
-            if ((*domain_graph)[TOPIC_CONTAINER_TAG].find(topic_entity_id_value) != (*domain_graph)[TOPIC_CONTAINER_TAG].end())
+            if ((*domain_graph)[TOPIC_CONTAINER_TAG].find(topic_entity_id_value) !=
+                    (*domain_graph)[TOPIC_CONTAINER_TAG].end())
             {
                 (*domain_graph)[TOPIC_CONTAINER_TAG].erase(topic_entity_id_value);
                 graph_updated = true;
@@ -3284,14 +3311,16 @@ bool Database::update_endpoint_in_graph_nts(
 
     Graph* user_graph = &(*host_graph)[USER_CONTAINER_TAG][user_entity_id_value];
 
-    if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) == (*user_graph)[PROCESS_CONTAINER_TAG].end())
+    if ((*user_graph)[PROCESS_CONTAINER_TAG].find(process_entity_id_value) ==
+            (*user_graph)[PROCESS_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
 
     Graph* process_graph = &(*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value];
 
-    if ((*process_graph)[PARTICIPANT_CONTAINER_TAG].find(participant_entity_id_value) == (*process_graph)[PARTICIPANT_CONTAINER_TAG].end())
+    if ((*process_graph)[PARTICIPANT_CONTAINER_TAG].find(participant_entity_id_value) ==
+            (*process_graph)[PARTICIPANT_CONTAINER_TAG].end())
     {
         return graph_updated;
     }
@@ -3316,7 +3345,8 @@ bool Database::update_endpoint_in_graph_nts(
     }
     else
     {
-        if ((*participant_graph)[ENDPOINT_CONTAINER_TAG].find(endpoint_entity_id_value) != (*participant_graph)[ENDPOINT_CONTAINER_TAG].end())
+        if ((*participant_graph)[ENDPOINT_CONTAINER_TAG].find(endpoint_entity_id_value) !=
+                (*participant_graph)[ENDPOINT_CONTAINER_TAG].end())
         {
             (*participant_graph)[ENDPOINT_CONTAINER_TAG].erase(endpoint_entity_id_value);
             return true;
@@ -3344,7 +3374,7 @@ bool Database::regenerate_domain_graph_nts(
     else
     {
         logWarning(BACKEND_DATABASE,
-        "Error regenerating graph. No previous graph was found");
+                "Error regenerating graph. No previous graph was found");
         return false;
     }
 
@@ -3408,7 +3438,8 @@ bool Database::regenerate_domain_graph_nts(
                 }
 
                 std::string process_entity_id_value = std::to_string(process->id.value());
-                get_entity_subgraph_nts(process->id.value(), (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value]);
+                get_entity_subgraph_nts(process->id.value(),
+                        (*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value]);
 
                 Graph* process_graph = &(*user_graph)[PROCESS_CONTAINER_TAG][process_entity_id_value];
                 (*process_graph)[PARTICIPANT_CONTAINER_TAG] = nlohmann::json::object();
@@ -3426,7 +3457,8 @@ bool Database::regenerate_domain_graph_nts(
                     get_entity_subgraph_nts(participant->id.value(),
                             (*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value]);
 
-                    Graph* participant_graph = &(*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value];
+                    Graph* participant_graph =
+                            &(*process_graph)[PARTICIPANT_CONTAINER_TAG][participant_entity_id_value];
                     (*participant_graph)[ENDPOINT_CONTAINER_TAG] = nlohmann::json::object();
                     auto datareaders = get_entities_nts(EntityKind::DATAREADER, participant);
 
@@ -3584,16 +3616,16 @@ Graph Database::get_entity_subgraph_nts(
         entity_graph_updated = true;
     }
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
-        case(EntityKind::PROCESS):
+        case (EntityKind::PROCESS):
         {
             std::shared_ptr<const Process> process =
                     std::dynamic_pointer_cast<const Process>(entity);
             entity_graph[PID_TAG] =  process->pid;
             break;
         }
-        case(EntityKind::PARTICIPANT):
+        case (EntityKind::PARTICIPANT):
         {
             std::shared_ptr<const DomainParticipant> participant =
                     std::dynamic_pointer_cast<const DomainParticipant>(entity);
@@ -3609,8 +3641,8 @@ Graph Database::get_entity_subgraph_nts(
             }
             break;
         }
-        case(EntityKind::DATAWRITER):
-        case(EntityKind::DATAREADER):
+        case (EntityKind::DATAWRITER):
+        case (EntityKind::DATAREADER):
         {
             std::shared_ptr<const DDSEndpoint> endpoint =
                     std::dynamic_pointer_cast<const DDSEndpoint>(entity);
@@ -3638,23 +3670,23 @@ Graph Database::get_entity_subgraph_nts(
 
 template <>
 bool Database::update_entity_status_nts(
-    std::shared_ptr<DataReader>& entity)
+        std::shared_ptr<DataReader>& entity)
 {
     bool entity_error = false;
     bool entity_warning = false;
-    
+
     // Check IncompatibleQoS Status
-    if(entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
     {
         entity_error = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
     // Check SampleLost Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
@@ -3665,23 +3697,23 @@ bool Database::update_entity_status_nts(
 
 template <>
 bool Database::update_entity_status_nts(
-    std::shared_ptr<DataWriter>& entity)
+        std::shared_ptr<DataWriter>& entity)
 {
     bool entity_error = false;
     bool entity_warning = false;
-    
+
     // Check IncompatibleQoS Status
-    if(entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
     {
         entity_error = true;
     }
     // Check LivelinessLost Status
-    if(entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING)
+    if (entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING)
     {
         entity_warning = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if(entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
     {
         entity_warning = true;
     }
@@ -3705,18 +3737,18 @@ bool Database::entity_status_logic_nts(
         StatusLevel& entity_status)
 {
     // Set entity status
-    if(entity_error)
+    if (entity_error)
     {
-        if(entity_status != StatusLevel::ERROR)
+        if (entity_status != StatusLevel::ERROR)
         {
             entity_status = StatusLevel::ERROR;
             return true;
         }
         return false;
     }
-    else if(entity_warning)
+    else if (entity_warning)
     {
-        if(entity_status != StatusLevel::WARNING)
+        if (entity_status != StatusLevel::WARNING)
         {
             entity_status = StatusLevel::WARNING;
             return true;
@@ -3725,7 +3757,7 @@ bool Database::entity_status_logic_nts(
     }
     else
     {
-        if(entity_status != StatusLevel::OK)
+        if (entity_status != StatusLevel::OK)
         {
             entity_status = StatusLevel::OK;
             return true;
@@ -3735,16 +3767,16 @@ bool Database::entity_status_logic_nts(
 }
 
 void Database::set_alias(
-            const EntityId& entity_id,
-            const std::string& alias)
+        const EntityId& entity_id,
+        const std::string& alias)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    set_alias_nts(entity_id, alias);   
+    set_alias_nts(entity_id, alias);
 }
 
 void Database::set_alias_nts(
-            const EntityId& entity_id,
-            const std::string& alias)
+        const EntityId& entity_id,
+        const std::string& alias)
 {
     std::shared_ptr<const Entity> const_entity = get_entity_nts(entity_id);
     std::shared_ptr<Entity> entity = std::const_pointer_cast<Entity>(const_entity);
@@ -3754,15 +3786,15 @@ void Database::set_alias_nts(
         auto domains = get_entities_nts(EntityKind::DOMAIN, entity_id);
         if (!domains.empty())
         {
-            if(update_graph_on_updated_entity_nts(domains[0]->id, entity_id))
+            if (update_graph_on_updated_entity_nts(domains[0]->id, entity_id))
             {
                 // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
                 // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
                 // this function would be required.
                 execute_without_lock([&]()
-                    {
-                        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domains[0]->id);
-                    });
+                        {
+                            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domains[0]->id);
+                        });
             }
         }
     }
@@ -4290,7 +4322,6 @@ std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>>& Database::d
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return dds_endpoints_nts<DataReader>();
 }
-
 
 template<>
 std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>>& Database::dds_endpoints_nts<DataWriter>()
@@ -5130,15 +5161,15 @@ void Database::clear_inactive_entities()
     // Regenerate the entire graph
     for (auto it = domains_.cbegin(); it != domains_.cend(); ++it)
     {
-        if(regenerate_domain_graph_nts(it->first))
+        if (regenerate_domain_graph_nts(it->first))
         {
             // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
             // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
             // this function would be required.
             execute_without_lock([&]()
-                {
-                    details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(it->first);
-                });
+                    {
+                        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(it->first);
+                    });
         }
     }
 }
@@ -5165,21 +5196,21 @@ void Database::clear_inactive_entities_nts_()
 }
 
 bool Database::is_active(
-    const EntityId& entity_id)
+        const EntityId& entity_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return get_entity_nts(entity_id)->active;
 }
 
 bool Database::is_metatraffic(
-    const EntityId& entity_id)
+        const EntityId& entity_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return get_entity_nts(entity_id)->metatraffic;
 }
 
 Info Database::get_info(
-    const EntityId& entity_id)
+        const EntityId& entity_id)
 {
     Info info = Info::object();
 

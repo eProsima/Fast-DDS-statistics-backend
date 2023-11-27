@@ -61,7 +61,8 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
     , database_(database)
@@ -202,7 +203,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     discovery_info.process = get_property_value(info.info.m_properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_process);
     discovery_info.process = discovery_info.process.empty()? "Unknown" : discovery_info.process;
-    
+
     std::string app_id = get_property_value(info.info.m_properties, "fastdds.application.id");
     auto it = app_id_enum.find(app_id);
     discovery_info.app_id = it != app_id_enum.end()? it->second : AppId::UNKNOWN;

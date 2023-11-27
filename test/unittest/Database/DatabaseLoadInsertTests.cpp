@@ -265,7 +265,8 @@ TEST_F(database_load_insert_tests, load_insert)
                 it != db.participants().at(domainIt->first).cend(); ++it)
         {
             DomainParticipantStatisticsData insertedData =  db.participants().at(domainIt->first).at(it->first)->data;
-            DomainParticipantStatisticsData loadedData =  db_loaded.participants().at(domainIt->first).at(it->first)->data;
+            DomainParticipantStatisticsData loadedData =
+                    db_loaded.participants().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(map_compare(insertedData.rtps_packets_sent, loadedData.rtps_packets_sent));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_packets_sent_count,

@@ -275,7 +275,8 @@ void Monitor::Listener::on_participant_discovery(
     }
     else
     {
-        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." <<
+                std::endl;
     }
 }
 
@@ -291,7 +292,8 @@ void Monitor::Listener::on_datareader_discovery(
     {
         if (status.current_count_change == 1)
         {
-            std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " discovered." << std::endl;
+            std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " discovered." <<
+                    std::endl;
         }
         else
         {
@@ -313,7 +315,8 @@ void Monitor::Listener::on_datawriter_discovery(
     {
         if (status.current_count_change == 1)
         {
-            std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " discovered." << std::endl;
+            std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " discovered." <<
+                    std::endl;
         }
         else
         {

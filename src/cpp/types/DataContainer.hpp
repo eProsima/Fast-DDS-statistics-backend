@@ -50,7 +50,8 @@ template <typename T>
 class DataContainer : public std::list<T>
 {
     // This class only could be used with T types derived from \c StatisticsSample or \c MonitorServiceSample
-    static_assert(std::is_base_of<database::StatisticsSample, T>::value || std::is_base_of<MonitorServiceSample, T>::value,
+    static_assert(std::is_base_of<database::StatisticsSample, T>::value || std::is_base_of<MonitorServiceSample,
+            T>::value,
             "Type of DataContainer not derived from database::StatisticsSample or database::MonitorServiceSample");
 
 public:

@@ -2493,7 +2493,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         AppId::DDS_REPLAYER,
         AppId::AML_IP};
 
-    for(auto app_id : app_ids)
+    for (auto app_id : app_ids)
     {
         // Create new entities on each iteration
         std::string host_name = host_name_base + std::to_string(int(app_id));
@@ -2507,7 +2507,7 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         stream << std::hex << std::setw(2) << std::setfill('0') << int(app_id);
         std::string hexString = stream.str();
         std::string participant_guid_str_prefix = participant_guid_str_prefix_base + hexString;
-        
+
         std::string participant_guid_str = participant_guid_str_prefix + "|" + participant_guid_str_suffix;
 
         eprosima::fastrtps::rtps::GUID_t participant_guid_;
@@ -2523,7 +2523,8 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         participant_data.m_properties.push_back("fastdds.application.metadata", metadata_);
         participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
         participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name);
+        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
+                process_name);
 
         // The participant locator
         eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
@@ -2540,14 +2541,14 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
         // Check that the participant was created OK
-        EntityId participant_id = 
+        EntityId participant_id =
                 details::StatisticsBackendData::get_instance()->database_->get_entity_by_guid(
-                    EntityKind::PARTICIPANT ,participant_guid_str).second;
+            EntityKind::PARTICIPANT, participant_guid_str).second;
         const std::shared_ptr<const database::DomainParticipant> participant =
                 std::dynamic_pointer_cast<const database::DomainParticipant>(
-                details::StatisticsBackendData::get_instance()->database_->get_entity(participant_id));
-        EXPECT_EQ(app_id,participant->app_id);
-        EXPECT_EQ(metadata_,participant->app_metadata);
+            details::StatisticsBackendData::get_instance()->database_->get_entity(participant_id));
+        EXPECT_EQ(app_id, participant->app_id);
+        EXPECT_EQ(metadata_, participant->app_metadata);
         EXPECT_EQ(host_name, participant->process->user->host->name);
         EXPECT_EQ(user_name, participant->process->user->name);
         EXPECT_EQ(process_name, participant->process->name);

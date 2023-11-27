@@ -297,7 +297,7 @@ EntityId create_and_register_monitor(
         }
 
         /* Create DataReaders */
-        if(topic == MONITOR_SERVICE_TOPIC)
+        if (topic == MONITOR_SERVICE_TOPIC)
         {
             monitor->readers[topic] = monitor->subscriber->create_datareader(
                 monitor->topics[topic],
@@ -773,7 +773,7 @@ bool StatisticsBackend::regenerate_domain_graph(
         const EntityId& domain_id)
 {
     bool regenerated_graph = StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
-    if(regenerated_graph)
+    if (regenerated_graph)
     {
         StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
     }

@@ -88,7 +88,8 @@ public:
     //! Reference to the Database data queue
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
     //! Reference to the Database monitor service status data queue
-    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_;
+    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>*
+            monitor_service_status_data_queue_;
 
     /**
      * @brief Collection of active monitors

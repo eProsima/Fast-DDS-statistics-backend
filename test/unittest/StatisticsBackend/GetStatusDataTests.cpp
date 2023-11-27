@@ -58,7 +58,7 @@ public:
         }
     }
 
-void load_monitor_data()
+    void load_monitor_data()
     {
         proxy_sample_.kind = StatusKind::PROXY;
         proxy_sample_.status = StatusLevel::OK;
@@ -74,13 +74,14 @@ void load_monitor_data()
         eprosima::fastrtps::rtps::GUID_t guid_t;
         std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
         guid_str >> guid_t;
-        memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
+        memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value,
+                eprosima::fastrtps::rtps::GuidPrefix_t::size);
         memcpy(guid_s.entityId().value().data(), guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
         connection_sample.guid(guid_s);
         eprosima::fastdds::statistics::detail::Locator_s locator;
         locator.kind(1);
         locator.port(1);
-        locator.address({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+        locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
         connection_sample.announced_locators({locator});
         connection_sample.used_locators({locator});
         connection_list_sample_.kind = StatusKind::CONNECTION_LIST;
@@ -123,14 +124,16 @@ void load_monitor_data()
         liveliness_changed_sample_.src_ts = std::chrono::system_clock::now();
         liveliness_changed_sample_.liveliness_changed_status.alive_count(1);
         liveliness_changed_sample_.liveliness_changed_status.not_alive_count(0);
-        liveliness_changed_sample_.liveliness_changed_status.last_publication_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+        liveliness_changed_sample_.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                                                                                      11, 12, 13, 14, 15});
         db_->insert(domain_->id, datareader_->id, liveliness_changed_sample_);
 
         deadline_missed_sample_.kind = StatusKind::DEADLINE_MISSED;
         deadline_missed_sample_.status = StatusLevel::OK;
         deadline_missed_sample_.src_ts = std::chrono::system_clock::now();
         deadline_missed_sample_.deadline_missed_status.total_count(0);
-        deadline_missed_sample_.deadline_missed_status.last_instance_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+        deadline_missed_sample_.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+                                                                             13, 14, 15});
         db_->insert(domain_->id, datawriter_->id, deadline_missed_sample_);
         db_->insert(domain_->id, datareader_->id, deadline_missed_sample_);
 
@@ -167,13 +170,13 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
     // Check that there is no data loaded
     {
         ProxySample proxy_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,proxy_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, proxy_sample_p);
         EXPECT_EQ(proxy_sample_p, ProxySample());
         ProxySample proxy_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,proxy_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, proxy_sample_r);
         EXPECT_EQ(proxy_sample_r, ProxySample());
         ProxySample proxy_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,proxy_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, proxy_sample_w);
         EXPECT_EQ(proxy_sample_w, ProxySample());
     }
 
@@ -182,21 +185,21 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
     // Wrong entity
     {
         ProxySample proxy_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id,proxy_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id, proxy_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         ProxySample proxy_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,proxy_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, proxy_sample_p);
         EXPECT_EQ(proxy_sample_p, proxy_sample_);
         EXPECT_NE(proxy_sample_p, ProxySample());
         ProxySample proxy_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,proxy_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, proxy_sample_r);
         EXPECT_EQ(proxy_sample_r, proxy_sample_);
         EXPECT_NE(proxy_sample_r, ProxySample());
         ProxySample proxy_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,proxy_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, proxy_sample_w);
         EXPECT_EQ(proxy_sample_w, proxy_sample_);
         EXPECT_NE(proxy_sample_w, ProxySample());
 
@@ -212,15 +215,15 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
     StatisticsBackendTest::clear_statistics_data();
     {
         ProxySample proxy_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,proxy_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, proxy_sample_p);
         EXPECT_NE(proxy_sample_p, proxy_sample_);
         EXPECT_EQ(proxy_sample_p, ProxySample());
         ProxySample proxy_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,proxy_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, proxy_sample_r);
         EXPECT_NE(proxy_sample_r, proxy_sample_);
         EXPECT_EQ(proxy_sample_r, ProxySample());
         ProxySample proxy_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,proxy_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, proxy_sample_w);
         EXPECT_NE(proxy_sample_w, proxy_sample_);
         EXPECT_EQ(proxy_sample_w, ProxySample());
     }
@@ -231,13 +234,13 @@ TEST_F(get_status_data_tests, get_status_data_connection_list)
     // Check that there is no data loaded
     {
         ConnectionListSample connection_list_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,connection_list_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, connection_list_sample_p);
         EXPECT_EQ(connection_list_sample_p, ConnectionListSample());
         ConnectionListSample connection_list_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,connection_list_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, connection_list_sample_r);
         EXPECT_EQ(connection_list_sample_r, ConnectionListSample());
         ConnectionListSample connection_list_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,connection_list_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, connection_list_sample_w);
         EXPECT_EQ(connection_list_sample_w, ConnectionListSample());
     }
 
@@ -246,21 +249,21 @@ TEST_F(get_status_data_tests, get_status_data_connection_list)
     // Wrong entity
     {
         ConnectionListSample connection_list_sample_p;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id,connection_list_sample_p), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(domain_id, connection_list_sample_p), BadParameter);
     }
 
     // Check that there is data loaded
     {
         ConnectionListSample connection_list_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,connection_list_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, connection_list_sample_p);
         EXPECT_EQ(connection_list_sample_p, connection_list_sample_);
         EXPECT_NE(connection_list_sample_p, ConnectionListSample());
         ConnectionListSample connection_list_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,connection_list_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, connection_list_sample_r);
         EXPECT_EQ(connection_list_sample_r, connection_list_sample_);
         EXPECT_NE(connection_list_sample_r, ConnectionListSample());
         ConnectionListSample connection_list_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,connection_list_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, connection_list_sample_w);
         EXPECT_EQ(connection_list_sample_w, connection_list_sample_);
         EXPECT_NE(connection_list_sample_w, ConnectionListSample());
 
@@ -276,15 +279,15 @@ TEST_F(get_status_data_tests, get_status_data_connection_list)
     StatisticsBackendTest::clear_statistics_data();
     {
         ConnectionListSample connection_list_sample_p;
-        StatisticsBackendTest::get_status_data(participant_id,connection_list_sample_p);
+        StatisticsBackendTest::get_status_data(participant_id, connection_list_sample_p);
         EXPECT_NE(connection_list_sample_p, connection_list_sample_);
         EXPECT_EQ(connection_list_sample_p, ConnectionListSample());
         ConnectionListSample connection_list_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,connection_list_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, connection_list_sample_r);
         EXPECT_NE(connection_list_sample_r, connection_list_sample_);
         EXPECT_EQ(connection_list_sample_r, ConnectionListSample());
         ConnectionListSample connection_list_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,connection_list_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, connection_list_sample_w);
         EXPECT_NE(connection_list_sample_w, connection_list_sample_);
         EXPECT_EQ(connection_list_sample_w, ConnectionListSample());
     }
@@ -295,10 +298,10 @@ TEST_F(get_status_data_tests, get_status_data_incompatible_qos)
     // Check that there is no data loaded
     {
         IncompatibleQosSample incompatible_qos_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,incompatible_qos_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, incompatible_qos_sample_r);
         EXPECT_EQ(incompatible_qos_sample_r, IncompatibleQosSample());
         IncompatibleQosSample incompatible_qos_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,incompatible_qos_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, incompatible_qos_sample_w);
         EXPECT_EQ(incompatible_qos_sample_w, IncompatibleQosSample());
     }
 
@@ -307,17 +310,17 @@ TEST_F(get_status_data_tests, get_status_data_incompatible_qos)
     // Wrong entity
     {
         IncompatibleQosSample incompatible_qos_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,incompatible_qos_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id, incompatible_qos_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         IncompatibleQosSample incompatible_qos_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,incompatible_qos_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, incompatible_qos_sample_r);
         EXPECT_EQ(incompatible_qos_sample_r, incompatible_qos_sample_);
         EXPECT_NE(incompatible_qos_sample_r, IncompatibleQosSample());
         IncompatibleQosSample incompatible_qos_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,incompatible_qos_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, incompatible_qos_sample_w);
         EXPECT_EQ(incompatible_qos_sample_w, incompatible_qos_sample_);
         EXPECT_NE(incompatible_qos_sample_w, IncompatibleQosSample());
 
@@ -333,11 +336,11 @@ TEST_F(get_status_data_tests, get_status_data_incompatible_qos)
     StatisticsBackendTest::clear_statistics_data();
     {
         IncompatibleQosSample incompatible_qos_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,incompatible_qos_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, incompatible_qos_sample_r);
         EXPECT_NE(incompatible_qos_sample_r, incompatible_qos_sample_);
         EXPECT_EQ(incompatible_qos_sample_r, IncompatibleQosSample());
         IncompatibleQosSample incompatible_qos_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,incompatible_qos_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, incompatible_qos_sample_w);
         EXPECT_NE(incompatible_qos_sample_w, incompatible_qos_sample_);
         EXPECT_EQ(incompatible_qos_sample_w, IncompatibleQosSample());
     }
@@ -348,10 +351,10 @@ TEST_F(get_status_data_tests, get_status_data_inconsistent_topic)
     // Check that there is no data loaded
     {
         InconsistentTopicSample inconsistent_topic_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,inconsistent_topic_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, inconsistent_topic_sample_r);
         EXPECT_EQ(inconsistent_topic_sample_r, InconsistentTopicSample());
         InconsistentTopicSample inconsistent_topic_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,inconsistent_topic_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, inconsistent_topic_sample_w);
         EXPECT_EQ(inconsistent_topic_sample_w, InconsistentTopicSample());
     }
 
@@ -360,17 +363,17 @@ TEST_F(get_status_data_tests, get_status_data_inconsistent_topic)
     // Wrong entity
     {
         InconsistentTopicSample inconsistent_topic_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,inconsistent_topic_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id, inconsistent_topic_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         InconsistentTopicSample inconsistent_topic_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,inconsistent_topic_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, inconsistent_topic_sample_r);
         EXPECT_EQ(inconsistent_topic_sample_r, inconsistent_topic_sample_);
         EXPECT_NE(inconsistent_topic_sample_r, InconsistentTopicSample());
         InconsistentTopicSample inconsistent_topic_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,inconsistent_topic_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, inconsistent_topic_sample_w);
         EXPECT_EQ(inconsistent_topic_sample_w, inconsistent_topic_sample_);
         EXPECT_NE(inconsistent_topic_sample_w, InconsistentTopicSample());
 
@@ -386,11 +389,11 @@ TEST_F(get_status_data_tests, get_status_data_inconsistent_topic)
     StatisticsBackendTest::clear_statistics_data();
     {
         InconsistentTopicSample inconsistent_topic_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,inconsistent_topic_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, inconsistent_topic_sample_r);
         EXPECT_NE(inconsistent_topic_sample_r, inconsistent_topic_sample_);
         EXPECT_EQ(inconsistent_topic_sample_r, InconsistentTopicSample());
         InconsistentTopicSample inconsistent_topic_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,inconsistent_topic_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, inconsistent_topic_sample_w);
         EXPECT_NE(inconsistent_topic_sample_w, inconsistent_topic_sample_);
         EXPECT_EQ(inconsistent_topic_sample_w, InconsistentTopicSample());
     }
@@ -402,7 +405,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_lost)
     // Check that there is no data loaded
     {
         LivelinessLostSample liveliness_lost_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,liveliness_lost_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, liveliness_lost_sample_w);
         EXPECT_EQ(liveliness_lost_sample_w, LivelinessLostSample());
     }
 
@@ -411,13 +414,13 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_lost)
     // Wrong entity
     {
         LivelinessLostSample liveliness_lost_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(reader_id,liveliness_lost_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(reader_id, liveliness_lost_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         LivelinessLostSample liveliness_lost_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,liveliness_lost_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, liveliness_lost_sample_w);
         EXPECT_EQ(liveliness_lost_sample_w, liveliness_lost_sample_);
         EXPECT_NE(liveliness_lost_sample_w, LivelinessLostSample());
 
@@ -433,7 +436,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_lost)
     StatisticsBackendTest::clear_statistics_data();
     {
         LivelinessLostSample liveliness_lost_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,liveliness_lost_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, liveliness_lost_sample_w);
         EXPECT_NE(liveliness_lost_sample_w, liveliness_lost_sample_);
         EXPECT_EQ(liveliness_lost_sample_w, LivelinessLostSample());
     }
@@ -444,7 +447,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_changed)
     // Check that there is no data loaded
     {
         LivelinessChangedSample liveliness_changed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,liveliness_changed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, liveliness_changed_sample_r);
         EXPECT_EQ(liveliness_changed_sample_r, LivelinessChangedSample());
     }
 
@@ -453,16 +456,16 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_changed)
     // Wrong entity
     {
         LivelinessChangedSample liveliness_changed_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(writer_id,liveliness_changed_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(writer_id, liveliness_changed_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         LivelinessChangedSample liveliness_changed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,liveliness_changed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, liveliness_changed_sample_r);
         EXPECT_EQ(liveliness_changed_sample_r, liveliness_changed_sample_);
         EXPECT_NE(liveliness_changed_sample_r, LivelinessChangedSample());
-        
+
         //Clear liveliness changed sample
         liveliness_changed_sample_r.clear();
         LivelinessChangedSample sample_cleared;
@@ -475,7 +478,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_changed)
     StatisticsBackendTest::clear_statistics_data();
     {
         LivelinessChangedSample liveliness_changed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,liveliness_changed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, liveliness_changed_sample_r);
         EXPECT_NE(liveliness_changed_sample_r, liveliness_changed_sample_);
         EXPECT_EQ(liveliness_changed_sample_r, LivelinessChangedSample());
     }
@@ -486,10 +489,10 @@ TEST_F(get_status_data_tests, get_status_data_deadline_missed)
     // Check that there is no data loaded
     {
         DeadlineMissedSample deadline_missed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,deadline_missed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, deadline_missed_sample_r);
         EXPECT_EQ(deadline_missed_sample_r, DeadlineMissedSample());
         DeadlineMissedSample deadline_missed_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,deadline_missed_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, deadline_missed_sample_w);
         EXPECT_EQ(deadline_missed_sample_w, DeadlineMissedSample());
     }
 
@@ -498,17 +501,17 @@ TEST_F(get_status_data_tests, get_status_data_deadline_missed)
     // Wrong entity
     {
         DeadlineMissedSample deadline_missed_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,deadline_missed_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id, deadline_missed_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         DeadlineMissedSample deadline_missed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,deadline_missed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, deadline_missed_sample_r);
         EXPECT_EQ(deadline_missed_sample_r, deadline_missed_sample_);
         EXPECT_NE(deadline_missed_sample_r, DeadlineMissedSample());
         DeadlineMissedSample deadline_missed_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,deadline_missed_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, deadline_missed_sample_w);
         EXPECT_EQ(deadline_missed_sample_w, deadline_missed_sample_);
         EXPECT_NE(deadline_missed_sample_w, DeadlineMissedSample());
 
@@ -524,11 +527,11 @@ TEST_F(get_status_data_tests, get_status_data_deadline_missed)
     StatisticsBackendTest::clear_statistics_data();
     {
         DeadlineMissedSample deadline_missed_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,deadline_missed_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, deadline_missed_sample_r);
         EXPECT_NE(deadline_missed_sample_r, deadline_missed_sample_);
         EXPECT_EQ(deadline_missed_sample_r, DeadlineMissedSample());
         DeadlineMissedSample deadline_missed_sample_w;
-        StatisticsBackendTest::get_status_data(writer_id,deadline_missed_sample_w);
+        StatisticsBackendTest::get_status_data(writer_id, deadline_missed_sample_w);
         EXPECT_NE(deadline_missed_sample_w, deadline_missed_sample_);
         EXPECT_EQ(deadline_missed_sample_w, DeadlineMissedSample());
     }
@@ -539,7 +542,7 @@ TEST_F(get_status_data_tests, get_status_data_sample_lost)
     // Check that there is no data loaded
     {
         SampleLostSample sample_lost_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,sample_lost_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, sample_lost_sample_r);
         EXPECT_EQ(sample_lost_sample_r, SampleLostSample());
     }
 
@@ -548,13 +551,13 @@ TEST_F(get_status_data_tests, get_status_data_sample_lost)
     // Wrong entity
     {
         SampleLostSample sample_lost_sample;
-        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id,sample_lost_sample), BadParameter);
+        EXPECT_THROW(StatisticsBackendTest::get_status_data(participant_id, sample_lost_sample), BadParameter);
     }
 
     // Check that there is data loaded
     {
         SampleLostSample sample_lost_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,sample_lost_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, sample_lost_sample_r);
         EXPECT_EQ(sample_lost_sample_r, sample_lost_sample_);
         EXPECT_NE(sample_lost_sample_r, SampleLostSample());
 
@@ -570,7 +573,7 @@ TEST_F(get_status_data_tests, get_status_data_sample_lost)
     StatisticsBackendTest::clear_statistics_data();
     {
         SampleLostSample sample_lost_sample_r;
-        StatisticsBackendTest::get_status_data(reader_id,sample_lost_sample_r);
+        StatisticsBackendTest::get_status_data(reader_id, sample_lost_sample_r);
         EXPECT_NE(sample_lost_sample_r, sample_lost_sample_);
         EXPECT_EQ(sample_lost_sample_r, SampleLostSample());
     }

@@ -59,7 +59,8 @@ public:
         entity_queue = new DatabaseEntityQueue(db);
         data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::Data>(db);
         monitor_service_data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(db);
-        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue, monitor_service_data_queue);
+        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue,
+                        monitor_service_data_queue);
 
         // Simulate that the backend is monitorizing the domain
         std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
@@ -628,7 +629,7 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         std::stringstream(participant->guid) >> participant_guid_;
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name;
-        
+
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
@@ -720,7 +721,7 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name + "_1";
-        
+
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
         data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");

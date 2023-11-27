@@ -409,7 +409,7 @@ public:
      * @brief Get monitor service status data.
      *
      * Default method is called if StatusKind is invalid.
-     * 
+     *
      * @param entity_id The id of the Entity whose status info is requested.
      * @param status_data Status data to be filled.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
@@ -436,7 +436,7 @@ public:
      * @brief Regenerate graph from data stored in database.
      *
      * @param domain_id EntityId from domain whose graph is regenerated.
-     * 
+     *
      * @return True if the graph has been regenerated
      */
     static bool regenerate_domain_graph(

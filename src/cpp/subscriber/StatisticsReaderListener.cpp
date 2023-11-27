@@ -59,7 +59,8 @@ static const std::map<std::string, EventKind> statistics_topics =
 
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+noexcept
     : DataReaderListener()
     , data_queue_(data_queue)
     , monitor_service_status_data_queue_(monitor_service_data_queue)
@@ -108,7 +109,8 @@ void StatisticsReaderListener::on_data_available(
             return;
         }
 
-        std::shared_ptr<MonitorServiceStatusData> monitor_service_status_data = std::make_shared<MonitorServiceStatusData>(inner_data);
+        std::shared_ptr<MonitorServiceStatusData> monitor_service_status_data =
+                std::make_shared<MonitorServiceStatusData>(inner_data);
 
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
@@ -152,7 +154,8 @@ void StatisticsReaderListener::on_data_available(
             }
         }
         else if (RESENT_DATAS_TOPIC == topic_name || HEARTBEAT_COUNT_TOPIC == topic_name ||
-                ACKNACK_COUNT_TOPIC == topic_name || NACKFRAG_COUNT_TOPIC == topic_name || GAP_COUNT_TOPIC == topic_name ||
+                ACKNACK_COUNT_TOPIC == topic_name || NACKFRAG_COUNT_TOPIC == topic_name ||
+                GAP_COUNT_TOPIC == topic_name ||
                 DATA_COUNT_TOPIC == topic_name || PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
         {
             EntityCount inner_data;

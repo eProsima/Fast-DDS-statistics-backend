@@ -507,7 +507,7 @@ public:
     virtual void process_sample() override
     {
         throw BadParameter("Unsupported DatabaseDataQueue data type");
-    };
+    }
 
     /**
      * @brief subroutine to build a StatisticsSample from a StatisticsData
@@ -572,6 +572,7 @@ public:
 
         throw BadParameter("Unsupported Sample type and MonitorServiceStatus type combination");
     }
+
 protected:
 
     std::string deserialize_guid(

@@ -276,7 +276,8 @@ void Monitor::Listener::on_participant_discovery(
     }
     else
     {
-        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." <<
+                std::endl;
     }
 }
 

@@ -59,7 +59,8 @@ public:
         entity_queue = new DatabaseEntityQueue(db);
         data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::Data>(db);
         monitor_service_data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(db);
-        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue, monitor_service_data_queue);
+        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue,
+                        monitor_service_data_queue);
 
         // Simulate that the backend is monitorizing the domain
         std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();

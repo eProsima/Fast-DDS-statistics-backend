@@ -56,7 +56,7 @@ protected:
     using StatisticsLivelinessLostStatus = eprosima::fastdds::statistics::LivelinessLostStatus_s;
     using StatisticsLivelinessChangedStatus = eprosima::fastdds::statistics::LivelinessChangedStatus_s;
     using StatisticsDeadlineMissedStatus = eprosima::fastdds::statistics::DeadlineMissedStatus_s;
-    using StatisticsSampleLostStatus = eprosima::fastdds::statistics::SampleLostStatus_s;    
+    using StatisticsSampleLostStatus = eprosima::fastdds::statistics::SampleLostStatus_s;
     using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
     using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
     using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;

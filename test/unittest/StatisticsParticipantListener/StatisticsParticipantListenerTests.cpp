@@ -46,14 +46,14 @@ using EntityKind = eprosima::statistics_backend::EntityKind;
 struct InsertParticipantArgs
 {
     InsertParticipantArgs (
-            std::function<EntityId(                
-            const std::string& name,
-            const Qos& qos,
-            const std::string& guid,
-            const EntityId& domain_id,
-            const StatusLevel& status,
-            const AppId& app_id,
-            const std::string& app_metadata)> func)
+            std::function<EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata)> func)
         : callback_(func)
     {
     }
@@ -77,14 +77,14 @@ struct InsertParticipantArgs
         return callback_(name, qos, guid, domain_id, status, app_id, app_metadata);
     }
 
-    std::function<EntityId(                
-            const std::string& name,
-            const Qos& qos,
-            const std::string& guid,
-            const EntityId& domain_id,
-            const StatusLevel& status,
-            const AppId& app_id,
-            const std::string& app_metadata)> callback_;
+    std::function<EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata)> callback_;
 
     std::string name_;
     Qos qos_;
@@ -98,14 +98,14 @@ struct InsertParticipantArgs
 struct ProcessPhysicalArgs
 {
     ProcessPhysicalArgs (
-            std::function<void(                
-            const std::string& host_name,
-            const std::string& user_name,
-            const std::string& process_name,
-            const std::string& process_pid,
-            bool& should_link_process_participant,
-            const EntityId& participant_id,
-            std::map<std::string, EntityId>& physical_entities_ids)> func)
+            std::function<void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)> func)
         : callback_(func)
     {
     }
@@ -126,17 +126,18 @@ struct ProcessPhysicalArgs
         should_link_process_participant_ = should_link_process_participant;
         participant_id_ = participant_id;
         physical_entities_ids_ = physical_entities_ids;
-        callback_(host_name, user_name, process_name, process_pid, should_link_process_participant, participant_id, physical_entities_ids);
+        callback_(host_name, user_name, process_name, process_pid, should_link_process_participant, participant_id,
+                physical_entities_ids);
     }
 
-    std::function<void(                
-            const std::string& host_name,
-            const std::string& user_name,
-            const std::string& process_name,
-            const std::string& process_pid,
-            bool& should_link_process_participant,
-            const EntityId& participant_id,
-            std::map<std::string, EntityId>& physical_entities_ids)> callback_;
+    std::function<void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)> callback_;
 
     std::string host_name_;
     std::string user_name_;
@@ -149,11 +150,11 @@ struct ProcessPhysicalArgs
 struct InsertTopicArgs
 {
     InsertTopicArgs (
-            std::function<EntityId(                
-            const std::string& name,
-            const std::string& type_name,
-            const std::string& alias,
-            const EntityId& domain_id)> func)
+            std::function<EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)> func)
         : callback_(func)
     {
     }
@@ -171,11 +172,11 @@ struct InsertTopicArgs
         return callback_(name, type_name, alias, domain_id);
     }
 
-    std::function<EntityId(                
-            const std::string& name,
-            const std::string& type_name,
-            const std::string& alias,
-            const EntityId& domain_id)> callback_;
+    std::function<EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)> callback_;
 
     std::string name_;
     std::string type_name_;
@@ -187,17 +188,17 @@ struct InsertTopicArgs
 struct InsertEndpointArgs
 {
     InsertEndpointArgs (
-            std::function<EntityId(                
-            const std::string& endpoint_guid,
-            const std::string& name,
-            const std::string& alias,
-            const Qos& qos,
-            const bool& is_virtual_metatraffic,
-            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
-            const EntityKind& kind,
-            const EntityId& participant_id,
-            const EntityId& topic_id,
-            const std::pair<AppId, std::string> app_data)> func)
+            std::function<EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)> func)
         : callback_(func)
     {
     }
@@ -224,20 +225,21 @@ struct InsertEndpointArgs
         participant_id_ = participant_id;
         topic_id_ = topic_id;
         app_data_ = app_data;
-        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id, app_data);
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id,
+                       topic_id, app_data);
     }
 
-    std::function<EntityId(                
-            const std::string& endpoint_guid,
-            const std::string& name,
-            const std::string& alias,
-            const Qos& qos,
-            const bool& is_virtual_metatraffic,
-            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
-            const EntityKind& kind,
-            const EntityId& participant_id,
-            const EntityId& topic_id,
-            const std::pair<AppId, std::string> app_data)> callback_;
+    std::function<EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)> callback_;
 
     std::string endpoint_guid_;
     std::string name_;
@@ -577,7 +579,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -646,7 +648,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(6)))));
 
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(6))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(6))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Participant_1 Metatrafic Endpoint exists and has ID 7
@@ -705,7 +707,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
                 return EntityId(10);
             });
-        
+
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
@@ -768,8 +770,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
-            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));            
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
 
@@ -976,7 +978,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -1214,7 +1216,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -1436,7 +1438,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -1661,7 +1663,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -1854,7 +1856,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -2084,7 +2086,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 return EntityId(12);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
     // Expectation: Modify graph
@@ -2093,7 +2095,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             EntityId(10))).Times(1).WillOnce(Return(true));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Expectation: The Participant is discovered
     EXPECT_CALL(
         *eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
@@ -2153,7 +2155,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
-    
+
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
@@ -2178,7 +2180,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
     EXPECT_CALL(database,
             get_entity_by_guid(EntityKind::DATAWRITER, participant_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(7))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(6))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(6))).Times(1)
             .WillOnce(Return(true));
 
     // Start building the discovered reader info
@@ -2225,7 +2227,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
             });
-    
+
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
@@ -2356,7 +2358,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -2417,11 +2419,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -2483,7 +2485,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The Datareader is not added to the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Precondition: The Datareader does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -2580,7 +2582,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -2627,13 +2629,13 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     // Precondition: Another topic with the same name and type exists in domain 100
     // and has ID 101
     std::shared_ptr<Topic> topic_another_domain = std::make_shared<Topic>(topic_name_, type_name_, another_domain);
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(101))).Times(0);
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(101))).Times(0);
 
     // Precondition: Another topic with the same name but different type exists in the initial domain 0
     // and has ID 102
     std::string another_type_name = "another_type";
     std::shared_ptr<Topic> topic_another_type = std::make_shared<Topic>(topic_name_, another_type_name, domain_);
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(102))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(102))).Times(1)
             .WillOnce(Return(false));
 
     // Precondition: The Topic exists and has ID 2
@@ -2642,7 +2644,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             { { EntityId(100), EntityId(101) },
                 { EntityId(0), EntityId(102) },
                 { EntityId(0), EntityId(2) }}));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -2673,7 +2675,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
     // Precondition: The Reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
-  
+
     // Expectation: The DataReader is added to the database. We do not care about the given ID
     InsertEndpointArgs insert_datareader_args([&](
                 const std::string& endpoint_guid,
@@ -2704,11 +2706,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -2742,7 +2744,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -2842,11 +2844,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -2882,7 +2884,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -2984,11 +2986,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -3051,7 +3053,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3097,7 +3099,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
     eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_subscriber_discovery(&statistics_participant, std::move(info));
@@ -3113,9 +3115,9 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
-            
+
     // Precondition: The Locator exists and has ID 3
     eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
@@ -3150,7 +3152,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3181,7 +3183,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -3218,7 +3220,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataReader is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The DataReader status is set to inactive
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);
@@ -3251,7 +3253,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -3312,11 +3314,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 return EntityId(10);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
@@ -3378,7 +3380,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: The writer is not added to the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Precondition: The writer does not change it status
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
@@ -3475,11 +3477,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -3518,7 +3520,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -3621,11 +3623,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
-    
+
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
@@ -3661,7 +3663,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
@@ -3759,7 +3761,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 return EntityId(11);
             });
 
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(1)
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
     // TODO: Remove when endpoint gets app data from discovery info
     EXPECT_CALL(database, get_entity(_)).Times(1);
@@ -3826,7 +3828,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Nothing is inserted
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -3873,7 +3875,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
     eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
 
     // Expectation: No entity is added to the database
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Exception thrown
     participant_listener.on_publisher_discovery(&statistics_participant, std::move(info));
@@ -3889,7 +3891,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -3926,7 +3928,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
@@ -3957,7 +3959,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name_)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, is_topic_in_database(_ , EntityId(2))).Times(1)
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(1)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
@@ -3994,7 +3996,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(10))));
 
     // Expectation: The DataWriter is not inserted in the database.
-    EXPECT_CALL(database, insert_new_endpoint(_ ,_ ,_ ,_ ,_ ,_ ,_, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The DataWriter status is set to active
     EXPECT_CALL(database, change_entity_status(EntityId(10), false)).Times(1);

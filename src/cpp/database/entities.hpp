@@ -301,7 +301,8 @@ struct DomainParticipant : DDSEntity
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId participant_app_id = AppId::UNKNOWN,
             std::string participant_app_metadata = "") noexcept
-        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status, participant_app_id, participant_app_metadata)
+        : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status,
+                participant_app_id, participant_app_metadata)
         , process(participant_process)
         , domain(participant_domain)
     {

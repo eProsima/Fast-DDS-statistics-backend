@@ -158,8 +158,8 @@ TEST(database, clear_inactive_entities_database_simple)
     // initialize database
     Database db;
     test::initialize_empty_entities(db, 0, true);
-    auto domains = db.get_entities_by_name(EntityKind::DOMAIN,DOMAIN_DEFAULT_NAME(0));
-    db.init_domain_view_graph(DOMAIN_DEFAULT_NAME(0),domains[0].second);
+    auto domains = db.get_entities_by_name(EntityKind::DOMAIN, DOMAIN_DEFAULT_NAME(0));
+    db.init_domain_view_graph(DOMAIN_DEFAULT_NAME(0), domains[0].second);
     db.regenerate_domain_graph(domains[0].second);
 
     // DATAWRITER

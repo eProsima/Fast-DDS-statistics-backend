@@ -2469,7 +2469,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     eprosima::fastdds::statistics::detail::Locator_s locator;
     locator.kind(1);
     locator.port(1);
-    locator.address({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     connection_sample.announced_locators({locator});
     connection_sample.used_locators({locator});
     sample.kind = StatusKind::CONNECTION_LIST;
@@ -2487,13 +2487,14 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     eprosima::fastrtps::rtps::GUID_t guid_t_2;
     std::stringstream guid_str_2("01.02.03.04.05.06.07.08.09.0a.0b.1c|0.0.1.c1");
     guid_str_2 >> guid_t_2;
-    memcpy(guid_s_2.guidPrefix().value().data(), guid_t_2.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(guid_s_2.guidPrefix().value().data(), guid_t_2.guidPrefix.value,
+            eprosima::fastrtps::rtps::GuidPrefix_t::size);
     memcpy(guid_s_2.entityId().value().data(), guid_t_2.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
     connection_sample_2.guid(guid_s_2);
     eprosima::fastdds::statistics::detail::Locator_s locator_2;
     locator_2.kind(2);
     locator_2.port(2);
-    locator_2.address({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16});
+    locator_2.address({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     connection_sample_2.announced_locators({locator_2});
     connection_sample_2.used_locators({locator_2});
     sample_2.kind = StatusKind::CONNECTION_LIST;
@@ -2524,7 +2525,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list_wrong_entit
     eprosima::fastdds::statistics::detail::Locator_s locator;
     locator.kind(1);
     locator.port(1);
-    locator.address({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     connection_sample.announced_locators({locator});
     connection_sample.used_locators({locator});
     sample.kind = StatusKind::CONNECTION_LIST;
@@ -2664,7 +2665,7 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     sample.src_ts = std::chrono::system_clock::now();
     sample.liveliness_changed_status.alive_count(1);
     sample.liveliness_changed_status.not_alive_count(0);
-    sample.liveliness_changed_status.last_publication_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
     LivelinessChangedSample sample_2;
@@ -2673,7 +2674,7 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.liveliness_changed_status.alive_count(2);
     sample_2.liveliness_changed_status.not_alive_count(4);
-    sample_2.liveliness_changed_status.last_publication_handle({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16});
+    sample_2.liveliness_changed_status.last_publication_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed.size(), 2u);
@@ -2689,7 +2690,7 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed_wrong_en
     sample.src_ts = std::chrono::system_clock::now();
     sample.liveliness_changed_status.alive_count(1);
     sample.liveliness_changed_status.not_alive_count(0);
-    sample.liveliness_changed_status.last_publication_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
 }
@@ -2701,7 +2702,7 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     sample.status = StatusLevel::OK;
     sample.src_ts = std::chrono::system_clock::now();
     sample.deadline_missed_status.total_count(0);
-    sample.deadline_missed_status.last_instance_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
@@ -2710,7 +2711,7 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     sample_2.status = StatusLevel::ERROR;
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.deadline_missed_status.total_count(2);
-    sample_2.deadline_missed_status.last_instance_handle({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16});
+    sample_2.deadline_missed_status.last_instance_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
     ASSERT_EQ(writer->monitor_service_data.deadline_missed.size(), 2u);
@@ -2726,7 +2727,7 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed_wrong_entit
     sample.status = StatusLevel::ERROR;
     sample.src_ts = std::chrono::system_clock::now();
     sample.deadline_missed_status.total_count(0);
-    sample.deadline_missed_status.last_instance_handle({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15});
+    sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
 }
@@ -3160,20 +3161,36 @@ TEST_F(database_tests, get_entity_kind_by_guid)
     std::stringstream other_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.1");
 
     participant_guid_str >> participant_guid_t;
-    memcpy(participant_guid_s.guidPrefix().value().data(), participant_guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
-    memcpy(participant_guid_s.entityId().value().data(), participant_guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
-    
+    memcpy(
+        participant_guid_s.guidPrefix().value().data(), participant_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        participant_guid_s.entityId().value().data(), participant_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
+
     reader_guid_str >> reader_guid_t;
-    memcpy(reader_guid_s.guidPrefix().value().data(), reader_guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
-    memcpy(reader_guid_s.entityId().value().data(), reader_guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    memcpy(
+        reader_guid_s.guidPrefix().value().data(), reader_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        reader_guid_s.entityId().value().data(), reader_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
 
     writer_guid_str >> writer_guid_t;
-    memcpy(writer_guid_s.guidPrefix().value().data(), writer_guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
-    memcpy(writer_guid_s.entityId().value().data(), writer_guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    memcpy(
+        writer_guid_s.guidPrefix().value().data(), writer_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        writer_guid_s.entityId().value().data(), writer_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
 
     other_guid_str >> other_guid_t;
-    memcpy(other_guid_s.guidPrefix().value().data(), other_guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
-    memcpy(other_guid_s.entityId().value().data(), other_guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    memcpy(
+        other_guid_s.guidPrefix().value().data(), other_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        other_guid_s.entityId().value().data(), other_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
 
     EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind_by_guid(participant_guid_s));
     EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind_by_guid(reader_guid_s));
