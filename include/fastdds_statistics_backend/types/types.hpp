@@ -146,13 +146,13 @@ enum class EntityKind
 enum class EntityStatus
 {
     /// Ok entity status
-    OK,
+    OK_STATUS,
 
     /// Warning entity status
-    WARNING,
+    WARNING_STATUS,
 
     /// Error entity status
-    ERROR,
+    ERROR_STATUS,
 };
 
 /**
