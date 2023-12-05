@@ -81,7 +81,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1",
             std::shared_ptr<database::Process>(),
             domain,
-            EntityStatus::OK,
+            EntityStatus::OK_STATUS,
             AppId::UNKNOWN,
             "");
 
@@ -100,7 +100,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c3",
             std::shared_ptr<database::Process>(),
             domain,
-            EntityStatus::OK,
+            EntityStatus::OK_STATUS,
             AppId::UNKNOWN,
             "");
 

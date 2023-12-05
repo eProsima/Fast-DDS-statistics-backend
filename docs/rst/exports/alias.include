@@ -84,9 +84,9 @@
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
 
 .. |EntityStatus-api| replace:: :cpp:type:`EntityStatus<eprosima::statistics_backend::EntityStatus>`
-.. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::EntityStatus::OK>`
-.. |WARNING-api| replace:: :cpp:enumerator:`WARNING<eprosima::statistics_backend::EntityStatus::WARNING>`
-.. |ERROR-api| replace:: :cpp:enumerator:`ERROR<eprosima::statistics_backend::EntityStatus::ERROR>`
+.. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::EntityStatus::OK_STATUS>`
+.. |WARNING-api| replace:: :cpp:enumerator:`WARNING<eprosima::statistics_backend::EntityStatus::WARNING_STATUS>`
+.. |ERROR-api| replace:: :cpp:enumerator:`ERROR<eprosima::statistics_backend::EntityStatus::ERROR_STATUS>`
 
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`
