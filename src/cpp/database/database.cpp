@@ -400,7 +400,7 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         endpoint_guid,
         participant,
         topic,
-        StatusLevel::OK,
+        StatusLevel::OK_STATUS,
         app_id,
         app_metadata);
 }
@@ -3676,17 +3676,17 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
 
     // Check IncompatibleQoS Status
-    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_error = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
     // Check SampleLost Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
@@ -3703,17 +3703,17 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
 
     // Check IncompatibleQoS Status
-    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_error = true;
     }
     // Check LivelinessLost Status
-    if (entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING)
+    if (entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING_STATUS)
     {
         entity_warning = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR)
+    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
@@ -3739,27 +3739,27 @@ bool Database::entity_status_logic_nts(
     // Set entity status
     if (entity_error)
     {
-        if (entity_status != StatusLevel::ERROR)
+        if (entity_status != StatusLevel::ERROR_STATUS)
         {
-            entity_status = StatusLevel::ERROR;
+            entity_status = StatusLevel::ERROR_STATUS;
             return true;
         }
         return false;
     }
     else if (entity_warning)
     {
-        if (entity_status != StatusLevel::WARNING)
+        if (entity_status != StatusLevel::WARNING_STATUS)
         {
-            entity_status = StatusLevel::WARNING;
+            entity_status = StatusLevel::WARNING_STATUS;
             return true;
         }
         return false;
     }
     else
     {
-        if (entity_status != StatusLevel::OK)
+        if (entity_status != StatusLevel::OK_STATUS)
         {
-            entity_status = StatusLevel::OK;
+            entity_status = StatusLevel::OK_STATUS;
             return true;
         }
         return false;

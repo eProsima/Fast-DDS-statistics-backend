@@ -90,7 +90,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2",
             participant_1,
             topic,
-            StatusLevel::OK,
+            StatusLevel::OK_STATUS,
             AppId::UNKNOWN,
             "");
 
@@ -112,7 +112,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c4",
             participant_2,
             topic,
-            StatusLevel::OK,
+            StatusLevel::OK_STATUS,
             AppId::UNKNOWN,
             "");
 

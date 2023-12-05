@@ -1404,7 +1404,7 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
                 EXPECT_EQ(entity_id, 1);
                 EXPECT_EQ(domain_id, 0);
                 EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
-                EXPECT_EQ(sample.status, eprosima::statistics_backend::StatusLevel::OK);
+                EXPECT_EQ(sample.status, eprosima::statistics_backend::StatusLevel::OK_STATUS);
                 EXPECT_EQ(dynamic_cast<const eprosima::statistics_backend::ProxySample&>(sample).entity_proxy,
                 entity_proxy);
 

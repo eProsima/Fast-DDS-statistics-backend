@@ -61,7 +61,7 @@ public:
     void load_monitor_data()
     {
         proxy_sample_.kind = StatusKind::PROXY;
-        proxy_sample_.status = StatusLevel::OK;
+        proxy_sample_.status = StatusLevel::OK_STATUS;
         proxy_sample_.src_ts = std::chrono::system_clock::now();
         proxy_sample_.entity_proxy = {1, 2, 3, 4, 5};
         db_->insert(domain_->id, participant_->id, proxy_sample_);
@@ -85,7 +85,7 @@ public:
         connection_sample.announced_locators({locator});
         connection_sample.used_locators({locator});
         connection_list_sample_.kind = StatusKind::CONNECTION_LIST;
-        connection_list_sample_.status = StatusLevel::OK;
+        connection_list_sample_.status = StatusLevel::OK_STATUS;
         connection_list_sample_.src_ts = std::chrono::system_clock::now();
         connection_list_sample_.connection_list = {connection_sample, connection_sample};
         db_->insert(domain_->id, participant_->id, connection_list_sample_);
@@ -93,7 +93,7 @@ public:
         db_->insert(domain_->id, datareader_->id, connection_list_sample_);
 
         incompatible_qos_sample_.kind = StatusKind::INCOMPATIBLE_QOS;
-        incompatible_qos_sample_.status = StatusLevel::OK;
+        incompatible_qos_sample_.status = StatusLevel::OK_STATUS;
         incompatible_qos_sample_.src_ts = std::chrono::system_clock::now();
         incompatible_qos_sample_.incompatible_qos_status.total_count(0);
         incompatible_qos_sample_.incompatible_qos_status.last_policy_id(0);
@@ -107,20 +107,20 @@ public:
         db_->insert(domain_->id, datareader_->id, incompatible_qos_sample_);
 
         inconsistent_topic_sample_.kind = StatusKind::INCONSISTENT_TOPIC;
-        inconsistent_topic_sample_.status = StatusLevel::OK;
+        inconsistent_topic_sample_.status = StatusLevel::OK_STATUS;
         inconsistent_topic_sample_.src_ts = std::chrono::system_clock::now();
         inconsistent_topic_sample_.inconsistent_topic_status.total_count(0);
         db_->insert(domain_->id, datawriter_->id, inconsistent_topic_sample_);
         db_->insert(domain_->id, datareader_->id, inconsistent_topic_sample_);
 
         liveliness_lost_sample_.kind = StatusKind::LIVELINESS_LOST;
-        liveliness_lost_sample_.status = StatusLevel::OK;
+        liveliness_lost_sample_.status = StatusLevel::OK_STATUS;
         liveliness_lost_sample_.src_ts = std::chrono::system_clock::now();
         liveliness_lost_sample_.liveliness_lost_status.total_count(0);
         db_->insert(domain_->id, datawriter_->id, liveliness_lost_sample_);
 
         liveliness_changed_sample_.kind = StatusKind::LIVELINESS_CHANGED;
-        liveliness_changed_sample_.status = StatusLevel::OK;
+        liveliness_changed_sample_.status = StatusLevel::OK_STATUS;
         liveliness_changed_sample_.src_ts = std::chrono::system_clock::now();
         liveliness_changed_sample_.liveliness_changed_status.alive_count(1);
         liveliness_changed_sample_.liveliness_changed_status.not_alive_count(0);
@@ -129,7 +129,7 @@ public:
         db_->insert(domain_->id, datareader_->id, liveliness_changed_sample_);
 
         deadline_missed_sample_.kind = StatusKind::DEADLINE_MISSED;
-        deadline_missed_sample_.status = StatusLevel::OK;
+        deadline_missed_sample_.status = StatusLevel::OK_STATUS;
         deadline_missed_sample_.src_ts = std::chrono::system_clock::now();
         deadline_missed_sample_.deadline_missed_status.total_count(0);
         deadline_missed_sample_.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
@@ -138,7 +138,7 @@ public:
         db_->insert(domain_->id, datareader_->id, deadline_missed_sample_);
 
         sample_lost_sample_.kind = StatusKind::SAMPLE_LOST;
-        sample_lost_sample_.status = StatusLevel::OK;
+        sample_lost_sample_.status = StatusLevel::OK_STATUS;
         sample_lost_sample_.src_ts = std::chrono::system_clock::now();
         sample_lost_sample_.sample_lost_status.total_count(0);
         db_->insert(domain_->id, datareader_->id, sample_lost_sample_);
@@ -207,7 +207,7 @@ TEST_F(get_status_data_tests, get_status_data_proxy)
         proxy_sample_p.clear();
         ProxySample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(proxy_sample_p, sample_cleared);
     }
 
@@ -271,7 +271,7 @@ TEST_F(get_status_data_tests, get_status_data_connection_list)
         connection_list_sample_p.clear();
         ConnectionListSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(connection_list_sample_p, sample_cleared);
     }
 
@@ -328,7 +328,7 @@ TEST_F(get_status_data_tests, get_status_data_incompatible_qos)
         incompatible_qos_sample_w.clear();
         IncompatibleQosSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(incompatible_qos_sample_w, sample_cleared);
     }
 
@@ -381,7 +381,7 @@ TEST_F(get_status_data_tests, get_status_data_inconsistent_topic)
         inconsistent_topic_sample_w.clear();
         InconsistentTopicSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(inconsistent_topic_sample_w, sample_cleared);
     }
 
@@ -428,7 +428,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_lost)
         liveliness_lost_sample_w.clear();
         LivelinessLostSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(liveliness_lost_sample_w, sample_cleared);
     }
 
@@ -470,7 +470,7 @@ TEST_F(get_status_data_tests, get_status_data_liveliness_changed)
         liveliness_changed_sample_r.clear();
         LivelinessChangedSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(liveliness_changed_sample_r, sample_cleared);
     }
 
@@ -519,7 +519,7 @@ TEST_F(get_status_data_tests, get_status_data_deadline_missed)
         deadline_missed_sample_r.clear();
         DeadlineMissedSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(deadline_missed_sample_r, sample_cleared);
     }
 
@@ -565,7 +565,7 @@ TEST_F(get_status_data_tests, get_status_data_sample_lost)
         sample_lost_sample_r.clear();
         SampleLostSample sample_cleared;
         sample_cleared.kind = StatusKind::INVALID;
-        sample_cleared.status = StatusLevel::ERROR;
+        sample_cleared.status = StatusLevel::ERROR_STATUS;
         EXPECT_EQ(sample_lost_sample_r, sample_cleared);
     }
 

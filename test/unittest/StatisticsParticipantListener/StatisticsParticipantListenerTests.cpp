@@ -493,7 +493,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -701,7 +701,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_2_guid_str);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -895,7 +895,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -1129,7 +1129,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -1352,7 +1352,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -1578,7 +1578,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -1772,7 +1772,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 
@@ -1999,7 +1999,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
-                EXPECT_EQ(status, StatusLevel::OK);
+                EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
 

@@ -658,7 +658,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.entity_proxy = item;
     sample.kind = StatusKind::PROXY;
-    sample.status = StatusLevel::OK;
+    sample.status = StatusLevel::OK_STATUS;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -687,7 +687,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.connection_list = item;
     sample.kind = StatusKind::CONNECTION_LIST;
-    sample.status = StatusLevel::OK;
+    sample.status = StatusLevel::OK_STATUS;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -719,11 +719,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::ERROR;
+        sample.status = StatusLevel::ERROR_STATUS;
     }
     else
     {
-        sample.status = StatusLevel::OK;
+        sample.status = StatusLevel::OK_STATUS;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -757,7 +757,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     // Appropriate behavior not yet implemented
     logWarning(BACKEND_DATABASE_QUEUE,
             "Warning processing INCONSISTENT_TOPIC status data. Status behavior not yet defined");
-    sample.status = StatusLevel::OK;
+    sample.status = StatusLevel::OK_STATUS;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -789,11 +789,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::WARNING;
+        sample.status = StatusLevel::WARNING_STATUS;
     }
     else
     {
-        sample.status = StatusLevel::OK;
+        sample.status = StatusLevel::OK_STATUS;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -823,7 +823,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     sample.liveliness_changed_status = item;
     sample.kind = StatusKind::LIVELINESS_CHANGED;
-    sample.status = StatusLevel::OK;
+    sample.status = StatusLevel::OK_STATUS;
 
     std::string guid = deserialize_guid(local_entity_guid);
 
@@ -856,11 +856,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::ERROR;
+        sample.status = StatusLevel::ERROR_STATUS;
     }
     else
     {
-        sample.status = StatusLevel::OK;
+        sample.status = StatusLevel::OK_STATUS;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
@@ -894,11 +894,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     if (item.total_count())
     {
-        sample.status = StatusLevel::ERROR;
+        sample.status = StatusLevel::ERROR_STATUS;
     }
     else
     {
-        sample.status = StatusLevel::OK;
+        sample.status = StatusLevel::OK_STATUS;
     }
 
     std::string guid = deserialize_guid(local_entity_guid);
