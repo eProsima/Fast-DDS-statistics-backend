@@ -26,6 +26,8 @@
 
 #include <chrono>
 
+#undef ERROR
+
 namespace eprosima {
 namespace statistics_backend {
 
