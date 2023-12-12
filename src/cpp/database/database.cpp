@@ -3676,17 +3676,20 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
 
     // Check IncompatibleQoS Status
-    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
+    if (!entity->monitor_service_data.incompatible_qos.empty() &&
+        entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_error = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
+    if (!entity->monitor_service_data.deadline_missed.empty() &&
+        entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
     // Check SampleLost Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR_STATUS)
+    if (!entity->monitor_service_data.sample_lost.empty() &&
+        entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
@@ -3703,17 +3706,20 @@ bool Database::update_entity_status_nts(
     bool entity_warning = false;
 
     // Check IncompatibleQoS Status
-    if (entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
+    if (!entity->monitor_service_data.incompatible_qos.empty() && 
+        entity->monitor_service_data.incompatible_qos.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_error = true;
     }
     // Check LivelinessLost Status
-    if (entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING_STATUS)
+    if (!entity->monitor_service_data.liveliness_lost.empty() &&
+        entity->monitor_service_data.liveliness_lost.back().status == StatusLevel::WARNING_STATUS)
     {
         entity_warning = true;
     }
     // Check DeadlineMissed Status (error does not mean entity error but warning)
-    if (entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
+    if (!entity->monitor_service_data.deadline_missed.empty() &&
+        entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
     {
         entity_warning = true;
     }
