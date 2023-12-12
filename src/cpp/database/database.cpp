@@ -3034,7 +3034,7 @@ Graph Database::get_domain_view_graph_nts(
     {
         return domain_view_graph.at(domain_id);
     }
-    catch (const std::out_of_range& e)
+    catch (const std::out_of_range& /*unused*/)
     {
         throw BadParameter("Invalid Domain EntityId");
     }
@@ -3353,7 +3353,6 @@ bool Database::update_endpoint_in_graph_nts(
         }
         return graph_updated;
     }
-    return graph_updated;
 }
 
 bool Database::regenerate_domain_graph(

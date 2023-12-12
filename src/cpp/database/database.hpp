@@ -1481,6 +1481,39 @@ template <>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataWriter>& entity);
 
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        ProxySample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        ConnectionListSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        IncompatibleQosSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        InconsistentTopicSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        LivelinessLostSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        LivelinessChangedSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        DeadlineMissedSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        SampleLostSample& status_data);
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima

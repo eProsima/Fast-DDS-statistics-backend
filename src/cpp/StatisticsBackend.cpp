@@ -699,6 +699,15 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         statistic);
 }
 
+template <typename T>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        T& status_data)
+{
+
+    throw BadParameter("Unsupported MonitorServiceStatus sample");
+}
+
 template <>
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,

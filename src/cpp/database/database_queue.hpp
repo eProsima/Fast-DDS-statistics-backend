@@ -643,12 +643,6 @@ protected:
 };
 
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample();
-
-template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample();
-
-template<>
 template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
