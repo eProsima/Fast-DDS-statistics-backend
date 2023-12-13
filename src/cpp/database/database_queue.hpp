@@ -504,10 +504,7 @@ public:
         DatabaseQueue<std::shared_ptr<T>>::stop_consumer();
     }
 
-    virtual void process_sample() override
-    {
-        throw BadParameter("Unsupported DatabaseDataQueue data type");
-    }
+    virtual void process_sample() override;
 
     /**
      * @brief subroutine to build a StatisticsSample from a StatisticsData
@@ -643,6 +640,24 @@ protected:
 };
 
 template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const;
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const;
+
+template<>
 template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
@@ -714,6 +729,24 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type
         EntityKind entity_kind,
         SampleDatasCountSample& sample,
         const StatisticsSampleIdentityCount& item) const;
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const;
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const;
 
 template<>
 template<>

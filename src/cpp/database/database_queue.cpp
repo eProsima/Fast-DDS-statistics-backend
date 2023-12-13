@@ -431,6 +431,43 @@ EntityId DatabaseDataQueue<T>::get_or_create_locator(
 }
 
 template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const
+{
+
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(entity_kind);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported Sample type and Data type combination");
+}
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const
+{
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(local_entity_guid);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported call, this method is meant to process MonitorServiceStatusData samples");
+}
+
+template<>
 template<>
 void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
@@ -643,6 +680,43 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type
     {
         throw Error("Entity " + sample_identity.first + " not found");
     }
+}
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const
+{
+
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(entity_kind);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported call, this method is meant to process Data samples");
+}
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const
+{
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(local_entity_guid);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported Sample type and MonitorServiceStatusData type combination");
 }
 
 template<>
@@ -913,6 +987,12 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     {
         throw Error("Entity " + guid + " not found");
     }
+}
+
+template<typename T>
+void process_sample()
+{
+    throw BadParameter("Unsupported DatabaseDataQueue data type");
 }
 
 template<>
