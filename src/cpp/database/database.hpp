@@ -759,7 +759,7 @@ protected:
             const EntityId& entity_id) const;
 
     /**
-     * Get all entities of a given EntityKind related to another entity. This method is not thread safe.
+     * @brief Get all entities of a given EntityKind related to another entity. This method is not thread safe.
      *
      * In case the \c entity is nullptr, all EntityIds of type \c entity_type are returned.
      *
@@ -1198,7 +1198,7 @@ protected:
     }
 
     /**
-     * Update entity status according to warnings and errors. This method is not thread safe.
+     * @brief Update entity status according to warnings and errors. This method is not thread safe.
      *
      * @param entity_error Flag showing if there is any error status data in the entity.
      * @param entity_warning Flag showing if there is any warning status data in the entity.

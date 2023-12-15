@@ -310,6 +310,7 @@ public:
 
     // Process entity
     std::string process_name_;
+    std::string process_pid_;
     std::shared_ptr<Process> process_;
 
     // Participant entity
@@ -377,8 +378,9 @@ public:
         user_ = std::make_shared<User>(user_name_, host_);
 
         // Process entity
-        process_name_ = "process_name";
-        process_ = std::make_shared<Process>(process_name_, process_name_, user_);
+        process_pid_ = "12345";
+        process_name_ = process_pid_;
+        process_ = std::make_shared<Process>(process_name_, process_pid_, user_);
 
         // Participant entity
         participant_name_ = "participant_ name";
@@ -468,7 +470,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
@@ -516,7 +518,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -676,7 +678,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
@@ -724,7 +726,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -876,7 +878,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -918,7 +920,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -1054,7 +1056,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1152,7 +1154,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -1291,7 +1293,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1375,7 +1377,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -1531,7 +1533,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1601,7 +1603,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -1739,7 +1741,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -1795,7 +1797,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -1932,7 +1934,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -2022,7 +2024,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, true);
                 EXPECT_EQ(participant_id, EntityId(10));
 
@@ -2193,7 +2195,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
@@ -2218,7 +2220,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(5));
 
@@ -2284,7 +2286,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
 
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
     data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_name_);
+    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Finish building the discovered reader info
     eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
@@ -2305,7 +2307,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
                 EXPECT_EQ(process_name, process_name_);
-                EXPECT_EQ(process_pid, process_name_);
+                EXPECT_EQ(process_pid, process_pid_);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
