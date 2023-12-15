@@ -80,8 +80,7 @@ bool HelloWorldPublisher::init(
             "PDP_PACKETS_TOPIC;" \
             "EDP_PACKETS_TOPIC;" \
             "DISCOVERY_TOPIC;" \
-            "PHYSICAL_DATA_TOPIC;" \
-            "MONITOR_SERVICE_TOPIC");
+            "PHYSICAL_DATA_TOPIC;");
 
     // CREATE THE PARTICIPANT
     participant_ = DomainParticipantFactory::get_instance()->create_participant(domain, pqos);
