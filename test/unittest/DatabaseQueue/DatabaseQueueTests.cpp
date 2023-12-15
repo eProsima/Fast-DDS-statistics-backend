@@ -2480,7 +2480,7 @@ TEST_F(database_queue_tests, push_network_latency)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2546,7 +2546,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2598,7 +2598,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2649,7 +2649,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2923,7 +2923,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3013,7 +3013,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3071,7 +3071,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3176,7 +3176,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3266,7 +3266,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3324,7 +3324,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3428,7 +3428,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3481,7 +3481,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
