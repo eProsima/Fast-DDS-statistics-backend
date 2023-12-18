@@ -369,7 +369,8 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
     eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -555,7 +556,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
     eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -649,7 +651,8 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
     eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;

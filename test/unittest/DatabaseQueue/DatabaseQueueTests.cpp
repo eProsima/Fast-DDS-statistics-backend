@@ -2485,7 +2485,7 @@ TEST_F(database_queue_tests, push_network_latency)
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
-    
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastrtps::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2493,7 +2493,8 @@ TEST_F(database_queue_tests, push_network_latency)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2562,7 +2563,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
-    
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastrtps::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2570,7 +2571,8 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2625,7 +2627,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
-    
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastrtps::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2633,7 +2635,8 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2687,7 +2690,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
-    
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastrtps::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2695,7 +2698,8 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -2975,7 +2979,8 @@ TEST_F(database_queue_tests, push_rtps_sent)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3071,7 +3076,8 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3135,7 +3141,8 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3246,7 +3253,8 @@ TEST_F(database_queue_tests, push_rtps_lost)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3342,7 +3350,8 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3406,7 +3415,8 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3516,7 +3526,8 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -3575,7 +3586,8 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
