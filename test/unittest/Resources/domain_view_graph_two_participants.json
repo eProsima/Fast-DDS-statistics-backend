@@ -17,7 +17,7 @@
             "kind": "host",
             "metatraffic": false,
             "alias": "eprosima-host",
-            "status": "ok",
+            "status": "OK",
             "users":
             {
                 "2":
@@ -25,7 +25,7 @@
                     "kind": "user",
                     "metatraffic": false,
                     "alias": "eprosima",
-                    "status": "ok",
+                    "status": "OK",
                     "processes":
                     {
                         "3":
@@ -34,7 +34,7 @@
                             "metatraffic": false,
                             "alias": "1234",
                             "pid": "1234",
-                            "status": "ok",
+                            "status": "OK",
                             "participants":
                             {
                                 "4":
@@ -42,17 +42,19 @@
                                     "kind": "participant",
                                     "metatraffic": false,
                                     "alias": "participant_1",
-                                    "status": "ok",
-                                    "app_id": "unknown",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
                                     "endpoints":
                                     {
                                         "7":
                                         {
                                             "kind": "datawriter",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "metatraffic": false,
                                             "alias": "publisher",
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "5"
                                         }
                                     }
@@ -65,7 +67,7 @@
                             "metatraffic": false,
                             "alias": "1235",
                             "pid": "1235",
-                            "status": "ok",
+                            "status": "OK",
                             "participants":
                             {
                                 "9":
@@ -73,17 +75,19 @@
                                     "kind": "participant",
                                     "metatraffic": false,
                                     "alias": "participant_2",
-                                    "status": "ok",
-                                    "app_id": "unknown",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
                                     "endpoints":
                                     {
                                         "11":
                                         {
                                             "kind": "datareader",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
                                             "metatraffic": false,
                                             "alias": "subscriber",
-                                            "status": "ok",
+                                            "status": "OK",
                                             "topic": "5"
                                         }
                                     }

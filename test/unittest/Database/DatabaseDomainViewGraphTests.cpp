@@ -21,15 +21,14 @@
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 #include <TestUtils.hpp>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::fastrtps::rtps;
-
-using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -81,7 +80,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1",
             std::shared_ptr<database::Process>(),
             domain,
-            EntityStatus::OK_STATUS,
+            StatusLevel::OK_STATUS,
             AppId::UNKNOWN,
             "");
 
@@ -90,7 +89,10 @@ public:
             entity_qos,
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2",
             participant_1,
-            topic);
+            topic,
+            StatusLevel::OK_STATUS,
+            AppId::UNKNOWN,
+            "");
 
         process_2 = std::make_shared<database::Process>("1235", "1235", user);
 
@@ -100,7 +102,7 @@ public:
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c3",
             std::shared_ptr<database::Process>(),
             domain,
-            EntityStatus::OK_STATUS,
+            StatusLevel::OK_STATUS,
             AppId::UNKNOWN,
             "");
 
@@ -109,7 +111,10 @@ public:
             entity_qos,
             "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c4",
             participant_2,
-            topic);
+            topic,
+            StatusLevel::OK_STATUS,
+            AppId::UNKNOWN,
+            "");
 
 
     }

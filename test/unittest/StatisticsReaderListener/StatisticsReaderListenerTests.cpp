@@ -21,7 +21,8 @@
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
@@ -42,7 +43,6 @@ using StatisticsData = eprosima::fastdds::statistics::Data;
 using EntityId = eprosima::statistics_backend::EntityId;
 using EntityKind = eprosima::statistics_backend::EntityKind;
 using DataKind = eprosima::statistics_backend::DataKind;
-
 
 struct InsertDataArgs
 {
@@ -69,13 +69,39 @@ struct InsertDataArgs
                 const StatisticsSample&)> callback_;
 };
 
+struct InsertMonitorServiceDataArgs
+{
+    InsertMonitorServiceDataArgs (
+            std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> func)
+        : callback_(func)
+    {
+    }
+
+    bool insert(
+            const EntityId& domain_id,
+            const EntityId& id,
+            const eprosima::statistics_backend::MonitorServiceSample& sample)
+    {
+        return callback_(domain_id, id, sample);
+    }
+
+    std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> callback_;
+};
+
 class statistics_reader_listener_tests : public ::testing::Test
 {
 
 public:
 
     Database database_;
-    DatabaseDataQueue data_queue_;
+    DatabaseDataQueue<eprosima::fastdds::statistics::Data> data_queue_;
+    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData> monitor_service_data_queue_;
     eprosima::statistics_backend::DataKindMask data_mask_;
     StatisticsReaderListener reader_listener_;
     eprosima::fastdds::dds::DataReader datareader_;
@@ -83,8 +109,9 @@ public:
     statistics_reader_listener_tests()
         : database_()
         , data_queue_(&database_)
+        , monitor_service_data_queue_(&database_)
         , data_mask_(eprosima::statistics_backend::DataKindMask::all())
-        , reader_listener_(&data_queue_)
+        , reader_listener_(&data_queue_, &monitor_service_data_queue_)
     {
     }
 
@@ -93,6 +120,13 @@ public:
             std::shared_ptr<SampleInfo> info)
     {
         datareader_.add_sample(data, info);
+    }
+
+    void add_monitor_sample_to_reader_history(
+            std::shared_ptr<MonitorServiceStatusData> data,
+            std::shared_ptr<SampleInfo> info)
+    {
+        datareader_.add_monitor_sample(data, info);
     }
 
     std::shared_ptr<SampleInfo> get_default_info()
@@ -121,7 +155,7 @@ TEST_F(statistics_reader_listener_tests, not_valid_data)
     info->valid_data = false;
 
     // Expectation: The insert method is never called
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Insert the data on the queue and wait until processed
     {
@@ -287,25 +321,25 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsWriterReaderData inner_data;
     inner_data.data(1.0);
     inner_data.writer_guid(writer_guid);
     inner_data.reader_guid(reader_guid);
@@ -337,7 +371,7 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
                 EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -346,7 +380,7 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -373,19 +407,19 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
             std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
-    DatabaseDataQueue::StatisticsLocator src_locator;
+    DatabaseDataQueue<StatisticsData>::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
     src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
     // Build the destination locator
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueue<StatisticsData>::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
     inner_data.dst_locator(dst_locator);
@@ -417,7 +451,7 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
                 EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -426,7 +460,7 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -438,16 +472,16 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(writer_guid);
 
@@ -473,7 +507,7 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
                 EXPECT_EQ(dynamic_cast<const PublicationThroughputSample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -482,7 +516,7 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -494,16 +528,16 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(reader_guid);
 
@@ -529,7 +563,7 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
                 EXPECT_EQ(dynamic_cast<const SubscriptionThroughputSample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -538,7 +572,7 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -560,22 +594,22 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
             std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueue<StatisticsData>::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -623,7 +657,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -633,7 +667,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -655,22 +689,22 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
             std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueue<StatisticsData>::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -718,7 +752,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -728,7 +762,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -740,16 +774,16 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -775,7 +809,7 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
                 EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -784,7 +818,7 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -796,16 +830,16 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -831,7 +865,7 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
                 EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -840,7 +874,7 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -852,16 +886,16 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -887,7 +921,7 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
                 EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -896,7 +930,7 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -908,16 +942,16 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -943,7 +977,7 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
                 EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -952,7 +986,7 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -964,16 +998,16 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -999,7 +1033,7 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
                 EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1008,7 +1042,7 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1020,16 +1054,16 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -1055,7 +1089,7 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
                 EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1064,7 +1098,7 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1076,16 +1110,16 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -1111,7 +1145,7 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
                 EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1120,7 +1154,7 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1132,16 +1166,16 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -1167,7 +1201,7 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
                 EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1176,7 +1210,7 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1193,25 +1227,25 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
         = eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the remote GUID
-    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix remote_prefix;
     remote_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId remote_entity_id;
     remote_entity_id.value(entity_id);
-    DatabaseDataQueue::StatisticsGuid remote_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid remote_guid;
     remote_guid.guidPrefix(remote_prefix);
     remote_guid.entityId(remote_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsDiscoveryTime inner_data;
     inner_data.local_participant_guid(participant_guid);
     inner_data.remote_entity_guid(remote_guid);
     inner_data.time(discovery_time);
@@ -1243,7 +1277,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
                 EXPECT_EQ(dynamic_cast<const DiscoveryTimeSample&>(sample).time, discovery_timestamp);
             });
 
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1252,7 +1286,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
 }
@@ -1267,24 +1301,24 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueue<StatisticsData>::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueue<StatisticsData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
-    DatabaseDataQueue::StatisticsSequenceNumber sequence_number;
+    DatabaseDataQueue<StatisticsData>::StatisticsSequenceNumber sequence_number;
     sequence_number.high(sn_high);
     sequence_number.low(sn_low);
 
-    DatabaseDataQueue::StatisticsSampleIdentity sample_identity;
+    DatabaseDataQueue<StatisticsData>::StatisticsSampleIdentity sample_identity;
     sample_identity.writer_guid(writer_guid);
     sample_identity.sequence_number(sequence_number);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsSampleIdentityCount inner_data;
+    DatabaseDataQueue<StatisticsData>::StatisticsSampleIdentityCount inner_data;
     inner_data.count(1024);
     inner_data.sample_id(sample_identity);
 
@@ -1310,7 +1344,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).sequence_number, sn.to64long());
             });
-    EXPECT_CALL(database_, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertDataArgs::insert));
 
     // Insert the data on the queue and wait until processed
@@ -1319,9 +1353,80 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     data_queue_.flush();
 
     // Expectation: The insert method is not called if there is no data in the queue
-    EXPECT_CALL(database_, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database_, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
     reader_listener_.on_data_available(&datareader_);
     data_queue_.flush();
+}
+
+TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
+{
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+
+    // Build the writer GUID
+    DatabaseDataQueue<MonitorServiceData>::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueue<MonitorServiceData>::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueue<MonitorServiceData>::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+    StatusKind kind = StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    add_monitor_sample_to_reader_history(data, get_default_info());
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database_, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database_, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const eprosima::statistics_backend::MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
+                EXPECT_EQ(sample.status, eprosima::statistics_backend::StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const eprosima::statistics_backend::ProxySample&>(sample).entity_proxy,
+                entity_proxy);
+
+                return false;
+            });
+    EXPECT_CALL(database_,
+            insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
+
+    // Insert the data on the queue and wait until processed
+    datareader_.set_topic_name(MONITOR_SERVICE_TOPIC);
+    reader_listener_.on_data_available(&datareader_);
+    monitor_service_data_queue_.flush();
+
+    // Expectation: The insert method is not called if there is no data in the queue
+    EXPECT_CALL(database_,
+            insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(0);
+    reader_listener_.on_data_available(&datareader_);
+    monitor_service_data_queue_.flush();
 }
 
 int main(

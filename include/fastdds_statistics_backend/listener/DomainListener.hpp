@@ -193,6 +193,24 @@ public:
         static_cast<void>(domain_id);
     }
 
+    /*!
+     * This function is called when a new monitor service data sample is available.
+     *
+     * @param domain_id Entity ID of the domain to which the data belongs.
+     * @param entity_id Entity ID of the entity to which the data refers.
+     * @param status_kind Status kind of the received data.
+     */
+    virtual void on_status_reported(
+            EntityId domain_id,
+            EntityId entity_id,
+            StatusKind status_kind)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(entity_id);
+        static_cast<void>(status_kind);
+
+    }
+
 };
 
 } // namespace statistics_backend

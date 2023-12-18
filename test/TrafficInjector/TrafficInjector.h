@@ -36,6 +36,8 @@
 #include <MessageSerializer.h>
 #include <topic_types/types.h>
 #include <topic_types/typesPubSubTypes.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_typesPubSubTypes.h>
 #include <types/types.hpp>
 
 

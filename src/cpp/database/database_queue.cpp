@@ -57,11 +57,13 @@ std::string get_participant_id(
 EntityId DatabaseEntityQueue::process_participant(
         const EntityDiscoveryInfo& info)
 {
-    EntityId participant_id;
+    EntityId participant_id = EntityId::invalid();
 
-    std::shared_ptr<Host> host;
-    std::shared_ptr<User> user;
-    std::shared_ptr<Process> process;
+    std::map<std::string, EntityId> physical_entities_ids;
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
+
     bool graph_updated = false;
     bool should_link_process_participant = false;
 
@@ -84,12 +86,6 @@ EntityId DatabaseEntityQueue::process_participant(
         // The participant is not in the database
         if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)
         {
-            // Get the domain from the database
-            // This may throw if the domain does not exist
-            // The database MUST contain the domain, or something went wrong upstream
-            std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-                std::static_pointer_cast<const database::Domain>(database_->get_entity(info.domain_id)));
-
             std::string name = info.participant_name;
 
             // If the user does not provide a specific name for the participant, give it a descriptive name
@@ -99,23 +95,21 @@ EntityId DatabaseEntityQueue::process_participant(
                 name = info.address + ":" + get_participant_id(info.guid);
             }
 
-            EntityStatus status = info.entity_status;
+            StatusLevel status = info.entity_status;
 
             // Create the participant and add it to the database
             GUID_t participant_guid = info.guid;
-            auto participant = std::make_shared<database::DomainParticipant>(
+
+            participant_id = database_->insert_new_participant(
                 name,
                 info.qos,
                 to_string(participant_guid),
-                std::shared_ptr<database::Process>(),
-                domain,
+                info.domain_id,
                 status,
                 info.app_id,
                 info.app_metadata);
 
-            participant_id = database_->insert(participant);
             should_link_process_participant = true;
-
         }
         else
         {
@@ -126,40 +120,6 @@ EntityId DatabaseEntityQueue::process_participant(
     // Process host-user-process
     try
     {
-        // Get host entity
-        auto hosts = database_->get_entities_by_name(EntityKind::HOST, info.host);
-        if (hosts.empty())
-        {
-            host.reset(new Host(info.host));
-            host->id = database_->insert(std::static_pointer_cast<Entity>(host));
-        }
-        else
-        {
-            // Host name reported by Fast DDS are considered unique
-            std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(database_->get_entity(
-                                hosts.front().second));
-            host = std::const_pointer_cast<Host>(const_host);
-        }
-
-        // Get user entity
-        auto users = database_->get_entities_by_name(EntityKind::USER, info.user);
-        for (const auto& it : users)
-        {
-            std::shared_ptr<const User> const_user =
-                    std::dynamic_pointer_cast<const User>(database_->get_entity(it.second));
-
-            // The user name is unique within the host
-            if (const_user->host == host)
-            {
-                user = std::const_pointer_cast<User>(const_user);
-                break;
-            }
-        }
-        if (!user)
-        {
-            user.reset(new User(info.user, host));
-            user->id = database_->insert(std::static_pointer_cast<Entity>(user));
-        }
 
         // Get process entity
         std::string process_name;
@@ -177,58 +137,29 @@ EntityId DatabaseEntityQueue::process_participant(
             process_name = info.process.substr(0, separator_pos);
             process_pid = info.process.substr(separator_pos + 1);
         }
-        auto processes = database_->get_entities_by_name(EntityKind::PROCESS, process_name);
-        for (const auto& it : processes)
-        {
-            std::shared_ptr<const Process> const_process =
-                    std::dynamic_pointer_cast<const Process>(database_->get_entity(it.second));
 
-            // There is only one process with the same name for a given user
-            if (const_process->user == user)
-            {
-                process = std::const_pointer_cast<Process>(const_process);
-                break;
-            }
-        }
-        if (!process)
-        {
-            process.reset(new Process(process_name, process_pid, user));
-            process->id = database_->insert(std::static_pointer_cast<Entity>(process));
-            should_link_process_participant = true;
-        }
-        if (should_link_process_participant)
-        {
-            database_->link_participant_with_process(participant_id, process->id);
-        }
-
-        graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id, process->id,
-                        participant_id);
+        database_->process_physical_entities(
+            info.host,
+            info.user,
+            process_name,
+            process_pid,
+            should_link_process_participant,
+            participant_id,
+            physical_entities_ids);
 
     }
     catch (const std::exception& e)
     {
         logError(BACKEND_DATABASE_QUEUE, e.what());
-
-        if (host == nullptr || host->id == EntityId::invalid())
-        {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, EntityId(), EntityId(),
-                            EntityId(), EntityId());
-        }
-        else if (user == nullptr || user->id == EntityId::invalid())
-        {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, EntityId(),
-                            EntityId(), EntityId());
-        }
-        else if (process == nullptr || process->id == EntityId::invalid())
-        {
-            graph_updated = database_->update_participant_in_graph(info.domain_id, host->id, user->id,
-                            EntityId(), EntityId());
-        }
     }
+
+    graph_updated = database_->update_participant_in_graph(
+        info.domain_id, physical_entities_ids[HOST_ENTITY_TAG], physical_entities_ids[USER_ENTITY_TAG],
+        physical_entities_ids[PROCESS_ENTITY_TAG], participant_id);
 
     if (graph_updated)
     {
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
     }
 
     return participant_id;
@@ -270,7 +201,6 @@ EntityId DatabaseEntityQueue::process_datareader(
         }
 
         // Check whether the topic is already in the database
-        std::shared_ptr<database::Topic> topic;
         auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
 
         // Check if any of these topics is in the current domain AND shares the data type
@@ -279,26 +209,18 @@ EntityId DatabaseEntityQueue::process_datareader(
         {
             if (topic_id_.first == info.domain_id)
             {
-                topic = std::const_pointer_cast<database::Topic>(
-                    std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
-
-                if (topic->data_type == info.type_name)
+                if (database_->is_topic_in_database(info.type_name, topic_id_.second))
                 {
                     topic_id = topic_id_.second;
                     //Found the correct topic
                     break;
-                }
-                else
-                {
-                    // The data type is not the same, so it must be another topic
-                    topic.reset();
                 }
             }
         }
 
         if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datareader_id))
         {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
         }
     }
     catch (BadParameter&)
@@ -352,7 +274,6 @@ EntityId DatabaseEntityQueue::process_datawriter(
         }
 
         // Check whether the topic is already in the database
-        std::shared_ptr<database::Topic> topic;
         auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
 
         // Check if any of these topics is in the current domain AND shares the data type
@@ -361,26 +282,18 @@ EntityId DatabaseEntityQueue::process_datawriter(
         {
             if (topic_id_.first == info.domain_id)
             {
-                topic = std::const_pointer_cast<database::Topic>(
-                    std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
-
-                if (topic->data_type == info.type_name)
+                if (database_->is_topic_in_database(info.type_name, topic_id_.second))
                 {
                     topic_id = topic_id_.second;
                     //Found the correct topic
                     break;
-                }
-                else
-                {
-                    // The data type is not the same, so it must be another topic
-                    topic.reset();
                 }
             }
         }
 
         if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, datawriter_id))
         {
-            details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
         }
     }
     catch (BadParameter&)
@@ -402,15 +315,10 @@ template<typename T>
 EntityId DatabaseEntityQueue::process_endpoint_discovery(
         const T& info)
 {
-    // Get the domain from the database
-    // This may throw if the domain does not exist
-    // The database MUST contain the domain, or something went wrong upstream
-    std::shared_ptr<database::Domain> domain = std::const_pointer_cast<database::Domain>(
-        std::static_pointer_cast<const database::Domain>(database_->get_entity(info.domain_id)));
-
     // Get the participant from the database
     GUID_t endpoint_guid = info.guid;
     GUID_t participant_guid(endpoint_guid.guidPrefix, c_EntityId_RTPSParticipant);
+
     std::pair<EntityId, EntityId> participant_id;
     try
     {
@@ -423,52 +331,30 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
                       +  " discovered on Participant " + to_string(participant_guid)
                       + " but there is no such Participant in the database");
     }
-    std::shared_ptr<database::DomainParticipant> participant =
-            std::const_pointer_cast<database::DomainParticipant>(
-        std::static_pointer_cast<const database::DomainParticipant>(database_->get_entity(
-            participant_id.second)));
 
     // Check whether the topic is already in the database
-    std::shared_ptr<database::Topic> topic;
     auto topic_ids = database_->get_entities_by_name(EntityKind::TOPIC, info.topic_name);
 
     // Check if any of these topics is in the current domain AND shares the data type
     EntityId topic_id;
-    for (const auto& topic_id_ : topic_ids)
+    for (const auto& topic_pair : topic_ids)
     {
-        if (topic_id_.first == info.domain_id)
+        if (topic_pair.first == info.domain_id)
         {
-            topic = std::const_pointer_cast<database::Topic>(
-                std::static_pointer_cast<const database::Topic>(database_->get_entity(topic_id_.second)));
-
-            if (topic->data_type == info.type_name)
+            if (database_->is_topic_in_database(info.type_name, topic_pair.second))
             {
-                topic_id = topic_id_.second;
+                topic_id = topic_pair.second;
                 //Found the correct topic
                 break;
-            }
-            else
-            {
-                // The data type is not the same, so it must be another topic
-                topic.reset();
             }
         }
     }
 
     // If no such topic exists, create a new one
-    if (!topic)
+    if (topic_id == EntityId::invalid())
     {
-        topic = std::make_shared<database::Topic>(
-            info.topic_name,
-            info.type_name,
-            domain);
+        topic_id = database_->insert_new_topic(info.topic_name, info.type_name, info.alias, info.domain_id);
 
-        if (!info.alias.empty())
-        {
-            topic->alias = info.alias;
-        }
-
-        topic_id = database_->insert(topic);
         details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
             info.domain_id,
             topic_id,
@@ -477,114 +363,56 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     }
 
     // Create the endpoint
-    std::shared_ptr<database::DDSEndpoint> endpoint;
+    EntityId endpoint_id;
+    std::stringstream name;
+
     if (info.kind() == EntityKind::DATAREADER)
     {
-        endpoint = create_datareader(endpoint_guid, info, participant, topic);
+        name << "DataReader_" << info.topic_name << "_" << info.guid.entityId;
     }
     else
     {
-        endpoint = create_datawriter(endpoint_guid, info, participant, topic);
+        name << "DataWriter_" << info.topic_name << "_" << info.guid.entityId;
     }
 
-
-    // Mark it as the meta traffic one
-    endpoint->is_virtual_metatraffic = info.is_virtual_metatraffic;
-    if (!info.alias.empty())
+    // Endpoint AppId and metadata
+    // TODO: get app data from info (parameters), not from participant
+    std::pair<AppId, std::string> app_data;
+    auto participant = std::static_pointer_cast<const DomainParticipant>(database_->get_entity(participant_id.second));
+    if (participant != nullptr)
     {
-        endpoint->alias = info.alias;
+        app_data.first = participant->app_id;
     }
-
-    /* Start processing the locator info */
-
-    // Routine to process one locator from the locator list of the endpoint
-    auto process_locators = [&](const Locator_t& dds_locator)
-            {
-                std::shared_ptr<database::Locator> locator;
-
-                // Look for an existing locator
-                // There can only be one
-                auto locator_ids = database_->get_entities_by_name(EntityKind::LOCATOR, to_string(dds_locator));
-                assert(locator_ids.empty() || locator_ids.size() == 1);
-
-                if (!locator_ids.empty())
-                {
-                    // The locator exists. Add the existing one.
-                    locator = std::const_pointer_cast<database::Locator>(
-                        std::static_pointer_cast<const database::Locator>(database_->get_entity(locator_ids.front().
-                                second)));
-                }
-                else
-                {
-                    // The locator is not in the database. Add the new one.
-                    locator = std::make_shared<database::Locator>(to_string(dds_locator));
-                    locator->id = database_->insert(locator);
-                    details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                        locator->id,
-                        EntityKind::LOCATOR,
-                        details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
-                }
-
-                endpoint->locators[locator->id] = locator;
-            };
-
-    for (const auto& dds_locator : info.locators.unicast)
+    else
     {
-        process_locators(dds_locator);
+        app_data.first = AppId::UNKNOWN;
     }
-    for (const auto& dds_locator : info.locators.multicast)
-    {
-        process_locators(dds_locator);
-    }
+    app_data.second = "";
 
-    // insert the endpoint
-    EntityId endpoint_entity = database_->insert(endpoint);
+    endpoint_id = database_->insert_new_endpoint(
+        to_string(endpoint_guid),
+        name.str(),
+        info.alias,
+        info.qos,
+        info.is_virtual_metatraffic,
+        info.locators,
+        info.kind(),
+        participant_id.second,
+        topic_id,
+        app_data);
 
     // Force the refresh of the parent entities' status
-    database_->change_entity_status(endpoint_entity, true);
+    database_->change_entity_status(endpoint_id, true);
 
-    if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_entity))
+    if (database_->update_endpoint_in_graph(info.domain_id, participant_id.second, topic_id, endpoint_id))
     {
-        details::StatisticsBackendData::get_instance()->on_domain_graph_update(info.domain_id);
+        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(info.domain_id);
     }
-    return endpoint_entity;
+    return endpoint_id;
 }
 
-std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datawriter(
-        const GUID_t& guid,
-        const EntityDiscoveryInfo& info,
-        std::shared_ptr<database::DomainParticipant> participant,
-        std::shared_ptr<database::Topic> topic)
-{
-    std::stringstream name;
-    name << "DataWriter_" << info.topic_name << "_" << info.guid.entityId;
-
-    return std::make_shared<database::DataWriter>(
-        name.str(),
-        info.qos,
-        to_string(guid),
-        participant,
-        topic);
-}
-
-std::shared_ptr<database::DDSEndpoint> DatabaseEntityQueue::create_datareader(
-        const GUID_t& guid,
-        const EntityDiscoveryInfo& info,
-        std::shared_ptr<database::DomainParticipant> participant,
-        std::shared_ptr<database::Topic> topic)
-{
-    std::stringstream name;
-    name << "DataReader_" << info.topic_name << "_" << info.guid.entityId;
-
-    return std::make_shared<database::DataReader>(
-        name.str(),
-        info.qos,
-        to_string(guid),
-        participant,
-        topic);
-}
-
-EntityId DatabaseDataQueue::get_or_create_locator(
+template <typename T>
+EntityId DatabaseDataQueue<T>::get_or_create_locator(
         const std::string& locator_name) const
 {
     auto found_remote_locators = database_->get_entities_by_name(EntityKind::LOCATOR, locator_name);
@@ -603,7 +431,45 @@ EntityId DatabaseDataQueue::get_or_create_locator(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const
+{
+
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(entity_kind);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported Sample type and Data type combination");
+}
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const
+{
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(local_entity_guid);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported call, this method is meant to process MonitorServiceStatusData samples");
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -636,7 +502,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -656,7 +523,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -679,7 +547,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -704,7 +573,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -730,7 +600,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -753,7 +624,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -786,7 +658,8 @@ void DatabaseDataQueue::process_sample_type(
 }
 
 template<>
-void DatabaseDataQueue::process_sample_type(
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -809,7 +682,321 @@ void DatabaseDataQueue::process_sample_type(
     }
 }
 
-void DatabaseDataQueue::process_sample()
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        EntityKind entity_kind,
+        Q& sample,
+        const R& item) const
+{
+
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(entity_kind);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported call, this method is meant to process Data samples");
+}
+
+template<>
+template<typename Q, typename R>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        Q& sample,
+        const R& item) const
+{
+    static_cast<void>(domain);
+    static_cast<void>(entity);
+    static_cast<void>(local_entity_guid);
+    static_cast<void>(sample);
+    static_cast<void>(item);
+
+    throw BadParameter("Unsupported Sample type and MonitorServiceStatusData type combination");
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ProxySample& sample,
+        const std::vector<uint8_t>& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.entity_proxy = item;
+    sample.kind = StatusKind::PROXY;
+    sample.status = StatusLevel::OK_STATUS;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ConnectionListSample& sample,
+        const std::vector<StatisticsConnection>& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.connection_list = item;
+    sample.kind = StatusKind::CONNECTION_LIST;
+    sample.status = StatusLevel::OK_STATUS;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        IncompatibleQosSample& sample,
+        const StatisticsIncompatibleQoSStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.incompatible_qos_status = item;
+    sample.kind = StatusKind::INCOMPATIBLE_QOS;
+
+    if (item.total_count())
+    {
+        sample.status = StatusLevel::ERROR_STATUS;
+    }
+    else
+    {
+        sample.status = StatusLevel::OK_STATUS;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        InconsistentTopicSample& sample,
+        const StatisticsInconsistentTopicStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.inconsistent_topic_status = item;
+    sample.kind = StatusKind::INCONSISTENT_TOPIC;
+
+    // Appropriate behavior not yet implemented
+    logWarning(BACKEND_DATABASE_QUEUE,
+            "Warning processing INCONSISTENT_TOPIC status data. Status behavior not yet defined");
+    sample.status = StatusLevel::OK_STATUS;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessLostSample& sample,
+        const StatisticsLivelinessLostStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.liveliness_lost_status = item;
+    sample.kind = StatusKind::LIVELINESS_LOST;
+
+    if (item.total_count())
+    {
+        sample.status = StatusLevel::WARNING_STATUS;
+    }
+    else
+    {
+        sample.status = StatusLevel::OK_STATUS;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        LivelinessChangedSample& sample,
+        const StatisticsLivelinessChangedStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.liveliness_changed_status = item;
+    sample.kind = StatusKind::LIVELINESS_CHANGED;
+    sample.status = StatusLevel::OK_STATUS;
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        DeadlineMissedSample& sample,
+        const StatisticsDeadlineMissedStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.deadline_missed_status = item;
+    sample.kind = StatusKind::DEADLINE_MISSED;
+
+
+    if (item.total_count())
+    {
+        sample.status = StatusLevel::ERROR_STATUS;
+    }
+    else
+    {
+        sample.status = StatusLevel::OK_STATUS;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        SampleLostSample& sample,
+        const StatisticsSampleLostStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.sample_lost_status = item;
+    sample.kind = StatusKind::SAMPLE_LOST;
+
+
+    if (item.total_count())
+    {
+        sample.status = StatusLevel::ERROR_STATUS;
+    }
+    else
+    {
+        sample.status = StatusLevel::OK_STATUS;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
+template<typename T>
+void process_sample()
+{
+    throw BadParameter("Unsupported DatabaseDataQueue data type");
+}
+
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 {
     switch (front().second->_d())
     {
@@ -1219,9 +1406,223 @@ void DatabaseDataQueue::process_sample()
             break;
         }
 
-        case StatisticsEventKind::PHYSICAL_DATA:
+        default:
         {
             break;
+        }
+    }
+}
+
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample()
+{
+    EntityId domain;
+    EntityId entity;
+    bool updated_entity = false;
+
+    switch (front().second->status_kind())
+    {
+        case StatisticsStatusKind::PROXY:
+        {
+            ProxySample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().entity_proxy());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing PROXY status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::CONNECTION_LIST:
+        {
+            ConnectionListSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().connection_list());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::CONNECTION_LIST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing CONNECTION_LIST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::INCOMPATIBLE_QOS:
+        {
+            IncompatibleQosSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().incompatible_qos_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::INCOMPATIBLE_QOS);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::INCONSISTENT_TOPIC:
+        {
+            InconsistentTopicSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().inconsistent_topic_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::INCONSISTENT_TOPIC);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing INCONSISTENT_TOPIC status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::LIVELINESS_LOST:
+        {
+            LivelinessLostSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().liveliness_lost_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::LIVELINESS_LOST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing LIVELINESS_LOST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::LIVELINESS_CHANGED:
+        {
+            LivelinessChangedSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().liveliness_changed_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::LIVELINESS_CHANGED);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing LIVELINESS_CHANGED status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::DEADLINE_MISSED:
+        {
+            DeadlineMissedSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().deadline_missed_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::DEADLINE_MISSED);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing DEADLINE_MISSED status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::SAMPLE_LOST:
+        {
+            SampleLostSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().sample_lost_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::SAMPLE_LOST);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                logWarning(BACKEND_DATABASE_QUEUE,
+                        "Error processing SAMPLE_LOST status data. Data was not added to the statistics collection: "
+                        + std::string(
+                            e.what()));
+            }
+            break;
+        }
+        case StatisticsStatusKind::STATUSES_SIZE:
+        {
+            //Not yet implemented
+            logWarning(BACKEND_DATABASE_QUEUE,
+                    "Warning processing STATUSES_SIZE status data. Not yet implemented");
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    if (updated_entity)
+    {
+        if (database_->update_graph_on_updated_entity(domain, entity))
+        {
+            details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain);
         }
     }
 }

@@ -91,8 +91,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_updated_entites.jso
     ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_updated_entites.json
     COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_backend_get_graph.json
-    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_backend_get_graph.json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/domain_view_graph_backend_get_domain_view_graph.json
+    ${CMAKE_CURRENT_BINARY_DIR}/domain_view_graph_backend_get_domain_view_graph.json
     COPYONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/old_complex_dump.json

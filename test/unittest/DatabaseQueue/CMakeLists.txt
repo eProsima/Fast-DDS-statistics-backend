@@ -21,8 +21,12 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
@@ -52,19 +56,15 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         start_stop_flush
         push_participant
         push_participant_participant_exists
-        push_participant_no_process_exists
-        push_participant_no_process_exists_process_insert_throws
-        push_participant_no_process_no_user_exists
-        push_participant_no_process_no_user_exists_user_insert_throws
-        push_participant_no_process_no_user_no_host_exists
-        push_participant_no_user_no_host_exists_host_insert_throws
+        push_participant_missing_physical_entity
+        push_participant_process_insert_throws
+        push_participant_user_insert_throws
+        push_participant_host_insert_throws
         push_participant_data_wrong_processname_format
         push_datawriter
         push_datawriter_topic_does_not_exist
-        push_datawriter_locator_does_not_exist
         push_datareader
         push_datareader_topic_does_not_exist
-        push_datareader_locator_does_not_exist
         push_history_latency
         push_history_latency_no_reader
         push_history_latency_no_writer
@@ -103,6 +103,23 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_discovery_times_no_entity
         push_sample_datas
         push_sample_datas_no_writer
+        push_monitor_proxy
+        push_monitor_proxy_no_entity
+        push_monitor_connection_list
+        push_monitor_connection_list_no_entity
+        push_monitor_incompatible_qos
+        push_monitor_incompatible_qos_no_entity
+        push_monitor_inconsistent_topic
+        push_monitor_inconsistent_topic_no_entity
+        push_monitor_liveliness_lost
+        push_monitor_liveliness_lost_no_entity
+        push_monitor_liveliness_changed
+        push_monitor_liveliness_changed_no_entity
+        push_monitor_deadline_missed
+        push_monitor_deadline_missed_no_entity
+        push_monitor_sample_lost
+        push_monitor_sample_lost_no_entity
+        push_monitor_statuses_size
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})

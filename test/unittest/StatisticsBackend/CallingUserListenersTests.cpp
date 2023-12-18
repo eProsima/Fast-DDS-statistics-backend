@@ -24,11 +24,15 @@
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/app_names.h>
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
 #include <database/entities.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
+
+#include <iomanip>
+#include <sstream>
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -154,6 +158,11 @@ public:
                 EntityId entity_id,
                 DataKind data_kind));
 
+    MOCK_METHOD3(on_status_reported, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                StatusKind status_kind));
+
 };
 
 class MockedDomainListener : public DomainListener
@@ -184,6 +193,11 @@ public:
                 EntityId domain_id,
                 EntityId entity_id,
                 DataKind data_kind));
+
+    MOCK_METHOD3(on_status_reported, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                StatusKind status_kind));
 };
 
 class calling_user_listeners_tests_physical_entities : public ::testing::TestWithParam<std::tuple<EntityKind,
@@ -1457,6 +1471,221 @@ GTEST_INSTANTIATE_TEST_MACRO(
         std::make_tuple(DataKind::SAMPLE_DATAS)
         ));
 
+class calling_user_listeners_tests_monitor_datas : public ::testing::TestWithParam<std::tuple<StatusKind>>
+{
+public:
+
+    calling_user_listeners_tests_monitor_datas()
+        : status_kind_(std::get<0>(GetParam()))
+    {
+        // Set the profile to ignore discovery data from other processes
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+
+        monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
+    }
+
+    ~calling_user_listeners_tests_monitor_datas()
+    {
+        StatisticsBackend::set_physical_listener(
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::none());
+
+        StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
+    }
+
+    StatusKind status_kind_;
+    CallbackKind callback_kind_;
+    MockedPhysicalListener physical_listener_;
+    MockedDomainListener domain_listener_;
+    EntityId monitor_id_;
+
+    enum ListenerKind
+    {
+        NONE,
+        PHYSICAL,
+        DOMAIN
+    };
+
+    void test_data_availability(
+            ListenerKind listener_kind)
+    {
+
+        if (listener_kind == PHYSICAL)
+        {
+            EXPECT_CALL(physical_listener_, on_status_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+            EXPECT_CALL(domain_listener_, on_status_reported(_, _, _)).Times(0);
+
+        }
+        else if (listener_kind == DOMAIN)
+        {
+            EXPECT_CALL(physical_listener_, on_status_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_status_reported(monitor_id_, EntityId(1), status_kind_)).Times(1);
+        }
+        else
+        {
+            EXPECT_CALL(physical_listener_, on_status_reported(_, _, _)).Times(0);
+            EXPECT_CALL(domain_listener_, on_status_reported(_, _, _)).Times(0);
+        }
+
+        // Execution
+        details::StatisticsBackendData::get_instance()->on_status_reported(
+            monitor_id_,
+            EntityId(1),
+            status_kind_);
+    }
+
+    /*
+     * This method extends the tests for the testcases where there is no callback triggered
+     * in the starting configuration.
+     *
+     * First it sets the appropriate physical listener and retests.
+     * Then sets the domain listener and retests.
+     */
+    void extend_no_callback_tests()
+    {
+        // Set the physical listener and test
+        CallbackMask callback_mask = CallbackMask::none();
+        callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
+        DataKindMask data_mask = DataKindMask::all();
+
+        StatisticsBackend::set_physical_listener(
+            &physical_listener_,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the physical listener is called
+        test_data_availability(PHYSICAL);
+
+        // Set the domain listener and retest
+        StatisticsBackend::set_domain_listener(
+            monitor_id_,
+            &domain_listener_,
+            callback_mask,
+            data_mask);
+
+        // Expectation: Only the domain listener is called
+        test_data_availability(DOMAIN);
+    }
+
+};
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available)
+{
+    CallbackMask callback_mask = CallbackMask::none();
+    callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        &domain_listener_,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        CallbackMask::all(),
+        DataKindMask::all());
+
+    // Expectation: Only the domain listener is called
+    test_data_availability(DOMAIN);
+
+    // Expectation: The domain listener is called again
+    test_data_availability(DOMAIN);
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_callback_not_in_mask)
+{
+    CallbackMask callback_mask = CallbackMask::all();
+    callback_mask ^= CallbackKind::ON_STATUS_REPORTED;
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        &domain_listener_,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener)
+{
+    CallbackMask callback_mask = CallbackMask::none();
+    callback_mask.set(CallbackKind::ON_STATUS_REPORTED);
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+TEST_P(calling_user_listeners_tests_monitor_datas, monitor_data_available_no_listener_callback_not_in_mask)
+{
+    CallbackMask callback_mask = CallbackMask::all();
+    callback_mask ^= CallbackKind::ON_STATUS_REPORTED;
+    DataKindMask data_mask = DataKindMask::all();
+
+    StatisticsBackend::set_domain_listener(
+        monitor_id_,
+        nullptr,
+        callback_mask,
+        data_mask);
+
+    StatisticsBackend::set_physical_listener(
+        &physical_listener_,
+        callback_mask,
+        data_mask);
+
+    // Expectation: No listener is called
+    test_data_availability(NONE);
+
+    extend_no_callback_tests();
+}
+
+#ifdef INSTANTIATE_TEST_SUITE_P
+#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_SUITE_P(x, y, z)
+#else
+#define GTEST_INSTANTIATE_TEST_MACRO(x, y, z) INSTANTIATE_TEST_CASE_P(x, y, z)
+#endif // ifdef INSTANTIATE_TEST_SUITE_P
+
+GTEST_INSTANTIATE_TEST_MACRO(
+    calling_user_listeners_tests_monitor_datas,
+    calling_user_listeners_tests_monitor_datas,
+    ::testing::Values(
+        std::make_tuple(StatusKind::PROXY),
+        std::make_tuple(StatusKind::CONNECTION_LIST),
+        std::make_tuple(StatusKind::INCOMPATIBLE_QOS),
+        std::make_tuple(StatusKind::INCONSISTENT_TOPIC),
+        std::make_tuple(StatusKind::LIVELINESS_LOST),
+        std::make_tuple(StatusKind::LIVELINESS_CHANGED),
+        std::make_tuple(StatusKind::DEADLINE_MISSED),
+        std::make_tuple(StatusKind::SAMPLE_LOST),
+        std::make_tuple(StatusKind::STATUSES_SIZE)
+        ));
+
 using ::testing::StrictMock;
 
 class calling_user_listeners_tests_end_to_end : public ::testing::Test
@@ -1626,7 +1855,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(monitor_id_, participant->domain->id);
     EXPECT_EQ(participant_guid_str_, participant->guid);
     EXPECT_EQ(participant_name_, participant->name);
-    EXPECT_EQ(nullptr, participant->process);
+    EXPECT_EQ("Unknown", participant->process->name);
+    EXPECT_EQ("Unknown", participant->process->user->name);
+    EXPECT_EQ("Unknown", participant->process->user->host->name);
     EXPECT_TRUE(participant->data_readers.empty());
     ASSERT_EQ(1u, participant->data_writers.size()); // There is the metatraffic endpoint
 
@@ -2214,6 +2445,114 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_EQ(reader2.get(), participant->data_readers.find(reader2->id)->second.get());
     ASSERT_EQ(3u, participant->data_writers.size());
     EXPECT_EQ(writer2.get(), participant->data_writers.find(writer2->id)->second.get());
+}
+#endif //!defined(_WIN32)
+
+// Windows dll does not export ParticipantProxyData class members (private APIs)
+#if !defined(_WIN32)
+/*
+ * This test is a pseudo-blackbox that checks ParticipantProxyData is properly
+ * registered.
+ * While other tests in the 'unittest' folder rely on mocks,
+ * this tests does not: Its entry point is the internal DDS discovery
+ * listener, where a discovery notification is simulated, and it uses
+ * a real backend and database from there on. Hence the 'pseudo-blackbox'
+ *
+ * This was necessary because some end user notifications have complex trigger
+ * configurations, and are not easily tested with pure unit testing,
+ * which leads to some cases being easily overlooked and not correctly tested.
+ */
+TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_end)
+{
+    EXPECT_CALL(physical_listener_, on_host_discovery(_, _)).Times(AnyNumber());
+    EXPECT_CALL(physical_listener_, on_user_discovery(_, _)).Times(AnyNumber());
+    EXPECT_CALL(physical_listener_, on_process_discovery(_, _)).Times(AnyNumber());
+    EXPECT_CALL(domain_listener_, on_participant_discovery(_, _, _)).Times(AnyNumber());
+    EXPECT_CALL(domain_listener_, on_topic_discovery(_, _, _)).Times(AnyNumber());
+    EXPECT_CALL(physical_listener_, on_locator_discovery(_, _)).Times(AnyNumber());
+    EXPECT_CALL(domain_listener_, on_datawriter_discovery(_, _, _)).Times(AnyNumber());
+
+    std::string host_name_base = "host_name_";
+    std::string user_name_base = "user_name_";
+    std::string process_name_base = "process_name_";
+    std::string participant_name_base = "participant_name_";
+
+    std::string participant_guid_str_prefix_base = "01.0f.00.00.00.00.00.00.00.00.00.";
+    std::string participant_guid_str_suffix = "0.0.1.c1";
+
+
+    auto app_ids = {
+        AppId::UNKNOWN,
+        AppId::FASTDDS_MONITOR,
+        AppId::DDS_ROUTER,
+        AppId::SHAPES_DEMO,
+        AppId::INTEGRATION_SERVICE,
+        AppId::FASTDDS_VISUALIZER,
+        AppId::FASTDDS_SPY,
+        AppId::DDS_RECORDER,
+        AppId::DDS_REPLAYER,
+        AppId::AML_IP};
+
+    for (auto app_id : app_ids)
+    {
+        // Create new entities on each iteration
+        std::string host_name = host_name_base + std::to_string(int(app_id));
+        std::string user_name = user_name_base + std::to_string(int(app_id));
+        std::string process_name = process_name_base + std::to_string(int(app_id));
+        std::string participant_name_ = participant_name_base + std::to_string(int(app_id));
+        std::string metadata_ = "metadata_" + std::to_string(int(app_id));
+
+        // Increase GUID (hexadecimal)
+        std::stringstream stream;
+        stream << std::hex << std::setw(2) << std::setfill('0') << int(app_id);
+        std::string hexString = stream.str();
+        std::string participant_guid_str_prefix = participant_guid_str_prefix_base + hexString;
+
+        std::string participant_guid_str = participant_guid_str_prefix + "|" + participant_guid_str_suffix;
+
+        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        std::stringstream(participant_guid_str) >> participant_guid_;
+
+        // Simulate the discovery of a participant
+        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
+        eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
+        participant_data.m_guid = participant_guid_;
+        participant_data.m_participantName = participant_name_;
+
+        participant_data.m_properties.push_back("fastdds.application.id", app_id_str[int(app_id)]);
+        participant_data.m_properties.push_back("fastdds.application.metadata", metadata_);
+        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
+        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
+        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
+                process_name);
+
+        // The participant locator
+        eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+        participant_locator.address[12] = 127;
+        participant_locator.address[15] = 1;
+        participant_data.default_locators.add_unicast_locator(participant_locator);
+
+        // Finish building the discovered participant info
+        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
+        participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+
+        // Execution: Call the listener
+        participant_listener_->on_participant_discovery(participant_, std::move(participant_info));
+        details::StatisticsBackendData::get_instance()->entity_queue_->flush();
+
+        // Check that the participant was created OK
+        EntityId participant_id =
+                details::StatisticsBackendData::get_instance()->database_->get_entity_by_guid(
+            EntityKind::PARTICIPANT, participant_guid_str).second;
+        const std::shared_ptr<const database::DomainParticipant> participant =
+                std::dynamic_pointer_cast<const database::DomainParticipant>(
+            details::StatisticsBackendData::get_instance()->database_->get_entity(participant_id));
+        EXPECT_EQ(app_id, participant->app_id);
+        EXPECT_EQ(metadata_, participant->app_metadata);
+        EXPECT_EQ(host_name, participant->process->user->host->name);
+        EXPECT_EQ(user_name, participant->process->user->name);
+        EXPECT_EQ(process_name, participant->process->name);
+    }
 }
 #endif //!defined(_WIN32)
 

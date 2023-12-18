@@ -4,5 +4,6 @@
     "name": "0",
     "alias": "domain_alias",
     "alive": true,
-    "status": 0
+    "metatraffic": false,
+    "status": "OK"
 }

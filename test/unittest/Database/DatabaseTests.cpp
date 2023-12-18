@@ -2418,6 +2418,429 @@ TEST_F(database_tests, insert_sample_valid_wrong_domain)
     ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, sample), BadParameter);
 }
 
+TEST_F(database_tests, insert_monitor_service_sample_proxy)
+{
+    ProxySample sample;
+    sample.kind = StatusKind::PROXY;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.entity_proxy = {1, 2, 3, 4, 5};
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    ProxySample sample_2;
+    sample_2.kind = StatusKind::PROXY;
+    sample_2.status = StatusLevel::OK_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.entity_proxy = {6, 7, 8, 9, 10};
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
+    ASSERT_EQ(participant->monitor_service_data.proxy.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.proxy.size(), 1u);
+    ASSERT_EQ(reader->monitor_service_data.proxy.size(), 1u);
+    ASSERT_EQ(participant->monitor_service_data.proxy[0], static_cast<ProxySample>(sample));
+    ASSERT_EQ(participant->monitor_service_data.proxy[1], static_cast<ProxySample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_proxy_wrong_entity)
+{
+    ProxySample sample;
+    sample.kind = StatusKind::PROXY;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.entity_proxy = {1, 2, 3, 4, 5};
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, domain_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_connection_list)
+{
+    ConnectionListSample sample;
+    eprosima::fastdds::statistics::Connection connection_sample;
+    connection_sample.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    eprosima::fastdds::statistics::detail::GUID_s guid_s;
+    eprosima::fastrtps::rtps::GUID_t guid_t;
+    std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    guid_str >> guid_t;
+    memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(guid_s.entityId().value().data(), guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    connection_sample.guid(guid_s);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    connection_sample.announced_locators({locator});
+    connection_sample.used_locators({locator});
+    sample.kind = StatusKind::CONNECTION_LIST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.connection_list = {connection_sample, connection_sample};
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    ConnectionListSample sample_2;
+    eprosima::fastdds::statistics::Connection connection_sample_2;
+    connection_sample_2.mode(eprosima::fastdds::statistics::INTRAPROCESS);
+    eprosima::fastdds::statistics::detail::GUID_s guid_s_2;
+    eprosima::fastrtps::rtps::GUID_t guid_t_2;
+    std::stringstream guid_str_2("01.02.03.04.05.06.07.08.09.0a.0b.1c|0.0.1.c1");
+    guid_str_2 >> guid_t_2;
+    memcpy(guid_s_2.guidPrefix().value().data(), guid_t_2.guidPrefix.value,
+            eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(guid_s_2.entityId().value().data(), guid_t_2.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    connection_sample_2.guid(guid_s_2);
+    eprosima::fastdds::statistics::detail::Locator_s locator_2;
+    locator_2.kind(2);
+    locator_2.port(2);
+    locator_2.address({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+    connection_sample_2.announced_locators({locator_2});
+    connection_sample_2.used_locators({locator_2});
+    sample_2.kind = StatusKind::CONNECTION_LIST;
+    sample_2.status = StatusLevel::OK_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.connection_list = {connection_sample_2, connection_sample_2};
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+
+    ASSERT_EQ(participant->monitor_service_data.connection_list.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.connection_list.size(), 1u);
+    ASSERT_EQ(reader->monitor_service_data.connection_list.size(), 1u);
+    ASSERT_EQ(participant->monitor_service_data.connection_list[0], static_cast<ConnectionListSample>(sample));
+    ASSERT_EQ(participant->monitor_service_data.connection_list[1], static_cast<ConnectionListSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_connection_list_wrong_entity)
+{
+    ConnectionListSample sample;
+    eprosima::fastdds::statistics::Connection connection_sample;
+    connection_sample.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    eprosima::fastdds::statistics::detail::GUID_s guid_s;
+    eprosima::fastrtps::rtps::GUID_t guid_t;
+    std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    guid_str >> guid_t;
+    memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value, eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(guid_s.entityId().value().data(), guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+    connection_sample.guid(guid_s);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    connection_sample.announced_locators({locator});
+    connection_sample.used_locators({locator});
+    sample.kind = StatusKind::CONNECTION_LIST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.connection_list = {connection_sample, connection_sample};
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, domain_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
+{
+    IncompatibleQosSample sample;
+    sample.kind = StatusKind::INCOMPATIBLE_QOS;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.incompatible_qos_status.total_count(0);
+    sample.incompatible_qos_status.last_policy_id(0);
+    eprosima::fastdds::statistics::QosPolicyCountSeq_s qos_policy_count_seq;
+    eprosima::fastdds::statistics::QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    sample.incompatible_qos_status.policies(qos_policy_count_seq);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    IncompatibleQosSample sample_2;
+    sample_2.kind = StatusKind::INCOMPATIBLE_QOS;
+    sample_2.status = StatusLevel::ERROR_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.incompatible_qos_status.total_count(2);
+    sample_2.incompatible_qos_status.last_policy_id(3);
+    eprosima::fastdds::statistics::QosPolicyCountSeq_s qos_policy_count_seq_2;
+    eprosima::fastdds::statistics::QosPolicyCount_s qos_policy_count_2;
+    qos_policy_count_2.policy_id(3);
+    qos_policy_count_2.count(2);
+    qos_policy_count_seq_2 = {qos_policy_count_2};
+    sample_2.incompatible_qos_status.policies(qos_policy_count_seq_2);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.incompatible_qos.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos[0], static_cast<IncompatibleQosSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos[1], static_cast<IncompatibleQosSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos_wrong_entity)
+{
+    IncompatibleQosSample sample;
+    sample.kind = StatusKind::INCOMPATIBLE_QOS;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.incompatible_qos_status.total_count(5);
+    sample.incompatible_qos_status.last_policy_id(2);
+    eprosima::fastdds::statistics::QosPolicyCountSeq_s qos_policy_count_seq;
+    eprosima::fastdds::statistics::QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    sample.incompatible_qos_status.policies(qos_policy_count_seq);
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic)
+{
+    InconsistentTopicSample sample;
+    sample.kind = StatusKind::INCONSISTENT_TOPIC;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.inconsistent_topic_status.total_count(0);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    InconsistentTopicSample sample_2;
+    sample_2.kind = StatusKind::INCONSISTENT_TOPIC;
+    sample_2.status = StatusLevel::ERROR_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.inconsistent_topic_status.total_count(2);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.inconsistent_topic.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic[0], static_cast<InconsistentTopicSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic[1], static_cast<InconsistentTopicSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic_wrong_entity)
+{
+    InconsistentTopicSample sample;
+    sample.kind = StatusKind::INCONSISTENT_TOPIC;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.inconsistent_topic_status.total_count(0);
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost)
+{
+    LivelinessLostSample sample;
+    sample.kind = StatusKind::LIVELINESS_LOST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.liveliness_lost_status.total_count(0);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+
+    LivelinessLostSample sample_2;
+    sample_2.kind = StatusKind::LIVELINESS_LOST;
+    sample_2.status = StatusLevel::WARNING_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.liveliness_lost_status.total_count(5);
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost[0], static_cast<LivelinessLostSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost[1], static_cast<LivelinessLostSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost_wrong_entity)
+{
+    LivelinessLostSample sample;
+    sample.kind = StatusKind::LIVELINESS_LOST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.liveliness_lost_status.total_count(0);
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, reader_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
+{
+    LivelinessChangedSample sample;
+    sample.kind = StatusKind::LIVELINESS_CHANGED;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.liveliness_changed_status.alive_count(1);
+    sample.liveliness_changed_status.not_alive_count(0);
+    sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    LivelinessChangedSample sample_2;
+    sample_2.kind = StatusKind::LIVELINESS_CHANGED;
+    sample_2.status = StatusLevel::OK_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.liveliness_changed_status.alive_count(2);
+    sample_2.liveliness_changed_status.not_alive_count(4);
+    sample_2.liveliness_changed_status.last_publication_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed[0], static_cast<LivelinessChangedSample>(sample));
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed[1], static_cast<LivelinessChangedSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed_wrong_entity)
+{
+    LivelinessChangedSample sample;
+    sample.kind = StatusKind::LIVELINESS_CHANGED;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.liveliness_changed_status.alive_count(1);
+    sample.liveliness_changed_status.not_alive_count(0);
+    sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
+{
+    DeadlineMissedSample sample;
+    sample.kind = StatusKind::DEADLINE_MISSED;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.deadline_missed_status.total_count(0);
+    sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    DeadlineMissedSample sample_2;
+    sample_2.kind = StatusKind::DEADLINE_MISSED;
+    sample_2.status = StatusLevel::ERROR_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.deadline_missed_status.total_count(2);
+    sample_2.deadline_missed_status.last_instance_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.deadline_missed.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed[0], static_cast<DeadlineMissedSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed[1], static_cast<DeadlineMissedSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_deadline_missed_wrong_entity)
+{
+    DeadlineMissedSample sample;
+    sample.kind = StatusKind::DEADLINE_MISSED;
+    sample.status = StatusLevel::ERROR_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.deadline_missed_status.total_count(0);
+    sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_sample_lost)
+{
+    SampleLostSample sample;
+    sample.kind = StatusKind::SAMPLE_LOST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.sample_lost_status.total_count(0);
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+
+    SampleLostSample sample_2;
+    sample_2.kind = StatusKind::SAMPLE_LOST;
+    sample_2.status = StatusLevel::ERROR_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.sample_lost_status.total_count(2);
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
+
+    ASSERT_EQ(reader->monitor_service_data.sample_lost.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.sample_lost[0], static_cast<SampleLostSample>(sample));
+    ASSERT_EQ(reader->monitor_service_data.sample_lost[1], static_cast<SampleLostSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_sample_lost_wrong_entity)
+{
+    SampleLostSample sample;
+    sample.kind = StatusKind::SAMPLE_LOST;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    sample.sample_lost_status.total_count(0);
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_invalid)
+{
+    MonitorServiceSample sample;
+    ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_valid_wrong_domain)
+{
+    ProxySample proxy_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), participant_id, proxy_sample), BadParameter);
+
+    ConnectionListSample connection_list_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), participant_id, connection_list_sample), BadParameter);
+
+    IncompatibleQosSample incompatible_qos_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, incompatible_qos_sample), BadParameter);
+
+    InconsistentTopicSample inconsistent_topic_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, inconsistent_topic_sample), BadParameter);
+
+    LivelinessLostSample liveliness_lost_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, liveliness_lost_sample), BadParameter);
+
+    LivelinessChangedSample liveliness_changed_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, liveliness_changed_sample), BadParameter);
+
+    DeadlineMissedSample deadline_missed_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, deadline_missed_sample), BadParameter);
+
+    SampleLostSample sample_lost_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, sample_lost_sample), BadParameter);
+}
+
+TEST_F(database_tests, get_monitor_service_sample_invalid)
+{
+    MonitorServiceSample sample;
+    ASSERT_THROW(db.get_status_data(reader_id, sample), BadParameter);
+}
+
+TEST_F(database_tests, entity_status_logic)
+{
+    //Entity OK
+    bool entity_error = false;
+    bool entity_warning = false;
+    StatusLevel entity_status = StatusLevel::OK_STATUS;
+    EXPECT_FALSE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::OK_STATUS);
+
+    //Entity OK->WARNING
+    entity_error = false;
+    entity_warning = true;
+    EXPECT_TRUE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::WARNING_STATUS);
+    //Entity WARNING
+    EXPECT_FALSE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::WARNING_STATUS);
+
+    //Entity WARNING->ERROR
+    entity_error = true;
+    entity_warning = true;
+    EXPECT_TRUE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::ERROR_STATUS);
+    //Entity ERROR
+    EXPECT_FALSE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::ERROR_STATUS);
+
+    //Entity ERROR->OK
+    entity_error = false;
+    entity_warning = false;
+    EXPECT_TRUE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::OK_STATUS);
+    //Entity OK
+    EXPECT_FALSE(db.entity_status_logic(entity_error, entity_warning, entity_status));
+    ASSERT_EQ(entity_status, StatusLevel::OK_STATUS);
+
+}
+
 TEST_F(database_tests, get_entity_host)
 {
     auto local_host = db.get_entity(host_id);
@@ -2720,6 +3143,59 @@ TEST_F(database_tests, get_entity_kind)
     EXPECT_EQ(EntityKind::TOPIC, db.get_entity_kind(topic_id));
     EXPECT_EQ(EntityKind::LOCATOR, db.get_entity_kind(reader_locator->id));
     EXPECT_THROW(db.get_entity_kind(EntityId::invalid()), BadParameter);
+}
+
+TEST_F(database_tests, get_entity_kind_by_guid)
+{
+    eprosima::fastdds::statistics::detail::GUID_s participant_guid_s;
+    eprosima::fastdds::statistics::detail::GUID_s reader_guid_s;
+    eprosima::fastdds::statistics::detail::GUID_s writer_guid_s;
+    eprosima::fastdds::statistics::detail::GUID_s other_guid_s;
+    eprosima::fastrtps::rtps::GUID_t participant_guid_t;
+    eprosima::fastrtps::rtps::GUID_t reader_guid_t;
+    eprosima::fastrtps::rtps::GUID_t writer_guid_t;
+    eprosima::fastrtps::rtps::GUID_t other_guid_t;
+    std::stringstream participant_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream reader_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4");
+    std::stringstream writer_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3");
+    std::stringstream other_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.1");
+
+    participant_guid_str >> participant_guid_t;
+    memcpy(
+        participant_guid_s.guidPrefix().value().data(), participant_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        participant_guid_s.entityId().value().data(), participant_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
+
+    reader_guid_str >> reader_guid_t;
+    memcpy(
+        reader_guid_s.guidPrefix().value().data(), reader_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        reader_guid_s.entityId().value().data(), reader_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
+
+    writer_guid_str >> writer_guid_t;
+    memcpy(
+        writer_guid_s.guidPrefix().value().data(), writer_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        writer_guid_s.entityId().value().data(), writer_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
+
+    other_guid_str >> other_guid_t;
+    memcpy(
+        other_guid_s.guidPrefix().value().data(), other_guid_t.guidPrefix.value,
+        eprosima::fastrtps::rtps::GuidPrefix_t::size);
+    memcpy(
+        other_guid_s.entityId().value().data(), other_guid_t.entityId.value,
+        eprosima::fastrtps::rtps::EntityId_t::size);
+
+    EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind_by_guid(participant_guid_s));
+    EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind_by_guid(reader_guid_s));
+    EXPECT_EQ(EntityKind::DATAWRITER, db.get_entity_kind_by_guid(writer_guid_s));
+    EXPECT_THROW(db.get_entity_kind_by_guid(other_guid_s), BadParameter);
 }
 
 TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)

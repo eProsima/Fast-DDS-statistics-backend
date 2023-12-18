@@ -3,5 +3,7 @@
     "kind": "locator",
     "name": "127.0.0.1:7412",
     "alias": "localhost",
-    "alive": true
+    "alive": true,
+    "metatraffic": false,
+    "status": "OK"
 }

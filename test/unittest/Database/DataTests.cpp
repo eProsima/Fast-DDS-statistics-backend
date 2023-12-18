@@ -26,8 +26,8 @@ using namespace eprosima::statistics_backend::database;
 
 TEST(database, domainparticipant_data_clear)
 {
-    /* Add dummy data to DomainParticipantData */
-    DomainParticipantData data;
+    /* Add dummy data to DomainParticipantStatisticsData */
+    DomainParticipantStatisticsData data;
     EntityCountSample count_sample;
     count_sample.count = 12;
     ByteCountSample byte_sample;
@@ -49,7 +49,7 @@ TEST(database, domainparticipant_data_clear)
     data.rtps_bytes_lost[EntityId(5)].push_back(byte_sample);
     data.last_reported_rtps_bytes_lost_count[EntityId(5)] = byte_sample;
 
-    // DomainParticipantData
+    // DomainParticipantStatisticsData
     data.discovered_entity[EntityId(1)].push_back(time_sample);
     data.pdp_packets.push_back(count_sample);
     data.last_reported_pdp_packets = count_sample;
@@ -77,8 +77,8 @@ TEST(database, domainparticipant_data_clear)
 
 TEST(database, datareader_data_clear)
 {
-    /* Add dummy data to DataReaderData */
-    DataReaderData data;
+    /* Add dummy data to DataReaderStatisticsData */
+    DataReaderStatisticsData data;
     EntityDataSample data_sample;
     data_sample.data = 11.0;
     EntityCountSample count_sample;
@@ -102,14 +102,14 @@ TEST(database, datareader_data_clear)
 
 TEST(database, datawriter_data_clear)
 {
-    /* Add dummy data to DataWriterData */
-    DataWriterData data;
+    /* Add dummy data to DataWriterStatisticsData */
+    DataWriterStatisticsData data;
     EntityDataSample data_sample;
     data_sample.data = 11.0;
     EntityCountSample count_sample;
     count_sample.count = 12;
 
-    // DataWriterData
+    // DataWriterStatisticsData
     data.publication_throughput.push_back(data_sample);
     data.resent_datas.push_back(count_sample);
     data.last_reported_resent_datas = count_sample;

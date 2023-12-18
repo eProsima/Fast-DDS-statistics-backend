@@ -22,7 +22,8 @@
 
 #include <fastrtps/types/TypesBase.h>
 
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 
 namespace eprosima {

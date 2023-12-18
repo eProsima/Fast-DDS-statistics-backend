@@ -42,6 +42,7 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <Monitor.hpp>
 #include <topic_types/typesPubSubTypes.h>
+#include <topic_types/monitorservice_typesPubSubTypes.h>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
@@ -133,6 +134,7 @@ public:
         topic_types_[DISCOVERY_TOPIC] = new DiscoveryTimePubSubType();
         topic_types_[SAMPLE_DATAS_TOPIC] = new SampleIdentityCountPubSubType();
         topic_types_[PHYSICAL_DATA_TOPIC] = new PhysicalDataPubSubType();
+        topic_types_[MONITOR_SERVICE_TOPIC] = new MonitorServiceStatusDataPubSubType();
 
         // Set the bits for the masks
         for (auto callback : init_monitor_factory_fails_tests::all_callback_kinds_)

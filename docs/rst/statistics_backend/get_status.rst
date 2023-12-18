@@ -5,7 +5,7 @@
 Get entity status
 -----------------
 
-It is also possible to retrieve the |EntityStatus-api| of an entity given its |EntityId-api|:
+It is also possible to retrieve the |StatusLevel-api| of an entity given its |EntityId-api|:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++

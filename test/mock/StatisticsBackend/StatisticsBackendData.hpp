@@ -56,13 +56,18 @@ public:
                 EntityKind entity_kind,
                 DiscoveryStatus discovery_status));
 
-    MOCK_METHOD1(on_domain_graph_update, void(
+    MOCK_METHOD1(on_domain_view_graph_update, void(
                 EntityId entity_id));
 
     MOCK_METHOD3(on_data_available, void(
                 EntityId domain_id,
                 EntityId entity_id,
                 DataKind data_kind));
+
+    MOCK_METHOD3(on_status_reported, void(
+                EntityId domain_id,
+                EntityId entity_id,
+                StatusKind status_kind));
 
     static StatisticsBackendData* get_instance()
     {

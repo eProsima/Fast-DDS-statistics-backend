@@ -25,10 +25,14 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    )
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 ###############################################################################
 # Sample tests
@@ -288,6 +292,29 @@ set(DATABASE_TEST_LIST
     insert_sample_sample_datas_wrong_entity
     insert_sample_invalid
     insert_sample_valid_wrong_domain
+    # Insert Monitor Service Samples
+    insert_monitor_service_sample_invalid
+    insert_monitor_service_sample_valid_wrong_domain
+    insert_monitor_service_sample_proxy
+    insert_monitor_service_sample_proxy_wrong_entity
+    insert_monitor_service_sample_connection_list
+    insert_monitor_service_sample_connection_list_wrong_entity
+    insert_monitor_service_sample_incompatible_qos
+    insert_monitor_service_sample_incompatible_qos_wrong_entity
+    insert_monitor_service_sample_inconsistent_topic
+    insert_monitor_service_sample_inconsistent_topic_wrong_entity
+    insert_monitor_service_sample_liveliness_lost
+    insert_monitor_service_sample_liveliness_lost_wrong_entity
+    insert_monitor_service_sample_liveliness_changed
+    insert_monitor_service_sample_liveliness_changed_wrong_entity
+    insert_monitor_service_sample_deadline_missed
+    insert_monitor_service_sample_deadline_missed_wrong_entity
+    insert_monitor_service_sample_sample_lost
+    insert_monitor_service_sample_sample_lost_wrong_entity
+    # get_invalid_status_data
+    get_monitor_service_sample_invalid
+    # entity_status_logic
+    entity_status_logic
     # get_entity
     get_entity_host
     get_entity_process
@@ -322,6 +349,7 @@ set(DATABASE_TEST_LIST
     get_entities_by_name_other_kind
     # get_entity_kind
     get_entity_kind
+    get_entity_kind_by_guid
     # select
     select_single_entity_invalid_needs_two_entities
     select_double_entity_invalid_needs_one_entity
@@ -370,6 +398,66 @@ foreach(test_name ${DATABASE_TEST_LIST})
 
     if(TEST_FRIENDLY_PATH)
         set_tests_properties(database_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+endforeach()
+
+###############################################################################
+# Database process entities tests
+###############################################################################
+
+add_executable(database_process_entities_tests DatabaseProcessEntitiesTests.cpp ${LIBRARY_SOURCES})
+
+if(MSVC)
+    target_compile_definitions(database_process_entities_tests PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    # Duplications in this testing are intended
+    target_compile_options(database_process_entities_tests PRIVATE /wd4458)
+endif(MSVC)
+
+target_include_directories(database_process_entities_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(database_process_entities_tests PUBLIC
+        ${GTEST_LIBRARIES} fastrtps fastcdr
+    )
+
+get_win32_path_dependencies(database_process_entities_tests TEST_FRIENDLY_PATH)
+
+set(DATABASE_PROCESS_ENTITIES_TEST_LIST
+        insert_new_participant
+        insert_new_participant_already_exists
+        insert_new_participant_no_domain
+        process_physical_entities
+        process_physical_entities_no_link
+        process_physical_entities_no_process
+        process_physical_entities_no_process_no_user
+        process_physical_entities_no_process_no_user_no_host
+        process_physical_entities_process_throws
+        process_physical_entities_user_throws
+        process_physical_entities_host_throws
+        is_topic_in_database
+        insert_new_topic
+        insert_new_topic_already_exists
+        insert_new_topic_no_domain
+        insert_new_endpoint_datawriter
+        insert_new_endpoint_datareader
+        insert_new_endpoint_already_exists
+        insert_new_endpoint_no_topic
+        insert_new_endpoint_no_participant
+        insert_new_endpoint_no_locators
+    )
+
+foreach(test_name ${DATABASE_PROCESS_ENTITIES_TEST_LIST})
+    add_test(NAME database_process_entities_tests.${test_name}
+            COMMAND database_process_entities_tests
+            --gtest_filter=database_process_entities_tests.${test_name}:*/database_process_entities_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(database_process_entities_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
     endif(TEST_FRIENDLY_PATH)
 endforeach()
 
@@ -441,9 +529,12 @@ set(LIBRARY_SOURCES_CLEAR_TEST
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-    )
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 add_executable(database_clear_tests DatabaseClearTests.cpp ${LIBRARY_SOURCES_CLEAR_TEST})
 
@@ -709,7 +800,7 @@ endforeach()
 # Database: database domain view graph tests
 ###############################################################################
 # Specific sources as it needs StatisticsBackendData mock
-add_executable(database_domain_view_graph_tests DatabaseDomainViewGraph.cpp
+add_executable(database_domain_view_graph_tests DatabaseDomainViewGraphTests.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
@@ -717,9 +808,12 @@ ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
 ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
-)
+${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(database_domain_view_graph_tests

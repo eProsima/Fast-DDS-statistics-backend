@@ -257,9 +257,9 @@ public:
      *
      * @param entity_id The ID of the entity whose status is requested.
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
-     * @return EntityStatus of \c entity_id.
+     * @return StatusLevel of \c entity_id.
      */
-    static EntityStatus get_status(
+    static StatusLevel get_status(
             EntityId entity_id);
 
     /**
@@ -406,17 +406,27 @@ public:
             StatisticKind statistic);
 
     /**
-     * @brief Get the topology graph.
+     * @brief Get monitor service status data.
      *
-     * @return Graph object describing the complete topology of the entities.
+     * Default method is called if StatusKind is invalid.
+     *
+     * @param entity_id The id of the Entity whose status info is requested.
+     * @param status_data Status data to be filled.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *     * if the \c entity_id does not reference a entity contained in the database.
+     *     * if there is no specialization template for the requested StatusKind.
+     *     * if the EntityKind of the Entity with \c entity_id doesn't have the associated \c status_data.
      */
-    static Graph get_graph();
+    template <typename T>
+    static void get_status_data(
+            const EntityId& entity_id,
+            T& status_data);
 
     /**
      * @brief Get the domain view graph.
      *
      * @param domain_id EntityId from domain whose graph is delivered.
-     *
+     * @throws eprosima::statistics_backend::BadParameter if there is no graph for the specified domain id.
      * @return Graph object describing per domain topology of the entities.
      */
     static Graph get_domain_view_graph(
@@ -426,8 +436,10 @@ public:
      * @brief Regenerate graph from data stored in database.
      *
      * @param domain_id EntityId from domain whose graph is regenerated.
+     *
+     * @return True if the graph has been regenerated
      */
-    static void regenerate_domain_graph(
+    static bool regenerate_domain_graph(
             const EntityId& domain_id);
 
     /**

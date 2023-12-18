@@ -4,6 +4,7 @@
     "name": "topic_name",
     "alias": "topic_alias",
     "alive": true,
-    "status": 0,
+    "metatraffic": false,
+    "status": "OK",
     "data_type": "example_data_type"
 }

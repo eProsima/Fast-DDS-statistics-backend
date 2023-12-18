@@ -21,10 +21,11 @@ contain a set of callbacks that the application implements.
     /rst/statistics_backend/clear
     /rst/statistics_backend/reset
     /rst/statistics_backend/set_listeners
-    /rst/statistics_backend/get_graph
+    /rst/statistics_backend/get_domain_view_graph
     /rst/statistics_backend/get_info
     /rst/statistics_backend/get_entities
     /rst/statistics_backend/get_data
+    /rst/statistics_backend/get_status_data
     /rst/statistics_backend/get_status
     /rst/statistics_backend/get_type
     /rst/statistics_backend/set_alias

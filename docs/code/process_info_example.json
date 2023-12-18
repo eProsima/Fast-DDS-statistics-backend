@@ -4,6 +4,7 @@
     "name": "process_name",
     "alias": "process_alias",
     "alive": true,
-    "status": 0,
+    "metatraffic": false,
+    "status": "OK",
     "pid": "9564"
 }

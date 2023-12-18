@@ -4,7 +4,8 @@
     "name": "datareader_name",
     "alias": "datareader_alias",
     "alive": false,
-    "status": 0,
+    "metatraffic": false,
+    "status": "OK",
     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.04",
     "qos":
     {
@@ -133,5 +134,7 @@
             "prevent_type_widening": false
         },
         "user_data": "ff00"
-    }
+    },
+    "app_id": "UNKNOWN_APP",
+    "app_metadata": ""
 }

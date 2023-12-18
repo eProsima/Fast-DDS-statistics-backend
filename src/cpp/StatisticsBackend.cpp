@@ -50,6 +50,7 @@
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
 #include <topic_types/typesPubSubTypes.h>
+#include <topic_types/monitorservice_typesPubSubTypes.h>
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
 #include "detail/data_getters.hpp"
@@ -83,7 +84,8 @@ static const char* topics[] =
     EDP_PACKETS_TOPIC,
     DISCOVERY_TOPIC,
     SAMPLE_DATAS_TOPIC,
-    PHYSICAL_DATA_TOPIC
+    PHYSICAL_DATA_TOPIC,
+    MONITOR_SERVICE_TOPIC
 };
 
 void find_or_create_topic_and_type(
@@ -171,6 +173,11 @@ void register_statistics_type_and_topic(
         TypeSupport physical_data_type(new PhysicalDataPubSubType);
         find_or_create_topic_and_type(monitor, topic_name, physical_data_type);
     }
+    else if (MONITOR_SERVICE_TOPIC == topic_name)
+    {
+        TypeSupport monitor_service_status_data_type(new MonitorServiceStatusDataPubSubType);
+        find_or_create_topic_and_type(monitor, topic_name, monitor_service_status_data_type);
+    }
 }
 
 EntityId create_and_register_monitor(
@@ -218,11 +225,13 @@ EntityId create_and_register_monitor(
         domain->id,
         backend_data->database_.get(),
         backend_data->entity_queue_,
-        backend_data->data_queue_);
+        backend_data->data_queue_,
+        backend_data->monitor_service_status_data_queue_);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
-        backend_data->data_queue_);
+        backend_data->data_queue_,
+        backend_data->monitor_service_status_data_queue_);
     auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */
@@ -288,11 +297,22 @@ EntityId create_and_register_monitor(
         }
 
         /* Create DataReaders */
-        monitor->readers[topic] = monitor->subscriber->create_datareader(
-            monitor->topics[topic],
-            eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
-            monitor->reader_listener,
-            StatusMask::all());
+        if (topic == MONITOR_SERVICE_TOPIC)
+        {
+            monitor->readers[topic] = monitor->subscriber->create_datareader(
+                monitor->topics[topic],
+                eprosima::fastdds::statistics::dds::MONITOR_SERVICE_DATAREADER_QOS,
+                monitor->reader_listener,
+                StatusMask::all());
+        }
+        else
+        {
+            monitor->readers[topic] = monitor->subscriber->create_datareader(
+                monitor->topics[topic],
+                eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
+                monitor->reader_listener,
+                StatusMask::all());
+        }
 
         if (monitor->readers[topic] == nullptr)
         {
@@ -480,13 +500,13 @@ std::vector<EntityId> StatisticsBackend::get_entities(
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
-    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->active;
+    return StatisticsBackendData::get_instance()->database_->is_active(entity_id);
 }
 
 bool StatisticsBackend::is_metatraffic(
         EntityId entity_id)
 {
-    return StatisticsBackendData::get_instance()->database_->get_entity(entity_id)->metatraffic;
+    return StatisticsBackendData::get_instance()->database_->is_metatraffic(entity_id);
 }
 
 EntityKind StatisticsBackend::get_type(
@@ -495,7 +515,7 @@ EntityKind StatisticsBackend::get_type(
     return StatisticsBackendData::get_instance()->database_->get_entity_kind(entity_id);
 }
 
-EntityStatus StatisticsBackend::get_status(
+StatusLevel StatisticsBackend::get_status(
         EntityId entity_id)
 {
     return StatisticsBackendData::get_instance()->database_->get_entity_status(entity_id);
@@ -504,121 +524,7 @@ EntityStatus StatisticsBackend::get_status(
 Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
-    Info info = Info::object();
-
-    std::shared_ptr<const database::Entity> entity =
-            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
-
-    info[ID_INFO_TAG] = entity_id.value();
-    info[KIND_INFO_TAG] = entity_kind_str[(int)entity->kind];
-    info[NAME_INFO_TAG] = entity->name;
-    info[ALIAS_INFO_TAG] = entity->alias;
-    info[ALIVE_INFO_TAG] = entity->active;
-    info[METATRAFFIC_INFO_TAG] = entity->metatraffic;
-    info[STATUS_INFO_TAG] = entity->status;
-
-    switch (entity->kind)
-    {
-        case EntityKind::PROCESS:
-        {
-            std::shared_ptr<const database::Process> process =
-                    std::dynamic_pointer_cast<const database::Process>(entity);
-            info[PID_INFO_TAG] = process->pid;
-            break;
-        }
-        case EntityKind::TOPIC:
-        {
-            std::shared_ptr<const database::Topic> topic =
-                    std::dynamic_pointer_cast<const database::Topic>(entity);
-            info[DATA_TYPE_INFO_TAG] = topic->data_type;
-            break;
-        }
-        case EntityKind::PARTICIPANT:
-        {
-            std::shared_ptr<const database::DomainParticipant> participant =
-                    std::dynamic_pointer_cast<const database::DomainParticipant>(entity);
-            info[GUID_INFO_TAG] = participant->guid;
-            info[QOS_INFO_TAG] = participant->qos;
-
-            // Locators associated to endpoints
-            std::set<std::string> locator_set;
-
-            // Writers registered in the participant
-            for (const auto& writer : participant->data_writers)
-            {
-                // Locators associated to each writer
-                for (const auto& locator : writer.second.get()->locators)
-                {
-                    locator_set.insert(locator.second.get()->name);
-                }
-            }
-
-            // Readers registered in the participant
-            for (const auto& reader : participant->data_readers)
-            {
-                // Locators associated to each reader
-                for (const auto& locator : reader.second.get()->locators)
-                {
-                    locator_set.insert(locator.second.get()->name);
-                }
-            }
-
-            DatabaseDump locators = DatabaseDump::array();
-            for (const auto& locator : locator_set)
-            {
-                locators.push_back(locator);
-            }
-            info[LOCATOR_CONTAINER_TAG] = locators;
-            break;
-        }
-        case EntityKind::DATAWRITER:
-        case EntityKind::DATAREADER:
-        {
-            std::shared_ptr<const database::DDSEntity> dds_entity =
-                    std::dynamic_pointer_cast<const database::DDSEntity>(entity);
-            info[GUID_INFO_TAG] = dds_entity->guid;
-            info[QOS_INFO_TAG] = dds_entity->qos;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
-    return info;
-}
-
-static inline void check_entity_kinds(
-        EntityKind kind,
-        const std::vector<EntityId>& entity_ids,
-        database::Database* db,
-        const char* message)
-{
-    for (EntityId id : entity_ids)
-    {
-        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
-        if (!entity || kind != entity->kind)
-        {
-            throw BadParameter(message);
-        }
-    }
-}
-
-static inline void check_entity_kinds(
-        EntityKind kinds[3],
-        const std::vector<EntityId>& entity_ids,
-        database::Database* db,
-        const char* message)
-{
-    for (EntityId id : entity_ids)
-    {
-        std::shared_ptr<const database::Entity> entity = db->get_entity(id);
-        if (!entity || (kinds[0] != entity->kind && kinds[1] != entity->kind && kinds[2] != entity->kind))
-        {
-            throw BadParameter(message);
-        }
-    }
+    return StatisticsBackendData::get_instance()->database_->get_info(entity_id);
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(
@@ -647,13 +553,13 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     // Validate entity_ids_source. Note that the only case with more than one pair always has the same source kind.
     EntityKind source_kind = allowed_kinds[0].first;
     database::Database* db = StatisticsBackendData::get_instance()->database_.get();
-    check_entity_kinds(source_kind, entity_ids_source, db, "Wrong entity id passed in entity_ids_source");
+    db->check_entity_kinds(source_kind, entity_ids_source, "Wrong entity id passed in entity_ids_source");
 
     // Validate entity_ids_target.
     if (1 == allowed_kinds.size())
     {
         EntityKind target_kind = allowed_kinds[0].second;
-        check_entity_kinds(target_kind, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+        db->check_entity_kinds(target_kind, entity_ids_target, "Wrong entity id passed in entity_ids_target");
     }
     else
     {
@@ -663,7 +569,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         target_kinds[0] = allowed_kinds[0].second;
         target_kinds[1] = allowed_kinds[1].second;
         target_kinds[2] = allowed_kinds[2].second;
-        check_entity_kinds(target_kinds, entity_ids_target, db, "Wrong entity id passed in entity_ids_target");
+        db->check_entity_kinds(target_kinds, entity_ids_target, "Wrong entity id passed in entity_ids_target");
     }
 
     std::vector<StatisticsData> ret_val;
@@ -728,7 +634,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
     // Validate entity_ids
     EntityKind allowed_kind = allowed_kinds[0].first;
     database::Database* db = StatisticsBackendData::get_instance()->database_.get();
-    check_entity_kinds(allowed_kind, entity_ids, db, "Wrong entity id passed in entity_ids");
+    db->check_entity_kinds(allowed_kind, entity_ids, "Wrong entity id passed in entity_ids");
 
     std::vector<StatisticsData> ret_val;
     auto t_to_select = t_to - Timestamp::duration(1);
@@ -793,9 +699,77 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         statistic);
 }
 
-Graph StatisticsBackend::get_graph()
+template <typename T>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        T& status_data)
 {
-    return Graph();
+
+    throw BadParameter("Unsupported MonitorServiceStatus sample");
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        ProxySample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<ProxySample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        ConnectionListSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<ConnectionListSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        IncompatibleQosSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<IncompatibleQosSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        InconsistentTopicSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<InconsistentTopicSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        LivelinessLostSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessLostSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        LivelinessChangedSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessChangedSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        DeadlineMissedSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<DeadlineMissedSample>(entity_id, status_data);
+}
+
+template <>
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        SampleLostSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<SampleLostSample>(entity_id, status_data);
 }
 
 Graph StatisticsBackend::get_domain_view_graph(
@@ -804,11 +778,15 @@ Graph StatisticsBackend::get_domain_view_graph(
     return StatisticsBackendData::get_instance()->database_->get_domain_view_graph(domain_id);
 }
 
-void StatisticsBackend::regenerate_domain_graph(
+bool StatisticsBackend::regenerate_domain_graph(
         const EntityId& domain_id)
 {
-    StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
-    StatisticsBackendData::get_instance()->on_domain_graph_update(domain_id);
+    bool regenerated_graph = StatisticsBackendData::get_instance()->database_->regenerate_domain_graph(domain_id);
+    if (regenerated_graph)
+    {
+        StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
+    }
+    return regenerated_graph;
 }
 
 DatabaseDump StatisticsBackend::dump_database(
@@ -949,18 +927,7 @@ void StatisticsBackend::set_alias(
         EntityId entity_id,
         const std::string& alias)
 {
-    std::shared_ptr<const database::Entity> const_entity =
-            StatisticsBackendData::get_instance()->database_->get_entity(entity_id);
-    std::shared_ptr<database::Entity> entity = std::const_pointer_cast<database::Entity>(const_entity);
-    if (entity->alias != alias)
-    {
-        entity->alias = alias;
-        std::vector<EntityId> domains = StatisticsBackend::get_entities(EntityKind::DOMAIN, entity_id);
-        if (!domains.empty())
-        {
-            StatisticsBackendData::get_instance()->database_->update_graph_on_updated_entity(domains[0], entity_id);
-        }
-    }
+    StatisticsBackendData::get_instance()->database_->set_alias(entity_id, alias);
 }
 
 } // namespace statistics_backend

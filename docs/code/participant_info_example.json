@@ -4,7 +4,8 @@
     "name": "participant_name",
     "alias": "participant_alias",
     "alive": true,
-    "status": 0,
+    "metatraffic": false,
+    "status": "OK",
     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
     "qos": {
         "available_builtin_endpoints": 3135,
@@ -27,6 +28,8 @@
         "user_data": "656e636c6176653d2f3b00",
         "vendor_id": "010f"
     },
+    "app_id": "UNKNOWN_APP",
+    "app_metadata": "",
     "locators":
     [
         "127.0.0.1:1234"
