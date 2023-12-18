@@ -356,7 +356,7 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the source locator
     DatabaseDataQueue::StatisticsLocator src_locator;
@@ -536,7 +536,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
@@ -624,7 +624,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048-0";
 
     // Build the writer GUID
     DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
