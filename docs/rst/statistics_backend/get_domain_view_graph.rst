@@ -48,7 +48,7 @@ In this example, the previous call would return a |Graph-api| object similar to 
 
 .. todo::
 
-    Provide the `app_data` and `app_metadata` fields of a known app.
+    Provide the `app_id` and `app_metadata` fields of a known app.
 
 .. literalinclude:: /code/graph_example.json
     :language: JSON
