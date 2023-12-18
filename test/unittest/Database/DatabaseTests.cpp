@@ -2428,9 +2428,9 @@ TEST_F(database_tests, insert_monitor_service_sample_proxy)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ProxySample sample_2;
     sample_2.kind = StatusKind::PROXY;
@@ -2438,9 +2438,9 @@ TEST_F(database_tests, insert_monitor_service_sample_proxy)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.entity_proxy = {6, 7, 8, 9, 10};
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(participant->monitor_service_data.proxy.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.proxy.size(), 1u);
@@ -2458,9 +2458,9 @@ TEST_F(database_tests, insert_monitor_service_sample_proxy_wrong_entity)
     sample.entity_proxy = {1, 2, 3, 4, 5};
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, domain_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_connection_list)
@@ -2488,9 +2488,9 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ConnectionListSample sample_2;
     eprosima::fastdds::statistics::Connection connection_sample_2;
@@ -2514,9 +2514,9 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.connection_list = {connection_sample_2, connection_sample_2};
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(participant->monitor_service_data.connection_list.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.connection_list.size(), 1u);
@@ -2549,9 +2549,9 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list_wrong_entit
     sample.connection_list = {connection_sample, connection_sample};
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, domain_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
@@ -2570,9 +2570,9 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
     sample.incompatible_qos_status.policies(qos_policy_count_seq);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     IncompatibleQosSample sample_2;
     sample_2.kind = StatusKind::INCOMPATIBLE_QOS;
@@ -2587,9 +2587,9 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
     qos_policy_count_seq_2 = {qos_policy_count_2};
     sample_2.incompatible_qos_status.policies(qos_policy_count_seq_2);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::ERROR);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::ERROR_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(writer->monitor_service_data.incompatible_qos.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.incompatible_qos.size(), 1u);
@@ -2601,7 +2601,7 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos_wrong_enti
 {
     IncompatibleQosSample sample;
     sample.kind = StatusKind::INCOMPATIBLE_QOS;
-    sample.status = StatusLevel::OK_STATUS;
+    sample.status = StatusLevel::ERROR_STATUS;
     sample.src_ts = std::chrono::system_clock::now();
     sample.incompatible_qos_status.total_count(5);
     sample.incompatible_qos_status.last_policy_id(2);
@@ -2613,9 +2613,9 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos_wrong_enti
     sample.incompatible_qos_status.policies(qos_policy_count_seq);
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic)
@@ -2627,9 +2627,9 @@ TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic)
     sample.inconsistent_topic_status.total_count(0);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     InconsistentTopicSample sample_2;
     sample_2.kind = StatusKind::INCONSISTENT_TOPIC;
@@ -2637,9 +2637,9 @@ TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.inconsistent_topic_status.total_count(2);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(writer->monitor_service_data.inconsistent_topic.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.inconsistent_topic.size(), 1u);
@@ -2656,9 +2656,9 @@ TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic_wrong_en
     sample.inconsistent_topic_status.total_count(0);
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost)
@@ -2669,9 +2669,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost)
     sample.src_ts = std::chrono::system_clock::now();
     sample.liveliness_lost_status.total_count(0);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     LivelinessLostSample sample_2;
     sample_2.kind = StatusKind::LIVELINESS_LOST;
@@ -2679,9 +2679,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.liveliness_lost_status.total_count(5);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::WARNING);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::WARNING_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(writer->monitor_service_data.liveliness_lost.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.liveliness_lost[0], static_cast<LivelinessLostSample>(sample));
@@ -2697,9 +2697,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost_wrong_entit
     sample.liveliness_lost_status.total_count(0);
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, reader_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
@@ -2712,9 +2712,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     sample.liveliness_changed_status.not_alive_count(0);
     sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     LivelinessChangedSample sample_2;
     sample_2.kind = StatusKind::LIVELINESS_CHANGED;
@@ -2724,9 +2724,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     sample_2.liveliness_changed_status.not_alive_count(4);
     sample_2.liveliness_changed_status.last_publication_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed[0], static_cast<LivelinessChangedSample>(sample));
@@ -2744,9 +2744,9 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed_wrong_en
     sample.liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
@@ -2759,9 +2759,9 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     DeadlineMissedSample sample_2;
     sample_2.kind = StatusKind::DEADLINE_MISSED;
@@ -2770,9 +2770,9 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     sample_2.deadline_missed_status.total_count(2);
     sample_2.deadline_missed_status.last_instance_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::WARNING);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::WARNING_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(writer->monitor_service_data.deadline_missed.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.deadline_missed.size(), 1u);
@@ -2790,9 +2790,9 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed_wrong_entit
     sample.deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_sample_lost)
@@ -2803,9 +2803,9 @@ TEST_F(database_tests, insert_monitor_service_sample_sample_lost)
     sample.src_ts = std::chrono::system_clock::now();
     sample.sample_lost_status.total_count(0);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     SampleLostSample sample_2;
     sample_2.kind = StatusKind::SAMPLE_LOST;
@@ -2813,9 +2813,9 @@ TEST_F(database_tests, insert_monitor_service_sample_sample_lost)
     sample_2.src_ts = std::chrono::system_clock::now();
     sample_2.sample_lost_status.total_count(2);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::WARNING);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::WARNING_STATUS);
 
     ASSERT_EQ(reader->monitor_service_data.sample_lost.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.sample_lost[0], static_cast<SampleLostSample>(sample));
@@ -2831,9 +2831,9 @@ TEST_F(database_tests, insert_monitor_service_sample_sample_lost_wrong_entity)
     sample.sample_lost_status.total_count(2);
     ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
     ASSERT_THROW(db.insert(domain_id, writer_id, sample), BadParameter);
-    ASSERT_EQ(participant->status, StatusLevel::OK);
-    ASSERT_EQ(writer->status, StatusLevel::OK);
-    ASSERT_EQ(reader->status, StatusLevel::OK);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_invalid)
