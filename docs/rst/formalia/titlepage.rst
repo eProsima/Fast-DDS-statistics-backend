@@ -24,8 +24,8 @@ system's structure and behavior in an accessible manner.
 .. warning::
 
   In order to monitor a DDS network deployed using *Fast DDS* library, compiling the latter with statistics and
-  explicitly activating the statistics module is required. See :ref:`Statistics Module DDS Layer
-  <https://fast-dds.docs.eprosima.com/en/latest/fastdds/statistics/dds_layer/statistics_dds_layer.html>`
+  explicitly activating the statistics module is required. See `Statistics Module DDS Layer
+  <https://fast-dds.docs.eprosima.com/en/latest/fastdds/statistics/dds_layer/statistics_dds_layer.html>`_
   for more details.
     
 .. warning::

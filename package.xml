@@ -3,7 +3,7 @@
 <package format="3">
   <name>fastdds_statistics_backend</name>
   <!-->There must be a release. Update version accordingly<-->
-  <version>0.11.0</version>
+  <version>1.0.0</version>
   <description>
     C++ library to collect data from eProsima Fast DDS Statistics module and generate statistical information.
   </description>
