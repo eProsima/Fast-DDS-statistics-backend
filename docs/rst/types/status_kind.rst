@@ -45,7 +45,7 @@ Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated st
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
 
 +-------------------------------+-----------------+----------------+----------------+
-| |StatusKind-api|              ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
+| StatusKind                    ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
 +===============================+=================+================+================+
 | |PROXY-api|                   | Yes             | Yes            | Yes            |
 +-------------------------------+-----------------+----------------+----------------+
@@ -67,34 +67,27 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 Each |StatusKind-api| has an associated |StatusLevel-api|. |OK-api| status is obtained when the monitor service message
 reports no problem.
 Entity's associated |StatusLevel-api| is obtained from all status data. The following table describes which
-|StatusLevel-api|'s are associated with each |StatusKind-api|, and which |StatusLevel-api|'s are associated with each
-DDS Entity in relation to the |StatusKind-api|:
+|StatusLevel-api|'s are associated with each |StatusKind-api|:
 
-+-------------------------------+-----------------------+------------------------------+
-| |StatusKind-api|              ||StatusLevel-api|'s    |DDS Entity |StatusLevel-api|'s|
-+===============================+=======================+==============================+
-| |PROXY-api|                   | |OK-api|              | |OK-api|                     |
-+-------------------------------+-----------------------+------------------------------+
-| |CONNECTION_LIST-api|         | |OK-api|              | |OK-api|                     |
-+-------------------------------+-----------------------+------------------------------+
-| |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|  | |OK-api|/|ERROR-api|         |
-+-------------------------------+-----------------------+------------------------------+
-| |INCONSISTENT_TOPIC-api|      | \-                    | \-                           |
-+-------------------------------+-----------------------+------------------------------+
-| |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api|| |OK-api|/|WARNING-api|       |
-+-------------------------------+-----------------------+------------------------------+
-| |LIVELINESS_CHANGED-api|      | |OK-api|              | |OK-api|                     |
-+-------------------------------+-----------------------+------------------------------+
-| |DEADLINE_MISSED-api|         | |OK-api|/|ERROR-api|  | |OK-api|/|WARNING-api|       |
-+-------------------------------+-----------------------+------------------------------+
-| |SAMPLE_LOST-api|             | |OK-api|/|ERROR-api|  | |OK-api|/|WARNING-api|       |
-+-------------------------------+-----------------------+------------------------------+
-
-.. note::
-
-  Deadline missed or a loss of a sample are considered errors, and therefore their corresponding |StatusKind-api|
-  sample may have the |ERROR-api| status. However, this doesn't necessarily mean that the normal operation of the
-  entity is disrupted, and therefore they only take the status of the entity to the |WARNING-api| status level.
++-------------------------------+-----------------------+
+| StatusKind                    |StatusLevel's          |
++===============================+=======================+
+| |PROXY-api|                   | |OK-api|              |
++-------------------------------+-----------------------+
+| |CONNECTION_LIST-api|         | |OK-api|              |
++-------------------------------+-----------------------+
+| |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|  |
++-------------------------------+-----------------------+
+| |INCONSISTENT_TOPIC-api|      | \-                    |
++-------------------------------+-----------------------+
+| |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api||
++-------------------------------+-----------------------+
+| |LIVELINESS_CHANGED-api|      | |OK-api|              |
++-------------------------------+-----------------------+
+| |DEADLINE_MISSED-api|         | |OK-api|/|WARNING-api||
++-------------------------------+-----------------------+
+| |SAMPLE_LOST-api|             | |OK-api|/|WARNING-api||
++-------------------------------+-----------------------+
 
 .. note::
 

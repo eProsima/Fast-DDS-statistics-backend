@@ -3680,15 +3680,15 @@ bool Database::update_entity_status_nts(
     {
         entity_error = true;
     }
-    // Check DeadlineMissed Status (error does not mean entity error but warning)
+    // Check DeadlineMissed Status
     if (!entity->monitor_service_data.deadline_missed.empty() &&
-            entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
+            entity->monitor_service_data.deadline_missed.back().status == StatusLevel::WARNING_STATUS)
     {
         entity_warning = true;
     }
-    // Check SampleLost Status (error does not mean entity error but warning)
+    // Check SampleLost Status
     if (!entity->monitor_service_data.sample_lost.empty() &&
-            entity->monitor_service_data.sample_lost.back().status == StatusLevel::ERROR_STATUS)
+            entity->monitor_service_data.sample_lost.back().status == StatusLevel::WARNING_STATUS)
     {
         entity_warning = true;
     }
@@ -3716,9 +3716,9 @@ bool Database::update_entity_status_nts(
     {
         entity_warning = true;
     }
-    // Check DeadlineMissed Status (error does not mean entity error but warning)
+    // Check DeadlineMissed Status
     if (!entity->monitor_service_data.deadline_missed.empty() &&
-            entity->monitor_service_data.deadline_missed.back().status == StatusLevel::ERROR_STATUS)
+            entity->monitor_service_data.deadline_missed.back().status == StatusLevel::WARNING_STATUS)
     {
         entity_warning = true;
     }
