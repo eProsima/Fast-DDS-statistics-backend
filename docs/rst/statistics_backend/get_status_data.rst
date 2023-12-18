@@ -24,8 +24,9 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 +-------------------------------+-----------------+----------------+----------------+
 | |INCOMPATIBLE_QOS-api|        | No              | Yes            | Yes            |
 +-------------------------------+-----------------+----------------+----------------+
-| |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
+.. TODO
+.. | |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
+.. +-------------------------------+-----------------+----------------+----------------+
 | |LIVELINESS_LOST-api|         | No              | Yes            | No             |
 +-------------------------------+-----------------+----------------+----------------+
 | |LIVELINESS_CHANGED-api|      | No              | No             | Yes            |
@@ -86,17 +87,18 @@ Incompatible QoS example
    :end-before: //!
    :dedent: 8
 
-Inconsistent Topic example
-""""""""""""""""""""""""""""""""""""""""""""""""
+.. TODO
+.. Inconsistent Topic example
+.. """"""""""""""""""""""""""""""""""""""""""""""""
 
-.. warning::
-  |INCONSISTENT_TOPIC-api| status data not supported yet.
+.. .. warning::
+..   |INCONSISTENT_TOPIC-api| status data not supported yet.
 
-.. literalinclude:: /code/StatisticsBackendTests.cpp
-   :language: c++
-   :start-after: //CONF-GET-STATUS-DATA-INCONSISTENT-TOPIC
-   :end-before: //!
-   :dedent: 8
+.. .. literalinclude:: /code/StatisticsBackendTests.cpp
+..    :language: c++
+..    :start-after: //CONF-GET-STATUS-DATA-INCONSISTENT-TOPIC
+..    :end-before: //!
+..    :dedent: 8
 
 Liveliness Lost example
 """""""""""""""""""""""""""""""""""""""

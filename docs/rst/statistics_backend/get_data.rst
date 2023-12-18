@@ -103,8 +103,8 @@ Examples
 Following, some example queries are provided to serve a inspiration for applications using
 *Fast DDS Statistics Backend*.
 
-.. todo::
-   Include an output example for each example here.
+.. .. todo::
+..    Include an output example for each example here.
 
 DataWriter's Fast DDS Latency median example
 """"""""""""""""""""""""""""""""""""""""""""
