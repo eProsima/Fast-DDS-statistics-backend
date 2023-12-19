@@ -343,6 +343,7 @@ get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_all_data
+    init_monitor_domain_id_all_callback_all_data_known_app
     init_monitor_domain_id_no_callback_all_data
     init_monitor_domain_id_all_callback_no_data
     init_monitor_domain_id_null_listener_all_data

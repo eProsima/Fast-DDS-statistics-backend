@@ -26,6 +26,7 @@
 #include <fastdds/rtps/attributes/ServerAttributes.h>
 #include <fastdds/rtps/common/GuidPrefix_t.hpp>
 #include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Property.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -36,6 +37,7 @@
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/app_names.h>
 
 #include <database/database_queue.hpp>
 #include <Monitor.hpp>
@@ -169,24 +171,32 @@ public:
             const std::string& server_guid_prefix,
             const std::string& server_locators,
             const CallbackMask& callback_mask,
-            const DataKindMask& datakind_mask)
+            const DataKindMask& datakind_mask,
+            std::string app_id = "",
+            std::string app_metadata = "")
     {
         EntityId monitor_id = StatisticsBackend::init_monitor(
             domain_id,
             domain_listener,
             callback_mask,
-            datakind_mask);
+            datakind_mask,
+            app_id,
+            app_metadata);
         EntityId monitor_id_1 = StatisticsBackend::init_monitor(
             server_locators,
             domain_listener,
             callback_mask,
-            datakind_mask);
+            datakind_mask,
+            app_id,
+            app_metadata);
         EntityId monitor_id_2 = StatisticsBackend::init_monitor(
             server_guid_prefix,
             server_locators,
             domain_listener,
             callback_mask,
-            datakind_mask);
+            datakind_mask,
+            app_id,
+            app_metadata);
 
         EXPECT_TRUE(monitor_id.is_valid());
         EXPECT_TRUE(monitor_id_1.is_valid());
@@ -240,7 +250,9 @@ public:
 
     void check_participant_qos(
             const DomainParticipantQos& participant_qos,
-            const std::string& server_guid_prefix)
+            const std::string& server_guid_prefix,
+            const std::string& app_id = "",
+            const std::string& app_metadata = "")
     {
         EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
                 eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
@@ -251,12 +263,37 @@ public:
         std::istringstream(server_guid_prefix) >> guid_prefix;
         EXPECT_EQ(server_qos.guidPrefix, guid_prefix);
 
+        //Get data from participant discovery info
+        auto get_property_value =
+                [](const eprosima::fastrtps::rtps::PropertySeq& properties, const std::string& property_name) -> std::string
+                {
+                    auto property = std::find_if(
+                        properties.begin(),
+                        properties.end(),
+                        [&](const eprosima::fastrtps::rtps::Property& property)
+                        {
+                            return property.name() == property_name;
+                        });
+                    if (property != properties.end())
+                    {
+                        return property->value();
+                    }
+                    return std::string("");
+                };
+
+        std::string app_id_ = get_property_value(participant_qos.properties().properties(), "fastdds.application.id");
+        std::string app_metadata_ = get_property_value(participant_qos.properties().properties(), "fastdds.application.metadata");
+        EXPECT_EQ(app_id_, app_id);
+        EXPECT_EQ(app_metadata_, app_metadata);
+
         check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
     }
 
     void check_dds_entities(
             eprosima::statistics_backend::details::Monitor* monitor,
-            const std::string& server_guid_prefix = "")
+            const std::string& server_guid_prefix = "",
+            const std::string& app_id = "",
+            const std::string& app_metadata = "")
     {
         EXPECT_NE(nullptr, monitor->participant);
 
@@ -264,7 +301,7 @@ public:
         {
             DomainParticipantQos participant_qos;
             monitor->participant->get_qos(participant_qos);
-            check_participant_qos(participant_qos, server_guid_prefix);
+            check_participant_qos(participant_qos, server_guid_prefix, app_id, app_metadata);
         }
 
         EXPECT_NE(nullptr, monitor->subscriber);
@@ -317,6 +354,51 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
     check_dds_entities(domain_monitors[monitor_ids[0]]);
     check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
     check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
+
+    // Stop the monitor to avoid interfering on the next test
+    for (const auto& monitor : domain_monitors)
+    {
+        StatisticsBackend::stop_monitor(monitor.first);
+    }
+}
+
+TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_app)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
+    std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+
+    std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
+    std::string app_metadata = "metadata";
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+                    all_callback_mask_, all_datakind_mask_, app_id, app_metadata);
+
+    std::vector<EntityId> monitor_ids;
+    for (const auto& monitor : domain_monitors)
+    {
+        /* Check that the domain listener is set correctly */
+        EXPECT_EQ(&domain_listener, domain_monitors[monitor.first]->domain_listener);
+
+        /* Check that the CallbackMask is set correctly */
+        for (const auto& callback : init_monitor_tests::all_callback_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->domain_callback_mask.is_set(callback));
+        }
+
+        /* Check that the DataKindMask is set correctly */
+        for (const auto& datakind : init_monitor_tests::all_data_kinds_)
+        {
+            EXPECT_TRUE(domain_monitors[monitor.first]->data_mask.is_set(datakind));
+        }
+
+        monitor_ids.push_back(monitor.first);
+    }
+
+    /* Check the created DDS entities */
+    check_dds_entities(domain_monitors[monitor_ids[0]], "", app_id, app_metadata);
+    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX, app_id, app_metadata);
+    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix, app_id, app_metadata);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
