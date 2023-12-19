@@ -22,7 +22,7 @@ with one entity of each |EntityKind-api|, and one data of each |DataKind-api|:
 
 .. todo::
 
-    Provide the `app_id` and `app_metadata` fields of a known app.
+    Provide `app_metadata` fields fields in the json.
 
 .. literalinclude:: /code/dump_example.json
    :language: JSON

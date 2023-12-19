@@ -66,7 +66,7 @@ Participant Info example
 
 .. todo::
 
-    Provide the `app_id` and `app_metadata` fields of a known app.
+    Provide `app_metadata` fields in the json.
 
 .. literalinclude:: /code/participant_info_example.json
     :language: JSON
@@ -78,7 +78,7 @@ DataReader Info example
 
 .. todo::
 
-    Provide the `app_id` and `app_metadata` fields of a known app.
+    Provide `app_metadata` fields in the json.
 
 .. literalinclude:: /code/datareader_info_example.json
     :language: JSON
@@ -90,7 +90,7 @@ DataWriter Info example
 
 .. todo::
 
-    Provide the `app_id` and `app_metadata` fields of a known app.
+    Provide `app_metadata` fields in the json.
 
 .. literalinclude:: /code/datawriter_info_example.json
     :language: JSON

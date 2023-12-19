@@ -7,7 +7,7 @@
         {
             "kind": "topic",
             "metatraffic": false,
-            "alias": "HelloWorld"
+            "alias": "Square"
         }
     },
     "hosts":
@@ -41,19 +41,17 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
-                                    "alias": "example_participant1_alias",
+                                    "alias": "shapes_demo_participant_1_alias",
                                     "status": "OK",
-                                    "app_id": "UNKNOWN_APP",
-                                    "app_metadata": "",
+                                    "app_id": "SHAPES_DEMO",
                                     "endpoints":
                                     {
                                         "6":
                                         {
                                             "kind": "datawriter",
-                                            "app_id": "UNKNOWN_APP",
-                                            "app_metadata": "",
+                                            "app_id": "SHAPES_DEMO",
                                             "metatraffic": false,
-                                            "alias": "example_publisher_alias",
+                                            "alias": "shapes_demo_datawriter_alias",
                                             "status": "OK",
                                             "topic": "5"
                                         }
@@ -74,19 +72,17 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
-                                    "alias": "example_participant2_alias",
+                                    "alias": "shapes_demo_participant_2_alias",
                                     "status": "OK",
-                                    "app_id": "UNKNOWN_APP",
-                                    "app_metadata": "",
+                                    "app_id": "SHAPES_DEMO",
                                     "endpoints":
                                     {
                                         "9":
                                         {
                                             "kind": "datareader",
-                                            "app_id": "UNKNOWN_APP",
-                                            "app_metadata": "",
+                                            "app_id": "SHAPES_DEMO",
                                             "metatraffic": false,
-                                            "alias": "example_subscriber_alias",
+                                            "alias": "shapes_demo_datareader_alias",
                                             "status": "OK",
                                             "topic": "5"
                                         }
