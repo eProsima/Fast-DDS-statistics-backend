@@ -265,7 +265,8 @@ public:
 
         //Get data from participant discovery info
         auto get_property_value =
-                [](const eprosima::fastrtps::rtps::PropertySeq& properties, const std::string& property_name) -> std::string
+                [](const eprosima::fastrtps::rtps::PropertySeq& properties,
+                        const std::string& property_name) -> std::string
                 {
                     auto property = std::find_if(
                         properties.begin(),
@@ -282,7 +283,8 @@ public:
                 };
 
         std::string app_id_ = get_property_value(participant_qos.properties().properties(), "fastdds.application.id");
-        std::string app_metadata_ = get_property_value(participant_qos.properties().properties(), "fastdds.application.metadata");
+        std::string app_metadata_ = get_property_value(
+            participant_qos.properties().properties(), "fastdds.application.metadata");
         EXPECT_EQ(app_id_, app_id);
         EXPECT_EQ(app_metadata_, app_metadata);
 
