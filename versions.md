@@ -15,10 +15,9 @@ This release includes the following **features**:
 * `StatisticsBackend::get_status_data` returns an specific status data of a given id.
 * Get physical information from discovery packets.
 
-This release includes the following **dependencie update**:
+This release includes the following **dependencies update**:
 |  | Repository | Old Version | New Version |
 |---|---|---|---|
-| Foonathan Memory Vendor | [eProsima/foonathan_memory_vendor](https://github.com/eProsima/foonathan_memory_vendor) | [v1.3.1](https://github.com/eProsima/foonathan_memory_vendor/releases/tag/v1.3.1) | [v1.3.1](https://github.com/eProsima/foonathan_memory_vendor/releases/tag/v1.3.1) |
 | Fast CDR | [eProsima/Fast-CDR](https://github.com/eProsima/Fast-CDR) | [v1.1.0](https://github.com/eProsima/Fast-CDR/releases/tag/v1.1.0) | [v2.1.1](https://github.com/eProsima/Fast-CDR/releases/tag/v2.1.1) |
 | Fast DDS | [eProsima/Fast-DDS](https://github.com/eProsima/Fast-DDS) | [v2.11.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.11.0) | [v2.13.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.13.0) |
 | Fast DDS Gen | [eProsima/Fast-DDS-Gen](https://github.com/eProsima/Fast-DDS-Gen) | [v2.5.1](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.5.1) | [v3.0.0](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.0.0) |

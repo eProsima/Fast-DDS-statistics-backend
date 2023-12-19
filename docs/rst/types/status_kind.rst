@@ -73,7 +73,7 @@ Entity's associated |StatusLevel-api| is obtained from all status data. The foll
 |StatusLevel-api|'s are associated with each |StatusKind-api|:
 
 +-------------------------------+-----------------------+
-| |StatusKind-api|              ||StatusLevel-api|'s    |
+| StatusKind                    |StatusLevel's          |
 +===============================+=======================+
 | |PROXY-api|                   | |OK-api|              |
 +-------------------------------+-----------------------+
@@ -85,9 +85,9 @@ Entity's associated |StatusLevel-api| is obtained from all status data. The foll
 +-------------------------------+-----------------------+
 | |LIVELINESS_CHANGED-api|      | |OK-api|              |
 +-------------------------------+-----------------------+
-| |DEADLINE_MISSED-api|         | |OK-api|/|ERROR-api|  |
+| |DEADLINE_MISSED-api|         | |OK-api|/|WARNING-api||
 +-------------------------------+-----------------------+
-| |SAMPLE_LOST-api|             | |OK-api|/|ERROR-api|  |
+| |SAMPLE_LOST-api|             | |OK-api|/|WARNING-api||
 +-------------------------------+-----------------------+
 
 .. .. todo::
