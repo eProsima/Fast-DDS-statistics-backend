@@ -733,6 +733,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         ProxySample& status_data)
@@ -741,6 +742,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         ConnectionListSample& status_data)
@@ -749,6 +751,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         IncompatibleQosSample& status_data)
@@ -757,6 +760,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         InconsistentTopicSample& status_data)
@@ -765,6 +769,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         LivelinessLostSample& status_data)
@@ -773,6 +778,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         LivelinessChangedSample& status_data)
@@ -781,6 +787,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         DeadlineMissedSample& status_data)
@@ -789,6 +796,7 @@ void StatisticsBackend::get_status_data(
 }
 
 template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         SampleLostSample& status_data)
