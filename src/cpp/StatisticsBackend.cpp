@@ -365,7 +365,9 @@ EntityId StatisticsBackend::init_monitor(
         DomainId domain_id,
         DomainListener* domain_listener,
         CallbackMask callback_mask,
-        DataKindMask data_mask)
+        DataKindMask data_mask,
+        std::string app_id,
+        std::string app_metadata)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -394,6 +396,15 @@ EntityId StatisticsBackend::init_monitor(
         participant_qos.transport().use_builtin_transports = false;
     }
 
+    participant_qos.properties().properties().emplace_back(
+        "fastdds.application.id",
+        app_id,
+        "true");
+    participant_qos.properties().properties().emplace_back(
+        "fastdds.application.metadata",
+        app_metadata,
+        "true");
+
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
                    domain_id);
 }
@@ -408,10 +419,12 @@ EntityId StatisticsBackend::init_monitor(
         std::string discovery_server_locators,
         DomainListener* domain_listener,
         CallbackMask callback_mask,
-        DataKindMask data_mask)
+        DataKindMask data_mask,
+        std::string app_id,
+        std::string app_metadata)
 {
     return init_monitor(DEFAULT_ROS2_SERVER_GUIDPREFIX, discovery_server_locators, domain_listener, callback_mask,
-                   data_mask);
+                   data_mask, app_id, app_metadata);
 }
 
 EntityId StatisticsBackend::init_monitor(
@@ -419,7 +432,9 @@ EntityId StatisticsBackend::init_monitor(
         std::string discovery_server_locators,
         DomainListener* domain_listener,
         CallbackMask callback_mask,
-        DataKindMask data_mask)
+        DataKindMask data_mask,
+        std::string app_id,
+        std::string app_metadata)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -439,6 +454,15 @@ EntityId StatisticsBackend::init_monitor(
             std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
     participant_qos.transport().user_transports.push_back(udp_transport);
     participant_qos.transport().use_builtin_transports = false;
+
+    participant_qos.properties().properties().emplace_back(
+        "fastdds.application.id",
+        app_id,
+        "true");
+    participant_qos.properties().properties().emplace_back(
+        "fastdds.application.metadata",
+        app_metadata,
+        "true");
 
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
             eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;

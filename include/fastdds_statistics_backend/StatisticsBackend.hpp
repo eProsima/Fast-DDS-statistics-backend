@@ -29,6 +29,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/utils.hpp>
+#include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -69,6 +70,8 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain.
      * @throws eprosima::statistics_backend::Error if the creation of the monitor fails.
@@ -77,7 +80,9 @@ public:
             DomainId domain,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Starts monitoring the network corresponding to a server.
@@ -99,13 +104,17 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      */
     static EntityId init_monitor(
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Starts monitoring the network corresponding to a server.
@@ -126,6 +135,8 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      */
     static EntityId init_monitor(
@@ -133,7 +144,9 @@ public:
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Restarts a given monitor.
