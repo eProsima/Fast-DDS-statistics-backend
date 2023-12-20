@@ -95,8 +95,24 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
+      - name: Install colcon
+        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
+
       - name: Install Python packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+        with:
+          packages: \
+            sphinx==3.0.3 \
+            breathe==4.19.0 \
+            doc8==0.8.0 \
+            sphinx_rtd_theme==0.4.3 \
+            sphinxcontrib.spelling==5.0.0 \
+            sphinxcontrib-imagehelper==1.1.1 \
+            vcstool \
+            GitPython \
+            setuptools \
+            gcovr==5.2 \
+            tomark
 
       - name: Fetch eProsima dependencies
         run: |
@@ -192,8 +208,24 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
+      - name: Install colcon
+        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
+
       - name: Install Python packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+        with:
+          packages: \
+            sphinx==3.0.3 \
+            breathe==4.19.0 \
+            doc8==0.8.0 \
+            sphinx_rtd_theme==0.4.3 \
+            sphinxcontrib.spelling==5.0.0 \
+            sphinxcontrib-imagehelper==1.1.1 \
+            vcstool \
+            GitPython \
+            setuptools \
+            gcovr==5.2 \
+            tomark
 
       - name: Fetch eProsima dependencies
         run: |
@@ -251,8 +283,24 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
+      - name: Install colcon
+        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
+
       - name: Install Python packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+        with:
+          packages: \
+            sphinx==3.0.3 \
+            breathe==4.19.0 \
+            doc8==0.8.0 \
+            sphinx_rtd_theme==0.4.3 \
+            sphinxcontrib.spelling==5.0.0 \
+            sphinxcontrib-imagehelper==1.1.1 \
+            vcstool \
+            GitPython \
+            setuptools \
+            gcovr==5.2 \
+            tomark
 
       - name: Fetch eProsima dependencies
         run: |
@@ -301,8 +349,24 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
+      - name: Install colcon
+        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
+
       - name: Install Python packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+        with:
+          packages: \
+            sphinx==3.0.3 \
+            breathe==4.19.0 \
+            doc8==0.8.0 \
+            sphinx_rtd_theme==0.4.3 \
+            sphinxcontrib.spelling==5.0.0 \
+            sphinxcontrib-imagehelper==1.1.1 \
+            vcstool \
+            GitPython \
+            setuptools \
+            gcovr==5.2 \
+            tomark
 
       - name: Fetch eProsima dependencies
         run: |
@@ -335,8 +399,24 @@ jobs:
       - name: Install apt packages
         uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
 
+      - name: Install colcon
+        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
+
       - name: Install Python packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-python-packages
+        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+        with:
+          packages: \
+            sphinx==3.0.3 \
+            breathe==4.19.0 \
+            doc8==0.8.0 \
+            sphinx_rtd_theme==0.4.3 \
+            sphinxcontrib.spelling==5.0.0 \
+            sphinxcontrib-imagehelper==1.1.1 \
+            vcstool \
+            GitPython \
+            setuptools \
+            gcovr==5.2 \
+            tomark
 
       - name: Install uncrustify
         run: |

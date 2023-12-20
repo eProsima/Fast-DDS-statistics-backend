@@ -23,6 +23,7 @@
 #include <fastdds_statistics_backend/nlohmann-json/json.hpp>
 #include <fastdds_statistics_backend/types/Bitmask.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 #include <chrono>
 
@@ -141,18 +142,54 @@ enum class EntityKind
 };
 
 /**
- * Indicates the Status of an Entity in Statistics Backend structure
+ * Indicates the Status level in Statistics Backend structure
  */
-enum class EntityStatus
+enum class StatusLevel
 {
     /// Ok entity status
-    OK,
+    OK_STATUS,
 
     /// Warning entity status
-    WARNING,
+    WARNING_STATUS,
 
     /// Error entity status
-    ERROR,
+    ERROR_STATUS,
+};
+
+/**
+ * Indicates the AppId of a participant in Statistics Backend structure
+ */
+enum class AppId
+{
+    /// Unknown App
+    UNKNOWN,
+
+    /// Fast DDS Statistics Backend App
+    FASTDDS_MONITOR,
+
+    /// DDS Router App
+    DDS_ROUTER,
+
+    /// Shapes Demo App
+    SHAPES_DEMO,
+
+    /// Integration Service App
+    INTEGRATION_SERVICE,
+
+    /// Fast DDS Visualizer App
+    FASTDDS_VISUALIZER,
+
+    /// Fast DDS Spy App
+    FASTDDS_SPY,
+
+    /// DDS Recorder App
+    DDS_RECORDER,
+
+    /// DDS Replayer App
+    DDS_REPLAYER,
+
+    /// AML-IP App
+    AML_IP,
 };
 
 /**
@@ -241,6 +278,42 @@ enum class DataKind : int32_t
 };
 
 /**
+ * Indicates the Type of Monitor Service Status Data stored by the Backend
+ */
+enum class StatusKind : int32_t
+{
+    /// Represents no valid status data kind
+    INVALID                     = 0,
+
+    /// Collection of Parameters describing the Proxy Data of that entity.
+    PROXY                       = 1 << 0,
+
+    /// List of connections that this entity is using. Described here in more detail
+    CONNECTION_LIST             = 1 << 1,
+
+    /// Status of the Incompatible QoS of that entity.
+    INCOMPATIBLE_QOS            = 1 << 2,
+
+    /// Status of Inconsistent topics of the topic of that entity.
+    INCONSISTENT_TOPIC          = 1 << 3,
+
+    /// Tracks the status of the number of times that liveliness was lost (writer side).
+    LIVELINESS_LOST             = 1 << 4,
+
+    /// Tracks the status of the number of times that liveliness status changed (reader side).
+    LIVELINESS_CHANGED          = 1 << 5,
+
+    /// The Status of the number of deadlines missed that were registered in that entity.
+    DEADLINE_MISSED             = 1 << 6,
+
+    /// Tracks the number of times that this entity lost samples.
+    SAMPLE_LOST                 = 1 << 7,
+
+    ///
+    STATUSES_SIZE               = 1 << 8,
+};
+
+/**
  * @brief Bitmask of data kinds
  *
  * values of DataKind can be combined with the '|' operator to build the mask:
@@ -284,6 +357,288 @@ enum class StatisticKind
     SUM
 };
 
+
+/** @struct MonitorServiceSample
+ * Base class for all monitor service status samples. It adds the timepoint and status level to the sample
+ *
+ * \sa get_status_data()
+ */
+struct MonitorServiceSample
+{
+    MonitorServiceSample(
+            StatusKind sample_kind = StatusKind::INVALID,
+            StatusLevel sample_status = StatusLevel::OK_STATUS)
+        : kind(sample_kind)
+        , status(sample_status)
+    {
+    }
+
+    virtual ~MonitorServiceSample() = default;
+
+    virtual FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear();
+
+    inline bool operator ==(
+            const MonitorServiceSample& other) const noexcept
+    {
+        return (kind == other.kind && status == other.status && src_ts == other.src_ts);
+    }
+
+    inline bool operator !=(
+            const MonitorServiceSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    StatusKind kind;
+    StatusLevel status;
+    std::chrono::system_clock::time_point src_ts;
+};
+
+
+/** @struct ProxySample
+ * @brief Proxy data sample of an entity.
+ */
+struct ProxySample : MonitorServiceSample
+{
+    ProxySample()
+        : MonitorServiceSample(StatusKind::PROXY)
+    {
+    }
+
+    virtual ~ProxySample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const ProxySample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && entity_proxy == other.entity_proxy);
+    }
+
+    inline bool operator !=(
+            const ProxySample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    std::vector<uint8_t> entity_proxy;
+};
+
+/** @struct ConnectionListSample
+ * Connection list sample of an entity. Each of the elements is a Connection in which the possible values for the ConnectionMode are: intraprocess, data sharing, transport.
+ */
+struct ConnectionListSample : MonitorServiceSample
+{
+    ConnectionListSample()
+        : MonitorServiceSample(StatusKind::CONNECTION_LIST)
+    {
+    }
+
+    virtual ~ConnectionListSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const ConnectionListSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && connection_list == other.connection_list);
+    }
+
+    inline bool operator !=(
+            const ConnectionListSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    std::vector<eprosima::fastdds::statistics::Connection> connection_list;
+};
+
+/** @struct IncompatibleQosSample
+ * Incompatible Qos sample of an entity:
+ *  - DataWriter Incompatible QoS Offered
+ *  - DataReader Incompatible QoS Requested.
+ */
+struct IncompatibleQosSample : MonitorServiceSample
+{
+    IncompatibleQosSample()
+        : MonitorServiceSample(StatusKind::INCOMPATIBLE_QOS)
+    {
+    }
+
+    virtual ~IncompatibleQosSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const IncompatibleQosSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && incompatible_qos_status == other.incompatible_qos_status);
+    }
+
+    inline bool operator !=(
+            const IncompatibleQosSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::IncompatibleQoSStatus_s incompatible_qos_status;
+};
+
+/** @struct InconsistentTopicSample
+ * Inconsistent topic sample of the topic of that entity. Asked to the topic of the requested entity.
+ */
+struct InconsistentTopicSample : MonitorServiceSample
+{
+    InconsistentTopicSample()
+        : MonitorServiceSample(StatusKind::INCONSISTENT_TOPIC)
+    {
+    }
+
+    virtual ~InconsistentTopicSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const InconsistentTopicSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) &&
+               inconsistent_topic_status == other.inconsistent_topic_status);
+    }
+
+    inline bool operator !=(
+            const InconsistentTopicSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::InconsistentTopicStatus_s inconsistent_topic_status;
+};
+
+/** @struct LivelinessLostSample
+ * Liveliness lost sample containing the number of times that liveliness was lost by a DataWriter.
+ */
+struct LivelinessLostSample : MonitorServiceSample
+{
+    LivelinessLostSample()
+        : MonitorServiceSample(StatusKind::LIVELINESS_LOST)
+    {
+    }
+
+    virtual ~LivelinessLostSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const LivelinessLostSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && liveliness_lost_status == other.liveliness_lost_status);
+    }
+
+    inline bool operator !=(
+            const LivelinessLostSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::LivelinessLostStatus_s liveliness_lost_status;
+};
+
+/** @struct LivelinessChangedSample
+ * Liveliness changed sample containing the number of times that liveliness status changed in a DataReader.
+ */
+struct LivelinessChangedSample : MonitorServiceSample
+{
+    LivelinessChangedSample()
+        : MonitorServiceSample(StatusKind::LIVELINESS_CHANGED)
+    {
+    }
+
+    virtual ~LivelinessChangedSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const LivelinessChangedSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) &&
+               liveliness_changed_status == other.liveliness_changed_status);
+    }
+
+    inline bool operator !=(
+            const LivelinessChangedSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::LivelinessChangedStatus_s liveliness_changed_status;
+};
+
+/** @struct DeadlineMissedSample
+ * Deadline missed sample containing the number of deadlines missed that were registered in that entity.
+ */
+struct DeadlineMissedSample : MonitorServiceSample
+{
+    DeadlineMissedSample()
+        : MonitorServiceSample(StatusKind::DEADLINE_MISSED)
+    {
+    }
+
+    virtual ~DeadlineMissedSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const DeadlineMissedSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && deadline_missed_status == other.deadline_missed_status);
+    }
+
+    inline bool operator !=(
+            const DeadlineMissedSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::DeadlineMissedStatus_s deadline_missed_status;
+};
+
+/** @struct SampleLostSample
+ * Sample lost sample containing the number of times that this entity lost samples.
+ */
+struct SampleLostSample : MonitorServiceSample
+{
+    SampleLostSample()
+        : MonitorServiceSample(StatusKind::SAMPLE_LOST)
+    {
+    }
+
+    virtual ~SampleLostSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const SampleLostSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) && sample_lost_status == other.sample_lost_status);
+    }
+
+    inline bool operator !=(
+            const SampleLostSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::SampleLostStatus_s sample_lost_status;
+};
 
 } //namespace statistics_backend
 } //namespace eprosima

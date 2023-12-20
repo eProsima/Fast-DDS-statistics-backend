@@ -36,7 +36,8 @@ bool Entity::is_metatraffic_topic(
         "set_parameters_atomically",
         "describe_parameters",
         "list_parameters",
-        "_fastdds_statistics_"};
+        "_fastdds_statistics_",
+        "_fastdds_monitor_service_"};
 
     std::set<std::string>::iterator it = metatraffic_topics_keywords.begin();
     size_t found;
@@ -60,8 +61,10 @@ DDSEndpoint::DDSEndpoint(
         std::string endpoint_guid, /* "|GUID UNKNOWN|" */
         details::fragile_ptr<DomainParticipant> endpoint_participant, /* nullptr */
         details::fragile_ptr<Topic> endpoint_topic, /* nullptr */
-        EntityStatus status /* EntityStatus::OK */) noexcept
-    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid, status)
+        StatusLevel status, /* StatusLevel::OK_STATUS */
+        AppId endpoint_app_id, /* AppId::UNKNOWN */
+        std::string endpoint_app_metadata /* "" */) noexcept
+    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid, status, endpoint_app_id, endpoint_app_metadata)
     , participant(endpoint_participant)
     , topic(endpoint_topic)
 {

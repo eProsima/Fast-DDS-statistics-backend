@@ -60,12 +60,15 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         EntityId domain_id,
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
-        database::DatabaseDataQueue* data_queue) noexcept
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
+        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
     , database_(database)
     , entity_queue_(entity_queue)
     , data_queue_(data_queue)
+    , monitor_service_status_data_queue_(monitor_service_data_queue)
 {
 }
 
@@ -127,8 +130,9 @@ void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryInfo&& info)
 {
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_status_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -146,7 +150,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     discovery_info.address = get_address(info.info);
     discovery_info.participant_name = info.info.m_participantName.to_string();
 
-    discovery_info.entity_status = EntityStatus::OK;
+    discovery_info.entity_status = StatusLevel::OK_STATUS;
 
     switch (info.status)
     {
@@ -169,6 +173,42 @@ void StatisticsParticipantListener::on_participant_discovery(
             break;
         }
     }
+
+    //Get data from participant discovery info
+    auto get_property_value =
+            [](const fastdds::dds::ParameterPropertyList_t& properties, const std::string& property_name) -> std::string
+            {
+                auto property = std::find_if(
+                    properties.begin(),
+                    properties.end(),
+                    [&](const fastdds::dds::ParameterProperty_t& property)
+                    {
+                        return property.first() == property_name;
+                    });
+                if (property != properties.end())
+                {
+                    return property->second();
+                }
+                return std::string("");
+            };
+
+    discovery_info.host = get_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_host);
+    discovery_info.host = discovery_info.host.empty()? "Unknown" : discovery_info.host;
+
+    discovery_info.user = get_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_user);
+    discovery_info.user = discovery_info.user.empty()? "Unknown" : discovery_info.user;
+
+    discovery_info.process = get_property_value(info.info.m_properties,
+                    eprosima::fastdds::dds::parameter_policy_physical_data_process);
+    discovery_info.process = discovery_info.process.empty()? "Unknown" : discovery_info.process;
+
+    std::string app_id = get_property_value(info.info.m_properties, "fastdds.application.id");
+    auto it = app_id_enum.find(app_id);
+    discovery_info.app_id = it != app_id_enum.end()? it->second : AppId::UNKNOWN;
+
+    discovery_info.app_metadata = get_property_value(info.info.m_properties, "fastdds.application.metadata");
 
     entity_queue_->push(timestamp, discovery_info);
 
@@ -207,15 +247,16 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
-            datawriter_discovery_info.entity_status = EntityStatus::OK;
+            datawriter_discovery_info.entity_status = StatusLevel::OK_STATUS;
             datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queues is processed and restart the data queue
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_status_data_queue_->start_consumer();
 }
 
 void StatisticsParticipantListener::on_subscriber_discovery(
@@ -228,8 +269,9 @@ void StatisticsParticipantListener::on_subscriber_discovery(
         return;
     }
 
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_status_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -266,9 +308,10 @@ void StatisticsParticipantListener::on_subscriber_discovery(
 
     entity_queue_->push(timestamp, discovery_info);
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queue is processed and restart the data queues
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_status_data_queue_->start_consumer();
 }
 
 void StatisticsParticipantListener::on_publisher_discovery(
@@ -279,8 +322,9 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
 
-    // First stop the data queue until the new entity is created
+    // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
+    monitor_service_status_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
 
@@ -317,9 +361,10 @@ void StatisticsParticipantListener::on_publisher_discovery(
 
     entity_queue_->push(timestamp, discovery_info);
 
-    // Wait until the entity queue is processed and restart the data queue
+    // Wait until the entity queue is processed and restart the data queues
     entity_queue_->flush();
     data_queue_->start_consumer();
+    monitor_service_status_data_queue_->start_consumer();
 }
 
 } //namespace database

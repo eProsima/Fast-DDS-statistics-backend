@@ -4,7 +4,8 @@
     "name": "datawriter_name",
     "alias": "datawriter_alias",
     "alive": true,
-    "status": 0,
+    "metatraffic": false,
+    "status": "OK",
     "guid": "01.0f.22.cd.59.64.04.00.02.00.00.00|00.00.01.03",
     "qos":
     {
@@ -132,5 +133,7 @@
         },
         "topic_data": "5b33419a",
         "user_data": "ff00"
-    }
+    },
+    "app_id": "UNKNOWN_APP",
+    "app_metadata": ""
 }

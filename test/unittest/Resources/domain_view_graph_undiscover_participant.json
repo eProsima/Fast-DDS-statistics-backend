@@ -1,0 +1,69 @@
+{
+    "kind": "domain",
+    "domain": "33",
+    "topics":
+    {
+        "5":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
+    "hosts":
+    {
+        "1":
+        {
+            "kind": "host",
+            "metatraffic": false,
+            "alias": "eprosima-host",
+            "status": "OK",
+            "users":
+            {
+                "2":
+                {
+                    "kind": "user",
+                    "metatraffic": false,
+                    "alias": "eprosima",
+                    "status": "OK",
+                    "processes":
+                    {
+                        "8":
+                        {
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "1235",
+                            "pid": "1235",
+                            "status": "OK",
+                            "participants":
+                            {
+                                "9":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "participant_2",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "11":
+                                        {
+                                            "kind": "datareader",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
+                                            "metatraffic": false,
+                                            "alias": "subscriber",
+                                            "status": "OK",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@
 
 #include "fastdds/rtps/common/Guid.h"
 #include "fastdds/rtps/common/Locator.h"
+#include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include "database/entities.hpp"
 
@@ -56,6 +57,46 @@ class Database
 {
 public:
 
+    MOCK_METHOD7(insert_new_participant, EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata));
+
+    MOCK_METHOD7(process_physical_entities, void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids));
+
+    MOCK_METHOD2(is_topic_in_database, bool(
+                const std::string& topic_type,
+                const EntityId& topic_id));
+
+    MOCK_METHOD4(insert_new_topic, EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id));
+
+    MOCK_METHOD10(insert_new_endpoint, EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string>& app_data));
+
     MOCK_METHOD1(insert, EntityId(
                 std::shared_ptr<Entity> entity));
 
@@ -63,6 +104,11 @@ public:
                 const EntityId& domain_id,
                 const EntityId& entity_id,
                 const StatisticsSample& sample));
+
+    MOCK_METHOD3(insert, bool(
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample));
 
     MOCK_METHOD1(erase, void(
                 EntityId & domain_id));
@@ -94,6 +140,9 @@ public:
     MOCK_CONST_METHOD2(get_entity_by_guid, std::pair<EntityId, EntityId>(
                 EntityKind entity_kind,
                 const std::string& guid));
+
+    MOCK_CONST_METHOD1(get_entity_kind_by_guid, EntityKind(
+                const eprosima::fastdds::statistics::detail::GUID_s& guid));
 
     MOCK_CONST_METHOD2(get_entities_by_name, std::vector<std::pair<EntityId, EntityId>>(
                 EntityKind entity_kind,
@@ -129,6 +178,37 @@ public:
             const DatabaseDump& /*dump*/)
     {
     }
+
+    MOCK_METHOD2(init_domain_view_graph, void(
+                const std::string& domain_name,
+                const EntityId& domain_entity_id));
+
+    MOCK_METHOD5(update_participant_in_graph, bool(
+                const EntityId& domain_entity_id,
+                const EntityId& host_entity_id,
+                const EntityId& user_entity_id,
+                const EntityId& process_entity_id,
+                const EntityId& participant_entity_id));
+
+    MOCK_METHOD4(update_endpoint_in_graph, bool(
+                const EntityId& domain_entity_id,
+                const EntityId& participant_entity_id,
+                const EntityId& topic_entity_id,
+                const EntityId& endpoint_entity_id));
+
+    MOCK_METHOD1(regenerate_domain_graph, bool(
+                const EntityId& domain_entity_id));
+
+    MOCK_CONST_METHOD1(get_domain_view_graph, Graph(
+                const EntityId& domain_id));
+
+    MOCK_CONST_METHOD2(update_graph_on_updated_entity, bool(
+                const EntityId& domain_id,
+                const EntityId& entity_id));
+
+    MOCK_CONST_METHOD2(update_entity_status, bool(
+                const EntityId& entity_id,
+                const EntityKind& entity_kind));
 
     int64_t next_id_{0};
 };

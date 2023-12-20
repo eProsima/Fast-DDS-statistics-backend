@@ -29,11 +29,12 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/utils.hpp>
+#include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
 namespace statistics_backend {
 
-class FASTDDS_STATISTICS_BACKEND_DllAPI StatisticsBackend
+class StatisticsBackend
 {
 
 public:
@@ -54,6 +55,7 @@ public:
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_physical_listener(
             PhysicalListener* listener,
             CallbackMask callback_mask = CallbackMask::all(),
@@ -69,15 +71,20 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain.
      * @throws eprosima::statistics_backend::Error if the creation of the monitor fails.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityId init_monitor(
             DomainId domain,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Starts monitoring the network corresponding to a server.
@@ -99,13 +106,18 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityId init_monitor(
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Starts monitoring the network corresponding to a server.
@@ -126,14 +138,19 @@ public:
      * @param domain_listener Listener with the callback to use to inform of events.
      * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
      * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
      * @return The ID of the created statistics Domain.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityId init_monitor(
             std::string discovery_server_guid_prefix,
             std::string discovery_server_locators,
             DomainListener* domain_listener = nullptr,
             CallbackMask callback_mask = CallbackMask::all(),
-            DataKindMask data_mask = DataKindMask::none());
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Restarts a given monitor.
@@ -143,6 +160,7 @@ public:
      *
      * @param monitor_id The entity ID of the monitor to restart.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void restart_monitor(
             EntityId monitor_id);
 
@@ -155,6 +173,7 @@ public:
      * @param monitor_id The entity ID of the monitor to stop.
      * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void stop_monitor(
             EntityId monitor_id);
 
@@ -168,6 +187,7 @@ public:
      *
      * @param monitor_id The entity ID of the monitor to stop.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void clear_monitor(
             EntityId monitor_id);
 
@@ -184,6 +204,7 @@ public:
      * @param data_mask Mask of the data types that will be monitored.
      * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_domain_listener(
             EntityId monitor_id,
             DomainListener* listener = nullptr,
@@ -212,6 +233,7 @@ public:
      *     * if the EntityKind of the Entity with \c entity_id is \c INVALID.
      * @return All entities of type \c entity_type that are related to \c entity_id.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<EntityId> get_entities(
             EntityKind entity_type,
             EntityId entity_id = EntityId::all());
@@ -226,6 +248,7 @@ public:
      * @param entity_id The ID of the entity whose activeness is requested.
      * @return true if active, false otherwise.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static bool is_active(
             EntityId entity_id);
 
@@ -239,6 +262,7 @@ public:
      * @param entity_id The ID of the entity whose metatraffic attribute is requested.
      * @return true if metatraffic, false otherwise.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static bool is_metatraffic(
             EntityId entity_id);
 
@@ -249,6 +273,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      * @return EntityKind of \c entity_id.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityKind get_type(
             EntityId entity_id);
 
@@ -257,9 +282,10 @@ public:
      *
      * @param entity_id The ID of the entity whose status is requested.
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
-     * @return EntityStatus of \c entity_id.
+     * @return StatusLevel of \c entity_id.
      */
-    static EntityStatus get_status(
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static StatusLevel get_status(
             EntityId entity_id);
 
     /**
@@ -268,6 +294,7 @@ public:
      * @param entity_id The entity for which the meta information is retrieved.
      * @return Info object describing the entity's meta information.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static Info get_info(
             EntityId entity_id);
 
@@ -309,6 +336,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
      * @return a vector of \c bin elements with the values of the requested statistic.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
             const std::vector<EntityId>& entity_ids_source,
@@ -354,6 +382,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
      * @return a vector of \c bin elements with the values of the requested statistic.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
             const std::vector<EntityId>& entity_ids,
@@ -378,6 +407,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
      * @return a vector of \c bin elements with the values of the requested statistic.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
             const std::vector<EntityId>& entity_ids_source,
@@ -399,6 +429,7 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if the above preconditions are not met.
      * @return a vector of \c bin elements with the values of the requested statistic.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<StatisticsData> get_data(
             DataKind data_type,
             const std::vector<EntityId>& entity_ids,
@@ -406,11 +437,43 @@ public:
             StatisticKind statistic);
 
     /**
-     * @brief Get the topology graph.
+     * @brief Get monitor service status data.
      *
-     * @return Graph object describing the complete topology of the entities.
+     * Default method is called if StatusKind is invalid.
+     *
+     * @param entity_id The id of the Entity whose status info is requested.
+     * @param status_data Status data to be filled.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *     * if the \c entity_id does not reference a entity contained in the database.
+     *     * if there is no specialization template for the requested StatusKind.
+     *     * if the EntityKind of the Entity with \c entity_id doesn't have the associated \c status_data.
      */
-    static Graph get_graph();
+    template <typename T>
+    static void get_status_data(
+            const EntityId& entity_id,
+            T& status_data);
+
+    /**
+     * @brief Get the domain view graph.
+     *
+     * @param domain_id EntityId from domain whose graph is delivered.
+     * @throws eprosima::statistics_backend::BadParameter if there is no graph for the specified domain id.
+     * @return Graph object describing per domain topology of the entities.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static Graph get_domain_view_graph(
+            const EntityId& domain_id);
+
+    /**
+     * @brief Regenerate graph from data stored in database.
+     *
+     * @param domain_id EntityId from domain whose graph is regenerated.
+     *
+     * @return True if the graph has been regenerated
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static bool regenerate_domain_graph(
+            const EntityId& domain_id);
 
     /**
      * @brief Get a dump of the database.
@@ -419,6 +482,7 @@ public:
      *
      * @return DatabaseDump object representing the backend database.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static DatabaseDump dump_database(
             bool clear);
 
@@ -428,6 +492,7 @@ public:
      * @param filename The name of the file where the database is dumped.
      * @param clear If true, clear all the statistics data of all entities.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void dump_database(
             const std::string& filename,
             bool clear);
@@ -441,6 +506,7 @@ public:
      * @param filename The name of the file from which where the database is loaded.
      * @throws eprosima::statistics_backend::BadParameter if the file does not exist.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void load_database(
             const std::string& filename);
 
@@ -449,10 +515,12 @@ public:
      *
      * @param t_to Timestamp regarding the maximum time to stop removing data.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void clear_statistics_data(
             const Timestamp& t_to = the_end_of_time());
 
     //! Remove all inactive entities from database.
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void clear_inactive_entities();
 
     /**
@@ -468,6 +536,7 @@ public:
      *
      * @pre There are no active monitors. There can be inactive monitors.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void reset();
 
     /**
@@ -523,6 +592,7 @@ public:
      * @sa DataKind
      * @sa get_data
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::vector<std::pair<EntityKind, EntityKind>> get_data_supported_entity_kinds(
             DataKind data_kind);
 
@@ -533,6 +603,7 @@ public:
      * @param alias New alias that will replace the old one.
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
      */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alias(
             EntityId entity_id,
             const std::string& alias);

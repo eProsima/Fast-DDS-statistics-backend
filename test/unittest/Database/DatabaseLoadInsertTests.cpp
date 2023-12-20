@@ -264,8 +264,9 @@ TEST_F(database_load_insert_tests, load_insert)
         for (auto it = db.participants().at(domainIt->first).cbegin();
                 it != db.participants().at(domainIt->first).cend(); ++it)
         {
-            DomainParticipantData insertedData =  db.participants().at(domainIt->first).at(it->first)->data;
-            DomainParticipantData loadedData =  db_loaded.participants().at(domainIt->first).at(it->first)->data;
+            DomainParticipantStatisticsData insertedData =  db.participants().at(domainIt->first).at(it->first)->data;
+            DomainParticipantStatisticsData loadedData =
+                    db_loaded.participants().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(map_compare(insertedData.rtps_packets_sent, loadedData.rtps_packets_sent));
             ASSERT_TRUE(map_compare(insertedData.last_reported_rtps_packets_sent_count,
@@ -295,9 +296,9 @@ TEST_F(database_load_insert_tests, load_insert)
         for (auto it = db.get_dds_endpoints<DataWriter>().at(domainIt->first).cbegin();
                 it != db.get_dds_endpoints<DataWriter>().at(domainIt->first).cend(); ++it)
         {
-            DataWriterData insertedData =
+            DataWriterStatisticsData insertedData =
                     db.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
-            DataWriterData loadedData =
+            DataWriterStatisticsData loadedData =
                     db_loaded.get_dds_endpoints<DataWriter>().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(insertedData.publication_throughput == loadedData.publication_throughput);
@@ -321,9 +322,9 @@ TEST_F(database_load_insert_tests, load_insert)
         for (auto it = db.get_dds_endpoints<DataReader>().at(domainIt->first).cbegin();
                 it != db.get_dds_endpoints<DataReader>().at(domainIt->first).cend(); ++it)
         {
-            DataReaderData insertedData =
+            DataReaderStatisticsData insertedData =
                     db.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
-            DataReaderData loadedData =
+            DataReaderStatisticsData loadedData =
                     db_loaded.get_dds_endpoints<DataReader>().at(domainIt->first).at(it->first)->data;
 
             ASSERT_TRUE(insertedData.subscription_throughput == loadedData.subscription_throughput);

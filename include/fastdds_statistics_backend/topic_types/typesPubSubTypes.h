@@ -46,6 +46,8 @@ namespace eprosima
             namespace detail
             {
 
+
+
                 #ifndef SWIG
                 namespace detail {
 
@@ -188,6 +190,8 @@ namespace eprosima
                     }
 
                 };
+
+
 
                 #ifndef SWIG
                 namespace detail {
@@ -332,6 +336,8 @@ namespace eprosima
 
                 };
 
+
+
                 #ifndef SWIG
                 namespace detail {
 
@@ -474,6 +480,8 @@ namespace eprosima
                     }
 
                 };
+
+
 
                 #ifndef SWIG
                 namespace detail {
@@ -618,6 +626,8 @@ namespace eprosima
 
                 };
 
+
+
                 #ifndef SWIG
                 namespace detail {
 
@@ -760,6 +770,8 @@ namespace eprosima
                     }
 
                 };
+
+
 
                 #ifndef SWIG
                 namespace detail {
@@ -905,6 +917,8 @@ namespace eprosima
                 };
             }
 
+
+
             /*!
              * @brief This class represents the TopicDataType of the type DiscoveryTime defined by the user in the IDL file.
              * @ingroup types
@@ -992,6 +1006,8 @@ namespace eprosima
                 unsigned char* m_keyBuffer;
 
             };
+
+
 
             #ifndef SWIG
             namespace detail {
@@ -1136,6 +1152,8 @@ namespace eprosima
 
             };
 
+
+
             #ifndef SWIG
             namespace detail {
 
@@ -1278,6 +1296,8 @@ namespace eprosima
                 }
 
             };
+
+
 
             #ifndef SWIG
             namespace detail {
@@ -1422,6 +1442,8 @@ namespace eprosima
 
             };
 
+
+
             #ifndef SWIG
             namespace detail {
 
@@ -1564,6 +1586,8 @@ namespace eprosima
                 }
 
             };
+
+
 
             #ifndef SWIG
             namespace detail {
@@ -1708,6 +1732,8 @@ namespace eprosima
 
             };
 
+
+
             #ifndef SWIG
             namespace detail {
 
@@ -1851,6 +1877,8 @@ namespace eprosima
 
             };
 
+
+
             /*!
              * @brief This class represents the TopicDataType of the type PhysicalData defined by the user in the IDL file.
              * @ingroup types
@@ -1938,6 +1966,9 @@ namespace eprosima
                 unsigned char* m_keyBuffer;
 
             };
+
+
+
 
 
         }

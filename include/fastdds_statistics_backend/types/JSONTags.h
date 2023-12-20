@@ -57,11 +57,13 @@ constexpr const char* PARTICIPANT_CONTAINER_TAG     = "participants";
 constexpr const char* DATAWRITER_CONTAINER_TAG      = "datawriters";
 //! Key Tag for container of datareaders
 constexpr const char* DATAREADER_CONTAINER_TAG      = "datareaders";
+//! Key Tag for container of endpoints
+constexpr const char* ENDPOINT_CONTAINER_TAG        = "endpoints";
 //! Key Tag for container of locators
 constexpr const char* LOCATOR_CONTAINER_TAG         = "locators";
 
 /////
-// Entity
+// Entity kind
 
 //! Key Tag for a single host entity
 constexpr const char* HOST_ENTITY_TAG               = "host";
@@ -83,36 +85,54 @@ constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 
 /////
+// Status Level
+
+//! OK status
+constexpr const char* OK_STATUS                        = "OK";
+//! Warning status
+constexpr const char* WARNING_STATUS                   = "WARNING";
+//! Error status
+constexpr const char* ERROR_STATUS                     = "ERROR";
+
+/////
 // Internal info
 
 //! Key tag for the ID of an entity
-constexpr const char* ID_INFO_TAG                   = "id";
+constexpr const char* ID_TAG                   = "id";
 //! Key tag for the EntityKind of an entity
-constexpr const char* KIND_INFO_TAG                 = "kind";
-//! Key tag for the EntityStatus of an entity
-constexpr const char* STATUS_INFO_TAG                 = "status";
+constexpr const char* KIND_TAG                 = "kind";
+//! Key tag for the StatusLevel of an entity
+constexpr const char* STATUS_TAG                 = "status";
 //! Key tag for name of an entity
-constexpr const char* NAME_INFO_TAG                 = "name";
+constexpr const char* NAME_TAG                 = "name";
 //! Key tag for alias of an entity
-constexpr const char* ALIAS_INFO_TAG                 = "alias";
+constexpr const char* ALIAS_TAG                 = "alias";
 //! Key tag for alive status of an entity
-constexpr const char* ALIVE_INFO_TAG                  = "alive";
+constexpr const char* ALIVE_TAG                  = "alive";
 //! Key tag for metatraffic attribute of an entity
-constexpr const char* METATRAFFIC_INFO_TAG          = "metatraffic";
+constexpr const char* METATRAFFIC_TAG          = "metatraffic";
 //! Key tag for process id of a process entity
-constexpr const char* PID_INFO_TAG                  = "pid";
+constexpr const char* PID_TAG                  = "pid";
 //! Key tag for type name of a topic entity
-constexpr const char* DATA_TYPE_INFO_TAG            = "data_type";
+constexpr const char* DATA_TYPE_TAG            = "data_type";
 //! Key tag for GUID of a participant, datawriter or datareader entity
-constexpr const char* GUID_INFO_TAG                 = "guid";
+constexpr const char* GUID_TAG                 = "guid";
 //! Key tag for QoS of a participant, datawriter or datareader entity
-constexpr const char* QOS_INFO_TAG                  = "qos";
+constexpr const char* QOS_TAG                  = "qos";
+//! Key tag for app_id of a participant entity
+constexpr const char* APP_ID_TAG                  = "app_id";
+//! Key tag for app_metadata of a participant entity
+constexpr const char* APP_METADATA_TAG                  = "app_metadata";
 //! Key tag for meta traffic flag of a virtual endpoint
 constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
+
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
+//! Conversion from StatusLevel to string
+constexpr const char* status_level_str[] =
+{OK_STATUS, WARNING_STATUS, ERROR_STATUS};
 
 /////
 // Data container

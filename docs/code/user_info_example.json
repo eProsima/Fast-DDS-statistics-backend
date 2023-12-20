@@ -4,5 +4,6 @@
     "name": "user_name",
     "alias": "user_alias",
     "alive": true,
-    "status": 0
+    "metatraffic": false,
+    "status": "OK"
 }

@@ -163,7 +163,7 @@ struct RTPSData : public Data
 /*
  * Data related to a DomainParticipant
  */
-struct DomainParticipantData : public RTPSData
+struct DomainParticipantStatisticsData : public RTPSData
 {
     // Implement Data::clear virtual method
     using RTPSData::clear;
@@ -221,7 +221,7 @@ struct DomainParticipantData : public RTPSData
 /*
  * Data related to a DataReader
  */
-struct DataReaderData : public Data
+struct DataReaderStatisticsData : public Data
 {
     // Implement Data::clear virtual method
     using Data::clear;
@@ -266,7 +266,7 @@ struct DataReaderData : public Data
 /*
  * Data related to a DataWriter
  */
-struct DataWriterData : public Data
+struct DataWriterStatisticsData : public Data
 {
     // Implement Data::clear virtual method
     using Data::clear;
@@ -350,6 +350,97 @@ struct DataWriterData : public Data
      * EntityId) histories.
      */
     details::MapDataContainer<EntityId, EntityDataSample> history2history_latency;
+};
+
+struct DataWriterMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+    /*
+     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+    /*
+     * Inconsistent Topic Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<InconsistentTopicSample> inconsistent_topic;
+    /*
+     * Liveliness Lost Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<LivelinessLostSample> liveliness_lost;
+    /*
+     * Deadline Missed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<DeadlineMissedSample> deadline_missed;
+};
+
+struct DataReaderMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+    /*
+     * Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<IncompatibleQosSample> incompatible_qos;
+    /*
+     * Inconsistent Topic Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<InconsistentTopicSample> inconsistent_topic;
+    /*
+     * Liveliness Changed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<LivelinessChangedSample> liveliness_changed;
+    /*
+     * Deadline Missed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<DeadlineMissedSample> deadline_missed;
+    /*
+     * Sample Lost Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<SampleLostSample> sample_lost;
+};
+
+struct DomainParticipantMonitorServiceData : public Data
+{
+    // Implement Data::clear virtual method
+    using Data::clear;
+    virtual void clear(
+            const Timestamp& t_to,
+            bool clear_last_reported) override;
+
+    /*
+     * Proxy Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ProxySample> proxy;
+    /*
+     * Connection List Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ConnectionListSample> connection_list;
+
 };
 
 } //namespace database

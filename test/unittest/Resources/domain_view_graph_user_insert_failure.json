@@ -1,0 +1,15 @@
+{
+    "kind": "domain",
+    "domain": "33",
+    "topics":
+    {
+        "3":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld"
+        }
+    },
+    "hosts":
+    {}
+}

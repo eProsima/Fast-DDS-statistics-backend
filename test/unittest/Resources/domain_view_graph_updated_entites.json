@@ -1,0 +1,102 @@
+{
+    "kind": "domain",
+    "domain": "33",
+    "topics":
+    {
+        "5":
+        {
+            "kind": "topic",
+            "metatraffic": false,
+            "alias": "HelloWorld_modified"
+        }
+    },
+    "hosts":
+    {
+        "1":
+        {
+            "kind": "host",
+            "metatraffic": false,
+            "alias": "eprosima-host_modified",
+            "status": "OK",
+            "users":
+            {
+                "2":
+                {
+                    "kind": "user",
+                    "metatraffic": false,
+                    "alias": "eprosima_modified",
+                    "status": "OK",
+                    "processes":
+                    {
+                        "3":
+                        {
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "1234_modified",
+                            "pid": "1234",
+                            "status": "OK",
+                            "participants":
+                            {
+                                "4":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "participant_1_modified",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "7":
+                                        {
+                                            "kind": "datawriter",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
+                                            "metatraffic": false,
+                                            "alias": "publisher_modified",
+                                            "status": "OK",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "8":
+                        {
+                            "kind": "process",
+                            "metatraffic": false,
+                            "alias": "1235",
+                            "pid": "1235",
+                            "status": "OK",
+                            "participants":
+                            {
+                                "9":
+                                {
+                                    "kind": "participant",
+                                    "metatraffic": false,
+                                    "alias": "participant_2",
+                                    "status": "OK",
+                                    "app_id": "UNKNOWN_APP",
+                                    "app_metadata": "",
+                                    "endpoints":
+                                    {
+                                        "11":
+                                        {
+                                            "kind": "datareader",
+                                            "app_id": "UNKNOWN_APP",
+                                            "app_metadata": "",
+                                            "metatraffic": false,
+                                            "alias": "subscriber_modified",
+                                            "status": "OK",
+                                            "topic": "5"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

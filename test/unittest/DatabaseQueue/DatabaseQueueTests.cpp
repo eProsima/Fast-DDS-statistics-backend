@@ -19,16 +19,17 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastrtps/utils/IPLocator.h>
+
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
-#include <topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::fastrtps::rtps;
-
-using StatisticsData = eprosima::fastdds::statistics::Data;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -87,14 +88,14 @@ public:
 };
 
 // Wrapper class to expose the internal attributes of the queue
-class DatabaseDataQueueWrapper : public DatabaseDataQueue
+class DatabaseDataQueueWrapper : public DatabaseDataQueue<eprosima::fastdds::statistics::Data>
 {
 
 public:
 
     DatabaseDataQueueWrapper(
             Database* database)
-        : DatabaseDataQueue(database)
+        : DatabaseDataQueue<eprosima::fastdds::statistics::Data>(database)
     {
     }
 
@@ -146,6 +147,55 @@ public:
 
 };
 
+// Wrapper class to expose the internal attributes of the queue
+class DatabaseMonitorDataQueueWrapper : public DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>
+{
+
+public:
+
+    DatabaseMonitorDataQueueWrapper(
+            Database* database)
+        : DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(database)
+    {
+    }
+
+    const std::queue<queue_item_type> get_foreground_queue()
+    {
+        return *foreground_queue_;
+    }
+
+    const std::queue<queue_item_type> get_background_queue()
+    {
+        return *background_queue_;
+    }
+
+    void do_swap()
+    {
+        swap();
+    }
+
+    /**
+     * @brief Processes one sample and removes it from the front queue
+     *
+     * This is necessary to check exception handling on the consumer
+     * Consumers must be stopped and the queues swapped manually
+     *
+     * @return true if anything was consumed
+     */
+    bool consume_sample()
+    {
+        if (empty())
+        {
+            return false;
+        }
+
+        process_sample();
+        pop();
+        return true;
+    }
+
+};
+
 struct InsertDataArgs
 {
     InsertDataArgs (
@@ -171,6 +221,31 @@ struct InsertDataArgs
                 const StatisticsSample&)> callback_;
 };
 
+struct InsertMonitorServiceDataArgs
+{
+    InsertMonitorServiceDataArgs (
+            std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> func)
+        : callback_(func)
+    {
+    }
+
+    bool insert(
+            const EntityId& domain_id,
+            const EntityId& id,
+            const eprosima::statistics_backend::MonitorServiceSample& sample)
+    {
+        return callback_(domain_id, id, sample);
+    }
+
+    std::function<bool(
+                const EntityId&,
+                const EntityId&,
+                const eprosima::statistics_backend::MonitorServiceSample&)> callback_;
+};
+
 struct InsertEntityArgs
 {
     InsertEntityArgs (
@@ -190,6 +265,216 @@ struct InsertEntityArgs
     std::shared_ptr<Entity> entity_;
 };
 
+struct InsertParticipantArgs
+{
+    InsertParticipantArgs (
+            std::function<EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata)> func)
+        : callback_(func)
+    {
+    }
+
+    EntityId insert(
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const StatusLevel& status,
+            const AppId& app_id,
+            const std::string& app_metadata)
+    {
+        name_ = name;
+        qos_ = qos;
+        guid_ = guid;
+        domain_id_ = domain_id;
+        status_ = status;
+        app_id_ = app_id;
+        app_metadata_ = app_metadata;
+        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata);
+    }
+
+    std::function<EntityId(
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata)> callback_;
+
+    std::string name_;
+    Qos qos_;
+    std::string guid_;
+    EntityId domain_id_;
+    StatusLevel status_;
+    AppId app_id_;
+    std::string app_metadata_;
+};
+
+struct ProcessPhysicalArgs
+{
+    ProcessPhysicalArgs (
+            std::function<void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)> func)
+        : callback_(func)
+    {
+    }
+
+    void process(
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids)
+    {
+        host_name_ = host_name;
+        user_name_ = user_name;
+        process_name_ = process_name;
+        process_pid_ = process_pid;
+        should_link_process_participant_ = should_link_process_participant;
+        participant_id_ = participant_id;
+        physical_entities_ids_ = physical_entities_ids;
+        callback_(host_name, user_name, process_name, process_pid, should_link_process_participant, participant_id,
+                physical_entities_ids);
+    }
+
+    std::function<void(
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)> callback_;
+
+    std::string host_name_;
+    std::string user_name_;
+    std::string process_name_;
+    std::string process_pid_;
+    bool should_link_process_participant_;
+    EntityId participant_id_;
+    std::map<std::string, EntityId> physical_entities_ids_;
+};
+struct InsertTopicArgs
+{
+    InsertTopicArgs (
+            std::function<EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)> func)
+        : callback_(func)
+    {
+    }
+
+    EntityId insert(
+            const std::string& name,
+            const std::string& type_name,
+            const std::string& alias,
+            const EntityId& domain_id)
+    {
+        name_ = name;
+        type_name_ = type_name;
+        alias_ = alias;
+        domain_id_ = domain_id;
+        return callback_(name, type_name, alias, domain_id);
+    }
+
+    std::function<EntityId(
+                const std::string& name,
+                const std::string& type_name,
+                const std::string& alias,
+                const EntityId& domain_id)> callback_;
+
+    std::string name_;
+    std::string type_name_;
+    std::string alias_;
+    EntityId domain_id_;
+
+};
+
+struct InsertEndpointArgs
+{
+    InsertEndpointArgs (
+            std::function<EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)> func)
+        : callback_(func)
+    {
+    }
+
+    EntityId insert(
+            const std::string& endpoint_guid,
+            const std::string& name,
+            const std::string& alias,
+            const Qos& qos,
+            const bool& is_virtual_metatraffic,
+            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+            const EntityKind& kind,
+            const EntityId& participant_id,
+            const EntityId& topic_id,
+            const std::pair<AppId, std::string> app_data)
+    {
+        endpoint_guid_ = endpoint_guid;
+        name_ = name;
+        alias_ = alias;
+        qos_ = qos;
+        is_virtual_metatraffic_ = is_virtual_metatraffic;
+        locators_ = locators;
+        kind_ = kind;
+        participant_id_ = participant_id;
+        topic_id_ = topic_id;
+        app_data_ = app_data;
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id,
+                       topic_id, app_data);
+    }
+
+    std::function<EntityId(
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                const std::pair<AppId, std::string> app_data)> callback_;
+
+    std::string endpoint_guid_;
+    std::string name_;
+    std::string alias_;
+    Qos qos_;
+    bool is_virtual_metatraffic_;
+    eprosima::fastrtps::rtps::RemoteLocatorList locators_;
+    EntityKind kind_;
+    EntityId participant_id_;
+    EntityId topic_id_;
+    std::pair<AppId, std::string> app_data_;
+};
+
 class database_queue_tests : public ::testing::Test
 {
 
@@ -198,10 +483,12 @@ public:
     StrictMock<Database> database;
     DatabaseEntityQueueWrapper entity_queue;
     DatabaseDataQueueWrapper data_queue;
+    DatabaseMonitorDataQueueWrapper monitor_data_queue;
 
     database_queue_tests()
         : entity_queue(&database)
         , data_queue(&database)
+        , monitor_data_queue(&database)
     {
     }
 
@@ -306,17 +593,27 @@ TEST_F(database_queue_tests, push_participant)
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
     EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
     info.domain_id = EntityId(0);
     std::stringstream(participant_guid_str) >> info.guid;
     info.qos = participant_qos;
     info.address = address;
     info.participant_name = participant_name;
-
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+    info.app_id = AppId::UNKNOWN;
+    info.entity_status = StatusLevel::OK_STATUS;
 
     // Participant undiscovery: FAILURE
     {
@@ -324,7 +621,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
@@ -344,7 +641,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
@@ -365,21 +662,60 @@ TEST_F(database_queue_tests, push_participant)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The participant is created and given ID 1
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertParticipantArgs insert_args([&](
+                    const std::string& name,
+                    const Qos& qos,
+                    const std::string& guid,
+                    const EntityId& domain_id,
+                    const StatusLevel& status,
+                    const AppId& app_id,
+                    const std::string& app_metadata)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                    EXPECT_EQ(entity->name, participant_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
+                    EXPECT_EQ(name, participant_name);
+                    EXPECT_EQ(qos, participant_qos);
+                    EXPECT_EQ(guid, participant_guid_str);
+                    EXPECT_EQ(domain_id, EntityId(0));
+                    EXPECT_EQ(status, StatusLevel::OK_STATUS);
+                    EXPECT_EQ(app_id, AppId::UNKNOWN);
+                    EXPECT_EQ(app_metadata, "");
 
                     return EntityId(1);
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1)
-                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
+
+        // Precondition: Host-user-process exist
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
+                    EXPECT_EQ(host_name, hostname);
+                    EXPECT_EQ(user_name, username);
+                    EXPECT_EQ(process_name, processname);
+                    EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(should_link_process_participant, true);
+                    EXPECT_EQ(participant_id, EntityId(1));
+
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+                });
+
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database,
+                update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+                EntityId(1))).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -397,10 +733,42 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+
+        // Precondition: Host-user-process exist
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
+                    EXPECT_EQ(host_name, hostname);
+                    EXPECT_EQ(user_name, username);
+                    EXPECT_EQ(process_name, processname);
+                    EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(should_link_process_participant, false);
+                    EXPECT_EQ(participant_id, EntityId(1));
+
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+                });
+
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+        // Expectation: Do not modify graph nor notify user
+        EXPECT_CALL(database,
+                update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+                EntityId(1))).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -418,10 +786,42 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
+
+        // Precondition: Host-user-process exist
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
+                    EXPECT_EQ(host_name, hostname);
+                    EXPECT_EQ(user_name, username);
+                    EXPECT_EQ(process_name, processname);
+                    EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(should_link_process_participant, false);
+                    EXPECT_EQ(participant_id, EntityId(1));
+
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+                });
+
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database,
+                update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+                EntityId(1))).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -433,7 +833,6 @@ TEST_F(database_queue_tests, push_participant)
         entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
-
     // Participant discovery: THROWS
     {
         // Precondition: The participant does not exist
@@ -441,21 +840,28 @@ TEST_F(database_queue_tests, push_participant)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The participant creation throws
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity) -> EntityId
+        InsertParticipantArgs insert_args([&](
+                    const std::string& name,
+                    const Qos& qos,
+                    const std::string& guid,
+                    const EntityId& domain_id,
+                    const StatusLevel& status,
+                    const AppId& app_id,
+                    const std::string& app_metadata) -> EntityId
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::PARTICIPANT);
-                    EXPECT_EQ(entity->name, participant_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->qos, participant_qos);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->domain, domain);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DomainParticipant>(entity)->process, nullptr);
+                    EXPECT_EQ(name, participant_name);
+                    EXPECT_EQ(qos, participant_qos);
+                    EXPECT_EQ(guid, participant_guid_str);
+                    EXPECT_EQ(domain_id, EntityId(0));
+                    EXPECT_EQ(status, StatusLevel::OK_STATUS);
+                    EXPECT_EQ(app_id, AppId::UNKNOWN);
+                    EXPECT_EQ(app_metadata, "");
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1)
-                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
@@ -469,6 +875,477 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_NO_THROW(entity_queue.consume_sample());
         entity_queue.start_consumer();
     }
+}
+
+TEST_F(database_queue_tests, push_participant_participant_exists)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname;
+
+    {
+        // Precondition: The participant exists
+        EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+                .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+        EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+        // Precondition: Host-user-process exist
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
+                    EXPECT_EQ(host_name, hostname);
+                    EXPECT_EQ(user_name, username);
+                    EXPECT_EQ(process_name, processname);
+                    EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(should_link_process_participant, false);
+                    EXPECT_EQ(participant_id, EntityId(1));
+
+                    physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                    physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+                });
+
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database,
+                update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+                EntityId(1))).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(0);
+
+        // Expectations: Request the backend to notify user (if needed)
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+                on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+                details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+        // Add to the queue and wait to be processed
+        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+        entity_queue.push(timestamp, info);
+        entity_queue.flush();
+    }
+}
+
+TEST_F(database_queue_tests, push_participant_missing_physical_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+
+    // Precondition: The participant exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: Host or user or process are created
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, hostname);
+                EXPECT_EQ(user_name, username);
+                EXPECT_EQ(process_name, processname);
+                EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+            EntityId(1))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    entity_queue.push(timestamp, info);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_process_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+
+    // Precondition: The participant exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: The process creation throws
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, hostname);
+                EXPECT_EQ(user_name, username);
+                EXPECT_EQ(process_name, processname);
+                EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+
+                throw BadParameter("Error");
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+    // Expectation: Do not dodify graph nor notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(),
+            EntityId(1))).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    entity_queue.push(timestamp, info);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_user_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+
+    // Precondition: The participant exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: The host creation throws
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, hostname);
+                EXPECT_EQ(user_name, username);
+                EXPECT_EQ(process_name, processname);
+                EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+
+                throw BadParameter("Error");
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+    // Expectation: Do not modify graph nor notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(2), EntityId(), EntityId(),
+            EntityId(1))).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    entity_queue.push(timestamp, info);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_host_insert_throws)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::stringstream ss;
+    ss << processname << ":" << pid;
+    std::string processname_pid = ss.str();
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+
+    // Precondition: The participant exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: The host creation throws
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, hostname);
+                EXPECT_EQ(user_name, username);
+                EXPECT_EQ(process_name, processname);
+                EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                static_cast<void>(physical_entities_ids);
+
+                throw BadParameter("Error");
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+
+    // Expectation: Do not modify graph nor notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(), EntityId(), EntityId(),
+            EntityId(1))).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    entity_queue.push(timestamp, info);
+    entity_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Create the participant info
+    std::string participant_name = "participant name";
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    Qos participant_qos;
+    std::string address = "127.0.0.1";
+
+    std::string processname = "1234";
+    std::string pid = processname;
+    std::string username = "user";
+    std::string hostname = "host";
+
+    // Build the process name
+    std::string processname_pid = processname;
+
+    EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
+    info.domain_id = EntityId(0);
+    std::stringstream(participant_guid_str) >> info.guid;
+    info.qos = participant_qos;
+    info.address = address;
+    info.participant_name = participant_name;
+    info.host = hostname;
+    info.user = username;
+    info.process = processname_pid;
+
+    // Precondition: The participant exists
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+
+    // Expectation: The process is created and given ID 4
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
+                EXPECT_EQ(host_name, hostname);
+                EXPECT_EQ(user_name, username);
+                EXPECT_EQ(process_name, processname);
+                EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(should_link_process_participant, false);
+                EXPECT_EQ(participant_id, EntityId(1));
+
+                physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
+                physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
+                physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
+
+            });
+
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+            .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
+
+    // Expectation: Modify graph and notify user
+    EXPECT_CALL(database,
+            update_participant_in_graph(EntityId(0), EntityId(2), EntityId(3), EntityId(4),
+            EntityId(1))).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
+
+    // Expectations: Request the backend to notify user (if needed)
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_domain_entity_discovery(EntityId(0),  EntityId(1), EntityKind::PARTICIPANT,
+            details::StatisticsBackendData::DISCOVERY)).Times(1);
+
+    // Add to the queue and wait to be processed
+    info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    entity_queue.push(timestamp, info);
+    entity_queue.flush();
 }
 
 TEST_F(database_queue_tests, push_datawriter)
@@ -497,43 +1374,20 @@ TEST_F(database_queue_tests, push_datawriter)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
 
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(2);
 
     // Precondition: The topic exists and has ID 2
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic));
-
-    // Precondition: The locators exist and have ID 100 and 101
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
-            .WillRepeatedly(Return(ulocator));
-
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(101)))));
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
-            .WillRepeatedly(Return(mlocator));
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(true));
 
     // Datawriter undiscovery: FAILURE
     {
@@ -541,7 +1395,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -559,7 +1413,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
 
@@ -578,19 +1432,41 @@ TEST_F(database_queue_tests, push_datawriter)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The datawriter is created and given ID 3
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertEndpointArgs insert_datawriter_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                    EXPECT_EQ(entity->name, datawriter_name);
-                    EXPECT_EQ(entity->alias, datawriter_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+                    EXPECT_EQ(endpoint_guid, datawriter_guid_str);
+                    EXPECT_EQ(name, datawriter_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datawriter_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -612,10 +1488,14 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -633,10 +1513,14 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -655,20 +1539,37 @@ TEST_F(database_queue_tests, push_datawriter)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The writer creation throws
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity) -> EntityId
+        InsertEndpointArgs insert_datawriter_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data) -> EntityId
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                    EXPECT_EQ(entity->name, datawriter_name);
-                    EXPECT_EQ(entity->alias, datawriter_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+                    EXPECT_EQ(endpoint_guid, datawriter_guid_str);
+                    EXPECT_EQ(name, datawriter_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datawriter_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1)
-                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
@@ -710,39 +1611,17 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
 
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The locators exist and have ID 100 and 101
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
-            .WillRepeatedly(Return(ulocator));
-
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(101)))));
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
-            .WillRepeatedly(Return(mlocator));
 
     // Datawriter discovery: SUCCESS
     {
@@ -751,33 +1630,59 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The topic is created and given ID 2
-        InsertEntityArgs topic_insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertTopicArgs insert_topic_args([&](
+                    const std::string& name,
+                    const std::string& type_name,
+                    const std::string& alias,
+                    const EntityId& domain_id)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                    EXPECT_EQ(entity->name, topic_name);
-                    EXPECT_EQ(entity->alias, topic_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+                    EXPECT_EQ(name, topic_name);
+                    EXPECT_EQ(type_name, type_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(domain_id, EntityId(0));
 
                     return EntityId(2);
                 });
 
+        EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
         // Expectation: The datawriter is created and given ID 3
-        InsertEntityArgs writer_insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertEndpointArgs insert_datawriter_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                    EXPECT_EQ(entity->name, datawriter_name);
-                    EXPECT_EQ(entity->alias, datawriter_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
+                    EXPECT_EQ(endpoint_guid, datawriter_guid_str);
+                    EXPECT_EQ(name, datawriter_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datawriter_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAWRITER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(2)
-                .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -785,133 +1690,6 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::TOPIC,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        // Add to the queue and wait to be processed
-        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
-        entity_queue.push(timestamp, info);
-        entity_queue.flush();
-    }
-}
-
-TEST_F(database_queue_tests, push_datawriter_locator_does_not_exist)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-
-    // Create the writer info
-    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
-    Qos datawriter_qos;
-    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::string topic_name = "topic_name";
-    std::string type_name = "type_name";
-    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
-    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
-
-    EntityDiscoveryInfo info(EntityKind::DATAWRITER);
-    info.domain_id = EntityId(0);
-    std::stringstream(datawriter_guid_str) >> info.guid;
-    info.qos = datawriter_qos;
-    info.topic_name = topic_name;
-    info.type_name = type_name;
-    Locator_t unicast_locator;
-    std::stringstream(unicast_locator_str) >> unicast_locator;
-    info.locators.add_unicast_locator(unicast_locator);
-    Locator_t multicast_locator;
-    std::stringstream(multicast_locator_str) >> multicast_locator;
-    info.locators.add_multicast_locator(multicast_locator);
-
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
-    // Precondition: The participant exists and has ID 1
-    std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
-
-    // Precondition: The topic exists and has ID 2
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic));
-
-    // Precondition: The locators do not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Datawriter discovery: SUCCESS
-    {
-        // Precondition: The writer does not exist
-        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
-                .WillOnce(Throw(BadParameter("Error")));
-
-        // Expectation: The locator is created and given ID 100
-        InsertEntityArgs unicast_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                    EXPECT_EQ(entity->name, unicast_locator_str);
-                    EXPECT_EQ(entity->alias, unicast_locator_str);
-
-                    return EntityId(100);
-                });
-
-        // Expectation: The locator is created and given ID 101
-        InsertEntityArgs multicast_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                    EXPECT_EQ(entity->name, multicast_locator_str);
-                    EXPECT_EQ(entity->alias, multicast_locator_str);
-
-                    return EntityId(101);
-                });
-
-        // Expectation: The datawriter is created and given ID 3
-        InsertEntityArgs writer_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAWRITER);
-                    EXPECT_EQ(entity->name, datawriter_name);
-                    EXPECT_EQ(entity->alias, datawriter_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->guid, datawriter_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataWriter>(entity)->qos, datawriter_qos);
-
-                    return EntityId(3);
-                });
-
-        EXPECT_CALL(database, insert(_)).Times(3)
-                .WillOnce(Invoke(&unicast_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&writer_insert_args, &InsertEntityArgs::insert));
-
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
-
-        // Expectations: Request the backend to notify user (if needed)
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
                 details::StatisticsBackendData::DISCOVERY))
                 .Times(1);
 
@@ -953,43 +1731,20 @@ TEST_F(database_queue_tests, push_datareader)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
 
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(2);
 
     // Precondition: The topic exists and has ID 2
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic));
-
-    // Precondition: The locators exist and have ID 100 and 101
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
-            .WillRepeatedly(Return(ulocator));
-
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(101)))));
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
-            .WillRepeatedly(Return(mlocator));
+    EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(true));
 
     // Datareader undiscovery: FAILURE
     {
@@ -997,7 +1752,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -1015,7 +1770,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the datareader is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
@@ -1035,19 +1790,41 @@ TEST_F(database_queue_tests, push_datareader)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The datareader is created and given ID 3
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertEndpointArgs insert_datareader_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                    EXPECT_EQ(entity->name, datareader_name);
-                    EXPECT_EQ(entity->alias, datareader_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+                    EXPECT_EQ(endpoint_guid, datareader_guid_str);
+                    EXPECT_EQ(name, datareader_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datareader_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1).WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1069,10 +1846,14 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(0);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1090,10 +1871,14 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert(_)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
@@ -1112,20 +1897,37 @@ TEST_F(database_queue_tests, push_datareader)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The reader creation throws
-        InsertEntityArgs insert_args([&](
-                    std::shared_ptr<Entity> entity) -> EntityId
+        InsertEndpointArgs insert_datareader_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data) -> EntityId
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                    EXPECT_EQ(entity->name, datareader_name);
-                    EXPECT_EQ(entity->alias, datareader_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+                    EXPECT_EQ(endpoint_guid, datareader_guid_str);
+                    EXPECT_EQ(name, datareader_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datareader_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(1)
-                .WillOnce(Invoke(&insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_entity_discovery(_, _, _, _)).Times(0);
@@ -1167,39 +1969,17 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
 
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
+    // TODO: Remove when endpoint gets app data from discovery info
+    EXPECT_CALL(database, get_entity(_)).Times(1);
 
     // Precondition: The topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The locators exist and have ID 100 and 101
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(100)))));
-    EXPECT_CALL(database, get_entity(EntityId(100))).Times(AnyNumber())
-            .WillRepeatedly(Return(ulocator));
-
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(101)))));
-    EXPECT_CALL(database, get_entity(EntityId(101))).Times(AnyNumber())
-            .WillRepeatedly(Return(mlocator));
 
     // Datareader discovery: SUCCESS
     {
@@ -1208,33 +1988,59 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                 .WillOnce(Throw(BadParameter("Error")));
 
         // Expectation: The topic is created and given ID 2
-        InsertEntityArgs topic_insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertTopicArgs insert_topic_args([&](
+                    const std::string& name,
+                    const std::string& type_name,
+                    const std::string& alias,
+                    const EntityId& domain_id)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::TOPIC);
-                    EXPECT_EQ(entity->name, topic_name);
-                    EXPECT_EQ(entity->alias, topic_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<Topic>(entity)->data_type, type_name);
+                    EXPECT_EQ(name, topic_name);
+                    EXPECT_EQ(type_name, type_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(domain_id, EntityId(0));
 
                     return EntityId(2);
                 });
 
+        EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
         // Expectation: The datareader is created and given ID 3
-        InsertEntityArgs reader_insert_args([&](
-                    std::shared_ptr<Entity> entity)
+        InsertEndpointArgs insert_datareader_args([&](
+                    const std::string& endpoint_guid,
+                    const std::string& name,
+                    const std::string& alias,
+                    const Qos& qos,
+                    const bool& is_virtual_metatraffic,
+                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const EntityKind& kind,
+                    const EntityId& participant_id,
+                    const EntityId& topic_id,
+                    const std::pair<AppId, std::string> app_data)
                 {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                    EXPECT_EQ(entity->name, datareader_name);
-                    EXPECT_EQ(entity->alias, datareader_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
+                    EXPECT_EQ(endpoint_guid, datareader_guid_str);
+                    EXPECT_EQ(name, datareader_name);
+                    EXPECT_EQ(alias, "");
+                    EXPECT_EQ(qos, datareader_qos);
+                    EXPECT_EQ(is_virtual_metatraffic, false);
+                    EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
+                    EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+
+                    EXPECT_EQ(kind, EntityKind::DATAREADER);
+                    EXPECT_EQ(participant_id, EntityId(1));
+                    EXPECT_EQ(topic_id, EntityId(2));
+
+                    static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert(_)).Times(2)
-                .WillOnce(Invoke(&topic_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+                .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Modify graph and notify user
+        EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
+        EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(_)).Times(1);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1242,133 +2048,6 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(2), EntityKind::TOPIC,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAREADER,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        // Add to the queue and wait to be processed
-        info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
-        entity_queue.push(timestamp, info);
-        entity_queue.flush();
-    }
-}
-
-TEST_F(database_queue_tests, push_datareader_locator_does_not_exist)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-
-    // Create the reader info
-    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
-    Qos datareader_qos;
-    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string topic_name = "topic_name";
-    std::string type_name = "type_name";
-    std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
-    std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
-
-    EntityDiscoveryInfo info(EntityKind::DATAREADER);
-    info.domain_id = EntityId(0);
-    std::stringstream(datareader_guid_str) >> info.guid;
-    info.qos = datareader_qos;
-    info.topic_name = topic_name;
-    info.type_name = type_name;
-    Locator_t unicast_locator;
-    std::stringstream(unicast_locator_str) >> unicast_locator;
-    info.locators.add_unicast_locator(unicast_locator);
-    Locator_t multicast_locator;
-    std::stringstream(multicast_locator_str) >> multicast_locator;
-    info.locators.add_multicast_locator(multicast_locator);
-
-    // Precondition: The domain exists and has ID 0
-    std::shared_ptr<Domain> domain;
-    EXPECT_CALL(database, get_entity(EntityId(0))).Times(AnyNumber())
-            .WillRepeatedly(Return(domain));
-
-    // Precondition: The participant exists and has ID 1
-    std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
-    std::shared_ptr<DomainParticipant> participant = std::make_shared<DomainParticipant>(
-        participant_name, Qos(), participant_guid_str, nullptr, domain);
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-    EXPECT_CALL(database, get_entity(EntityId(1))).Times(AnyNumber())
-            .WillRepeatedly(Return(participant));
-
-    // Precondition: The topic exists and has ID 2
-    std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, type_name, domain);
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillRepeatedly(Return(topic));
-
-    // Precondition: The locators do not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, unicast_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::LOCATOR, multicast_locator_str)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Datareader discovery: SUCCESS
-    {
-        // Precondition: The reader does not exist
-        EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
-                .WillOnce(Throw(BadParameter("Error")));
-
-        // Expectation: The locator is created and given ID 100
-        InsertEntityArgs unicast_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                    EXPECT_EQ(entity->name, unicast_locator_str);
-                    EXPECT_EQ(entity->alias, unicast_locator_str);
-
-                    return EntityId(100);
-                });
-
-        // Expectation: The locator is created and given ID 101
-        InsertEntityArgs multicast_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::LOCATOR);
-                    EXPECT_EQ(entity->name, multicast_locator_str);
-                    EXPECT_EQ(entity->alias, multicast_locator_str);
-
-                    return EntityId(101);
-                });
-
-        // Expectation: The datareader is created and given ID 3
-        InsertEntityArgs reader_insert_args([&](
-                    std::shared_ptr<Entity> entity)
-                {
-                    EXPECT_EQ(entity->kind, EntityKind::DATAREADER);
-                    EXPECT_EQ(entity->name, datareader_name);
-                    EXPECT_EQ(entity->alias, datareader_name);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->guid, datareader_guid_str);
-                    EXPECT_EQ(std::dynamic_pointer_cast<DataReader>(entity)->qos, datareader_qos);
-
-                    return EntityId(3);
-                });
-
-        EXPECT_CALL(database, insert(_)).Times(3)
-                .WillOnce(Invoke(&unicast_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&multicast_insert_args, &InsertEntityArgs::insert))
-                .WillOnce(Invoke(&reader_insert_args, &InsertEntityArgs::insert));
-
-        // Expectations: The status will be updated
-        EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
-
-        // Expectations: Request the backend to notify user (if needed)
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_physical_entity_discovery(EntityId(100), EntityKind::LOCATOR,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
-
-        EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-                on_physical_entity_discovery(EntityId(101), EntityKind::LOCATOR,
                 details::StatisticsBackendData::DISCOVERY))
                 .Times(1);
 
@@ -1395,25 +2074,25 @@ TEST_F(database_queue_tests, push_history_latency)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    DatabaseDataQueueWrapper::StatisticsWriterReaderData inner_data;
     inner_data.data(1.0);
     inner_data.writer_guid(writer_guid);
     inner_data.reader_guid(reader_guid);
@@ -1444,7 +2123,7 @@ TEST_F(database_queue_tests, push_history_latency)
                 EXPECT_EQ(dynamic_cast<const HistoryLatencySample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -1467,25 +2146,25 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    DatabaseDataQueueWrapper::StatisticsWriterReaderData inner_data;
     inner_data.data(1.0);
     inner_data.writer_guid(writer_guid);
     inner_data.reader_guid(reader_guid);
@@ -1503,7 +2182,7 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is not called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -1524,25 +2203,25 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsWriterReaderData inner_data;
+    DatabaseDataQueueWrapper::StatisticsWriterReaderData inner_data;
     inner_data.data(1.0);
     inner_data.writer_guid(writer_guid);
     inner_data.reader_guid(reader_guid);
@@ -1560,7 +2239,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is not called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -1575,26 +2254,38 @@ TEST_F(database_queue_tests, push_network_latency)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 0;
+    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    uint16_t src_locator_t_physical_port = 0;
+    uint16_t src_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+    IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+    uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 2048;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
-    DatabaseDataQueue::StatisticsLocator src_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
     src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
     // Build the destination locator
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    DatabaseDataQueueWrapper::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
     inner_data.dst_locator(dst_locator);
@@ -1624,7 +2315,7 @@ TEST_F(database_queue_tests, push_network_latency)
                 EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -1641,26 +2332,38 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 0;
+    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    uint16_t src_locator_t_physical_port = 0;
+    uint16_t src_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+    IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+    uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
-    DatabaseDataQueue::StatisticsLocator src_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
     src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
     // Build the destination locator
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    DatabaseDataQueueWrapper::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
     inner_data.dst_locator(dst_locator);
@@ -1678,7 +2381,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -1693,26 +2396,38 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 1;
+    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    uint16_t src_locator_t_physical_port = 1;
+    uint16_t src_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+    IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+    uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
-    DatabaseDataQueue::StatisticsLocator src_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
     src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
     // Build the destination locator
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    DatabaseDataQueueWrapper::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
     inner_data.dst_locator(dst_locator);
@@ -1729,7 +2444,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -1744,26 +2459,38 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    uint32_t src_locator_port = 0;
+    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    uint16_t src_locator_t_physical_port = 0;
+    uint16_t src_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+    IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+    uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
-    DatabaseDataQueue::StatisticsLocator src_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator src_locator;
     src_locator.kind(LOCATOR_KIND_TCPv4);
     src_locator.port(src_locator_port);
     src_locator.address(src_locator_address);
 
     // Build the destination locator
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsLocator2LocatorData inner_data;
+    DatabaseDataQueueWrapper::StatisticsLocator2LocatorData inner_data;
     inner_data.data(1.0);
     inner_data.src_locator(src_locator);
     inner_data.dst_locator(dst_locator);
@@ -1796,7 +2523,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
                 EXPECT_EQ(dynamic_cast<const NetworkLatencySample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: the remote locator is created and given ID 2
@@ -1830,16 +2557,16 @@ TEST_F(database_queue_tests, push_publication_throughput)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(writer_guid);
 
@@ -1864,7 +2591,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
                 EXPECT_EQ(dynamic_cast<const PublicationThroughputSample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -1885,16 +2612,16 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(writer_guid);
 
@@ -1907,7 +2634,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -1926,16 +2653,16 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(reader_guid);
 
@@ -1960,7 +2687,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
                 EXPECT_EQ(dynamic_cast<const SubscriptionThroughputSample&>(sample).data, 1.0);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -1972,7 +2699,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
     data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
+TEST_F(database_queue_tests, push_subscription_throughput_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
@@ -1981,16 +2708,16 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityData inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityData inner_data;
     inner_data.data(1.0);
     inner_data.guid(reader_guid);
 
@@ -2003,7 +2730,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reder)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2020,27 +2747,34 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2088,7 +2822,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -2110,27 +2844,34 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2151,7 +2892,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
             std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2168,27 +2909,34 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2251,7 +2999,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesSentSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -2273,27 +3021,34 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2341,7 +3096,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -2363,27 +3118,34 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2404,7 +3166,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
             std::make_pair(EntityId(0), EntityId(2)))));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2421,27 +3183,34 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2504,7 +3273,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
                 EXPECT_EQ(dynamic_cast<const RtpsBytesLostSample&>(sample).remote_locator, 2);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(2)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(2)
             .WillOnce(Invoke(&args1, &InsertDataArgs::insert))
             .WillOnce(Invoke(&args2, &InsertDataArgs::insert));
 
@@ -2519,32 +3288,40 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     data_queue.flush();
 }
 
+//TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It passes.
 TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 {
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2571,32 +3348,40 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
             inner_data), Error);
 }
 
+//TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It fails.
 TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
 {
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    uint32_t dst_locator_port = 2048;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:2048";
+
+    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    uint16_t dst_locator_t_physical_port = 2048;
+    uint16_t dst_locator_t_logical_port = 0;
+    IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    uint32_t dst_locator_port = dst_locator_t.port;
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
+            std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the locator address
-    DatabaseDataQueue::StatisticsLocator dst_locator;
+    DatabaseDataQueueWrapper::StatisticsLocator dst_locator;
     dst_locator.kind(LOCATOR_KIND_TCPv4);
     dst_locator.port(dst_locator_port);
     dst_locator.address(dst_locator_address);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntity2LocatorTraffic inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntity2LocatorTraffic inner_data;
     inner_data.src_guid(writer_guid);
     inner_data.dst_locator(dst_locator);
     inner_data.packet_count(1024);
@@ -2631,16 +3416,16 @@ TEST_F(database_queue_tests, push_resent_datas)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -2665,7 +3450,7 @@ TEST_F(database_queue_tests, push_resent_datas)
                 EXPECT_EQ(dynamic_cast<const ResentDataSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -2686,16 +3471,16 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -2708,7 +3493,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2727,16 +3512,16 @@ TEST_F(database_queue_tests, push_heartbeat_count)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -2761,7 +3546,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
                 EXPECT_EQ(dynamic_cast<const HeartbeatCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -2782,16 +3567,16 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -2804,7 +3589,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2823,16 +3608,16 @@ TEST_F(database_queue_tests, push_acknack_count)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -2857,7 +3642,7 @@ TEST_F(database_queue_tests, push_acknack_count)
                 EXPECT_EQ(dynamic_cast<const AcknackCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -2878,16 +3663,16 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -2900,7 +3685,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -2919,16 +3704,16 @@ TEST_F(database_queue_tests, push_nackfrag_count)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -2953,7 +3738,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
                 EXPECT_EQ(dynamic_cast<const NackfragCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -2974,16 +3759,16 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
     std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
-    DatabaseDataQueue::StatisticsGuidPrefix reader_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId reader_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
     reader_entity_id.value(reader_id);
-    DatabaseDataQueue::StatisticsGuid reader_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
     reader_guid.guidPrefix(reader_prefix);
     reader_guid.entityId(reader_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(reader_guid);
     inner_data.count(1024);
 
@@ -2996,7 +3781,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3015,16 +3800,16 @@ TEST_F(database_queue_tests, push_gap_count)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -3049,7 +3834,7 @@ TEST_F(database_queue_tests, push_gap_count)
                 EXPECT_EQ(dynamic_cast<const GapCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -3070,16 +3855,16 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -3092,7 +3877,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3111,16 +3896,16 @@ TEST_F(database_queue_tests, push_data_count)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -3145,7 +3930,7 @@ TEST_F(database_queue_tests, push_data_count)
                 EXPECT_EQ(dynamic_cast<const DataCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -3166,16 +3951,16 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(writer_guid);
     inner_data.count(1024);
 
@@ -3188,7 +3973,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3207,16 +3992,16 @@ TEST_F(database_queue_tests, push_pdp_count)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -3241,7 +4026,7 @@ TEST_F(database_queue_tests, push_pdp_count)
                 EXPECT_EQ(dynamic_cast<const PdpCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -3262,16 +4047,16 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -3284,7 +4069,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3303,16 +4088,16 @@ TEST_F(database_queue_tests, push_edp_count)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -3337,7 +4122,7 @@ TEST_F(database_queue_tests, push_edp_count)
                 EXPECT_EQ(dynamic_cast<const EdpCountSample&>(sample).count, 1024u);
             });
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -3358,16 +4143,16 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
     std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsEntityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsEntityCount inner_data;
     inner_data.guid(participant_guid);
     inner_data.count(1024);
 
@@ -3380,7 +4165,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3406,25 +4191,25 @@ TEST_F(database_queue_tests, push_discovery_times)
             eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the remote GUID
-    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix remote_prefix;
     remote_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId remote_entity_id;
     remote_entity_id.value(entity_id);
-    DatabaseDataQueue::StatisticsGuid remote_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid remote_guid;
     remote_guid.guidPrefix(remote_prefix);
     remote_guid.entityId(remote_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    DatabaseDataQueueWrapper::StatisticsDiscoveryTime inner_data;
     inner_data.local_participant_guid(participant_guid);
     inner_data.remote_entity_guid(remote_guid);
     inner_data.time(discovery_time);
@@ -3459,7 +4244,7 @@ TEST_F(database_queue_tests, push_discovery_times)
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
             on_data_available(EntityId(0), EntityId(1), DataKind::DISCOVERY_TIME)).Times(1);
 
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Add to the queue and wait to be processed
@@ -3479,25 +4264,25 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the remote GUID
-    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix remote_prefix;
     remote_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId remote_entity_id;
     remote_entity_id.value(entity_id);
-    DatabaseDataQueue::StatisticsGuid remote_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid remote_guid;
     remote_guid.guidPrefix(remote_prefix);
     remote_guid.entityId(remote_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    DatabaseDataQueueWrapper::StatisticsDiscoveryTime inner_data;
     inner_data.local_participant_guid(participant_guid);
     inner_data.remote_entity_guid(remote_guid);
     inner_data.time(discovery_time);
@@ -3515,7 +4300,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(2))));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3537,25 +4322,25 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
     std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the participant GUID
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
     // Build the remote GUID
-    DatabaseDataQueue::StatisticsGuidPrefix remote_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix remote_prefix;
     remote_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId remote_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId remote_entity_id;
     remote_entity_id.value(entity_id);
-    DatabaseDataQueue::StatisticsGuid remote_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid remote_guid;
     remote_guid.guidPrefix(remote_prefix);
     remote_guid.entityId(remote_entity_id);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsDiscoveryTime inner_data;
+    DatabaseDataQueueWrapper::StatisticsDiscoveryTime inner_data;
     inner_data.local_participant_guid(participant_guid);
     inner_data.remote_entity_guid(remote_guid);
     inner_data.time(discovery_time);
@@ -3573,7 +4358,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3595,24 +4380,24 @@ TEST_F(database_queue_tests, push_sample_datas)
     eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
-    DatabaseDataQueue::StatisticsSequenceNumber sequence_number;
+    DatabaseDataQueueWrapper::StatisticsSequenceNumber sequence_number;
     sequence_number.high(sn_high);
     sequence_number.low(sn_low);
 
-    DatabaseDataQueue::StatisticsSampleIdentity sample_identity;
+    DatabaseDataQueueWrapper::StatisticsSampleIdentity sample_identity;
     sample_identity.writer_guid(writer_guid);
     sample_identity.sequence_number(sequence_number);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsSampleIdentityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsSampleIdentityCount inner_data;
     inner_data.count(1024);
     inner_data.sample_id(sample_identity);
 
@@ -3637,7 +4422,7 @@ TEST_F(database_queue_tests, push_sample_datas)
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).count, 1024u);
                 EXPECT_EQ(dynamic_cast<const SampleDatasCountSample&>(sample).sequence_number, sn.to64long());
             });
-    EXPECT_CALL(database, insert(_, _, _)).Times(1)
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(1)
             .WillOnce(Invoke(&args, &InsertDataArgs::insert));
 
     // Expectation: The user is notified
@@ -3661,24 +4446,24 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
-    DatabaseDataQueue::StatisticsGuidPrefix writer_prefix;
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId writer_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
     writer_entity_id.value(writer_id);
-    DatabaseDataQueue::StatisticsGuid writer_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
 
-    DatabaseDataQueue::StatisticsSequenceNumber sequence_number;
+    DatabaseDataQueueWrapper::StatisticsSequenceNumber sequence_number;
     sequence_number.high(sn_high);
     sequence_number.low(sn_low);
 
-    DatabaseDataQueue::StatisticsSampleIdentity sample_identity;
+    DatabaseDataQueueWrapper::StatisticsSampleIdentity sample_identity;
     sample_identity.writer_guid(writer_guid);
     sample_identity.sequence_number(sequence_number);
 
     // Build the Statistics data
-    DatabaseDataQueue::StatisticsSampleIdentityCount inner_data;
+    DatabaseDataQueueWrapper::StatisticsSampleIdentityCount inner_data;
     inner_data.count(1024);
     inner_data.sample_id(sample_identity);
 
@@ -3691,7 +4476,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
             .WillOnce(Throw(BadParameter("Error")));
 
     // Expectation: The insert method is never called, data dropped
-    EXPECT_CALL(database, insert(_, _, _)).Times(0);
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const StatisticsSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_data_available(_, _, _)).Times(0);
@@ -3701,824 +4486,988 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_process_exists)
+TEST_F(database_queue_tests, push_monitor_proxy)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
+    // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::PROXY);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const ProxySample&>(sample).entity_proxy, entity_proxy);
 
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
+                return true;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
 
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
-            .WillOnce(Return(user));
-
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
-
-    auto process = std::make_shared<Process>(processname, pid, user);
-    process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(1)
-            .WillOnce(Return(process));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
-
-    // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
+    // Update graph
+    EXPECT_CALL(database, update_graph_on_updated_entity(EntityId(0), EntityId(1))).Times(1)
+            .WillOnce(Return(true));
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_domain_view_graph_update(EntityId(0))).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_no_participant_exists)
+TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
+    value.entity_proxy(entity_proxy);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant does not exist
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillOnce(Return(user));
-
-    // Precondition: The process exists and has ID 4
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(4)))));
-
-    auto process = std::make_shared<Process>(processname, pid, user);
-    process->id = EntityId(4);
-    EXPECT_CALL(database, get_entity(EntityId(4))).Times(AnyNumber())
-            .WillOnce(Return(process));
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
-    // The processing should not progress the exception.
-    data_queue.stop_consumer();
-    data_queue.push(timestamp, data);
-    data_queue.do_swap();
-    EXPECT_NO_THROW(data_queue.consume_sample());
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_no_process_exists)
+TEST_F(database_queue_tests, push_monitor_connection_list)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build connection list sequence
+    std::vector<Connection> connection_list;
+    Connection connection;
+    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
+    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
+    entity_id.value(other_entity_id);
+    DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
+    entity_guid.guidPrefix(participant_prefix);
+    entity_guid.entityId(entity_id);
+    connection.guid(entity_guid);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    connection.announced_locators({locator});
+    connection.used_locators({locator});
+    connection_list = {connection, connection};
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    MonitorServiceData value;
+    value.connection_list(connection_list);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
+    // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
-            .WillOnce(Return(user));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The process is created and given ID 4
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, processname);
-                EXPECT_EQ(entity->alias, processname);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::CONNECTION_LIST);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const ConnectionListSample&>(sample).connection_list, connection_list);
 
-                return EntityId(4);
+                return false;
             });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
-
-    // Expectation: The user is notified of the new process
+    // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::CONNECTION_LIST)).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_no_process_exists_process_insert_throws)
+TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
+    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
+    DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
     participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
+    DatabaseDataQueueWrapper::StatisticsGuid participant_guid;
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build connection list sequence
+    std::vector<Connection> connection_list;
+    Connection connection;
+    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
+    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
+    entity_id.value(other_entity_id);
+    DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
+    entity_guid.guidPrefix(participant_prefix);
+    entity_guid.entityId(entity_id);
+    connection.guid(entity_guid);
+    eprosima::fastdds::statistics::detail::Locator_s locator;
+    locator.kind(1);
+    locator.port(1);
+    locator.address({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    connection.announced_locators({locator});
+    connection.used_locators({locator});
+    connection_list = {connection, connection};
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    MonitorServiceData value;
+    value.connection_list(connection_list);
+    data->local_entity(participant_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
+    // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(1)
+            .WillOnce(Return(EntityKind::PARTICIPANT));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(1)
-            .WillOnce(Return(user));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The process creation throws
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, processname);
-                EXPECT_EQ(entity->alias, processname);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
-
-
-    // Expectation: The link method is not called
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
-    data_queue.stop_consumer();
-    data_queue.push(timestamp, data);
-    data_queue.do_swap();
-
-    EXPECT_NO_THROW(data_queue.consume_sample());
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists)
+TEST_F(database_queue_tests, push_monitor_incompatible_qos)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
-    // Build the participant GUID
+    // Build the writer GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build incompatible qos status
+    IncompatibleQoSStatus_s incompatible_qos_status;
+    incompatible_qos_status.total_count(0);
+    incompatible_qos_status.last_policy_id(0);
+    QosPolicyCountSeq_s qos_policy_count_seq;
+    QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    incompatible_qos_status.policies(qos_policy_count_seq);
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.incompatible_qos_status(incompatible_qos_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
-
-    // Precondition: The user does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The user is created and given ID 3
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
             {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, username);
-                EXPECT_EQ(entity->alias, username);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const IncompatibleQosSample&>(sample).incompatible_qos_status,
+                incompatible_qos_status);
 
-                return EntityId(3);
+                return false;
             });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
 
-    // Expectation: The user is notified of the new process
+    // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(3), EntityKind::USER,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    // Expectation: The process is created and given ID 4
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, processname);
-                EXPECT_EQ(entity->alias, processname);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(4);
-            });
-
-    // Expectation: The user is notified of the new process
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(database, insert(_)).Times(2)
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::INCOMPATIBLE_QOS)).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_no_process_no_user_exists_user_insert_throws)
+TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
-    // Build the participant GUID
+    // Build the writer GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
 
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
+    // Build incompatible qos status
+    IncompatibleQoSStatus_s incompatible_qos_status;
+    incompatible_qos_status.total_count(1);
+    incompatible_qos_status.last_policy_id(0);
+    QosPolicyCountSeq_s qos_policy_count_seq;
+    QosPolicyCount_s qos_policy_count;
+    qos_policy_count.policy_id(0);
+    qos_policy_count.count(0);
+    qos_policy_count_seq = {qos_policy_count};
+    incompatible_qos_status.policies(qos_policy_count_seq);
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.incompatible_qos_status(incompatible_qos_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
 
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
-            std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(1)
-            .WillOnce(Return(host));
-
-    // Precondition: The user does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The user creation throws
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, username);
-                EXPECT_EQ(entity->alias, username);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, host);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert));
-
-    // Expectation: The user is not notified of the new user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
-
-    // Expectation: The link method is not called
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(0);
-
-    // Add to the queue and wait to be processed
-    data_queue.stop_consumer();
-    data_queue.push(timestamp, data);
-    data_queue.do_swap();
-
-    EXPECT_NO_THROW(data_queue.consume_sample());
-}
-
-TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
-
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
-
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
-            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
-
-    // Precondition: The host does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The user does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The host is created and given ID 3
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, hostname);
-                EXPECT_EQ(entity->alias, hostname);
-
-                return EntityId(3);
-            });
-
-    // Expectation: The user is notified of the new host
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(3), EntityKind::HOST,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    // Expectation: The user is created and given ID 4
-    InsertEntityArgs insert_args_user([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::USER);
-                EXPECT_EQ(entity->name, username);
-                EXPECT_EQ(entity->alias, username);
-                EXPECT_EQ(std::dynamic_pointer_cast<User>(entity)->host, insert_args_host.entity_);
-
-                return EntityId(4);
-            });
-
-    // Expectation: The user is notified of the new user
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(4), EntityKind::USER,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    // Expectation: The process is created and given ID 5
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
-            {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, processname);
-                EXPECT_EQ(entity->alias, processname);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, insert_args_user.entity_);
-
-                return EntityId(5);
-            });
-
-    // Expectation: The user is notified of the new process
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(5), EntityKind::PROCESS,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    EXPECT_CALL(database, insert(_)).Times(3)
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_user, &InsertEntityArgs::insert))
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(1);
-
-    // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
-}
-
-TEST_F(database_queue_tests, push_physical_data_no_process_no_user_no_host_exists_host_insert_throws)
-{
-    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-
-    // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
-
-    // Build the process name
-    std::stringstream ss;
-    ss << processname << ":" << pid;
-    std::string processname_pid = ss.str();
-
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
-
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
-
-    // Precondition: The host does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The user does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname)).Times(AnyNumber())
-            .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The host creation throws
-    InsertEntityArgs insert_args_host([&](
-                std::shared_ptr<Entity> entity) -> EntityId
-            {
-                EXPECT_EQ(entity->kind, EntityKind::HOST);
-                EXPECT_EQ(entity->name, hostname);
-                EXPECT_EQ(entity->alias, hostname);
-
-                throw BadParameter("Error");
-            });
-
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args_host, &InsertEntityArgs::insert));
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
 
     // Expectation: The user is not notified
-    EXPECT_CALL(*details::StatisticsBackendData::get_instance(), on_physical_entity_discovery(_, _, _)).Times(0);
-
-    // Expectation: The link method is not called
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(5))).Times(0);
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
 
     // Add to the queue and wait to be processed
-    data_queue.stop_consumer();
-    data_queue.push(timestamp, data);
-    data_queue.do_swap();
-
-    EXPECT_NO_THROW(data_queue.consume_sample());
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
-TEST_F(database_queue_tests, push_physical_data_wrong_processname_format)
+TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
-    std::string processname = "command";
-    std::string pid = "1234";
-    std::string username = "user";
-    std::string hostname = "host";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
-    // Build the participant GUID
+    // Build the writer GUID
     std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    DatabaseDataQueue::StatisticsGuidPrefix participant_prefix;
-    participant_prefix.value(prefix);
-    DatabaseDataQueue::StatisticsEntityId participant_entity_id;
-    participant_entity_id.value(participant_id);
-    DatabaseDataQueue::StatisticsGuid participant_guid;
-    participant_guid.guidPrefix(participant_prefix);
-    participant_guid.entityId(participant_entity_id);
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
 
-    // Build the process name with the wrong format
-    std::stringstream ss;
-    ss << processname << pid;
-    std::string processname_pid = ss.str();
+    // Build inconsistent topic status
+    InconsistentTopicStatus_s inconsistent_topic_status;
+    inconsistent_topic_status.total_count(0);
 
-    // Build the Statistics data
-    DatabaseDataQueue::StatisticsPhysicalData inner_data;
-    inner_data.host(hostname);
-    inner_data.user(username);
-    inner_data.process(processname_pid);
-    inner_data.participant_guid(participant_guid);
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    MonitorServiceData value;
+    value.inconsistent_topic_status(inconsistent_topic_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
 
-    std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
-    data->physical_data(inner_data);
-    data->_d(EventKindBits::PHYSICAL_DATA);
-
-    // Precondition: The participant exists and has ID 1
-    EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
 
-    // Precondition: The host exists and has ID 2
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::HOST, hostname)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(2)))));
-
-    auto host = std::make_shared<Host>(hostname);
-    host->id = EntityId(2);
-    EXPECT_CALL(database, get_entity(EntityId(2))).Times(AnyNumber())
-            .WillOnce(Return(host));
-
-    // Precondition: The user exists and has ID 3
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::USER, username)).Times(AnyNumber())
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>(1, std::make_pair(EntityId(0), EntityId(3)))));
-
-    auto user = std::make_shared<User>(username, host);
-    user->id = EntityId(3);
-    EXPECT_CALL(database, get_entity(EntityId(3))).Times(AnyNumber())
-            .WillOnce(Return(user));
-
-    // Precondition: The process does not exist
-    EXPECT_CALL(database, get_entities_by_name(EntityKind::PROCESS, processname_pid)).Times(1)
-            .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
-
-    // Expectation: The process is created and given ID 4
-    InsertEntityArgs insert_args_process([&](
-                std::shared_ptr<Entity> entity)
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
             {
-                EXPECT_EQ(entity->kind, EntityKind::PROCESS);
-                EXPECT_EQ(entity->name, processname_pid);
-                EXPECT_EQ(entity->alias, processname_pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->pid, processname_pid);
-                EXPECT_EQ(std::dynamic_pointer_cast<Process>(entity)->user, user);
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const InconsistentTopicSample&>(sample).inconsistent_topic_status,
+                inconsistent_topic_status);
 
-                return EntityId(4);
+                return false;
             });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
 
-    EXPECT_CALL(database, insert(_)).Times(1)
-            .WillOnce(Invoke(&insert_args_process, &InsertEntityArgs::insert));
-
-    // Expectation: The user is notified of the new process
+    // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
-            on_physical_entity_discovery(EntityId(4), EntityKind::PROCESS,
-            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
-
-    // Expectation: The link method is called with appropriate arguments
-    EXPECT_CALL(database, link_participant_with_process(EntityId(1), EntityId(4))).Times(1);
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::INCONSISTENT_TOPIC)).Times(1);
 
     // Add to the queue and wait to be processed
-    data_queue.push(timestamp, data);
-    data_queue.flush();
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build inconsistent topic status
+    InconsistentTopicStatus_s inconsistent_topic_status;
+    inconsistent_topic_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    MonitorServiceData value;
+    value.inconsistent_topic_status(inconsistent_topic_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_lost)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build liveliness lost status
+    LivelinessLostStatus_s liveliness_lost_status;
+    liveliness_lost_status.total_count(0);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    MonitorServiceData value;
+    value.liveliness_lost_status(liveliness_lost_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_LOST);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const LivelinessLostSample&>(sample).liveliness_lost_status,
+                liveliness_lost_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::LIVELINESS_LOST)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    int32_t sn_high = 2048;
+    uint32_t sn_low = 4096;
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build liveliness lost status
+    LivelinessLostStatus_s liveliness_lost_status;
+    liveliness_lost_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    MonitorServiceData value;
+    value.liveliness_lost_status(liveliness_lost_status);
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_changed)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build liveliness changed status
+    LivelinessChangedStatus_s liveliness_changed_status;
+    liveliness_changed_status.alive_count(0);
+    liveliness_changed_status.not_alive_count(0);
+    liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    MonitorServiceData value;
+    value.liveliness_changed_status(liveliness_changed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const LivelinessChangedSample&>(sample).liveliness_changed_status,
+                liveliness_changed_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build liveliness changed status
+    LivelinessChangedStatus_s liveliness_changed_status;
+    liveliness_changed_status.alive_count(0);
+    liveliness_changed_status.not_alive_count(0);
+    liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    MonitorServiceData value;
+    value.liveliness_changed_status(liveliness_changed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+
+TEST_F(database_queue_tests, push_monitor_deadline_missed)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build deadeline missed status
+    DeadlineMissedStatus_s deadline_missed_status;
+    deadline_missed_status.total_count(0);
+    deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    MonitorServiceData value;
+    value.deadline_missed_status(deadline_missed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::DEADLINE_MISSED);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const DeadlineMissedSample&>(sample).deadline_missed_status,
+                deadline_missed_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::DEADLINE_MISSED)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build deadeline missed status
+    DeadlineMissedStatus_s deadline_missed_status;
+    deadline_missed_status.total_count(1);
+    deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    MonitorServiceData value;
+    value.deadline_missed_status(deadline_missed_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_sample_lost)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build sample lost status
+    SampleLostStatus_s sample_lost_status;
+    sample_lost_status.total_count(0);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    MonitorServiceData value;
+    value.sample_lost_status(sample_lost_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::SAMPLE_LOST);
+                EXPECT_EQ(sample.status, StatusLevel::OK_STATUS);
+                EXPECT_EQ(dynamic_cast<const SampleLostSample&>(sample).sample_lost_status, sample_lost_status);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::SAMPLE_LOST)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build sample lost status
+    SampleLostStatus_s sample_lost_status;
+    sample_lost_status.total_count(1);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    MonitorServiceData value;
+    value.sample_lost_status(sample_lost_status);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The reader does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(reader_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAREADER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_statuses_size)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
+    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
+    reader_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
+    reader_entity_id.value(reader_id);
+    DatabaseDataQueueWrapper::StatisticsGuid reader_guid;
+    reader_guid.guidPrefix(reader_prefix);
+    reader_guid.entityId(reader_entity_id);
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
+    MonitorServiceData value;
+    uint8_t octet = 1;
+    value.statuses_size(octet);
+    data->local_entity(reader_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
 }
 
 int main(

@@ -30,6 +30,7 @@
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 using namespace eprosima::statistics_backend;
 

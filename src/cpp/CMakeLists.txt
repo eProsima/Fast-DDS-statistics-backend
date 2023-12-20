@@ -34,9 +34,14 @@ set(${PROJECT_NAME}_SOURCES
     subscriber/QosSerializer.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
-    topic_types/types.cxx
-    topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
     types/EntityId.cpp
+    types/types.cpp
     )
 
 # Configure config file
@@ -58,9 +63,9 @@ if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         INTERFACE
             _CRT_DECLARE_NONSTDC_NAMES=0
-        PRIVATE 
+        PRIVATE
             EPROSIMA_USER_DLL_EXPORT
-            WIN32_WINNT=0x0603 
+            WIN32_WINNT=0x0603
             _CRT_DECLARE_NONSTDC_NAMES=0
         )
 endif(MSVC)

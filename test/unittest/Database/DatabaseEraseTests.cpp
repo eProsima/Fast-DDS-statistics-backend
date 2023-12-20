@@ -37,7 +37,6 @@ void check_erased_database(
         const std::vector<std::shared_ptr<const Entity>>& writers)
 {
     // Check that the map elements have been correctly erased
-    EXPECT_EQ(db.domains().find(domain_id), db.domains().end());
     EXPECT_EQ(db.topics().find(domain_id), db.topics().end());
     EXPECT_EQ(db.participants().find(domain_id), db.participants().end());
     EXPECT_EQ(db.datawriters().find(domain_id), db.datawriters().end());
@@ -63,7 +62,7 @@ void check_erased_database(
     }
 
     auto processes_by_domain = db.processes_by_domain();
-    EXPECT_EQ(processes_by_domain.find(domain_id), processes_by_domain.end());
+    EXPECT_TRUE(processes_by_domain.at(domain_id).empty());
 
     // Any reference to the erased participant has been deleted
     for (auto participant : participants)
@@ -103,6 +102,8 @@ void erase_and_check(
     // Call erase monitor removing domain_1
     std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, domain);
     EntityId domain_id = domains.begin()->first;
+    db.init_domain_view_graph(domain, domain_id);
+    db.regenerate_domain_graph(domain_id);
     // Save entities associated to the erased domain to check that the cross maps are correctly erased.
     std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
     std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
@@ -110,9 +111,6 @@ void erase_and_check(
     db.erase(domain_id);
 
     check_erased_database(db, domain_id, participants, readers, writers);
-
-    // Calling again to erase an already erased domain throws an exception
-    ASSERT_THROW(db.erase(domains.begin()->first), BadParameter);
 
     // Dump erased database
     DatabaseDump erased_dump = db.dump_database();

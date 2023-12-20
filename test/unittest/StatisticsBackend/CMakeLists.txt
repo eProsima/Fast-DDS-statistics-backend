@@ -38,9 +38,14 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(statistics_backend_tests
@@ -69,6 +74,8 @@ set(BACKEND_TEST_LIST
     set_alias
     internal_callbacks_negative_cases
     set_listener_non_existent_monitor
+    get_domain_view_graph
+    get_domain_view_graph_invalid_domain
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})
@@ -97,9 +104,14 @@ add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 target_include_directories(calling_user_listeners_tests PRIVATE
     ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
@@ -249,8 +261,28 @@ foreach(test_name ${USER_LISTENERS_TEST_LIST_DATAS})
 
 endforeach()
 
+set(USER_LISTENERS_TEST_LIST_MONITOR_DATAS
+    monitor_data_available
+    monitor_data_available_callback_not_in_mask
+    monitor_data_available_no_listener
+    monitor_data_available_no_listener_callback_not_in_mask
+    )
+
+foreach(test_name ${USER_LISTENERS_TEST_LIST_MONITOR_DATAS})
+
+    add_test(NAME calling_user_listeners_tests_monitor_datas.${test_name}
+            COMMAND calling_user_listeners_tests
+            --gtest_filter=calling_user_listeners_tests_monitor_datas.${test_name}:*/calling_user_listeners_tests_monitor_datas.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(calling_user_listeners_tests_monitor_datas.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
 set(USER_LISTENERS_TEST_END_TO_END
     entity_discovery_end_to_end
+    participant_proxy_data_end_to_end
     )
 
 foreach(test_name ${USER_LISTENERS_TEST_END_TO_END})
@@ -281,9 +313,14 @@ add_executable(init_monitor_tests InitMonitorTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(init_monitor_tests
@@ -306,6 +343,7 @@ get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
 
 set(INIT_MONITOR_TEST_LIST
     init_monitor_domain_id_all_callback_all_data
+    init_monitor_domain_id_all_callback_all_data_known_app
     init_monitor_domain_id_no_callback_all_data
     init_monitor_domain_id_all_callback_no_data
     init_monitor_domain_id_null_listener_all_data
@@ -342,9 +380,14 @@ add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(init_monitor_factory_fails_tests
@@ -420,9 +463,14 @@ add_executable(get_data_tests GetDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(get_data_tests
@@ -511,9 +559,14 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
     if(MSVC)
         target_compile_definitions(is_active_tests
@@ -573,9 +626,14 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
     if(MSVC)
         target_compile_definitions(is_metatraffic_tests
@@ -629,9 +687,14 @@ add_executable(backend_dump_tests BackendDumpTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(backend_dump_tests
@@ -683,9 +746,14 @@ add_executable(clear_statistics_data_tests ClearDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
 if(MSVC)
     target_compile_definitions(clear_statistics_data_tests
@@ -721,6 +789,70 @@ foreach(test_name ${BACKEND_DUMP_TEST_LIST})
 
 endforeach()
 
+# get_status_data
+##################################################################
+
+add_executable(get_status_data_tests GetStatusDataTests.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
+
+if(MSVC)
+    target_compile_definitions(get_status_data_tests
+        PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+endif(MSVC)
+
+target_include_directories(get_status_data_tests PRIVATE
+    ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+    ${PROJECT_SOURCE_DIR}/src/cpp)
+
+target_link_libraries(get_status_data_tests PUBLIC
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+
+get_win32_path_dependencies(get_status_data_tests TEST_FRIENDLY_PATH)
+
+set(GET_STATUS_DATA_TEST_LIST
+        get_status_data_proxy
+        get_status_data_connection_list
+        get_status_data_incompatible_qos
+        get_status_data_inconsistent_topic
+        get_status_data_liveliness_lost
+        get_status_data_liveliness_changed
+        get_status_data_deadline_missed
+        get_status_data_sample_lost
+    )
+
+foreach(test_name ${GET_STATUS_DATA_TEST_LIST})
+    add_test(NAME get_status_data_tests.${test_name}
+        COMMAND get_status_data_tests
+        --gtest_filter=get_status_data_tests.${test_name}:*/get_status_data_tests.${test_name}/*)
+
+    if(TEST_FRIENDLY_PATH)
+        set_tests_properties(get_status_data_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+    endif(TEST_FRIENDLY_PATH)
+
+endforeach()
+
 # clear_inactive_entities
 ##################################################################
 
@@ -738,9 +870,14 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/topic_types/typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp)
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
     if(MSVC)
         target_compile_definitions(clear_inactive_entities_tests

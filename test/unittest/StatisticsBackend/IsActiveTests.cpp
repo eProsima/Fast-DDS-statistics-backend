@@ -57,8 +57,10 @@ public:
         StatisticsBackendTest::set_database(db);
 
         entity_queue = new DatabaseEntityQueue(db);
-        data_queue = new DatabaseDataQueue(db);
-        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue);
+        data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::Data>(db);
+        monitor_service_data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(db);
+        participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue,
+                        monitor_service_data_queue);
 
         // Simulate that the backend is monitorizing the domain
         std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
@@ -107,6 +109,7 @@ public:
     {
         delete entity_queue;
         delete data_queue;
+        delete monitor_service_data_queue;
         delete participant_listener;
 
         if (!StatisticsBackendTest::unset_database())
@@ -129,8 +132,10 @@ public:
 
     // Entity queue, attached to the database
     DatabaseEntityQueue* entity_queue = nullptr;
-    // Data queue, attached to the database
-    DatabaseDataQueue* data_queue = nullptr;
+    // Statistics Data queue, attached to the database
+    DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue = nullptr;
+    // Monitor Service Data queue, attached to the database
+    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue = nullptr;
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
     // Listener under tests. Will receive a pointer to statistics_participant
@@ -445,6 +450,10 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name;
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
@@ -533,6 +542,10 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name + "_1";
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
@@ -544,7 +557,6 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
     // Link participant - process
     auto participant_id =
             db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
-    db->link_participant_with_process(participant_id, process1->id);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -618,6 +630,10 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name;
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
@@ -706,6 +722,10 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
         data.m_guid = participant_guid_;
         data.m_participantName = participant->name + "_1";
 
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
+
         // Finish building the discovered reader info
         eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
         info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
@@ -717,7 +737,6 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
     // Link participant - process
     auto participant_id =
             db->get_entity_by_guid(EntityKind::PARTICIPANT, "01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1").second;
-    db->link_participant_with_process(participant_id, process1->id);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));

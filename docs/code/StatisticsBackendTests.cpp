@@ -19,6 +19,7 @@
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <iostream>
 #include <fstream>
@@ -299,6 +300,99 @@ void get_data_examples()
     }
 }
 
+void get_status_data_examples()
+{
+    EntityId entity_id;
+    {
+        //CONF-GET-STATUS-DATA-PROXY
+        /*
+         * Get the proxy info associated to an entity.
+         */
+        ProxySample proxy_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DomainParticipant, DataWriter or DataReader)
+            proxy_sample);                                               // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-CONNECTION-LIST
+        /*
+         * Get the connection list sample associated to an entity.
+         */
+        ConnectionListSample connection_list_sample_;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DomainParticipant, DataWriter or DataReader)
+            connection_list_sample_);                                    // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-INCOMPATIBLE-QOS
+        /*
+         * Get the incompatible qos info associated to an entity.
+         */
+        IncompatibleQosSample incompatible_qos_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            incompatible_qos_sample);                                    // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-INCONSISTENT-TOPIC
+        /*
+         * Get the inonsistent topic info associated to an entity.
+         */
+        InconsistentTopicSample inconsistent_topic_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            inconsistent_topic_sample);                                  // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-LIVELINESS-LOST
+        /*
+         * Get the liveliness lost info associated to an entity.
+         */
+        LivelinessLostSample liveliness_lost_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter)
+            liveliness_lost_sample);                                     // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-LIVELINESS-CHANGED
+        /*
+         * Get the liveliness changed info associated to an entity.
+         */
+        LivelinessChangedSample liveliness_changed_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataReader)
+            liveliness_changed_sample);                                  // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-DEADLINE-MISSED
+        /*
+         * Get the deadline missed info associated to an entity.
+         */
+        DeadlineMissedSample deadline_missed_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            deadline_missed_sample);                                     // Sample to be populated
+        //!--
+    }
+    {
+        //CONF-GET-STATUS-DATA-SAMPLE-LOST
+        /*
+         * Get the sample lost info associated to an entity.
+         */
+        SampleLostSample sample_lost_sample;
+        StatisticsBackend::get_status_data(
+            entity_id,                                                   // EntityId (DataWriter or DataReader)
+            sample_lost_sample);                                         // Sample to be populated
+        //!--
+    }
+}
+
 void get_data_supported_entity_kinds_examples()
 {
     {
@@ -326,150 +420,66 @@ void get_data_supported_entity_kinds_examples()
     }
 }
 
-int get_graph_examples(
+void get_domain_view_graph()
+{
+    {
+        EntityId domain_id;
+
+        //CONF-REGENERATE-GRAPH-EXAMPLE
+        StatisticsBackend::regenerate_domain_graph(domain_id);
+        //!--
+
+        //CONF-GET-GRAPH-EXAMPLE
+        Graph domain_view_graph = StatisticsBackend::get_domain_view_graph(domain_id);
+        //!--
+    }
+}
+
+int get_domain_view_graph_examples(
         uint8_t test)
 {
     if (test == 1)
     {
-        //CONF-GET-GRAPH-EXAMPLE
-        Graph graph = StatisticsBackend::get_graph();
-        //!--
-
         // Load the file to test whether the snippet works on the example
         std::ifstream file_example("graph_example.json");
-        graph = Graph::parse(file_example);
+        Graph domain_view_graph = Graph::parse(file_example);
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
-        // Iterate over hosts
-        for (const auto& host : graph["hosts"])
+        std::cout << "Domain: " << domain_view_graph[DOMAIN_ENTITY_TAG] << std::endl;
+        // Iterate
+        for (const auto& host : domain_view_graph[HOST_CONTAINER_TAG])
         {
-            if (host["alive"])
+            std::cout << "\tHost alias: " << host[ALIAS_TAG] << std::endl;
+            std::cout << "\tHost status: " << host[STATUS_TAG] << std::endl;
+            for (const auto& user : host[USER_CONTAINER_TAG])
             {
-                std::cout << "Host name: " << host["name"] << std::endl;
-                std::cout << "Host alias: " << host["alias"] << std::endl;
-                // Iterate over users
-                for (const auto& user : host["users"])
+                std::cout << "\t\tUser alias: " << user[ALIAS_TAG] << std::endl;
+                std::cout << "\t\tUser status: " << user[STATUS_TAG] << std::endl;
+                for (const auto& process : user[PROCESS_CONTAINER_TAG])
                 {
-                    if (user["alive"])
+                    std::cout << "\t\t\tProcess alias: " << process[ALIAS_TAG] << std::endl;
+                    std::cout << "\t\t\tProcess PID:  " << process[PID_TAG] << std::endl;
+                    std::cout << "\t\t\tProcess status: " << process[STATUS_TAG] << std::endl;
+                    for (const auto& participant : process[PARTICIPANT_CONTAINER_TAG])
                     {
-                        std::cout << "\tUser name: " << user["name"] << std::endl;
-                        std::cout << "\tUser alias: " << user["alias"] << std::endl;
-                        // Iterate over processes
-                        for (const auto& process : user["processes"])
+                        std::cout << "\t\t\t\tParticipant alias: " << participant[ALIAS_TAG] << std::endl;
+                        std::cout << "\t\t\t\tParticipant app_id:  " << participant[APP_ID_TAG] << std::endl;
+                        std::cout << "\t\t\t\tParticipant status: " << participant[STATUS_TAG] << std::endl;
+                        for (const auto& endpoint : participant[ENDPOINT_CONTAINER_TAG])
                         {
-                            if (process["alive"])
-                            {
-                                std::cout << "\t\tProcess name: " << process["name"] << std::endl;
-                                std::cout << "\t\tProcess alias: " << process["alias"] << std::endl;
-                                std::cout << "\t\tProcess PID:  " << process["pid"] << std::endl;
-                                // Iterate over the list of participant IDs
-                                for (const auto& participant_id : process["participants"])
-                                {
-                                    // Look for the actual participant in the domains
-                                    for (const auto& domain : graph["domains"])
-                                    {
-                                        for (const auto& participant : domain["participants"])
-                                        {
-                                            // Check if the participant is the one that is being looked for
-                                            if (participant["entity_id"] == participant_id && participant["alive"])
-                                            {
-                                                std::cout << "\t\t\tParticipant name: " << participant["name"] <<
-                                                    std::endl;
-                                                std::cout << "\t\t\tParticipant alias: " << participant["alias"] <<
-                                                    std::endl;
-                                                std::cout << "\t\t\tParticipant GUID: " << participant["guid"] <<
-                                                    std::endl;
-                                                // Iterate over data writers
-                                                for (const auto& datawriter : participant["datawriters"])
-                                                {
-                                                    if (datawriter["alive"])
-                                                    {
-                                                        std::cout << "\t\t\t\tDatawriter name: " <<
-                                                            datawriter["name"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatawriter alias: " <<
-                                                            datawriter["alias"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatawriter GUID: " <<
-                                                            datawriter["guid"] << std::endl;
-                                                        // Iterate over topics
-                                                        for (const auto& topic : domain["topics"])
-                                                        {
-                                                            // Check if the topic is the one that is being looked for
-                                                            if (topic["entity_id"] == datawriter["topic"])
-                                                            {
-                                                                std::cout << "\t\t\t\tDatawriter topic name: " <<
-                                                                    topic["name"] << std::endl;
-                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
-                                                                    topic["alias"] << std::endl;
-                                                                break;
-                                                            }
-                                                        }
-                                                        // Iterate over the list of locator IDs
-                                                        for (const auto& locator_id : datawriter["locators"])
-                                                        {
-                                                            for (const auto& locator : graph["locators"])
-                                                            {
-                                                                // Check if the locator is the one that is being looked for
-                                                                if (locator["entity_id"] == locator_id)
-                                                                {
-                                                                    std::cout << "\t\t\t\tDatawriter locator name: " <<
-                                                                        locator["name"] << std::endl;
-                                                                    std::cout << "\t\t\t\tDatawriter locator alias: " <<
-                                                                        locator["alias"] << std::endl;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                // Iterate over data readers
-                                                for (const auto& datareader : participant["datareaders"])
-                                                {
-                                                    if (datareader["alive"])
-                                                    {
-                                                        std::cout << "\t\t\t\tDatareader name: " <<
-                                                            datareader["name"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatareader alias: " <<
-                                                            datareader["alias"] << std::endl;
-                                                        std::cout << "\t\t\t\tDatareader GUID: " <<
-                                                            datareader["guid"] << std::endl;
-                                                        // Iterate over topics
-                                                        for (const auto& topic : domain["topics"])
-                                                        {
-                                                            // Check if the topic is the one that is being looked for
-                                                            if (topic["entity_id"] == datareader["topic"])
-                                                            {
-                                                                std::cout << "\t\t\t\tDatareader topic name: " <<
-                                                                    topic["name"] << std::endl;
-                                                                std::cout << "\t\t\t\tDatareader topic alias: " <<
-                                                                    topic["alias"] << std::endl;
-                                                                break;
-                                                            }
-                                                        }
-                                                        // Iterate over the list of locator IDs
-                                                        for (const auto& locator_id : datareader["locators"])
-                                                        {
-                                                            for (const auto& locator : graph["locators"])
-                                                            {
-                                                                // Check if the locator is the one that is being looked for
-                                                                if (locator["entity_id"] == locator_id)
-                                                                {
-                                                                    std::cout << "\t\t\t\tDatareader locator name: " <<
-                                                                        locator["name"] << std::endl;
-                                                                    std::cout << "\t\t\t\tDatareader locator alias: " <<
-                                                                        locator["alias"] << std::endl;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            std::cout << "\t\t\t\t\tEndpoint alias: " << endpoint[ALIAS_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint kind:  " << endpoint[KIND_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint app_id:  " << endpoint[APP_ID_TAG] << std::endl;
+                            std::cout << "\t\t\t\t\tEndpoint status: " << endpoint[STATUS_TAG] << std::endl;
                         }
                     }
                 }
             }
+        }
+        for (const auto& topic : domain_view_graph[TOPIC_CONTAINER_TAG])
+        {
+            std::cout << "\tTopic alias: " << topic[ALIAS_TAG] << std::endl;
+            std::cout << "\tTopic metatraffic: " << topic[METATRAFFIC_TAG] << std::endl;
         }
         //!--
         return 0;
@@ -571,7 +581,7 @@ void get_status_example()
     {
         EntityId entity_id;
         //CONF-GET-STATUS-EXAMPLE
-        EntityStatus status = StatisticsBackend::get_status(entity_id);
+        StatusLevel status = StatisticsBackend::get_status(entity_id);
         //!--
         static_cast<void>(status);
     }
@@ -693,9 +703,9 @@ int main(
         return 1;
     }
 
-    if (strncmp(argv[1], "get_graph_parse", 15) == 0)
+    if (strncmp(argv[1], "get_domain_view_graph_parse", 15) == 0)
     {
-        return get_graph_examples(1);
+        return get_domain_view_graph_examples(1);
     }
     return 0;
 }

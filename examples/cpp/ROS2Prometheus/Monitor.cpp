@@ -148,7 +148,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
     for (auto topic_id : topics)
     {
         topic_info = StatisticsBackend::get_info(topic_id);
-        if (topic_info["name"] == "rt/chatter" && topic_info["data_type"] == "std_msgs::msg::dds_::String_")
+        if (topic_info[NAME_TAG] == "rt/chatter" && topic_info[DATA_TYPE_TAG] == "std_msgs::msg::dds_::String_")
         {
             chatter_topic_id = topic_id;
             break;
@@ -195,7 +195,7 @@ std::vector<StatisticsData> Monitor::get_fastdds_latency_mean()
             latency.first.time_since_epoch()).count();
         fastdds_latency_mean_->Set(latency.second / 1000, timestamp_ms);
 
-        std::cout << "ROS 2 Latency in topic " << topic_info["name"] << ": ["
+        std::cout << "ROS 2 Latency in topic " << topic_info[NAME_TAG] << ": ["
                   << timestamp_to_string(latency.first) << ", " << latency.second / 1000 << " μs]" << std::endl;
     }
 
@@ -212,7 +212,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
     for (auto topic_id : topics)
     {
         topic_info = StatisticsBackend::get_info(topic_id);
-        if (topic_info["name"] == "rt/chatter" && topic_info["data_type"] == "std_msgs::msg::dds_::String_")
+        if (topic_info[NAME_TAG] == "rt/chatter" && topic_info[DATA_TYPE_TAG] == "std_msgs::msg::dds_::String_")
         {
             chatter_topic_id = topic_id;
             break;
@@ -251,7 +251,7 @@ std::vector<StatisticsData> Monitor::get_publication_throughput_mean()
             publication_throughput.first.time_since_epoch()).count();
         publication_throughput_mean_->Set(publication_throughput.second, timestamp_ms);
 
-        std::cout << "Publication throughput in topic " << topic_info["name"] << ": ["
+        std::cout << "Publication throughput in topic " << topic_info[NAME_TAG] << ": ["
                   << timestamp_to_string(publication_throughput.first) << ", "
                   << publication_throughput.second << " B/s]" << std::endl;
     }
@@ -272,11 +272,12 @@ void Monitor::Listener::on_participant_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " discovered." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Participant with GUID " << std::string(participant_info["guid"]) << " update info." << std::endl;
+        std::cout << "Participant with GUID " << std::string(participant_info[GUID_TAG]) << " update info." <<
+            std::endl;
     }
 }
 
@@ -290,11 +291,11 @@ void Monitor::Listener::on_datareader_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " discovered." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataReader with GUID " << std::string(datareader_info["guid"]) << " update info." << std::endl;
+        std::cout << "DataReader with GUID " << std::string(datareader_info[GUID_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -308,11 +309,11 @@ void Monitor::Listener::on_datawriter_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " discovered." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "DataWriter with GUID " << std::string(datawriter_info["guid"]) << " update info." << std::endl;
+        std::cout << "DataWriter with GUID " << std::string(datawriter_info[GUID_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -324,11 +325,11 @@ void Monitor::Listener::on_host_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Host " << std::string(host_info["name"]) << " discovered." << std::endl;
+        std::cout << "Host " << std::string(host_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Host " << std::string(host_info["name"]) << " update info." << std::endl;
+        std::cout << "Host " << std::string(host_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -340,11 +341,11 @@ void Monitor::Listener::on_user_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "User " << std::string(user_info["name"]) << " discovered." << std::endl;
+        std::cout << "User " << std::string(user_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "User " << std::string(user_info["name"]) << " update info." << std::endl;
+        std::cout << "User " << std::string(user_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -356,11 +357,11 @@ void Monitor::Listener::on_process_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Process " << std::string(process_info["name"]) << " discovered." << std::endl;
+        std::cout << "Process " << std::string(process_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Process " << std::string(process_info["name"]) << " update info." << std::endl;
+        std::cout << "Process " << std::string(process_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -372,11 +373,11 @@ void Monitor::Listener::on_locator_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Locator " << std::string(locator_info["name"]) << " discovered." << std::endl;
+        std::cout << "Locator " << std::string(locator_info[NAME_TAG]) << " discovered." << std::endl;
     }
     else
     {
-        std::cout << "Locator " << std::string(locator_info["name"]) << " update info." << std::endl;
+        std::cout << "Locator " << std::string(locator_info[NAME_TAG]) << " update info." << std::endl;
     }
 }
 
@@ -390,14 +391,14 @@ void Monitor::Listener::on_topic_discovery(
 
     if (status.current_count_change == 1)
     {
-        std::cout << "Topic " << std::string(topic_info["name"])
-                  << " [" << std::string(topic_info["data_type"])
+        std::cout << "Topic " << std::string(topic_info[NAME_TAG])
+                  << " [" << std::string(topic_info[DATA_TYPE_TAG])
                   << "] discovered." << std::endl;
     }
     else
     {
-        std::cout << "Topic " << std::string(topic_info["name"])
-                  << " [" << std::string(topic_info["data_type"])
+        std::cout << "Topic " << std::string(topic_info[NAME_TAG])
+                  << " [" << std::string(topic_info[DATA_TYPE_TAG])
                   << "] updated info." << std::endl;
     }
 }
