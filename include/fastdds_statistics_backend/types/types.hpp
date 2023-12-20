@@ -375,7 +375,8 @@ struct MonitorServiceSample
 
     virtual ~MonitorServiceSample() = default;
 
-    virtual void clear();
+    virtual FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear();
 
     inline bool operator ==(
             const MonitorServiceSample& other) const noexcept
@@ -407,6 +408,7 @@ struct ProxySample : MonitorServiceSample
 
     virtual ~ProxySample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -436,6 +438,7 @@ struct ConnectionListSample : MonitorServiceSample
 
     virtual ~ConnectionListSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -467,6 +470,7 @@ struct IncompatibleQosSample : MonitorServiceSample
 
     virtual ~IncompatibleQosSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -496,6 +500,7 @@ struct InconsistentTopicSample : MonitorServiceSample
 
     virtual ~InconsistentTopicSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -526,6 +531,7 @@ struct LivelinessLostSample : MonitorServiceSample
 
     virtual ~LivelinessLostSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -555,6 +561,7 @@ struct LivelinessChangedSample : MonitorServiceSample
 
     virtual ~LivelinessChangedSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -585,6 +592,7 @@ struct DeadlineMissedSample : MonitorServiceSample
 
     virtual ~DeadlineMissedSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(
@@ -614,6 +622,7 @@ struct SampleLostSample : MonitorServiceSample
 
     virtual ~SampleLostSample() = default;
 
+    FASTDDS_STATISTICS_BACKEND_DllAPI
     void clear() final;
 
     inline bool operator ==(

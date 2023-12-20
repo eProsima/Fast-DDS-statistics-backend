@@ -14,9 +14,12 @@
 
 #include <fastdds_statistics_backend/types/types.hpp>
 
+#include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
+
 namespace eprosima {
 namespace statistics_backend {
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void MonitorServiceSample::clear()
 {
     kind = StatusKind::INVALID;
@@ -24,18 +27,21 @@ void MonitorServiceSample::clear()
     src_ts = {};
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void ProxySample::clear()
 {
     MonitorServiceSample::clear();
     entity_proxy.clear();
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void ConnectionListSample::clear()
 {
     MonitorServiceSample::clear();
     connection_list.clear();
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void IncompatibleQosSample::clear()
 {
     MonitorServiceSample::clear();
@@ -44,18 +50,21 @@ void IncompatibleQosSample::clear()
     incompatible_qos_status.policies(std::vector<eprosima::fastdds::statistics::QosPolicyCount_s>());
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void InconsistentTopicSample::clear()
 {
     MonitorServiceSample::clear();
     inconsistent_topic_status.total_count(0);
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void LivelinessLostSample::clear()
 {
     MonitorServiceSample::clear();
     liveliness_lost_status.total_count(0);
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void LivelinessChangedSample::clear()
 {
     MonitorServiceSample::clear();
@@ -64,6 +73,7 @@ void LivelinessChangedSample::clear()
     liveliness_changed_status.last_publication_handle(std::array<uint8_t, 16UL>());
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void DeadlineMissedSample::clear()
 {
     MonitorServiceSample::clear();
@@ -71,6 +81,7 @@ void DeadlineMissedSample::clear()
     deadline_missed_status.last_instance_handle(std::array<uint8_t, 16UL>());
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
 void SampleLostSample::clear()
 {
     MonitorServiceSample::clear();
