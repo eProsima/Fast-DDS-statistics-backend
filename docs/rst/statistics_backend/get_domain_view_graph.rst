@@ -48,7 +48,7 @@ In this example, the previous call would return a |Graph-api| object similar to 
 
 .. todo::
 
-    Provide the `app_id` and `app_metadata` fields of a known app.
+    Provide the `app_metadata` fields in the json.
 
 .. literalinclude:: /code/graph_example.json
     :language: JSON
@@ -73,24 +73,24 @@ Running the previous snippet on the given example should output:
                 Process alias: "example_process1_alias"
                 Process PID:  "1234"
                 Process status: "OK"
-                    Participant alias: "example_participant1_alias"
-                    Participant app_id:  "UNKNOWN_APP"
+                    Participant alias: "shapes_demo_participant_1_alias"
+                    Participant app_id:  "SHAPES_DEMO"
                     Participant status: "OK"
-                        Endpoint alias: "example_publisher_alias"
+                        Endpoint alias: "shapes_demo_datawriter_alias"
                         Endpoint kind:  "datawriter"
-                        Endpoint app_id:  "UNKNOWN_APP"
+                        Endpoint app_id:  "SHAPES_DEMO"
                         Endpoint status: "OK"
                 Process alias: "example_process2_alias"
                 Process PID:  "1235"
                 Process status: "OK"
-                    Participant alias: "example_participant2_alias"
-                    Participant app_id:  "UNKNOWN_APP"
+                    Participant alias: "shapes_demo_participant_2_alias"
+                    Participant app_id:  "SHAPES_DEMO"
                     Participant status: "OK"
-                        Endpoint alias: "example_subscriber_alias"
+                        Endpoint alias: "shapes_demo_datareader_alias"
                         Endpoint kind:  "datareader"
-                        Endpoint app_id:  "UNKNOWN_APP"
+                        Endpoint app_id:  "SHAPES_DEMO"
                         Endpoint status: "OK"
-        Topic alias: "HelloWorld"
+        Topic alias: "Square"
         Topic metatraffic: false
 
 

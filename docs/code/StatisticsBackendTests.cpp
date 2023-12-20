@@ -132,9 +132,10 @@ void stop_restart_examples()
         EntityId domain_monitor_id = StatisticsBackend::init_monitor(0);
         // Stop the monitor
         StatisticsBackend::stop_monitor(domain_monitor_id);
+        //!--
+        // TODO
         // Restart the monitor
         StatisticsBackend::restart_monitor(domain_monitor_id);
-        //!--
     }
 }
 
@@ -153,9 +154,10 @@ void clear_examples()
         StatisticsBackend::clear_inactive_entities();
         // Stop the monitor
         StatisticsBackend::stop_monitor(domain_monitor_id);
+        //!--
+        // TODO
         // Clear all data related to the monitor
         StatisticsBackend::clear_monitor(domain_monitor_id);
-        //!--
     }
 }
 

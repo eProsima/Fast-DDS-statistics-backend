@@ -26,8 +26,9 @@ refer to the nature of these status data values as their |StatusKind-api|.
   - |DATAWRITER-api| Incompatible QoS Offered.
   - |DATAREADER-api| Incompatible QoS Requested.
 
-- |INCONSISTENT_TOPIC-api|: Status of inconsistent topics of the topic of that entity. Asked to the topic of the
-  requested entity.
+.. todo::
+  - |INCONSISTENT_TOPIC-api|: Status of inconsistent topics of the topic of that entity. Asked to the topic of the
+    requested entity.
 
 - |LIVELINESS_LOST-api|: Tracks the status of the number of times that liveliness was lost by a |DATAWRITER-api|.
 
@@ -38,8 +39,8 @@ refer to the nature of these status data values as their |StatusKind-api|.
 
 - |SAMPLE_LOST-api|: Tracks the number of times that this entity lost samples.
 
-.. warning::
-  |INCONSISTENT_TOPIC-api| status data not supported yet.
+.. todo::
+  - |INCONSISTENT_TOPIC-api| status data not supported yet.
 
 Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
@@ -53,8 +54,6 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 +-------------------------------+-----------------+----------------+----------------+
 | |INCOMPATIBLE_QOS-api|        | No              | Yes            | Yes            |
 +-------------------------------+-----------------+----------------+----------------+
-| |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
 | |LIVELINESS_LOST-api|         | No              | Yes            | No             |
 +-------------------------------+-----------------+----------------+----------------+
 | |LIVELINESS_CHANGED-api|      | No              | No             | Yes            |
@@ -63,6 +62,10 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 +-------------------------------+-----------------+----------------+----------------+
 | |SAMPLE_LOST-api|             | No              | No             | Yes            |
 +-------------------------------+-----------------+----------------+----------------+
+
+.. .. todo::
+..   | |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
+..   +-------------------------------+-----------------+----------------+----------------+
 
 Each |StatusKind-api| has an associated |StatusLevel-api|. |OK-api| status is obtained when the monitor service message
 reports no problem.
@@ -78,8 +81,6 @@ Entity's associated |StatusLevel-api| is obtained from all status data. The foll
 +-------------------------------+-----------------------+
 | |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|  |
 +-------------------------------+-----------------------+
-| |INCONSISTENT_TOPIC-api|      | \-                    |
-+-------------------------------+-----------------------+
 | |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api||
 +-------------------------------+-----------------------+
 | |LIVELINESS_CHANGED-api|      | |OK-api|              |
@@ -88,6 +89,10 @@ Entity's associated |StatusLevel-api| is obtained from all status data. The foll
 +-------------------------------+-----------------------+
 | |SAMPLE_LOST-api|             | |OK-api|/|WARNING-api||
 +-------------------------------+-----------------------+
+
+.. .. todo::
+..   | |INCONSISTENT_TOPIC-api|      | \-                    |
+..   +-------------------------------+-----------------------+
 
 .. note::
 
