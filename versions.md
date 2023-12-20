@@ -18,7 +18,7 @@ This release includes the following **features**:
 This release includes the following **dependencies update**:
 |  | Repository | Old Version | New Version |
 |---|---|---|---|
-| Fast CDR | [eProsima/Fast-CDR](https://github.com/eProsima/Fast-CDR) | [v1.1.0](https://github.com/eProsima/Fast-CDR/releases/tag/v1.1.0) | [v2.1.1](https://github.com/eProsima/Fast-CDR/releases/tag/v2.1.1) |
+| Fast CDR | [eProsima/Fast-CDR](https://github.com/eProsima/Fast-CDR) | [v1.1.0](https://github.com/eProsima/Fast-CDR/releases/tag/v1.1.0) | [v2.1.2](https://github.com/eProsima/Fast-CDR/releases/tag/v2.1.2) |
 | Fast DDS | [eProsima/Fast-DDS](https://github.com/eProsima/Fast-DDS) | [v2.11.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.11.0) | [v2.13.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.13.0) |
 | Fast DDS Gen | [eProsima/Fast-DDS-Gen](https://github.com/eProsima/Fast-DDS-Gen) | [v2.5.1](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.5.1) | [v3.0.0](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.0.0) |
 | IDL Parser | [eProsima/IDL-Parser](https://github.com/eProsima/IDL-Parser) | [v1.6.0](https://github.com/eProsima/IDL-Parser/releases/tag/v1.6.0) | [v1.7.2](https://github.com/eProsima/IDL-Parser/releases/tag/v1.7.2) |
