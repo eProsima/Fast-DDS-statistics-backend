@@ -31,7 +31,7 @@ jobs:
       - name: Install OpenSSL
         shell: pwsh
         run: >
-          choco install openssl -yr --no-progress;
+          choco install openssl --version=3.1.1 -yr --no-progress;
           @(ls -Path C:\Windows\System32\* -Include libssl-*.dll; ls -Path C:\Windows\SysWOW64\* -Include libssl-*.dll)
           | rm -ErrorAction SilentlyContinue
 
