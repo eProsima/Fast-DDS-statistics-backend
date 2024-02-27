@@ -127,10 +127,10 @@ EntityId DatabaseEntityQueue::process_participant(
         size_t separator_pos = info.process.find_last_of(':');
         if (separator_pos == std::string::npos)
         {
-            logInfo(BACKEND_DATABASE,
-                    "Process name " + item.process() + " does not follow the [command]:[PID] pattern");
             process_name = info.process;
             process_pid = info.process;
+            logInfo(BACKEND_DATABASE,
+                    "Process name " + process_name + " does not follow the [command]:[PID] pattern");
         }
         else
         {
