@@ -926,7 +926,9 @@ void Database::insert_nts(
                     const HistoryLatencySample& fastdds_latency = dynamic_cast<const HistoryLatencySample&>(sample);
                     
                     // Reject samples with old timestamps
-                    if (fastdds_latency.src_ts <= writer->second->data.history2history_latency[fastdds_latency.reader].back().src_ts)
+                    if (writer->second->data.history2history_latency.find(fastdds_latency.reader) != 
+                        writer->second->data.history2history_latency.end() && 
+                        fastdds_latency.src_ts <= writer->second->data.history2history_latency[fastdds_latency.reader].back().src_ts)
                     {
                         break;
                     }
@@ -951,7 +953,9 @@ void Database::insert_nts(
                     const NetworkLatencySample& network_latency = dynamic_cast<const NetworkLatencySample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (network_latency.src_ts <= participant->second->data.network_latency_per_locator[network_latency.remote_locator].back().src_ts)
+                    if (participant->second->data.network_latency_per_locator.find(network_latency.remote_locator) !=
+                        participant->second->data.network_latency_per_locator.end() &&
+                        network_latency.src_ts <= participant->second->data.network_latency_per_locator[network_latency.remote_locator].back().src_ts)
                     {
                         break;
                     }
@@ -978,7 +982,8 @@ void Database::insert_nts(
                             dynamic_cast<const PublicationThroughputSample&>(sample);
                     
                     // Reject samples with old timestamps
-                    if (publication_throughput.src_ts <= writer->second->data.publication_throughput.back().src_ts)
+                    if (!writer->second->data.publication_throughput.empty() &&
+                        publication_throughput.src_ts <= writer->second->data.publication_throughput.back().src_ts)
                     {
                         break;
                     }
@@ -1004,7 +1009,8 @@ void Database::insert_nts(
                             dynamic_cast<const SubscriptionThroughputSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (subscription_throughput.src_ts <= reader->second->data.subscription_throughput.back().src_ts)
+                    if (!reader->second->data.subscription_throughput.empty() &&
+                        subscription_throughput.src_ts <= reader->second->data.subscription_throughput.back().src_ts)
                     {
                         break;
                     }
@@ -1029,7 +1035,9 @@ void Database::insert_nts(
                     const RtpsPacketsSentSample& rtps_packets_sent = dynamic_cast<const RtpsPacketsSentSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (rtps_packets_sent.src_ts <= participant->second->data.last_reported_rtps_packets_sent_count[
+                    if (participant->second->data.rtps_packets_sent.find(rtps_packets_sent.remote_locator) != 
+                        participant->second->data.rtps_packets_sent.end() &&
+                        rtps_packets_sent.src_ts <= participant->second->data.last_reported_rtps_packets_sent_count[
                         rtps_packets_sent.remote_locator].src_ts)
                     {
                         break;
@@ -1087,7 +1095,9 @@ void Database::insert_nts(
                     const RtpsBytesSentSample& rtps_bytes_sent = dynamic_cast<const RtpsBytesSentSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (rtps_bytes_sent.src_ts <= participant->second->data.last_reported_rtps_bytes_sent_count[
+                    if (participant->second->data.rtps_bytes_sent.find(rtps_bytes_sent.remote_locator) !=
+                        participant->second->data.rtps_bytes_sent.end() &&
+                        rtps_bytes_sent.src_ts <= participant->second->data.last_reported_rtps_bytes_sent_count[
                         rtps_bytes_sent.remote_locator].src_ts)
                     {
                         break;
@@ -1143,7 +1153,9 @@ void Database::insert_nts(
                     const RtpsPacketsLostSample& rtps_packets_lost = dynamic_cast<const RtpsPacketsLostSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (rtps_packets_lost.src_ts <= participant->second->data.last_reported_rtps_packets_lost_count[
+                    if (participant->second->data.rtps_packets_lost.find(rtps_packets_lost.remote_locator) !=
+                        participant->second->data.rtps_packets_lost.end() &&
+                        rtps_packets_lost.src_ts <= participant->second->data.last_reported_rtps_packets_lost_count[
                         rtps_packets_lost.remote_locator].src_ts)
                     {
                         break;
@@ -1201,7 +1213,9 @@ void Database::insert_nts(
                     const RtpsBytesLostSample& rtps_bytes_lost = dynamic_cast<const RtpsBytesLostSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (rtps_bytes_lost.src_ts <= participant->second->data.last_reported_rtps_bytes_lost_count[
+                    if (participant->second->data.rtps_bytes_lost.find(rtps_bytes_lost.remote_locator) !=
+                        participant->second->data.rtps_bytes_lost.end() &&
+                        rtps_bytes_lost.src_ts <= participant->second->data.last_reported_rtps_bytes_lost_count[
                         rtps_bytes_lost.remote_locator].src_ts)
                     {
                         break;
@@ -1257,7 +1271,8 @@ void Database::insert_nts(
                     const ResentDataSample& resent_datas = dynamic_cast<const ResentDataSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (resent_datas.src_ts <= writer->second->data.last_reported_resent_datas.src_ts)
+                    if (!writer->second->data.resent_datas.empty() &&
+                        resent_datas.src_ts <= writer->second->data.last_reported_resent_datas.src_ts)
                     {
                         break;
                     }
@@ -1304,7 +1319,8 @@ void Database::insert_nts(
                     const HeartbeatCountSample& heartbeat_count = dynamic_cast<const HeartbeatCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (heartbeat_count.src_ts <= writer->second->data.last_reported_heartbeat_count.src_ts)
+                    if (!writer->second->data.heartbeat_count.empty() &&
+                        heartbeat_count.src_ts <= writer->second->data.last_reported_heartbeat_count.src_ts)
                     {
                         break;
                     }
@@ -1351,7 +1367,8 @@ void Database::insert_nts(
                     const AcknackCountSample& acknack_count = dynamic_cast<const AcknackCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (acknack_count.src_ts <= reader->second->data.last_reported_acknack_count.src_ts)
+                    if (!reader->second->data.acknack_count.empty() &&
+                        acknack_count.src_ts <= reader->second->data.last_reported_acknack_count.src_ts)
                     {
                         break;
                     }
@@ -1398,7 +1415,8 @@ void Database::insert_nts(
                     const NackfragCountSample& nackfrag_count = dynamic_cast<const NackfragCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (nackfrag_count.src_ts <= reader->second->data.last_reported_nackfrag_count.src_ts)
+                    if (!reader->second->data.nackfrag_count.empty() &&
+                        nackfrag_count.src_ts <= reader->second->data.last_reported_nackfrag_count.src_ts)
                     {
                         break;
                     }
@@ -1445,7 +1463,8 @@ void Database::insert_nts(
                     const GapCountSample& gap_count = dynamic_cast<const GapCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (gap_count.src_ts <= writer->second->data.last_reported_gap_count.src_ts)
+                    if (!writer->second->data.gap_count.empty() &&
+                        gap_count.src_ts <= writer->second->data.last_reported_gap_count.src_ts)
                     {
                         break;
                     }
@@ -1492,7 +1511,8 @@ void Database::insert_nts(
                     const DataCountSample& data_count = dynamic_cast<const DataCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (data_count.src_ts <= writer->second->data.last_reported_data_count.src_ts)
+                    if (!writer->second->data.data_count.empty() &&
+                        data_count.src_ts <= writer->second->data.last_reported_data_count.src_ts)
                     {
                         break;
                     }
@@ -1539,7 +1559,8 @@ void Database::insert_nts(
                     const PdpCountSample& pdp_packets = dynamic_cast<const PdpCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (pdp_packets.src_ts <= participant->second->data.last_reported_pdp_packets.src_ts)
+                    if (!participant->second->data.pdp_packets.empty() &&
+                        pdp_packets.src_ts <= participant->second->data.last_reported_pdp_packets.src_ts)
                     {
                         break;
                     }
@@ -1586,7 +1607,8 @@ void Database::insert_nts(
                     const EdpCountSample& edp_packets = dynamic_cast<const EdpCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (edp_packets.src_ts <= participant->second->data.last_reported_edp_packets.src_ts)
+                    if (!participant->second->data.edp_packets.empty() &&
+                        edp_packets.src_ts <= participant->second->data.last_reported_edp_packets.src_ts)
                     {
                         break;
                     }
@@ -1633,7 +1655,9 @@ void Database::insert_nts(
                     const DiscoveryTimeSample& discovery_time = dynamic_cast<const DiscoveryTimeSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (discovery_time.src_ts <= participant->second->data.discovered_entity[discovery_time.remote_entity].back().src_ts)
+                    if (participant->second->data.discovered_entity.find(discovery_time.remote_entity) !=
+                        participant->second->data.discovered_entity.end() &&
+                        discovery_time.src_ts <= participant->second->data.discovered_entity[discovery_time.remote_entity].back().src_ts)
                     {
                         break;
                     }
@@ -1658,7 +1682,9 @@ void Database::insert_nts(
                     const SampleDatasCountSample& sample_datas = dynamic_cast<const SampleDatasCountSample&>(sample);
 
                     // Reject samples with old timestamps
-                    if (sample_datas.src_ts <= writer->second->data.sample_datas[sample_datas.sequence_number].back().src_ts)
+                    if (writer->second->data.sample_datas.find(sample_datas.sequence_number) !=
+                        writer->second->data.sample_datas.end() &&
+                        sample_datas.src_ts <= writer->second->data.sample_datas[sample_datas.sequence_number].back().src_ts)
                     {
                         break;
                     }
@@ -1710,7 +1736,8 @@ bool Database::insert_nts(
                         const_participant);
                     
                     // Reject samples with old timestamps
-                    if (proxy.src_ts <= participant->monitor_service_data.proxy.back().src_ts)
+                    if (!participant->monitor_service_data.proxy.empty() &&
+                        proxy.src_ts <= participant->monitor_service_data.proxy.back().src_ts)
                     {
                         break;
                     }
@@ -1725,7 +1752,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                     // Reject samples with old timestamps
-                    if (proxy.src_ts <= datareader->monitor_service_data.proxy.back().src_ts)
+                    if (!datareader->monitor_service_data.proxy.empty() &&
+                        proxy.src_ts <= datareader->monitor_service_data.proxy.back().src_ts)
                     {
                         break;
                     }
@@ -1740,7 +1768,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (proxy.src_ts <= datawriter->monitor_service_data.proxy.back().src_ts)
+                    if (datawriter->monitor_service_data.proxy.empty() &&
+                        proxy.src_ts <= datawriter->monitor_service_data.proxy.back().src_ts)
                     {
                         break;
                     }
@@ -1769,7 +1798,8 @@ bool Database::insert_nts(
                         const_participant);
 
                     // Reject samples with old timestamps
-                    if (connection_list.src_ts <= participant->monitor_service_data.connection_list.back().src_ts)
+                    if (!participant->monitor_service_data.connection_list.empty() &&
+                        connection_list.src_ts <= participant->monitor_service_data.connection_list.back().src_ts)
                     {
                         break;
                     }
@@ -1784,7 +1814,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                     // Reject samples with old timestamps
-                    if (connection_list.src_ts <= datareader->monitor_service_data.connection_list.back().src_ts)
+                    if (!datareader->monitor_service_data.connection_list.empty() &&
+                        connection_list.src_ts <= datareader->monitor_service_data.connection_list.back().src_ts)
                     {
                         break;
                     }
@@ -1799,7 +1830,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (connection_list.src_ts <= datawriter->monitor_service_data.connection_list.back().src_ts)
+                    if (!datawriter->monitor_service_data.connection_list.empty() &&
+                        connection_list.src_ts <= datawriter->monitor_service_data.connection_list.back().src_ts)
                     {
                         break;
                     }
@@ -1827,7 +1859,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                     // Reject samples with old timestamps
-                    if (incompatible_qos.src_ts <= datareader->monitor_service_data.incompatible_qos.back().src_ts)
+                    if (!datareader->monitor_service_data.incompatible_qos.empty() &&
+                        incompatible_qos.src_ts <= datareader->monitor_service_data.incompatible_qos.back().src_ts)
                     {
                         break;
                     }
@@ -1843,7 +1876,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (incompatible_qos.src_ts <= datawriter->monitor_service_data.incompatible_qos.back().src_ts)
+                    if (!datawriter->monitor_service_data.incompatible_qos.empty() &&
+                        incompatible_qos.src_ts <= datawriter->monitor_service_data.incompatible_qos.back().src_ts)
                     {
                         break;
                     }
@@ -1872,7 +1906,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                     // Reject samples with old timestamps
-                    if (inconsistent_topic.src_ts <= datareader->monitor_service_data.inconsistent_topic.back().src_ts)
+                    if (!datareader->monitor_service_data.inconsistent_topic.empty() &&
+                        inconsistent_topic.src_ts <= datareader->monitor_service_data.inconsistent_topic.back().src_ts)
                     {
                         break;
                     }
@@ -1888,7 +1923,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (inconsistent_topic.src_ts <= datawriter->monitor_service_data.inconsistent_topic.back().src_ts)
+                    if (!datawriter->monitor_service_data.inconsistent_topic.empty() &&
+                        inconsistent_topic.src_ts <= datawriter->monitor_service_data.inconsistent_topic.back().src_ts)
                     {
                         break;
                     }
@@ -1916,7 +1952,8 @@ bool Database::insert_nts(
                 std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                 // Reject samples with old timestamps
-                if (liveliness_lost.src_ts <= datawriter->monitor_service_data.liveliness_lost.back().src_ts)
+                if (!datawriter->monitor_service_data.liveliness_lost.empty() &&
+                    liveliness_lost.src_ts <= datawriter->monitor_service_data.liveliness_lost.back().src_ts)
                 {
                     break;
                 }
@@ -1942,7 +1979,8 @@ bool Database::insert_nts(
                 std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                 // Reject samples with old timestamps
-                if (liveliness_changed.src_ts <= datareader->monitor_service_data.liveliness_changed.back().src_ts)
+                if (!datareader->monitor_service_data.liveliness_changed.empty() &&
+                    liveliness_changed.src_ts <= datareader->monitor_service_data.liveliness_changed.back().src_ts)
                 {
                     break;
                 }
@@ -1969,7 +2007,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                     // Reject samples with old timestamps
-                    if (deadline_missed.src_ts <= datareader->monitor_service_data.deadline_missed.back().src_ts)
+                    if (!datareader->monitor_service_data.deadline_missed.empty() &&
+                        deadline_missed.src_ts <= datareader->monitor_service_data.deadline_missed.back().src_ts)
                     {
                         break;
                     }
@@ -1985,7 +2024,8 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (deadline_missed.src_ts <= datawriter->monitor_service_data.deadline_missed.back().src_ts)
+                    if (!datawriter->monitor_service_data.deadline_missed.empty() &&
+                        deadline_missed.src_ts <= datawriter->monitor_service_data.deadline_missed.back().src_ts)
                     {
                         break;
                     }
@@ -2012,7 +2052,8 @@ bool Database::insert_nts(
                 std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
 
                 // Reject samples with old timestamps
-                if (sample_lost.src_ts <= datareader->monitor_service_data.sample_lost.back().src_ts)
+                if (!datareader->monitor_service_data.sample_lost.empty() &&
+                    sample_lost.src_ts <= datareader->monitor_service_data.sample_lost.back().src_ts)
                 {
                     break;
                 }
