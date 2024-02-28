@@ -492,6 +492,7 @@ set(DATABASE_DUMP_TEST_LIST
     dump_empty_entities_database
     dump_simple_database
     dump_complex_database
+    dump_complex_database_reject_old_data
     dump_unlinked_database
     id_to_string
     time_to_string
