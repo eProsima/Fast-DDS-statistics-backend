@@ -1,475 +1,272 @@
-name: test
+name: ddsrouter-tests
 
 on:
+
   workflow_dispatch:
+    inputs:
+
+      dependencies_artifact_postfix:
+        description: 'Postfix name to add to artifact name to download dependencies. This is use to download a specific artifact version from eProsima-CI.'
+        required: true
+        default: '_nightly'
+
   pull_request:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 5 * * *'
+
+env:
+  code_packages_names: 'fastdds_statistics_backend'
+  docs_packages_names: 'fastdds_statistics_backend'
+  default_dependencies_artifact_postfix: '_nightly'
 
 jobs:
-  windows-build-test:
-    runs-on: windows-latest
+
+
+#####################################################################
+# TEST
+
+  multiplatform-tests:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        cmake-config:
-          - 'Release'
-          - 'Debug'
-    env:
-      CXXFLAGS: /MP
-      OPENSSL64_ROOT: "C:/Program Files/OpenSSL-Win64"
+        cmake_build_type:
+          - Release
+          - Debug
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - windows-2019
+          - windows-2022
 
     steps:
-      - name: Sync eProsima/Fast-DDS-Statistics-Backend repository
-        uses: actions/checkout@v2
+
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
-          path: Fast-DDS-statistics-backend
+          path: ${{ github.workspace }}/src
 
-      - name: Install OpenSSL
-        shell: pwsh
-        run: >
-          choco install openssl --version=3.1.1 -yr --no-progress;
-          @(ls -Path C:\Windows\System32\* -Include libssl-*.dll; ls -Path C:\Windows\SysWOW64\* -Include libssl-*.dll)
-          | rm -ErrorAction SilentlyContinue
+      - name: Download dependencies and install requirements
+        uses: ./src/.github/actions/project_dependencies
+        with:
+          os: ${{ matrix.os }}
+          cmake_build_type: ${{ matrix.cmake_build_type }}
+          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install GoogleTest
-        shell: pwsh
-        run: >
-          cmake --find-package -DNAME=GTest -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST | Tee-Object -Variable res;
-          if ( $res -notlike '*GTest found.*')
-          {
-            git clone https://github.com/google/googletest.git;
-            cmake -DCMAKE_INSTALL_PREFIX='C:\Program Files\gtest' -Dgtest_force_shared_crt=ON -DBUILD_GMOCK=ON `
-              -B build\gtest -A x64 -T host=x64 googletest;
-            cmake --build build\gtest --config ${{ matrix.cmake-config }} --target install;
-          }
+      - name: Compile and run tests
+        id: compile_and_test
+        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@main
+        with:
+          packages_names: ${{ env.code_packages_names }}
+          cmake_args: -DBUILD_TESTS=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type }}
+          workspace_dependencies: ${{ github.workspace }}/install
+          ctest_args: --label-exclude "xfail"
+          colcon_meta_file: ${{ github.workspace }}/src/.github/workflows/configurations/${{ runner.os }}/colcon.meta
 
-      - name: Install foonatham memory
-        shell: pwsh
-        run: >
-          git clone --recurse-submodules --branch v0.6-2 https://github.com/foonathan/memory.git;
-          cmake -DBUILD_SHARED_LIBS=OFF -DFOONATHAN_MEMORY_BUILD_TOOLS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON `
-            -DFOONATHAN_MEMORY_BUILD_TESTS=OFF -Ax64 -T host=x64 -B build\memory memory;
-          cmake --build build\memory --config ${{ matrix.cmake-config }} --target install;
+      - name: Test Report
+        uses: eProsima/eProsima-CI/external/test-reporter@main
+        if: success() || failure()
+        with:
+          name: "Report: ${{ matrix.os }} | ${{ matrix.cmake_build_type }} "
+          path: "${{ steps.compile_and_test.outputs.ctest_results_path }}*.xml"
+          working-directory: 'src'
+          path-replace-backslashes: 'true'
+          list-tests: 'failed'
 
-      - name: Install Fast-CDR
-        shell: pwsh
-        run: >
-          git clone https://github.com/eProsima/Fast-CDR.git --branch master;
-          cmake -Ax64 -T host=x64 -B build\fastcdr Fast-CDR;
-          cmake --build build\fastcdr --config ${{ matrix.cmake-config }} --target install;
+#####################################################################
+# ASAN
 
-      - name: Install Fast-DDS
-        shell: pwsh
-        run: >
-          git clone https://github.com/eProsima/Fast-DDS.git;
-          cmake -DTHIRDPARTY=ON -DSECURITY=ON -DCOMPILE_EXAMPLES=OFF -DEPROSIMA_BUILD_TESTS=OFF `
-            -DINTERNAL_DEBUG=ON -Ax64 -T host=x64 -B build\fastdds Fast-DDS;
-          cmake --build build\fastdds --config ${{ matrix.cmake-config }} --target install;
+  asan:
+    runs-on: ubuntu-22.04
+    steps:
 
-      - name: Install Fast-DDS-statistics-backend
-        shell: pwsh
-        run: >
-          cmake -DCMAKE_PREFIX_PATH='C:\Program Files\gtest' -DBUILD_LIBRARY_TESTS=ON `
-            -B build\backend -A x64 -T host=x64 Fast-DDS-statistics-backend;
-          cmake --build build\backend --config ${{ matrix.cmake-config }} --target install;
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
+        with:
+          path: ${{ github.workspace }}/src
 
-      - name: Run tests on ${{ matrix.cmake-config }}
-        shell: pwsh
-        run: ctest -C ${{ matrix.cmake-config }} --test-dir build\backend -V --timeout 60 --label-exclude xfail
+      - name: Download dependencies and install requirements
+        uses: ./src/.github/actions/project_dependencies
+        with:
+          os: ubuntu-22.04
+          cmake_build_type: Release
+          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Compile and run tests
+        id: compile_and_test
+        uses: eProsima/eProsima-CI/multiplatform/asan_build_test@main
+        with:
+          packages_names: ${{ env.code_packages_names }}
+          workspace_dependencies: ${{ github.workspace }}/install
 
-  ubuntu-build-test:
-    runs-on: ubuntu-latest
+      - name: Test Report
+        uses: eProsima/eProsima-CI/external/test-reporter@main
+        if: success() || failure()
+        with:
+          name: "Report: ASAN "
+          path: "${{ steps.compile_and_test.outputs.ctest_results_path }}*.xml"
+          working-directory: 'src'
+          list-tests: 'failed'
+
+#####################################################################
+# TSAN
+
+# Commented out until we have a TSAN build for Fast DDS Statistics Backend
+
+#   tsan:
+#     runs-on: ubuntu-22.04
+#     steps:
+
+#       - name: Sync repository
+#         uses: eProsima/eProsima-CI/external/checkout@v0
+#         with:
+#           path: ${{ github.workspace }}/src
+
+#       - name: Download dependencies and install requirements
+#         uses: ./src/.github/actions/project_dependencies
+#         with:
+#           os: ubuntu-22.04
+#           cmake_build_type: Release
+#           dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+#           secret_token: ${{ secrets.GITHUB_TOKEN }}
+
+#       - name: Compile and run tests
+#         id: compile_and_test
+#         uses: eProsima/eProsima-CI/multiplatform/tsan_build_test@main
+#         with:
+#           packages_names: ${{ env.code_packages_names }}
+#           workspace_dependencies: ${{ github.workspace }}/install
+
+#       - name: Test Report
+#         uses: eProsima/eProsima-CI/external/test-reporter@main
+#         if: success() || failure()
+#         with:
+#           name: "Report: TSAN "
+#           path: "${{ steps.compile_and_test.outputs.ctest_results_path }}*.xml"
+#           working-directory: 'src'
+#           list-tests: 'failed'
+
+#####################################################################
+# CLANG
+
+  clang:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
+        with:
+          path: ${{ github.workspace }}/src
+
+      - name: Download dependencies and install requirements
+        uses: ./src/.github/actions/project_dependencies
+        with:
+          os: ubuntu-22.04
+          cmake_build_type: Release
+          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compile and run tests
+        uses: eProsima/eProsima-CI/multiplatform/clang_build_test@v0
+        with:
+          packages_names: ${{ env.code_packages_names }}
+          workspace_dependencies: ${{ github.workspace }}/install
+
+#####################################################################
+# COVERAGE
+
+  coverage:
+    runs-on: ubuntu-22.04
     environment:
       name: codecov
-
     steps:
-      - uses: actions/checkout@v2
+
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
-          path: src/Fast-DDS-statistics-backend
+          path: ${{ github.workspace }}/src
 
-      - name: Install apt packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install colcon
-        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
-
-      - name: Install Python packages
-        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+      - name: Download dependencies and install requirements
+        uses: ./src/.github/actions/project_dependencies
         with:
-          packages: \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            vcstool \
-            GitPython \
-            setuptools \
-            gcovr==5.2 \
-            tomark
+          os: ubuntu-22.04
+          cmake_build_type: Release
+          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch eProsima dependencies
-        run: |
-          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
-
-      - name: Update colcon mixin
-        run: |
-          colcon mixin add default \
-            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-          colcon mixin update default
-        continue-on-error: true
-
-      - name: Build gtest
-        run: |
-          colcon build \
-            --event-handlers=console_direct+ \
-            --packages-select googletest-distribution
-
-      - name: Build workspace
-        run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
-          colcon build \
-            --packages-skip googletest-distribution \
-            --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta
-
-      - name: Run tests
-        run: |
-          source install/setup.bash && \
-          colcon test \
-            --packages-select fastdds_statistics_backend \
-            --event-handlers=console_direct+ \
-            --return-code-on-test-failure \
-            --ctest-args \
-              --timeout 60 \
-              --label-exclude xfail
-
-      - name: Generate coverage report
-        run: |
-          cp src/Fast-DDS-statistics-backend/codecov.yml .
-          mkdir coverage-report
-          gcovr \
-          --root src/Fast-DDS-statistics-backend/ \
-          --object-directory build/fastdds_statistics_backend \
-          --output coverage-report/coverage.xml \
-          --xml-pretty \
-          --exclude='.*nlohmann-json/.*' \
-          --exclude='.*docs/.*' \
-          --exclude='.*examples/.*' \
-          --exclude='.*test/.*' \
-          --exclude='.*github/.*' \
-          --exclude='.*topic_types/.*' \
-          --exclude-unreachable-branches
-        if: always()
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@v1
+      - name: Compile and run tests
+        uses: eProsima/eProsima-CI/ubuntu/coverage_build_test_upload@main
         with:
-          name: coverage-report
-          path: coverage-report/
-        if: always()
+          packages_names: ${{ env.code_packages_names }}
+          workspace_dependencies: ${{ github.workspace }}/install
+          codecov_token: ${{ secrets.CODECOV_TOKEN }}
+          codecov_fix_file_path: ${{ github.workspace }}/src/codecov.yml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage-report/coverage.xml
-          root_dir: src/Fast-DDS-statistics-backend
-          fail_ci_if_error: true
 
-      - name: Upload Logs
-        uses: actions/upload-artifact@v1
-        with:
-          name: colcon-logs-ubuntu
-          path: log/
-        if: always()
+#####################################################################
+# FLAKY
 
-      - name: Upload documentation
-        uses: actions/upload-artifact@v1
-        with:
-          name: Documentation HTML
-          path: install/fastdds_statistics_backend/docs/fastdds_statistics_backend/sphinx/html/
-        if: always()
-
-  asan-test:
-    runs-on: ubuntu-latest
-
+  flaky:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
-          path: src/Fast-DDS-statistics-backend
+          path: ${{ github.workspace }}/src
 
-      - name: Install apt packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install colcon
-        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
-
-      - name: Install Python packages
-        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
+      - name: Download dependencies and install requirements
+        uses: ./src/.github/actions/project_dependencies
         with:
-          packages: \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            vcstool \
-            GitPython \
-            setuptools \
-            gcovr==5.2 \
-            tomark
+          os: ubuntu-22.04
+          cmake_build_type: Release
+          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix || env.default_dependencies_artifact_postfix }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch eProsima dependencies
-        run: |
-          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
-
-      - name: Update colcon mixin
-        run: |
-          colcon mixin add default \
-            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-          colcon mixin update default
-        continue-on-error: true
-
-      - name: Build workspace
-        run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/asan.meta
-          colcon build \
-            --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/asan.meta
-
-      - name: Run tests
-        run: |
-          source install/setup.bash && \
-          colcon test \
-            --packages-select fastdds_statistics_backend \
-            --event-handlers=console_direct+ \
-            --return-code-on-test-failure \
-            --ctest-args \
-              --timeout 60 \
-              --label-exclude xasan xfail
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v1
+      - name: Compile and run tests
+        id: compile_and_test
+        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@main
         with:
-          name: asan-logs
-          path: log/
-        if: always()
+          packages_names: ${{ env.code_packages_names }}
+          workspace_dependencies: ${{ github.workspace }}/install
+          ctest_args: --label-regex "xfail"
 
-      - name: Report ASAN errors
-        continue-on-error: true
-        if: always()
-        run: |
-          echo -n "**ASAN Errors**: " >> $GITHUB_STEP_SUMMARY
-          echo $(sed 's/==.*==ERROR:/==.*==ERROR:\n/g' log/latest_test/fastdds_statistics_backend/stdout_stderr.log | grep -c "==.*==ERROR:") >> $GITHUB_STEP_SUMMARY
-          python3 src/Fast-DDS-statistics-backend/.github/workflows/asan_log_parser.py
+      - name: Test Report
+        uses: eProsima/eProsima-CI/external/test-reporter@main
+        if: success() || failure()
+        with:
+          name: "Report: Flaky "
+          path: "${{ steps.compile_and_test.outputs.ctest_results_path }}*.xml"
+          working-directory: 'src'
+          fail-on-empty: 'false'
+          list-tests: 'failed'
 
+#####################################################################
+# DOCUMENTATION TEST
 
-  flaky-test:
-    runs-on: ubuntu-latest
-
+  docs:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - name: Build and test documentation
+        uses: eProsima/eProsima-CI/ubuntu/sphinx_docs@main
         with:
-          path: src/Fast-DDS-statistics-backend
-
-      - name: Install apt packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install colcon
-        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
-
-      - name: Install Python packages
-        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
-        with:
-          packages: \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            vcstool \
-            GitPython \
-            setuptools \
-            gcovr==5.2 \
-            tomark
-
-      - name: Fetch eProsima dependencies
-        run: |
-          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
-
-      - name: Update colcon mixin
-        run: |
-          colcon mixin add default \
-            https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-          colcon mixin update default
-        continue-on-error: true
-
-      - name: Build workspace
-        run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/test.meta
-          colcon build \
-            --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/test.meta
-
-      - name: Run tests
-        run: |
-          source install/setup.bash && \
-          colcon test \
-            --packages-select fastdds_statistics_backend \
-            --event-handlers=console_direct+ \
-            --return-code-on-test-failure \
-            --ctest-args \
-              --timeout 60 \
-              --label-regex xfail
-
-      - name: Upload Logs
-        uses: actions/upload-artifact@v1
-        with:
-          name: asan-logs
-          path: log/
-        if: always()
+          checkout_path: "${{ github.workspace }}/src/ddsrouter"
+          path_to_requirements: "${{ github.workspace }}/src/ddsrouter/docs/requirements.txt"
+          docs_subpackage_name: ${{ env.docs_packages_names }}
+          secret_token: ${{ secrets.GITHUB_TOKEN }}
 
 
-  clang-tidy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          path: src/Fast-DDS-statistics-backend
-
-      - name: Install apt packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install colcon
-        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
-
-      - name: Install Python packages
-        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
-        with:
-          packages: \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            vcstool \
-            GitPython \
-            setuptools \
-            gcovr==5.2 \
-            tomark
-
-      - name: Fetch eProsima dependencies
-        run: |
-          vcs import src < ./src/Fast-DDS-statistics-backend/.github/workflows/ci.repos
-
-      - name: Build workspace
-        run: |
-          cat src/Fast-DDS-statistics-backend/.github/workflows/clang.meta
-          colcon build \
-            --event-handlers=console_direct+ \
-            --metas src/Fast-DDS-statistics-backend/.github/workflows/clang.meta
-
-      - name: Run clang-tidy
-        run: |
-          cd build/fastdds_statistics_backend
-          run-clang-tidy -header-filter='.*' -checks='clang-analyzer-cplusplus' -quiet 2> ${{ github.workspace }}/clang_results.yml
+#####################################################################
+# UNCRUSTIFY
 
   uncrustify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-        with:
-          path: src/Fast-DDS-statistics-backend
 
-      - name: Fetch all branches and tags
-        run: |
-          cd src/Fast-DDS-statistics-backend
-          git fetch --prune --unshallow
-
-      - name: Install apt packages
-        uses: ./src/Fast-DDS-statistics-backend/.github/actions/install-apt-packages
-
-      - name: Install colcon
-        uses: eProsima/eProsima-CI/ubuntu/install_colcon@v0
-
-      - name: Install Python packages
-        uses: eProsima/eProsima-CI/ubuntu/install_python_packages@v0
-        with:
-          packages: \
-            sphinx==3.0.3 \
-            breathe==4.19.0 \
-            doc8==0.8.0 \
-            sphinx_rtd_theme==0.4.3 \
-            sphinxcontrib.spelling==5.0.0 \
-            sphinxcontrib-imagehelper==1.1.1 \
-            vcstool \
-            GitPython \
-            setuptools \
-            gcovr==5.2 \
-            tomark
-
-      - name: Install uncrustify
-        run: |
-          git clone https://github.com/uncrustify/uncrustify.git \
-            --branch uncrustify-0.71.0 \
-            --single-branch uncrustify
-          mkdir -p uncrustify/build
-          cd uncrustify/build
-          cmake ..
-          sudo cmake --build . --target install
-          cd ../..
-          sudo rm -rf uncrustify
-
-      - name: Clone ament_lint
-        run: |
-          git clone https://github.com/ament/ament_lint.git src/ament_lint
-
-      - name: Build ament_uncrustify
-        run: colcon build --packages-up-to ament_uncrustify
-
-      - name: Fetch uncrustify config file
-        run: |
-          curl \
-            -l https://raw.githubusercontent.com/eProsima/cpp-style/master/uncrustify.cfg \
-            -o uncrustify.cfg
-
-      - name: Get difference
-        run: |
-          cd src/Fast-DDS-statistics-backend
-          echo "MODIFIED_FILES=$(git diff --name-only origin/${GITHUB_BASE_REF} origin/${GITHUB_HEAD_REF} | grep -e '\.h' -e '\.hpp' -e '\.cpp' | tr '\n' ' ')" >> $GITHUB_ENV
-
-      - name: Check difference
-        run: |
-          cd src/Fast-DDS-statistics-backend
-          if [[ -z "${MODIFIED_FILES}" ]]
-          then
-            touch empty.hpp
-            echo "MODIFIED_FILES=empty.hpp" >> $GITHUB_ENV
-          fi
-
-      - name: Check style
-        run: |
-          source install/local_setup.bash
-          cd src/Fast-DDS-statistics-backend
-          ament_uncrustify \
-            -c ../../uncrustify.cfg \
-            --language CPP \
-            --xunit-file ../../uncrustify_results.xml \
-            ${MODIFIED_FILES}
-
-      - name: Upload uncrustify results
-        uses: actions/upload-artifact@v1
-        with:
-          name: uncrustify_results
-          path: uncrustify_results.xml
-        if: always()
+      - name: Uncrustify
+        uses: eProsima/eProsima-CI/ubuntu/uncrustify@v0
