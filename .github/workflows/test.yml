@@ -252,6 +252,11 @@ jobs:
   docs:
     runs-on: ubuntu-22.04
     steps:
+      - name: Install doxygen
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@main
+        with:
+          packages: doxygen
+
       - name: Build and test documentation
         uses: eProsima/eProsima-CI/ubuntu/sphinx_docs@main
         with:
