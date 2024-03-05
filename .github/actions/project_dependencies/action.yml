@@ -39,16 +39,16 @@ runs:
         cmake_build_type: ${{ inputs.cmake_build_type }}
 
     - name: Install doxygen ubuntu
-      if: ${{ runner.os }} == "ubuntu"
+      if: runner.os == 'Linux'
       uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
       with:
         packages: 'doxygen'
         
     - name: Install doxygen windows
-      if: ${{ runner.os }} == "windows"
+      if: runner.os == 'Windows'
       shell: pwsh
       run: |
-          choco install doxygen.install
+        choco install doxygen.install -yr --no-progress;
 
     - name: Install yaml cpp dependency
       uses: eProsima/eProsima-CI/multiplatform/install_yamlcpp@v0
