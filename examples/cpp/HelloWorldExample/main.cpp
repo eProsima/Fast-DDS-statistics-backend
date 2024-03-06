@@ -242,7 +242,7 @@ int main(
             Monitor monitor;
             if (monitor.init(
                         static_cast<uint32_t>(domain),
-                        static_cast<uint32_t>(n_bins),
+                        static_cast<uint16_t>(n_bins),
                         static_cast<uint32_t>(t_interval),
                         dump_file,
                         reset))

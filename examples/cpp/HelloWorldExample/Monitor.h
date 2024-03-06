@@ -45,7 +45,7 @@ public:
     //! Initialize monitor
     bool init(
             uint32_t domain,
-            uint32_t n_bins,
+            uint16_t n_bins,
             uint32_t t_interval,
             std::string dump_file = "",
             bool reset = false);
@@ -143,7 +143,7 @@ protected:
 private:
 
     //! Number of time intervals in which the measurement time is divided
-    uint32_t n_bins_;
+    uint16_t n_bins_;
 
     //! Time interval of the returned measures
     uint32_t t_interval_;

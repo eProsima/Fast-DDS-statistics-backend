@@ -63,7 +63,7 @@ void Monitor::stop()
 
 bool Monitor::init(
         uint32_t domain,
-        uint32_t n_bins,
+        uint16_t n_bins,
         uint32_t t_interval,
         std::string dump_file /* = "" */,
         bool reset /* = false */)
@@ -124,7 +124,12 @@ void Monitor::dump_in_file()
 {
     // Get current timestamp
     auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
+    std::tm tm;
+#ifdef _WIN32
+    localtime_s(&tm, &t);
+#else
+    localtime_r(&t, &tm);
+#endif // ifdef _WIN32
     std::ostringstream oss;
     oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
     std::string current_time = oss.str();
