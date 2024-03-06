@@ -252,6 +252,12 @@ jobs:
   docs:
     runs-on: ubuntu-22.04
     steps:
+
+      - name: Install libtinyxml in ubuntu
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@main
+        with:
+          packages: libtinyxml2-dev
+
       - name: Install doxygen
         uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@main
         with:
