@@ -100,7 +100,7 @@ set(CPACK_COMPONENT_backend-sphinx_DESCRIPTION
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} ${DOCS_BUILDER})
 
 # Add tests if required
-if(BUILD_DOCUMENTATION_TESTS)
+if(BUILD_DOCS_TESTS)
     message(STATUS "Adding documentation tests")
     add_subdirectory(test)
 endif()

@@ -122,9 +122,9 @@ endif()
 # Test
 ###############################################################################
 option(BUILD_TESTS "Build Fast DDS Statistics Backend library tests" OFF)
-option(BUILD_DOCUMENTATION_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
+option(BUILD_DOCS_TESTS "Build Fast DDS Statistics Backend documentation tests" OFF)
 
-if (BUILD_TESTS OR BUILD_DOCUMENTATION_TESTS)
+if (BUILD_TESTS OR BUILD_DOCS_TESTS)
     # CTest needs to be included here, otherwise it is not possible to run the tests from the root
     # of the build directory
     enable_testing()
@@ -138,9 +138,9 @@ endif()
 ###############################################################################
 # Documentation
 ###############################################################################
-option(BUILD_DOCUMENTATION "Generate documentation" OFF)
-if(BUILD_DOCUMENTATION OR BUILD_DOCUMENTATION_TESTS)
-    set(BUILD_DOCUMENTATION ON)
+option(BUILD_DOCS "Generate documentation" OFF)
+if(BUILD_DOCS OR BUILD_DOCS_TESTS)
+    set(BUILD_DOCS ON)
     add_subdirectory(docs)
 endif()
 
