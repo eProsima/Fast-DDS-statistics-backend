@@ -29,7 +29,6 @@ jobs:
 # TEST
 
   multiplatform-tests:
-    if: false
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -38,9 +37,9 @@ jobs:
           - Release
           - Debug
         os:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - windows-2019
+          # - ubuntu-20.04
+          # - ubuntu-22.04
+          # - windows-2019
           - windows-2022
 
     steps:

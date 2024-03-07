@@ -34,7 +34,7 @@ runs:
   steps:
 
     - name: Install Fast DDS dependencies
-      uses: eProsima/eProsima-CI/multiplatform/install_fastdds_dependencies@v0
+      uses: eProsima/eProsima-CI/multiplatform/install_fastdds_dependencies@feature/fix-cmake-version
       with:
         cmake_build_type: ${{ inputs.cmake_build_type }}
 

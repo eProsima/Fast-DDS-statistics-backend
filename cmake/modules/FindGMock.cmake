@@ -97,12 +97,12 @@ if(MSVC)
   endif()
 endif()
 
-find_path(GMOCK_INCLUDE_DIR gmock/gmock.h
+find_path(GTEST_INCLUDE_DIR gmock/gmock.h
   HINTS
     $ENV{GMOCK_ROOT}/include
     ${GMOCK_ROOT}/include
 )
-mark_as_advanced(GMOCK_INCLUDE_DIR)
+mark_as_advanced(GTEST_INCLUDE_DIR)
 
 if(MSVC AND GMOCK_MSVC_SEARCH STREQUAL "MD")
   # The provided /MD project files for Google Mock add -md suffixes to the
@@ -119,12 +119,11 @@ else()
 endif()
 
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GMock DEFAULT_MSG GMOCK_LIBRARY GMOCK_INCLUDE_DIR GMOCK_MAIN_LIBRARY)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(GMock DEFAULT_MSG GMOCK_LIBRARY GTEST_INCLUDE_DIR GMOCK_MAIN_LIBRARY)
 
 if(GMOCK_FOUND)
-  set(GMOCK_INCLUDE_DIRS ${GMOCK_INCLUDE_DIR})
+  set(GMOCK_INCLUDE_DIRS ${GTEST_INCLUDE_DIR})
   _gmock_append_debugs(GMOCK_LIBRARIES      GMOCK_LIBRARY)
   _gmock_append_debugs(GMOCK_MAIN_LIBRARIES GMOCK_MAIN_LIBRARY)
   set(GMOCK_BOTH_LIBRARIES ${GMOCK_LIBRARIES} ${GMOCK_MAIN_LIBRARIES})
 endif()
-
