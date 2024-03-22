@@ -12,7 +12,7 @@
         {
             "cmake-args":
             [
-                "-DBUILD_DOCUMENTATION=OFF",
+                "-DBUILD_DOCS=OFF",
                 "-DCOMPILE_EXAMPLES=OFF",
             ]
         }

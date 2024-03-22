@@ -1,0 +1,14 @@
+{
+    "names":
+    {
+        "fastdds_statistics_backend":
+        {
+            "cmake-args":
+            [
+                "-DCMAKE_CXX_FLAGS='/WX /EHsc'",
+                "-Ax64",
+                "-T host=x64"
+            ]
+        }
+    }
+}

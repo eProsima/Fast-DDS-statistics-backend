@@ -110,7 +110,7 @@ python3 -V
 #### Build documentation
 
 To enable the documentation building, edit `<path_to_ws>/fastdds_statistics_backend_ws/colcon.meta`
-to set `-DBUILD_DOCUMENTATION` to `ON` within the `fastdds_statistics_backend` project.
+to set `-DBUILD_DOCS` to `ON` within the `fastdds_statistics_backend` project.
 Then, activate the virtual environment and build the documentation.
 
 ```bash
