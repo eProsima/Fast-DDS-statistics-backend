@@ -254,12 +254,12 @@ jobs:
     steps:
 
       - name: Install libtinyxml in ubuntu
-        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@main
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
         with:
           packages: libtinyxml2-dev
 
       - name: Install doxygen
-        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@main
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
         with:
           packages: doxygen
 
