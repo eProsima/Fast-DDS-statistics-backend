@@ -1817,12 +1817,19 @@ TEST_F(database_tests, insert_sample_history_latency)
     HistoryLatencySample sample_2;
     sample_2.reader = reader_id;
     sample_2.data = 13;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2u);
     ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(writer->data.history2history_latency[reader_id][1], static_cast<EntityDataSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_EQ(writer->data.history2history_latency[reader_id].size(), 2u);
+    ASSERT_EQ(writer->data.history2history_latency[reader_id][0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer->data.history2history_latency[reader_id][1], static_cast<EntityDataSample>(sample_2));
+
 }
 
 TEST_F(database_tests, insert_sample_history_latency_wrong_entity)
@@ -1838,13 +1845,23 @@ TEST_F(database_tests, insert_sample_network_latency)
     NetworkLatencySample sample;
     sample.remote_locator = reader_locator->id;
     sample.data = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     NetworkLatencySample sample_2;
     sample_2.remote_locator = reader_locator->id;
     sample_2.data = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id].size(), 2u);
+    ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id][0],
+            static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id][1],
+            static_cast<EntityDataSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.network_latency_per_locator[reader_locator->id][0],
             static_cast<EntityDataSample>(sample));
@@ -1864,12 +1881,20 @@ TEST_F(database_tests, insert_sample_publication_throughput)
 {
     PublicationThroughputSample sample;
     sample.data = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     PublicationThroughputSample sample_2;
     sample_2.data = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
+    ASSERT_EQ(writer->data.publication_throughput.size(), 2u);
+    ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(writer->data.publication_throughput[1], static_cast<EntityDataSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->data.publication_throughput.size(), 2u);
     ASSERT_EQ(writer->data.publication_throughput[0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(writer->data.publication_throughput[1], static_cast<EntityDataSample>(sample_2));
@@ -1886,12 +1911,20 @@ TEST_F(database_tests, insert_sample_subscription_throughput)
 {
     SubscriptionThroughputSample sample;
     sample.data = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
     SubscriptionThroughputSample sample_2;
     sample_2.data = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
+    ASSERT_EQ(reader->data.subscription_throughput.size(), 2u);
+    ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
+    ASSERT_EQ(reader->data.subscription_throughput[1], static_cast<EntityDataSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(reader->data.subscription_throughput.size(), 2u);
     ASSERT_EQ(reader->data.subscription_throughput[0], static_cast<EntityDataSample>(sample));
     ASSERT_EQ(reader->data.subscription_throughput[1], static_cast<EntityDataSample>(sample_2));
@@ -1909,11 +1942,13 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
     RtpsPacketsSentSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     RtpsPacketsSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
     ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1u);
@@ -1923,6 +1958,14 @@ TEST_F(database_tests, insert_sample_rtps_packets_sent)
             static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.last_reported_rtps_packets_sent_count[writer_locator->id].count, sample_2.count);
 
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
+    ASSERT_EQ(participant->data.rtps_packets_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id].size(), 2u);
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_sent[writer_locator->id][1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_packets_sent_count[writer_locator->id].count, sample_2.count);
 }
 
 TEST_F(database_tests, insert_sample_rtps_packets_sent_wrong_entity)
@@ -1955,15 +1998,28 @@ TEST_F(database_tests, insert_sample_rtps_bytes_sent)
     RtpsBytesSentSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     sample.magnitude_order = 2;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     RtpsBytesSentSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.magnitude_order = 3;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2u);
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][1],
+            static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].magnitude_order,
+            sample_2.magnitude_order);
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_sent_count[writer_locator->id].count, sample_2.count);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.rtps_bytes_sent.size(), 1u);
     ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_bytes_sent[writer_locator->id][0], static_cast<ByteCountSample>(sample));
@@ -2007,13 +2063,24 @@ TEST_F(database_tests, insert_sample_rtps_packets_lost)
     RtpsPacketsLostSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     RtpsPacketsLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2u);
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_packets_lost_count[writer_locator->id].count, sample_2.count);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.rtps_packets_lost.size(), 1u);
     ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_packets_lost[writer_locator->id][0], static_cast<EntityCountSample>(sample));
@@ -2052,15 +2119,28 @@ TEST_F(database_tests, insert_sample_rtps_bytes_lost)
     RtpsBytesLostSample sample;
     sample.remote_locator = writer_locator->id;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     sample.magnitude_order = 2;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     RtpsBytesLostSample sample_2;
     sample_2.remote_locator = writer_locator->id;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.magnitude_order = 3;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1u);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2u);
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][1],
+            static_cast<ByteCountSample>(sample_2) - static_cast<ByteCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].magnitude_order,
+            sample_2.magnitude_order);
+    ASSERT_EQ(participant->data.last_reported_rtps_bytes_lost_count[writer_locator->id].count, sample_2.count);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.rtps_bytes_lost.size(), 1u);
     ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id].size(), 2u);
     ASSERT_EQ(participant->data.rtps_bytes_lost[writer_locator->id][0], static_cast<ByteCountSample>(sample));
@@ -2103,12 +2183,22 @@ TEST_F(database_tests, insert_sample_resent_data)
 {
     ResentDataSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     ResentDataSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
+    ASSERT_EQ(writer->data.resent_datas.size(), 2u);
+    ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.resent_datas[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_resent_datas, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->data.resent_datas.size(), 2u);
     ASSERT_EQ(writer->data.resent_datas[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.resent_datas[1],
@@ -2127,12 +2217,22 @@ TEST_F(database_tests, insert_sample_heartbeat_count)
 {
     HeartbeatCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     HeartbeatCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
+    ASSERT_EQ(writer->data.heartbeat_count.size(), 2u);
+    ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.heartbeat_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_heartbeat_count, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->data.heartbeat_count.size(), 2u);
     ASSERT_EQ(writer->data.heartbeat_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.heartbeat_count[1],
@@ -2151,12 +2251,22 @@ TEST_F(database_tests, insert_sample_acknack_count)
 {
     AcknackCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
     AcknackCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
+    ASSERT_EQ(reader->data.acknack_count.size(), 2u);
+    ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.acknack_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.last_reported_acknack_count, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(reader->data.acknack_count.size(), 2u);
     ASSERT_EQ(reader->data.acknack_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(reader->data.acknack_count[1],
@@ -2175,12 +2285,22 @@ TEST_F(database_tests, insert_sample_nackfrag_count)
 {
     NackfragCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
 
     NackfragCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
 
+    ASSERT_EQ(reader->data.nackfrag_count.size(), 2u);
+    ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.nackfrag_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(reader->data.last_reported_nackfrag_count, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(reader->data.nackfrag_count.size(), 2u);
     ASSERT_EQ(reader->data.nackfrag_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(reader->data.nackfrag_count[1],
@@ -2199,12 +2319,22 @@ TEST_F(database_tests, insert_sample_gap_count)
 {
     GapCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     GapCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
+    ASSERT_EQ(writer->data.gap_count.size(), 2u);
+    ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.gap_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_gap_count, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->data.gap_count.size(), 2u);
     ASSERT_EQ(writer->data.gap_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.gap_count[1],
@@ -2223,12 +2353,22 @@ TEST_F(database_tests, insert_sample_data_count)
 {
     DataCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     DataCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
+    ASSERT_EQ(writer->data.data_count.size(), 2u);
+    ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.data_count[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(writer->data.last_reported_data_count, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->data.data_count.size(), 2u);
     ASSERT_EQ(writer->data.data_count[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(writer->data.data_count[1],
@@ -2247,12 +2387,22 @@ TEST_F(database_tests, insert_sample_pdp_packets)
 {
     PdpCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     PdpCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.pdp_packets.size(), 2u);
+    ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.pdp_packets[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_pdp_packets, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.pdp_packets.size(), 2u);
     ASSERT_EQ(participant->data.pdp_packets[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.pdp_packets[1],
@@ -2271,12 +2421,22 @@ TEST_F(database_tests, insert_sample_edp_packets)
 {
     EdpCountSample sample;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     EdpCountSample sample_2;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.edp_packets.size(), 2u);
+    ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.edp_packets[1],
+            static_cast<EntityCountSample>(sample_2) - static_cast<EntityCountSample>(sample));
+    ASSERT_EQ(participant->data.last_reported_edp_packets, sample_2);
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.edp_packets.size(), 2u);
     ASSERT_EQ(participant->data.edp_packets[0], static_cast<EntityCountSample>(sample));
     ASSERT_EQ(participant->data.edp_packets[1],
@@ -2296,15 +2456,24 @@ TEST_F(database_tests, insert_sample_discovery_time)
     DiscoveryTimeSample sample;
     sample.remote_entity = writer_id;
     sample.time = std::chrono::system_clock::now();
+    sample.src_ts = std::chrono::system_clock::now();
     sample.discovered = true;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample));
 
     DiscoveryTimeSample sample_2;
     sample_2.remote_entity = writer_id;
     sample_2.time = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.discovered = true;
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
 
+    ASSERT_EQ(participant->data.discovered_entity.size(), 1u);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2u);
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
+    ASSERT_EQ(participant->data.discovered_entity[writer_id][1], static_cast<DiscoveryTimeSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->data.discovered_entity.size(), 1u);
     ASSERT_EQ(participant->data.discovered_entity[writer_id].size(), 2u);
     ASSERT_EQ(participant->data.discovered_entity[writer_id][0], static_cast<DiscoveryTimeSample>(sample));
@@ -2325,11 +2494,13 @@ TEST_F(database_tests, insert_sample_sample_datas)
     SampleDatasCountSample sample;
     sample.sequence_number = 2;
     sample.count = 12;
+    sample.src_ts = std::chrono::system_clock::now();
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
 
     SampleDatasCountSample sample_2;
     sample_2.sequence_number = 3;
     sample_2.count = 13;
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
 
     ASSERT_EQ(writer->data.sample_datas.size(), 2u);
@@ -2340,8 +2511,15 @@ TEST_F(database_tests, insert_sample_sample_datas)
     SampleDatasCountSample sample_3;
     sample_3.sequence_number = 2;
     sample_3.count = 16;
+    sample_3.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(2);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
 
+    ASSERT_EQ(writer->data.sample_datas.size(), 2u);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number].size(), 1u);
+    ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample_3));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_3));
     ASSERT_EQ(writer->data.sample_datas.size(), 2u);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number].size(), 1u);
     ASSERT_EQ(writer->data.sample_datas[sample.sequence_number][0], static_cast<EntityCountSample>(sample_3));
@@ -2435,13 +2613,21 @@ TEST_F(database_tests, insert_monitor_service_sample_proxy)
     ProxySample sample_2;
     sample_2.kind = StatusKind::PROXY;
     sample_2.status = StatusLevel::OK_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.entity_proxy = {6, 7, 8, 9, 10};
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(participant->monitor_service_data.proxy.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.proxy.size(), 1u);
+    ASSERT_EQ(reader->monitor_service_data.proxy.size(), 1u);
+    ASSERT_EQ(participant->monitor_service_data.proxy[0], static_cast<ProxySample>(sample));
+    ASSERT_EQ(participant->monitor_service_data.proxy[1], static_cast<ProxySample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->monitor_service_data.proxy.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.proxy.size(), 1u);
     ASSERT_EQ(reader->monitor_service_data.proxy.size(), 1u);
@@ -2511,13 +2697,21 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     connection_sample_2.used_locators({locator_2});
     sample_2.kind = StatusKind::CONNECTION_LIST;
     sample_2.status = StatusLevel::OK_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.connection_list = {connection_sample_2, connection_sample_2};
     ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(participant->monitor_service_data.connection_list.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.connection_list.size(), 1u);
+    ASSERT_EQ(reader->monitor_service_data.connection_list.size(), 1u);
+    ASSERT_EQ(participant->monitor_service_data.connection_list[0], static_cast<ConnectionListSample>(sample));
+    ASSERT_EQ(participant->monitor_service_data.connection_list[1], static_cast<ConnectionListSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, participant_id, sample_2));
     ASSERT_EQ(participant->monitor_service_data.connection_list.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.connection_list.size(), 1u);
     ASSERT_EQ(reader->monitor_service_data.connection_list.size(), 1u);
@@ -2577,7 +2771,7 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
     IncompatibleQosSample sample_2;
     sample_2.kind = StatusKind::INCOMPATIBLE_QOS;
     sample_2.status = StatusLevel::ERROR_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.incompatible_qos_status.total_count(2);
     sample_2.incompatible_qos_status.last_policy_id(3);
     eprosima::fastdds::statistics::QosPolicyCountSeq_s qos_policy_count_seq_2;
@@ -2591,6 +2785,13 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
     ASSERT_EQ(writer->status, StatusLevel::ERROR_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.incompatible_qos.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos[0], static_cast<IncompatibleQosSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.incompatible_qos[1], static_cast<IncompatibleQosSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->monitor_service_data.incompatible_qos.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.incompatible_qos.size(), 1u);
     ASSERT_EQ(writer->monitor_service_data.incompatible_qos[0], static_cast<IncompatibleQosSample>(sample));
@@ -2634,13 +2835,20 @@ TEST_F(database_tests, insert_monitor_service_sample_inconsistent_topic)
     InconsistentTopicSample sample_2;
     sample_2.kind = StatusKind::INCONSISTENT_TOPIC;
     sample_2.status = StatusLevel::ERROR_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.inconsistent_topic_status.total_count(2);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.inconsistent_topic.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic[0], static_cast<InconsistentTopicSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.inconsistent_topic[1], static_cast<InconsistentTopicSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->monitor_service_data.inconsistent_topic.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.inconsistent_topic.size(), 1u);
     ASSERT_EQ(writer->monitor_service_data.inconsistent_topic[0], static_cast<InconsistentTopicSample>(sample));
@@ -2676,13 +2884,19 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_lost)
     LivelinessLostSample sample_2;
     sample_2.kind = StatusKind::LIVELINESS_LOST;
     sample_2.status = StatusLevel::WARNING_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.liveliness_lost_status.total_count(5);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(writer->status, StatusLevel::WARNING_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost.size(), 2u);
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost[0], static_cast<LivelinessLostSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.liveliness_lost[1], static_cast<LivelinessLostSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->monitor_service_data.liveliness_lost.size(), 2u);
     ASSERT_EQ(writer->monitor_service_data.liveliness_lost[0], static_cast<LivelinessLostSample>(sample));
     ASSERT_EQ(writer->monitor_service_data.liveliness_lost[1], static_cast<LivelinessLostSample>(sample_2));
@@ -2719,7 +2933,7 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     LivelinessChangedSample sample_2;
     sample_2.kind = StatusKind::LIVELINESS_CHANGED;
     sample_2.status = StatusLevel::OK_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.liveliness_changed_status.alive_count(2);
     sample_2.liveliness_changed_status.not_alive_count(4);
     sample_2.liveliness_changed_status.last_publication_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
@@ -2728,6 +2942,12 @@ TEST_F(database_tests, insert_monitor_service_sample_liveliness_changed)
     ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed[0], static_cast<LivelinessChangedSample>(sample));
+    ASSERT_EQ(reader->monitor_service_data.liveliness_changed[1], static_cast<LivelinessChangedSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed[0], static_cast<LivelinessChangedSample>(sample));
     ASSERT_EQ(reader->monitor_service_data.liveliness_changed[1], static_cast<LivelinessChangedSample>(sample_2));
@@ -2766,7 +2986,7 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     DeadlineMissedSample sample_2;
     sample_2.kind = StatusKind::DEADLINE_MISSED;
     sample_2.status = StatusLevel::WARNING_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.deadline_missed_status.total_count(2);
     sample_2.deadline_missed_status.last_instance_handle({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
@@ -2774,6 +2994,13 @@ TEST_F(database_tests, insert_monitor_service_sample_deadline_missed)
     ASSERT_EQ(writer->status, StatusLevel::WARNING_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.deadline_missed.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed[0], static_cast<DeadlineMissedSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.deadline_missed[1], static_cast<DeadlineMissedSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->monitor_service_data.deadline_missed.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.deadline_missed.size(), 1u);
     ASSERT_EQ(writer->monitor_service_data.deadline_missed[0], static_cast<DeadlineMissedSample>(sample));
@@ -2810,13 +3037,19 @@ TEST_F(database_tests, insert_monitor_service_sample_sample_lost)
     SampleLostSample sample_2;
     sample_2.kind = StatusKind::SAMPLE_LOST;
     sample_2.status = StatusLevel::WARNING_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     sample_2.sample_lost_status.total_count(2);
     ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::WARNING_STATUS);
 
+    ASSERT_EQ(reader->monitor_service_data.sample_lost.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.sample_lost[0], static_cast<SampleLostSample>(sample));
+    ASSERT_EQ(reader->monitor_service_data.sample_lost[1], static_cast<SampleLostSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample_2));
     ASSERT_EQ(reader->monitor_service_data.sample_lost.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.sample_lost[0], static_cast<SampleLostSample>(sample));
     ASSERT_EQ(reader->monitor_service_data.sample_lost[1], static_cast<SampleLostSample>(sample_2));
