@@ -1,9 +1,9 @@
-Forthcoming
------------
+Version 1.1.0
+-------------
 
 This release includes the following **updates**:
 
-* Use Fast DDS builtin transports by default
+* Use Fast DDS builtin transports by default.
 * Regenerate types with Fast DDS-Gen v3.3.0.
 * Bump `gitpython` dependency for documentation.
 * Include SustainML nodes as recognized app.
