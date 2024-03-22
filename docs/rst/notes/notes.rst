@@ -14,7 +14,7 @@ This release includes the following **updates**:
 
 * Use Fast DDS builtin transports by default.
 * Regenerate types with Fast DDS-Gen v3.3.0.
-* Bump `gitpython` dependency for documentation.
+* Bump ``gitpython`` dependency for documentation.
 * Include SustainML nodes as recognized app.
 * Relocate statistics topics static map.
 
