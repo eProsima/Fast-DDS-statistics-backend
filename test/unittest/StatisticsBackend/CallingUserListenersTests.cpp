@@ -2491,7 +2491,8 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         AppId::FASTDDS_SPY,
         AppId::DDS_RECORDER,
         AppId::DDS_REPLAYER,
-        AppId::AML_IP};
+        AppId::AML_IP,
+        AppId::SUSTAINML};
 
     for (auto app_id : app_ids)
     {
