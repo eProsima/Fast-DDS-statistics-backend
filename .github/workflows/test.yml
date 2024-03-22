@@ -37,9 +37,9 @@ jobs:
           - Release
           - Debug
         os:
-          # - ubuntu-20.04
-          # - ubuntu-22.04
-          # - windows-2019
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - windows-2019
           - windows-2022
 
     steps:
@@ -81,7 +81,6 @@ jobs:
 # ASAN
 
   asan:
-    if: false
     runs-on: ubuntu-22.04
     steps:
 
@@ -156,7 +155,6 @@ jobs:
 # CLANG
 
   clang:
-    if: false
     runs-on: ubuntu-22.04
     steps:
 
@@ -183,7 +181,6 @@ jobs:
 # COVERAGE
 
   coverage:
-    if: false
     runs-on: ubuntu-22.04
     environment:
       name: codecov
@@ -215,7 +212,6 @@ jobs:
 # FLAKY
 
   flaky:
-    if: false
     runs-on: ubuntu-22.04
     steps:
 
@@ -254,7 +250,6 @@ jobs:
 # DOCUMENTATION TEST
 
   docs:
-    if: false
     runs-on: ubuntu-22.04
     steps:
 
