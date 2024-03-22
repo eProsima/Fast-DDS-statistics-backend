@@ -68,19 +68,28 @@ def output_reader(proc, outq):
     for line in iter(proc.stdout.readline, b''):
         outq.put(line.decode('utf-8'))
 
+
+barrier = threading.Barrier(2, timeout=30)
+num_stop_signals = 0
+run = True
+
+
 def communication(monitor_proc, pid):
     """A"""
+    global num_stop_signals
+    global run
+    global barrier
     outq = queue.Queue()
     t = threading.Thread(target=output_reader, args=(monitor_proc,outq))
     t.start()
 
-    run = True
     try:
         time.sleep(0.2)
-        
+
         while run:
             try:
                 line = outq.get(block=False).rstrip()
+                print(line)
 
                 sys.stdout.flush()
 
@@ -92,26 +101,39 @@ def communication(monitor_proc, pid):
                     print("___" + pid + "___Creating subscriber___")
                     sys.stdout.flush()
                     subscriber1_proc = subprocess.Popen([subscriber_command, "--seed", pid]
-                        + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []))
-                    
+                        + (["--xmlfile", real_xml_file_sub] if real_xml_file_sub else []),
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
                     print("___" + pid + "___Creating publisher___")
                     sys.stdout.flush()
                     publisher_proc1 = subprocess.Popen([publisher_command, "--seed", pid, "--wait", "1"]
                         + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
                         + extra_pub_args)
 
+                    line = ""
+                    while 'Subscriber finished receiving samples' != line:
+                        line = subscriber1_proc.stdout.readline().decode('utf-8').rstrip()
+                        print(line)
+                        sys.stdout.flush()
+
+                    print("___" + pid + "___barrier...___")
+                    sys.stdout.flush()
+                    barrier.wait()
+
                     print("___" + pid + "___subscriber1 communicate...___")
                     sys.stdout.flush()
-                    publisher_proc1.communicate()
+                    subscriber1_proc.communicate('a'.encode('utf-8'))
 
                     print("___" + pid + "___publisher1 communicate...___")
                     sys.stdout.flush()
-                    subscriber1_proc.communicate()
+                    publisher_proc1.communicate()
 
                 elif (line == ("Stop Monitor_" + pid)):
                     print("___" + pid + "___Stop Monitor___")
                     sys.stdout.flush()
-                    run = False
+                    num_stop_signals += 1
+                    if 2 == num_stop_signals:
+                        run = False
 
                 else:
                     print("___" + pid + '_ ' + line)
@@ -123,7 +145,7 @@ def communication(monitor_proc, pid):
 
             time.sleep(0.1)
     finally:
-        monitor_proc.terminate()
+        monitor_proc.communicate('a'.encode('utf-8'))
         try:
             monitor_proc.wait(timeout=0.2)
             print("___" + pid + '== subprocess exited with rc =', monitor_proc.returncode)
@@ -138,10 +160,10 @@ def communication(monitor_proc, pid):
     t.join()
 
 monitor_proc_0 = subprocess.Popen([monitor_command, "--seed", str(os.getpid())],
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 monitor_proc_1 = subprocess.Popen([monitor_command, "--seed", str(os.getpid() + 1)],
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 t_0 = threading.Thread(target=communication, args=(monitor_proc_0,str(os.getpid())))
 t_1 = threading.Thread(target=communication, args=(monitor_proc_1,str(os.getpid() + 1)))
