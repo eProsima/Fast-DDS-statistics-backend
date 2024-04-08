@@ -280,4 +280,4 @@ jobs:
     steps:
 
       - name: Uncrustify
-        uses: eProsima/eProsima-CI/ubuntu/uncrustify@bugfix/fix_uncrustify
+        uses: eProsima/eProsima-CI/ubuntu/uncrustify@v0
