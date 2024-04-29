@@ -35,28 +35,6 @@ using namespace eprosima::fastrtps::types;
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastdds::dds;
 
-
-static const std::map<std::string, EventKind> statistics_topics =
-{
-    {HISTORY_LATENCY_TOPIC,         HISTORY2HISTORY_LATENCY},
-    {NETWORK_LATENCY_TOPIC,         NETWORK_LATENCY},
-    {PUBLICATION_THROUGHPUT_TOPIC,  PUBLICATION_THROUGHPUT},
-    {SUBSCRIPTION_THROUGHPUT_TOPIC, SUBSCRIPTION_THROUGHPUT},
-    {RTPS_SENT_TOPIC,               RTPS_SENT},
-    {RTPS_LOST_TOPIC,               RTPS_LOST},
-    {RESENT_DATAS_TOPIC,            RESENT_DATAS},
-    {HEARTBEAT_COUNT_TOPIC,         HEARTBEAT_COUNT},
-    {ACKNACK_COUNT_TOPIC,           ACKNACK_COUNT},
-    {NACKFRAG_COUNT_TOPIC,          NACKFRAG_COUNT},
-    {GAP_COUNT_TOPIC,               GAP_COUNT},
-    {DATA_COUNT_TOPIC,              DATA_COUNT},
-    {PDP_PACKETS_TOPIC,             PDP_PACKETS},
-    {EDP_PACKETS_TOPIC,             EDP_PACKETS},
-    {DISCOVERY_TOPIC,               DISCOVERED_ENTITY},
-    {SAMPLE_DATAS_TOPIC,            SAMPLE_DATAS},
-    {PHYSICAL_DATA_TOPIC,           PHYSICAL_DATA}
-};
-
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
@@ -90,6 +68,27 @@ bool StatisticsReaderListener::get_available_data(
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
+    static const std::map<std::string, EventKind> statistics_topics =
+    {
+        {HISTORY_LATENCY_TOPIC,         HISTORY2HISTORY_LATENCY},
+        {NETWORK_LATENCY_TOPIC,         NETWORK_LATENCY},
+        {PUBLICATION_THROUGHPUT_TOPIC,  PUBLICATION_THROUGHPUT},
+        {SUBSCRIPTION_THROUGHPUT_TOPIC, SUBSCRIPTION_THROUGHPUT},
+        {RTPS_SENT_TOPIC,               RTPS_SENT},
+        {RTPS_LOST_TOPIC,               RTPS_LOST},
+        {RESENT_DATAS_TOPIC,            RESENT_DATAS},
+        {HEARTBEAT_COUNT_TOPIC,         HEARTBEAT_COUNT},
+        {ACKNACK_COUNT_TOPIC,           ACKNACK_COUNT},
+        {NACKFRAG_COUNT_TOPIC,          NACKFRAG_COUNT},
+        {GAP_COUNT_TOPIC,               GAP_COUNT},
+        {DATA_COUNT_TOPIC,              DATA_COUNT},
+        {PDP_PACKETS_TOPIC,             PDP_PACKETS},
+        {EDP_PACKETS_TOPIC,             EDP_PACKETS},
+        {DISCOVERY_TOPIC,               DISCOVERED_ENTITY},
+        {SAMPLE_DATAS_TOPIC,            SAMPLE_DATAS},
+        {PHYSICAL_DATA_TOPIC,           PHYSICAL_DATA}
+    };
+
     std::chrono::system_clock::time_point timestamp;
 
     const std::string& topic_name = reader->get_topicdescription()->get_name();

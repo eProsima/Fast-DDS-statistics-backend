@@ -161,6 +161,7 @@ int main(
     // Additionally, we need a meta traffic topic per domain
     unsigned int num_topics = 2;
     unsigned int num_entities = num_participants + num_topics + num_readers + num_writers;
+    unsigned int num_locators = num_readers + num_writers + num_participants;
 
     // Process arguments
     while (arg_count < argc)
@@ -309,9 +310,9 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_readers + num_writers)
+                    monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -442,9 +443,9 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_readers + num_writers)
+                    monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -577,9 +578,9 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_readers + num_writers ||
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_readers + num_writers)
+                    monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }

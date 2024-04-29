@@ -789,14 +789,7 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
     eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
 
     /* Check that the DomainParticipant builtin transports are disabled */
-    EXPECT_FALSE(participant_qos.transport().use_builtin_transports);
-
-    /* Check that the DomainParticipant has only one transport set and it is a UDPv4TransportDescriptor */
-    EXPECT_EQ(participant_qos.transport().user_transports.size(), 1u);
-    std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> participant_transport =
-            std::dynamic_pointer_cast<eprosima::fastdds::rtps::UDPv4TransportDescriptor>(
-        participant_qos.transport().user_transports.back());
-    EXPECT_TRUE(nullptr != participant_transport);
+    EXPECT_TRUE(participant_qos.transport().use_builtin_transports);
 
     /* Stop the monitor to avoid interfering on the next test */
     StatisticsBackend::stop_monitor(monitor_id);

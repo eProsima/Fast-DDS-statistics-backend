@@ -49,11 +49,13 @@ constexpr const char* DDS_RECORDER_APP              = "DDS_RECORDER";
 constexpr const char* DDS_REPLAYER_APP              = "DDS_REPLAYER";
 //! Identificator for a AML-IP app
 constexpr const char* AML_IP_APP                    = "AML_IP";
+//! Identificator for a SustainML app
+constexpr const char* SUSTAINML_APP                 = "SUSTAINML";
 
 //! Conversion from AppId to string
 constexpr const char* app_id_str[] =
 {"UNKNOWN_APP", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
- FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP};
+ FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP, SUSTAINML_APP};
 
 //! Conversion from string to AppId
 const std::map<std::string, AppId> app_id_enum = {
@@ -65,7 +67,8 @@ const std::map<std::string, AppId> app_id_enum = {
     {FASTDDS_SPY_APP, AppId::FASTDDS_SPY},
     {DDS_RECORDER_APP, AppId::DDS_RECORDER},
     {DDS_REPLAYER_APP, AppId::DDS_REPLAYER},
-    {AML_IP_APP, AppId::AML_IP}
+    {AML_IP_APP, AppId::AML_IP},
+    {SUSTAINML_APP, AppId::SUSTAINML}
 };
 
 } //namespace statistics_backend

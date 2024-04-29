@@ -7,21 +7,21 @@ Release Notes
 .. TODO uncomment when there are forthcoming notes
 .. .. include:: forthcoming_version.rst
 
-Version 1.0.0
-##############
+Version 1.1.0
+#############
 
-This release includes the following **API extensions**:
+This release includes the following **updates**:
 
-* `StatisticsBackend::get_status` returns the entity status level of a given id.
-* `StatisticsBackend::get_info` returns domain participant and endpoint app info.
-* `StatisticsBackend::get_domain_view_graph` returns the domain view graph of a given domain.
-* `StatisticsBackend::regenerate_domain_graph` regenerates the domain view graph of a given domain.
-* `StatisticsBackend::get_status_data` returns an specific status data of a given id.
-* Added `status` attribute for entities.
-* Added database `domain_view_graph` map.
-* Added monitor service topic status data storing and processing.
-* Retrieve physical information from discovery packets.
-* Physical related entities with an empty name are given the name `Unknown` by default.
+* Use Fast DDS builtin transports by default.
+* Regenerate types with Fast DDS-Gen v3.3.0.
+* Bump ``gitpython`` dependency for documentation.
+* Include SustainML nodes as recognized app.
+* Relocate statistics topics static map.
+
+This release includes the following **bugfixes**:
+
+* Fix build error when log info enabled
+
 
 This release includes the following **dependencies update**:
 
@@ -38,26 +38,26 @@ This release includes the following **dependencies update**:
         - `v1.3.1 <https://github.com/eProsima/foonathan_memory_vendor/releases/tag/v1.3.1>`_
     *   - Fast CDR
         - `eProsima/Fast-CDR <https://github.com/eProsima/Fast-CDR>`_
-        - `v1.1.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v1.1.0>`_
         - `v2.1.2 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.1.2>`_
+        - `v2.2.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.2.0>`_
     *   - Fast DDS
         - `eProsima/Fast-DDS <https://github.com/eProsima/Fast-DDS>`_
-        - `v2.11.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v2.11.0>`_
         - `v2.13.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v2.13.0>`_
+        - `v2.14.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v2.14.0>`_
     *   - Fast DDS Gen
         - `eProsima/Fast-DDS-Gen <https://github.com/eProsima/Fast-DDS-Gen>`_
-        - `v2.5.1 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.5.1>`_
         - `v3.0.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.0.0>`_
+        - `v3.3.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.3.0>`_
     *   - IDL Parser
         - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`_
-        - `v1.6.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v1.6.0>`_
         - `v1.7.2 <https://github.com/eProsima/IDL-Parser/releases/tag/v1.7.2>`_
-
+        - `v3.0.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v3.0.0>`_
 
 
 Previous versions
 #################
 
+.. include:: previous_versions/v1.0.0.rst
 .. include:: previous_versions/v0.11.0.rst
 .. include:: previous_versions/v0.10.0.rst
 .. include:: previous_versions/v0.9.0.rst

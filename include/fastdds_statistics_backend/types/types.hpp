@@ -190,6 +190,9 @@ enum class AppId
 
     /// AML-IP App
     AML_IP,
+
+    /// SustainML App
+    SUSTAINML,
 };
 
 /**

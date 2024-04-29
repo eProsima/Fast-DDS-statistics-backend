@@ -387,14 +387,6 @@ EntityId StatisticsBackend::init_monitor(
     /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
     participant_qos.name(participant_name);
-    if (participant_qos.transport().use_builtin_transports)
-    {
-        /* Avoid using SHM transport by default */
-        std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
-                std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-        participant_qos.transport().user_transports.push_back(udp_transport);
-        participant_qos.transport().use_builtin_transports = false;
-    }
 
     participant_qos.properties().properties().emplace_back(
         "fastdds.application.id",
