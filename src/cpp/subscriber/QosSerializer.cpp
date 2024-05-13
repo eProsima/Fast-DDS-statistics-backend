@@ -393,7 +393,6 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
             break;
     }
     datasharing[max_domains_tag] = qos.max_domains();
-    datasharing[shm_directory_tag] = qos.shm_directory();
     datasharing[domain_ids_tag] = database::Qos::array();
     for (const auto& id : qos.domain_ids())
     {
