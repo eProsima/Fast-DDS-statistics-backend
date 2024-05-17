@@ -510,7 +510,6 @@ TEST(qos_serializer_tests, data_sharing_qos_policy)
 
     expected[field.c_str()][kind_tag] = data_sharing_off_tag;
     expected[field.c_str()][max_domains_tag] = 0;
-    expected[field.c_str()][shm_directory_tag] = "";
     expected[field.c_str()][domain_ids_tag] = Qos::array();
     EXPECT_EQ(expected, serialized);
 
@@ -520,7 +519,6 @@ TEST(qos_serializer_tests, data_sharing_qos_policy)
 
     expected[field.c_str()][kind_tag] = data_sharing_auto_tag;
     expected[field.c_str()][max_domains_tag] = 0;
-    expected[field.c_str()][shm_directory_tag] = "datasharing_directory";
     expected[field.c_str()][domain_ids_tag].push_back(25);
     EXPECT_EQ(expected, serialized);
 
@@ -532,7 +530,6 @@ TEST(qos_serializer_tests, data_sharing_qos_policy)
 
     expected[field.c_str()][kind_tag] = data_sharing_on_tag;
     expected[field.c_str()][max_domains_tag] = 2;
-    expected[field.c_str()][shm_directory_tag] = "datasharing_directory";
     expected[field.c_str()][domain_ids_tag] = Qos::array();
     expected[field.c_str()][domain_ids_tag].push_back(25);
     expected[field.c_str()][domain_ids_tag].push_back(30);
