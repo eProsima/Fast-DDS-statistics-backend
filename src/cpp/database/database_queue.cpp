@@ -187,7 +187,11 @@ EntityId DatabaseEntityQueue::process_datareader(
         try
         {
             participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
-            assert(participant_id.first == info.domain_id);
+            if (participant_id.first != info.domain_id)
+            {
+                throw BadParameter("Participant " + to_string(participant_guid)
+                          +  " found in the database but it is not in the current domain");
+            }
         }
         catch (const Exception&)
         {
@@ -258,7 +262,11 @@ EntityId DatabaseEntityQueue::process_datawriter(
         try
         {
             participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
-            assert(participant_id.first == info.domain_id);
+            if (participant_id.first != info.domain_id)
+            {
+                throw BadParameter("Participant " + to_string(participant_guid)
+                          +  " found in the database but it is not in the current domain");
+            }
         }
         catch (const Exception&)
         {
@@ -317,7 +325,11 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     try
     {
         participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(participant_guid));
-        assert(participant_id.first == info.domain_id);
+        if (participant_id.first != info.domain_id)
+        {
+            throw BadParameter("Participant " + to_string(participant_guid)
+                        +  " found in the database but it is not in the current domain");
+        }
     }
     catch (const Exception&)
     {
