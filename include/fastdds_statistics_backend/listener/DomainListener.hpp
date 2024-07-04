@@ -75,9 +75,11 @@ public:
 
         void on_instance_undiscovered()
         {
-            assert (current_count > 0);
-            --current_count;
-            --current_count_change;
+            if (current_count > 0)
+            {
+                --current_count;
+                --current_count_change;
+            }
         }
 
         void on_status_read()
