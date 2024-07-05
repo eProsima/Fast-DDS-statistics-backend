@@ -20,8 +20,10 @@
 #include <database/data.hpp>
 #include <subscriber/QosSerializer.hpp>
 #include <subscriber/QosSerializerTags.hpp>
-#include <fastdds_statistics_backend/topic_types/types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::statistics_backend::subscriber;
@@ -62,12 +64,14 @@ TEST(qos_serializer_tests, durability_qos_policy)
 
 TEST(qos_serializer_tests, duration)
 {
-    eprosima::fastrtps::Duration_t qos;
+    eprosima::fastdds::
+Duration_t qos;
     Qos serialized;
     Qos expected;
     std::string field("field");
 
-    qos = eprosima::fastrtps::Duration_t(5, 10);
+    qos = eprosima::fastdds::
+Duration_t(5, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     expected[field.c_str()][duration_seconds_tag] = 5;
@@ -82,7 +86,8 @@ TEST(qos_serializer_tests, deadline_qos_policy)
     Qos expected;
     std::string field("field");
 
-    qos.period = eprosima::fastrtps::Duration_t (5, 0);
+    qos.period = eprosima::fastdds::
+Duration_t (5, 0);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_period;
@@ -99,7 +104,8 @@ TEST(qos_serializer_tests, latency_budget_qos_policy)
     Qos expected;
     std::string field("field");
 
-    qos.duration = eprosima::fastrtps::Duration_t (0, 5);
+    qos.duration = eprosima::fastdds::
+Duration_t (0, 5);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_duration;
@@ -117,8 +123,10 @@ TEST(qos_serializer_tests, liveliness_qos_policy)
     std::string field("field");
 
     qos.kind =  AUTOMATIC_LIVELINESS_QOS;
-    qos.announcement_period = eprosima::fastrtps::Duration_t (10, 10);
-    qos.lease_duration = eprosima::fastrtps::Duration_t (10, 10);
+    qos.announcement_period = eprosima::fastdds::
+Duration_t (10, 10);
+    qos.lease_duration = eprosima::fastdds::
+Duration_t (10, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_duration;
@@ -153,7 +161,8 @@ TEST(qos_serializer_tests, reliability_qos_policy)
     std::string field("field");
 
     qos.kind =  BEST_EFFORT_RELIABILITY_QOS;
-    qos.max_blocking_time = eprosima::fastrtps::Duration_t (10, 10);
+    qos.max_blocking_time = eprosima::fastdds::
+Duration_t (10, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_blocking_time;
@@ -309,7 +318,8 @@ TEST(qos_serializer_tests, time_based_filter_qos_policy)
     Qos expected;
     std::string field("field");
 
-    qos.minimum_separation = eprosima::fastrtps::Duration_t (10, 10);
+    qos.minimum_separation = eprosima::fastdds::
+Duration_t (10, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_minimum_separation;
@@ -381,7 +391,8 @@ TEST(qos_serializer_tests, durability_service_qos_policy)
     std::string field("field");
 
     qos.history_kind =  KEEP_LAST_HISTORY_QOS;
-    qos.service_cleanup_delay = eprosima::fastrtps::Duration_t (10, 10);
+    qos.service_cleanup_delay = eprosima::fastdds::
+Duration_t (10, 10);
     qos.max_instances =  20;
     qos.max_samples =  30;
     qos.max_samples_per_instance =  40;
@@ -414,7 +425,8 @@ TEST(qos_serializer_tests, lifespan_qos_policy)
     Qos expected;
     std::string field("field");
 
-    qos.duration = eprosima::fastrtps::Duration_t (10, 10);
+    qos.duration = eprosima::fastdds::
+Duration_t (10, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_duration;
@@ -487,7 +499,8 @@ TEST(qos_serializer_tests, disable_positive_ack_qos_policy)
     std::string field("field");
 
     qos.enabled = true;
-    qos.duration = eprosima::fastrtps::Duration_t (10, 10);
+    qos.duration = eprosima::fastdds::
+Duration_t (10, 10);
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
 
     Qos serialized_duration;
@@ -597,7 +610,8 @@ TEST(qos_serializer_tests, parameter_property_list_qos_policy)
 
 TEST(qos_serializer_tests, writer_info_serializer)
 {
-    eprosima::fastrtps::rtps::WriterProxyData info(10, 10);
+    eprosima::fastdds::
+rtps::WriterProxyData info(10, 10);
     Qos serialized;
     Qos expected;
 
@@ -688,7 +702,8 @@ TEST(qos_serializer_tests, writer_info_serializer)
 
 TEST(qos_serializer_tests, reader_info_serializer)
 {
-    eprosima::fastrtps::rtps::ReaderProxyData info(10, 10);
+    eprosima::fastdds::
+rtps::ReaderProxyData info(10, 10);
     Qos serialized;
     Qos expected;
 
@@ -777,9 +792,12 @@ TEST(qos_serializer_tests, reader_info_serializer)
 #if !defined(_WIN32)
 TEST(qos_serializer_tests, participant_info_serializer)
 {
-    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
-    eprosima::fastrtps::rtps::ParticipantProxyData data(attributes);
-    data.m_VendorId = eprosima::fastrtps::rtps::c_VendorId_eProsima;
+    eprosima::fastdds::
+rtps::RTPSParticipantAllocationAttributes attributes;
+    eprosima::fastdds::
+rtps::ParticipantProxyData data(attributes);
+    data.m_VendorId = eprosima::fastdds::
+rtps::c_VendorId_eProsima;
     data.m_availableBuiltinEndpoints = 101;
     Qos serialized;
     Qos expected;

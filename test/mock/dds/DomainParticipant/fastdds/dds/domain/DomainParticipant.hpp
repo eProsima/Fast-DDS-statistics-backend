@@ -30,10 +30,7 @@
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
-#include <fastdds/rtps/common/Guid.h>
-#include <fastrtps/types/TypesBase.h>
-
-using eprosima::fastrtps::types::ReturnCode_t;
+#include <fastdds/rtps/common/Guid.hpp>
 
 namespace eprosima {
 namespace fastdds {
@@ -64,7 +61,7 @@ public:
             DomainParticipantQos& qos) const
     {
         qos = qos_;
-        return ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     /**
@@ -86,7 +83,8 @@ public:
         return domain_id_;
     }
 
-    const fastrtps::rtps::GUID_t& guid()
+    const fastdds::
+rtps::GUID_t& guid()
     {
         return guid_;
     }
@@ -194,7 +192,8 @@ public:
 
     DomainParticipantQos qos_;
     DomainId_t domain_id_;
-    eprosima::fastrtps::rtps::GUID_t guid_;
+    eprosima::fastdds::
+rtps::GUID_t guid_;
 };
 
 } // namespace dds

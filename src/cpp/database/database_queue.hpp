@@ -17,8 +17,8 @@
  * @file database_queue.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_QUEUE_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_QUEUE_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_QUEUE_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_QUEUE_HPP
 
 #include <condition_variable>
 #include <cstring>
@@ -27,9 +27,9 @@
 #include <queue>
 #include <thread>
 
-#include <fastdds/rtps/common/Guid.h>
-#include <fastdds/rtps/common/Locator.h>
-#include <fastdds/rtps/common/SequenceNumber.h>
+#include <fastdds/rtps/common/Guid.hpp>
+#include <fastdds/rtps/common/Locator.hpp>
+#include <fastdds/rtps/common/SequenceNumber.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 #include <fastdds/dds/log/Log.hpp>
 
@@ -54,9 +54,6 @@ class DatabaseQueue
 {
 
 public:
-
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
-    using StatisticsStatusKind = eprosima::fastdds::statistics::StatusKind;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
     using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
@@ -361,7 +358,7 @@ struct EntityDiscoveryInfo
     details::StatisticsBackendData::DiscoveryStatus discovery_status;
     EntityId domain_id;
 
-    fastrtps::rtps::GUID_t guid;
+    fastdds::rtps::GUID_t guid;
     database::Qos qos;
 
     // Participant data
@@ -378,7 +375,7 @@ struct EntityDiscoveryInfo
     // Enpoint data
     std::string topic_name;
     std::string type_name;
-    fastrtps::rtps::RemoteLocatorList locators;
+    fastdds::rtps::RemoteLocatorList locators;
 
     // Alias
     std::string alias;
@@ -466,7 +463,7 @@ protected:
         }
         catch (const eprosima::statistics_backend::Exception& e)
         {
-            logError(BACKEND_DATABASE_QUEUE, e.what());
+            EPROSIMA_LOG_ERROR(BACKEND_DATABASE_QUEUE, e.what());
         }
     }
 
@@ -575,9 +572,12 @@ protected:
     std::string deserialize_guid(
             StatisticsGuid data) const
     {
-        eprosima::fastrtps::rtps::GUID_t guid;
-        memcpy(guid.guidPrefix.value, data.guidPrefix().value().data(), eprosima::fastrtps::rtps::GuidPrefix_t::size);
-        memcpy(guid.entityId.value, data.entityId().value().data(), eprosima::fastrtps::rtps::EntityId_t::size);
+        eprosima::fastdds::
+rtps::GUID_t guid;
+        memcpy(guid.guidPrefix.value, data.guidPrefix().value().data(), eprosima::fastdds::
+rtps::GuidPrefix_t::size);
+        memcpy(guid.entityId.value, data.entityId().value().data(), eprosima::fastdds::
+rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();
@@ -590,10 +590,14 @@ protected:
         {
             throw Error("Wrong format: src_locator.port must be 0");
         }
-        eprosima::fastrtps::rtps::GUID_t guid;
-        memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastrtps::rtps::GuidPrefix_t::size);
-        memcpy(guid.entityId.value, data.address().data() + eprosima::fastrtps::rtps::GuidPrefix_t::size,
-                eprosima::fastrtps::rtps::EntityId_t::size);
+        eprosima::fastdds::
+rtps::GUID_t guid;
+        memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastdds::
+rtps::GuidPrefix_t::size);
+        memcpy(guid.entityId.value, data.address().data() + eprosima::fastdds::
+rtps::GuidPrefix_t::size,
+                eprosima::fastdds::
+rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();
@@ -606,7 +610,8 @@ protected:
         uint32_t port = data.port();
         std::array<uint8_t, 16> address = data.address();
 
-        eprosima::fastrtps::rtps::Locator_t locator(kind, port);
+        eprosima::fastdds::
+rtps::Locator_t locator(kind, port);
         memcpy(locator.address, address.data(), address.size());
         std::stringstream ss;
         ss << locator;
@@ -619,7 +624,8 @@ protected:
         int32_t high = data.high();
         uint32_t low = data.low();
 
-        return eprosima::fastrtps::rtps::SequenceNumber_t(high, low).to64long();
+        return eprosima::fastdds::
+rtps::SequenceNumber_t(high, low).to64long();
     }
 
     std::pair<std::string, uint64_t> deserialize_sample_identity(
@@ -824,4 +830,4 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_QUEUE_HPP_
+#endif //FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_QUEUE_HPP

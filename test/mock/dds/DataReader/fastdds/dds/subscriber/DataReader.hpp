@@ -23,13 +23,11 @@
 #include <queue>
 
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include <fastdds/rtps/common/Guid.h>
-#include <fastrtps/types/TypesBase.h>
+#include <fastdds/rtps/common/Guid.hpp>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
-#include <fastdds_statistics_backend/topic_types/types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 
-using eprosima::fastrtps::types::ReturnCode_t;
 
 namespace eprosima {
 namespace fastdds {
@@ -40,7 +38,6 @@ class DataReader
 {
 protected:
 
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsData = eprosima::fastdds::statistics::Data;
     using MonitorData = eprosima::fastdds::statistics::MonitorServiceStatusData;
     using StatisticsSample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
@@ -133,13 +130,14 @@ public:
         }
         else
         {
-            return ReturnCode_t::RETCODE_NO_DATA;
+            return RETCODE_NO_DATA;
         }
 
-        return ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
-    const fastrtps::rtps::GUID_t& guid()
+    const fastdds::
+rtps::GUID_t& guid()
     {
         return guid_;
     }
@@ -166,7 +164,8 @@ public:
     }
 
     void set_guid(
-            fastrtps::rtps::GUID_t guid)
+            fastdds::
+rtps::GUID_t guid)
     {
         guid_ = guid;
     }
@@ -184,7 +183,8 @@ public:
 
 protected:
 
-    fastrtps::rtps::GUID_t guid_;
+    fastdds::
+rtps::GUID_t guid_;
     std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
     TopicDescription topic_description_;

@@ -285,7 +285,7 @@ EntityId Database::insert_new_endpoint(
         const std::string& alias,
         const Qos& qos,
         const bool& is_virtual_metatraffic,
-        const fastrtps::rtps::RemoteLocatorList& locators,
+        const fastdds::rtps::RemoteLocatorList& locators,
         const EntityKind& kind,
         const EntityId& participant_id,
         const EntityId& topic_id,
@@ -339,7 +339,7 @@ EntityId Database::insert_new_endpoint(
     /* Start processing the locator info */
 
     // Routine to process one locator from the locator list of the endpoint
-    auto process_locators = [&](const eprosima::fastrtps::rtps::Locator_t& dds_locator)
+    auto process_locators = [&](const eprosima::fastdds::rtps::Locator_t& dds_locator)
             {
                 std::shared_ptr<Locator> locator;
 
@@ -2980,13 +2980,13 @@ EntityKind Database::get_entity_kind_by_guid(
         const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
 {
 
-    eprosima::fastrtps::rtps::EntityId_t entity_id_t;
+    eprosima::fastdds::rtps::EntityId_t entity_id_t;
     for (size_t i = 0; i < entity_id_t.size; ++i)
     {
         entity_id_t.value[i] = guid_s.entityId().value()[i];
     }
 
-    if (entity_id_t == eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant)
+    if (entity_id_t == eprosima::fastdds::rtps::c_EntityId_RTPSParticipant)
     {
         return EntityKind::PARTICIPANT;
     }

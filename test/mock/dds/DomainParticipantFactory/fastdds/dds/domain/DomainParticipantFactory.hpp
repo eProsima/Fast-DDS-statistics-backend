@@ -28,8 +28,6 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
-#include <fastrtps/types/TypesBase.h>
-
 namespace eprosima {
 namespace fastdds {
 namespace dds {
@@ -72,10 +70,10 @@ public:
         // Do nothing
     }
 
-    fastrtps::types::ReturnCode_t load_profiles()
+    ReturnCode_t load_profiles()
     {
         load_profiles_count++;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     DomainParticipant* create_participant(
@@ -105,7 +103,7 @@ public:
     {
         get_qos_count++;
         qos = factory_qos;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     ReturnCode_t set_qos(
@@ -113,7 +111,7 @@ public:
     {
         set_qos_count++;
         factory_qos = qos;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     DomainParticipantFactoryQos factory_qos{};

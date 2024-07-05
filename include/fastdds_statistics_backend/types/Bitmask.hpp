@@ -17,8 +17,8 @@
  * @file Bitmask.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP
+#define FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP
 
 #include <type_traits>
 
@@ -222,4 +222,4 @@ Bitmask<E> operator^ (const E& lhs, const E& rhs)
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP

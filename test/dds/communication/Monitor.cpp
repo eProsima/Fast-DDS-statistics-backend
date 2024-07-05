@@ -22,7 +22,7 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
@@ -34,7 +34,8 @@
 #include <database/database_queue.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
-#include <topic_types/typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;

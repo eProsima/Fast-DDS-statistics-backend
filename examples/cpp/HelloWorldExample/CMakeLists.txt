@@ -25,8 +25,8 @@ if(NOT fastcdr_FOUND)
     find_package(fastcdr REQUIRED)
 endif()
 
-if(NOT fastrtps_FOUND)
-    find_package(fastrtps REQUIRED)
+if(NOT fastdds_FOUND)
+    find_package(fastdds REQUIRED)
 endif()
 
 if(NOT fastdds_statistics_backend_FOUND)
@@ -52,6 +52,6 @@ target_compile_definitions(HelloWorldExample PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
 )
-target_link_libraries(HelloWorldExample fastrtps fastcdr fastdds_statistics_backend)
+target_link_libraries(HelloWorldExample fastdds fastcdr fastdds_statistics_backend)
 install(TARGETS HelloWorldExample
     RUNTIME DESTINATION examples/cpp/HelloWorldExample/${BIN_INSTALL_DIR})

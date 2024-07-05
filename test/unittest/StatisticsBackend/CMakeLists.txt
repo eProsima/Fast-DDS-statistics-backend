@@ -38,12 +38,10 @@ add_executable(statistics_backend_tests StatisticsBackendTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -61,7 +59,7 @@ target_include_directories(statistics_backend_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(statistics_backend_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
@@ -104,12 +102,10 @@ add_executable(calling_user_listeners_tests CallingUserListenersTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -122,7 +118,7 @@ target_include_directories(calling_user_listeners_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 if(MSVC)
     target_compile_definitions(calling_user_listeners_tests
@@ -313,12 +309,10 @@ add_executable(init_monitor_tests InitMonitorTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -337,7 +331,7 @@ target_include_directories(init_monitor_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
 
@@ -380,12 +374,10 @@ add_executable(init_monitor_factory_fails_tests InitMonitorFactoryFailsTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -410,7 +402,7 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(init_monitor_factory_fails_tests TEST_FRIENDLY_PATH)
 
@@ -463,12 +455,10 @@ add_executable(get_data_tests GetDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -486,7 +476,7 @@ target_include_directories(get_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(get_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(get_data_tests TEST_FRIENDLY_PATH)
 
@@ -559,12 +549,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -584,7 +572,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(is_active_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(is_active_tests TEST_FRIENDLY_PATH)
 
@@ -626,12 +614,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -649,7 +635,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(is_metatraffic_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(is_metatraffic_tests TEST_FRIENDLY_PATH)
 
@@ -687,12 +673,10 @@ add_executable(backend_dump_tests BackendDumpTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -710,7 +694,7 @@ target_include_directories(backend_dump_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(backend_dump_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(backend_dump_tests TEST_FRIENDLY_PATH)
 
@@ -746,12 +730,10 @@ add_executable(clear_statistics_data_tests ClearDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -769,7 +751,7 @@ target_include_directories(clear_statistics_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(clear_statistics_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(clear_statistics_data_tests TEST_FRIENDLY_PATH)
 
@@ -804,12 +786,10 @@ add_executable(get_status_data_tests GetStatusDataTests.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -827,7 +807,7 @@ target_include_directories(get_status_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(get_status_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(get_status_data_tests TEST_FRIENDLY_PATH)
 
@@ -870,12 +850,10 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
         ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -895,7 +873,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(clear_inactive_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(clear_inactive_entities_tests TEST_FRIENDLY_PATH)
 

@@ -54,8 +54,8 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
 }
 
 template <>
-void serialize<fastrtps::Duration_t> (
-        const fastrtps::Duration_t& qos,
+void serialize<fastdds::Duration_t> (
+        const fastdds::Duration_t& qos,
         const std::string& fieldname,
         database::Qos& serialized)
 {
@@ -449,7 +449,7 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
 }
 
 database::Qos reader_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ReaderProxyData& reader_data)
+        const fastdds::rtps::ReaderProxyData& reader_data)
 {
     database::Qos reader;
 
@@ -477,7 +477,7 @@ database::Qos reader_proxy_data_to_backend_qos(
 }
 
 database::Qos writer_proxy_data_to_backend_qos(
-        const fastrtps::rtps::WriterProxyData& writer_data)
+        const fastdds::rtps::WriterProxyData& writer_data)
 {
     database::Qos writer;
 
@@ -506,7 +506,7 @@ database::Qos writer_proxy_data_to_backend_qos(
 }
 
 database::Qos participant_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ParticipantProxyData& participant_data)
+        const fastdds::rtps::ParticipantProxyData& participant_data)
 {
     database::Qos participant;
 

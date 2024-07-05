@@ -16,8 +16,8 @@
  * @file app_names.h
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TYPES__APP_NAMES_H
+#define FASTDDS_STATISTICS_BACKEND_TYPES__APP_NAMES_H
 
 #include <fastdds_statistics_backend/types/types.hpp>
 
@@ -74,4 +74,4 @@ const std::map<std::string, AppId> app_id_enum = {
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_APP_NAMES_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TYPES__APP_NAMES_H

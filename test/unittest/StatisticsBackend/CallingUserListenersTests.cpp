@@ -19,7 +19,7 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
@@ -1736,13 +1736,16 @@ public:
     eprosima::fastdds::dds::DataReaderListener* reader_listener_;
 
     eprosima::fastdds::dds::DomainParticipant* participant_;
-    eprosima::fastrtps::rtps::GUID_t participant_guid_;
+    eprosima::fastdds::
+rtps::GUID_t participant_guid_;
     std::string participant_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.c1";
     std::string participant_name_ = "Participant";
 
-    eprosima::fastrtps::rtps::GUID_t datareader_guid_;
+    eprosima::fastdds::
+rtps::GUID_t datareader_guid_;
     std::string datareader_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.1";
-    eprosima::fastrtps::rtps::GUID_t datawriter_guid_;
+    eprosima::fastdds::
+rtps::GUID_t datawriter_guid_;
     std::string datawriter_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.2";
 
     std::string topic_name_ = "Topic";
@@ -1826,20 +1829,25 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&participant_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Simulate the discovery of a participant
-    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
-    eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
+    eprosima::fastdds::
+rtps::RTPSParticipantAllocationAttributes attributes;
+    eprosima::fastdds::
+rtps::ParticipantProxyData participant_data(attributes);
     participant_data.m_guid = participant_guid_;
     participant_data.m_participantName = participant_name_;
 
     // The participant locator
-    eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+    eprosima::fastdds::
+rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
     participant_locator.address[12] = 127;
     participant_locator.address[15] = 1;
     participant_data.default_locators.add_unicast_locator(participant_locator);
 
     // Finish building the discovered participant info
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-    participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo participant_info(participant_data);
+    participant_info.status = eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
 
     // Execution: Call the listener
     participant_listener_->on_participant_discovery(participant_, std::move(participant_info));
@@ -1908,7 +1916,8 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&writer_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered writer info
-    eprosima::fastrtps::rtps::WriterProxyData writer_data(1, 1);
+    eprosima::fastdds::
+rtps::WriterProxyData writer_data(1, 1);
 
     // The discovered writer is in the participant
     writer_data.guid(datawriter_guid_);
@@ -1918,14 +1927,17 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     writer_data.typeName(topic_type_);
 
     // The discovered writer contains the locator
-    eprosima::fastrtps::rtps::Locator_t writer_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::
+rtps::Locator_t writer_locator(LOCATOR_KIND_UDPv4, 1024);
     writer_locator.address[12] = 127;
     writer_locator.address[15] = 1;
     writer_data.add_unicast_locator(writer_locator);
 
     // Finish building the discovered writer info
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_info(writer_data);
-    writer_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+    eprosima::fastdds::
+rtps::WriterDiscoveryInfo writer_info(writer_data);
+    writer_info.status = eprosima::fastdds::
+rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
 
     // Execution: Call the listener
     participant_listener_->on_publisher_discovery(participant_, std::move(writer_info));
@@ -1992,7 +2004,8 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&reader_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderProxyData reader_data(1, 1);
+    eprosima::fastdds::
+rtps::ReaderProxyData reader_data(1, 1);
 
     // The discovered reader is in the participant
     reader_data.guid(datareader_guid_);
@@ -2002,14 +2015,17 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     reader_data.typeName(topic_type_);
 
     // The discovered reader contains the locator
-    eprosima::fastrtps::rtps::Locator_t reader_locator(LOCATOR_KIND_UDPv4, 2048);
+    eprosima::fastdds::
+rtps::Locator_t reader_locator(LOCATOR_KIND_UDPv4, 2048);
     reader_locator.address[12] = 127;
     reader_locator.address[15] = 1;
     reader_data.add_unicast_locator(reader_locator);
 
     // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_info(reader_data);
-    reader_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+    eprosima::fastdds::
+rtps::ReaderDiscoveryInfo reader_info(reader_data);
+    reader_info.status = eprosima::fastdds::
+rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
 
     // Execution: Call the listener
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader_info));
@@ -2080,10 +2096,12 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&datareader2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderProxyData reader2_data(1, 1);
+    eprosima::fastdds::
+rtps::ReaderProxyData reader2_data(1, 1);
 
     // The discovered reader is in the participant
-    eprosima::fastrtps::rtps::GUID_t datareader2_guid_;
+    eprosima::fastdds::
+rtps::GUID_t datareader2_guid_;
     std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.3") >> datareader2_guid_;
     reader2_data.guid(datareader2_guid_);
 
@@ -2096,8 +2114,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     reader2_data.add_unicast_locator(writer_locator);
 
     // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_info(reader2_data);
-    reader2_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+    eprosima::fastdds::
+rtps::ReaderDiscoveryInfo reader2_info(reader2_data);
+    reader2_info.status = eprosima::fastdds::
+rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
 
     // Execution: Call the listener
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_info));
@@ -2149,10 +2169,12 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&datawriter2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered writer info
-    eprosima::fastrtps::rtps::WriterProxyData writer2_data(1, 1);
+    eprosima::fastdds::
+rtps::WriterProxyData writer2_data(1, 1);
 
     // The discovered writer is in the participant
-    eprosima::fastrtps::rtps::GUID_t datawriter2_guid_;
+    eprosima::fastdds::
+rtps::GUID_t datawriter2_guid_;
     std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.4") >> datawriter2_guid_;
     writer2_data.guid(datawriter2_guid_);
 
@@ -2164,8 +2186,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     writer2_data.typeName(topic_type_);
 
     // Finish building the discovered writer info
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_info(writer2_data);
-    writer2_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+    eprosima::fastdds::
+rtps::WriterDiscoveryInfo writer2_info(writer2_data);
+    writer2_info.status = eprosima::fastdds::
+rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
 
     // Execution: Call the listener
     participant_listener_->on_publisher_discovery(participant_, std::move(writer2_info));
@@ -2214,8 +2238,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&datawriter_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_undiscovery_info (writer_data);
-    writer_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+    eprosima::fastdds::
+rtps::WriterDiscoveryInfo writer_undiscovery_info (writer_data);
+    writer_undiscovery_info.status = eprosima::fastdds::
+rtps::WriterDiscoveryInfo::REMOVED_WRITER;
 
     // Execution: Call the listener
     participant_listener_->on_publisher_discovery(participant_, std::move(writer_undiscovery_info));
@@ -2266,8 +2292,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&topic_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_undiscovery_info(reader_data);
-    reader_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+    eprosima::fastdds::
+rtps::ReaderDiscoveryInfo reader_undiscovery_info(reader_data);
+    reader_undiscovery_info.status = eprosima::fastdds::
+rtps::ReaderDiscoveryInfo::REMOVED_READER;
 
     // Execution: Call the listener
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader_undiscovery_info));
@@ -2304,8 +2332,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&datawriter2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_undiscovery_info (writer2_data);
-    writer2_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+    eprosima::fastdds::
+rtps::WriterDiscoveryInfo writer2_undiscovery_info (writer2_data);
+    writer2_undiscovery_info.status = eprosima::fastdds::
+rtps::WriterDiscoveryInfo::REMOVED_WRITER;
 
     // Execution: Call the listener
     participant_listener_->on_publisher_discovery(participant_, std::move(writer2_undiscovery_info));
@@ -2356,8 +2386,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&topic2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_undiscovery_info(reader2_data);
-    reader2_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+    eprosima::fastdds::
+rtps::ReaderDiscoveryInfo reader2_undiscovery_info(reader2_data);
+    reader2_undiscovery_info.status = eprosima::fastdds::
+rtps::ReaderDiscoveryInfo::REMOVED_READER;
 
     // Execution: Call the listener
     participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_undiscovery_info));
@@ -2424,8 +2456,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&metatraffic_endpoint_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
-    participant_undiscovery_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
+    eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
+    participant_undiscovery_info.status = eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
 
     // Execution: Call the listener
     participant_listener_->on_participant_discovery(participant_, std::move(participant_undiscovery_info));
@@ -2511,12 +2545,15 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
 
         std::string participant_guid_str = participant_guid_str_prefix + "|" + participant_guid_str_suffix;
 
-        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        eprosima::fastdds::
+rtps::GUID_t participant_guid_;
         std::stringstream(participant_guid_str) >> participant_guid_;
 
         // Simulate the discovery of a participant
-        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
-        eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
+        eprosima::fastdds::
+rtps::RTPSParticipantAllocationAttributes attributes;
+        eprosima::fastdds::
+rtps::ParticipantProxyData participant_data(attributes);
         participant_data.m_guid = participant_guid_;
         participant_data.m_participantName = participant_name_;
 
@@ -2528,14 +2565,17 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
                 process_name);
 
         // The participant locator
-        eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+        eprosima::fastdds::
+rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
         participant_locator.address[12] = 127;
         participant_locator.address[15] = 1;
         participant_data.default_locators.add_unicast_locator(participant_locator);
 
         // Finish building the discovered participant info
-        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-        participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+        eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo participant_info(participant_data);
+        participant_info.status = eprosima::fastdds::
+rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
 
         // Execution: Call the listener
         participant_listener_->on_participant_discovery(participant_, std::move(participant_info));

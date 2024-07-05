@@ -41,8 +41,10 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <Monitor.hpp>
-#include <topic_types/typesPubSubTypes.h>
-#include <topic_types/monitorservice_typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
+#include <topic_types/monitorservice_typesPubSubTypes.hpp>
+
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
@@ -167,7 +169,8 @@ public:
                 .WillByDefault(ReturnRef(datareader_qos_));
 
         ON_CALL(domain_participant_, register_type(_, _))
-                .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK));
+                .WillByDefault(Return(eprosima::fastdds::
+types::ReturnCode_t::RETCODE_OK));
 
         for (auto topic_type : topic_types_)
         {
@@ -310,7 +313,8 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 {
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
-            .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
+            .WillByDefault(Return(eprosima::fastdds::
+types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
 
     check_init_monitor_failure();
 }

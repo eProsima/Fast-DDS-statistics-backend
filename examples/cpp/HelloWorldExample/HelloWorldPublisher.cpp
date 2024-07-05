@@ -25,8 +25,8 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 #include <fastdds/dds/publisher/qos/PublisherQos.hpp>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/attributes/PublisherAttributes.h>
+#include <xmlparser/attributes/ParticipantAttributes.hpp>
+#include <xmlparser/attributes/PublisherAttributes.hpp>
 
 #include "HelloWorldPublisher.h"
 
@@ -146,8 +146,8 @@ HelloWorldPublisher::~HelloWorldPublisher()
 }
 
 void HelloWorldPublisher::PubListener::on_publication_matched(
-        eprosima::fastdds::dds::DataWriter*,
-        const eprosima::fastdds::dds::PublicationMatchedStatus& info)
+        DataWriter*,
+        const PublicationMatchedStatus& info)
 {
     if (info.current_count_change == 1)
     {

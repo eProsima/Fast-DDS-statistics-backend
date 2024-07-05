@@ -25,10 +25,10 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 
-#include <fastrtps/types/DynamicDataFactory.h>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/attributes/PublisherAttributes.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicDataFactory.hpp>
+#include <xmlparser/attributes/ParticipantAttributes.hpp>
+#include <xmlparser/attributes/PublisherAttributes.hpp>
+#include <xmlparser/XMLProfileManager.h>
 
 #include <mutex>
 #include <condition_variable>
@@ -39,8 +39,9 @@
 #include <Host.hpp>
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds;
+using namespace eprosima::fastdds::
+rtps;
 
 static bool run = true;
 
@@ -66,7 +67,7 @@ public:
      */
     void on_participant_discovery(
             DomainParticipant* /*participant*/,
-            rtps::ParticipantDiscoveryInfo&& info) override
+            rtps::ParticipantDiscoveryInfo&& info)
     {
         if (info.status == rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
         {

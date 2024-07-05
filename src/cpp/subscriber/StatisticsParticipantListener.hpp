@@ -17,17 +17,18 @@
  * @file StatisticsParticipantListener.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP
 
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/core/status/StatusMask.hpp>
-#include <fastdds/rtps/common/Guid.h>
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Guid.hpp>
+#include <fastdds/rtps/common/Locator.hpp>
 
 #include <database/entities.hpp>
 
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+
 #include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
@@ -70,7 +71,8 @@ public:
      */
     virtual void on_participant_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
+            fastdds::
+rtps::ParticipantDiscoveryInfo&& info);
 
     /*!
      * This method is called when a new Subscriber is discovered, or a previously discovered subscriber changes
@@ -80,7 +82,8 @@ public:
      */
     virtual void on_subscriber_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::ReaderDiscoveryInfo&& info) override;
+            fastdds::
+rtps::ReaderDiscoveryInfo&& info);
 
     /*!
      * This method is called when a new Publisher is discovered, or a previously discovered publisher changes
@@ -90,7 +93,8 @@ public:
      */
     virtual void on_publisher_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::WriterDiscoveryInfo&& info) override;
+            fastdds::
+rtps::WriterDiscoveryInfo&& info);
 
 protected:
 
@@ -107,4 +111,4 @@ protected:
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP

@@ -21,7 +21,7 @@
 #include <gtest/gtest.h>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <xmlparser/XMLProfileManager.h>
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>

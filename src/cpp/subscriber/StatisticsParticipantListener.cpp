@@ -34,7 +34,8 @@ namespace statistics_backend {
 namespace subscriber {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::
+rtps;
 
 template<typename T>
 std::string to_string(
@@ -51,7 +52,8 @@ std::string to_string(
  * @return true when the entity id corresponds to a builtin statistics writer.
  */
 inline bool is_statistics_builtin(
-        const fastrtps::rtps::EntityId_t& entity_id)
+        const fastdds::
+rtps::EntityId_t& entity_id)
 {
     return 0x60 == (0xE0 & entity_id.value[3]);
 }
@@ -74,7 +76,8 @@ noexcept
 
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
-        const eprosima::fastrtps::ResourceLimitedVector<Locator_t>& locators,
+        const eprosima::fastdds::
+ResourceLimitedVector<Locator_t>& locators,
         std::string& address)
 {
     for (auto locator : locators)

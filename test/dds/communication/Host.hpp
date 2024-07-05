@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UTILS_HOST_HPP_
-#define UTILS_HOST_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TEST_DDS_COMMUNICATION__HOST_HPP
+#define FASTDDS_STATISTICS_BACKEND_TEST_DDS_COMMUNICATION__HOST_HPP
 
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 
-#include <fastrtps/utils/md5.h>
-#include <fastrtps/utils/IPFinder.h>
+#include <fastdds/utils/md5.hpp>
+#include <fastdds/utils/IPFinder.hpp>
 
 #include <fastdds/dds/log/Log.hpp>
 
@@ -66,12 +66,13 @@ private:
     {
         // Compute the host id
         fastdds::rtps::LocatorList loc;
-        fastrtps::rtps::IPFinder::getIP4Address(&loc);
+        fastdds::
+rtps::IPFinder::getIP4Address(&loc);
 
         {
             if (loc.size() > 0)
             {
-                MD5 md5;
+                fastdds::MD5 md5;
                 for (auto& l : loc)
                 {
                     md5.update(l.address, sizeof(l.address));
@@ -91,11 +92,13 @@ private:
         }
 
         // Compute the MAC id
-        std::vector<fastrtps::rtps::IPFinder::info_MAC> macs;
-        if (fastrtps::rtps::IPFinder::getAllMACAddress(&macs) &&
+        std::vector<fastdds::
+rtps::IPFinder::info_MAC> macs;
+        if (fastdds::
+rtps::IPFinder::getAllMACAddress(&macs) &&
                 macs.size() > 0)
         {
-            MD5 md5;
+            fastdds::MD5 md5;
             for (auto& m : macs)
             {
                 md5.update(m.address, sizeof(m.address));
@@ -127,4 +130,4 @@ private:
 
 } // eprosima
 
-#endif // UTILS_HOST_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TEST_DDS_COMMUNICATION__HOST_HPP

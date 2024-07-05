@@ -25,10 +25,10 @@
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/attributes/SubscriberAttributes.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/types/DynamicData.h>
+#include <xmlparser/attributes/ParticipantAttributes.hpp>
+#include <xmlparser/attributes/SubscriberAttributes.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
 #include <fastrtps/types/TypeObjectFactory.h>
 
 #include <mutex>
@@ -40,8 +40,7 @@
 #include <Host.hpp>
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps;
-using namespace eprosima::fastrtps::rtps;
+
 
 static bool g_run = true;
 static types::DynamicType_ptr g_type;
@@ -97,9 +96,12 @@ public:
 
     void on_type_information_received(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            const eprosima::fastrtps::string_255 topic_name,
-            const eprosima::fastrtps::string_255 type_name,
-            const eprosima::fastrtps::types::TypeInformation& type_information) override
+            const eprosima::fastdds::
+string_255 topic_name,
+            const eprosima::fastdds::
+string_255 type_name,
+            const eprosima::fastdds::
+types::TypeInformation& type_information) override
     {
         std::function<void(const std::string&, const types::DynamicType_ptr)> callback =
                 [topic_name, type_name](const std::string& name, const types::DynamicType_ptr type)

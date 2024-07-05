@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include <fastdds/rtps/common/RemoteLocators.hpp>
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -33,7 +33,8 @@
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::
+rtps;
 
 class database_process_entities_tests : public ::testing::Test
 {

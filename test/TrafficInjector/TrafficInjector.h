@@ -35,9 +35,11 @@
 #include <exception/Exception.hpp>
 #include <MessageSerializer.h>
 #include <topic_types/types.h>
-#include <topic_types/typesPubSubTypes.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_typesPubSubTypes.hpp>
 #include <types/types.hpp>
 
 
@@ -49,7 +51,6 @@ using Traffic = nlohmann::ordered_json;
 class TrafficInjector
 {
 
-    using StatisticsEventKind = eprosima::fastdds::statistics::EventKindBits;
     using StatisticsData = eprosima::fastdds::statistics::Data;
 
     class StatisticsWriterListener : public eprosima::fastdds::dds::DataWriterListener

@@ -26,7 +26,8 @@ namespace statistics_backend {
 namespace database {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::
+rtps;
 
 template<typename T>
 std::string to_string(
@@ -150,7 +151,7 @@ EntityId DatabaseEntityQueue::process_participant(
     }
     catch (const std::exception& e)
     {
-        logError(BACKEND_DATABASE_QUEUE, e.what());
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE_QUEUE, e.what());
     }
 
     graph_updated = database_->update_participant_in_graph(
@@ -1000,7 +1001,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 {
     switch (front().second->_d())
     {
-        case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
+        case fastdds::statistics::EventKind::HISTORY2HISTORY_LATENCY:
         {
             HistoryLatencySample sample;
             EntityId domain;
@@ -1023,7 +1024,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::NETWORK_LATENCY:
+        case fastdds::statistics::EventKind::NETWORK_LATENCY:
         {
             NetworkLatencySample sample;
             EntityId domain;
@@ -1046,7 +1047,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::PUBLICATION_THROUGHPUT:
+        case fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT:
         {
             PublicationThroughputSample sample;
             EntityId domain;
@@ -1070,7 +1071,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
+        case fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT:
         {
             SubscriptionThroughputSample sample;
             EntityId domain;
@@ -1094,7 +1095,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::RTPS_SENT:
+        case fastdds::statistics::EventKind::RTPS_SENT:
         {
             RtpsPacketsSentSample packet_sample;
             RtpsBytesSentSample byte_sample;
@@ -1136,7 +1137,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::RTPS_LOST:
+        case fastdds::statistics::EventKind::RTPS_LOST:
         {
 
             RtpsPacketsLostSample packet_sample;
@@ -1178,7 +1179,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::RESENT_DATAS:
+        case fastdds::statistics::EventKind::RESENT_DATAS:
         {
             ResentDataSample sample;
             EntityId domain;
@@ -1201,7 +1202,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::HEARTBEAT_COUNT:
+        case fastdds::statistics::EventKind::HEARTBEAT_COUNT:
         {
             HeartbeatCountSample sample;
             EntityId domain;
@@ -1224,7 +1225,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::ACKNACK_COUNT:
+        case fastdds::statistics::EventKind::ACKNACK_COUNT:
         {
             AcknackCountSample sample;
             EntityId domain;
@@ -1247,7 +1248,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::NACKFRAG_COUNT:
+        case fastdds::statistics::EventKind::NACKFRAG_COUNT:
         {
             NackfragCountSample sample;
             EntityId domain;
@@ -1270,7 +1271,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::GAP_COUNT:
+        case fastdds::statistics::EventKind::GAP_COUNT:
         {
             GapCountSample sample;
             EntityId domain;
@@ -1292,7 +1293,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::DATA_COUNT:
+        case fastdds::statistics::EventKind::DATA_COUNT:
         {
             DataCountSample sample;
             EntityId domain;
@@ -1314,7 +1315,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::PDP_PACKETS:
+        case fastdds::statistics::EventKind::PDP_PACKETS:
         {
             PdpCountSample sample;
             EntityId domain;
@@ -1337,7 +1338,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::EDP_PACKETS:
+        case fastdds::statistics::EventKind::EDP_PACKETS:
         {
             EdpCountSample sample;
             EntityId domain;
@@ -1360,7 +1361,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::DISCOVERED_ENTITY:
+        case fastdds::statistics::EventKind::DISCOVERED_ENTITY:
         {
             DiscoveryTimeSample sample;
             EntityId domain;
@@ -1382,7 +1383,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             break;
         }
-        case StatisticsEventKind::SAMPLE_DATAS:
+        case fastdds::statistics::EventKind::SAMPLE_DATAS:
         {
             SampleDatasCountSample sample;
             EntityId domain;
@@ -1422,7 +1423,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     switch (front().second->status_kind())
     {
-        case StatisticsStatusKind::PROXY:
+        case fastdds::statistics::StatusKind::PROXY:
         {
             ProxySample sample;
             queue_item_type item = front();
@@ -1444,7 +1445,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::CONNECTION_LIST:
+        case fastdds::statistics::StatusKind::CONNECTION_LIST:
         {
             ConnectionListSample sample;
             queue_item_type item = front();
@@ -1467,7 +1468,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::INCOMPATIBLE_QOS:
+        case fastdds::statistics::StatusKind::INCOMPATIBLE_QOS:
         {
             IncompatibleQosSample sample;
             queue_item_type item = front();
@@ -1490,7 +1491,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::INCONSISTENT_TOPIC:
+        case fastdds::statistics::StatusKind::INCONSISTENT_TOPIC:
         {
             InconsistentTopicSample sample;
             queue_item_type item = front();
@@ -1513,7 +1514,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::LIVELINESS_LOST:
+        case fastdds::statistics::StatusKind::LIVELINESS_LOST:
         {
             LivelinessLostSample sample;
             queue_item_type item = front();
@@ -1536,7 +1537,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::LIVELINESS_CHANGED:
+        case fastdds::statistics::StatusKind::LIVELINESS_CHANGED:
         {
             LivelinessChangedSample sample;
             queue_item_type item = front();
@@ -1559,7 +1560,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::DEADLINE_MISSED:
+        case fastdds::statistics::StatusKind::DEADLINE_MISSED:
         {
             DeadlineMissedSample sample;
             queue_item_type item = front();
@@ -1582,7 +1583,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::SAMPLE_LOST:
+        case fastdds::statistics::StatusKind::SAMPLE_LOST:
         {
             SampleLostSample sample;
             queue_item_type item = front();
@@ -1605,7 +1606,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             break;
         }
-        case StatisticsStatusKind::STATUSES_SIZE:
+        case fastdds::statistics::StatusKind::STATUSES_SIZE:
         {
             //Not yet implemented
             logWarning(BACKEND_DATABASE_QUEUE,

@@ -16,14 +16,14 @@
  * @file QosSerializer.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZER_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__QUOS_SERIALIZER_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__QUOS_SERIALIZER_HPP
 
 #include <string>
 
-#include <fastdds/rtps/builtin/data/ReaderProxyData.h>
-#include <fastdds/rtps/builtin/data/WriterProxyData.h>
-#include <fastdds/rtps/builtin/data/ParticipantProxyData.h>
+#include <fastdds/rtps/builtin/data/ReaderProxyData.hpp>
+#include <fastdds/rtps/builtin/data/WriterProxyData.hpp>
+#include <fastdds/rtps/builtin/data/ParticipantProxyData.hpp>
 
 #include <database/entities.hpp>
 
@@ -44,8 +44,8 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
         database::Qos& serialized);
 
 template <>
-void serialize<fastrtps::Duration_t> (
-        const fastrtps::Duration_t& qos,
+void serialize<fastdds::Duration_t> (
+        const fastdds::Duration_t& qos,
         const std::string& fieldname,
         database::Qos& serialized);
 
@@ -164,17 +164,17 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
         database::Qos& serialized);
 
 database::Qos reader_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ReaderProxyData& reader_data);
+        const fastdds::rtps::ReaderProxyData& reader_data);
 
 database::Qos writer_proxy_data_to_backend_qos(
-        const fastrtps::rtps::WriterProxyData& writer_data);
+        const fastdds::rtps::WriterProxyData& writer_data);
 
 database::Qos participant_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ParticipantProxyData& participant_data);
+        const fastdds::rtps::ParticipantProxyData& participant_data);
 
 
 } // namespace subscriber
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_QOSSERIALIZER_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__QUOS_SERIALIZER_HPP

@@ -23,13 +23,13 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
-#include <fastdds/rtps/attributes/ServerAttributes.h>
+#include <fastdds/rtps/attributes/ServerAttributes.hpp>
 #include <fastdds/rtps/common/GuidPrefix_t.hpp>
-#include <fastdds/rtps/common/Locator.h>
-#include <fastdds/rtps/common/Property.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/common/Locator.hpp>
+#include <fastdds/rtps/common/Property.hpp>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
@@ -42,13 +42,15 @@
 #include <database/database_queue.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
-#include <topic_types/typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::
+rtps;
 
 namespace test {
 
@@ -255,7 +257,8 @@ public:
             const std::string& app_metadata = "")
     {
         EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-                eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+                eprosima::fastdds::
+rtps::DiscoveryProtocol::SUPER_CLIENT);
 
         RemoteServerAttributes server_qos =
                 participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
@@ -265,13 +268,15 @@ public:
 
         //Get data from participant discovery info
         auto get_property_value =
-                [](const eprosima::fastrtps::rtps::PropertySeq& properties,
+                [](const eprosima::fastdds::
+rtps::PropertySeq& properties,
                         const std::string& property_name) -> std::string
                 {
                     auto property = std::find_if(
                         properties.begin(),
                         properties.end(),
-                        [&](const eprosima::fastrtps::rtps::Property& property)
+                        [&](const eprosima::fastdds::
+rtps::Property& property)
                         {
                             return property.name() == property_name;
                         });
@@ -675,7 +680,8 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
     domain_monitors[monitor_id]->participant->get_qos(participant_qos);
 
     EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+            eprosima::fastdds::
+rtps::DiscoveryProtocol::SUPER_CLIENT);
 
     const RemoteServerAttributes& server_qos =
             participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
