@@ -69,10 +69,10 @@ public:
      * @param participant Pointer to the Participant which discovered the remote participant.
      * @param info Remote participant information. User can take ownership of the object.
      */
-    virtual void on_participant_discovery(
+    void on_participant_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastdds::
-rtps::ParticipantDiscoveryInfo&& info);
+            fastdds::rtps::ParticipantDiscoveryInfo&& info,
+            bool &should_be_ignored) override;
 
     /*!
      * This method is called when a new Subscriber is discovered, or a previously discovered subscriber changes
@@ -80,10 +80,10 @@ rtps::ParticipantDiscoveryInfo&& info);
      * @param participant Pointer to the Participant which discovered the remote subscriber.
      * @param info Remote subscriber information. User can take ownership of the object.
      */
-    virtual void on_subscriber_discovery(
+    void on_data_reader_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastdds::
-rtps::ReaderDiscoveryInfo&& info);
+            fastdds::rtps::ReaderDiscoveryInfo&& info,
+            bool &should_be_ignored) override;
 
     /*!
      * This method is called when a new Publisher is discovered, or a previously discovered publisher changes
@@ -91,10 +91,10 @@ rtps::ReaderDiscoveryInfo&& info);
      * @param participant Pointer to the Participant which discovered the remote publisher.
      * @param info Remote publisher information. User can take ownership of the object.
      */
-    virtual void on_publisher_discovery(
+    void on_data_writer_discovery(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            fastdds::
-rtps::WriterDiscoveryInfo&& info);
+            fastdds::rtps::WriterDiscoveryInfo&& info,
+            bool &should_be_ignored) override;
 
 protected:
 

@@ -131,7 +131,8 @@ std::string get_address(
 
 void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
-        ParticipantDiscoveryInfo&& info)
+        ParticipantDiscoveryInfo&& info,
+        bool&)
 {
     // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
@@ -159,12 +160,14 @@ void StatisticsParticipantListener::on_participant_discovery(
     {
         case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
         {
+            std::cout << "DomainParticipant discovered: " << info.info.m_guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DomainParticipant udated: " << info.info.m_guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
@@ -172,6 +175,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
         case ParticipantDiscoveryInfo::IGNORED_PARTICIPANT:
         {
+            std::cout << "DomainParticipant removed: " << info.info.m_guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -262,10 +266,12 @@ void StatisticsParticipantListener::on_participant_discovery(
     monitor_service_status_data_queue_->start_consumer();
 }
 
-void StatisticsParticipantListener::on_subscriber_discovery(
+void StatisticsParticipantListener::on_data_reader_discovery(
         DomainParticipant* participant,
-        ReaderDiscoveryInfo&& info)
+        ReaderDiscoveryInfo&& info,
+        bool&)
 {
+    std::cout << "on_subscriber_discovery" << std::endl;
     // Filter out our own statistics readers
     if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
     {
@@ -292,18 +298,21 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     {
         case ReaderDiscoveryInfo::DISCOVERED_READER:
         {
+            std::cout << "DataReader discovered: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case ReaderDiscoveryInfo::CHANGED_QOS_READER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DataReader updated: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
         case ReaderDiscoveryInfo::REMOVED_READER:
         case ReaderDiscoveryInfo::IGNORED_READER:
         {
+            std::cout << "DataReader removed: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -317,10 +326,12 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     monitor_service_status_data_queue_->start_consumer();
 }
 
-void StatisticsParticipantListener::on_publisher_discovery(
+void StatisticsParticipantListener::on_data_writer_discovery(
         DomainParticipant* participant,
-        WriterDiscoveryInfo&& info)
+        WriterDiscoveryInfo&& info,
+        bool&)
 {
+    std::cout << "on_publisher_discovery" << std::endl;
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
@@ -345,18 +356,21 @@ void StatisticsParticipantListener::on_publisher_discovery(
     {
         case WriterDiscoveryInfo::DISCOVERED_WRITER:
         {
+            std::cout << "DataWriter discovered: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DataWriter updated: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
         case WriterDiscoveryInfo::REMOVED_WRITER:
         case WriterDiscoveryInfo::IGNORED_WRITER:
         {
+            std::cout << "DataWriter removed: " << info.info.guid() << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
