@@ -28,7 +28,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 
-#include "HelloWorld.h"
+#include "HelloWorld.hpp"
 
 /**
  * Class used to group into a single working unit a Subscriber with a DataReader, its listener, and a TypeSupport member

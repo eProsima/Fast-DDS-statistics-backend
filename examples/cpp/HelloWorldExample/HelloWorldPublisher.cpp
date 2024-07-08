@@ -25,10 +25,9 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 #include <fastdds/dds/publisher/qos/PublisherQos.hpp>
-#include <xmlparser/attributes/ParticipantAttributes.hpp>
-#include <xmlparser/attributes/PublisherAttributes.hpp>
 
 #include "HelloWorldPublisher.h"
+#include "HelloWorldPubSubTypes.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;

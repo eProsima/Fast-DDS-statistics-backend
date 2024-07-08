@@ -13,7 +13,7 @@
             "cmake-args":
             [
                 "-DBUILD_DOCS=OFF",
-                "-DCOMPILE_EXAMPLES=OFF",
+                "-DCOMPILE_EXAMPLES=ON",
             ]
         }
     }

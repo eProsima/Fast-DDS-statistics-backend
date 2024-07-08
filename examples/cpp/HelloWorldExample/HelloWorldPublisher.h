@@ -26,7 +26,7 @@
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
 
-#include "HelloWorld.h"
+#include "HelloWorld.hpp"
 
 /**
  * Class used to group into a single working unit a Publisher with a DataWriter, its listener, and a TypeSupport member

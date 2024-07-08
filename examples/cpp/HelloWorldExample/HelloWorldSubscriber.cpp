@@ -24,10 +24,9 @@
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <xmlparser/attributes/ParticipantAttributes.hpp>
-#include <xmlparser/attributes/SubscriberAttributes.hpp>
 
 #include "HelloWorldSubscriber.h"
+#include "HelloWorldPubSubTypes.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
