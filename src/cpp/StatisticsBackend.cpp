@@ -441,6 +441,7 @@ EntityId StatisticsBackend::init_monitor(
         app_metadata,
         "true");
 
+    // Set monitor as SUPER CLIENT
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
             eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT;
     
@@ -472,6 +473,9 @@ EntityId StatisticsBackend::init_monitor(
         {
             participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(locator);
         }
+
+        // Add remote SERVER to Monitor's list of SERVERs
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(locator);
 
         if (!set_locator)
         {

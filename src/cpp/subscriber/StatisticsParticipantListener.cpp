@@ -271,7 +271,6 @@ void StatisticsParticipantListener::on_data_reader_discovery(
         ReaderDiscoveryInfo&& info,
         bool&)
 {
-    std::cout << "on_subscriber_discovery" << std::endl;
     // Filter out our own statistics readers
     if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
     {
@@ -331,7 +330,6 @@ void StatisticsParticipantListener::on_data_writer_discovery(
         WriterDiscoveryInfo&& info,
         bool&)
 {
-    std::cout << "on_publisher_discovery" << std::endl;
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
