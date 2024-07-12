@@ -20,6 +20,8 @@ on:
       dependencies_artifact_postfix:
         description: 'Postfix name to add to artifact name to download dependencies. This is use to download a specific artifact version from eProsima-CI.'
         required: true
+        type: string
+        default: '_nightly'
 
   push:
     branches:
