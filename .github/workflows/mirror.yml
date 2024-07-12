@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Mirror action step
         id: mirror
-        uses: eProsima/eProsima-CI/external/mirror-branch-action@v0
+        uses: eProsima/eProsima-CI/external/mirror-branch-action@feature/ubuntu-24
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             source: 'main'
