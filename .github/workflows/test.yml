@@ -21,7 +21,6 @@ on:
         description: 'Postfix name to add to artifact name to download dependencies. This is use to download a specific artifact version from eProsima-CI.'
         required: true
 
-on:
   push:
     branches:
       - main
