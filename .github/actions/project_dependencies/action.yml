@@ -40,10 +40,6 @@ runs:
   using: composite
   steps:
 
-    - name: Setup Python Virtual Environment
-      uses: eProsima/eProsima-CI/multiplatform/setup_python_venv@feature/ubuntu-24
-      if: runner.os == 'Linux'
-
     - name: Install Fast DDS dependencies
       uses: eProsima/eProsima-CI/multiplatform/install_fastdds_dependencies@feature/ubuntu-24
       with:

@@ -282,9 +282,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
 
-      - name: Setup Python Virtual Environment
-        uses: eProsima/eProsima-CI/multiplatform/setup_python_venv@feature/ubuntu-24
-
       - name: Install libtinyxml in ubuntu
         uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@feature/ubuntu-24
         with:
@@ -310,9 +307,6 @@ jobs:
   uncrustify:
     runs-on: ubuntu-22.04
     steps:
-
-      - name: Setup Python Virtual Environment
-        uses: eProsima/eProsima-CI/multiplatform/setup_python_venv@feature/ubuntu-24
 
       - name: Uncrustify
         uses: eProsima/eProsima-CI/ubuntu/uncrustify@feature/ubuntu-24
