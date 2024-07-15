@@ -23,6 +23,7 @@ on:
         type: string
         default: '_nightly'
 
+  pull_request:
   push:
     branches:
       - main
