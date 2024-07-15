@@ -103,7 +103,7 @@ jobs:
           os: ${{ matrix.os }}
           cmake_build_type: ${{ matrix.cmake_build_type }}
           custom_version_build: ${{ inputs.custom_version_build }}
-          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix }}
+          dependencies_artifact_postfix: ${{ inputs.dependencies_artifact_postfix }}
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
@@ -146,7 +146,7 @@ jobs:
           os: ubuntu-22.04
           cmake_build_type: Release
           custom_version_build: ${{ inputs.custom_version_build }}
-          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix }}
+          dependencies_artifact_postfix: ${{ inputs.dependencies_artifact_postfix }}
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
@@ -193,7 +193,7 @@ jobs:
           os: ubuntu-22.04
           cmake_build_type: Release
           custom_version_build: ${{ inputs.custom_version_build }}
-          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix }}
+          dependencies_artifact_postfix: ${{ inputs.dependencies_artifact_postfix }}
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
@@ -223,7 +223,7 @@ jobs:
           os: ubuntu-22.04
           cmake_build_type: Release
           custom_version_build: ${{ inputs.custom_version_build }}
-          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix }}
+          dependencies_artifact_postfix: ${{ inputs.dependencies_artifact_postfix }}
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
@@ -254,7 +254,7 @@ jobs:
           os: ubuntu-22.04
           cmake_build_type: Release
           custom_version_build: ${{ inputs.custom_version_build }}
-          dependencies_artifact_postfix: ${{ github.event.inputs.dependencies_artifact_postfix }}
+          dependencies_artifact_postfix: ${{ inputs.dependencies_artifact_postfix }}
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
