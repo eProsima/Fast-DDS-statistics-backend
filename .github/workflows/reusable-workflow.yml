@@ -92,7 +92,7 @@ jobs:
     steps:
 
       - name: Sync repository
-        uses: eProsima/eProsima-CI/external/checkout@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
           path: src
           ref: ${{ inputs.ref }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: Compile and run tests
         id: compile_and_test
-        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@v0
         with:
           packages_names: ${{ env.code_packages_names }}
           cmake_args: -DBUILD_TESTS=ON -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type }}
@@ -118,7 +118,7 @@ jobs:
           test_report_artifact: test_report${{ inputs.dependencies_artifact_postfix }}_${{ inputs.custom_version_build }}_${{ matrix.os }}_${{ matrix.cmake_build_type }}
 
       - name: Test Report
-        uses: eProsima/eProsima-CI/external/test-reporter@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/test-reporter@v0
         if: success() || failure()
         with:
           name: "Report: ${{ matrix.os }} | ${{ matrix.cmake_build_type }} "
@@ -135,7 +135,7 @@ jobs:
     steps:
 
       - name: Sync repository
-        uses: eProsima/eProsima-CI/external/checkout@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
           path: src
           ref: ${{ inputs.ref }}
@@ -151,7 +151,7 @@ jobs:
 
       - name: Compile and run tests
         id: compile_and_test
-        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@v0
         with:
           packages_names: ${{ env.code_packages_names }}
           cmake_args: -DBUILD_TESTS=ON -DTSAN_BUILD=ON
@@ -161,7 +161,7 @@ jobs:
           test_report_artifact: test_report_asan${{ inputs.dependencies_artifact_postfix }}_${{ inputs.custom_version_build }}
 
       - name: Test Report
-        uses: eProsima/eProsima-CI/external/test-reporter@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/test-reporter@v0
         if: success() || failure()
         with:
           name: "Report: ASAN "
@@ -182,7 +182,7 @@ jobs:
     steps:
 
       - name: Sync repository
-        uses: eProsima/eProsima-CI/external/checkout@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
           path: src
           ref: ${{ inputs.ref }}
@@ -197,7 +197,7 @@ jobs:
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
-        uses: eProsima/eProsima-CI/multiplatform/clang_build_test@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/multiplatform/clang_build_test@v0
         with:
           packages_names: ${{ env.code_packages_names }}
           workspace_dependencies: install
@@ -212,7 +212,7 @@ jobs:
     steps:
 
       - name: Sync repository
-        uses: eProsima/eProsima-CI/external/checkout@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
           path: src
           ref: ${{ inputs.ref }}
@@ -227,7 +227,7 @@ jobs:
           secret_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compile and run tests
-        uses: eProsima/eProsima-CI/ubuntu/coverage_build_test_upload@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/ubuntu/coverage_build_test_upload@v0
         with:
           packages_names: ${{ env.code_packages_names }}
           workspace_dependencies: install
@@ -243,7 +243,7 @@ jobs:
     steps:
 
       - name: Sync repository
-        uses: eProsima/eProsima-CI/external/checkout@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/checkout@v0
         with:
           path: src
           ref: ${{ inputs.ref }}
@@ -259,14 +259,14 @@ jobs:
 
       - name: Compile and run tests
         id: compile_and_test
-        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/multiplatform/colcon_build_test@v0
         with:
           packages_names: ${{ env.code_packages_names }}
           workspace_dependencies: install
           ctest_args: --label-regex "xfail"
 
       - name: Test Report
-        uses: eProsima/eProsima-CI/external/test-reporter@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/external/test-reporter@v0
         if: success() || failure()
         with:
           name: "Report: Flaky "
@@ -283,17 +283,17 @@ jobs:
     steps:
 
       - name: Install libtinyxml in ubuntu
-        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
         with:
           packages: libtinyxml2-dev
 
       - name: Install doxygen
-        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
         with:
           packages: doxygen
 
       - name: Build and test documentation
-        uses: eProsima/eProsima-CI/ubuntu/sphinx_docs@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/ubuntu/sphinx_docs@v0
         with:
           checkout_path: src/fastdds_statistics_backend
           custom_version_build: ${{ inputs.custom_version_build }}
@@ -310,4 +310,4 @@ jobs:
     steps:
 
       - name: Uncrustify
-        uses: eProsima/eProsima-CI/ubuntu/uncrustify@hotfix/setup-python-venv
+        uses: eProsima/eProsima-CI/ubuntu/uncrustify@v0
