@@ -17,7 +17,7 @@ jobs:
     secrets: inherit
 
   # Uncomment this block to run the tests for Fast DDS v3 when Fast DDS Statistics Backend is updated
-  # Also specify here (and above) the workflow version/branch to use (@feature/ubuntu-24, @main, etc.)
+  # Also specify here (and above) the workflow version/branch to use (@v0, @main, etc.)
   # reusable_tests_v3:
   #   name: reusable_tests_v3
   #   uses: ./.github/workflows/reusable-workflow.yml
