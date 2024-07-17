@@ -691,5 +691,7 @@ int main(
     // }
 
     std::cerr << "Stop Monitor_" << seed << '\n';
+    char c;
+    std::cin >> c;
     return 0;
 }
