@@ -40,10 +40,6 @@ runs:
   using: composite
   steps:
 
-    - name: Setup Python Virtual Environment
-        uses: eProsima/eProsima-CI/multiplatform/setup_python_venv@v0
-        if: runner.os == 'Linux'
-
     - name: Install Fast DDS dependencies
       uses: eProsima/eProsima-CI/multiplatform/install_fastdds_dependencies@v0
       with:
@@ -58,7 +54,7 @@ runs:
     - name: Download dependencies artifact
       uses: eProsima/eProsima-CI/multiplatform/download_dependency@v0
       with:
-        artifact_name: built_fastdds_${{ inputs.custom_version_build }}_${{ inputs.os }}_${{ inputs.cmake_build_type }}${{ inputs.dependencies_artifact_postfix }}
+        artifact_name: build_fastdds_${{ inputs.custom_version_build }}_${{ inputs.os }}_${{ inputs.cmake_build_type }}${{ inputs.dependencies_artifact_postfix }}
         workflow_source: build_fastdds.yml
         workflow_source_repository: eProsima/eProsima-CI
         target_workspace: ${{ inputs.target_workspace }}
