@@ -122,11 +122,19 @@ struct EntityCountSample : StatisticsSample
     inline EntityCountSample operator -(
             const EntityCountSample& other) const noexcept
     {
-        assert(count >= other.count);
-        EntityCountSample ret(kind);
-        ret.src_ts = src_ts;
-        ret.count = count - other.count;
-        return ret;
+        if (count >= other.count)
+        {
+            EntityCountSample ret(kind);
+            ret.src_ts = src_ts;
+            ret.count = count - other.count;
+            return ret;
+        }
+        else
+        {
+            // This should return an exception but keep this way for now until we verify that the exception is
+            // properly handled by the monitor
+            return this;
+        }
     }
 
     uint64_t count;
