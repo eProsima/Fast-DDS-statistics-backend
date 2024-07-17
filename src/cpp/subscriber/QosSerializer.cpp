@@ -477,30 +477,33 @@ database::Qos reader_proxy_data_to_backend_qos(
 }
 
 database::Qos writer_proxy_data_to_backend_qos(
-        const fastdds::rtps::WriterProxyData& writer_data)
+        const fastdds::rtps::PublicationBuiltinTopicData& info)
 {
     database::Qos writer;
 
-    serialize(writer_data.m_qos.m_durability, durability_tag, writer);
-    serialize(writer_data.m_qos.m_durabilityService, durability_service_tag, writer);
-    serialize(writer_data.m_qos.m_deadline, deadline_tag, writer);
-    serialize(writer_data.m_qos.m_latencyBudget, latency_budget_tag, writer);
-    serialize(writer_data.m_qos.m_liveliness, liveliness_tag, writer);
-    serialize(writer_data.m_qos.m_reliability, reliability_tag, writer);
-    serialize(writer_data.m_qos.m_lifespan, lifespan_tag, writer);
-    serialize(writer_data.m_qos.m_userData, user_data_tag, writer);
-    serialize(writer_data.m_qos.m_timeBasedFilter, time_based_filter_tag, writer);
-    serialize(writer_data.m_qos.m_ownership, ownership_tag, writer);
-    serialize(writer_data.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
-    serialize(writer_data.m_qos.m_destinationOrder, destination_order_tag, writer);
-    serialize(writer_data.m_qos.m_presentation, presentation_tag, writer);
-    serialize(writer_data.m_qos.m_partition, partition_tag, writer);
-    serialize(writer_data.m_qos.m_topicData, topic_data_tag, writer);
-    serialize(writer_data.m_qos.m_groupData, group_data_tag, writer);
-    serialize(writer_data.m_qos.m_publishMode, publish_mode_tag, writer);
-    serialize(writer_data.m_qos.representation, representation_tag, writer);
-    serialize(writer_data.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
-    serialize(writer_data.m_qos.data_sharing, data_sharing_tag, writer);
+    // TODO: Implement serialization for the following fields when available in Fast DDS
+    // serialize(info.publish_mode, publish_mode_tag, writer);
+    // serialize(info.time_based_filter, time_based_filter_tag, writer);
+    // serialize(info.properties, ...);
+    // serialize(info.resource_limits, ...);
+    serialize(info.durability, durability_tag, writer);
+    serialize(info.durability_service, durability_service_tag, writer);
+    serialize(info.deadline, deadline_tag, writer);
+    serialize(info.latency_budget, latency_budget_tag, writer);
+    serialize(info.liveliness, liveliness_tag, writer);
+    serialize(info.reliability, reliability_tag, writer);
+    serialize(info.lifespan, lifespan_tag, writer);
+    serialize(info.user_data, user_data_tag, writer);
+    serialize(info.ownership, ownership_tag, writer);
+    serialize(info.ownership_strength, ownership_strength_tag, writer);
+    serialize(info.destination_order, destination_order_tag, writer);
+    serialize(info.presentation, presentation_tag, writer);
+    serialize(info.partition, partition_tag, writer);
+    serialize(info.topic_data, topic_data_tag, writer);
+    serialize(info.group_data, group_data_tag, writer);
+    serialize(info.representation, representation_tag, writer);
+    serialize(info.disable_positive_acks, disable_positive_acks_tag, writer);
+    serialize(info.data_sharing, data_sharing_tag, writer);
 
     return writer;
 }

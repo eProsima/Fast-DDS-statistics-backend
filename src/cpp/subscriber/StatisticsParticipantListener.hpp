@@ -81,20 +81,24 @@ public:
      * @param info Remote subscriber information. User can take ownership of the object.
      */
     void on_data_reader_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
+            fastdds::dds::DomainParticipant* participant,
             fastdds::rtps::ReaderDiscoveryInfo&& info,
             bool &should_be_ignored) override;
 
     /*!
-     * This method is called when a new Publisher is discovered, or a previously discovered publisher changes
+     * This method is called when a new DataWriter is discovered, or a previously discovered DataWriter changes
      * its QOS or is removed.
-     * @param participant Pointer to the Participant which discovered the remote publisher.
-     * @param info Remote publisher information. User can take ownership of the object.
+     *
+     * @param [in]  participant        Pointer to the Participant which discovered the remote writer.
+     * @param [in]  reason             The reason motivating this method to be called.
+     * @param [in]  info               Remote writer information.
+     * @param [out] should_be_ignored  Flag to indicate the library to automatically ignore the discovered writer.
      */
     void on_data_writer_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            fastdds::rtps::WriterDiscoveryInfo&& info,
-            bool &should_be_ignored) override;
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::WriterDiscoveryStatus reason,
+            const fastdds::rtps::PublicationBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
 protected:
 

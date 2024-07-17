@@ -23,6 +23,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/log/Log.hpp>
+#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
 #include <fastdds/rtps/common/EntityId_t.hpp>
 
 #include "database/database_queue.hpp"
@@ -326,9 +327,10 @@ void StatisticsParticipantListener::on_data_reader_discovery(
 }
 
 void StatisticsParticipantListener::on_data_writer_discovery(
-        DomainParticipant* participant,
-        WriterDiscoveryInfo&& info,
-        bool&)
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::WriterDiscoveryStatus reason,
+            const fastdds::rtps::PublicationBuiltinTopicData& info,
+            bool&)
 {
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
@@ -343,32 +345,32 @@ void StatisticsParticipantListener::on_data_writer_discovery(
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
     discovery_info.domain_id = domain_id_;
-    discovery_info.guid = info.info.guid();
-    discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(info.info);
+    discovery_info.guid = info.guid;
+    discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(info);
 
-    discovery_info.topic_name = info.info.topicName().to_string();
-    discovery_info.type_name = info.info.typeName().to_string();
-    discovery_info.locators = info.info.remote_locators();
+    discovery_info.topic_name = info.topic_name.to_string();
+    discovery_info.type_name = info.type_name.to_string();
+    discovery_info.locators = info.remote_locators;
 
-    switch (info.status)
+    switch (reason)
     {
-        case WriterDiscoveryInfo::DISCOVERED_WRITER:
+        case fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER:
         {
-            std::cout << "DataWriter discovered: " << info.info.guid() << std::endl;
+            std::cout << "DataWriter discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
+        case fastdds::rtps::WriterDiscoveryStatus::CHANGED_QOS_WRITER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
-            std::cout << "DataWriter updated: " << info.info.guid() << std::endl;
+            std::cout << "DataWriter updated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case WriterDiscoveryInfo::REMOVED_WRITER:
-        case WriterDiscoveryInfo::IGNORED_WRITER:
+        case fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER:
+        case fastdds::rtps::WriterDiscoveryStatus::IGNORED_WRITER:
         {
-            std::cout << "DataWriter removed: " << info.info.guid() << std::endl;
+            std::cout << "DataWriter removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
