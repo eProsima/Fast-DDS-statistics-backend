@@ -34,7 +34,7 @@
 
 #include <exception/Exception.hpp>
 #include <MessageSerializer.h>
-#include <topic_types/types.h>
+#include <topic_types/types.hpp>
 #include <topic_types/typesPubSubTypes.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
@@ -167,12 +167,12 @@ private:
                 continue;
             }
 
-            StatisticsEventKind kind;
+            uint32_t kind;
             std::string topic_name;
 
             if (str == "HISTORY2HISTORY_LATENCY")
             {
-                kind = StatisticsEventKind::HISTORY2HISTORY_LATENCY;
+                kind = fastdds::statistics::EventKind::HISTORY2HISTORY_LATENCY;
                 topic_name = "_fastdds_statistics_history2history_latency";
 
                 // The data type can be initialized from other event kind
@@ -191,7 +191,7 @@ private:
             }
             else if (str == "NETWORK_LATENCY")
             {
-                kind = StatisticsEventKind::NETWORK_LATENCY;
+                kind = fastdds::statistics::EventKind::NETWORK_LATENCY;
                 topic_name = "_fastdds_statistics_network_latency";
 
                 // The data type can be initialized from other event kind
@@ -210,7 +210,7 @@ private:
             }
             else if (str == "PUBLICATION_THROUGHPUT")
             {
-                kind = StatisticsEventKind::PUBLICATION_THROUGHPUT;
+                kind = fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT;
                 topic_name = "_fastdds_statistics_publication_throughput";
 
                 // The data type can be initialized from other event kind
@@ -224,13 +224,13 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::SUBSCRIPTION_THROUGHPUT] = type;
-                    serializers_[StatisticsEventKind::SUBSCRIPTION_THROUGHPUT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT] = type;
+                    serializers_[fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT] = serializer;
                 }
             }
             else if (str == "SUBSCRIPTION_THROUGHPUT")
             {
-                kind = StatisticsEventKind::SUBSCRIPTION_THROUGHPUT;
+                kind = fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT;
                 topic_name = "_fastdds_statistics_subscription_throughput";
 
                 // The data type can be initialized from other event kind
@@ -244,13 +244,13 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::PUBLICATION_THROUGHPUT] = type;
-                    serializers_[StatisticsEventKind::PUBLICATION_THROUGHPUT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT] = type;
+                    serializers_[fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT] = serializer;
                 }
             }
             else if (str == "RTPS_SENT")
             {
-                kind = StatisticsEventKind::RTPS_SENT;
+                kind = fastdds::statistics::EventKind::RTPS_SENT;
                 topic_name = "_fastdds_statistics_rtps_sent";
 
                 // The data type can be initialized from other event kind
@@ -265,13 +265,13 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RTPS_LOST] = type;
-                    serializers_[StatisticsEventKind::RTPS_LOST] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RTPS_LOST] = type;
+                    serializers_[fastdds::statistics::EventKind::RTPS_LOST] = serializer;
                 }
             }
             else if (str == "RTPS_LOST")
             {
-                kind = StatisticsEventKind::RTPS_LOST;
+                kind = fastdds::statistics::EventKind::RTPS_LOST;
                 topic_name = "_fastdds_statistics_rtps_lost";
 
                 // The data type can be initialized from other event kind
@@ -286,13 +286,13 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RTPS_SENT] = type;
-                    serializers_[StatisticsEventKind::RTPS_SENT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RTPS_SENT] = type;
+                    serializers_[fastdds::statistics::EventKind::RTPS_SENT] = serializer;
                 }
             }
             else if (str == "RESENT_DATAS")
             {
-                kind = StatisticsEventKind::RESENT_DATAS;
+                kind = fastdds::statistics::EventKind::RESENT_DATAS;
                 topic_name = "_fastdds_statistics_resent_datas";
 
                 // The data type can be initialized from other event kind
@@ -306,25 +306,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "HEARTBEAT_COUNT")
             {
-                kind = StatisticsEventKind::HEARTBEAT_COUNT;
+                kind = fastdds::statistics::EventKind::HEARTBEAT_COUNT;
                 topic_name = "_fastdds_statistics_heartbeat_count";
 
                 // The data type can be initialized from other event kind
@@ -338,25 +338,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "ACKNACK_COUNT")
             {
-                kind = StatisticsEventKind::ACKNACK_COUNT;
+                kind = fastdds::statistics::EventKind::ACKNACK_COUNT;
                 topic_name = "_fastdds_statistics_acknack_count";
 
                 // The data type can be initialized from other event kind
@@ -370,25 +370,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "NACKFRAG_COUNT")
             {
-                kind = StatisticsEventKind::NACKFRAG_COUNT;
+                kind = fastdds::statistics::EventKind::NACKFRAG_COUNT;
                 topic_name = "_fastdds_statistics_nackfrag_count";
 
                 // The data type can be initialized from other event kind
@@ -402,25 +402,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "GAP_COUNT")
             {
-                kind = StatisticsEventKind::GAP_COUNT;
+                kind = fastdds::statistics::EventKind::GAP_COUNT;
                 topic_name = "_fastdds_statistics_gap_count";
 
                 // The data type can be initialized from other event kind
@@ -434,25 +434,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "DATA_COUNT")
             {
-                kind = StatisticsEventKind::DATA_COUNT;
+                kind = fastdds::statistics::EventKind::DATA_COUNT;
                 topic_name = "_fastdds_statistics_data_count";
 
                 // The data type can be initialized from other event kind
@@ -466,25 +466,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "PDP_PACKETS")
             {
-                kind = StatisticsEventKind::PDP_PACKETS;
+                kind = fastdds::statistics::EventKind::PDP_PACKETS;
                 topic_name = "_fastdds_statistics_pdp_packets";
 
                 // The data type can be initialized from other event kind
@@ -498,25 +498,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::EDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::EDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::EDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::EDP_PACKETS] = serializer;
                 }
             }
             else if (str == "EDP_PACKETS")
             {
-                kind = StatisticsEventKind::EDP_PACKETS;
+                kind = fastdds::statistics::EventKind::EDP_PACKETS;
                 topic_name = "_fastdds_statistics_edp_packets";
 
                 // The data type can be initialized from other event kind
@@ -530,25 +530,25 @@ private:
                     serializers_[kind] = serializer;
 
                     // Add the type to all other event kinds that use it
-                    data_types_[StatisticsEventKind::RESENT_DATAS] = type;
-                    serializers_[StatisticsEventKind::RESENT_DATAS] = serializer;
-                    data_types_[StatisticsEventKind::HEARTBEAT_COUNT] = type;
-                    serializers_[StatisticsEventKind::HEARTBEAT_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::ACKNACK_COUNT] = type;
-                    serializers_[StatisticsEventKind::ACKNACK_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::NACKFRAG_COUNT] = type;
-                    serializers_[StatisticsEventKind::NACKFRAG_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::GAP_COUNT] = type;
-                    serializers_[StatisticsEventKind::GAP_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::DATA_COUNT] = type;
-                    serializers_[StatisticsEventKind::DATA_COUNT] = serializer;
-                    data_types_[StatisticsEventKind::PDP_PACKETS] = type;
-                    serializers_[StatisticsEventKind::PDP_PACKETS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::RESENT_DATAS] = type;
+                    serializers_[fastdds::statistics::EventKind::RESENT_DATAS] = serializer;
+                    data_types_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::HEARTBEAT_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::ACKNACK_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::ACKNACK_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::NACKFRAG_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::GAP_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::GAP_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::DATA_COUNT] = type;
+                    serializers_[fastdds::statistics::EventKind::DATA_COUNT] = serializer;
+                    data_types_[fastdds::statistics::EventKind::PDP_PACKETS] = type;
+                    serializers_[fastdds::statistics::EventKind::PDP_PACKETS] = serializer;
                 }
             }
             else if (str == "DISCOVERED_ENTITY")
             {
-                kind = StatisticsEventKind::DISCOVERED_ENTITY;
+                kind = fastdds::statistics::EventKind::DISCOVERED_ENTITY;
                 topic_name = "_fastdds_statistics_discovered_entity";
 
                 // The data type can be initialized from other event kind
@@ -566,7 +566,7 @@ private:
             }
             else if (str == "SAMPLE_DATAS")
             {
-                kind = StatisticsEventKind::SAMPLE_DATAS;
+                kind = fastdds::statistics::EventKind::SAMPLE_DATAS;
                 topic_name = "_fastdds_statistics_sample_datas";
 
                 // The data type can be initialized from other event kind
@@ -585,7 +585,7 @@ private:
             }
             else if (str == "PHYSICAL_DATA")
             {
-                kind = StatisticsEventKind::PHYSICAL_DATA;
+                kind = fastdds::statistics::EventKind::PHYSICAL_DATA;
                 topic_name = "_fastdds_statistics_physical_data";
 
                 // The data type can be initialized from other event kind
@@ -608,7 +608,7 @@ private:
 
             event_kinds_[str] = kind;
             Topic* topic = participant_->create_topic(topic_name,
-                            data_types_[kind]->getName(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+                            data_types_[kind]->get_name(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
             if (!topic)
             {
                 throw std::runtime_error("Error creating topic");
@@ -637,77 +637,77 @@ private:
     void send_message(
             const MessageSerializer::Message& msg)
     {
-        StatisticsEventKind kind = event_kinds_[msg.at("event_kind").get<std::string>()];
+        uint32_t kind = event_kinds_[msg.at("event_kind").get<std::string>()];
         StatisticsData data;
 
         std::cout << "Simulating statistics message [" << msg << "]" << std::endl;
         switch (kind)
         {
-            case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
+            case fastdds::statistics::EventKind::HISTORY2HISTORY_LATENCY:
                 serializers_[kind]->deserialize(&data, msg.at("WriterReaderData"));
                 data_writers_[kind]->write(&data.writer_reader_data());
                 break;
-            case StatisticsEventKind::NETWORK_LATENCY:
+            case fastdds::statistics::EventKind::NETWORK_LATENCY:
                 serializers_[kind]->deserialize(&data, msg.at("locator2locator_data"));
                 data_writers_[kind]->write(&data.locator2locator_data());
                 break;
-            case StatisticsEventKind::PUBLICATION_THROUGHPUT:
+            case fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_data"));
                 data_writers_[kind]->write(&data.entity_data());
                 break;
-            case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
+            case fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_data"));
                 data_writers_[kind]->write(&data.entity_data());
                 break;
-            case StatisticsEventKind::RTPS_SENT:
+            case fastdds::statistics::EventKind::RTPS_SENT:
                 serializers_[kind]->deserialize(&data, msg.at("entity2locator_traffic"));
                 data_writers_[kind]->write(&data.entity2locator_traffic());
                 break;
-            case StatisticsEventKind::RTPS_LOST:
+            case fastdds::statistics::EventKind::RTPS_LOST:
                 serializers_[kind]->deserialize(&data, msg.at("entity2locator_traffic"));
                 data_writers_[kind]->write(&data.entity2locator_traffic());
                 break;
-            case StatisticsEventKind::RESENT_DATAS:
+            case fastdds::statistics::EventKind::RESENT_DATAS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::HEARTBEAT_COUNT:
+            case fastdds::statistics::EventKind::HEARTBEAT_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::ACKNACK_COUNT:
+            case fastdds::statistics::EventKind::ACKNACK_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::NACKFRAG_COUNT:
+            case fastdds::statistics::EventKind::NACKFRAG_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::GAP_COUNT:
+            case fastdds::statistics::EventKind::GAP_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::DATA_COUNT:
+            case fastdds::statistics::EventKind::DATA_COUNT:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::PDP_PACKETS:
+            case fastdds::statistics::EventKind::PDP_PACKETS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::EDP_PACKETS:
+            case fastdds::statistics::EventKind::EDP_PACKETS:
                 serializers_[kind]->deserialize(&data, msg.at("entity_count"));
                 data_writers_[kind]->write(&data.entity_count());
                 break;
-            case StatisticsEventKind::DISCOVERED_ENTITY:
+            case fastdds::statistics::EventKind::DISCOVERED_ENTITY:
                 serializers_[kind]->deserialize(&data, msg.at("discovery_time"));
                 data_writers_[kind]->write(&data.discovery_time());
                 break;
-            case StatisticsEventKind::SAMPLE_DATAS:
+            case fastdds::statistics::EventKind::SAMPLE_DATAS:
                 serializers_[kind]->deserialize(&data, msg.at("sample_identity_count"));
                 data_writers_[kind]->write(&data.sample_identity_count());
                 break;
-            case StatisticsEventKind::PHYSICAL_DATA:
+            case fastdds::statistics::EventKind::PHYSICAL_DATA:
                 serializers_[kind]->deserialize(&data, msg.at("physical_data"));
                 data_writers_[kind]->write(&data.physical_data());
                 break;
@@ -719,13 +719,13 @@ private:
 
     DomainParticipant* participant_;
     Publisher* publisher_;
-    std::map<StatisticsEventKind, DataWriter*> data_writers_;
-    std::map<StatisticsEventKind, Topic*> topics_;
-    std::map<StatisticsEventKind, TypeSupport> data_types_;
+    std::map<uint32_t, DataWriter*> data_writers_;
+    std::map<uint32_t, Topic*> topics_;
+    std::map<uint32_t, TypeSupport> data_types_;
 
-    std::map<StatisticsEventKind, std::shared_ptr<MessageSerializer>> serializers_;
-    std::map<StatisticsEventKind, std::string> event_names_;
-    std::map<std::string, StatisticsEventKind> event_kinds_;
+    std::map<uint32_t, std::shared_ptr<MessageSerializer>> serializers_;
+    std::map<uint32_t, std::string> event_names_;
+    std::map<std::string, uint32_t> event_kinds_;
 
     std::string last_matched_topic_;
     std::mutex matching_mutex_;

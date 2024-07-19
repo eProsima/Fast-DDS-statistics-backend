@@ -26,9 +26,6 @@
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
 
 #include <fastdds/dds/xtypes/dynamic_types/DynamicDataFactory.hpp>
-#include <xmlparser/attributes/ParticipantAttributes.hpp>
-#include <xmlparser/attributes/PublisherAttributes.hpp>
-#include <xmlparser/XMLProfileManager.h>
 
 #include <mutex>
 #include <condition_variable>

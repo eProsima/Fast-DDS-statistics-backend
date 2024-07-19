@@ -30,9 +30,9 @@
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
-#include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/dds/topic/TopicDescription.hpp> 
 #include <fastdds/statistics/topic_names.hpp>
-
+#include <fastdds/dds/core/detail/DDSReturnCode.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
@@ -169,17 +169,16 @@ public:
                 .WillByDefault(ReturnRef(datareader_qos_));
 
         ON_CALL(domain_participant_, register_type(_, _))
-                .WillByDefault(Return(eprosima::fastdds::
-types::ReturnCode_t::RETCODE_OK));
+                .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_OK));
 
         for (auto topic_type : topic_types_)
         {
-            topics_[topic_type.first] = Topic(topic_type.first, topic_type.second->getName());
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _, _, _))
+            topics_[topic_type.first] = Topic(topic_type.first, topic_type.second->get_name());
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _, _, _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _, _))
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _, _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _))
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
 
             ON_CALL(domain_participant_, lookup_topicdescription(topic_type.first))
@@ -208,7 +207,6 @@ types::ReturnCode_t::RETCODE_OK));
     {
         DomainId domain_id = 0;
         DomainListener domain_listener;
-        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
         std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
@@ -222,7 +220,6 @@ types::ReturnCode_t::RETCODE_OK));
                     all_callback_mask_,
                     all_datakind_mask_), Error);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                    server_guid_prefix,
                     server_locators,
                     &domain_listener,
                     all_callback_mask_,
@@ -233,7 +230,6 @@ types::ReturnCode_t::RETCODE_OK));
             const std::string& server_locators)
     {
         DomainListener domain_listener;
-        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
                     server_locators,
@@ -241,7 +237,6 @@ types::ReturnCode_t::RETCODE_OK));
                     all_callback_mask_,
                     all_datakind_mask_), BadParameter);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                    server_guid_prefix,
                     server_locators,
                     &domain_listener,
                     all_callback_mask_,
@@ -313,8 +308,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 {
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
-            .WillByDefault(Return(eprosima::fastdds::
-types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
+            .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_PRECONDITION_NOT_MET));
 
     check_init_monitor_failure();
 }
@@ -354,7 +348,6 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
 
     EntityId monitor3;
     EXPECT_NO_THROW(monitor3 = StatisticsBackend::init_monitor(
-                server_guid_prefix,
                 server_locators,
                 &domain_listener,
                 all_callback_mask_,

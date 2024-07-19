@@ -16,6 +16,7 @@
 /**
  * @file StatisticsParticipantListener.cpp
  */
+#include <utility>
 
 #include "subscriber/StatisticsParticipantListener.hpp"
 
@@ -35,8 +36,7 @@ namespace statistics_backend {
 namespace subscriber {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastdds::
-rtps;
+using namespace eprosima::fastdds::rtps;
 
 template<typename T>
 std::string to_string(
@@ -269,11 +269,12 @@ void StatisticsParticipantListener::on_participant_discovery(
 
 void StatisticsParticipantListener::on_data_reader_discovery(
         DomainParticipant* participant,
-        ReaderDiscoveryInfo&& info,
+        fastdds::rtps::ReaderDiscoveryStatus reason,
+        const fastdds::rtps::SubscriptionBuiltinTopicData& info,
         bool&)
 {
     // Filter out our own statistics readers
-    if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+    if (participant->guid().guidPrefix == info.guid.guidPrefix)
     {
         return;
     }
@@ -287,32 +288,32 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
     discovery_info.domain_id = domain_id_;
-    discovery_info.guid = info.info.guid();
-    discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(info.info);
+    discovery_info.guid = info.guid;
+    discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(info);
 
-    discovery_info.topic_name = info.info.topicName().to_string();
-    discovery_info.type_name = info.info.typeName().to_string();
-    discovery_info.locators = info.info.remote_locators();
+    discovery_info.topic_name = info.topic_name.to_string();
+    discovery_info.type_name = info.type_name.to_string();
+    discovery_info.locators = info.remote_locators;
 
-    switch (info.status)
+    switch (reason)
     {
-        case ReaderDiscoveryInfo::DISCOVERED_READER:
+        case ReaderDiscoveryStatus::DISCOVERED_READER:
         {
-            std::cout << "DataReader discovered: " << info.info.guid() << std::endl;
+            std::cout << "DataReader discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case ReaderDiscoveryInfo::CHANGED_QOS_READER:
+        case ReaderDiscoveryStatus::CHANGED_QOS_READER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
-            std::cout << "DataReader updated: " << info.info.guid() << std::endl;
+            std::cout << "DataReader updated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case ReaderDiscoveryInfo::REMOVED_READER:
-        case ReaderDiscoveryInfo::IGNORED_READER:
+        case ReaderDiscoveryStatus::REMOVED_READER:
+        case ReaderDiscoveryStatus::IGNORED_READER:
         {
-            std::cout << "DataReader removed: " << info.info.guid() << std::endl;
+            std::cout << "DataReader removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }

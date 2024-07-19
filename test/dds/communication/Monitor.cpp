@@ -22,7 +22,6 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>

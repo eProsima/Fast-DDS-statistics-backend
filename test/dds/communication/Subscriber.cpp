@@ -16,20 +16,19 @@
  * @file Subscriber.cpp
  *
  */
+#include <fastcdr/cdr/fixed_size_string.hpp>
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/SubscriberListener.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <xmlparser/attributes/ParticipantAttributes.hpp>
-#include <xmlparser/attributes/SubscriberAttributes.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
-#include <fastrtps/types/TypeObjectFactory.h>
+#include <fastdds/rtps/participant/ParticipantDiscoveryInfo.hpp>
 
 #include <mutex>
 #include <condition_variable>
@@ -40,7 +39,7 @@
 #include <Host.hpp>
 
 using namespace eprosima::fastdds::dds;
-
+using namespace eprosima::fastdds::rtps;
 
 static bool g_run = true;
 static types::DynamicType_ptr g_type;
@@ -70,24 +69,25 @@ public:
      */
     void on_participant_discovery(
             DomainParticipant* /*participant*/,
-            rtps::ParticipantDiscoveryInfo&& info) override
+            ParticipantDiscoveryInfo&& info,
+            bool&) override
     {
-        if (info.status == rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+        if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
                 " discovered participant " << info.info.m_guid << std::endl;
         }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT)
+        else if (info.status == ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
                 " detected changes on participant " << info.info.m_guid << std::endl;
         }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT)
+        else if (info.status == ParticipantDiscoveryInfo::REMOVED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
                 " removed participant " << info.info.m_guid << std::endl;
         }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT)
+        else if (info.status == ParticipantDiscoveryInfo::DROPPED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
                 " dropped participant " << info.info.m_guid << std::endl;
@@ -96,12 +96,9 @@ public:
 
     void on_type_information_received(
             eprosima::fastdds::dds::DomainParticipant* participant,
-            const eprosima::fastdds::
-string_255 topic_name,
-            const eprosima::fastdds::
-string_255 type_name,
-            const eprosima::fastdds::
-types::TypeInformation& type_information) override
+            const eprosima::fastcdr::string_255 topic_name,
+            const eprosima::fastcdr::string_255 type_name,
+            const eprosima::fastdds::types::TypeInformation& type_information) override
     {
         std::function<void(const std::string&, const types::DynamicType_ptr)> callback =
                 [topic_name, type_name](const std::string& name, const types::DynamicType_ptr type)

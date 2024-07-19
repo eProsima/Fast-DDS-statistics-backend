@@ -449,29 +449,31 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
 }
 
 database::Qos reader_proxy_data_to_backend_qos(
-        const fastdds::rtps::ReaderProxyData& reader_data)
+        const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data)
 {
     database::Qos reader;
 
-    serialize(reader_data.m_qos.m_durability, durability_tag, reader);
-    serialize(reader_data.m_qos.m_deadline, deadline_tag, reader);
-    serialize(reader_data.m_qos.m_latencyBudget, latency_budget_tag, reader);
-    serialize(reader_data.m_qos.m_liveliness, liveliness_tag, reader);
-    serialize(reader_data.m_qos.m_reliability, reliability_tag, reader);
-    serialize(reader_data.m_qos.m_ownership, ownership_tag, reader);
-    serialize(reader_data.m_qos.m_destinationOrder, destination_order_tag, reader);
-    serialize(reader_data.m_qos.m_userData, user_data_tag, reader);
-    serialize(reader_data.m_qos.m_timeBasedFilter, time_based_filter_tag, reader);
-    serialize(reader_data.m_qos.m_presentation, presentation_tag, reader);
-    serialize(reader_data.m_qos.m_partition, partition_tag, reader);
-    serialize(reader_data.m_qos.m_topicData, topic_data_tag, reader);
-    serialize(reader_data.m_qos.m_groupData, group_data_tag, reader);
-    serialize(reader_data.m_qos.m_durabilityService, durability_service_tag, reader);
-    serialize(reader_data.m_qos.m_lifespan, lifespan_tag, reader);
-    serialize(reader_data.m_qos.representation, representation_tag, reader);
-    serialize(reader_data.m_qos.type_consistency, type_consistency_tag, reader);
-    serialize(reader_data.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
-    serialize(reader_data.m_qos.data_sharing, data_sharing_tag, reader);
+    // TODO: Implement serialization when available in Fast DDS
+    // serialize(reader_data.durabilityService, durability_service_tag, reader);
+
+    serialize(reader_data.durability, durability_tag, reader);
+    serialize(reader_data.deadline, deadline_tag, reader);
+    serialize(reader_data.latency_budget, latency_budget_tag, reader);
+    serialize(reader_data.lifespan, lifespan_tag, reader);
+    serialize(reader_data.liveliness, liveliness_tag, reader);
+    serialize(reader_data.reliability, reliability_tag, reader);
+    serialize(reader_data.ownership, ownership_tag, reader);
+    serialize(reader_data.destination_order, destination_order_tag, reader);
+    serialize(reader_data.user_data, user_data_tag, reader);
+    serialize(reader_data.time_based_filter, time_based_filter_tag, reader);
+    serialize(reader_data.presentation, presentation_tag, reader);
+    serialize(reader_data.partition, partition_tag, reader);
+    serialize(reader_data.topic_data, topic_data_tag, reader);
+    serialize(reader_data.group_data, group_data_tag, reader);
+    serialize(reader_data.representation, representation_tag, reader);
+    serialize(reader_data.type_consistency, type_consistency_tag, reader);
+    serialize(reader_data.disable_positive_acks, disable_positive_acks_tag, reader);
+    serialize(reader_data.data_sharing, data_sharing_tag, reader);
 
     return reader;
 }

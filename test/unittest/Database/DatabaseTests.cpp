@@ -21,6 +21,7 @@
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 
 #include <database/database.hpp>
 #include <database/entities.hpp>
@@ -2467,7 +2468,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
 {
     ConnectionListSample sample;
     eprosima::fastdds::statistics::Connection connection_sample;
-    connection_sample.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection_sample.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     eprosima::fastdds::statistics::detail::GUID_s guid_s;
     eprosima::fastdds::
 rtps::GUID_t guid_t;
@@ -2497,7 +2498,7 @@ rtps::EntityId_t::size);
 
     ConnectionListSample sample_2;
     eprosima::fastdds::statistics::Connection connection_sample_2;
-    connection_sample_2.mode(eprosima::fastdds::statistics::INTRAPROCESS);
+    connection_sample_2.mode(eprosima::fastdds::statistics::ConnectionMode::INTRAPROCESS);
     eprosima::fastdds::statistics::detail::GUID_s guid_s_2;
     eprosima::fastdds::
 rtps::GUID_t guid_t_2;
@@ -2535,7 +2536,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list_wrong_entit
 {
     ConnectionListSample sample;
     eprosima::fastdds::statistics::Connection connection_sample;
-    connection_sample.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection_sample.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     eprosima::fastdds::statistics::detail::GUID_s guid_s;
     eprosima::fastdds::
 rtps::GUID_t guid_t;

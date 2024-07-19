@@ -1392,7 +1392,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueue<MonitorServiceData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
-    StatusKind kind = StatusKind::PROXY;
+    StatusKind::StatusKind kind = StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);

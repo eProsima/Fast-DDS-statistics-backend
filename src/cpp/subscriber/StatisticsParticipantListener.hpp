@@ -82,8 +82,9 @@ public:
      */
     void on_data_reader_discovery(
             fastdds::dds::DomainParticipant* participant,
-            fastdds::rtps::ReaderDiscoveryInfo&& info,
-            bool &should_be_ignored) override;
+            fastdds::rtps::ReaderDiscoveryStatus reason,
+            const fastdds::rtps::SubscriptionBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
     /*!
      * This method is called when a new DataWriter is discovered, or a previously discovered DataWriter changes

@@ -21,9 +21,9 @@
 
 #include <string>
 
-#include <fastdds/rtps/builtin/data/ReaderProxyData.hpp>
 #include <fastdds/rtps/builtin/data/ParticipantProxyData.hpp>
 #include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
+#include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
 
 #include <database/entities.hpp>
 
@@ -164,7 +164,7 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
         database::Qos& serialized);
 
 database::Qos reader_proxy_data_to_backend_qos(
-        const fastdds::rtps::ReaderProxyData& reader_data);
+        const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data);
 
 database::Qos writer_proxy_data_to_backend_qos(
         const fastdds::rtps::PublicationBuiltinTopicData& info);

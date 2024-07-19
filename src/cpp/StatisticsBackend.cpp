@@ -97,9 +97,9 @@ void find_or_create_topic_and_type(
     TopicDescription* topic_desc = monitor.participant->lookup_topicdescription(topic_name);
     if (nullptr != topic_desc)
     {
-        if (topic_desc->get_type_name() != type->getName())
+        if (topic_desc->get_type_name() != type->get_name())
         {
-            throw Error(topic_name + " is not using expected type " + type->getName() +
+            throw Error(topic_name + " is not using expected type " + type->get_name() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
 
@@ -116,13 +116,13 @@ void find_or_create_topic_and_type(
     }
     else
     {
-        if (RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->getName()))
+        if (RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->get_name()))
         {
             // Name already in use
-            throw Error(std::string("Type name ") + type->getName() + " is already in use");
+            throw Error(std::string("Type name ") + type->get_name() + " is already in use");
         }
         monitor.topics[topic_name] =
-                monitor.participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+                monitor.participant->create_topic(topic_name, type->get_name(), TOPIC_QOS_DEFAULT);
     }
 }
 

@@ -4535,7 +4535,7 @@ TEST_F(database_queue_tests, push_monitor_proxy)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
@@ -4598,7 +4598,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
@@ -4643,7 +4643,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
     // Build connection list sequence
     std::vector<Connection> connection_list;
     Connection connection;
-    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
     std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
@@ -4662,7 +4662,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4721,7 +4721,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
     // Build connection list sequence
     std::vector<Connection> connection_list;
     Connection connection;
-    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
     std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
@@ -4740,7 +4740,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4798,7 +4798,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4872,7 +4872,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4923,7 +4923,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -4990,7 +4990,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -5041,7 +5041,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5108,7 +5108,7 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5157,7 +5157,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5222,7 +5222,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5271,7 +5271,7 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5335,7 +5335,7 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5382,7 +5382,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
     data->local_entity(reader_guid);
@@ -5444,7 +5444,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
     data->local_entity(reader_guid);
@@ -5487,7 +5487,7 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
     MonitorServiceData value;
     uint8_t octet = 1;
     value.statuses_size(octet);
