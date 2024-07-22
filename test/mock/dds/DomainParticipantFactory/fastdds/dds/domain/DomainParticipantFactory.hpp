@@ -28,6 +28,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include "TypeObjectRegistry.hpp"
 namespace eprosima {
 namespace fastdds {
 namespace dds {
@@ -49,6 +50,7 @@ class DomainParticipant;
  * Use \c domain_participant variable to force the returnment of \c create_participant() .
  * \c domain_participant variable is never set neither deleted from this class.
  */
+
 class DomainParticipantFactory
 {
 
@@ -113,6 +115,13 @@ public:
         factory_qos = qos;
         return RETCODE_OK;
     }
+
+    xtypes::ITypeObjectRegistry& type_object_registry()
+    {
+        return type_registry;
+    }
+
+    xtypes::TypeObjectRegistry type_registry;
 
     DomainParticipantFactoryQos factory_qos{};
     DomainParticipantQos participant_qos{};

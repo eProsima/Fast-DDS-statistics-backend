@@ -83,8 +83,7 @@ public:
         return domain_id_;
     }
 
-    const fastdds::
-rtps::GUID_t& guid()
+    const fastdds::rtps::GUID_t& guid()
     {
         return guid_;
     }
@@ -192,8 +191,7 @@ rtps::GUID_t& guid()
 
     DomainParticipantQos qos_;
     DomainId_t domain_id_;
-    eprosima::fastdds::
-rtps::GUID_t guid_;
+    eprosima::fastdds::rtps::GUID_t guid_;
 };
 
 } // namespace dds
