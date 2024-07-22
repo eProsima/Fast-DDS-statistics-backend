@@ -219,11 +219,6 @@ public:
                     &domain_listener,
                     all_callback_mask_,
                     all_datakind_mask_), Error);
-        EXPECT_THROW(StatisticsBackend::init_monitor(
-                    server_locators,
-                    &domain_listener,
-                    all_callback_mask_,
-                    all_datakind_mask_), Error);
     }
 
     void check_init_monitor_discovery_server_failure(
@@ -269,13 +264,13 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails
     check_init_monitor_failure();
 
     // 3 calls expected to create_participant
-    ASSERT_EQ(domain_participant_factory_->create_participant_count, 3u);
+    ASSERT_EQ(domain_participant_factory_->create_participant_count, 2u);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 {
     // Expect failure on the subscriber creation
-    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(3)
+    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(2)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
@@ -284,7 +279,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
     // Expect failure on the datareader creation
-    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(3)
+    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(2)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
@@ -346,19 +341,11 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
                 all_callback_mask_,
                 all_datakind_mask_));
 
-    EntityId monitor3;
-    EXPECT_NO_THROW(monitor3 = StatisticsBackend::init_monitor(
-                server_locators,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_));
-
     // IMPORTANT: It is required to stop monitors.
     // Otherwise, they will be stopped in Singleton destruction, what implies that are destructed after test
     // destruction, and thus the mock instances does not longer exist, so SEGFAULT served.
     StatisticsBackend::stop_monitor(monitor1);
     StatisticsBackend::stop_monitor(monitor2);
-    StatisticsBackend::stop_monitor(monitor3);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)

@@ -194,8 +194,8 @@ public:
         std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
                 test::get_monitors_from_database();
 
-        /* Check that three monitors are created */
-        EXPECT_EQ(domain_monitors.size(), 3u);
+        /* Check that two monitors are created */
+        EXPECT_EQ(domain_monitors.size(), 2u);
 
         return domain_monitors;
     }
