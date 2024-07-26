@@ -151,20 +151,17 @@ int main(
 {
     int arg_count = 1;
     uint32_t seed = 7800;
-    unsigned int num_statistics = 18;
     unsigned int num_participants = 2;
     unsigned int num_hosts = 1;
     unsigned int num_users = 1;
     unsigned int num_processes = 2;
     unsigned int num_readers = 1;
     // Each participant creates a meta traffic endpoint
-    unsigned int num_writers = num_statistics * num_participants + 1 + 2;
+    unsigned int num_writers = num_participants + 1;
     // Additionally, we need a meta traffic topic per domain
-    unsigned int num_topics = num_statistics + 2;
+    unsigned int num_topics = 2;
     unsigned int num_entities = num_participants + num_topics + num_readers + num_writers;
-    // Each participant has 2 locators by default, one for each builtin transport (UDP + SHM)
-    // Additionally, each participant has a different UDP locator for metatraffic
-    unsigned int num_locators = 3 * num_participants;
+    unsigned int num_locators = num_readers + num_writers + num_participants;
 
     // Process arguments
     while (arg_count < argc)
@@ -183,7 +180,7 @@ int main(
         ++arg_count;
     }
 
-    DomainId domain_id;
+    DomainId domain_id = seed % 230;
     MonitorListener listener;
     EntityId monitor_id;
 
@@ -216,10 +213,6 @@ int main(
     {
         // Init the monitor
         domain_id = seed % 230;
-        DataKindMask data_mask = DataKind::INVALID;
-        std::string app_id = "";
-        std::string app_metadata = "";
-
         monitor_id = StatisticsBackend::init_monitor(domain_id, &listener);
         if (!monitor_id.is_valid())
         {
@@ -272,6 +265,7 @@ int main(
                         return listener.num_entities_discovered_ >= num_entities;
                     });
         }
+
         // Check that the database contains all entities related to subscriber and publisher entities
         // and check that all entities are active
         try
@@ -316,8 +310,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            // Some locators are beyond the monitor domain
-            else if (
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
                     monitor_id).size() != num_locators)
             {
@@ -450,8 +443,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            // Some locators are beyond the monitor domain
-            else if (
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
                     monitor_id).size() != num_locators)
             {
@@ -586,8 +578,7 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            // Some locators are beyond the monitor domain
-            else if (
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
                     StatisticsBackend::get_entities(EntityKind::LOCATOR,
                     monitor_id).size() != num_locators)
             {

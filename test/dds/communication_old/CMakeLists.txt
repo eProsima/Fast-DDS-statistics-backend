@@ -19,11 +19,10 @@ find_package(PythonInterp 3)
 ###############################################################################
 
 # types test
-file(GLOB COMMUNICATION_SOURCES_CXX "*.cxx")
 set(DDS_PUBLISHER_SOURCE
     Publisher.cpp
     )
-add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE} ${COMMUNICATION_SOURCES_CXX})
+add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE})
 
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
@@ -44,7 +43,7 @@ get_win32_path_dependencies(DDSSimpleCommunicationPublisher TEST_FRIENDLY_PATH)
 set(DDS_SUBSCRIBER_SOURCE
     Subscriber.cpp
     )
-add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE} ${COMMUNICATION_SOURCES_CXX})
+add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE})
 
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
@@ -90,6 +89,8 @@ get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 #  types test
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_communication.py
     ${CMAKE_CURRENT_BINARY_DIR}/simple_communication.py COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_type.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/example_type.xml COPYONLY)
 
 ###############################################################################
 # Tests specification

@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,44 +16,29 @@
  * @file Subscriber.cpp
  *
  */
-#include <fastcdr/cdr/fixed_size_string.hpp>
 
-#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <csignal>
+
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/SubscriberListener.hpp>
-#include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
-#include <fastdds/rtps/participant/ParticipantDiscoveryInfo.hpp>
 
-#include <mutex>
-#include <condition_variable>
-#include <fstream>
-#include <string>
-#include <thread>
+#include "CommunicationPubSubTypes.hpp"
+#include "Host.hpp"
+#include "Subscriber.hpp"
 
-#include <Host.hpp>
+using namespace eprosima;
 
-using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastdds::rtps;
+std::atomic<bool> Subscriber::stop_(false);
+std::mutex Subscriber::terminate_cv_mtx_;
+std::condition_variable Subscriber::terminate_cv_;
 
-static bool g_run = true;
-static types::DynamicType_ptr g_type;
-static Topic* g_topic = nullptr;
-static DataReaderQos g_qos;
-static Subscriber* g_subscriber = nullptr;
-static DataReader* g_reader = nullptr;
-static DomainParticipant* g_participant = nullptr;
-
-
-class ParListener : public DomainParticipantListener
+class ParListener : public fastdds::dds::DomainParticipantListener
 {
 public:
-
     ParListener()
     {
     }
@@ -68,213 +53,245 @@ public:
      * @param info DiscoveryInfo.
      */
     void on_participant_discovery(
-            DomainParticipant* /*participant*/,
-            ParticipantDiscoveryInfo&& info,
+            fastdds::dds::DomainParticipant* /*participant*/,
+            fastdds::rtps::ParticipantDiscoveryStatus reason,
+            const fastdds::dds::ParticipantBuiltinTopicData& info,
             bool&) override
     {
-        if (info.status == ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+        if (reason == fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
-                " discovered participant " << info.info.m_guid << std::endl;
+                " discovered participant " << info.guid << std::endl;
         }
-        else if (info.status == ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT)
+        else if (reason == fastdds::rtps::ParticipantDiscoveryStatus::CHANGED_QOS_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
-                " detected changes on participant " << info.info.m_guid << std::endl;
+                " detected changes on participant " << info.guid << std::endl;
         }
-        else if (info.status == ParticipantDiscoveryInfo::REMOVED_PARTICIPANT)
+        else if (reason == fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
-                " removed participant " << info.info.m_guid << std::endl;
+                " removed participant " << info.guid << std::endl;
         }
-        else if (info.status == ParticipantDiscoveryInfo::DROPPED_PARTICIPANT)
+        else if (reason == fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT)
         {
             std::cout << "Subscriber participant " << //participant->getGuid() <<
-                " dropped participant " << info.info.m_guid << std::endl;
+                " dropped participant " << info.guid << std::endl;
         }
     }
+} participant_listener;
 
-    void on_type_information_received(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            const eprosima::fastcdr::string_255 topic_name,
-            const eprosima::fastcdr::string_255 type_name,
-            const eprosima::fastdds::types::TypeInformation& type_information) override
-    {
-        std::function<void(const std::string&, const types::DynamicType_ptr)> callback =
-                [topic_name, type_name](const std::string& name, const types::DynamicType_ptr type)
-                {
-                    if (nullptr != g_subscriber)
-                    {
-                        if (g_participant->lookup_topicdescription(topic_name.to_string()) != nullptr)
-                        {
-                            std::cout << "ERROR: Cannot create Topic with name " << topic_name
-                                      << " - Topic already exists" << std::endl;
-                            return;
-                        }
-                        std::cout << "Discovered type: " << name << " from topic " << topic_name << std::endl;
-                        g_topic = g_participant->create_topic(
-                            topic_name.to_string(),
-                            type_name.to_string(),
-                            TOPIC_QOS_DEFAULT);
-                        if (g_topic == nullptr)
-                        {
-                            std::cout << "ERROR: Could not create topic " << topic_name << std::endl;
-                            return;
-                        }
-
-                        g_reader = g_subscriber->create_datareader(
-                            g_topic,
-                            g_qos,
-                            nullptr);
-                        if (g_reader == nullptr)
-                        {
-                            std::cout << "ERROR: Could not create reader for topic " << topic_name << std::endl;
-                            return;
-                        }
-
-                        if (type == nullptr)
-                        {
-                            const types::TypeIdentifier* ident =
-                                    types::TypeObjectFactory::get_instance()->get_type_identifier_trying_complete(name);
-
-                            if (nullptr != ident)
-                            {
-                                const types::TypeObject* obj =
-                                        types::TypeObjectFactory::get_instance()->get_type_object(ident);
-
-                                types::DynamicType_ptr dyn_type =
-                                        types::TypeObjectFactory::get_instance()->build_dynamic_type(name, ident, obj);
-
-                                if (nullptr != dyn_type)
-                                {
-                                    g_type = dyn_type;
-                                }
-                                else
-                                {
-                                    std::cout << "ERROR: DynamicType cannot be created for type: " << name << std::endl;
-                                }
-                            }
-                            else
-                            {
-                                std::cout << "ERROR: TypeIdentifier cannot be retrieved for type: "
-                                          << name << std::endl;
-                            }
-                        }
-                        else
-                        {
-                            g_type = type;
-                        }
-                    }
-                };
-
-        participant->register_remote_type(
-            type_information,
-            type_name.to_string(),
-            callback);
-    }
-
-#if HAVE_SECURITY
-    void onParticipantAuthentication(
-            DomainParticipant* /*participant*/,
-            rtps::ParticipantAuthenticationInfo&& info) override
-    {
-        if (rtps::ParticipantAuthenticationInfo::AUTHORIZED_PARTICIPANT == info.status)
-        {
-            std::cout << "Subscriber participant " << //participant->guid() <<
-                " authorized participant " << info.guid << std::endl;
-        }
-        else
-        {
-            std::cout << "Subscriber participant " << //participant->guid() <<
-                " unauthorized participant " << info.guid << std::endl;
-        }
-    }
-
-#endif // if HAVE_SECURITY
-};
-
-class SubListener : public SubscriberListener
+Subscriber::Subscriber()
+    : participant_(nullptr)
+    , subscriber_(nullptr)
+    , topic_(nullptr)
+    , reader_(nullptr)
+    , type_(new CommunicationPubSubType())
 {
-public:
+}
 
-    SubListener()
-        : number_samples_(0)
+bool Subscriber::is_stopped()
+{
+    return stop_;
+}
+
+void Subscriber::stop()
+{
+    stop_ = true;
+    terminate_cv_.notify_all();
+}
+
+bool Subscriber::init(
+        uint32_t max_messages,
+        uint32_t domain)
+{
+    // Do not enable entities on creation
+    eprosima::fastdds::dds::DomainParticipantFactoryQos factory_qos;
+    factory_qos.entity_factory().autoenable_created_entities = false;
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->set_qos(factory_qos);
+    eprosima::fastdds::dds::DomainParticipantQos pqos;
+    pqos.name("Participant_sub");
+
+    // Activate Fast DDS Statistics module
+    pqos.properties().properties().emplace_back("fastdds.statistics",
+            "HISTORY_LATENCY_TOPIC;" \
+            "NETWORK_LATENCY_TOPIC;" \
+            "PUBLICATION_THROUGHPUT_TOPIC;" \
+            "SUBSCRIPTION_THROUGHPUT_TOPIC;" \
+            "RTPS_SENT_TOPIC;" \
+            "RTPS_LOST_TOPIC;" \
+            "HEARTBEAT_COUNT_TOPIC;" \
+            "ACKNACK_COUNT_TOPIC;" \
+            "NACKFRAG_COUNT_TOPIC;" \
+            "GAP_COUNT_TOPIC;" \
+            "DATA_COUNT_TOPIC;" \
+            "RESENT_DATAS_TOPIC;" \
+            "SAMPLE_DATAS_TOPIC;" \
+            "PDP_PACKETS_TOPIC;" \
+            "EDP_PACKETS_TOPIC;" \
+            "DISCOVERY_TOPIC;" \
+            "PHYSICAL_DATA_TOPIC;" \
+            "MONITOR_SERVICE_TOPIC");
+
+    // CREATE THE PARTICIPANT
+    participant_ = 
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
+            domain, pqos, &participant_listener, eprosima::fastdds::dds::StatusMask::none());
+
+    if (participant_ == nullptr)
     {
+        std::cout << "Error creating subscriber participant" << std::endl;
+        return 1;
     }
 
-    ~SubListener() override
+    std::cout << "Participant " << pqos.name() << " created with GUID " << participant_->guid() << std::endl;
+
+    // REGISTER THE TYPE
+    type_.register_type(participant_);
+
+    // CREATE THE SUBSCRIBER
+    fastdds::dds::StatusMask mask = fastdds::dds::StatusMask::subscription_matched()
+            << fastdds::dds::StatusMask::data_available()
+            << fastdds::dds::StatusMask::liveliness_changed();
+    
+    subscriber_ = participant_->create_subscriber(eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT, nullptr, mask);
+
+    if (subscriber_ == nullptr)
     {
+        std::cout << "Error creating subscriber" << std::endl;
+        return 1;
     }
 
-    void on_subscription_matched(
-            DataReader* /*reader*/,
-            const SubscriptionMatchedStatus& info) override
+    // CREATE THE TOPIC
+
+    // Generate topic name
+    std::ostringstream topic;
+    topic << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << domain;
+
+    topic_ = participant_->create_topic(
+        topic.str(),
+        type_.get_type_name(),
+        eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+
+    if (topic_ == nullptr)
     {
-        if (info.current_count_change == 1)
-        {
-            std::cout << "Subscriber matched with publisher " << info.last_publication_handle << std::endl;
-        }
-        else if (info.current_count_change == -1)
-        {
-            std::cout << "Subscriber unmatched with publisher " << info.last_publication_handle << std::endl;
-        }
-        else
-        {
-            std::cout << info.current_count_change
-                      << " is not a valid value for SubscriptionMatchedStatus current count change" << std::endl;
-        }
+        std::cout << "Error creating subscriber topic" << std::endl;
+        return 1;
     }
 
-    void on_data_available(
-            DataReader* reader) override
+    // CREATE THE READER
+    if (max_messages > 0)
     {
-        if (nullptr != g_type)
-        {
-            types::DynamicPubSubType pst(g_type);
-            types::DynamicData_ptr sample(static_cast<types::DynamicData*>(pst.createData()));
-            eprosima::fastdds::dds::SampleInfo info;
+        listener_.set_max_messages(max_messages);
+    }
+    eprosima::fastdds::dds::DataReaderQos rqos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT;
+    reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
 
-            if (nullptr != reader && !!reader->take_next_sample(sample.get(), &info))
+    if (reader_ == nullptr)
+    {
+        std::cout << "Error creating subscriber DataReader" << std::endl;
+        return 1;
+    }
+
+    std::cout << "DataReader created with GUID " << reader_->guid() << std::endl;
+
+    // Now that everything is created we can enable the protocols
+    participant_->enable();
+
+    return true;
+}
+
+Subscriber::~Subscriber()
+{
+    if (participant_ != nullptr)
+    {
+        if (topic_ != nullptr)
+        {
+            participant_->delete_topic(topic_);
+        }
+        if (subscriber_ != nullptr)
+        {
+            if (reader_ != nullptr)
             {
-                if (info.valid_data)
-                {
-                    std::unique_lock<std::mutex> lock(mutex_);
-                    ++number_samples_;
-                    std::string message;
-                    uint32_t index;
-                    octet count;
-                    sample->get_string_value(message, 0);
-                    sample->get_uint32_value(index, 1);
-                    types::DynamicData* inner = sample->loan_value(2);
-                    inner->get_byte_value(count, 0);
-                    sample->return_loaned_value(inner);
-                    std::cout << "Received sample: index(" << index << "), message("
-                              << message << "), inner_count(" << std::hex << (uint32_t)count << ")" << std::endl;
-                    cv_.notify_all();
-                }
+                subscriber_->delete_datareader(reader_);
+            }
+            participant_->delete_subscriber(subscriber_);
+        }
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(participant_);
+    }
+}
+
+void Subscriber::SubListener::set_max_messages(
+        uint32_t max_messages)
+{
+    max_messages_ = max_messages;
+}
+
+void Subscriber::SubListener::on_subscription_matched(
+        eprosima::fastdds::dds::DataReader*,
+        const eprosima::fastdds::dds::SubscriptionMatchedStatus& info)
+{
+    if (info.current_count_change == 1)
+    {
+        matched_ = info.current_count;
+        std::cout << "Subscriber matched." << std::endl;
+    }
+    else if (info.current_count_change == -1)
+    {
+        matched_ = info.current_count;
+        std::cout << "Subscriber unmatched." << std::endl;
+    }
+    else
+    {
+        std::cout << info.current_count_change
+                  << " is not a valid value for SubscriptionMatchedStatus current count change" << std::endl;
+    }
+}
+
+void Subscriber::SubListener::on_data_available(
+        eprosima::fastdds::dds::DataReader* reader)
+{
+    eprosima::fastdds::dds::SampleInfo info;
+    while ((reader->take_next_sample(&comm_, &info) == eprosima::fastdds::dds::RETCODE_OK) && !is_stopped())
+    {
+        if (info.instance_state == eprosima::fastdds::dds::ALIVE_INSTANCE_STATE)
+        {
+            samples_++;
+            // Print your structure data here.
+            std::cout << "Message " << comm_.message() << " " << comm_.index() << " RECEIVED" << std::endl;
+            if (max_messages_ > 0 && (samples_ >= max_messages_))
+            {
+                stop();
             }
         }
     }
+}
 
-    void on_liveliness_changed(
-            DataReader* /*reader*/,
-            const eprosima::fastdds::dds::LivelinessChangedStatus& status) override
+void Subscriber::run(
+        uint32_t samples)
+{
+    stop_ = false;
+    if (samples > 0)
     {
-        if (status.alive_count_change == 1)
-        {
-            std::cout << "Publisher recovered liveliness" << std::endl;
-        }
-        else if (status.not_alive_count_change == 1)
-        {
-            std::cout << "Publisher lost liveliness" << std::endl;
-            g_run = false;
-        }
+        std::cout << "Subscriber running until " << samples <<
+            " samples have been received. Please press CTRL+C to stop the Subscriber at any time." << std::endl;
     }
+    else
+    {
+        std::cout << "Subscriber running. Please press CTRL+C to stop the Subscriber." << std::endl;
+    }
+    signal(SIGINT, [](int signum)
+            {
+                std::cout << "SIGINT received, stopping Subscriber execution." << std::endl;
+                static_cast<void>(signum); Subscriber::stop();
+            });
+    std::unique_lock<std::mutex> lck(terminate_cv_mtx_);
+    terminate_cv_.wait(lck, []
+            {
+                return is_stopped();
+            });
+}
 
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    unsigned int number_samples_;
-};
 
 int main(
         int argc,
@@ -283,9 +300,10 @@ int main(
     int arg_count = 1;
     bool notexit = false;
     uint32_t seed = 7800;
-    uint32_t samples = 4;
+    uint32_t samples = 10;
     //char* xml_file = nullptr;
     std::string magic;
+    Subscriber sub;
 
     while (arg_count < argc)
     {
@@ -338,81 +356,9 @@ int main(
         ++arg_count;
     }
 
-    /* TODO - XMLProfileManager doesn't support DDS yet
-       if(xml_file)
-       {
-        DomainParticipantFactory::get_instance()->load_XML_profiles_file(xml_file);
-       }
-     */
-
-    //Do not enable entities on creation
-    DomainParticipantFactoryQos factory_qos;
-    factory_qos.entity_factory().autoenable_created_entities = false;
-    DomainParticipantFactory::get_instance()->set_qos(factory_qos);
-
-    DomainParticipantQos participant_qos;
-    participant_qos.wire_protocol().builtin.typelookup_config.use_client = true;
-    ParListener participant_listener;
-    StatusMask participant_mask = StatusMask::none();
-    g_participant =
-            DomainParticipantFactory::get_instance()->create_participant(seed % 230, participant_qos,
-                    &participant_listener, participant_mask);
-
-    if (g_participant == nullptr)
-    {
-        std::cout << "Error creating subscriber participant" << std::endl;
-        return 1;
-    }
-
-    // Generate topic name
-    std::ostringstream topic;
-    topic << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << seed;
-
-    SubListener listener;
-    StatusMask mask = StatusMask::subscription_matched()
-            << StatusMask::data_available()
-            << StatusMask::liveliness_changed();
-
-    //CREATE THE SUBSCRIBER
-    g_subscriber = g_participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT, &listener, mask);
-
-    if (g_subscriber == nullptr)
-    {
-        std::cout << "Error creating subscriber" << std::endl;
-        DomainParticipantFactory::get_instance()->delete_participant(g_participant);
-        return 1;
-    }
-
-    //Now that everything is created we can enable the protocols
-    g_participant->enable();
-
-    while (notexit && g_run)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    }
-
-    if (g_run)
-    {
-        std::unique_lock<std::mutex> lock(listener.mutex_);
-        listener.cv_.wait(lock, [&]
-                {
-                    return listener.number_samples_ >= samples;
-                });
-    }
-
-    if (g_reader != nullptr)
-    {
-        g_subscriber->delete_datareader(g_reader);
-    }
-    if (g_subscriber != nullptr)
-    {
-        g_participant->delete_subscriber(g_subscriber);
-    }
-    if (g_topic != nullptr)
-    {
-        g_participant->delete_topic(g_topic);
-    }
-    DomainParticipantFactory::get_instance()->delete_participant(g_participant);
+    // Initialize subscriber
+    sub.init(samples, seed % 230);
+    sub.run(samples);
 
     return 0;
 }
