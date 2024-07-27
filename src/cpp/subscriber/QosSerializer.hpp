@@ -21,9 +21,10 @@
 
 #include <string>
 
-#include <fastdds/rtps/builtin/data/ParticipantProxyData.hpp>
+#include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
+#include <fastdds/dds/core/Time_t.hpp>
 
 #include <database/entities.hpp>
 
@@ -44,8 +45,8 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
         database::Qos& serialized);
 
 template <>
-void serialize<fastdds::Duration_t> (
-        const fastdds::Duration_t& qos,
+void serialize<fastdds::dds::Duration_t> (
+        const fastdds::dds::Duration_t& qos,
         const std::string& fieldname,
         database::Qos& serialized);
 
@@ -170,7 +171,7 @@ database::Qos writer_proxy_data_to_backend_qos(
         const fastdds::rtps::PublicationBuiltinTopicData& info);
 
 database::Qos participant_proxy_data_to_backend_qos(
-        const fastdds::rtps::ParticipantProxyData& participant_data);
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data);
 
 
 } // namespace subscriber

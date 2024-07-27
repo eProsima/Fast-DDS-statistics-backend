@@ -1753,7 +1753,7 @@ rtps::GUID_t datawriter_guid_;
 
 };
 
-// Windows dll does not export ParticipantProxyData class members (private APIs)
+// Windows dll does not export ParticipantBuiltinTopicData class members (private APIs)
 #if !defined(_WIN32)
 /*
  * This test is a pseudo-blackbox that checks that user listeners are called
@@ -1829,10 +1829,9 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&participant_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Simulate the discovery of a participant
-    eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes attributes;
-    eprosima::fastdds::rtps::ParticipantProxyData participant_data(attributes);
-    participant_data.m_guid = participant_guid_;
-    participant_data.m_participantName = participant_name_;
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData participant_data;
+    participant_data.guid = participant_guid_;
+    participant_data.participant_name = participant_name_;
 
     // The participant locator
     eprosima::fastdds::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
@@ -1841,12 +1840,11 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     participant_data.default_locators.add_unicast_locator(participant_locator);
 
     // Finish building the discovered participant info
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-    participant_info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the participant
-    participant_listener_->on_participant_discovery(participant_, std::move(participant_info), should_be_ignored);
+    participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the participant was created OK
@@ -2432,11 +2430,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&metatraffic_endpoint_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
-    participant_undiscovery_info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
+    status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
 
     // Execution: Call the listener
-    participant_listener_->on_participant_discovery(participant_, std::move(participant_undiscovery_info), should_be_ignored);
+    participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer2->active);
@@ -2524,15 +2521,15 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
 
         // Simulate the discovery of a participant
         eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes attributes;
-        eprosima::fastdds::rtps::ParticipantProxyData participant_data(attributes);
-        participant_data.m_guid = participant_guid_;
-        participant_data.m_participantName = participant_name_;
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData participant_data;
+        participant_data.guid = participant_guid_;
+        participant_data.participant_name = participant_name_;
 
-        participant_data.m_properties.push_back("fastdds.application.id", app_id_str[int(app_id)]);
-        participant_data.m_properties.push_back("fastdds.application.metadata", metadata_);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
+        participant_data.properties.push_back("fastdds.application.id", app_id_str[int(app_id)]);
+        participant_data.properties.push_back("fastdds.application.metadata", metadata_);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
                 process_name);
 
         // The participant locator
@@ -2542,12 +2539,11 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
         participant_data.default_locators.add_unicast_locator(participant_locator);
 
         // Finish building the discovered participant info
-        eprosima::fastdds::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-        participant_info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-        participant_listener_->on_participant_discovery(participant_, std::move(participant_info), should_be_ignored);
+        participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
         details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
         // Check that the participant was created OK

@@ -437,21 +437,6 @@ rtps::GUID_t reader_guid_;
         default_multicast_locator = std::make_shared<Locator>("UDPv4:[0.0.0.0]:4");
     }
 
-    // Build the participant discovered info with participant_guid_ and participant_name_
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo build_participant_discovered_info(
-            eprosima::fastdds::
-rtps::ParticipantProxyData& data)
-    {
-        // Precondition: The discovered participant has the given GUID and name
-        data.m_guid = participant_guid_;
-        data.m_participantName = participant_name_;
-
-        // Finish building the discovered reader info
-        return eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo(data);
-    }
-
 };
 
 // Windows dll do not export ParticipantProxyData class members (private APIs)
@@ -475,27 +460,22 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
     data.default_locators.unicast.push_back(3);
     data.default_locators.multicast.push_back(4);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant is added to the database. We do not care about the given ID
     InsertParticipantArgs insert_args([&](
@@ -508,7 +488,7 @@ rtps::ParticipantProxyData data(allocation);
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, participant_name_);
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -636,9 +616,9 @@ rtps::ParticipantProxyData data(allocation);
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -688,28 +668,21 @@ rtps::GUID_t participant_2_guid;
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_2_guid;
-    data.m_participantName = participant_2_name;
+    data.guid = participant_2_guid;
+    data.participant_name = participant_2_name;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
     data.default_locators.unicast.push_back(3);
     data.default_locators.multicast.push_back(4);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
 
     // Expectation: The Participant_2 is added to the database. We do not care about the given ID
     InsertParticipantArgs insert_args([&](
@@ -722,7 +695,7 @@ rtps::ParticipantDiscoveryInfo info(data);
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, participant_2_name);
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_2_guid_str);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -828,9 +801,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -845,15 +818,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
     // Expectation: The Participant is not added to the database.
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
@@ -864,11 +833,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
 
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
 // Test that discovers a participant without locators associated and an empty name.
@@ -895,22 +864,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Expectation: The Participant is added to the database. We do not care about the given ID
     InsertParticipantArgs insert_args([&](
@@ -923,7 +885,7 @@ rtps::ParticipantDiscoveryInfo info(data);
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -1049,9 +1011,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -1078,26 +1040,18 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Unicast Locator exists and has ID 3
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 37;
     dds_existing_unicast_locator.address[13] = 11;
     dds_existing_unicast_locator.address[14] = 18;
@@ -1111,8 +1065,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
 
     // Precondition: The Unicast Metatraffic Locator exists and has ID 4
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_unicast_locator.address[12] = 38;
     dds_existing_metatraffic_unicast_locator.address[13] = 12;
     dds_existing_metatraffic_unicast_locator.address[14] = 19;
@@ -1126,8 +1079,7 @@ rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 102
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
 
     // Precondition: The Multicast Locator exists and has ID 5
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 36;
     dds_existing_multicast_locator.address[13] = 10;
     dds_existing_multicast_locator.address[14] = 17;
@@ -1141,8 +1093,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 47;
     dds_existing_metatraffic_multicast_locator.address[13] = 21;
     dds_existing_metatraffic_multicast_locator.address[14] = 28;
@@ -1166,7 +1117,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -1295,9 +1246,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -1324,26 +1275,18 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Unicast Metatraffic Locator exists and has ID 4
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_unicast_locator.address[12] = 37;
     dds_existing_metatraffic_unicast_locator.address[13] = 11;
     dds_existing_metatraffic_unicast_locator.address[14] = 18;
@@ -1357,8 +1300,7 @@ rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 102
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
 
     // Precondition: The Multicast Locator exists and has ID 5
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 36;
     dds_existing_multicast_locator.address[13] = 10;
     dds_existing_multicast_locator.address[14] = 17;
@@ -1372,8 +1314,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
-    eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 47;
     dds_existing_metatraffic_multicast_locator.address[13] = 21;
     dds_existing_metatraffic_multicast_locator.address[14] = 28;
@@ -1397,7 +1338,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -1526,9 +1467,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -1572,22 +1513,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Multicast Locator exists and has ID 5
     eprosima::fastdds::
@@ -1630,7 +1564,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -1758,9 +1692,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -1787,22 +1721,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
     eprosima::fastdds::
@@ -1830,7 +1757,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -1957,9 +1884,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -1986,22 +1913,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Unicast Locator exists and has ID 3
     eprosima::fastdds::
@@ -2066,7 +1986,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const std::string& app_metadata)
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
-                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(info.info));
+                EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(guid, participant_guid_str_);
                 EXPECT_EQ(domain_id, EntityId(0));
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
@@ -2196,9 +2116,9 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -2218,24 +2138,19 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
     // Expectation: No entity is added to the database
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
 TEST_F(statistics_participant_listener_tests, new_participant_discovered_participant_already_exists)
@@ -2259,28 +2174,21 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
             .WillOnce(Return(true));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The discovered participant has unicast and multicast locators associated
     data.metatraffic_locators.unicast.push_back(1);
     data.metatraffic_locators.multicast.push_back(2);
     data.default_locators.unicast.push_back(3);
     data.default_locators.multicast.push_back(4);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
 
 
     // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
@@ -2336,9 +2244,9 @@ rtps::ParticipantDiscoveryInfo info(data);
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener.
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
 
@@ -2354,22 +2262,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
             .WillRepeatedly(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant_name_;
+    data.guid = participant_guid_;
+    data.participant_name = participant_name_;
 
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
-    data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
-
-    // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name_);
+    data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Expectation: The Participant is not inserted in the database.
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
@@ -2420,11 +2321,11 @@ rtps::ParticipantDiscoveryInfo info(data);
 
     // Execution: Call the listener.
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
-    participant_listener.on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
+    participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     entity_queue.flush();
 }

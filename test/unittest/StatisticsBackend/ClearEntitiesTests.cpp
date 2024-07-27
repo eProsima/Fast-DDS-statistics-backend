@@ -260,24 +260,21 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_participant)
     // Simulate a DATA(Up) for Participant
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
     eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::stringstream(participant->guid) >> participant_guid_;
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant->name;
+    data.guid = participant_guid_;
+    data.participant_name = participant->name;
 
     // Finish building the discovered reader info
-    eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
-    info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     // Check that entities are not alive
     ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));

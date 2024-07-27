@@ -54,8 +54,8 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
 }
 
 template <>
-void serialize<fastdds::Duration_t> (
-        const fastdds::Duration_t& qos,
+void serialize<fastdds::dds::Duration_t> (
+        const fastdds::dds::Duration_t& qos,
         const std::string& fieldname,
         database::Qos& serialized)
 {
@@ -511,15 +511,14 @@ database::Qos writer_proxy_data_to_backend_qos(
 }
 
 database::Qos participant_proxy_data_to_backend_qos(
-        const fastdds::rtps::ParticipantProxyData& participant_data)
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data)
 {
     database::Qos participant;
 
-    participant[available_builtin_endpoints_tag] = participant_data.m_availableBuiltinEndpoints;
-    serialize(participant_data.m_leaseDuration, lease_duration_tag, participant);
-    serialize(participant_data.m_properties, properties_tag, participant);
-    serialize(participant_data.m_userData, user_data_tag, participant);
-    participant[vendor_id_tag] = participant_data.m_VendorId;
+    serialize(participant_data.lease_duration, lease_duration_tag, participant);
+    serialize(participant_data.properties, properties_tag, participant);
+    serialize(participant_data.user_data, user_data_tag, participant);
+    participant[vendor_id_tag] = participant_data.vendor_id;
 
     return participant;
 }

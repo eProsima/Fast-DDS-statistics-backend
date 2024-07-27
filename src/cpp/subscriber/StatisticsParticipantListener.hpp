@@ -70,9 +70,10 @@ public:
      * @param info Remote participant information. User can take ownership of the object.
      */
     void on_participant_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            fastdds::rtps::ParticipantDiscoveryInfo&& info,
-            bool &should_be_ignored) override;
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::ParticipantDiscoveryStatus reason,
+            const fastdds::dds::ParticipantBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
     /*!
      * This method is called when a new Subscriber is discovered, or a previously discovered subscriber changes

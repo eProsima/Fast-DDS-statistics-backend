@@ -162,27 +162,20 @@ TEST_F(is_active_tests, participant)
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Start building the discovered reader info
-    eprosima::fastdds::
-rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastdds::
-rtps::ParticipantProxyData data(allocation);
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    eprosima::fastdds::
-rtps::GUID_t participant_guid_;
+    eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::stringstream(participant->guid) >> participant_guid_;
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant->name;
+    data.guid = participant_guid_;
+    data.participant_name = participant->name;
 
     // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo info(data);
-    info.status = eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+    participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     ASSERT_FALSE(StatisticsBackendTest::is_active(host->id));
     ASSERT_FALSE(StatisticsBackendTest::is_active(user->id));
@@ -195,13 +188,10 @@ rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
     ASSERT_TRUE(StatisticsBackendTest::is_active(locator->id));
 
     // Finish building the discovered reader info
-    eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo discover_info(data);
-    info.status = eprosima::fastdds::
-rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
     // Execution: Call the listener
-    participant_listener->on_participant_discovery(&statistics_participant, std::move(discover_info), should_be_ignored);
+    participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     ASSERT_TRUE(StatisticsBackendTest::is_active(host->id));
     ASSERT_TRUE(StatisticsBackendTest::is_active(user->id));
@@ -467,26 +457,24 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
     // Participant undiscovered
     {
         // Start building the discovered reader info
-        eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes allocation;
-        eprosima::fastdds::rtps::ParticipantProxyData data(allocation);
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
         // Precondition: The discovered participant has the given GUID and name
         eprosima::fastdds::rtps::GUID_t participant_guid_;
         std::stringstream(participant->guid) >> participant_guid_;
-        data.m_guid = participant_guid_;
-        data.m_participantName = participant->name;
+        data.guid = participant_guid_;
+        data.participant_name = participant->name;
 
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
 
         // Finish building the discovered reader info
-        eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
-        info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-        participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+        participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     }
     // Datawriter undiscovered
     {
@@ -567,26 +555,24 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
     // Discover new participant
     {
         // Start building the discovered reader info
-        eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes allocation;
-        eprosima::fastdds::rtps::ParticipantProxyData data(allocation);
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
         // Precondition: The discovered participant has the given GUID and name
         eprosima::fastdds::rtps::GUID_t participant_guid_;
         std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
-        data.m_guid = participant_guid_;
-        data.m_participantName = participant->name + "_1";
+        data.guid = participant_guid_;
+        data.participant_name = participant->name + "_1";
 
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
 
         // Finish building the discovered reader info
-        eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
-        info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-        participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+        participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     }
 
     // Link participant - process
@@ -659,26 +645,24 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
     // Participant undiscovered
     {
         // Start building the discovered reader info
-        eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes allocation;
-        eprosima::fastdds::rtps::ParticipantProxyData data(allocation);
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
         // Precondition: The discovered participant has the given GUID and name
         eprosima::fastdds::rtps::GUID_t participant_guid_;
         std::stringstream(participant->guid) >> participant_guid_;
-        data.m_guid = participant_guid_;
-        data.m_participantName = participant->name;
+        data.guid = participant_guid_;
+        data.participant_name = participant->name;
 
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process->name);
 
         // Finish building the discovered reader info
-        eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
-        info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-        participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+        participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     }
     // Datareader undiscovered
     {
@@ -760,26 +744,24 @@ TEST_F(is_active_tests, discover_datareader_on_inactive_domain)
     // Discover new participant
     {
         // Start building the discovered reader info
-        eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes allocation;
-        eprosima::fastdds::rtps::ParticipantProxyData data(allocation);
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
         // Precondition: The discovered participant has the given GUID and name
         eprosima::fastdds::rtps::GUID_t participant_guid_;
         std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.01|0.0.1.c1") >> participant_guid_;
-        data.m_guid = participant_guid_;
-        data.m_participantName = participant->name + "_1";
+        data.guid = participant_guid_;
+        data.participant_name = participant->name + "_1";
 
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
-        data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user->name);
+        data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, "process1");
 
         // Finish building the discovered reader info
-        eprosima::fastdds::rtps::ParticipantDiscoveryInfo info(data);
-        info.status = eprosima::fastdds::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-        participant_listener->on_participant_discovery(&statistics_participant, std::move(info), should_be_ignored);
+        participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     }
 
     // Link participant - process
