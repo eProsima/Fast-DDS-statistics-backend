@@ -199,7 +199,7 @@ struct InsertEndpointArgs
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -215,7 +215,7 @@ rtps::RemoteLocatorList& locators,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
             const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                    rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -242,7 +242,7 @@ rtps::RemoteLocatorList& locators,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -254,7 +254,7 @@ rtps::RemoteLocatorList& locators,
     Qos qos_;
     bool is_virtual_metatraffic_;
     eprosima::fastdds::
-rtps::RemoteLocatorList locators_;
+            rtps::RemoteLocatorList locators_;
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
@@ -326,10 +326,10 @@ public:
     Qos participant_qos_;
     std::string participant_prefix_str_;
     eprosima::fastdds::
-rtps::GuidPrefix_t guid_prefix_;
+            rtps::GuidPrefix_t guid_prefix_;
     std::string participant_guid_str_;
     eprosima::fastdds::
-rtps::GUID_t participant_guid_;
+            rtps::GUID_t participant_guid_;
     std::shared_ptr<DomainParticipant> participant_;
 
     // Topic entity
@@ -341,7 +341,7 @@ rtps::GUID_t participant_guid_;
     std::string reader_guid_str_;
     std::string reader_entity_id_str_;
     eprosima::fastdds::
-rtps::GUID_t reader_guid_;
+            rtps::GUID_t reader_guid_;
 
     // Writer entity
     std::string writer_guid_str_;
@@ -616,7 +616,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -629,11 +630,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     Qos participant_2_qos;
     std::string participant_2_prefix_str = "01.02.03.04.05.06.07.08.09.0a.0b.1c";
     eprosima::fastdds::
-rtps::GuidPrefix_t guid_2_prefix;
+            rtps::GuidPrefix_t guid_2_prefix;
     std::stringstream(participant_2_prefix_str) >> guid_2_prefix;
     std::string participant_2_guid_str = participant_2_prefix_str + "|0.0.1.c1";
     eprosima::fastdds::
-rtps::GUID_t participant_2_guid;
+            rtps::GUID_t participant_2_guid;
     std::stringstream(participant_2_guid_str) >> participant_2_guid;
     std::shared_ptr<DomainParticipant> participant_2 =
             std::make_shared<DomainParticipant>(participant_2_name, participant_2_qos, participant_2_guid_str,
@@ -742,7 +743,7 @@ rtps::GUID_t participant_2_guid;
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -801,7 +802,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -833,7 +835,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered)
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
 
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
@@ -950,7 +953,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1011,7 +1014,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -1182,7 +1186,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1246,7 +1250,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -1403,7 +1408,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1467,7 +1472,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -1525,7 +1531,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Multicast Locator exists and has ID 5
     eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 37;
     dds_existing_multicast_locator.address[13] = 11;
     dds_existing_multicast_locator.address[14] = 18;
@@ -1540,7 +1546,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
     eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 47;
     dds_existing_metatraffic_multicast_locator.address[13] = 21;
     dds_existing_metatraffic_multicast_locator.address[14] = 28;
@@ -1629,7 +1635,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1692,7 +1698,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -1733,7 +1740,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
     eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 37;
     dds_existing_metatraffic_multicast_locator.address[13] = 11;
     dds_existing_metatraffic_multicast_locator.address[14] = 18;
@@ -1822,7 +1829,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1884,7 +1891,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -1925,7 +1933,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     // Precondition: The Unicast Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -1938,7 +1946,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: The Unicast Metatraffic Locator exists and has ID 4
     eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_unicast_locator.address[12] = 127;
     dds_existing_metatraffic_unicast_locator.address[15] = 1;
     std::string existing_metatraffic_unicast_locator_name = to_string(dds_existing_metatraffic_unicast_locator);
@@ -1951,7 +1959,7 @@ rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 102
 
     // Precondition: The Multicast Locator exists and has ID 5
     eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 1;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -1964,7 +1972,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
     eprosima::fastdds::
-rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 127;
     dds_existing_metatraffic_multicast_locator.address[15] = 1;
     std::string existing_metatraffic_multicast_locator_name = to_string(dds_existing_metatraffic_multicast_locator);
@@ -2051,7 +2059,7 @@ rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2116,7 +2124,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -2149,7 +2158,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_no_domain)
             .WillOnce(Throw(eprosima::statistics_backend::BadParameter("Error")));
 
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -2244,7 +2254,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener.
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -2321,7 +2332,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
 
     // Execution: Call the listener.
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
     participant_listener.on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
@@ -2347,7 +2359,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2384,7 +2396,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2428,7 +2440,8 @@ rtps::RemoteLocatorList& locators,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
@@ -2446,7 +2459,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2482,7 +2495,8 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
@@ -2499,7 +2513,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2554,7 +2568,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2605,7 +2619,8 @@ rtps::RemoteLocatorList& locators,
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -2646,7 +2661,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2671,7 +2686,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     // Precondition: The discovered reader contains the locator
     data.remote_locators.add_unicast_locator(dds_existing_unicast_locator);
 
-    
+
 
     // Precondition: The Reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
@@ -2685,7 +2700,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2731,7 +2746,8 @@ rtps::RemoteLocatorList& locators,
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -2753,7 +2769,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2763,7 +2779,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One multicast Locator exists and has ID 4
     eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -2773,7 +2789,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One unicast Locator does not exist
     eprosima::fastdds::
-rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
@@ -2782,7 +2798,7 @@ rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastdds::
-rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
@@ -2812,7 +2828,7 @@ rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     data.remote_locators.add_multicast_locator(dds_existing_multicast_locator);
     data.remote_locators.add_multicast_locator(dds_new_multicast_locator);
 
-    
+
 
     // Precondition: The Reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
@@ -2830,7 +2846,7 @@ rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2879,7 +2895,8 @@ rtps::RemoteLocatorList& locators,
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
@@ -2903,7 +2920,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
 
     // Precondition: One unicast Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2914,7 +2931,7 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One multicast Locator exists and has ID 4
     eprosima::fastdds::
-rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -2925,7 +2942,7 @@ rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One unicast Locator does not exist
     eprosima::fastdds::
-rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
@@ -2934,7 +2951,7 @@ rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Precondition: One multicast Locator does not exist
     eprosima::fastdds::
-rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
@@ -2964,7 +2981,7 @@ rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     data.remote_locators.add_multicast_locator(dds_existing_multicast_locator);
     data.remote_locators.add_multicast_locator(dds_new_multicast_locator);
 
-    
+
 
     // Precondition: The Reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str_)).Times(AnyNumber())
@@ -2982,7 +2999,7 @@ rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -3031,7 +3048,8 @@ rtps::RemoteLocatorList& locators,
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
@@ -3049,7 +3067,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -3083,7 +3101,8 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Expectation: Nothing is inserted
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -3099,7 +3118,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -3133,7 +3152,8 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
 
     // Expectation: Exception thrown
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -3203,7 +3223,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered_reader_alrea
 
     // Execution: Call the listener.
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
 }
@@ -3223,7 +3244,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
 
     // Precondition: The Locator exists and has ID 3
     eprosima::fastdds::
-rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -3274,7 +3295,8 @@ rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY)).Times(1);
 
     // Execution: Call the listener.
-    eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
 
@@ -3375,7 +3397,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
 }
@@ -3428,7 +3451,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered)
     EXPECT_CALL(database, change_entity_status(_, _)).Times(0);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
 }
@@ -3548,7 +3572,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
 }
@@ -3692,7 +3717,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -3833,7 +3859,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -3885,7 +3912,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_participant)
 
     // Expectation: Nothing is inserted
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
 
 }
@@ -3935,7 +3963,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_domain)
 
     // Expectation: Exception thrown
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
 }
 
@@ -4004,7 +4033,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered_writer_alrea
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
     // Execution: Call the listener.
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();
@@ -4075,7 +4105,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_undiscovered_writer_alr
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY)).Times(1);
 
     // Execution: Call the listener.
-    eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity
     participant_listener.on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
     entity_queue.flush();

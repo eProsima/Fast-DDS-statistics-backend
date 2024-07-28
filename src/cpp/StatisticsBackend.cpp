@@ -444,7 +444,7 @@ EntityId StatisticsBackend::init_monitor(
     // Set monitor as SUPER CLIENT
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
             eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT;
-    
+
     // Add locators
     std::stringstream locators(discovery_server_locators);
     std::string locator_str;

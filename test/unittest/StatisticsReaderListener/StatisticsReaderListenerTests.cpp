@@ -391,25 +391,25 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 {
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::
-rtps::Locator_t src_locator_t;
+            rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     eprosima::fastdds::
-rtps::IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+            rtps::IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     eprosima::fastdds::
-rtps::IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+            rtps::IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     eprosima::fastdds::
-rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+            rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastdds::
-rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+            rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -593,13 +593,13 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     eprosima::fastdds::
-rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+            rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastdds::
-rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+            rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -691,13 +691,13 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     eprosima::fastdds::
-rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+            rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     eprosima::fastdds::
-rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+            rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -1313,7 +1313,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -1382,7 +1382,7 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueue<MonitorServiceData>::StatisticsGuidPrefix writer_prefix;

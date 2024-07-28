@@ -137,7 +137,7 @@ public:
     }
 
     const fastdds::
-rtps::GUID_t& guid()
+            rtps::GUID_t& guid()
     {
         return guid_;
     }
@@ -165,7 +165,7 @@ rtps::GUID_t& guid()
 
     void set_guid(
             fastdds::
-rtps::GUID_t guid)
+                    rtps::GUID_t guid)
     {
         guid_ = guid;
     }
@@ -184,7 +184,7 @@ rtps::GUID_t guid)
 protected:
 
     fastdds::
-rtps::GUID_t guid_;
+            rtps::GUID_t guid_;
     std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
     TopicDescription topic_description_;

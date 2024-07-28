@@ -54,7 +54,7 @@ std::string to_string(
  */
 inline bool is_statistics_builtin(
         const fastdds::
-rtps::EntityId_t& entity_id)
+                rtps::EntityId_t& entity_id)
 {
     return 0x60 == (0xE0 & entity_id.value[3]);
 }
@@ -78,7 +78,7 @@ noexcept
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
         const eprosima::fastdds::
-ResourceLimitedVector<Locator_t>& locators,
+                ResourceLimitedVector<Locator_t>& locators,
         std::string& address)
 {
     for (auto locator : locators)
@@ -329,10 +329,10 @@ void StatisticsParticipantListener::on_data_reader_discovery(
 }
 
 void StatisticsParticipantListener::on_data_writer_discovery(
-            fastdds::dds::DomainParticipant* participant,
-            fastdds::rtps::WriterDiscoveryStatus reason,
-            const fastdds::rtps::PublicationBuiltinTopicData& info,
-            bool&)
+        fastdds::dds::DomainParticipant* participant,
+        fastdds::rtps::WriterDiscoveryStatus reason,
+        const fastdds::rtps::PublicationBuiltinTopicData& info,
+        bool&)
 {
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created

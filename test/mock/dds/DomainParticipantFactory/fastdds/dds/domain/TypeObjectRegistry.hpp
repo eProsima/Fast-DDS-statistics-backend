@@ -52,60 +52,60 @@ public:
     ReturnCode_t register_type_object(
             const std::string&,
             const CompleteTypeObject&,
-            TypeIdentifierPair&) override 
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            };
+            TypeIdentifierPair&) override
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t register_type_object(
             const TypeObject&,
-            TypeIdentifierPair&) override 
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
-            
+            TypeIdentifierPair&) override
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
+
     ReturnCode_t register_type_identifier(
             const std::string&,
             TypeIdentifierPair&) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t get_type_objects(
             const std::string&,
             TypeObjectPair&) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t get_type_identifiers(
             const std::string&,
             TypeIdentifierPair&) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t get_type_object(
             const TypeIdentifier&,
             TypeObject&) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t get_type_information(
             const TypeIdentifierPair&,
             TypeInformation&,
             bool) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
     ReturnCode_t register_typeobject_w_dynamic_type(
             const DynamicType::_ref_type&,
             TypeIdentifierPair&) override
-            {
-                return eprosima::fastdds::dds::RETCODE_OK;
-            }
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
 
 };
 

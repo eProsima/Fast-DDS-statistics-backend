@@ -160,7 +160,7 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_endpoint)
     {
         // Start building the discovered writer info
         eprosima::fastdds::rtps::PublicationBuiltinTopicData data;
-        
+
         // Set max unicast and multicast locators
         data.remote_locators = eprosima::fastdds::rtps::RemoteLocatorList(1, 1);
 
@@ -180,7 +180,8 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_endpoint)
         data.remote_locators.add_unicast_locator(dds_existing_unicast_locator);
 
         // Finish building the discovered writer info
-        eprosima::fastdds::rtps::WriterDiscoveryStatus status = eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
+        eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+                eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
@@ -228,7 +229,8 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_endpoint)
         data.remote_locators.add_unicast_locator(dds_existing_unicast_locator);
 
         // Finish building the discovered reader info
-        eprosima::fastdds::rtps::ReaderDiscoveryStatus status = eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
+        eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+                eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
 
         // Execution: Call the listener
         bool should_be_ignored = false; // Set to false to avoid ignoring the entity
@@ -270,7 +272,8 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_participant)
     data.participant_name = participant->name;
 
     // Finish building the discovered reader info
-    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
     // Execution: Call the listener
     bool should_be_ignored = false; // Set to false to avoid ignoring the entity

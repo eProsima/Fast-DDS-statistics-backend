@@ -27,7 +27,7 @@ namespace database {
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::
-rtps;
+        rtps;
 
 template<typename T>
 std::string to_string(

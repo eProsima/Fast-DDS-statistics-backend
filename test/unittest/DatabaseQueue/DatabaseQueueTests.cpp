@@ -32,7 +32,7 @@ using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::fastdds::
-rtps;
+        rtps;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -420,7 +420,7 @@ struct InsertEndpointArgs
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -436,7 +436,7 @@ rtps::RemoteLocatorList& locators,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
             const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                    rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -463,7 +463,7 @@ rtps::RemoteLocatorList& locators,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
                 const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -475,7 +475,7 @@ rtps::RemoteLocatorList& locators,
     Qos qos_;
     bool is_virtual_metatraffic_;
     eprosima::fastdds::
-rtps::RemoteLocatorList locators_;
+            rtps::RemoteLocatorList locators_;
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
@@ -1446,7 +1446,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1554,7 +1554,7 @@ rtps::RemoteLocatorList& locators,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1664,7 +1664,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1807,7 +1807,7 @@ TEST_F(database_queue_tests, push_datareader)
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1915,7 +1915,7 @@ rtps::RemoteLocatorList& locators,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -2025,7 +2025,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
                     const eprosima::fastdds::
-rtps::RemoteLocatorList& locators,
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -2268,7 +2268,7 @@ TEST_F(database_queue_tests, push_network_latency)
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::
-rtps::Locator_t src_locator_t;
+            rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2278,7 +2278,7 @@ rtps::Locator_t src_locator_t;
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 2048;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2348,7 +2348,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::
-rtps::Locator_t src_locator_t;
+            rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2358,7 +2358,7 @@ rtps::Locator_t src_locator_t;
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2414,7 +2414,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::
-rtps::Locator_t src_locator_t;
+            rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 1;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2424,7 +2424,7 @@ rtps::Locator_t src_locator_t;
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2479,7 +2479,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::
-rtps::Locator_t src_locator_t;
+            rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2489,7 +2489,7 @@ rtps::Locator_t src_locator_t;
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2771,7 +2771,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2869,7 +2869,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2935,7 +2935,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3048,7 +3048,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3146,7 +3146,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3212,7 +3212,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3324,7 +3324,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3385,7 +3385,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::
-rtps::Locator_t dst_locator_t;
+            rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -4407,7 +4407,7 @@ TEST_F(database_queue_tests, push_sample_datas)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -4474,7 +4474,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -4662,7 +4662,8 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4740,7 +4741,8 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4776,7 +4778,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4798,7 +4800,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4850,7 +4853,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4872,7 +4875,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4908,7 +4912,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4923,7 +4927,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -4975,7 +4980,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4990,7 +4995,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -5026,7 +5032,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5041,7 +5047,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5093,7 +5100,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
-rtps::SequenceNumber_t sn (sn_high, sn_low);
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5108,7 +5115,8 @@ rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5157,7 +5165,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5222,7 +5231,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5271,7 +5281,8 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5335,7 +5346,8 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5487,7 +5499,8 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
     MonitorServiceData value;
     uint8_t octet = 1;
     value.statuses_size(octet);

@@ -31,7 +31,7 @@ using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 using namespace eprosima::fastdds::
-rtps;
+        rtps;
 
 using ::testing::_;
 using ::testing::Invoke;

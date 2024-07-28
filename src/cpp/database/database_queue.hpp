@@ -573,11 +573,11 @@ protected:
             StatisticsGuid data) const
     {
         eprosima::fastdds::
-rtps::GUID_t guid;
+                rtps::GUID_t guid;
         memcpy(guid.guidPrefix.value, data.guidPrefix().value().data(), eprosima::fastdds::
-rtps::GuidPrefix_t::size);
+                        rtps::GuidPrefix_t::size);
         memcpy(guid.entityId.value, data.entityId().value().data(), eprosima::fastdds::
-rtps::EntityId_t::size);
+                        rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();
@@ -591,13 +591,13 @@ rtps::EntityId_t::size);
             throw Error("Wrong format: src_locator.port must be 0");
         }
         eprosima::fastdds::
-rtps::GUID_t guid;
+                rtps::GUID_t guid;
         memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastdds::
-rtps::GuidPrefix_t::size);
+                        rtps::GuidPrefix_t::size);
         memcpy(guid.entityId.value, data.address().data() + eprosima::fastdds::
-rtps::GuidPrefix_t::size,
+                        rtps::GuidPrefix_t::size,
                 eprosima::fastdds::
-rtps::EntityId_t::size);
+                        rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();
@@ -611,7 +611,7 @@ rtps::EntityId_t::size);
         std::array<uint8_t, 16> address = data.address();
 
         eprosima::fastdds::
-rtps::Locator_t locator(kind, port);
+                rtps::Locator_t locator(kind, port);
         memcpy(locator.address, address.data(), address.size());
         std::stringstream ss;
         ss << locator;
@@ -625,7 +625,7 @@ rtps::Locator_t locator(kind, port);
         uint32_t low = data.low();
 
         return eprosima::fastdds::
-rtps::SequenceNumber_t(high, low).to64long();
+                       rtps::SequenceNumber_t(high, low).to64long();
     }
 
     std::pair<std::string, uint64_t> deserialize_sample_identity(

@@ -30,7 +30,7 @@
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
-#include <fastdds/dds/topic/TopicDescription.hpp> 
+#include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 #include <fastdds/dds/core/detail/DDSReturnCode.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
