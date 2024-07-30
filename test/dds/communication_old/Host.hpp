@@ -67,7 +67,7 @@ private:
         // Compute the host id
         fastdds::rtps::LocatorList loc;
         fastdds::
-rtps::IPFinder::getIP4Address(&loc);
+                rtps::IPFinder::getIP4Address(&loc);
 
         {
             if (loc.size() > 0)
@@ -93,9 +93,9 @@ rtps::IPFinder::getIP4Address(&loc);
 
         // Compute the MAC id
         std::vector<fastdds::
-rtps::IPFinder::info_MAC> macs;
+                        rtps::IPFinder::info_MAC> macs;
         if (fastdds::
-rtps::IPFinder::getAllMACAddress(&macs) &&
+                        rtps::IPFinder::getAllMACAddress(&macs) &&
                 macs.size() > 0)
         {
             fastdds::MD5 md5;

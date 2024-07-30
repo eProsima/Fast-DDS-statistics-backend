@@ -77,19 +77,20 @@ public:
         void on_publication_matched(
                 eprosima::fastdds::dds::DataWriter* writer,
                 const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
-        
+
         //! Getter function for matched_
         std::uint32_t get_matched()
         {
             return matched_;
         }
-        
+
     private:
 
         //! Number of DataReaders matched to the associated DataWriter
         std::atomic<std::uint32_t> matched_;
 
-    }listener;
+    }
+    listener;
 
 private:
 

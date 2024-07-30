@@ -318,8 +318,8 @@ int main(
             }
             // Some locators are beyond the monitor domain
             else if (
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+                StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -452,8 +452,8 @@ int main(
             }
             // Some locators are beyond the monitor domain
             else if (
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+                StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -588,8 +588,8 @@ int main(
             }
             // Some locators are beyond the monitor domain
             else if (
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+                StatisticsBackend::get_entities(EntityKind::LOCATOR,
+                monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }

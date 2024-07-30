@@ -39,6 +39,7 @@ std::condition_variable Subscriber::terminate_cv_;
 class ParListener : public fastdds::dds::DomainParticipantListener
 {
 public:
+
     ParListener()
     {
     }
@@ -79,7 +80,9 @@ public:
                 " dropped participant " << info.guid << std::endl;
         }
     }
-} participant_listener;
+
+}
+participant_listener;
 
 Subscriber::Subscriber()
     : participant_(nullptr)
@@ -134,9 +137,9 @@ bool Subscriber::init(
             "MONITOR_SERVICE_TOPIC");
 
     // CREATE THE PARTICIPANT
-    participant_ = 
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
-            domain, pqos, &participant_listener, eprosima::fastdds::dds::StatusMask::none());
+    participant_ =
+            eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(
+        domain, pqos, &participant_listener, eprosima::fastdds::dds::StatusMask::none());
 
     if (participant_ == nullptr)
     {
@@ -153,7 +156,7 @@ bool Subscriber::init(
     fastdds::dds::StatusMask mask = fastdds::dds::StatusMask::subscription_matched()
             << fastdds::dds::StatusMask::data_available()
             << fastdds::dds::StatusMask::liveliness_changed();
-    
+
     subscriber_ = participant_->create_subscriber(eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT, nullptr, mask);
 
     if (subscriber_ == nullptr)
@@ -291,7 +294,6 @@ void Subscriber::run(
                 return is_stopped();
             });
 }
-
 
 int main(
         int argc,

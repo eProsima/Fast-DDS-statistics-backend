@@ -110,7 +110,8 @@ bool Publisher::init(
     // Generate topic name
     std::ostringstream topic_name;
     topic_name << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << domain;
-    topic_ = participant_->create_topic(topic_name.str(), type_.get_type_name(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+    topic_ = participant_->create_topic(topic_name.str(),
+                    type_.get_type_name(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
 
     if (topic_ == nullptr)
     {
@@ -307,11 +308,11 @@ int main(
         DomainParticipantFactory::get_instance()->load_XML_profiles_file(xml_file);
        }
      */
-    
+
     // Initialize the publisher
 
     pub.init(seed % 230);
-    
+
     // Wait until all DataReaders are matched
     if (wait > 0)
     {
