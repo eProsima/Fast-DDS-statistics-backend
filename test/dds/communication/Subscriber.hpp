@@ -56,22 +56,6 @@ public:
 
     //! Trigger the end of execution
     static void stop();
-
-private:
-
-    eprosima::fastdds::dds::DomainParticipant* participant_;
-
-    eprosima::fastdds::dds::Subscriber* subscriber_;
-
-    eprosima::fastdds::dds::Topic* topic_;
-
-    eprosima::fastdds::dds::DataReader* reader_;
-
-    eprosima::fastdds::dds::TypeSupport type_;
-
-    /**
-     * Class handling discovery and dataflow events
-     */
     class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
     public:
@@ -99,7 +83,11 @@ private:
         void on_subscription_matched(
                 eprosima::fastdds::dds::DataReader* reader,
                 const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
-
+                
+        uint32_t get_matched()
+        {
+            return matched_;
+        }
     private:
 
         Communication comm_;
@@ -116,9 +104,23 @@ private:
         //! Avoids race conditions in callback execution
         std::mutex mutex_;
         std::condition_variable cv_;
-    }
+    } listener;
 
-    listener_;
+private:
+
+    eprosima::fastdds::dds::DomainParticipant* participant_;
+
+    eprosima::fastdds::dds::Subscriber* subscriber_;
+
+    eprosima::fastdds::dds::Topic* topic_;
+
+    eprosima::fastdds::dds::DataReader* reader_;
+
+    eprosima::fastdds::dds::TypeSupport type_;
+
+    /**
+     * Class handling discovery and dataflow events
+     */
 
     //! Member used for control flow purposes
     static std::atomic<bool> stop_;

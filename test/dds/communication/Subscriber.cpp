@@ -18,6 +18,7 @@
  */
 
 #include <csignal>
+#include <thread>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
@@ -185,10 +186,10 @@ bool Subscriber::init(
     // CREATE THE READER
     if (max_messages > 0)
     {
-        listener_.set_max_messages(max_messages);
+        listener.set_max_messages(max_messages);
     }
     eprosima::fastdds::dds::DataReaderQos rqos = eprosima::fastdds::dds::DATAREADER_QOS_DEFAULT;
-    reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
+    reader_ = subscriber_->create_datareader(topic_, rqos, &listener);
 
     if (reader_ == nullptr)
     {
@@ -361,6 +362,12 @@ int main(
     // Initialize subscriber
     sub.init(samples, seed % 230);
     sub.run(samples);
+
+    // Wait until all datawriters are unmatched
+    while (sub.listener.get_matched() > 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     return 0;
 }
