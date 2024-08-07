@@ -32,7 +32,6 @@
 #include <fastdds/rtps/common/SequenceNumber.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 #include <fastdds/dds/log/Log.hpp>
-
 #include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <database/database.hpp>
@@ -372,9 +371,10 @@ struct EntityDiscoveryInfo
     std::string user;
     std::string process;
 
-    // Enpoint data
+    // Endpoint data
     std::string topic_name;
     std::string type_name;
+    std::string type_idl;
     fastdds::rtps::RemoteLocatorList locators;
 
     // Alias

@@ -115,6 +115,8 @@ constexpr const char* METATRAFFIC_TAG          = "metatraffic";
 constexpr const char* PID_TAG                  = "pid";
 //! Key tag for type name of a topic entity
 constexpr const char* DATA_TYPE_TAG            = "data_type";
+//! Key tag for IDL representation of a data type
+constexpr const char* DATA_TYPE_IDL_TAG        = "data_type_idl";
 //! Key tag for GUID of a participant, datawriter or datareader entity
 constexpr const char* GUID_TAG                 = "guid";
 //! Key tag for QoS of a participant, datawriter or datareader entity

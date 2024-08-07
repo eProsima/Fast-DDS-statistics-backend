@@ -22,10 +22,14 @@
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/log/Log.hpp>
-#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilder.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilderFactory.hpp>
+#include <fastdds/dds/xtypes/utils.hpp>
 #include <fastdds/rtps/common/EntityId_t.hpp>
+#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
 
 #include "database/database_queue.hpp"
 #include "subscriber/QosSerializer.hpp"
@@ -318,12 +322,34 @@ void StatisticsParticipantListener::on_data_reader_discovery(
         }
     }
 
+    // Create IDL representation of the discovered type
+        // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            // Error
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
+
     entity_queue_->push(timestamp, discovery_info);
 
     // Wait until the entity queue is processed and restart the data queues
     entity_queue_->flush();
     data_queue_->start_consumer();
     monitor_service_status_data_queue_->start_consumer();
+
+    
 }
 
 void StatisticsParticipantListener::on_data_writer_discovery(
@@ -375,6 +401,25 @@ void StatisticsParticipantListener::on_data_writer_discovery(
             break;
         }
     }
+    // Create IDL representation of the discovered type
+    // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            // Error
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
 
     entity_queue_->push(timestamp, discovery_info);
 

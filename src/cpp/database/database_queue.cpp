@@ -356,6 +356,12 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
+    // Store type IDL in the database in case it is not already stored. Ignore metatraffic topics
+    if (!database_->is_type_in_database(info.type_name) && !info.is_virtual_metatraffic)
+    {
+        database_->insert_new_type_idl(info.type_name, info.type_idl);
+    }
+
     // Create the endpoint
     EntityId endpoint_id;
     std::stringstream name;
