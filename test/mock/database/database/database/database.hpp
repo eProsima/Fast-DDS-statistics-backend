@@ -78,6 +78,11 @@ public:
     MOCK_METHOD2(is_topic_in_database, bool(
                 const std::string& topic_type,
                 const EntityId& topic_id));
+    MOCK_METHOD1(is_type_in_database, bool(
+                const std::string& type_name));
+    MOCK_METHOD2(insert_new_type_idl, void(
+                const std::string& type_name,
+                const std::string& type_idl));
 
     MOCK_METHOD4(insert_new_topic, EntityId(
                 const std::string& name,

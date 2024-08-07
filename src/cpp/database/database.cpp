@@ -264,6 +264,7 @@ EntityId Database::insert_new_topic(
     std::shared_ptr<Domain> domain = std::const_pointer_cast<Domain>(
         std::static_pointer_cast<const Domain>(get_entity_nts(domain_id)));
 
+    // Create the topic to insert in the database
     auto topic = std::make_shared<Topic>(
         name,
         type_name,
@@ -278,6 +279,33 @@ EntityId Database::insert_new_topic(
     insert_nts(topic, entity_id);
     return entity_id;
 }
+
+bool Database::is_type_in_database(
+        const std::string& type_name)
+{
+
+    if (type_idls_.find(type_name) != type_idls_.end())
+    {
+        return true;
+    } 
+    else
+    {
+        return false;
+    }
+}
+
+void Database::insert_new_type_idl(
+            const std::string& type_name,
+            const std::string& type_idl)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    if (type_name.empty() || type_idl.empty())
+    {
+        throw BadParameter("Type name or type IDL cannot be empty");
+    }
+    type_idls_[type_name] = type_idl;
+}
+
 
 EntityId Database::insert_new_endpoint(
         const std::string& endpoint_guid,
@@ -656,7 +684,7 @@ void Database::insert_nts(
                 throw BadParameter("Topic data type cannot be empty");
             }
 
-            /* Check that domain exits */
+            /* Check that domain exists */
             bool domain_exists = false;
             for (const auto& domain_it : domains_)
             {
@@ -2101,6 +2129,22 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
         }
     }
     return entities;
+}
+
+std::string Database::get_type_idl(const std::string& type_name) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_type_idl_nts(type_name);
+}
+
+std::string Database::get_type_idl_nts(const std::string& type_name) const
+{
+    auto it = type_idls_.find(type_name);
+    if (it != type_idls_.end())
+    {
+        return it->second;
+    }
+    throw BadParameter("Type " + type_name + " not found in the database");
 }
 
 void Database::erase(
@@ -4623,8 +4667,8 @@ DatabaseDump Database::dump_entity_(
     entity_info[NAME_TAG] = entity->name;
     entity_info[ALIAS_TAG] = entity->alias;
     entity_info[DATA_TYPE_TAG] = entity->data_type;
+    entity_info[DATA_TYPE_IDL_TAG] = get_type_idl(entity->data_type);
     entity_info[STATUS_TAG] = entity->status;
-
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
     // metatraffic and active attributes are stored but ignored when loading
@@ -5245,6 +5289,11 @@ Info Database::get_info(
             std::shared_ptr<const Topic> topic =
                     std::dynamic_pointer_cast<const Topic>(entity);
             info[DATA_TYPE_TAG] = topic->data_type;
+            // Add IDL representation of the data type if available
+            if (is_type_in_database(topic->data_type))
+            {
+                info[DATA_TYPE_IDL_TAG] = get_type_idl(topic->data_type);
+            }
             break;
         }
         case EntityKind::PARTICIPANT:
@@ -5303,8 +5352,10 @@ Info Database::get_info(
             break;
         }
     }
-
+    // __FLAG__
+    std::cout << "Info:" << info << std::endl;
     return info;
+
 }
 
 void Database::check_entity_kinds(

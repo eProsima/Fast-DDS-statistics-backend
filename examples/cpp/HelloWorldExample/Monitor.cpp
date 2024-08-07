@@ -384,6 +384,7 @@ void Monitor::Listener::on_topic_discovery(
         EntityId topic_id,
         const DomainListener::Status& status)
 {
+    
     static_cast<void>(domain_id);
     Info topic_info = StatisticsBackend::get_info(topic_id);
 

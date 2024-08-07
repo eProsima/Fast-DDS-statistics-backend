@@ -26,8 +26,7 @@ namespace statistics_backend {
 namespace database {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastdds::
-        rtps;
+using namespace eprosima::fastdds::rtps;
 
 template<typename T>
 std::string to_string(
@@ -130,7 +129,7 @@ EntityId DatabaseEntityQueue::process_participant(
         {
             process_name = info.process;
             process_pid = info.process;
-            logInfo(BACKEND_DATABASE,
+            EPROSIMA_LOG_INFO(BACKEND_DATABASE,
                     "Process name " + process_name + " does not follow the [command]:[PID] pattern");
         }
         else
@@ -361,6 +360,12 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
             topic_id,
             EntityKind::TOPIC,
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
+    }
+
+    // Store type IDL in the database in case it is not already stored. Ignore metatraffic topics
+    if (!database_->is_type_in_database(info.type_name) && !info.is_virtual_metatraffic)
+    {
+        database_->insert_new_type_idl(info.type_name, info.type_idl);
     }
 
     // Create the endpoint
