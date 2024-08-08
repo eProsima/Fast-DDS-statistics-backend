@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_HELLOWORLDSUBSCRIBER_H_
-#define _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_HELLOWORLDSUBSCRIBER_H_
+#ifndef FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_HELLOWORLD_EXAMPLE__HELLO_WORLD_SUBSCRIBER_H
+#define FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_HELLOWORLD_EXAMPLE__HELLO_WORLD_SUBSCRIBER_H
 
 #include <atomic>
 #include <condition_variable>
@@ -28,7 +28,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 
-#include "HelloWorldPubSubTypes.h"
+#include "HelloWorld.hpp"
 
 /**
  * Class used to group into a single working unit a Subscriber with a DataReader, its listener, and a TypeSupport member
@@ -125,4 +125,4 @@ private:
     static std::condition_variable terminate_cv_;
 };
 
-#endif /* _EPROSIMA_FASTDDSSTATISTICSBACKEND_EXAMPLES_CPP_HELLOWORLDEXAMPLE_HELLOWORLDSUBSCRIBER_H_ */
+#endif /* FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_HELLOWORLD_EXAMPLE__HELLO_WORLD_SUBSCRIBER_H */

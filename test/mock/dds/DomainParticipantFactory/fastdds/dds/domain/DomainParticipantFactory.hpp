@@ -28,8 +28,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
-#include <fastrtps/types/TypesBase.h>
-
+#include "TypeObjectRegistry.hpp"
 namespace eprosima {
 namespace fastdds {
 namespace dds {
@@ -51,6 +50,7 @@ class DomainParticipant;
  * Use \c domain_participant variable to force the returnment of \c create_participant() .
  * \c domain_participant variable is never set neither deleted from this class.
  */
+
 class DomainParticipantFactory
 {
 
@@ -72,10 +72,10 @@ public:
         // Do nothing
     }
 
-    fastrtps::types::ReturnCode_t load_profiles()
+    ReturnCode_t load_profiles()
     {
         load_profiles_count++;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     DomainParticipant* create_participant(
@@ -105,7 +105,7 @@ public:
     {
         get_qos_count++;
         qos = factory_qos;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
 
     ReturnCode_t set_qos(
@@ -113,8 +113,15 @@ public:
     {
         set_qos_count++;
         factory_qos = qos;
-        return fastrtps::types::ReturnCode_t::RETCODE_OK;
+        return RETCODE_OK;
     }
+
+    xtypes::ITypeObjectRegistry& type_object_registry()
+    {
+        return type_registry;
+    }
+
+    xtypes::TypeObjectRegistry type_registry;
 
     DomainParticipantFactoryQos factory_qos{};
     DomainParticipantQos participant_qos{};

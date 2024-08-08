@@ -25,12 +25,10 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -53,7 +51,7 @@ target_include_directories(sample_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(sample_tests PUBLIC
-    ${GTEST_LIBRARIES} fastrtps fastcdr
+    ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(sample_tests TEST_FRIENDLY_PATH)
@@ -125,7 +123,7 @@ target_include_directories(data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(data_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(data_tests TEST_FRIENDLY_PATH)
@@ -168,7 +166,7 @@ target_include_directories(database_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_tests TEST_FRIENDLY_PATH)
@@ -422,7 +420,7 @@ target_include_directories(database_process_entities_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_process_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_process_entities_tests TEST_FRIENDLY_PATH)
@@ -482,7 +480,7 @@ target_include_directories(database_dump_tests PRIVATE
 
 
 target_link_libraries(database_dump_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_dump_tests TEST_FRIENDLY_PATH)
@@ -529,10 +527,10 @@ set(LIBRARY_SOURCES_CLEAR_TEST
     ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -553,7 +551,7 @@ target_include_directories(database_clear_tests PRIVATE
     )
 
 target_link_libraries(database_clear_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_clear_tests TEST_FRIENDLY_PATH)
@@ -591,7 +589,7 @@ target_include_directories(database_get_entities_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/src/cpp)
 
 target_link_libraries(database_get_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_get_entities_tests TEST_FRIENDLY_PATH)
@@ -632,7 +630,7 @@ target_include_directories(database_load_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_load_tests TEST_FRIENDLY_PATH)
@@ -684,7 +682,7 @@ target_include_directories(database_load_insert_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_load_insert_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_load_insert_tests TEST_FRIENDLY_PATH)
@@ -724,7 +722,7 @@ target_include_directories(database_status_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_status_tests PUBLIC
-    ${GTEST_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(database_status_tests TEST_FRIENDLY_PATH)
 
@@ -774,7 +772,7 @@ target_include_directories(database_erase_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
 
 target_link_libraries(database_erase_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr
     )
 
 get_win32_path_dependencies(database_erase_tests TEST_FRIENDLY_PATH)
@@ -808,10 +806,10 @@ ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
-${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
-${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
 ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
 ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
 
@@ -831,7 +829,7 @@ target_include_directories(database_domain_view_graph_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/test/TestUtils)
 
 target_link_libraries(database_domain_view_graph_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastrtps fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
 
 get_win32_path_dependencies(database_domain_view_graph_tests TEST_FRIENDLY_PATH)
 

@@ -34,12 +34,10 @@ set(${PROJECT_NAME}_SOURCES
     subscriber/QosSerializer.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesv1.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/types.cxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesv1.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
     types/EntityId.cpp
     types/types.cpp
     )
@@ -86,7 +84,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
         fastcdr
-        fastrtps
+        fastdds
         )
 
 if(MSVC OR MSVC_IDE)

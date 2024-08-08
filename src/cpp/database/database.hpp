@@ -17,8 +17,8 @@
  * @file database.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP
 
 #include <atomic>
 #include <memory>
@@ -31,7 +31,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include <database/entities.hpp>
@@ -177,7 +177,7 @@ public:
             const std::string& alias,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
-            const fastrtps::rtps::RemoteLocatorList& locators,
+            const fastdds::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -1518,4 +1518,4 @@ void Database::get_status_data(
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP

@@ -40,7 +40,7 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(parametrized_DataContainer_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(parametrized_DataContainer_tests TEST_FRIENDLY_PATH)
 
@@ -85,7 +85,7 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(parametrized_MapDataContainer_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(parametrized_MapDataContainer_tests TEST_FRIENDLY_PATH)
 

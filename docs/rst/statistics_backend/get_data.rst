@@ -9,7 +9,7 @@ Get statistical data
 |DataKind-api| within a time frame (for more information about all the reported |DataKind-api|, please refer to
 :ref:`types_data_kind`).
 This time interval is evenly divided into the specified number of bins, each one with size
-:math:`(t_to - t_from)/(\# of bins)`.
+:math:`(t_{to} - t_{from})/(\# bins)`.
 For each of these bins, a new |StatisticsData-api| value is calculated applying the given |StatisticKind-api| to all the
 data points in it.
 The result is a collection of |StatisticsData-api| elements with size equal to the number of specified bins.

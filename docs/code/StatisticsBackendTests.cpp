@@ -44,22 +44,13 @@ void init_monitor_examples()
                 StatisticsBackend::init_monitor(0);
 
         // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP as transport layer, and that uses the default GUID prefix
-        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // address 127.0.0.1 and port 11811 using UDP as transport layer.
         // The monitor has no listener associated.
         EntityId disc_server_monitor_id =
                 StatisticsBackend::init_monitor("UDPv4:[127.0.0.1]:11811");
-
-        // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP as transport layer, and that uses the GUID prefix
-        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
-        // The monitor has no listener associated.
-        EntityId disc_server_prefix_monitor_id =
-                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "UDPv4:[localhost]:11811");
         //!--
         static_cast<void>(domain_monitor_id);
         static_cast<void>(disc_server_monitor_id);
-        static_cast<void>(disc_server_prefix_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-LISTENER-EXAMPLE
@@ -70,23 +61,14 @@ void init_monitor_examples()
                 StatisticsBackend::init_monitor(0, &domain_listener);
 
         // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP as transport layer, and that uses the default GUID prefix
-        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // address 127.0.0.1 and port 11811 using UDP as transport layer.
         // The monitor uses a custom listener.
         EntityId disc_server_monitor_id =
                 StatisticsBackend::init_monitor("UDPv4:[127.0.0.1]:11811", &domain_listener);
 
-        // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP transport layer, and that uses the GUID prefix
-        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
-        // The monitor uses a custom listener.
-        EntityId disc_server_prefix_monitor_id =
-                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "UDPv4:[127.0.0.1]:11811",
-                        &domain_listener);
         //!--
         static_cast<void>(domain_monitor_id);
         static_cast<void>(disc_server_monitor_id);
-        static_cast<void>(disc_server_prefix_monitor_id);
     }
     {
         //CONF-INIT-MONITOR-MASKS-EXAMPLE
@@ -103,24 +85,15 @@ void init_monitor_examples()
                 StatisticsBackend::init_monitor(0, &domain_listener, callback_mask, datakind_mask);
 
         // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP transport layer, and that uses the default GUID prefix
-        // eprosima::fastdds::rtps::DEFAULT_ROS2_SERVER_GUIDPREFIX.
+        // address 127.0.0.1 and port 11811 using UDP transport layer.
         // The monitor uses a custom listener, a CallbackMask, and a DataKindMask.
         EntityId disc_server_monitor_id =
                 StatisticsBackend::init_monitor("UDPv4:[localhost]:11811", &domain_listener, callback_mask,
                         datakind_mask);
 
-        // Init a monitor for a Fast DDS Discovery Server network which server is located in IPv4
-        // address 127.0.0.1 and port 11811 using UDP transport layer, and that uses the GUID prefix
-        // "44.53.01.5f.45.50.52.4f.53.49.4d.41".
-        // The monitor uses a custom listener, a CallbackMask, and a DataKindMask.
-        EntityId disc_server_prefix_monitor_id =
-                StatisticsBackend::init_monitor("44.53.01.5f.45.50.52.4f.53.49.4d.41", "UDPv4:[127.0.0.1]:11811",
-                        &domain_listener, callback_mask, datakind_mask);
         //!--
         static_cast<void>(domain_monitor_id);
         static_cast<void>(disc_server_monitor_id);
-        static_cast<void>(disc_server_prefix_monitor_id);
     }
 }
 

@@ -162,7 +162,8 @@ FILE_PATTERNS          = *.c \
 RECURSIVE              = YES
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       = "*/nlohmann-json/*"
+EXCLUDE_PATTERNS       = "*/nlohmann-json/*" \
+                         "*/topic_types/*
 EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           = "@PROJECT_SOURCE_DIR@"
 EXAMPLE_PATTERNS       = *

@@ -38,7 +38,7 @@ This release includes the following **dependencies update**:
     *   - Fast DDS Gen
         - `eProsima/Fast-DDS-Gen <https://github.com/eProsima/Fast-DDS-Gen>`_
         - `v2.5.1 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v2.5.1>`_
-        - `v3.0.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.0.0>`_
+        - `v3.0.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.0.0>`__
     *   - IDL Parser
         - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`_
         - `v1.6.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v1.6.0>`_
