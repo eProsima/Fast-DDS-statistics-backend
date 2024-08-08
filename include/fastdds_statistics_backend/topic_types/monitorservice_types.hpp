@@ -101,13 +101,13 @@ public:
     eProsima_user_DllExport Connection(
             const Connection& x)
     {
-        m_mode = x.m_mode;
+                    m_mode = x.m_mode;
 
-        m_guid = x.m_guid;
+                    m_guid = x.m_guid;
 
-        m_announced_locators = x.m_announced_locators;
+                    m_announced_locators = x.m_announced_locators;
 
-        m_used_locators = x.m_used_locators;
+                    m_used_locators = x.m_used_locators;
 
     }
 
@@ -132,13 +132,13 @@ public:
             const Connection& x)
     {
 
-        m_mode = x.m_mode;
+                    m_mode = x.m_mode;
 
-        m_guid = x.m_guid;
+                    m_guid = x.m_guid;
 
-        m_announced_locators = x.m_announced_locators;
+                    m_announced_locators = x.m_announced_locators;
 
-        m_used_locators = x.m_used_locators;
+                    m_used_locators = x.m_used_locators;
 
         return *this;
     }
@@ -166,9 +166,9 @@ public:
             const Connection& x) const
     {
         return (m_mode == x.m_mode &&
-               m_guid == x.m_guid &&
-               m_announced_locators == x.m_announced_locators &&
-               m_used_locators == x.m_used_locators);
+           m_guid == x.m_guid &&
+           m_announced_locators == x.m_announced_locators &&
+           m_used_locators == x.m_used_locators);
     }
 
     /*!
@@ -209,6 +209,7 @@ public:
         return m_mode;
     }
 
+
     /*!
      * @brief This function copies the value in member guid
      * @param _guid New value to be copied in member guid
@@ -246,6 +247,7 @@ public:
     {
         return m_guid;
     }
+
 
     /*!
      * @brief This function copies the value in member announced_locators
@@ -285,6 +287,7 @@ public:
         return m_announced_locators;
     }
 
+
     /*!
      * @brief This function copies the value in member used_locators
      * @param _used_locators New value to be copied in member used_locators
@@ -323,6 +326,8 @@ public:
         return m_used_locators;
     }
 
+
+
 private:
 
     ConnectionMode m_mode{ConnectionMode::DATA_SHARING};
@@ -360,9 +365,9 @@ public:
     eProsima_user_DllExport QosPolicyCount_s(
             const QosPolicyCount_s& x)
     {
-        m_policy_id = x.m_policy_id;
+                    m_policy_id = x.m_policy_id;
 
-        m_count = x.m_count;
+                    m_count = x.m_count;
 
     }
 
@@ -385,9 +390,9 @@ public:
             const QosPolicyCount_s& x)
     {
 
-        m_policy_id = x.m_policy_id;
+                    m_policy_id = x.m_policy_id;
 
-        m_count = x.m_count;
+                    m_count = x.m_count;
 
         return *this;
     }
@@ -413,7 +418,7 @@ public:
             const QosPolicyCount_s& x) const
     {
         return (m_policy_id == x.m_policy_id &&
-               m_count == x.m_count);
+           m_count == x.m_count);
     }
 
     /*!
@@ -454,6 +459,7 @@ public:
         return m_policy_id;
     }
 
+
     /*!
      * @brief This function sets a value in member count
      * @param _count New value for member count
@@ -481,6 +487,8 @@ public:
     {
         return m_count;
     }
+
+
 
 private:
 
@@ -517,7 +525,7 @@ public:
     eProsima_user_DllExport BaseStatus_s(
             const BaseStatus_s& x)
     {
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
     }
 
@@ -539,7 +547,7 @@ public:
             const BaseStatus_s& x)
     {
 
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
         return *this;
     }
@@ -604,6 +612,8 @@ public:
         return m_total_count;
     }
 
+
+
 private:
 
     uint32_t m_total_count{0};
@@ -640,11 +650,11 @@ public:
     eProsima_user_DllExport IncompatibleQoSStatus_s(
             const IncompatibleQoSStatus_s& x)
     {
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
-        m_last_policy_id = x.m_last_policy_id;
+                    m_last_policy_id = x.m_last_policy_id;
 
-        m_policies = x.m_policies;
+                    m_policies = x.m_policies;
 
     }
 
@@ -668,11 +678,11 @@ public:
             const IncompatibleQoSStatus_s& x)
     {
 
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
-        m_last_policy_id = x.m_last_policy_id;
+                    m_last_policy_id = x.m_last_policy_id;
 
-        m_policies = x.m_policies;
+                    m_policies = x.m_policies;
 
         return *this;
     }
@@ -699,8 +709,8 @@ public:
             const IncompatibleQoSStatus_s& x) const
     {
         return (m_total_count == x.m_total_count &&
-               m_last_policy_id == x.m_last_policy_id &&
-               m_policies == x.m_policies);
+           m_last_policy_id == x.m_last_policy_id &&
+           m_policies == x.m_policies);
     }
 
     /*!
@@ -741,6 +751,7 @@ public:
         return m_total_count;
     }
 
+
     /*!
      * @brief This function sets a value in member last_policy_id
      * @param _last_policy_id New value for member last_policy_id
@@ -768,6 +779,7 @@ public:
     {
         return m_last_policy_id;
     }
+
 
     /*!
      * @brief This function copies the value in member policies
@@ -807,6 +819,8 @@ public:
         return m_policies;
     }
 
+
+
 private:
 
     uint32_t m_total_count{0};
@@ -843,11 +857,11 @@ public:
     eProsima_user_DllExport LivelinessChangedStatus_s(
             const LivelinessChangedStatus_s& x)
     {
-        m_alive_count = x.m_alive_count;
+                    m_alive_count = x.m_alive_count;
 
-        m_not_alive_count = x.m_not_alive_count;
+                    m_not_alive_count = x.m_not_alive_count;
 
-        m_last_publication_handle = x.m_last_publication_handle;
+                    m_last_publication_handle = x.m_last_publication_handle;
 
     }
 
@@ -871,11 +885,11 @@ public:
             const LivelinessChangedStatus_s& x)
     {
 
-        m_alive_count = x.m_alive_count;
+                    m_alive_count = x.m_alive_count;
 
-        m_not_alive_count = x.m_not_alive_count;
+                    m_not_alive_count = x.m_not_alive_count;
 
-        m_last_publication_handle = x.m_last_publication_handle;
+                    m_last_publication_handle = x.m_last_publication_handle;
 
         return *this;
     }
@@ -902,8 +916,8 @@ public:
             const LivelinessChangedStatus_s& x) const
     {
         return (m_alive_count == x.m_alive_count &&
-               m_not_alive_count == x.m_not_alive_count &&
-               m_last_publication_handle == x.m_last_publication_handle);
+           m_not_alive_count == x.m_not_alive_count &&
+           m_last_publication_handle == x.m_last_publication_handle);
     }
 
     /*!
@@ -944,6 +958,7 @@ public:
         return m_alive_count;
     }
 
+
     /*!
      * @brief This function sets a value in member not_alive_count
      * @param _not_alive_count New value for member not_alive_count
@@ -971,6 +986,7 @@ public:
     {
         return m_not_alive_count;
     }
+
 
     /*!
      * @brief This function copies the value in member last_publication_handle
@@ -1010,6 +1026,8 @@ public:
         return m_last_publication_handle;
     }
 
+
+
 private:
 
     uint32_t m_alive_count{0};
@@ -1046,9 +1064,9 @@ public:
     eProsima_user_DllExport DeadlineMissedStatus_s(
             const DeadlineMissedStatus_s& x)
     {
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
-        m_last_instance_handle = x.m_last_instance_handle;
+                    m_last_instance_handle = x.m_last_instance_handle;
 
     }
 
@@ -1071,9 +1089,9 @@ public:
             const DeadlineMissedStatus_s& x)
     {
 
-        m_total_count = x.m_total_count;
+                    m_total_count = x.m_total_count;
 
-        m_last_instance_handle = x.m_last_instance_handle;
+                    m_last_instance_handle = x.m_last_instance_handle;
 
         return *this;
     }
@@ -1099,7 +1117,7 @@ public:
             const DeadlineMissedStatus_s& x) const
     {
         return (m_total_count == x.m_total_count &&
-               m_last_instance_handle == x.m_last_instance_handle);
+           m_last_instance_handle == x.m_last_instance_handle);
     }
 
     /*!
@@ -1140,6 +1158,7 @@ public:
         return m_total_count;
     }
 
+
     /*!
      * @brief This function copies the value in member last_instance_handle
      * @param _last_instance_handle New value to be copied in member last_instance_handle
@@ -1177,6 +1196,8 @@ public:
     {
         return m_last_instance_handle;
     }
+
+
 
 private:
 
@@ -1242,41 +1263,41 @@ public:
 
         switch (x.selected_member_)
         {
-            case 0x00000001:
-                entity_proxy_() = x.m_entity_proxy;
-                break;
+                        case 0x00000001:
+                            entity_proxy_() = x.m_entity_proxy;
+                            break;
 
-            case 0x00000002:
-                connection_list_() = x.m_connection_list;
-                break;
+                        case 0x00000002:
+                            connection_list_() = x.m_connection_list;
+                            break;
 
-            case 0x00000003:
-                incompatible_qos_status_() = x.m_incompatible_qos_status;
-                break;
+                        case 0x00000003:
+                            incompatible_qos_status_() = x.m_incompatible_qos_status;
+                            break;
 
-            case 0x00000004:
-                inconsistent_topic_status_() = x.m_inconsistent_topic_status;
-                break;
+                        case 0x00000004:
+                            inconsistent_topic_status_() = x.m_inconsistent_topic_status;
+                            break;
 
-            case 0x00000005:
-                liveliness_lost_status_() = x.m_liveliness_lost_status;
-                break;
+                        case 0x00000005:
+                            liveliness_lost_status_() = x.m_liveliness_lost_status;
+                            break;
 
-            case 0x00000006:
-                liveliness_changed_status_() = x.m_liveliness_changed_status;
-                break;
+                        case 0x00000006:
+                            liveliness_changed_status_() = x.m_liveliness_changed_status;
+                            break;
 
-            case 0x00000007:
-                deadline_missed_status_() = x.m_deadline_missed_status;
-                break;
+                        case 0x00000007:
+                            deadline_missed_status_() = x.m_deadline_missed_status;
+                            break;
 
-            case 0x00000008:
-                sample_lost_status_() = x.m_sample_lost_status;
-                break;
+                        case 0x00000008:
+                            sample_lost_status_() = x.m_sample_lost_status;
+                            break;
 
-            case 0x00000009:
-                statuses_size_() = x.m_statuses_size;
-                break;
+                        case 0x00000009:
+                            statuses_size_() = x.m_statuses_size;
+                            break;
 
         }
     }
@@ -1292,41 +1313,41 @@ public:
 
         switch (x.selected_member_)
         {
-            case 0x00000001:
-                entity_proxy_() = std::move(x.m_entity_proxy);
-                break;
+                        case 0x00000001:
+                            entity_proxy_() = std::move(x.m_entity_proxy);
+                            break;
 
-            case 0x00000002:
-                connection_list_() = std::move(x.m_connection_list);
-                break;
+                        case 0x00000002:
+                            connection_list_() = std::move(x.m_connection_list);
+                            break;
 
-            case 0x00000003:
-                incompatible_qos_status_() = std::move(x.m_incompatible_qos_status);
-                break;
+                        case 0x00000003:
+                            incompatible_qos_status_() = std::move(x.m_incompatible_qos_status);
+                            break;
 
-            case 0x00000004:
-                inconsistent_topic_status_() = std::move(x.m_inconsistent_topic_status);
-                break;
+                        case 0x00000004:
+                            inconsistent_topic_status_() = std::move(x.m_inconsistent_topic_status);
+                            break;
 
-            case 0x00000005:
-                liveliness_lost_status_() = std::move(x.m_liveliness_lost_status);
-                break;
+                        case 0x00000005:
+                            liveliness_lost_status_() = std::move(x.m_liveliness_lost_status);
+                            break;
 
-            case 0x00000006:
-                liveliness_changed_status_() = std::move(x.m_liveliness_changed_status);
-                break;
+                        case 0x00000006:
+                            liveliness_changed_status_() = std::move(x.m_liveliness_changed_status);
+                            break;
 
-            case 0x00000007:
-                deadline_missed_status_() = std::move(x.m_deadline_missed_status);
-                break;
+                        case 0x00000007:
+                            deadline_missed_status_() = std::move(x.m_deadline_missed_status);
+                            break;
 
-            case 0x00000008:
-                sample_lost_status_() = std::move(x.m_sample_lost_status);
-                break;
+                        case 0x00000008:
+                            sample_lost_status_() = std::move(x.m_sample_lost_status);
+                            break;
 
-            case 0x00000009:
-                statuses_size_() = std::move(x.m_statuses_size);
-                break;
+                        case 0x00000009:
+                            statuses_size_() = std::move(x.m_statuses_size);
+                            break;
 
         }
     }
@@ -1342,41 +1363,41 @@ public:
 
         switch (x.selected_member_)
         {
-            case 0x00000001:
-                entity_proxy_() = x.m_entity_proxy;
-                break;
+                        case 0x00000001:
+                            entity_proxy_() = x.m_entity_proxy;
+                            break;
 
-            case 0x00000002:
-                connection_list_() = x.m_connection_list;
-                break;
+                        case 0x00000002:
+                            connection_list_() = x.m_connection_list;
+                            break;
 
-            case 0x00000003:
-                incompatible_qos_status_() = x.m_incompatible_qos_status;
-                break;
+                        case 0x00000003:
+                            incompatible_qos_status_() = x.m_incompatible_qos_status;
+                            break;
 
-            case 0x00000004:
-                inconsistent_topic_status_() = x.m_inconsistent_topic_status;
-                break;
+                        case 0x00000004:
+                            inconsistent_topic_status_() = x.m_inconsistent_topic_status;
+                            break;
 
-            case 0x00000005:
-                liveliness_lost_status_() = x.m_liveliness_lost_status;
-                break;
+                        case 0x00000005:
+                            liveliness_lost_status_() = x.m_liveliness_lost_status;
+                            break;
 
-            case 0x00000006:
-                liveliness_changed_status_() = x.m_liveliness_changed_status;
-                break;
+                        case 0x00000006:
+                            liveliness_changed_status_() = x.m_liveliness_changed_status;
+                            break;
 
-            case 0x00000007:
-                deadline_missed_status_() = x.m_deadline_missed_status;
-                break;
+                        case 0x00000007:
+                            deadline_missed_status_() = x.m_deadline_missed_status;
+                            break;
 
-            case 0x00000008:
-                sample_lost_status_() = x.m_sample_lost_status;
-                break;
+                        case 0x00000008:
+                            sample_lost_status_() = x.m_sample_lost_status;
+                            break;
 
-            case 0x00000009:
-                statuses_size_() = x.m_statuses_size;
-                break;
+                        case 0x00000009:
+                            statuses_size_() = x.m_statuses_size;
+                            break;
 
         }
 
@@ -1394,41 +1415,41 @@ public:
 
         switch (x.selected_member_)
         {
-            case 0x00000001:
-                entity_proxy_() = std::move(x.m_entity_proxy);
-                break;
+                        case 0x00000001:
+                            entity_proxy_() = std::move(x.m_entity_proxy);
+                            break;
 
-            case 0x00000002:
-                connection_list_() = std::move(x.m_connection_list);
-                break;
+                        case 0x00000002:
+                            connection_list_() = std::move(x.m_connection_list);
+                            break;
 
-            case 0x00000003:
-                incompatible_qos_status_() = std::move(x.m_incompatible_qos_status);
-                break;
+                        case 0x00000003:
+                            incompatible_qos_status_() = std::move(x.m_incompatible_qos_status);
+                            break;
 
-            case 0x00000004:
-                inconsistent_topic_status_() = std::move(x.m_inconsistent_topic_status);
-                break;
+                        case 0x00000004:
+                            inconsistent_topic_status_() = std::move(x.m_inconsistent_topic_status);
+                            break;
 
-            case 0x00000005:
-                liveliness_lost_status_() = std::move(x.m_liveliness_lost_status);
-                break;
+                        case 0x00000005:
+                            liveliness_lost_status_() = std::move(x.m_liveliness_lost_status);
+                            break;
 
-            case 0x00000006:
-                liveliness_changed_status_() = std::move(x.m_liveliness_changed_status);
-                break;
+                        case 0x00000006:
+                            liveliness_changed_status_() = std::move(x.m_liveliness_changed_status);
+                            break;
 
-            case 0x00000007:
-                deadline_missed_status_() = std::move(x.m_deadline_missed_status);
-                break;
+                        case 0x00000007:
+                            deadline_missed_status_() = std::move(x.m_deadline_missed_status);
+                            break;
 
-            case 0x00000008:
-                sample_lost_status_() = std::move(x.m_sample_lost_status);
-                break;
+                        case 0x00000008:
+                            sample_lost_status_() = std::move(x.m_sample_lost_status);
+                            break;
 
-            case 0x00000009:
-                statuses_size_() = std::move(x.m_statuses_size);
-                break;
+                        case 0x00000009:
+                            statuses_size_() = std::move(x.m_statuses_size);
+                            break;
 
         }
 
@@ -1449,41 +1470,41 @@ public:
         {
             switch (selected_member_)
             {
-                case 0x00000001:
-                    ret_value = (m_entity_proxy == x.m_entity_proxy);
-                    break;
+                                case 0x00000001:
+                                    ret_value = (m_entity_proxy == x.m_entity_proxy);
+                                    break;
 
-                case 0x00000002:
-                    ret_value = (m_connection_list == x.m_connection_list);
-                    break;
+                                case 0x00000002:
+                                    ret_value = (m_connection_list == x.m_connection_list);
+                                    break;
 
-                case 0x00000003:
-                    ret_value = (m_incompatible_qos_status == x.m_incompatible_qos_status);
-                    break;
+                                case 0x00000003:
+                                    ret_value = (m_incompatible_qos_status == x.m_incompatible_qos_status);
+                                    break;
 
-                case 0x00000004:
-                    ret_value = (m_inconsistent_topic_status == x.m_inconsistent_topic_status);
-                    break;
+                                case 0x00000004:
+                                    ret_value = (m_inconsistent_topic_status == x.m_inconsistent_topic_status);
+                                    break;
 
-                case 0x00000005:
-                    ret_value = (m_liveliness_lost_status == x.m_liveliness_lost_status);
-                    break;
+                                case 0x00000005:
+                                    ret_value = (m_liveliness_lost_status == x.m_liveliness_lost_status);
+                                    break;
 
-                case 0x00000006:
-                    ret_value = (m_liveliness_changed_status == x.m_liveliness_changed_status);
-                    break;
+                                case 0x00000006:
+                                    ret_value = (m_liveliness_changed_status == x.m_liveliness_changed_status);
+                                    break;
 
-                case 0x00000007:
-                    ret_value = (m_deadline_missed_status == x.m_deadline_missed_status);
-                    break;
+                                case 0x00000007:
+                                    ret_value = (m_deadline_missed_status == x.m_deadline_missed_status);
+                                    break;
 
-                case 0x00000008:
-                    ret_value = (m_sample_lost_status == x.m_sample_lost_status);
-                    break;
+                                case 0x00000008:
+                                    ret_value = (m_sample_lost_status == x.m_sample_lost_status);
+                                    break;
 
-                case 0x00000009:
-                    ret_value = (m_statuses_size == x.m_statuses_size);
-                    break;
+                                case 0x00000009:
+                                    ret_value = (m_statuses_size == x.m_statuses_size);
+                                    break;
 
             }
         }
@@ -1513,75 +1534,74 @@ public:
 
         switch (__d)
         {
-            case StatusKind::PROXY:
-                if (0x00000001 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::PROXY:
+                            if (0x00000001 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::CONNECTION_LIST:
-                if (0x00000002 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::CONNECTION_LIST:
+                            if (0x00000002 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::INCOMPATIBLE_QOS:
-                if (0x00000003 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::INCOMPATIBLE_QOS:
+                            if (0x00000003 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::INCONSISTENT_TOPIC:
-                if (0x00000004 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::INCONSISTENT_TOPIC:
+                            if (0x00000004 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::LIVELINESS_LOST:
-                if (0x00000005 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::LIVELINESS_LOST:
+                            if (0x00000005 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::LIVELINESS_CHANGED:
-                if (0x00000006 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::LIVELINESS_CHANGED:
+                            if (0x00000006 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::DEADLINE_MISSED:
-                if (0x00000007 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::DEADLINE_MISSED:
+                            if (0x00000007 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::SAMPLE_LOST:
-                if (0x00000008 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::SAMPLE_LOST:
+                            if (0x00000008 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
-            case StatusKind::STATUSES_SIZE:
-                if (0x00000009 == selected_member_)
-                {
-                    valid_discriminator = true;
-                }
-                break;
+                        case StatusKind::STATUSES_SIZE:
+                            if (0x00000009 == selected_member_)
+                            {
+                                valid_discriminator = true;
+                            }
+                            break;
 
         }
 
         if (!valid_discriminator)
         {
-            throw eprosima::fastcdr::exception::BadParamException(
-                      "Discriminator doesn't correspond with the selected union member");
+            throw eprosima::fastcdr::exception::BadParamException("Discriminator doesn't correspond with the selected union member");
         }
 
         m__d = __d;
@@ -1648,6 +1668,7 @@ public:
         return m_entity_proxy;
     }
 
+
     /*!
      * @brief This function copies the value in member connection_list
      * @param _connection_list New value to be copied in member connection_list
@@ -1699,6 +1720,7 @@ public:
 
         return m_connection_list;
     }
+
 
     /*!
      * @brief This function copies the value in member incompatible_qos_status
@@ -1752,6 +1774,7 @@ public:
         return m_incompatible_qos_status;
     }
 
+
     /*!
      * @brief This function copies the value in member inconsistent_topic_status
      * @param _inconsistent_topic_status New value to be copied in member inconsistent_topic_status
@@ -1803,6 +1826,7 @@ public:
 
         return m_inconsistent_topic_status;
     }
+
 
     /*!
      * @brief This function copies the value in member liveliness_lost_status
@@ -1856,6 +1880,7 @@ public:
         return m_liveliness_lost_status;
     }
 
+
     /*!
      * @brief This function copies the value in member liveliness_changed_status
      * @param _liveliness_changed_status New value to be copied in member liveliness_changed_status
@@ -1907,6 +1932,7 @@ public:
 
         return m_liveliness_changed_status;
     }
+
 
     /*!
      * @brief This function copies the value in member deadline_missed_status
@@ -1960,6 +1986,7 @@ public:
         return m_deadline_missed_status;
     }
 
+
     /*!
      * @brief This function copies the value in member sample_lost_status
      * @param _sample_lost_status New value to be copied in member sample_lost_status
@@ -2012,6 +2039,7 @@ public:
         return m_sample_lost_status;
     }
 
+
     /*!
      * @brief This function sets a value in member statuses_size
      * @param _statuses_size New value for member statuses_size
@@ -2053,6 +2081,7 @@ public:
         return m_statuses_size;
     }
 
+
     void _default()
     {
         if (member_destructor_)
@@ -2063,184 +2092,171 @@ public:
         selected_member_ = 0x0FFFFFFFu;
     }
 
+
 private:
 
-    std::vector<uint8_t>& entity_proxy_()
-    {
-        if (0x00000001 != selected_member_)
-        {
-            if (member_destructor_)
+            std::vector<uint8_t>& entity_proxy_()
             {
-                member_destructor_();
-            }
-
-            selected_member_ = 0x00000001;
-            member_destructor_ = [&]()
+                if (0x00000001 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_entity_proxy.~vector();
-                    };
-            new(&m_entity_proxy) std::vector<uint8_t>();
-        }
+                        member_destructor_();
+                    }
 
-        return m_entity_proxy;
-    }
+                    selected_member_ = 0x00000001;
+                    member_destructor_ = [&]() {m_entity_proxy.~vector();};
+                    new(&m_entity_proxy) std::vector<uint8_t>();
+    ;
+                }
 
-    std::vector<Connection>& connection_list_()
-    {
-        if (0x00000002 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_entity_proxy;
             }
 
-            selected_member_ = 0x00000002;
-            member_destructor_ = [&]()
+            std::vector<Connection>& connection_list_()
+            {
+                if (0x00000002 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_connection_list.~vector();
-                    };
-            new(&m_connection_list) std::vector<Connection>();
-        }
+                        member_destructor_();
+                    }
 
-        return m_connection_list;
-    }
+                    selected_member_ = 0x00000002;
+                    member_destructor_ = [&]() {m_connection_list.~vector();};
+                    new(&m_connection_list) std::vector<Connection>();
+    ;
+                }
 
-    IncompatibleQoSStatus_s& incompatible_qos_status_()
-    {
-        if (0x00000003 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_connection_list;
             }
 
-            selected_member_ = 0x00000003;
-            member_destructor_ = [&]()
+            IncompatibleQoSStatus_s& incompatible_qos_status_()
+            {
+                if (0x00000003 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_incompatible_qos_status.~IncompatibleQoSStatus_s();
-                    };
-            new(&m_incompatible_qos_status) IncompatibleQoSStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_incompatible_qos_status;
-    }
+                    selected_member_ = 0x00000003;
+                    member_destructor_ = [&]() {m_incompatible_qos_status.~IncompatibleQoSStatus_s();};
+                    new(&m_incompatible_qos_status) IncompatibleQoSStatus_s();
+    ;
+                }
 
-    InconsistentTopicStatus_s& inconsistent_topic_status_()
-    {
-        if (0x00000004 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_incompatible_qos_status;
             }
 
-            selected_member_ = 0x00000004;
-            member_destructor_ = [&]()
+            InconsistentTopicStatus_s& inconsistent_topic_status_()
+            {
+                if (0x00000004 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_inconsistent_topic_status.~InconsistentTopicStatus_s();
-                    };
-            new(&m_inconsistent_topic_status) InconsistentTopicStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_inconsistent_topic_status;
-    }
+                    selected_member_ = 0x00000004;
+                    member_destructor_ = [&]() {m_inconsistent_topic_status.~InconsistentTopicStatus_s();};
+                    new(&m_inconsistent_topic_status) InconsistentTopicStatus_s();
+    ;
+                }
 
-    LivelinessLostStatus_s& liveliness_lost_status_()
-    {
-        if (0x00000005 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_inconsistent_topic_status;
             }
 
-            selected_member_ = 0x00000005;
-            member_destructor_ = [&]()
+            LivelinessLostStatus_s& liveliness_lost_status_()
+            {
+                if (0x00000005 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_liveliness_lost_status.~LivelinessLostStatus_s();
-                    };
-            new(&m_liveliness_lost_status) LivelinessLostStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_liveliness_lost_status;
-    }
+                    selected_member_ = 0x00000005;
+                    member_destructor_ = [&]() {m_liveliness_lost_status.~LivelinessLostStatus_s();};
+                    new(&m_liveliness_lost_status) LivelinessLostStatus_s();
+    ;
+                }
 
-    LivelinessChangedStatus_s& liveliness_changed_status_()
-    {
-        if (0x00000006 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_liveliness_lost_status;
             }
 
-            selected_member_ = 0x00000006;
-            member_destructor_ = [&]()
+            LivelinessChangedStatus_s& liveliness_changed_status_()
+            {
+                if (0x00000006 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_liveliness_changed_status.~LivelinessChangedStatus_s();
-                    };
-            new(&m_liveliness_changed_status) LivelinessChangedStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_liveliness_changed_status;
-    }
+                    selected_member_ = 0x00000006;
+                    member_destructor_ = [&]() {m_liveliness_changed_status.~LivelinessChangedStatus_s();};
+                    new(&m_liveliness_changed_status) LivelinessChangedStatus_s();
+    ;
+                }
 
-    DeadlineMissedStatus_s& deadline_missed_status_()
-    {
-        if (0x00000007 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_liveliness_changed_status;
             }
 
-            selected_member_ = 0x00000007;
-            member_destructor_ = [&]()
+            DeadlineMissedStatus_s& deadline_missed_status_()
+            {
+                if (0x00000007 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_deadline_missed_status.~DeadlineMissedStatus_s();
-                    };
-            new(&m_deadline_missed_status) DeadlineMissedStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_deadline_missed_status;
-    }
+                    selected_member_ = 0x00000007;
+                    member_destructor_ = [&]() {m_deadline_missed_status.~DeadlineMissedStatus_s();};
+                    new(&m_deadline_missed_status) DeadlineMissedStatus_s();
+    ;
+                }
 
-    SampleLostStatus_s& sample_lost_status_()
-    {
-        if (0x00000008 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_deadline_missed_status;
             }
 
-            selected_member_ = 0x00000008;
-            member_destructor_ = [&]()
+            SampleLostStatus_s& sample_lost_status_()
+            {
+                if (0x00000008 != selected_member_)
+                {
+                    if (member_destructor_)
                     {
-                        m_sample_lost_status.~SampleLostStatus_s();
-                    };
-            new(&m_sample_lost_status) SampleLostStatus_s();
-        }
+                        member_destructor_();
+                    }
 
-        return m_sample_lost_status;
-    }
+                    selected_member_ = 0x00000008;
+                    member_destructor_ = [&]() {m_sample_lost_status.~SampleLostStatus_s();};
+                    new(&m_sample_lost_status) SampleLostStatus_s();
+    ;
+                }
 
-    uint8_t& statuses_size_()
-    {
-        if (0x00000009 != selected_member_)
-        {
-            if (member_destructor_)
-            {
-                member_destructor_();
+                return m_sample_lost_status;
             }
 
-            selected_member_ = 0x00000009;
-            member_destructor_ = nullptr;
-            m_statuses_size = {0};
-        }
+            uint8_t& statuses_size_()
+            {
+                if (0x00000009 != selected_member_)
+                {
+                    if (member_destructor_)
+                    {
+                        member_destructor_();
+                    }
 
-        return m_statuses_size;
-    }
+                    selected_member_ = 0x00000009;
+                    member_destructor_ = nullptr;
+                    m_statuses_size = {0};
+    ;
+                }
+
+                return m_statuses_size;
+            }
+
 
     StatusKind::StatusKind m__d {2147483647};
 
@@ -2290,11 +2306,11 @@ public:
     eProsima_user_DllExport MonitorServiceStatusData(
             const MonitorServiceStatusData& x)
     {
-        m_local_entity = x.m_local_entity;
+                    m_local_entity = x.m_local_entity;
 
-        m_status_kind = x.m_status_kind;
+                    m_status_kind = x.m_status_kind;
 
-        m_value = x.m_value;
+                    m_value = x.m_value;
 
     }
 
@@ -2318,11 +2334,11 @@ public:
             const MonitorServiceStatusData& x)
     {
 
-        m_local_entity = x.m_local_entity;
+                    m_local_entity = x.m_local_entity;
 
-        m_status_kind = x.m_status_kind;
+                    m_status_kind = x.m_status_kind;
 
-        m_value = x.m_value;
+                    m_value = x.m_value;
 
         return *this;
     }
@@ -2349,8 +2365,8 @@ public:
             const MonitorServiceStatusData& x) const
     {
         return (m_local_entity == x.m_local_entity &&
-               m_status_kind == x.m_status_kind &&
-               m_value == x.m_value);
+           m_status_kind == x.m_status_kind &&
+           m_value == x.m_value);
     }
 
     /*!
@@ -2401,6 +2417,7 @@ public:
         return m_local_entity;
     }
 
+
     /*!
      * @brief This function sets a value in member status_kind
      * @param _status_kind New value for member status_kind
@@ -2428,6 +2445,7 @@ public:
     {
         return m_status_kind;
     }
+
 
     /*!
      * @brief This function copies the value in member value
@@ -2466,6 +2484,8 @@ public:
     {
         return m_value;
     }
+
+
 
 private:
 
