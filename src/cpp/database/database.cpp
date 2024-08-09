@@ -5352,8 +5352,7 @@ Info Database::get_info(
             break;
         }
     }
-    // __FLAG__
-    std::cout << "Info:" << info << std::endl;
+    
     return info;
 
 }
