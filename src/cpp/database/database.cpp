@@ -4667,7 +4667,6 @@ DatabaseDump Database::dump_entity_(
     entity_info[NAME_TAG] = entity->name;
     entity_info[ALIAS_TAG] = entity->alias;
     entity_info[DATA_TYPE_TAG] = entity->data_type;
-    entity_info[DATA_TYPE_IDL_TAG] = get_type_idl(entity->data_type);
     entity_info[STATUS_TAG] = entity->status;
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
@@ -5289,11 +5288,6 @@ Info Database::get_info(
             std::shared_ptr<const Topic> topic =
                     std::dynamic_pointer_cast<const Topic>(entity);
             info[DATA_TYPE_TAG] = topic->data_type;
-            // Add IDL representation of the data type if available
-            if (is_type_in_database(topic->data_type))
-            {
-                info[DATA_TYPE_IDL_TAG] = get_type_idl(topic->data_type);
-            }
             break;
         }
         case EntityKind::PARTICIPANT:
